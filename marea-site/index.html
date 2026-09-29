@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#041222">
-  <title>MAREA — bid and ask, swimming as a pair</title>
+  <title>MAREA — bid and ask, quoted as a pair</title>
   <meta name="description" content="MAREA keeps a buy order and a sell order working side by side, on EVM pools and Solana books.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23071a33'/%3E%3Cpath d='M17 6c-4 0-6 3-5 6 1 2 4 2 4 5s-3 3-3 6c0 2 2 3 4 2' fill='none' stroke='%232f5ef0' stroke-width='2.6' stroke-linecap='round'/%3E%3Ccircle cx='17.5' cy='9' r='1.3' fill='%23dbe6ff'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,9 +15,10 @@
 </head>
 <body>
 
-<!-- the sea: water, reef, fish and light are added by ocean.js -->
-<div class="ocean" id="ocean" aria-hidden="true">
-  <div class="ocean__water"></div>
+<!-- backdrop: soft blue light behind the hero -->
+<div class="backdrop" aria-hidden="true">
+  <div class="blob blob--a"></div><div class="blob blob--b"></div>
+  <div class="beam beam--1"></div><div class="beam beam--2"></div><div class="beam beam--3"></div>
 </div>
 
 <header class="nav" id="top">
@@ -33,7 +34,7 @@
     <a href="#token">Token</a>
   </nav>
   <div class="nav__actions">
-    <a class="btn" href="#start">Open reef</a>
+    <a class="btn" href="#start">Console</a>
     <button class="nav__menu" id="menu" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
   </div>
 </header>
@@ -51,10 +52,10 @@
 
     <section class="hero">
       <div class="hero__copy">
-        <h1>Bid and ask,<br><em class="accent">swimming as a pair</em></h1>
+        <h1>Bid and ask,<br><em class="accent">quoted as a pair</em></h1>
         <p class="lede">MAREA keeps a buy order and a sell order working side by side — on EVM pools and Solana books.</p>
-        <a class="btn btn--primary btn--lg" href="#start">Enter the reef</a>
-        <p class="cta-note">Follow <a href="#">@marea</a> on X, then claim a reef pass.</p>
+        <a class="btn btn--primary btn--lg" href="#start">Launch console</a>
+        <p class="cta-note">Follow <a href="#">@marea</a> on X, then claim an access pass.</p>
         <div class="hero__meta">
           <div><strong>EVM</strong><span>Uniswap v3 &amp; v4 pools</span><span>Launchpad bonding curves</span></div>
           <div><strong>Solana</strong><span>Launchpad bonding curves</span><span>Raydium CLMM, OpenBook</span></div>
@@ -112,7 +113,7 @@
 
   <!-- MARQUEE --------------------------------------------------------- -->
   <section class="section section--logos">
-    <p class="logos__kicker">Swims in the pools you already use</p>
+    <p class="logos__kicker">Built for these venues</p>
     <div class="logos"><div class="logos__row" id="marquee"></div></div>
   </section>
 
@@ -120,31 +121,31 @@
   <section class="section" id="how">
     <div class="center">
       <div class="kicker reveal">How it works</div>
-      <h2 class="reveal">Three strokes. Then let it drift.</h2>
+      <h2 class="reveal">Set it up once. Then let it run.</h2>
     </div>
     <div class="steps">
       <article class="step reveal">
         <div class="step__art" data-art="1"></div>
         <span class="step__n">01</span>
-        <h3>Choose your waters</h3>
+        <h3>Choose a market</h3>
         <p>Pick a pair, a chain and a pool. Top up a dedicated hot wallet — nothing goes live until it holds funds.</p>
       </article>
       <article class="step reveal">
         <div class="step__art" data-art="2"></div>
         <span class="step__n">02</span>
-        <h3>Set the tide</h3>
-        <p>Spread model, risk appetite, inventory ceiling, maximum drawdown and the oracle you trust for the mid. Nothing swims without a spend limit.</p>
+        <h3>Set your limits</h3>
+        <p>Spread model, risk appetite, inventory ceiling, maximum drawdown and the oracle you trust for the mid. Nothing runs without a spend limit.</p>
       </article>
       <article class="step reveal">
         <div class="step__art" data-art="3"></div>
         <span class="step__n">03</span>
-        <h3>Let the pair swim</h3>
-        <p>Orders go out on both sides, fills stream in, and a single stop button pulls everything back to shore.</p>
+        <h3>Let the pair run</h3>
+        <p>Orders go out on both sides, fills stream in, and a single stop button cancels every order at once.</p>
       </article>
     </div>
     <div class="steps__cta">
-      <a class="btn btn--primary" href="#start">Enter the reef</a>
-      <p class="cta-note">Follow <a href="#">@marea</a> on X, then claim a reef pass.</p>
+      <a class="btn btn--primary" href="#start">Launch console</a>
+      <p class="cta-note">Follow <a href="#">@marea</a> on X, then claim an access pass.</p>
     </div>
   </section>
 
@@ -153,7 +154,7 @@
     <div class="split">
       <div>
         <div class="kicker">Quoting</div>
-        <h2 class="left">Quotes that read the water</h2>
+        <h2 class="left">Quotes that react to the market</h2>
         <p class="lede left">Holding too much of a token? Your bid slides lower. Choppy market? The spread opens up. Close to a limit? That side gets smaller until you are safe again.</p>
         <ul class="ticks">
           <li>Avellaneda–Stoikov for sessions with an end</li>
@@ -170,10 +171,10 @@
           </div>
           <button class="tab copy" id="copy">Copy</button>
         </div>
-<pre class="code__body" data-code="curl"><code>curl -X POST https://api.marea.example/v1/reef/start
+<pre class="code__body" data-code="curl"><code>curl -X POST https://api.marea.example/v1/pairs/start
 <span class="cm"># quotes, fills and status arrive on /v1/stream</span>
 <span class="cm"># simulation until a pool and a funded wallet are set</span><span class="caret"></span></code></pre>
-<pre class="code__body" data-code="js" hidden><code><span class="kw">await</span> fetch(<span class="st">"https://api.marea.example/v1/reef/start"</span>, { method: <span class="st">"POST"</span> });
+<pre class="code__body" data-code="js" hidden><code><span class="kw">await</span> fetch(<span class="st">"https://api.marea.example/v1/pairs/start"</span>, { method: <span class="st">"POST"</span> });
 <span class="cm">// quotes, fills and status arrive on /v1/stream</span><span class="caret"></span></code></pre>
       </div>
     </div>
@@ -183,7 +184,7 @@
   <section class="section" id="venues">
     <div class="center">
       <div class="kicker reveal">Venues</div>
-      <h2 class="reveal">One reef. Five currents to ride.</h2>
+      <h2 class="reveal">One engine. Five venues.</h2>
       <p class="lede reveal">Two-sided liquidity on concentrated pools and on the order book — plus launchpad tokens still on their bonding curve, right up until they graduate into a full pool.</p>
     </div>
 
@@ -223,7 +224,7 @@
     <div class="faq__head reveal">
       <div>
         <div class="kicker">FAQ</div>
-        <h2 class="left">Before you dive in</h2>
+        <h2 class="left">Before you go live</h2>
       </div>
       <p class="lede left">Your wallet, your gas, your inventory. MAREA only does what your limits allow — and stops the moment you tell it to.</p>
     </div>
@@ -240,13 +241,13 @@
 
   <!-- CLOSING --------------------------------------------------------- -->
   <section class="final reveal" id="start">
-    <h2>The water's warm.</h2>
-    <p>Grab a reef pass, connect a wallet, and let the pair swim.</p>
+    <h2>Ready when you are.</h2>
+    <p>Get an access pass, connect a wallet, and let the pair run.</p>
     <div class="final__btns">
-      <a class="btn btn--primary btn--lg" href="#">Enter the reef</a>
-      <a class="btn btn--lg" href="#">Open reef</a>
+      <a class="btn btn--primary btn--lg" href="#">Launch console</a>
+      <a class="btn btn--lg" href="#">Console</a>
     </div>
-    <p class="cta-note">Follow <a href="#">@marea</a> on X, then claim a reef pass.</p>
+    <p class="cta-note">Follow <a href="#">@marea</a> on X, then claim an access pass.</p>
   </section>
 
 </main>
@@ -254,10 +255,10 @@
 <footer class="footer" id="token">
   <div class="footer__brand">
     <a class="brand" href="#top"><span class="brand__word brand__word--lg">MAREA</span><span class="brand__mark brand__mark--lg" data-seahorse="mark"></span></a>
-    <p>A buy order and a sell order, swimming as a pair.</p>
+    <p>A buy order and a sell order, working as a pair.</p>
   </div>
   <div><h4>Product</h4><a href="#venues">Venues</a><a href="#quoting">Quoting models</a></div>
-  <div><h4>Console</h4><a href="#">Dashboard</a><a href="#">Reef passes</a><a href="#">Treasury</a></div>
+  <div><h4>Console</h4><a href="#">Dashboard</a><a href="#">Access passes</a><a href="#">Treasury</a></div>
   <div><h4>Notes</h4><a href="#faq">FAQ</a><a href="#">Token</a><a href="#">Terms</a><a href="#">Privacy</a></div>
   <div class="footer__copy">
     <span>© 2026 MAREA. The pair lives on the dashboard.</span>
@@ -266,7 +267,6 @@
 </footer>
 
 <script src="seahorse.js"></script>
-<script src="ocean.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -40,17 +40,16 @@
   const stepArt = {
     1: () => `<svg viewBox="0 0 300 180" preserveAspectRatio="xMidYMid slice">
         <defs><radialGradient id="sa1" cx="0.5" cy="0.5"><stop offset="0" stop-color="#2553e6" stop-opacity="0.55"/><stop offset="1" stop-color="#2553e6" stop-opacity="0"/></radialGradient></defs>
-        <path d="M0,140 C60,128 120,146 180,136 C230,128 270,140 300,134 L300,180 L0,180Z" fill="#1d3344"/>
+        <path d="M0,140 C60,128 120,146 180,136 C230,128 270,140 300,134 L300,180 L0,180Z" fill="#1a1a1a"/>
         <circle cx="150" cy="92" r="70" fill="url(#sa1)"/>
         <circle cx="150" cy="92" r="44" fill="#0a1f38" stroke="#5a80ff" stroke-width="3"/>
         <circle cx="150" cy="92" r="36" fill="none" stroke="#2553e6" stroke-opacity="0.5" stroke-dasharray="2 6"/>
         <path d="M150,60 L160,92 L150,124 L140,92 Z" fill="#3a68ff"/><path d="M150,60 L160,92 L140,92 Z" fill="#dbe6ff"/>
         <circle cx="150" cy="92" r="4" fill="#f2f2f2"/>
         <g fill="#8fb0ff" font-family="Inter,sans-serif" font-size="10" text-anchor="middle"><text x="150" y="43">N</text><text x="150" y="150">S</text><text x="100" y="96">W</text><text x="200" y="96">E</text></g>
-        <g stroke="#3f6a38" stroke-width="5" stroke-linecap="round" fill="none"><path d="M26,180 C18,150 34,120 24,92"/><path d="M276,180 C286,150 268,124 278,100"/></g>
       </svg>`,
     2: () => `<svg viewBox="0 0 300 180" preserveAspectRatio="xMidYMid slice">
-        <path d="M0,146 C80,136 200,152 300,140 L300,180 L0,180Z" fill="#1d3344"/>
+        <path d="M0,146 C80,136 200,152 300,140 L300,180 L0,180Z" fill="#1a1a1a"/>
         ${[70, 130, 190, 250].map((x, i) => {
           const y = [58, 96, 72, 110][i];
           return `<g><path d="M${x},148 L${x},34" stroke="#2c4a60" stroke-width="6" stroke-linecap="round"/>
@@ -58,11 +57,10 @@
             <circle cx="${x}" cy="${y}" r="11" fill="#dbe6ff" stroke="#3a68ff" stroke-width="3"/>
             <circle cx="${x}" cy="${y}" r="18" fill="#2553e6" opacity="0.18"/></g>`;
         }).join('')}
-        <g fill="none" stroke="#cfeaff" stroke-opacity="0.5"><circle cx="100" cy="40" r="3"/><circle cx="106" cy="28" r="2"/><circle cx="222" cy="52" r="3"/></g>
       </svg>`,
     3: () => `<svg viewBox="0 0 300 180" preserveAspectRatio="xMidYMid slice">
         <defs><radialGradient id="sa3" cx="0.5" cy="0.5"><stop offset="0" stop-color="#2553e6" stop-opacity="0.5"/><stop offset="1" stop-color="#2553e6" stop-opacity="0"/></radialGradient></defs>
-        <path d="M0,150 C70,140 170,156 300,144 L300,180 L0,180Z" fill="#1d3344"/>
+        <path d="M0,150 C70,140 170,156 300,144 L300,180 L0,180Z" fill="#1a1a1a"/>
         <circle cx="150" cy="90" r="80" fill="url(#sa3)"/>
         ${him().replace('<svg ', '<svg x="92" y="14" width="72" height="122" ')}
         <g transform="translate(372 0) scale(-1 1)">${her().replace('<svg ', '<svg x="160" y="20" width="68" height="116" ')}</g>
@@ -193,72 +191,24 @@
   }
 
   // ---------------------------------------------------------------- venues scene
-  // An underwater ledge: five treasures, one per venue, on sand mounds, with
-  // the couple in the middle. Everything glows in the accent blue.
-  function pedestal(x) {
-    return `<g>
-      <ellipse cx="${x}" cy="292" rx="70" ry="16" fill="#000" opacity="0.35"/>
-      <path d="M${x - 66},290 C${x - 60},262 ${x + 60},262 ${x + 66},290 Z" fill="url(#sc-sand)"/>
-      <ellipse class="sc-glow" cx="${x}" cy="276" rx="58" ry="10" fill="none" stroke="#2553e6" stroke-width="2.5" filter="url(#sc-blur)"/>
-      <ellipse cx="${x}" cy="276" rx="56" ry="9" fill="none" stroke="#5f86ff" stroke-width="1" opacity="0.7"/>
+  // A dark stage: the couple under a spotlight, with five glowing tokens, one
+  // per venue, floating in an arc around them.
+  function token(x, y, glyph, delay) {
+    return `<g class="sc-bob" style="animation-delay:${delay}s">
+      <circle class="sc-glow" cx="${x}" cy="${y}" r="58" fill="url(#sc-halo)"/>
+      <ellipse cx="${x}" cy="${y + 96}" rx="34" ry="6" fill="#000" opacity="0.5"/>
+      <circle cx="${x}" cy="${y}" r="34" fill="url(#sc-coin)" stroke="#5a80ff" stroke-width="2"/>
+      <circle cx="${x}" cy="${y}" r="26" fill="none" stroke="#9fb8ff" stroke-opacity="0.35" stroke-dasharray="3 5"/>
+      <g fill="none" stroke="#e8eeff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${glyph(x, y)}</g>
     </g>`;
   }
-  const glowBlob = (x, y, r) => `<circle class="sc-glow" cx="${x}" cy="${y}" r="${r}" fill="url(#sc-halo)"/>`;
-
-  const clam = x => `<g>${glowBlob(x, 236, 56)}
-      <path d="M${x - 44},262 C${x - 44},290 ${x + 44},290 ${x + 44},262 Z" fill="#c7b7d8"/>
-      <g stroke="#8e7aa8" stroke-width="1.4">${[-30, -15, 0, 15, 30].map(d => `<path d="M${x},286 L${x + d},263"/>`).join('')}</g>
-      <path d="M${x - 44},260 C${x - 50},212 ${x + 30},200 ${x + 44},250 Z" fill="#b3a2c9"/>
-      <g stroke="#8e7aa8" stroke-width="1.4" fill="none">${[0.2, 0.4, 0.6, 0.8].map(t => `<path d="M${x + 40},250 Q${x - 10},${222 + t * 12} ${x - 44 + t * 8},${258 - t * 36}"/>`).join('')}</g>
-      <circle cx="${x + 4}" cy="252" r="15" fill="url(#sc-pearl)"/>
-      <circle cx="${x - 1}" cy="247" r="4" fill="#fff" opacity="0.9"/>
-    </g>`;
-
-  const bottle = x => `<g class="sc-bob" >${glowBlob(x, 222, 60)}
-      <g transform="rotate(-24 ${x} 230)">
-        <rect x="${x - 20}" y="196" width="40" height="72" rx="14" fill="url(#sc-glass)" stroke="#9fc8ff" stroke-opacity="0.6"/>
-        <rect x="${x - 8}" y="176" width="16" height="24" rx="4" fill="url(#sc-glass)" stroke="#9fc8ff" stroke-opacity="0.6"/>
-        <rect x="${x - 7}" y="168" width="14" height="12" rx="3" fill="#a87a4c"/>
-        <rect class="sc-glow" x="${x - 11}" y="212" width="22" height="40" rx="5" fill="#e9eeff"/>
-        <g stroke="#2553e6" stroke-width="2" stroke-linecap="round"><path d="M${x - 6},222 h12"/><path d="M${x - 6},230 h9"/><path d="M${x - 6},238 h12"/></g>
-        <rect x="${x - 14}" y="204" width="5" height="54" rx="2.5" fill="#fff" opacity="0.35"/>
-      </g></g>`;
-
-  const trident = x => `<g>${glowBlob(x, 200, 64)}
-      <g stroke-linecap="round" fill="none">
-        <path d="M${x},272 L${x},146" stroke="#1e40af" stroke-width="7"/>
-        <path d="M${x},272 L${x},146" stroke="#8fb0ff" stroke-width="2" opacity="0.8"/>
-        <path d="M${x - 26},128 C${x - 26},160 ${x + 26},160 ${x + 26},128" stroke="#2553e6" stroke-width="6"/>
-        <path d="M${x},160 L${x},112" stroke="#2553e6" stroke-width="6"/>
-      </g>
-      <g fill="#8fb0ff">
-        <path d="M${x - 26},112 l-7,18 h14 z"/><path d="M${x},96 l-7,18 h14 z"/><path d="M${x + 26},112 l-7,18 h14 z"/>
-      </g>
-      <rect x="${x - 7}" y="224" width="14" height="8" rx="2" fill="#f0c36a"/>
-    </g>`;
-
-  const conch = x => `<g>${glowBlob(x, 236, 56)}
-      <path d="M${x - 46},262 C${x - 58},226 ${x - 18},196 ${x + 16},206 C${x + 44},212 ${x + 56},240 ${x + 44},262 Z" fill="#f2c9a8"/>
-      <path d="M${x - 46},262 C${x - 30},252 ${x + 20},250 ${x + 44},262 Z" fill="#f28f7a"/>
-      <g fill="none" stroke="#c98d6a" stroke-width="1.6">
-        <path d="M${x + 16},206 C${x + 4},222 ${x + 14},238 ${x + 30},236"/>
-        <path d="M${x - 10},206 C${x - 20},224 ${x - 8},244 ${x + 10},246"/>
-        <path d="M${x - 32},218 C${x - 40},236 ${x - 28},252 ${x - 12},254"/>
-      </g>
-      <path d="M${x + 16},206 C${x + 30},200 ${x + 46},190 ${x + 60},178 C${x + 52},196 ${x + 46},212 ${x + 36},222 Z" fill="#f7dcc3"/>
-    </g>`;
-
-  const chest = x => `<g>${glowBlob(x, 226, 66)}
-      <rect x="${x - 46}" y="232" width="92" height="46" rx="6" fill="#6b4226"/>
-      <rect x="${x - 46}" y="232" width="92" height="46" rx="6" fill="none" stroke="#2a1a10" stroke-width="2"/>
-      <rect x="${x - 50}" y="240" width="100" height="7" fill="#b8883c"/>
-      <rect x="${x - 6}" y="244" width="12" height="14" rx="2" fill="#e0b453"/>
-      <path class="sc-glow" d="M${x - 40},234 Q${x},214 ${x + 40},234 Z" fill="#9fc0ff"/>
-      <g fill="#ffd36b">${[-24, -10, 6, 20].map((d, i) => `<circle cx="${x + d}" cy="${230 - (i % 2) * 4}" r="5"/>`).join('')}</g>
-      <circle cx="${x + 2}" cy="224" r="6" fill="#dfe8ff"/>
-      <path d="M${x - 46},232 L${x - 40},186 C${x - 20},172 ${x + 20},172 ${x + 40},186 L${x + 46},232 Z" fill="#7a4b2b" transform="rotate(-8 ${x - 46} 232)"/>
-      <path d="M${x - 44},226 L${x - 40},190" stroke="#b8883c" stroke-width="6" transform="rotate(-8 ${x - 46} 232)"/>
-    </g>`;
+  const glyphs = [
+    (x, y) => `<path d="M${x - 13},${y + 8} L${x - 13},${y - 8} M${x + 13},${y + 8} L${x + 13},${y - 8} M${x - 13},${y} L${x + 13},${y}"/>`,        // range
+    (x, y) => `<path d="M${x - 14},${y + 10} C${x - 6},${y + 8} ${x + 2},${y - 2} ${x + 14},${y - 12}"/>`,                                            // curve
+    (x, y) => `<circle cx="${x}" cy="${y}" r="11"/><path d="M${x},${y - 11} L${x},${y + 11}"/>`,                                                       // pool
+    (x, y) => `<path d="M${x - 12},${y + 10} L${x - 12},${y - 4} L${x},${y - 12} L${x + 12},${y - 4} L${x + 12},${y + 10} Z"/>`,                        // position
+    (x, y) => `<path d="M${x - 12},${y - 9} h24 M${x - 12},${y} h16 M${x - 12},${y + 9} h20"/>`                                                        // book
+  ];
 
   function embed(svg, x, y, w, flip) {
     const h = w * 1.7;
@@ -269,48 +219,28 @@
   function buildScene() {
     const el = $('#scene');
     if (!el) return;
-    let rays = '';
-    [[120, 70], [300, 50], [520, 90], [760, 60], [930, 80]].forEach(([x, w], i) => {
-      rays += `<path class="sc-ray" style="animation-delay:${-i * 1.3}s" d="M${x},0 L${x + w},0 L${x + w * 2.2 - 60},350 L${x - 80},350 Z" fill="url(#sc-rayg)"/>`;
-    });
-    let bubbles = '';
-    for (let i = 0; i < 14; i++) {
-      const x = 40 + Math.random() * 984, r = 1.5 + Math.random() * 3.5;
-      bubbles += `<circle class="sc-bubble" style="animation-delay:${(-Math.random() * 6).toFixed(2)}s;animation-duration:${(5 + Math.random() * 4).toFixed(1)}s" cx="${x.toFixed(0)}" cy="${(290 + Math.random() * 40).toFixed(0)}" r="${r.toFixed(1)}" fill="none" stroke="#cfeaff" stroke-opacity="0.6"/>`;
+    let dots = '';
+    for (let i = 0; i < 40; i++) {
+      dots += `<circle cx="${(Math.random() * 1064).toFixed(0)}" cy="${(Math.random() * 240).toFixed(0)}" r="${(0.6 + Math.random() * 1.2).toFixed(1)}" fill="#c8d6ff" opacity="${(0.1 + Math.random() * 0.35).toFixed(2)}"/>`;
     }
-    const fishS = (x, y, s, c, flip) => `<g transform="translate(${x} ${y}) scale(${flip ? -s : s} ${s})" fill="${c}" opacity="0.5"><path d="M18,0 C14,-8 -6,-8 -12,0 C-6,8 14,8 18,0Z"/><path d="M-11,0 L-20,-7 L-18,0 L-20,7Z"/></g>`;
-    const bgFish = [fishS(200, 70, 1.1, '#6aa6c8'), fishS(232, 84, 0.9, '#6aa6c8'), fishS(214, 96, 1, '#6aa6c8'), fishS(860, 60, 1.2, '#7ab0cf', true), fishS(890, 74, 0.9, '#7ab0cf', true), fishS(660, 110, 1.4, '#e8b64a', true)].join('');
-
-    const kelpL = [20, 48, 70].map((x, i) => `<path class="sway sway--kelp" style="transform-origin:${x}px 350px;animation-delay:${-i * 2}s" d="M${x},350 C${x - 20},270 ${x + 20},200 ${x - 6},${110 + i * 20}" stroke="#3f6a38" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.85"/>`).join('')
-      + [1000, 1030, 1050].map((x, i) => `<path class="sway sway--kelp" style="transform-origin:${x}px 350px;animation-delay:${-i * 1.6}s" d="M${x},350 C${x + 20},270 ${x - 20},200 ${x + 6},${100 + i * 24}" stroke="#3f6a38" stroke-width="7" fill="none" stroke-linecap="round" opacity="0.85"/>`).join('');
-
-    el.innerHTML = `<svg viewBox="0 0 1064 350" preserveAspectRatio="xMidYMid slice">
+    const pos = [[92, 180], [216, 128], [340, 180], [850, 128], [974, 180]];
+    el.innerHTML = `<svg viewBox="0 0 1064 355" preserveAspectRatio="xMidYMid slice">
       <defs>
-        <linearGradient id="sc-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d4f72"/><stop offset="0.55" stop-color="#083453"/><stop offset="1" stop-color="#041a30"/></linearGradient>
-        <linearGradient id="sc-rayg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfeaff" stop-opacity="0.35"/><stop offset="1" stop-color="#bfeaff" stop-opacity="0"/></linearGradient>
-        <linearGradient id="sc-sand" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8f7f63"/><stop offset="1" stop-color="#4d4538"/></linearGradient>
-        <linearGradient id="sc-ledge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b4a50"/><stop offset="1" stop-color="#16222b"/></linearGradient>
-        <radialGradient id="sc-halo"><stop offset="0" stop-color="#2553e6" stop-opacity="0.55"/><stop offset="1" stop-color="#2553e6" stop-opacity="0"/></radialGradient>
-        <radialGradient id="sc-pearl" cx="0.35" cy="0.35"><stop offset="0" stop-color="#ffffff"/><stop offset="0.6" stop-color="#cfdcff"/><stop offset="1" stop-color="#6f8fe0"/></radialGradient>
-        <linearGradient id="sc-glass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5fb3c9" stop-opacity="0.55"/><stop offset="1" stop-color="#2d7c98" stop-opacity="0.35"/></linearGradient>
-        <filter id="sc-blur"><feGaussianBlur stdDeviation="4"/></filter>
+        <linearGradient id="sc-bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101318"/><stop offset="1" stop-color="#0b0b0d"/></linearGradient>
+        <linearGradient id="sc-spot" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f90ff" stop-opacity="0.28"/><stop offset="1" stop-color="#6f90ff" stop-opacity="0"/></linearGradient>
+        <radialGradient id="sc-halo"><stop offset="0" stop-color="#2553e6" stop-opacity="0.5"/><stop offset="1" stop-color="#2553e6" stop-opacity="0"/></radialGradient>
+        <radialGradient id="sc-coin" cx="0.35" cy="0.3"><stop offset="0" stop-color="#3a68ff"/><stop offset="1" stop-color="#0f1f5c"/></radialGradient>
+        <radialGradient id="sc-floor" cx="0.5" cy="0"><stop offset="0" stop-color="#2553e6" stop-opacity="0.35"/><stop offset="1" stop-color="#2553e6" stop-opacity="0"/></radialGradient>
       </defs>
-      <rect width="1064" height="350" fill="url(#sc-water)"/>
-      ${rays}
-      ${bgFish}
-      <path d="M0,230 C120,200 200,236 320,214 C460,190 560,230 700,206 C820,188 930,220 1064,200 L1064,350 L0,350Z" fill="#0b2a40" opacity="0.8"/>
-      ${kelpL}
-      <path d="M0,286 C160,272 300,292 532,280 C760,268 900,290 1064,278 L1064,350 L0,350Z" fill="url(#sc-ledge)"/>
-      <path d="M0,286 C160,272 300,292 532,280 C760,268 900,290 1064,278" fill="none" stroke="#6aa0bd" stroke-opacity="0.35" stroke-width="2"/>
-      ${pedestal(110)}${clam(110)}
-      ${pedestal(262)}${bottle(262)}
-      ${pedestal(412)}${trident(412)}
-      ${pedestal(800)}${conch(800)}
-      ${pedestal(952)}${chest(952)}
-      ${glowBlob(600, 170, 140)}
-      <g class="sc-bob">${embed(him(), 492, 22, 150, false)}</g>
-      <g class="sc-bob sc-bob--2">${embed(her(), 596, 36, 140, true)}</g>
-      ${bubbles}
+      <rect width="1064" height="355" fill="url(#sc-bg)"/>
+      ${dots}
+      <path class="sc-ray" d="M534,0 L658,0 L764,300 L428,300 Z" fill="url(#sc-spot)"/>
+      <rect y="300" width="1064" height="55" fill="#121212"/>
+      <path d="M0,300 L1064,300" stroke="#2a2a2a" stroke-width="2"/>
+      <ellipse cx="596" cy="302" rx="200" ry="26" fill="url(#sc-floor)"/>
+      ${pos.map(([x, y], i) => token(x, y, glyphs[i], -i * 1.1)).join('')}
+      <g class="sc-bob">${embed(him(), 510, 36, 140, false)}</g>
+      <g class="sc-bob sc-bob--2">${embed(her(), 604, 48, 132, true)}</g>
     </svg>`;
   }
   buildScene();

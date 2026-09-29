@@ -3,6 +3,7 @@
    light text; the lighter --blue-hi is used wherever blue itself is text. */
 
 :root {
+  color-scheme: dark;
   --bg:        #0a0c12;
   --bg-2:      #0f121b;
   --surface:   #141826;
@@ -99,7 +100,7 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var
 /* ---------- nav ---------- */
 
 .nav {
-  position: sticky; top: 0; z-index: 50;
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
   height: var(--nav-h);
   background: rgba(10, 12, 18, .72);
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
@@ -337,12 +338,13 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var
 
 /* ---------- reveal ---------- */
 
-.reveal { opacity: 0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease; }
-.reveal.is-in { opacity: 1; transform: none; }
+.reveal { transition: transform .6s ease; }
+.js .reveal:not(.is-in) { transform: translateY(12px); }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .reveal { opacity: 1; transform: none; transition: none; }
+  .js .reveal:not(.is-in) { transform: none; }
+  .reveal { transition: none; }
   .panel__cat, .live .dot { animation: none; }
 }
 

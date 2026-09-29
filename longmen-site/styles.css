@@ -223,7 +223,7 @@ em { font-style: italic; }
 .dn-panel-flip .dn-panel-art { order: 2; }
 .dn-panel-art {
   position: relative; display: grid; place-items: center; padding: 60px 40px;
-  background: #2A3A55 url("assets/great-wall.webp") 0% 55% / auto 150% no-repeat;
+  background: #0B100E url("assets/great-wall.webp") 0% 55% / auto 150% no-repeat;
 }
 .dn-panel-copy { padding: 56px; display: flex; flex-direction: column; justify-content: center; }
 .dn-panel-copy p { margin-top: 22px; font-size: 19px; color: var(--prose); max-width: 30em; }
@@ -278,10 +278,10 @@ em { font-style: italic; }
 .dn-fund {
   padding: 28px; gap: 24px;
   background:
-    radial-gradient(110% 60% at 15% 0%, rgba(58, 111, 216, .42), transparent 62%),
-    radial-gradient(80% 55% at 100% 45%, rgba(43, 212, 143, .2), transparent 62%),
+    radial-gradient(110% 60% at 15% 0%, rgba(43, 212, 143, .26), transparent 62%),
+    radial-gradient(80% 55% at 100% 45%, rgba(20, 150, 100, .22), transparent 62%),
     repeating-radial-gradient(circle at 55% 30%, transparent 0 62px, rgba(255, 255, 255, .045) 63px 64px),
-    #0D0D13;
+    #0B100E;
 }
 .dn-fund .dn-tile-copy { z-index: 1; }
 .dn-fund .dn-h4 { font-size: 36px; }

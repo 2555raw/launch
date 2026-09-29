@@ -14,7 +14,7 @@
 
   /* ---------- sample data ---------- */
 
-  const COLORS = ['#2BD48F', '#F2C94C', '#6FCF97', '#56CCF2', '#BB6BD9', '#1ABC9C', '#EB5757', '#9B9B9B'];
+  const COLORS = ['#2BD48F', '#F2C94C', '#6FCF97', '#3DDCB0', '#BB6BD9', '#1ABC9C', '#EB5757', '#9B9B9B'];
 
   const MARKETS = [
     { name: 'Inference Rush', ticker: 'INFR', kind: 'subnet',    label: 'Subnet Coin',      chain: 'Robinhood', sn: 'SN19', desc: 'Cheap open-model inference eats the cloud margin, starting here.', price: '0.0₆412 TAO', curve: 62.4, age: '6m' },
@@ -50,8 +50,8 @@
   const color = (s) => COLORS[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
 
   // token art: a mirrored 6x6 pixel sprite seeded by the ticker, in two tones on a dark tile
-  const ART = [['#2BD48F', '#C9F7E3'], ['#F2C94C', '#FFF3C4'], ['#6FCF97', '#D6F5E3'], ['#56CCF2', '#D4F1FC'],
-               ['#BB6BD9', '#EDD6F7'], ['#EB5757', '#FFD6D6'], ['#2F80ED', '#CFE2FF'], ['#27AE60', '#C9F0D8']];
+  const ART = [['#2BD48F', '#C9F7E3'], ['#F2C94C', '#FFF3C4'], ['#6FCF97', '#D6F5E3'], ['#3DDCB0', '#D2F7EC'],
+               ['#BB6BD9', '#EDD6F7'], ['#EB5757', '#FFD6D6'], ['#12B886', '#C3F2E2'], ['#27AE60', '#C9F0D8']];
   const artCache = {};
   const tokenArt = (t) => {
     if (artCache[t]) return artCache[t];

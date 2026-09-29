@@ -14,7 +14,7 @@ export const SITE = {
     explorer: 'https://robinhoodchain.blockscout.com',
   },
   links: {
-    x: 'https://x.com/useStarmint',
+    x: 'https://x.com/IsotopeTech',
     telegram: '',
     github: '',
   },

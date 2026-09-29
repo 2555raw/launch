@@ -47,7 +47,7 @@ window.NEBARI_CONFIG = {
   cookies: { declineRedirect: 'https://www.ponsfamily.com/launchpad' },
 
   links: {
-    x: 'https://x.com/',
+    x: 'https://x.com/useNeberi',
     docsRobinhood: 'https://docs.robinhood.com/chain/',
     uniswapDeployments: 'https://developers.uniswap.org/docs/protocols/v4/deployments',
     robinhoodContracts: 'https://docs.robinhood.com/chain/contracts',

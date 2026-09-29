@@ -38,8 +38,44 @@
     });
   }
 
+  function renderMarquee(picks) {
+    const track = document.getElementById('marquee');
+    if (!track) return;
+    track.innerHTML = '';
+    // two copies side by side so the loop is seamless
+    for (let copy = 0; copy < 2; copy++) {
+      picks.forEach((p) => {
+        const it = document.createElement('span');
+        it.className = 'marquee-item';
+        it.appendChild(Chrome.logoEl(p));
+        it.insertAdjacentHTML('beforeend', `${p.symbol} <small>${p.name}</small>`);
+        track.appendChild(it);
+      });
+    }
+  }
+
+  // numbers count up the first time they scroll into view
+  function countUp(el) {
+    const raw = el.textContent.trim();
+    const m = raw.match(/^(\d+(?:\.\d+)?)(\D*)$/);
+    if (!m || el.dataset.counted) return;
+    el.dataset.counted = '1';
+    const target = parseFloat(m[1]), suffix = m[2], t0 = performance.now(), dur = 1100;
+    const tick = (t) => {
+      const k = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = (Number.isInteger(target) ? Math.round(target * e) : (target * e).toFixed(1)) + suffix;
+      if (k < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     renderBanner(C.quickPicks);
+    renderMarquee(C.quickPicks);
+    if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.querySelectorAll('.stat-num').forEach(countUp); io.unobserve(e.target); } }), { threshold: 0.4 });
+      const stats = document.querySelector('.stats'); if (stats) io.observe(stats);
+    }
 
     // quick picks with their real logos
     const grid = document.getElementById('assets-grid');
@@ -59,7 +95,7 @@
     renderPicks(C.quickPicks);
     Nebari.quickPicks().then((picks) => {
       const ok = picks.filter((p) => p.verified);
-      if (ok.length !== picks.length) { renderPicks(ok); setQuick(ok.length); renderBanner(ok); }
+      if (ok.length !== picks.length) { renderPicks(ok); setQuick(ok.length); renderBanner(ok); renderMarquee(ok); }
     }).catch(() => { /* keep the configured list */ });
 
     // live count from the factory

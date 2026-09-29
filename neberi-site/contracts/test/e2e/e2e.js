@@ -132,6 +132,8 @@ const WALLET = `(() => {
     pass(`home: banner shows the picks that exist on this chain: ${await ev(`[...document.querySelectorAll('.banner-sym')].map(e=>e.textContent).join(', ')`)}`);
     await waitFor(`document.querySelector('[data-live-count]').textContent === '0'`, 15000, 'launch counter');
     pass('home: launch counter reads 0 from the factory');
+    await waitFor(`/No tokens yet/.test(document.getElementById('recent-list').textContent)`, 15000, 'empty Just planted');
+    pass('home: Just planted says there are no tokens yet');
     await sleep(2500);
     pass(`home: quick picks after on-chain check: ${await ev(`[...document.querySelectorAll('#assets-grid .asset-sym')].map(e=>e.textContent).join(', ')`)}`);
     await shot('0-home');
@@ -159,6 +161,10 @@ const WALLET = `(() => {
     await go('/index.html');
     await waitFor(`document.querySelector('[data-live-count]').textContent === '2'`, 15000, 'counter reads 2');
     pass('home: launch counter reads 2');
+    await waitFor(`document.querySelectorAll('#recent-list .recent-row').length === 2`, 20000, 'two tokens in Just planted');
+    pass(`home: Just planted lists ${await ev(`[...document.querySelectorAll('#recent-list .recent-row')].map(r => r.querySelector('b').textContent + ' (' + r.querySelector('.recent-pair b').textContent + ')').join(', ')`)}`);
+    await ev(`document.getElementById('recent').scrollIntoView(); true`); await sleep(600);
+    await shot('7-just-planted');
   });
   await step('cookie gate', async () => {
     await ev(`localStorage.removeItem('nebari:cookies'); true`);

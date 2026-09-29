@@ -69,8 +69,64 @@
     requestAnimationFrame(tick);
   }
 
+
+  // ---- tokens launched from the site: newest first, straight from the factory
+  const esc = (x) => String(x).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function ago(sec) {
+    const d = Math.max(0, Math.floor(Date.now() / 1000 - Number(sec)));
+    if (d < 60) return 'just now';
+    if (d < 3600) return Math.floor(d / 60) + ' min ago';
+    if (d < 86400) return Math.floor(d / 3600) + ' h ago';
+    return Math.floor(d / 86400) + ' d ago';
+  }
+  async function renderRecent() {
+    const box = document.getElementById('recent-list');
+    if (!box) return;
+    if (!Nebari.configured()) { box.innerHTML = '<div class="recent-empty">The factory is not deployed yet.</div>'; return; }
+    try {
+      const factory = Nebari.factory();
+      const n = Number(await factory.tokenCount());
+      if (!n) { box.innerHTML = '<div class="recent-empty">No tokens yet. <a class="link-pink" href="launch.html">Plant the first one</a>.</div>'; return; }
+      const launches = Array.from(await factory.getLaunches(Math.max(0, n - 8), 8)).reverse();
+      const stats = await Promise.all(launches.map((L) => Nebari.tokenStats(L).catch(() => null)));
+      box.innerHTML = '';
+      launches.forEach((L, i) => {
+        const s = stats[i]; if (!s) return;
+        const a = document.createElement('a');
+        a.className = 'recent-row'; a.href = 'token.html?token=' + L.token;
+        const pic = document.createElement('span'); pic.className = 'recent-pic';
+        if (s.meta && s.meta.image) {
+          const img = document.createElement('img'); img.src = s.meta.image; img.alt = ''; img.referrerPolicy = 'no-referrer';
+          img.onerror = () => { img.remove(); pic.textContent = s.symbol.slice(0, 3); };
+          pic.appendChild(img);
+        } else {
+          const cv = document.createElement('canvas'); cv.width = 112; cv.height = 112; const ctx = cv.getContext('2d'); ctx.scale(2, 2);
+          if (window.Bonsai) Bonsai.draw(ctx, { x: 28, y: 50, height: 42, seed: L.token.toLowerCase(), growth: s.growth, shadow: false });
+          pic.appendChild(cv);
+        }
+        a.appendChild(pic);
+        const pick = C.quickPicks.find((q) => q.address.toLowerCase() === s.pair.address.toLowerCase());
+        const pairLogo = Chrome.logoEl(pick || s.pair); pairLogo.classList.add('recent-pair-logo');
+        a.insertAdjacentHTML('beforeend', `
+          <span class="recent-name"><b>${esc(s.name)}</b><span class="pill pill-pink">${esc(s.symbol)}</span><small>${ago(L.createdAt)}</small></span>
+          <span class="recent-pair"></span>
+          <span class="recent-num"><small>Price</small>${Nebari.fmt.num(s.price)} ${esc(s.pair.symbol)}</span>
+          <span class="recent-num"><small>Market cap</small>${Nebari.fmt.num(s.marketCap)} ${esc(s.pair.symbol)}</span>
+          <span class="recent-num"><small>Volume</small>${Nebari.fmt.num(s.volume)} ${esc(s.pair.symbol)}</span>
+          <span class="recent-go" aria-hidden="true">↗</span>`);
+        const pr = a.querySelector('.recent-pair'); pr.appendChild(pairLogo); pr.insertAdjacentHTML('beforeend', `<span>rooted to <b>${esc(s.pair.symbol)}</b></span>`);
+        box.appendChild(a);
+      });
+      if (!box.children.length) box.innerHTML = '<div class="recent-empty">Could not read the tokens right now.</div>';
+    } catch (e) {
+      console.warn(e);
+      box.innerHTML = '<div class="recent-empty">Could not reach Robinhood Chain right now.</div>';
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     renderBanner(C.quickPicks);
+    renderRecent();
     renderMarquee(C.quickPicks);
     if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
       const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.querySelectorAll('.stat-num').forEach(countUp); io.unobserve(e.target); } }), { threshold: 0.4 });

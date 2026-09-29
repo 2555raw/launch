@@ -1,5 +1,5 @@
 // End-to-end test on Hardhat's in-process EVM against the real Uniswap v4 PoolManager.
-// Run from nebari-site/contracts:  node scripts/compile.js test/Harness.sol && node test/run.js
+// Run from neberi-site/contracts:  node scripts/compile.js test/Harness.sol && node test/run.js
 const path = require('path');
 const fs = require('fs');
 const hre = require('hardhat');

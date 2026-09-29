@@ -1,5 +1,5 @@
 // Compiles the Nebari contracts with solc-js and writes ABI + bytecode to build/.
-// Usage: node scripts/compile.js            (from nebari-site/contracts, after npm install)
+// Usage: node scripts/compile.js            (from neberi-site/contracts, after npm install)
 const fs = require('fs');
 const path = require('path');
 const solc = require('solc');

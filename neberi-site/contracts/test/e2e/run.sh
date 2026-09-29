@@ -1,6 +1,6 @@
 #!/bin/sh
 # Browser end-to-end test of the whole site against a local chain.
-#   cd nebari-site/contracts && npm install && npm run test:e2e
+#   cd neberi-site/contracts && npm install && npm run test:e2e
 # Needs Chromium (set CHROME=/path/to/chrome if it is not the Playwright one).
 set -e
 cd "$(dirname "$0")/../.."

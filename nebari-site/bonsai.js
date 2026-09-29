@@ -124,7 +124,7 @@ window.Bonsai = (function () {
         const a = r() * Math.PI * 2, l = R * (0.6 + r() * 0.8);
         ctx.beginPath(); ctx.moveTo(cx, cy + ry * 0.2); ctx.quadraticCurveTo(cx + Math.cos(a) * l * 0.5, cy + Math.sin(a) * l * 0.3, cx + Math.cos(a) * l, cy + Math.sin(a) * l * 0.6); ctx.stroke();
       }
-      const n = Math.round(30 + R * 1.4);
+      const n = Math.round(22 + R * 0.9);
       for (let i = 0; i < n; i++) {
         const t = r() * Math.PI * 2, d = Math.sqrt(r());
         const x = cx + Math.cos(t) * rx * d, y = cy + Math.sin(t) * ry * d;
@@ -133,7 +133,7 @@ window.Bonsai = (function () {
         let idx = Math.floor(((rel + 1) / 2) * 5 + side * 1.2 + r() * 2.5);
         idx = Math.max(0, Math.min(PINKS.length - 1, idx + (back ? -1 : 0)));
         const rad = R * (0.12 + r() * 0.17);
-        if (rad > 3.5) {
+        if (rad > 5.5) {
           const g = ctx.createRadialGradient(x - rad * 0.35, y - rad * 0.35, rad * 0.1, x, y, rad);
           g.addColorStop(0, PINKS[Math.max(0, idx - 2)]); g.addColorStop(1, PINKS[idx]);
           ctx.fillStyle = g;
@@ -330,14 +330,16 @@ window.Bonsai = (function () {
       raf = 0;
       const rect = canvas.getBoundingClientRect();
       const w = Math.max(1, Math.round(rect.width)), h = Math.max(1, Math.round(rect.height));
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      // big canvases are drawn at a modest resolution: the tree is soft anyway
+      const dpr = Math.min(w * h > 600000 ? 1.25 : 2, window.devicePixelRatio || 1);
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
       const opts = layout(w, h);
       if (opts) draw(ctx, opts);
     }
-    const schedule = () => { if (!raf) raf = requestAnimationFrame(render); };
+    let timer = 0;
+    const schedule = () => { clearTimeout(timer); timer = setTimeout(() => { if (!raf) raf = requestAnimationFrame(render); }, 120); };
     if ('ResizeObserver' in window) new ResizeObserver(schedule).observe(canvas);
     else window.addEventListener('resize', schedule);
     schedule();
@@ -356,10 +358,11 @@ window.Bonsai = (function () {
     function resize() {
       const rect = canvas.getBoundingClientRect();
       w = Math.round(rect.width); h = Math.round(rect.height);
-      dpr = Math.min(2, window.devicePixelRatio || 1);
+      dpr = 1;
       canvas.width = w * dpr; canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
+    let lastT = 0;
     function spawn(p, top) {
       p.x = rnd() * w; p.y = top ? -20 : rnd() * h;
       p.z = 0.5 + rnd(); // depth: bigger, faster and sharper when near
@@ -369,8 +372,11 @@ window.Bonsai = (function () {
       p.c = PINKS[2 + Math.floor(rnd() * 5)];
       return p;
     }
-    function step() {
+    function step(t) {
       if (!running) return;
+      requestAnimationFrame(step);
+      if (t - lastT < 33 || document.body.classList.contains('cookies-open')) return; // ~30 fps, and idle behind the gate
+      lastT = t;
       ctx.clearRect(0, 0, w, h);
       for (const p of list) {
         p.ph += 0.02; p.a += p.spin; p.flip += 0.035;
@@ -379,9 +385,7 @@ window.Bonsai = (function () {
         ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
         ctx.scale(1, 0.35 + Math.abs(Math.sin(p.flip)) * 0.65); // tumbling
         ctx.globalAlpha = 0.55 + p.z * 0.3;
-        const g = ctx.createLinearGradient(-p.s, 0, p.s, 0);
-        g.addColorStop(0, '#fff0f5'); g.addColorStop(1, p.c);
-        ctx.fillStyle = g;
+        ctx.fillStyle = p.c;
         ctx.beginPath();
         ctx.moveTo(0, -p.s);
         ctx.bezierCurveTo(p.s * 0.9, -p.s * 0.9, p.s * 0.9, p.s * 0.6, 0, p.s);
@@ -389,7 +393,6 @@ window.Bonsai = (function () {
         ctx.fill();
         ctx.restore();
       }
-      requestAnimationFrame(step);
     }
     resize();
     window.addEventListener('resize', resize);

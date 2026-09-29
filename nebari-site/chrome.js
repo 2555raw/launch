@@ -4,15 +4,15 @@
   'use strict';
   const C = window.NEBARI_CONFIG;
 
-  const LOGO = `<svg viewBox="0 0 32 32" aria-hidden="true" fill="currentColor">
-    <rect x="10" y="2" width="12" height="6" rx="3"/>
-    <rect x="10" y="24" width="12" height="6" rx="3"/>
-    <rect x="2" y="10" width="6" height="12" rx="3"/>
-    <rect x="24" y="10" width="6" height="12" rx="3"/>
-    <rect x="7" y="7" width="6" height="6" rx="2"/>
-    <rect x="19" y="7" width="6" height="6" rx="2"/>
-    <rect x="7" y="19" width="6" height="6" rx="2"/>
-    <rect x="19" y="19" width="6" height="6" rx="2"/>
+  const LOGO = `<svg viewBox="0 0 100 100" aria-hidden="true" fill="currentColor">
+    <rect x="33" y="0" width="34" height="18" rx="9"/>
+    <rect x="33" y="82" width="34" height="18" rx="9"/>
+    <rect x="0" y="33" width="18" height="34" rx="9"/>
+    <rect x="82" y="33" width="18" height="34" rx="9"/>
+    <rect x="16.5" y="16.5" width="17" height="17" rx="4.5"/>
+    <rect x="66.5" y="16.5" width="17" height="17" rx="4.5"/>
+    <rect x="16.5" y="66.5" width="17" height="17" rx="4.5"/>
+    <rect x="66.5" y="66.5" width="17" height="17" rx="4.5"/>
   </svg>`;
   const X_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.1l7.7-8.8L1.6 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20z"/></svg>';
 
@@ -52,18 +52,30 @@
 
   function footer() {
     const el = document.createElement('footer');
-    el.className = 'footer wrap';
+    el.className = 'footer';
     el.innerHTML = `
-      <div class="footer-brand">
-        <a class="brand" href="index.html"><span class="mark">${LOGO}</span><span class="brand-name">${brand.toUpperCase()}</span></a>
-        <p>Launch a Robinhood Chain token rooted to any stock or asset. Liquidity locked forever at launch, fees paid to the people who hold it.</p>
-        <a class="icon-btn" href="${C.links.x}" target="_blank" rel="noopener" aria-label="${brand} on X">${X_ICON}</a>
-      </div>
-      <div class="footer-cols">
-        <div><h4>PROTOCOL</h4><a href="launch.html">Launch a token</a><a href="explore.html">Explore</a><a href="claim.html">Claim fees</a></div>
-        <div><h4>LEARN</h4><a href="docs.html">Docs</a><a href="index.html#how">How it works</a><a href="index.html#assets">Assets</a><a href="index.html#faq">FAQ</a></div>
-      </div>
-      <p class="copy">© ${new Date().getFullYear()} ${brand}. Built on Robinhood Chain. Nebari (根張り) is the root spread of a bonsai: the part that holds everything up.</p>`;
+      <div class="wrap footer-in">
+        <div class="footer-top">
+          <div class="footer-brand">
+            <a class="brand brand-light" href="index.html"><span class="mark">${LOGO}</span><span class="brand-name">${brand.toUpperCase()}</span></a>
+            <p>Launch a Robinhood Chain token rooted to any stock or asset. Liquidity locked forever at launch, fees paid to the people who hold it.</p>
+            <div class="footer-social">
+              <a class="icon-btn icon-btn-dark" href="${C.links.x}" target="_blank" rel="noopener" aria-label="${brand} on X">${X_ICON}</a>
+              <a class="btn btn-pink btn-sm" href="launch.html">Launch a token <span class="arrow" aria-hidden="true">↗</span></a>
+            </div>
+          </div>
+          <div class="footer-cols">
+            <div><h4>PROTOCOL</h4><a href="launch.html">Launch a token</a><a href="explore.html">Explore</a><a href="claim.html">Claim fees</a></div>
+            <div><h4>LEARN</h4><a href="docs.html">Docs</a><a href="index.html#how">How it works</a><a href="index.html#assets">Assets</a><a href="index.html#faq">FAQ</a></div>
+            <div><h4>CHAIN</h4><a href="${C.network.explorer}" target="_blank" rel="noopener">Blockscout</a><a href="${C.links.docsRobinhood}" target="_blank" rel="noopener">Robinhood Chain docs</a><a href="${C.links.uniswapDeployments}" target="_blank" rel="noopener">Uniswap v4</a></div>
+          </div>
+        </div>
+        <div class="footer-word" aria-hidden="true">${brand}<em>.</em></div>
+        <div class="footer-bottom">
+          <p class="copy">© ${new Date().getFullYear()} ${brand}. Built on Robinhood Chain.</p>
+          <p class="copy">根張り · nebari, the root spread of a bonsai: the part that holds everything up.</p>
+        </div>
+      </div>`;
     return el;
   }
 
@@ -81,10 +93,10 @@
   function logoEl(asset) {
     const box = document.createElement('span');
     box.className = 'asset-logo';
+    if (asset.logoBg) { box.style.background = asset.logoBg; box.style.borderColor = asset.logoBg; box.classList.add('asset-logo-padded'); }
     const sym = (asset.symbol || '?').toUpperCase();
-    const srcs = [];
+    const srcs = [`assets/logos/${sym.toLowerCase()}.png`];
     if (asset.logo) srcs.push(asset.logo);
-    srcs.push(`assets/logos/${sym.toLowerCase()}.png`);
     if (asset.domain) {
       srcs.push(`https://www.google.com/s2/favicons?domain=${asset.domain}&sz=128`);
       srcs.push(`https://icons.duckduckgo.com/ip3/${asset.domain}.ico`);
@@ -115,18 +127,21 @@
     const canvas = bg.querySelector('canvas');
     if (window.Bonsai) {
       Bonsai.mount(canvas, (w, h) => {
+        if (w < 1) return null;
         const mobile = w < 760;
         return { x: mobile ? w * 0.5 : w * 0.72, y: mobile ? h * 0.98 : h * 0.96, height: mobile ? h * 0.5 : Math.min(h * 0.78, w * 0.46), seed: 'nebari-home', growth: 1, bokeh: true };
       });
-      Bonsai.petals(petals, { count: 24 });
+      Bonsai.petals(petals, { count: 14 });
     }
     const base = page === 'home' ? 1 : 0.62; // app pages keep the tree quieter behind the panels
+    let last = -1, ticking = false;
     const fade = () => {
+      ticking = false;
       const vh = window.innerHeight;
-      const o = Math.max(0.3, Math.min(1, 1 - (window.scrollY - vh * 0.5) / (vh * 0.9)));
-      canvas.style.opacity = (o * base).toFixed(2);
+      const o = Math.round(Math.max(0.3, Math.min(1, 1 - (window.scrollY - vh * 0.5) / (vh * 0.9))) * base * 20) / 20;
+      if (o !== last) { last = o; canvas.style.opacity = o.toFixed(2); }
     };
-    window.addEventListener('scroll', fade, { passive: true });
+    window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(fade); } }, { passive: true });
     fade();
   }
 
@@ -174,6 +189,7 @@
       </div>`;
     document.body.appendChild(el);
     document.body.classList.add('cookies-open');
+    el.addEventListener('animationend', () => {}, { once: true });
     if (window.Bonsai) Bonsai.mount(el.querySelector('.cookies-canvas'), (w, h) => ({ x: w * 0.55, y: h * 0.96, height: h * 0.9, seed: 'nebari-cookies', growth: 1, shadow: false }));
     el.querySelector('#cookies-accept').focus();
     el.querySelector('#cookies-accept').addEventListener('click', () => {

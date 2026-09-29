@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice">
+  <!-- Dendra "fund" card: a coin crossing from one chain to another, in flat shapes. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#2F5E9E"/>
+      <stop offset="0.55" stop-color="#3C3A6E"/>
+      <stop offset="1" stop-color="#0B0B10"/>
+    </linearGradient>
+    <linearGradient id="coin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFB38A"/><stop offset="1" stop-color="#FF5B26"/>
+    </linearGradient>
+    <linearGradient id="coin2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9CC3FF"/><stop offset="1" stop-color="#3A6FD8"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="800" fill="url(#bg)"/>
+  <g fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="1.5">
+    <circle cx="300" cy="300" r="120"/><circle cx="300" cy="300" r="190"/><circle cx="300" cy="300" r="260"/>
+  </g>
+  <path d="M150 330 C220 180 380 180 450 300" fill="none" stroke="#FFFFFF" stroke-opacity="0.55" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+  <path d="M438 280 L452 302 L428 306" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="150" cy="350" r="62" fill="url(#coin2)"/>
+  <text x="150" y="366" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="44" fill="#FFFFFF">$</text>
+  <circle cx="455" cy="330" r="78" fill="url(#coin)"/>
+  <text x="455" y="352" text-anchor="middle" font-family="Georgia, serif" font-size="64" fill="#1A0A04">τ</text>
+</svg>

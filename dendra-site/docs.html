@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Docs — Dendra</title>
+  <meta name="description" content="How Dendra launches work on Robinhood Chain and Bittensor EVM: pairing, curves, pools, trading, gas and data.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23000'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M16 26V16M16 16l-6-6M16 16l6-6M10 10l-3 1M10 10l-1-3M22 10l3 1M22 10l1-3'/%3E%3C/g%3E%3Ccircle cx='16' cy='26' r='2.6' fill='%23FF5B26'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dn-page">
+
+  <header class="dn-nav-wrap">
+    <nav class="dn-nav">
+      <a class="dn-brand" href="index.html">
+        <svg class="dn-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+          <path d="M16 25V16M16 16l-6-6M16 16l6-6M10 10l-3 1M10 10l-1-3M22 10l3 1M22 10l1-3"/>
+          <circle cx="16" cy="25" r="2.8" fill="var(--accent)" stroke="none"/>
+        </svg>
+        Dendra
+      </a>
+      <div class="dn-nav-links" id="navlinks">
+        <a href="index.html#markets">Markets</a>
+        <a href="index.html#faceoff">Subnets</a>
+        <a href="index.html#theses">Candidates</a>
+        <a href="docs.html">Docs</a>
+        <a class="dn-only-sm" href="launch.html">Launch</a>
+      </div>
+      <div class="dn-nav-right">
+        <a class="dn-nav-launch" href="launch.html">Launch</a>
+        <button class="dn-pill-btn" type="button" data-wallet>Connect wallet</button>
+        <button class="dn-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="dn-wrap dn-docs">
+    <div class="dn-center">
+      <nav class="dn-crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><b>Docs</b></nav>
+      <h1 class="dn-h1-page">How it <em>all fits</em>.</h1>
+      <p class="dn-lead">Networks, markets and the moving parts in between.</p>
+    </div>
+
+    <div class="dn-docs-grid">
+      <nav class="dn-toc" aria-label="On this page">
+        <a href="#what">What Dendra is</a>
+        <a href="#launching">Launching</a>
+        <a href="#kinds">Coins, candidates, theses</a>
+        <a href="#trading">Trading</a>
+        <a href="#settlement">Pairs, gas and settlement</a>
+        <a href="#data">Subnet data</a>
+        <a href="#indexer">Indexer status</a>
+        <a href="#wallets">Wallets</a>
+        <a href="#risk">Risk →</a>
+      </nav>
+
+      <article class="dn-doc">
+        <section id="what">
+          <h2>What Dendra is</h2>
+          <p>Dendra is a front end for creating and trading tokens that orbit the Bittensor economy, on two EVM networks: Robinhood Chain and Bittensor EVM. It reads subnet data from Bittensor and token data from the EVM side, and never mixes the two up: a token launched here is not a subnet and not an alpha token.</p>
+          <p>From one place you can launch a token against TAO or subnet alpha, browse every launch, compare subnets and bring TAO in from USDC on Base.</p>
+        </section>
+
+        <section id="launching">
+          <h2>Launching</h2>
+          <p><b>On Robinhood Chain</b> your token starts on a bonding curve priced in the pair you picked. Before asking for a signature the app reads the live launch fee, simulates the transaction and shows you the result. The launch counts once the receipt is confirmed. When the curve reaches its target, its reserve and the unsold supply move into a pool on their own.</p>
+          <p><b>On Bittensor EVM</b> there is no curve. Your wallet deploys the token and opens a pool you seed yourself. With native TAO that's a single transaction; with an alpha pair it's a deploy, an approval and a deposit. The whole supply goes into the pool and the LP position is locked.</p>
+          <ul>
+            <li>Every token has a fixed supply of 1,000,000,000.</li>
+            <li>Robinhood Chain: a launch fee read from the contract and shown before you sign, plus gas.</li>
+            <li>Bittensor EVM: no platform fee; a starting reserve of at least 0.01 TAO, plus gas.</li>
+          </ul>
+        </section>
+
+        <section id="kinds">
+          <h2>Coins, candidates, theses</h2>
+          <p><b>Subnet coins</b> point at an existing subnet. The creator names the NetUID and the app checks it against the live registry before letting the launch through. <b>Candidates</b> are for subnets that don't exist yet: purpose, roadmap, team and stage go into the launch metadata. <b>Theses</b> are opinions about a sector (inference, data, compute) rather than any single subnet.</p>
+          <p>Whatever is written at launch stays on chain as it was. Creators can publish signed profile updates later; the token page shows both, clearly labelled.</p>
+        </section>
+
+        <section id="trading">
+          <h2>Trading</h2>
+          <p>Every order is quoted and simulated before you sign, with a minimum-received amount enforced by the contract. Quotes go stale after 30 seconds. Slippage can be set to 0.5%, 1% or 3%; ERC-20 inputs ask for an approval of the exact amount, never an unlimited one.</p>
+          <p>Pools on Bittensor EVM trade through a single verified router with a fixed 1% slippage cap. Markets whose quote asset can't be verified are shown but can't be traded.</p>
+        </section>
+
+        <section id="settlement">
+          <h2>Pairs, gas and settlement</h2>
+          <p>A market settles in whatever it's paired with. On Robinhood Chain, TAO pairs use bridged TAO and alpha pairs need a wrapper the protocol has approved. Dollar figures anywhere in the app are for orientation only.</p>
+          <p>Gas is paid in ETH on Robinhood Chain and Base, and in native TAO on Bittensor EVM. The Fund flow bridges USDC from Base with a 5% price-impact ceiling and tracks delivery separately, so a slow bridge never looks like a lost payment.</p>
+        </section>
+
+        <section id="data">
+          <h2>Subnet data</h2>
+          <p>Alpha prices, TAO reserves and volumes come from live subnet feeds, with a second source on standby. If both are down, the value is shown as unavailable. It is never filled in with an estimate.</p>
+        </section>
+
+        <section id="indexer">
+          <h2>Indexer status</h2>
+          <p>Market lists and charts come from an indexer that starts at the factory's deployment block and follows finalized blocks only. The table below is what the status endpoint reports; delays in the feed show up here first.</p>
+          <div class="dn-kv">
+            <div><span>launches</span><b>block 4,210,388 · 6s ago</b></div>
+            <div><span>trades</span><b>block 4,210,388 · 6s ago</b></div>
+            <div><span>finalized</span><b>4,210,388</b></div>
+            <div><span>start block</span><b>3,902,117</b></div>
+          </div>
+          <p class="dn-dim dn-small">Sample figures.</p>
+        </section>
+
+        <section id="wallets">
+          <h2>Wallets</h2>
+          <p>There's no account. Connect any injected EVM wallet (MetaMask, Rabby, Coinbase Wallet, OKX Wallet and the like), let the app add the right network, and sign in your wallet. Watchlists are kept in your browser. The app never asks for a seed phrase or private key; if something does, it isn't us.</p>
+        </section>
+
+        <section id="risk">
+          <h2>Risk</h2>
+          <p>Launch tokens are highly speculative and most go to zero. Contracts can have bugs, bridges can stall and prices can move faster than a quote. The code has been tested but has not yet had an independent audit. Only use what you can afford to lose.</p>
+        </section>
+      </article>
+    </div>
+  </main>
+
+  <footer class="dn-foot">
+    <div class="dn-wrap">
+      <div class="dn-foot-bottom">
+        <p>© 2026 Dendra. Independent software, not affiliated with the Opentensor Foundation, Bittensor or Robinhood Markets, Inc.</p>
+      </div>
+    </div>
+  </footer>
+
+<script src="app.js"></script>
+</body>
+</html>

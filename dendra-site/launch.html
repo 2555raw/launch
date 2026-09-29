@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Launch a token — Dendra</title>
+  <meta name="description" content="Create a token paired with TAO or subnet alpha on Robinhood Chain or Bittensor EVM, in one transaction.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23000'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M16 26V16M16 16l-6-6M16 16l6-6M10 10l-3 1M10 10l-1-3M22 10l3 1M22 10l1-3'/%3E%3C/g%3E%3Ccircle cx='16' cy='26' r='2.6' fill='%23FF5B26'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dn-page">
+
+  <header class="dn-nav-wrap">
+    <nav class="dn-nav">
+      <a class="dn-brand" href="index.html">
+        <svg class="dn-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+          <path d="M16 25V16M16 16l-6-6M16 16l6-6M10 10l-3 1M10 10l-1-3M22 10l3 1M22 10l1-3"/>
+          <circle cx="16" cy="25" r="2.8" fill="var(--accent)" stroke="none"/>
+        </svg>
+        Dendra
+      </a>
+      <div class="dn-nav-links" id="navlinks">
+        <a href="index.html#markets">Markets</a>
+        <a href="index.html#faceoff">Subnets</a>
+        <a href="index.html#theses">Candidates</a>
+        <a href="docs.html">Docs</a>
+        <a class="dn-only-sm" href="launch.html">Launch</a>
+      </div>
+      <div class="dn-nav-right">
+        <a class="dn-nav-launch is-active" href="launch.html">Launch</a>
+        <button class="dn-pill-btn" type="button" data-wallet>Connect wallet</button>
+        <button class="dn-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="dn-wrap dn-launch">
+
+    <div class="dn-center">
+      <nav class="dn-crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><b>Launch</b></nav>
+      <h1 class="dn-h1-page">Plant it in <em>TAO</em>.</h1>
+      <p class="dn-lead">Turn an idea about intelligence into something people can trade.</p>
+      <div class="dn-subnav">
+        <a href="index.html#markets">Markets</a><a href="index.html#faceoff">Subnets</a><a href="index.html#theses">Candidates</a><a href="index.html#faceoff">Face-offs</a><a href="#portfolio">Portfolio</a><a class="is-active" href="launch.html">Launch</a><a href="index.html#features">Fund</a>
+      </div>
+    </div>
+
+    <div class="dn-box dn-recover">
+      <div>
+        <b>Launched already and can't find it?</b>
+        <p>If your wallet timed out or the token isn't showing, look up the transaction first. Deploying again costs gas twice.</p>
+      </div>
+      <button type="button" class="dn-chip">Find my launch</button>
+    </div>
+
+    <section class="dn-box">
+      <span class="dn-kicker">Network</span>
+      <h2 class="dn-h4 dn-h4-lg">Where should it live?</h2>
+      <p class="dn-dim">A token, its pool and its balances stay on the network you launch it on.</p>
+      <div class="dn-nets" role="radiogroup" id="nets">
+        <button type="button" role="radio" aria-checked="true" data-net="bittensor">
+          <b>Bittensor EVM</b><span>TAO or subnet alpha · locked pool from block one</span>
+        </button>
+        <button type="button" role="radio" aria-checked="false" data-net="robinhood">
+          <b>Robinhood Chain <em class="dn-live">live</em></b><span>Bonding curve · moves to a pool when it fills</span>
+        </button>
+      </div>
+      <div class="dn-note" id="net-note"></div>
+    </section>
+
+    <div class="dn-launch-grid">
+      <form class="dn-box dn-form" id="launch-form" autocomplete="off" novalidate>
+        <span class="dn-kicker" id="form-kicker">Bittensor EVM · native TAO</span>
+        <h2 class="dn-h4 dn-h4-lg" id="form-title">Straight into a pool.</h2>
+        <p class="dn-dim" id="form-sub">One transaction deploys the token and opens its pool, funded by the reserve you set below. There's no extra platform fee to deploy.</p>
+
+        <label class="dn-f">
+          <span>Pair against</span>
+          <select id="f-pair">
+            <option value="TAO">Native TAO</option>
+            <option value="SN9">SN9 alpha (wrapped)</option>
+            <option value="SN13">SN13 alpha (wrapped)</option>
+            <option value="SN19">SN19 alpha (wrapped)</option>
+            <option value="SN51">SN51 alpha (wrapped)</option>
+          </select>
+        </label>
+
+        <div class="dn-f-row">
+          <label class="dn-f"><span>Name</span><input id="f-name" type="text" maxlength="40" placeholder="Project name"></label>
+          <label class="dn-f"><span>Ticker</span><input id="f-ticker" type="text" maxlength="10" placeholder="TICKER" class="dn-mono-in"></label>
+        </div>
+
+        <label class="dn-f">
+          <span>Thesis</span>
+          <textarea id="f-desc" rows="4" maxlength="600" placeholder="What is this and why should it exist? At least 20 characters."></textarea>
+          <small class="dn-dim" id="f-count">0 / 600</small>
+        </label>
+
+        <div class="dn-f">
+          <span class="dn-f-head">Image <em class="dn-chip dn-chip-sm">Optional</em></span>
+          <div class="dn-upload">
+            <span class="dn-avatar" id="f-avatar">?</span>
+            <label class="dn-chip">Upload<input type="file" id="f-file" accept="image/png,image/jpeg,image/webp" hidden></label>
+          </div>
+          <small class="dn-dim">PNG, JPG or WebP up to 2 MB; square looks best. The image is public once uploaded.</small>
+          <input id="f-url" type="url" placeholder="…or paste an image URL (https://)">
+        </div>
+
+        <label class="dn-f" id="reserve-field">
+          <span>Starting reserve (<span id="reserve-unit">TAO</span>)</span>
+          <input id="f-reserve" type="number" min="0.01" step="0.01" value="1" class="dn-big-in">
+          <small class="dn-dim">Minimum 0.01, plus gas. This seeds the pool and sets the opening price; it isn't a fee. <a href="index.html#features">Top up a wallet</a></small>
+        </label>
+      </form>
+
+      <aside class="dn-box dn-terms">
+        <span class="dn-kicker">Summary</span>
+        <dl id="terms"></dl>
+        <p class="dn-dim dn-small" id="terms-note"></p>
+        <div class="dn-warn" id="terms-warn"></div>
+        <label class="dn-check"><input type="checkbox" id="f-ack"><span id="ack-text"></span></label>
+        <button class="dn-btn-white" type="button" id="review" data-wallet>Connect wallet to review</button>
+        <p class="dn-form-msg" id="form-msg" aria-live="polite"></p>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="dn-foot">
+    <div class="dn-wrap">
+      <div class="dn-foot-bottom">
+        <p>© 2026 Dendra. Independent software, not affiliated with the Opentensor Foundation, Bittensor or Robinhood Markets, Inc.</p>
+      </div>
+    </div>
+  </footer>
+
+<script src="app.js"></script>
+</body>
+</html>

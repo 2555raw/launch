@@ -237,40 +237,27 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   Pons is the mark from its public repository (ReptilianHQ/ponsfamily), lifted off its white
   background. The marks belong to their owners, and the row doesn't say they endorse
   Isotope.
-- `web/public/brand/`: the logo, six rounded arms around a hexagon with six drops
-  circling them. `mark.svg` (white) and `mark-black.svg` are the mark alone on a
-  transparent background, with 1024 px PNGs; `logo.svg` is the mark on a black disc
-  (also `favicon.svg`, and the phone icon on a black square), with PNGs at 512 and
+- `web/public/brand/`: the mark, a ring of eight rounded blocks on a six-by-six grid (a
+  diamond drawn in pixels). `mark.svg` (white), `mark-black.svg` and `mark-lime.svg` are
+  the mark alone on a transparent background, with 1024 px PNGs; `logo.svg` is the mark
+  dark on a lime disc (also `favicon.svg` and the phone icon), with PNGs at 512 and
   1024 px for X, listings and the like. `token.svg` is the $SMNT token image (a coin
-  with a star). `x-pfp.png` (1000×1000, the mark alone) and `x-header.jpg` (1500×500,
-  the site's sky with its currency stars) are the X profile picture and header;
-  `x-pfp-sky.png`, `x-pfp-purple.png`, `x-pfp-blue.png` and `x-pfp-navy.png` are the same mark,
-  same size and place, on the site's starfield (no planet): as it is, then tinted violet,
-  royal blue and navy, stars left white;
-  `x-header-2.jpg` is the same sky with seven coin tiles on an orbit above the Earth,
-  each star in its currency's colour; `x-header-3.jpg` is a night field under the Milky
-  Way with the currency stars, and the mark built of cumulus on the planet. Its
-  photographic parts come from open sources: the Milky Way from the three.js example cube
-  map (MIT repository), the Earth's cloud cover from NASA's Blue Marble (public domain,
-  via turban/webgl-earth), and the cumulus puff from pmndrs/drei-assets (MIT).
-  `starmint-teaser.mp4` (30 s) and `starmint-teaser-2.mp4` (46 s) are 1080p promo
-  videos built from the site's own screens; `starmint-teaser-35.mp4` is the second one cut
-  to 35 s on one unbroken run of the song (four identical bars of its drop play twice,
-  and it fades out at the end), with every cut on the song's beat; `starmint.gif` (800 px, 20 fps, looping) and
-  `starmint-3s.mp4` (720p) are 3 seconds of the home page with the sky moving: two
-  shooting stars, the planet with its hurricane, the currency in the headline changing.
-  `starmint-soon.mp4` (3 s, 1080p) is a "Soon" teaser: a phone drops in over the Earth
-  with a coin's market cap counting up and its chart drawing, currency chips round it,
-  then the mark, the name and SOON on the sound's hit; `x-header-4.jpg` is the matching
-  X header (the mark and name, the phone over the planet, currency chips).
-  `starmint-soon.gif` is that teaser as a GIF (720 px, 20 fps, under 5 MB for X).
-  `starmint-30.mp4` is the site teaser at 30 s on the whole song, untouched, every cut on
-  its beat: the intro reads "Is it possible to launch a coin in any currency", "Yes" lands
-  on the drop, the break on "and we thought", and the Starmint mark forms on a downbeat of
-  the second drop before the song's own fade.
-  `x-header-5.jpg` is the planet sky with the hurricane and twelve of the site's currency
-  stars, drawn by the site's own WebGL sky at 1.5 times their size so the signs still read
-  when X shows the header small; the corner the profile picture covers is left empty.
+  with a star). `x-pfp-lime.png` (1000×1000, the mark dark on lime light), `x-pfp-sky.png`
+  and `x-pfp-deep.png` (the mark white on the site's lime starfield, plain and with a lime
+  heart) are X profile pictures; `x-header-lime.jpg` (1500×500) is the X header: the
+  planet sky with the hurricane and twelve of the site's currency stars, drawn by the
+  site's own WebGL sky at 1.5 times their size so the signs still read when X shows the
+  header small; `x-header-mark.jpg` is the same with the mark in the middle.
+  `isotope.gif` (800 px, 20 fps, looping) and `isotope-3s.mp4` (720p) are 3 seconds of
+  the home page with the sky moving: two shooting stars, the planet with its hurricane,
+  the currency in the headline changing. `isotope-soon.mp4` (3 s, 1080p) is a "Soon"
+  teaser: a phone drops in over the Earth with a coin's market cap counting up and its
+  chart drawing, currency chips round it, then the mark, the name and SOON on the sound's
+  hit; `isotope-soon.gif` is it as a GIF (720 px, 20 fps, under 5 MB for X).
+  `isotope-30.mp4` is the site teaser at 30 s on the whole song, every cut on its beat:
+  the intro reads "Is it possible to launch a coin in any currency", "Yes" lands on the
+  drop, the break on "and we thought", and the mark forms on a downbeat of the second
+  drop before the song's own fade.
 - `shared/currencies.json`: which currencies exist, with reference rates.
 - `VITE_DEFAULT_MODE` (`auto` | `live` | `playground`) and `VITE_DEFAULT_CHAIN`
   at build time choose what visitors see first.

@@ -3,77 +3,73 @@
 <head>
 <meta charset="utf-8">
 <title>Nebari — X header</title>
-<!-- The X (Twitter) header, 1500x500. Rendered to header.png; edit here and re-render. -->
+<!-- The X (Twitter) header, 1500x500. Rendered to header.png and header@2x.png; edit here and re-render.
+     X lays the profile picture over the lower-left corner (about x < 372, y > 333), so nothing sits there. -->
 <style>
   @font-face { font-family: 'Poppins'; font-weight: 400; src: url('fonts/Poppins-Regular.ttf'); }
   @font-face { font-family: 'Poppins'; font-weight: 500; src: url('fonts/Poppins-Medium.ttf'); }
   @font-face { font-family: 'Poppins'; font-weight: 600; src: url('fonts/Poppins-SemiBold.ttf'); }
   html, body { margin: 0; }
-  .hdr { position: relative; width: 1500px; height: 500px; overflow: hidden; background: #0b0b0b; font-family: 'Poppins', sans-serif; color: #fff; }
-  .neon { position: absolute; inset: 0; width: 1500px; height: 500px; z-index: 0; }
-  .logo, .center { z-index: 1; }
-  .logo { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(255,255,255,0.14), 0 16px 40px rgba(0,0,0,0.6); overflow: hidden; background: #fff; }
+  .hdr { position: relative; width: 1500px; height: 500px; overflow: hidden; background: #0a0a0a; font-family: 'Poppins', sans-serif; color: #fff; }
+
+  /* a faint grid that fades out towards the edges */
+  .grid { position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+    background-size: 50px 50px; background-position: 25px 0;
+    -webkit-mask-image: radial-gradient(ellipse 60% 70% at 50% 50%, #000 0%, rgba(0,0,0,0.5) 45%, transparent 80%);
+            mask-image: radial-gradient(ellipse 60% 70% at 50% 50%, #000 0%, rgba(0,0,0,0.5) 45%, transparent 80%); }
+  /* a soft maroon light behind the words */
+  .glow { position: absolute; inset: 0; background: radial-gradient(ellipse 32% 48% at 50% 50%, rgba(140,31,51,0.42) 0%, rgba(140,31,51,0) 100%); }
+
+  /* two thin neon rules framing the header */
+  .rule { position: absolute; left: 0; right: 0; height: 1.5px;
+    background: linear-gradient(90deg, rgba(255,70,100,0) 0%, rgba(255,70,100,0.95) 22%, rgba(255,110,135,1) 50%, rgba(255,70,100,0.95) 78%, rgba(255,70,100,0) 100%);
+    box-shadow: 0 0 6px rgba(255,60,95,0.9), 0 0 18px rgba(214,40,75,0.65), 0 0 42px rgba(184,36,63,0.45); }
+  .rule.top { top: 46px; }
+  .rule.bottom { bottom: 46px; }
+
+  .logo { position: absolute; width: 72px; height: 72px; transform: translate(-50%, -50%); border-radius: 50%; overflow: hidden; background: #fff; z-index: 2;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 0 0 6px #0a0a0a, 0 0 0 7px rgba(197,57,79,0.45), 0 14px 34px rgba(0,0,0,0.55); }
   .logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .logo.dark { background: #1a1a1a; }
   .logo.dark img { object-fit: contain; padding: 18%; box-sizing: border-box; }
-  .center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -52%); text-align: center; width: 640px; }
-  .brand { display: inline-flex; align-items: center; gap: 12px; font-weight: 600; font-size: 20px; letter-spacing: .04em; margin-bottom: 22px; }
-  .brand svg { width: 30px; height: 30px; display: block; }
-  h1 { margin: 0; font-weight: 400; font-size: 66px; line-height: 1.02; letter-spacing: -0.035em; }
-  h1 em { font-style: normal; color: #c2586a; }
-  .chip { display: inline-block; margin-top: 26px; font-size: 16px; font-weight: 500; color: #fff; background: #7a1a2c; padding: 9px 20px; border-radius: 999px; }
+
+  .center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; width: 640px; z-index: 2; }
+  .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 600; font-size: 15px; letter-spacing: .28em; margin-bottom: 20px; color: #fff; }
+  .brand svg { width: 24px; height: 24px; display: block; }
+  h1 { margin: 0; font-weight: 500; font-size: 58px; line-height: 1.04; letter-spacing: -0.03em; }
+  h1 em { font-style: normal; color: #d9667a; }
+  .sub { margin: 16px 0 0; font-size: 17px; font-weight: 400; color: #a9a9a9; letter-spacing: .005em; }
+  .chip { display: inline-flex; align-items: center; gap: 9px; margin-top: 22px; font-size: 13px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: #e8e8e8;
+    border: 1px solid rgba(197,57,79,0.6); background: rgba(140,31,51,0.18); padding: 8px 16px; border-radius: 999px; }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; background: #ff4b6b; box-shadow: 0 0 8px #ff4b6b; display: block; }
 </style>
 </head>
 <body>
 <div class="hdr">
-  <!-- neon lines behind everything: a wide soft glow, a tighter glow, and a thin bright core -->
-  <svg class="neon" viewBox="0 0 1500 500" aria-hidden="true">
-    <defs>
-      <filter id="glow-wide" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
-      <filter id="glow-tight" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
-      <linearGradient id="fade" x1="0" x2="1" y1="0" y2="0">
-        <stop offset="0" stop-color="#ff3f5f" stop-opacity="0.15"/>
-        <stop offset="0.25" stop-color="#ff3f5f" stop-opacity="1"/>
-        <stop offset="0.75" stop-color="#ff3f5f" stop-opacity="1"/>
-        <stop offset="1" stop-color="#ff3f5f" stop-opacity="0.15"/>
-      </linearGradient>
-      <!-- the lower sweep runs under the pill, the upper one above the wordmark -->
-      <path id="sweep-low" d="M -40 360 C 260 250, 470 470, 760 440 S 1180 230, 1540 300"/>
-      <path id="sweep-high" d="M -40 150 C 240 40, 520 70, 760 58 S 1220 150, 1540 40"/>
-      <path id="sweep-thin" d="M -40 392 C 280 300, 500 492, 770 468 S 1200 270, 1540 340"/>
-    </defs>
-    <g fill="none" stroke-linecap="round">
-      <use href="#sweep-low"  stroke="#b8243f" stroke-width="18" opacity="0.55" filter="url(#glow-wide)"/>
-      <use href="#sweep-low"  stroke="#e0304f" stroke-width="7"  opacity="0.9"  filter="url(#glow-tight)"/>
-      <use href="#sweep-low"  stroke="url(#fade)" stroke-width="2.4"/>
-      <use href="#sweep-high" stroke="#b8243f" stroke-width="16" opacity="0.45" filter="url(#glow-wide)"/>
-      <use href="#sweep-high" stroke="#e0304f" stroke-width="6"  opacity="0.8"  filter="url(#glow-tight)"/>
-      <use href="#sweep-high" stroke="url(#fade)" stroke-width="2"/>
-      <use href="#sweep-thin" stroke="#e0304f" stroke-width="4"  opacity="0.55" filter="url(#glow-tight)"/>
-      <use href="#sweep-thin" stroke="#ff7a90" stroke-width="1.1" opacity="0.8"/>
-    </g>
-  </svg>
+  <div class="grid"></div>
+  <div class="glow"></div>
+  <div class="rule top"></div>
+  <div class="rule bottom"></div>
 
-  <!-- left side; the lower-left corner stays clear for the profile picture -->
-  <span class="logo" style="left:120px; top:118px; width:88px; height:88px"><img src="../assets/logos/eth.png" alt=""></span>
-  <span class="logo" style="left:292px; top:196px; width:66px; height:66px"><img src="../assets/logos/usdg.png" alt=""></span>
-  <span class="logo" style="left:132px; top:282px; width:70px; height:70px"><img src="../assets/logos/tsla.png" alt=""></span>
-  <span class="logo" style="left:440px; top:318px; width:78px; height:78px"><img src="../assets/logos/nvda.png" alt=""></span>
-  <span class="logo dark" style="left:414px; top:104px; width:62px; height:62px"><img src="../assets/logos/aapl.png" alt=""></span>
-  <!-- right side -->
-  <span class="logo" style="left:1090px; top:108px; width:60px; height:60px"><img src="../assets/logos/msft.png" alt=""></span>
-  <span class="logo dark" style="left:1238px; top:170px; width:86px; height:86px"><img src="../assets/logos/amzn.png" alt=""></span>
-  <span class="logo" style="left:1398px; top:96px; width:66px; height:66px"><img src="../assets/logos/googl.png" alt=""></span>
-  <span class="logo" style="left:1150px; top:336px; width:72px; height:72px"><img src="../assets/logos/meta.png" alt=""></span>
-  <span class="logo" style="left:1372px; top:330px; width:90px; height:90px"><img src="../assets/logos/spy.png" alt=""></span>
+  <!-- left cluster -->
+  <span class="logo" style="left:110px; top:170px"><img src="../assets/logos/eth.png" alt=""></span>
+  <span class="logo" style="left:230px; top:170px"><img src="../assets/logos/usdg.png" alt=""></span>
+  <span class="logo" style="left:350px; top:170px"><img src="../assets/logos/tsla.png" alt=""></span>
+  <span class="logo" style="left:170px; top:290px"><img src="../assets/logos/nvda.png" alt=""></span>
+  <span class="logo dark" style="left:290px; top:290px"><img src="../assets/logos/aapl.png" alt=""></span>
+  <!-- right cluster -->
+  <span class="logo" style="left:1150px; top:170px"><img src="../assets/logos/msft.png" alt=""></span>
+  <span class="logo dark" style="left:1270px; top:170px"><img src="../assets/logos/amzn.png" alt=""></span>
+  <span class="logo" style="left:1390px; top:170px"><img src="../assets/logos/googl.png" alt=""></span>
+  <span class="logo" style="left:1210px; top:290px"><img src="../assets/logos/meta.png" alt=""></span>
+  <span class="logo" style="left:1330px; top:290px"><img src="../assets/logos/spy.png" alt=""></span>
 
   <div class="center">
-    <div class="brand">
-      <svg viewBox="0 0 100 100" fill="#fff" aria-hidden="true"><rect x="33" y="0" width="34" height="18" rx="9"/><rect x="33" y="82" width="34" height="18" rx="9"/><rect x="0" y="33" width="18" height="34" rx="9"/><rect x="82" y="33" width="18" height="34" rx="9"/><rect x="16.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="16.5" y="66.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="66.5" width="17" height="17" rx="4.5"/></svg>
-      NEBARI
-    </div>
+    <div class="brand"><svg viewBox="0 0 100 100" fill="#fff" aria-hidden="true"><rect x="33" y="0" width="34" height="18" rx="9"/><rect x="33" y="82" width="34" height="18" rx="9"/><rect x="0" y="33" width="18" height="34" rx="9"/><rect x="82" y="33" width="18" height="34" rx="9"/><rect x="16.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="16.5" y="66.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="66.5" width="17" height="17" rx="4.5"/></svg>NEBARI</div>
     <h1>Every asset can<br>grow a <em>token</em>.</h1>
-    <span class="chip">Launchpad on Robinhood Chain</span>
+    <p class="sub">Launch tokens paired with stocks, ETH and stablecoins.</p>
+    <span class="chip"><i></i>Live on Robinhood Chain</span>
   </div>
 </div>
 </body>

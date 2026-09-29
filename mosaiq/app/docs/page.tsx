@@ -28,24 +28,25 @@ const mcpExample = `curl -s ${site.url}/api/mcp \\
 export default function DocsPage() {
   return (
     <div className="mx-auto grid max-w-6xl gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[13rem_minmax(0,1fr)]">
-      <aside className="order-2 hidden lg:order-1 lg:block">
+      <aside className="order-2 hidden pt-6 lg:order-1 lg:block">
         <DocsToc items={toc} />
       </aside>
       <article className="order-1 lg:order-2">
-        <header className="card relative overflow-hidden p-7 sm:p-10">
-          <div aria-hidden="true" className="absolute -right-20 -top-20 size-64 rounded-full bg-ember/10 blur-3xl" />
+        <div className="card p-4 sm:p-6">
+        <header className="relative overflow-hidden rounded-2xl border border-line bg-[linear-gradient(135deg,#1a1a1a,#0e0e0e)] p-7 sm:p-10">
+          <div aria-hidden="true" className="absolute -right-20 -top-20 size-64 rounded-full bg-accent/10 blur-3xl" />
           <p className="label relative">The guide</p>
           <h1 className="display relative mt-3 text-[clamp(2.25rem,5vw,3.5rem)] font-semibold leading-none">How {site.name} works</h1>
           <p className="relative mt-4 max-w-2xl text-fog">
             One launch form for {chains.map((c) => c.name).join(", ")}. You draft; an agent with a {site.name} key submits. Start in the{" "}
-            <Link href="/launch" className="text-bone underline decoration-ember/60 underline-offset-4">
+            <Link href="/launch" className="text-bone underline decoration-accent/60 underline-offset-4">
               launch studio
             </Link>
             .
           </p>
         </header>
 
-        <div className="prose-doc mt-10 space-y-14">
+        <div className="prose-doc mt-10 space-y-14 px-2 pb-6 sm:px-4">
           <section id="who" aria-labelledby="who-h">
             <h2 id="who-h" className="display mb-4 text-2xl font-semibold">Who can launch</h2>
             <p>
@@ -53,15 +54,15 @@ export default function DocsPage() {
               A request to <code>submit_launch</code> without a valid key is rejected, whoever sends it.
             </p>
             <p>
-              The split keeps signing in one place: the agent owns the wallet and pays the pad&apos;s fees and any opening buy. {site.name}
-              never holds funds or private keys.
+              The split keeps signing in one place: the agent owns the wallet and pays the pad&apos;s fees and any opening buy.{" "}
+              {site.name} never holds funds or private keys.
             </p>
           </section>
 
           <section id="agent" aria-labelledby="agent-h">
             <h2 id="agent-h" className="display mb-4 text-2xl font-semibold">Connect an agent</h2>
             <p>
-              Press <strong className="text-bone">Connect agent</strong> in the top bar and name it. {site.name} issues a key that starts
+              Press <strong className="text-bone">Connect your agent</strong> in the top bar and name it. {site.name} issues a key that starts
               with <code>{site.keyPrefix}</code> and shows it once, with a ready-made MCP client config. Only a SHA-256 hash of the key is
               stored, so a lost key means issuing a new one.
             </p>
@@ -137,6 +138,7 @@ export default function DocsPage() {
             </p>
             <p>Market cap is read from the pad. Launch counts are the tokens in the ledger; drafts are never counted.</p>
           </section>
+        </div>
         </div>
       </article>
     </div>

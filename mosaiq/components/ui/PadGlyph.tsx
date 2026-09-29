@@ -39,8 +39,8 @@ export function ChainDot({ chain: id, className }: { chain: string; className?: 
   return (
     <span
       aria-hidden="true"
-      className={cn("inline-block size-2.5 shrink-0 rotate-45 rounded-[3px]", className)}
-      style={{ background: chain.color }}
+      className={cn("inline-block size-2.5 shrink-0 rounded-full", className)}
+      style={{ background: chain.color, boxShadow: `0 0 0 2px color-mix(in srgb, ${chain.color} 25%, transparent)` }}
     />
   );
 }

@@ -126,8 +126,8 @@ export function LaunchChart({ initial }: { initial: Stats }) {
         >
           <defs>
             <linearGradient id="chart-fill" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="0%" stopColor="var(--color-ember)" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="var(--color-ember)" stopOpacity="0" />
+              <stop offset="0%" stopColor="var(--color-accent)" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="var(--color-accent)" stopOpacity="0" />
             </linearGradient>
           </defs>
           {[0.25, 0.5, 0.75].map((f) => (
@@ -136,7 +136,7 @@ export function LaunchChart({ initial }: { initial: Stats }) {
           {mode === "total" ? (
             <>
               <path d={area} fill="url(#chart-fill)" />
-              <path d={line} fill="none" stroke="var(--color-ember)" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
+              <path d={line} fill="none" stroke="var(--color-accent)" strokeWidth="2" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
             </>
           ) : (
             values.map((v, i) => (
@@ -147,7 +147,7 @@ export function LaunchChart({ initial }: { initial: Stats }) {
                 width={barW}
                 height={Math.max(0, H - PAD_B - y(v))}
                 rx="2"
-                fill={hover === i ? "var(--color-ember-soft)" : "var(--color-ember)"}
+                fill={hover === i ? "var(--color-accent-soft)" : "var(--color-accent)"}
                 opacity={v ? 0.9 : 0.15}
               />
             ))

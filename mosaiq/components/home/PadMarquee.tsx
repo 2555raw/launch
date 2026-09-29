@@ -19,18 +19,23 @@ export function PadMarquee() {
               <Link
                 href={`/launch?chain=${p.chain}&pad=${p.id}`}
                 tabIndex={clone ? -1 : undefined}
-                className="card card-hover flex w-64 items-center gap-3 p-3"
+                className="card card-hover flex w-[252px] items-center gap-3 p-3"
               >
-                <PadGlyph pad={p.id} size="lg" />
+                <span className="relative">
+                  <PadGlyph pad={p.id} size="lg" />
+                  <ChainDot chain={p.chain} className="absolute -bottom-0.5 -right-0.5 size-3.5 ring-2 ring-[#0e0e0e]" />
+                </span>
                 <span className="min-w-0 flex-1">
-                  <span className="flex items-center justify-between gap-2 text-[11px] text-mute">
-                    <span className="inline-flex items-center gap-1.5">
-                      <ChainDot chain={p.chain} className="size-2" /> {chain.name}
-                    </span>
-                    <span className="text-mint">Live</span>
+                  <span className="flex items-center justify-between gap-2 text-[11px] text-fog">
+                    {chain.name}
+                    <span>{p.featured ? "Featured" : "Live"}</span>
                   </span>
-                  <span className="mt-0.5 block truncate text-sm font-medium">{p.name}</span>
-                  <span className="block truncate font-mono text-[11px] text-fog">{p.pairs.map((x) => x.symbol).join(" · ")}</span>
+                  <span className="mt-0.5 block truncate text-sm font-semibold">
+                    {p.name} <span className="font-normal text-fog">{p.pairs[0].symbol}</span>
+                  </span>
+                  <span className="block truncate text-[11px] text-fog">
+                    Pairs <span className="font-semibold text-bone">{p.pairs.map((x) => x.symbol).join(" · ")}</span>
+                  </span>
                 </span>
               </Link>
             </li>

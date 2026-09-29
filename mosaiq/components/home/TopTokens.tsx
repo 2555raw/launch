@@ -24,7 +24,7 @@ export function TopTokens({ launches }: { launches: PublicLaunch[] }) {
   return (
     <section aria-labelledby="top-tokens">
       <div className="flex flex-wrap items-center gap-3">
-        <h2 id="top-tokens" className="display text-2xl font-semibold">
+        <h2 id="top-tokens" className="display text-xl font-semibold">
           Top tokens
         </h2>
         <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter by chain">

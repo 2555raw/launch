@@ -292,7 +292,7 @@ export function LaunchStudio({
               : "List a token already live on a pad. Your agent confirms the import."}
           </p>
         </div>
-        <div role="tablist" aria-label="Studio mode" className="inline-flex shrink-0 self-start rounded-full border border-line-strong bg-surface p-1 sm:self-auto">
+        <div role="tablist" aria-label="Studio mode" className="inline-flex shrink-0 self-start rounded-xl border border-line-strong bg-surface p-1 sm:self-auto">
           {(["create", "import"] as const).map((m) => (
             <button
               key={m}
@@ -300,10 +300,10 @@ export function LaunchStudio({
               role="tab"
               aria-selected={form.mode === m}
               onClick={() => update("mode", m)}
-              className="relative rounded-full px-5 py-2 text-sm font-medium capitalize text-fog transition-colors aria-selected:text-ink"
+              className="relative rounded-lg px-6 py-2.5 text-sm font-medium capitalize text-fog transition-colors aria-selected:text-ink"
             >
               {form.mode === m && (
-                <motion.span layoutId="mode-pill" className="absolute inset-0 rounded-full bg-bone" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
+                <motion.span layoutId="mode-pill" className="absolute inset-0 rounded-lg bg-[#e8e8e8]" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
               )}
               <span className="relative">{m}</span>
             </button>
@@ -358,7 +358,7 @@ export function LaunchStudio({
                     </span>
                     <span
                       aria-hidden="true"
-                      className={cn("grid size-4 place-items-center rounded-full border", form.pad === p.id ? "border-ember bg-ember" : "border-line-strong")}
+                      className={cn("grid size-4 place-items-center rounded-full border", form.pad === p.id ? "border-accent bg-accent" : "border-line-strong")}
                     >
                       {form.pad === p.id && <span className="size-1.5 rounded-full bg-ink" />}
                     </span>
@@ -533,15 +533,15 @@ export function LaunchStudio({
 
             <div>
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm text-fog">Agent</p>
-                <button type="button" onClick={openConnect} className="inline-flex items-center gap-2 text-sm text-bone underline decoration-ember/60 underline-offset-4 hover:decoration-ember">
+                <p className="text-sm text-fog">Agent wallet</p>
+                <button type="button" onClick={openConnect} className="inline-flex items-center gap-2 text-sm text-bone underline decoration-accent/60 underline-offset-4 hover:decoration-accent">
                   <Bot className="size-4" aria-hidden="true" />
                   {agent ? `${agent.name} connected` : "Connect your agent"}
                 </button>
               </div>
               <div className="mt-3 rounded-2xl border border-line bg-ink-2">
                 <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
-                  <p className="text-sm font-medium">Note for your agent</p>
+                  <p className="text-sm font-semibold">Give this to your agent</p>
                   <button type="button" className="btn btn-ghost btn-sm" onClick={() => copy(handoff, "handoff")}>
                     {copied === "handoff" ? <Check className="size-3.5 text-mint" /> : <Copy className="size-3.5" />}
                     {copied === "handoff" ? "Copied" : "Copy"}
@@ -592,12 +592,23 @@ export function LaunchStudio({
                     </p>
                   )}
                   <div className="flex flex-wrap items-center gap-3">
-                    <button type="submit" disabled={submit.state === "submitting"} className="btn btn-ember btn-lg">
-                      {submit.state === "submitting" ? <LoaderCircle className="size-4 animate-spin" /> : <Bot className="size-4" />}
-                      {submit.state === "submitting" ? "Saving draft…" : "Save & hand to agent"}
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-lg"
+                      onClick={() => {
+                        if (!agent) return openConnect();
+                        copy(handoff, "bring");
+                        toast({ kind: "success", title: "Note copied", body: `Paste it to ${agent.name}.` });
+                      }}
+                    >
+                      Bring your agent
                     </button>
-                    <button type="button" className="btn btn-ghost btn-lg" onClick={reset}>
-                      Clear
+                    <button type="submit" disabled={submit.state === "submitting"} className="btn btn-accent btn-lg">
+                      {submit.state === "submitting" ? <LoaderCircle className="size-4 animate-spin" /> : <Bot className="size-4" />}
+                      {submit.state === "submitting" ? "Saving draft…" : "Save for your agent"}
+                    </button>
+                    <button type="button" className="btn btn-ghost text-fog" onClick={reset}>
+                      Clear form
                     </button>
                   </div>
                 </motion.div>
@@ -645,7 +656,7 @@ export function LaunchStudio({
                 )}
               </dl>
               <p className="mt-4 flex items-start gap-2 rounded-xl bg-ink-2 p-3 text-xs leading-relaxed text-fog">
-                <Bot className="mt-0.5 size-3.5 shrink-0 text-ember" aria-hidden="true" />
+                <Bot className="mt-0.5 size-3.5 shrink-0 text-accent" aria-hidden="true" />
                 {agent ? `${agent.name} will sign with its own wallet.` : "Connect an agent to sign and submit this launch."}
               </p>
             </div>
@@ -769,8 +780,8 @@ function ImageDrop({
           onFile(e.dataTransfer.files?.[0]);
         }}
         className={cn(
-          "flex cursor-pointer items-center gap-4 rounded-2xl border border-dashed p-4 transition-colors focus-within:border-ember/70",
-          over ? "border-ember bg-ember/5" : error ? "border-danger/60" : "border-line-strong hover:border-white/30 hover:bg-surface-2/40",
+          "flex cursor-pointer items-center gap-4 rounded-2xl border border-dashed p-4 transition-colors focus-within:border-accent/70",
+          over ? "border-accent bg-accent/5" : error ? "border-danger/60" : "border-line-strong hover:border-white/30 hover:bg-surface-2/40",
         )}
       >
         <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-surface-3">

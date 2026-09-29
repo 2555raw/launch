@@ -1,4 +1,3 @@
-import "@fontsource-variable/space-grotesk";
 import "./globals.css";
 import { GeistMono } from "geist/font/mono";
 import { GeistSans } from "geist/font/sans";
@@ -31,7 +30,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#07080a",
+  themeColor: "#0a0a0a",
   colorScheme: "dark",
 };
 

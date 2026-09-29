@@ -26,10 +26,10 @@ export default async function HomePage() {
         <Bento latest={latest} stats={stats} />
       </Reveal>
 
-      <Reveal className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_20rem]">
+      <Reveal className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_18rem]">
         <TopTokens launches={latest} />
         <section aria-labelledby="top-creators">
-          <h2 id="top-creators" className="display text-2xl font-semibold">
+          <h2 id="top-creators" className="display text-xl font-semibold">
             Top creators
           </h2>
           {creators.length ? (
@@ -45,19 +45,19 @@ export default async function HomePage() {
               ))}
             </ol>
           ) : (
-            <p className="card mt-4 p-5 text-sm leading-relaxed text-fog">Agents rank here by launch count once they submit their first token.</p>
+            <p className="card mt-4 p-5 text-sm leading-relaxed text-fog">Launch counts show here once an agent submits its first token.</p>
           )}
         </section>
       </Reveal>
 
-      <Reveal className="grid grid-cols-1 gap-10 lg:grid-cols-[1.2fr_1fr]">
+      <Reveal className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <section aria-labelledby="launchpads">
           <div className="flex items-center justify-between">
-            <h2 id="launchpads" className="display text-2xl font-semibold">
+            <h2 id="launchpads" className="display text-xl font-semibold">
               Launchpads
             </h2>
             <Link href="/launch" className="inline-flex items-center gap-1 text-sm text-mute hover:text-bone">
-              Open studio <ArrowRight className="size-3.5" aria-hidden="true" />
+              View all <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>
           </div>
           <ul className="mt-4 space-y-2">
@@ -66,22 +66,22 @@ export default async function HomePage() {
               const n = stats.byPad[p.id] ?? 0;
               return (
                 <li key={p.id}>
-                  <Link href={`/launch?chain=${p.chain}&pad=${p.id}`} className="card card-hover group flex items-center gap-4 p-4">
-                    <PadGlyph pad={p.id} size="lg" />
+                  <Link href={`/launch?chain=${p.chain}&pad=${p.id}`} className="card card-hover group flex items-center gap-4 px-4 py-3.5">
                     <div className="min-w-0 flex-1">
-                      <p className="flex items-center gap-2 font-medium">
+                      <p className="flex items-center gap-2 text-[17px] font-semibold">
                         {p.name}
-                        {p.featured && <span className="rounded-full bg-ember/15 px-2 py-0.5 text-[10px] font-medium text-ember">featured</span>}
+                        {p.featured && <span className="rounded-full bg-mint/15 px-1.5 py-px text-[10px] font-medium text-mint">featured</span>}
                       </p>
                       <p className="mt-0.5 flex items-center gap-1.5 text-sm text-fog">
-                        <ChainDot chain={p.chain} className="size-2" /> {chain.name}
-                        <span className="text-mute">· pairs {p.pairs.map((x) => x.symbol).join(" · ")}</span>
+                        launch on <ChainDot chain={p.chain} className="size-2.5" /> <span className="font-semibold text-bone">{chain.name}</span>
                       </p>
+                      <p className="mt-0.5 text-xs text-fog">Pairs {p.pairs.map((x) => x.symbol).join(" · ")}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-mono text-xs text-mute">{n} {n === 1 ? "launch" : "launches"}</p>
-                      <p className="mt-1 inline-flex items-center gap-1 text-sm transition-colors group-hover:text-ember">
-                        Launch <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                    <PadGlyph pad={p.id} size="md" className="!rounded-full" />
+                    <div className="text-right text-xs">
+                      <p className="text-fog">{n} {n === 1 ? "launch" : "launches"}</p>
+                      <p className="mt-1.5 inline-flex items-center gap-1 text-fog transition-colors group-hover:text-bone">
+                        Launch <ArrowUpRight className="size-3" aria-hidden="true" />
                       </p>
                     </div>
                   </Link>
@@ -92,33 +92,17 @@ export default async function HomePage() {
         </section>
 
         <section aria-labelledby="how-launch-works">
-          <h2 id="how-launch-works" className="display text-2xl font-semibold">
+          <h2 id="how-launch-works" className="display text-xl font-semibold">
             How a launch works
           </h2>
-          <div className="card mt-4 overflow-hidden">
-            <ol className="relative space-y-6 p-6 before:absolute before:bottom-10 before:left-[39px] before:top-10 before:w-px before:bg-line-strong">
-              {[
-                ["You draft", "Pick the pad, fill the details, save. The studio gives you a draft id and a note for your agent."],
-                ["Agent authenticates", `It connects to ${site.name}'s MCP server with the key you issued it.`],
-                ["Agent submits", "submit_launch sends the draft to the pad's adapter, which signs with the agent's wallet."],
-                ["It lands in the ledger", "The token shows up on Explore and in Analytics, with market cap read from the pad."],
-              ].map(([t, d], i) => (
-                <li key={t} className="relative flex gap-4">
-                  <span className="relative z-10 grid size-8 shrink-0 place-items-center rounded-full border border-line-strong bg-surface font-mono text-xs">
-                    {i + 1}
-                  </span>
-                  <div>
-                    <p className="font-medium">{t}</p>
-                    <p className="mt-1 text-sm leading-relaxed text-fog">{d}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-            <div className="border-t border-line p-6">
-              <Link href="/launch" className="btn btn-ember w-full sm:w-auto">
-                Open the launch studio <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            </div>
+          <div className="card mt-4 p-6">
+            <p className="text-sm leading-relaxed text-fog">
+              Pick {pads.slice(0, -1).map((p) => p.name).join(", ")} or {pads.at(-1)!.name}, fill in the token, then bring your agent.
+              The agent places the launch with its {site.name} key. A person on the page can shape the draft but cannot send it.
+            </p>
+            <Link href="/launch" className="btn btn-ghost btn-sm mt-5">
+              Open the launch form
+            </Link>
           </div>
         </section>
       </Reveal>

@@ -28,8 +28,7 @@ export default async function AnalyticsPage() {
     <div className="mx-auto max-w-6xl space-y-6 px-4 py-8 sm:px-6 sm:py-10">
       <header className="flex flex-wrap items-end justify-between gap-4 pb-2">
         <div>
-          <p className="label">Protocol</p>
-          <h1 className="display mt-3 text-[clamp(2.25rem,5vw,3.5rem)] font-semibold leading-none">Analytics</h1>
+          <h1 className="metal display pb-1 text-[clamp(2.25rem,5vw,3.25rem)] font-bold leading-none">Protocol analytics</h1>
         </div>
         <p className="flex items-center gap-2 text-sm text-mute">
           <span className="size-1.5 animate-pulse-dot rounded-full bg-mint" /> Recorded activity
@@ -92,7 +91,7 @@ export default async function AnalyticsPage() {
             </p>
             <p className="mt-3 text-sm leading-relaxed text-fog">
               {stats.totalLaunches === 0 ? "No launches yet. " : ""}
-              <Link href="/launch" className="text-bone underline decoration-ember/60 underline-offset-4 hover:decoration-ember">
+              <Link href="/launch" className="text-bone underline decoration-accent/60 underline-offset-4 hover:decoration-accent">
                 Open the studio
               </Link>{" "}
               to draft one.

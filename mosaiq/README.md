@@ -71,14 +71,17 @@ lib/
 
 ## Identidad
 
+Estética monocroma, fiel al look de la referencia: negro casi puro, rejilla cuadrada de fondo, tarjetas con borde
+fino, botones primarios blancos y titulares con degradado blanco→gris. El color solo aparece en los iconos de cadena
+y de pad.
+
 | Token | Valor | Uso |
 | --- | --- | --- |
-| `ink` | `#07080A` | fondo |
-| `surface` | `#111418` | tarjetas |
-| `bone` | `#F3EFE7` | texto, botón primario |
-| `ember` | `#FF6A3D` | acento único: CTA, foco, estado activo |
+| `ink` | `#0A0A0A` | fondo |
+| `surface` | `#111111` | tarjetas |
+| `bone` | `#FAFAFA` | texto, botón primario |
+| `accent` | `#F4F4F4` | estado activo: pestañas, radios, foco |
 | `mint` / `amber` / `peri` | `#3DD9B3` / `#F5C84B` / `#7C9CFF` | colores de cadena |
 
-Tipografía: Space Grotesk (titulares), Geist Sans (texto), Geist Mono (etiquetas). Todo se sirve localmente, sin
-peticiones a Google Fonts. El logo es un mosaico 2×2 con una tesela ember desplazada. Los pads usan monogramas
-propios: no se incluyen logotipos de terceros.
+Tipografía: Geist Sans y Geist Mono, servidas localmente. El hero usa un carrusel de tarjetas en 3D (arrastrable, con
+teclado, autoplay con pausa). Los pads usan monogramas propios: no se incluyen logotipos de terceros.

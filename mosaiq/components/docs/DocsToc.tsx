@@ -31,7 +31,7 @@ export function DocsToc({ items }: { items: { id: string; label: string }[] }) {
               aria-current={active === i.id ? "true" : undefined}
               className={cn(
                 "-ml-px block border-l py-1.5 pl-4 text-sm transition-colors",
-                active === i.id ? "border-ember text-bone" : "border-transparent text-mute hover:text-fog",
+                active === i.id ? "border-accent text-bone" : "border-transparent text-mute hover:text-fog",
               )}
             >
               {i.label}

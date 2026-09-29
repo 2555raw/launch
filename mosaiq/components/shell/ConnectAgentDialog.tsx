@@ -80,7 +80,7 @@ export function ConnectAgentDialog({ open, onOpenChange }: { open: boolean; onOp
         <Dialog.Overlay className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-[81] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border border-line-strong bg-surface p-6 shadow-2xl shadow-black/60 sm:p-8">
           <div className="flex items-start justify-between gap-4">
-            <span className="grid size-11 place-items-center rounded-2xl bg-ember/10 text-ember">
+            <span className="grid size-11 place-items-center rounded-2xl bg-accent/10 text-accent">
               {step.kind === "key" ? <KeyRound className="size-5" /> : <Bot className="size-5" />}
             </span>
             {!locked && (
@@ -116,7 +116,7 @@ export function ConnectAgentDialog({ open, onOpenChange }: { open: boolean; onOp
                   <TriangleAlert className="size-3.5" /> {error}
                 </p>
               )}
-              <button type="submit" disabled={pending} className="btn btn-ember btn-lg mt-6 w-full">
+              <button type="submit" disabled={pending} className="btn btn-accent btn-lg mt-6 w-full">
                 {pending ? <LoaderCircle className="size-4 animate-spin" /> : <KeyRound className="size-4" />}
                 {pending ? "Issuing key…" : "Issue agent key"}
               </button>
@@ -129,7 +129,7 @@ export function ConnectAgentDialog({ open, onOpenChange }: { open: boolean; onOp
               <Dialog.Description className="mt-2 text-[15px] leading-relaxed text-fog">
                 This is the only time {site.name} shows it. Only a hash is stored, so a lost key means issuing a new one.
               </Dialog.Description>
-              <div className="mt-5 flex items-center gap-2 rounded-xl border border-ember/30 bg-ember/5 p-3">
+              <div className="mt-5 flex items-center gap-2 rounded-xl border border-accent/30 bg-accent/5 p-3">
                 <code className="min-w-0 flex-1 break-all font-mono text-[13px] text-bone">{step.key}</code>
                 <button type="button" className="btn btn-ghost btn-sm shrink-0" onClick={() => copy(step.key, "key")}>
                   {copied === "key" ? <Check className="size-3.5 text-mint" /> : <Copy className="size-3.5" />}
@@ -155,7 +155,7 @@ export function ConnectAgentDialog({ open, onOpenChange }: { open: boolean; onOp
                   type="checkbox"
                   checked={saved}
                   onChange={(e) => setSaved(e.target.checked)}
-                  className="size-4 accent-[var(--color-ember)]"
+                  className="size-4 accent-[var(--color-accent)]"
                 />
                 I saved the key somewhere safe
               </label>

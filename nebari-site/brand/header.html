@@ -10,6 +10,8 @@
   @font-face { font-family: 'Poppins'; font-weight: 600; src: url('fonts/Poppins-SemiBold.ttf'); }
   html, body { margin: 0; }
   .hdr { position: relative; width: 1500px; height: 500px; overflow: hidden; background: #0b0b0b; font-family: 'Poppins', sans-serif; color: #fff; }
+  .neon { position: absolute; inset: 0; width: 1500px; height: 500px; z-index: 0; }
+  .logo, .center { z-index: 1; }
   .logo { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; box-shadow: 0 0 0 1.5px rgba(255,255,255,0.14), 0 16px 40px rgba(0,0,0,0.6); overflow: hidden; background: #fff; }
   .logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
   .logo.dark { background: #1a1a1a; }
@@ -24,6 +26,34 @@
 </head>
 <body>
 <div class="hdr">
+  <!-- neon lines behind everything: a wide soft glow, a tighter glow, and a thin bright core -->
+  <svg class="neon" viewBox="0 0 1500 500" aria-hidden="true">
+    <defs>
+      <filter id="glow-wide" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+      <filter id="glow-tight" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="4"/></filter>
+      <linearGradient id="fade" x1="0" x2="1" y1="0" y2="0">
+        <stop offset="0" stop-color="#ff3f5f" stop-opacity="0.15"/>
+        <stop offset="0.25" stop-color="#ff3f5f" stop-opacity="1"/>
+        <stop offset="0.75" stop-color="#ff3f5f" stop-opacity="1"/>
+        <stop offset="1" stop-color="#ff3f5f" stop-opacity="0.15"/>
+      </linearGradient>
+      <!-- the lower sweep runs under the pill, the upper one above the wordmark -->
+      <path id="sweep-low" d="M -40 360 C 260 250, 470 470, 760 440 S 1180 230, 1540 300"/>
+      <path id="sweep-high" d="M -40 150 C 240 40, 520 70, 760 58 S 1220 150, 1540 40"/>
+      <path id="sweep-thin" d="M -40 392 C 280 300, 500 492, 770 468 S 1200 270, 1540 340"/>
+    </defs>
+    <g fill="none" stroke-linecap="round">
+      <use href="#sweep-low"  stroke="#b8243f" stroke-width="18" opacity="0.55" filter="url(#glow-wide)"/>
+      <use href="#sweep-low"  stroke="#e0304f" stroke-width="7"  opacity="0.9"  filter="url(#glow-tight)"/>
+      <use href="#sweep-low"  stroke="url(#fade)" stroke-width="2.4"/>
+      <use href="#sweep-high" stroke="#b8243f" stroke-width="16" opacity="0.45" filter="url(#glow-wide)"/>
+      <use href="#sweep-high" stroke="#e0304f" stroke-width="6"  opacity="0.8"  filter="url(#glow-tight)"/>
+      <use href="#sweep-high" stroke="url(#fade)" stroke-width="2"/>
+      <use href="#sweep-thin" stroke="#e0304f" stroke-width="4"  opacity="0.55" filter="url(#glow-tight)"/>
+      <use href="#sweep-thin" stroke="#ff7a90" stroke-width="1.1" opacity="0.8"/>
+    </g>
+  </svg>
+
   <!-- left side; the lower-left corner stays clear for the profile picture -->
   <span class="logo" style="left:120px; top:118px; width:88px; height:88px"><img src="../assets/logos/eth.png" alt=""></span>
   <span class="logo" style="left:292px; top:196px; width:66px; height:66px"><img src="../assets/logos/usdg.png" alt=""></span>

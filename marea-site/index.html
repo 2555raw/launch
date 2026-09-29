@@ -32,132 +32,129 @@
     <a href="#faq">FAQ</a>
     <a href="#token">Token</a>
   </nav>
-  <a class="btn btn--dark nav__cta" href="#start">Open reef</a>
-  <button class="nav__menu" id="menu" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
+  <div class="nav__actions">
+    <a class="btn" href="#start">Open reef</a>
+    <button class="nav__menu" id="menu" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
+  </div>
 </header>
 
 <main>
 
   <!-- HERO ------------------------------------------------------------ -->
-  <section class="hero">
-    <div class="wrap hero__grid">
-      <div class="hero__copy">
-        <h1 class="hero__title">Bid and ask,<br><span class="accent">swimming<br>as a pair</span></h1>
-        <p class="hero__sub">MAREA keeps a buy order and a sell order working side by side — on EVM pools and Solana books — so your token always has a price in both directions.</p>
-        <a class="btn btn--primary" href="#start">Enter the reef</a>
-        <p class="hero__note">Follow <a href="#" class="link">MAREA on X</a> for an early reef pass.</p>
+  <div class="stage">
+    <!-- the couple: Bid (him, cobalt) and Ask (her, gold) -->
+    <div class="couple" aria-label="Bid and Ask, the MAREA seahorses">
+      <div class="couple__one couple__one--him" data-seahorse="him"></div>
+      <div class="couple__one couple__one--her" data-seahorse="her"></div>
+      <div class="couple__hearts" id="hearts"></div>
+    </div>
 
-        <div class="hero__chains">
-          <div>
-            <h4>EVM</h4>
-            <p>Uniswap v3 &amp; v4 pools</p>
-            <p>Launchpad bonding curves</p>
-          </div>
-          <div>
-            <h4>Solana</h4>
-            <p>Raydium CLMM, OpenBook</p>
-            <p>Launchpad bonding curves</p>
-          </div>
+    <section class="hero">
+      <div class="hero__copy">
+        <h1>Bid and ask,<br><em class="accent">swimming as a pair</em></h1>
+        <p class="lede">MAREA keeps a buy order and a sell order working side by side — on EVM pools and Solana books.</p>
+        <a class="btn btn--primary btn--lg" href="#start">Enter the reef</a>
+        <p class="cta-note">Follow <a href="#">@marea</a> on X, then claim a reef pass.</p>
+        <div class="hero__meta">
+          <div><strong>EVM</strong><span>Uniswap v3 &amp; v4 pools</span><span>Launchpad bonding curves</span></div>
+          <div><strong>Solana</strong><span>Launchpad bonding curves</span><span>Raydium CLMM, OpenBook</span></div>
         </div>
       </div>
-
-      <!-- the couple: Bid (him, cobalt) and Ask (her, gold) -->
-      <div class="couple" aria-label="Bid and Ask, the MAREA seahorses">
-        <div class="couple__grass"></div>
-        <div class="couple__one couple__one--him" data-seahorse="him"></div>
-        <div class="couple__one couple__one--her" data-seahorse="her"></div>
-        <div class="couple__hearts" id="hearts"></div>
-        <span class="couple__tag couple__tag--him">Bid</span>
-        <span class="couple__tag couple__tag--her">Ask</span>
-      </div>
-    </div>
+    </section>
 
     <!-- live console mock -->
-    <div class="wrap">
-      <div class="console reveal">
-        <div class="console__bar">
-          <span class="dots"><i></i><i></i><i></i></span>
-          <span class="console__brand">MAREA</span>
-          <span class="console__live"><i></i> live · MAREA/WETH</span>
-        </div>
-        <div class="stats">
-          <div class="stat"><span>Mid</span><b id="s-mid">1.2408</b><small id="s-mid2">reservation 1.2405</small></div>
-          <div class="stat"><span>Bid / Ask</span><b id="s-bid">1.2402</b><small id="s-ask">ask 1.2414 · 9.7 bps</small></div>
-          <div class="stat"><span>Inventory</span><b class="up" id="s-inv">+2,140 <em>base</em></b><small>cap 10,000</small></div>
-          <div class="stat"><span>PnL</span><b class="up" id="s-pnl">+86.40</b><small id="s-eq">equity 5,086.40</small></div>
-          <div class="stat"><span>Risk</span><b class="up">Calm</b><small>limits clear</small></div>
-        </div>
-        <div class="console__body">
-          <div class="panel panel--chart">
-            <div class="panel__head"><span>Price</span>
-              <span class="legend"><i class="l-mid"></i>mid <i class="l-bid"></i>bid <i class="l-ask"></i>ask</span>
-            </div>
-            <svg class="chart" id="chart" viewBox="0 0 640 240" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stop-color="#2553e6" stop-opacity="0.35"/>
-                  <stop offset="1" stop-color="#2553e6" stop-opacity="0"/>
-                </linearGradient>
-                <filter id="chart-glow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3"/></filter>
-              </defs>
-              <path id="c-area" fill="url(#chart-fill)"/>
-              <path id="c-ask" class="c-line c-line--ask"/>
-              <path id="c-bid" class="c-line c-line--bid"/>
-              <path id="c-mid-glow" class="c-line c-line--glow" filter="url(#chart-glow)"/>
-              <path id="c-mid" class="c-line c-line--mid"/>
-            </svg>
+    <section class="preview">
+      <div class="preview__glow">
+        <div class="window">
+          <div class="window__bar">
+            <span class="dots"><i></i><i></i><i></i></span>
+            <span class="brand__word brand__word--sm">MAREA</span>
+            <span class="window__status"><i class="pulse"></i> live · MAREA/WETH</span>
           </div>
-          <div class="panel panel--fills">
-            <div class="panel__head"><span>Fills</span><span class="count" id="f-count">0/50</span></div>
-            <div class="fills" id="fills"></div>
+          <div class="window__body">
+            <div class="tiles">
+              <div class="tile"><div class="tile__label">Mid</div><div class="tile__value" id="s-mid">1.2408</div><div class="tile__sub" id="s-mid2">res 1.2405</div></div>
+              <div class="tile"><div class="tile__label">Bid / Ask</div><div class="tile__value" id="s-bid">1.2402</div><div class="tile__sub" id="s-ask">ask 1.2414 · 9.7 bps</div></div>
+              <div class="tile"><div class="tile__label">Inventory</div><div class="tile__value up" id="s-inv">+2,140 <em>base</em></div><div class="tile__sub">cap 10,000</div></div>
+              <div class="tile"><div class="tile__label">PnL</div><div class="tile__value up" id="s-pnl">+86.40</div><div class="tile__sub" id="s-eq">equity 5,086.40</div></div>
+              <div class="tile"><div class="tile__label">Risk</div><div class="tile__value up">Calm</div><div class="tile__sub">live</div></div>
+            </div>
+            <div class="preview__grid">
+              <div class="panel panel--accent">
+                <div class="panel__head"><h3>Price</h3>
+                  <span class="legend"><span><i class="l-mid"></i>mid</span><span><i class="l-bid"></i>bid</span><span><i class="l-ask"></i>ask</span></span>
+                </div>
+                <svg class="chart" id="chart" viewBox="0 0 640 240" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="chart-fill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0" stop-color="#2553e6" stop-opacity="0.3"/>
+                      <stop offset="1" stop-color="#2553e6" stop-opacity="0"/>
+                    </linearGradient>
+                    <filter id="chart-glow" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="3"/></filter>
+                  </defs>
+                  <path id="c-area" fill="url(#chart-fill)"/>
+                  <path id="c-ask" class="c-line c-line--ask"/>
+                  <path id="c-bid" class="c-line c-line--bid"/>
+                  <path id="c-mid-glow" class="c-line c-line--glow" filter="url(#chart-glow)"/>
+                  <path id="c-mid" class="c-line c-line--mid"/>
+                </svg>
+              </div>
+              <div class="panel">
+                <div class="panel__head"><h3>Fills</h3><span class="count" id="f-count">0/50</span></div>
+                <div class="tape" id="fills"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+  </div>
 
   <!-- MARQUEE --------------------------------------------------------- -->
-  <section class="strip">
-    <p class="strip__label">Swims in the pools you already use</p>
-    <div class="strip__track"><div class="strip__row" id="marquee"></div></div>
+  <section class="section section--logos">
+    <p class="logos__kicker">Swims in the pools you already use</p>
+    <div class="logos"><div class="logos__row" id="marquee"></div></div>
   </section>
 
   <!-- HOW IT WORKS ---------------------------------------------------- -->
   <section class="section" id="how">
-    <div class="wrap">
-      <span class="pill reveal">How it works</span>
-      <h2 class="h2 reveal">Three strokes. Then let it drift.</h2>
-      <div class="steps">
-        <article class="step reveal">
-          <span class="step__n">01</span>
-          <h3>Choose your waters</h3>
-          <p>Pick a pair, a chain and a pool. Top up a dedicated hot wallet — nothing goes live until it holds funds.</p>
-        </article>
-        <article class="step reveal">
-          <span class="step__n">02</span>
-          <h3>Set the tide</h3>
-          <p>Spread model, risk appetite, inventory ceiling, maximum drawdown and the oracle you trust for the mid.</p>
-        </article>
-        <article class="step reveal">
-          <span class="step__n">03</span>
-          <h3>Let the pair swim</h3>
-          <p>Orders go out on both sides, fills stream in, and a single stop button pulls everything back to shore.</p>
-        </article>
-      </div>
-      <div class="cta-inline reveal">
-        <a class="btn btn--primary" href="#start">Enter the reef</a>
-        <p>Follow <a href="#" class="link">MAREA on X</a> for an early reef pass.</p>
-      </div>
+    <div class="center">
+      <div class="kicker reveal">How it works</div>
+      <h2 class="reveal">Three strokes. Then let it drift.</h2>
+    </div>
+    <div class="steps">
+      <article class="step reveal">
+        <div class="step__art" data-art="1"></div>
+        <span class="step__n">01</span>
+        <h3>Choose your waters</h3>
+        <p>Pick a pair, a chain and a pool. Top up a dedicated hot wallet — nothing goes live until it holds funds.</p>
+      </article>
+      <article class="step reveal">
+        <div class="step__art" data-art="2"></div>
+        <span class="step__n">02</span>
+        <h3>Set the tide</h3>
+        <p>Spread model, risk appetite, inventory ceiling, maximum drawdown and the oracle you trust for the mid. Nothing swims without a spend limit.</p>
+      </article>
+      <article class="step reveal">
+        <div class="step__art" data-art="3"></div>
+        <span class="step__n">03</span>
+        <h3>Let the pair swim</h3>
+        <p>Orders go out on both sides, fills stream in, and a single stop button pulls everything back to shore.</p>
+      </article>
+    </div>
+    <div class="steps__cta">
+      <a class="btn btn--primary" href="#start">Enter the reef</a>
+      <p class="cta-note">Follow <a href="#">@marea</a> on X, then claim a reef pass.</p>
     </div>
   </section>
 
   <!-- QUOTING --------------------------------------------------------- -->
   <section class="section" id="quoting">
-    <div class="wrap split">
-      <div class="reveal">
-        <span class="pill">Quoting</span>
-        <h2 class="h2 h2--left">Quotes that read the water</h2>
-        <p class="lead">Holding too much of a token? Your bid slides lower. Choppy market? The spread opens up. Close to a limit? That side gets smaller until you are safe again.</p>
+    <div class="split">
+      <div>
+        <div class="kicker">Quoting</div>
+        <h2 class="left">Quotes that read the water</h2>
+        <p class="lede left">Holding too much of a token? Your bid slides lower. Choppy market? The spread opens up. Close to a limit? That side gets smaller until you are safe again.</p>
         <ul class="ticks">
           <li>Avellaneda–Stoikov for sessions with an end</li>
           <li>GLFT when the session never closes</li>
@@ -171,115 +168,100 @@
             <button class="tab is-on" data-tab="curl" role="tab">cURL</button>
             <button class="tab" data-tab="js" role="tab">JavaScript</button>
           </div>
-          <button class="copy" id="copy">Copy</button>
+          <button class="tab copy" id="copy">Copy</button>
         </div>
-<pre class="code__body" data-code="curl"><code>curl -X POST https://api.marea.example/v1/reef/start \
-  -H "Authorization: Bearer $MAREA_KEY" \
-  -d '{"pair":"MAREA/WETH","model":"avellaneda"}'
-<span class="cm"># status, quotes and fills arrive on /v1/stream</span></code></pre>
-<pre class="code__body" data-code="js" hidden><code><span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="st">"https://api.marea.example/v1/reef/start"</span>, {
-  method: <span class="st">"POST"</span>,
-  headers: { Authorization: <span class="st">`Bearer ${key}`</span> },
-  body: JSON.stringify({ pair: <span class="st">"MAREA/WETH"</span>, model: <span class="st">"avellaneda"</span> }),
-});
-<span class="cm">// then listen on /v1/stream for quotes and fills</span></code></pre>
+<pre class="code__body" data-code="curl"><code>curl -X POST https://api.marea.example/v1/reef/start
+<span class="cm"># quotes, fills and status arrive on /v1/stream</span>
+<span class="cm"># simulation until a pool and a funded wallet are set</span><span class="caret"></span></code></pre>
+<pre class="code__body" data-code="js" hidden><code><span class="kw">await</span> fetch(<span class="st">"https://api.marea.example/v1/reef/start"</span>, { method: <span class="st">"POST"</span> });
+<span class="cm">// quotes, fills and status arrive on /v1/stream</span><span class="caret"></span></code></pre>
       </div>
     </div>
   </section>
 
   <!-- VENUES ---------------------------------------------------------- -->
   <section class="section" id="venues">
-    <div class="wrap">
-      <div class="center">
-        <span class="pill reveal">Venues</span>
-        <h2 class="h2 reveal">One reef. Five currents to ride.</h2>
-        <p class="lead lead--center reveal">Two-sided liquidity on concentrated pools and on the order book — plus launchpad tokens still on their bonding curve, right up until they graduate into a full pool.</p>
-      </div>
+    <div class="center">
+      <div class="kicker reveal">Venues</div>
+      <h2 class="reveal">One reef. Five currents to ride.</h2>
+      <p class="lede reveal">Two-sided liquidity on concentrated pools and on the order book — plus launchpad tokens still on their bonding curve, right up until they graduate into a full pool.</p>
+    </div>
 
-      <div class="scene reveal" id="scene" aria-hidden="true"></div>
+    <div class="scene reveal" id="scene" aria-hidden="true"></div>
 
-      <div class="venues">
-        <article class="venue reveal">
-          <header><h3>Uniswap v3</h3><span class="chip">EVM</span></header>
-          <p>Your quote lives as one liquidity range between bid and ask. Moving it costs gas, so MAREA only re-centres when price drifts past your threshold.</p>
-          <span class="tag">Concentrated range</span>
-        </article>
-        <article class="venue reveal">
-          <header><h3>Launchpad curves</h3><span class="chip">EVM · Solana</span></header>
-          <p>Paste the mint of a token still on its bonding curve. Two-way volume keeps flowing until it graduates into a pool.</p>
-          <span class="tag">Pre-graduation</span>
-        </article>
-        <article class="venue reveal">
-          <header><h3>Uniswap v4</h3><span class="chip">EVM</span></header>
-          <p>Singleton pools on any EVM chain, priced with the same inventory-aware model as every other venue.</p>
-          <span class="tag">Singleton pools</span>
-        </article>
-        <article class="venue reveal">
-          <header><h3>Raydium CLMM</h3><span class="chip">Solana</span></header>
-          <p>Position NFTs opened, moved and closed for you, priced off Pyth or MAREA's own mid.</p>
-          <span class="tag">CLMM position</span>
-        </article>
-        <article class="venue venue--wide reveal">
-          <header><h3>OpenBook</h3><span class="chip">Solana</span></header>
-          <p>Post-only limit orders on the book, with cancels and settlements batched into every engine tick.</p>
-          <span class="tag">Order book</span>
-        </article>
-      </div>
+    <div class="venues">
+      <article class="venue reveal">
+        <header><h3>Uniswap v3</h3><span class="badge">EVM</span></header>
+        <p>Your quote lives as one liquidity range between bid and ask. Moving it costs gas, so MAREA only re-centres past your threshold.</p>
+        <span class="venue__style">Concentrated range</span>
+      </article>
+      <article class="venue reveal">
+        <header><h3>Launchpad curves</h3><span class="badge">Solana</span></header>
+        <p>Paste the mint of a token still on its bonding curve. Two-way volume keeps flowing until it graduates into a pool.</p>
+        <span class="venue__style">Pre-graduation curve</span>
+      </article>
+      <article class="venue reveal">
+        <header><h3>Uniswap v4</h3><span class="badge">EVM</span></header>
+        <p>Singleton pools on any EVM chain, priced with the same inventory-aware model as every other venue.</p>
+        <span class="venue__style">Singleton pools</span>
+      </article>
+      <article class="venue reveal">
+        <header><h3>Raydium CLMM</h3><span class="badge">Solana</span></header>
+        <p>Position NFTs opened, moved and closed for you, priced off Pyth or MAREA's own mid.</p>
+        <span class="venue__style">CLMM position</span>
+      </article>
+      <article class="venue venue--wide reveal">
+        <header><h3>OpenBook</h3><span class="badge">Solana</span></header>
+        <p>Post-only limit orders on the book, with cancels and settlements batched into every engine tick.</p>
+        <span class="venue__style">Order book, post-only</span>
+      </article>
     </div>
   </section>
 
   <!-- FAQ ------------------------------------------------------------- -->
   <section class="section" id="faq">
-    <div class="wrap">
-      <div class="faq__head">
-        <div class="reveal">
-          <span class="pill">FAQ</span>
-          <h2 class="h2 h2--left">Before you dive in</h2>
-        </div>
-        <p class="lead reveal">Your wallet, your gas, your inventory. MAREA only does what your limits allow — and stops the moment you tell it to.</p>
+    <div class="faq__head reveal">
+      <div>
+        <div class="kicker">FAQ</div>
+        <h2 class="left">Before you dive in</h2>
       </div>
-      <div class="faq reveal" id="faqlist">
-        <details><summary>What is MAREA?</summary><p>A two-sided quoting engine. It keeps a buy order and a sell order around the market price of a token you choose, and moves both as your inventory and the market's volatility change.</p></details>
-        <details><summary>Which chains and venues are supported?</summary><p>EVM chains with Uniswap v3 or v4 pools, Solana through Raydium CLMM and OpenBook, and launchpad tokens on either side while they are still on their bonding curve.</p></details>
-        <details><summary>What do I need to go live?</summary><p>A pair, a venue, a funded hot wallet and a spend limit. Until all four are set, the engine stays in simulation.</p></details>
-        <details><summary>How do I stop everything?</summary><p>The stop button cancels every open order and pulls liquidity from every venue in one go. It sits in the top bar and never moves.</p></details>
-        <details><summary>Do my private keys ever reach the browser?</summary><p>No. Keys stay on the engine host; the browser only receives status messages.</p></details>
-        <details><summary>What should I tune first?</summary><p>Start in simulation with a wide spread and a small inventory cap. Watch a few hours of fills, then tighten one setting at a time.</p></details>
-      </div>
+      <p class="lede left">Your wallet, your gas, your inventory. MAREA only does what your limits allow — and stops the moment you tell it to.</p>
+    </div>
+    <div class="faq reveal" id="faqlist">
+      <details><summary>What is MAREA?</summary><p>A two-sided quoting engine. It keeps a buy order and a sell order around the market price of a token you choose, and moves both as your inventory and the market's volatility change.</p></details>
+      <details><summary>Which chains and venues are supported?</summary><p>EVM chains with Uniswap v3 or v4 pools, Solana through Raydium CLMM and OpenBook, and launchpad tokens on either side while they are still on their bonding curve.</p></details>
+      <details><summary>What do I need to go live?</summary><p>A pair, a venue, a funded hot wallet and a spend limit. Until all four are set, the engine stays in simulation.</p></details>
+      <details><summary>How do I stop everything?</summary><p>The stop button cancels every open order and pulls liquidity from every venue in one go. It sits in the top bar and never moves.</p></details>
+      <details><summary>Do my private keys ever reach the browser?</summary><p>No. Keys stay on the engine host; the browser only receives status messages.</p></details>
+      <details><summary>How do I sign in?</summary><p>Connect an EVM or Solana wallet and sign a one-time message. No password, no email.</p></details>
+      <details><summary>What should I tune first?</summary><p>Start in simulation with a wide spread and a small inventory cap. Watch a few hours of fills, then tighten one setting at a time.</p></details>
     </div>
   </section>
 
   <!-- CLOSING --------------------------------------------------------- -->
-  <section class="section" id="start">
-    <div class="wrap">
-      <div class="closing reveal">
-        <div class="closing__pair" data-seahorse="pair-small"></div>
-        <h2 class="h2">The water's warm.</h2>
-        <p class="lead lead--center">Grab a reef pass, connect a wallet, and let the pair swim.</p>
-        <div class="closing__btns">
-          <a class="btn btn--primary" href="#">Enter the reef</a>
-          <a class="btn btn--dark" href="#">Open reef</a>
-        </div>
-        <p class="hero__note">Follow <a href="#" class="link">MAREA on X</a> for an early reef pass.</p>
-      </div>
+  <section class="final reveal" id="start">
+    <h2>The water's warm.</h2>
+    <p>Grab a reef pass, connect a wallet, and let the pair swim.</p>
+    <div class="final__btns">
+      <a class="btn btn--primary btn--lg" href="#">Enter the reef</a>
+      <a class="btn btn--lg" href="#">Open reef</a>
     </div>
+    <p class="cta-note">Follow <a href="#">@marea</a> on X, then claim a reef pass.</p>
   </section>
 
 </main>
 
 <footer class="footer" id="token">
-  <div class="wrap footer__grid">
-    <div>
-      <a class="brand" href="#top"><span class="brand__word">MAREA</span><span class="brand__mark" data-seahorse="mark"></span></a>
-      <p class="footer__tag">A buy order and a sell order, swimming as a pair.</p>
-    </div>
-    <div><h5>Product</h5><a href="#venues">Venues</a><a href="#quoting">Quoting models</a></div>
-    <div><h5>Console</h5><a href="#">Dashboard</a><a href="#">Reef passes</a><a href="#">Treasury</a></div>
-    <div><h5>Notes</h5><a href="#faq">FAQ</a><a href="#">Token</a><a href="#">Terms</a><a href="#">Privacy</a></div>
+  <div class="footer__brand">
+    <a class="brand" href="#top"><span class="brand__word brand__word--lg">MAREA</span><span class="brand__mark brand__mark--lg" data-seahorse="mark"></span></a>
+    <p>A buy order and a sell order, swimming as a pair.</p>
   </div>
-  <div class="wrap footer__base">
-    <p>© 2026 MAREA. The pair lives on the dashboard.</p>
-    <p class="footer__legal">MAREA is software for placing orders. You are responsible for how you use it and for following the rules where you live. Nothing on this page is financial, legal or investment advice.</p>
+  <div><h4>Product</h4><a href="#venues">Venues</a><a href="#quoting">Quoting models</a></div>
+  <div><h4>Console</h4><a href="#">Dashboard</a><a href="#">Reef passes</a><a href="#">Treasury</a></div>
+  <div><h4>Notes</h4><a href="#faq">FAQ</a><a href="#">Token</a><a href="#">Terms</a><a href="#">Privacy</a></div>
+  <div class="footer__copy">
+    <span>© 2026 MAREA. The pair lives on the dashboard.</span>
+    <p class="footer__legal"><strong>Heads up.</strong> MAREA is software for placing orders. You are responsible for how you use it and for following the rules where you live. Nothing on this page is financial, legal or investment advice.</p>
   </div>
 </footer>
 

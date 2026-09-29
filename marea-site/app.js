@@ -34,6 +34,43 @@
   }
   if (!reduceMotion) setInterval(heart, 1800);
 
+
+  // ---------------------------------------------------------------- step art
+  // Small underwater vignettes on top of each step card, all drawn here.
+  const stepArt = {
+    1: () => `<svg viewBox="0 0 300 180" preserveAspectRatio="xMidYMid slice">
+        <defs><radialGradient id="sa1" cx="0.5" cy="0.5"><stop offset="0" stop-color="#2553e6" stop-opacity="0.55"/><stop offset="1" stop-color="#2553e6" stop-opacity="0"/></radialGradient></defs>
+        <path d="M0,140 C60,128 120,146 180,136 C230,128 270,140 300,134 L300,180 L0,180Z" fill="#1d3344"/>
+        <circle cx="150" cy="92" r="70" fill="url(#sa1)"/>
+        <circle cx="150" cy="92" r="44" fill="#0a1f38" stroke="#5a80ff" stroke-width="3"/>
+        <circle cx="150" cy="92" r="36" fill="none" stroke="#2553e6" stroke-opacity="0.5" stroke-dasharray="2 6"/>
+        <path d="M150,60 L160,92 L150,124 L140,92 Z" fill="#3a68ff"/><path d="M150,60 L160,92 L140,92 Z" fill="#dbe6ff"/>
+        <circle cx="150" cy="92" r="4" fill="#f2f2f2"/>
+        <g fill="#8fb0ff" font-family="Inter,sans-serif" font-size="10" text-anchor="middle"><text x="150" y="43">N</text><text x="150" y="150">S</text><text x="100" y="96">W</text><text x="200" y="96">E</text></g>
+        <g stroke="#3f6a38" stroke-width="5" stroke-linecap="round" fill="none"><path d="M26,180 C18,150 34,120 24,92"/><path d="M276,180 C286,150 268,124 278,100"/></g>
+      </svg>`,
+    2: () => `<svg viewBox="0 0 300 180" preserveAspectRatio="xMidYMid slice">
+        <path d="M0,146 C80,136 200,152 300,140 L300,180 L0,180Z" fill="#1d3344"/>
+        ${[70, 130, 190, 250].map((x, i) => {
+          const y = [58, 96, 72, 110][i];
+          return `<g><path d="M${x},148 L${x},34" stroke="#2c4a60" stroke-width="6" stroke-linecap="round"/>
+            <path d="M${x},148 L${x},${y}" stroke="#2553e6" stroke-width="6" stroke-linecap="round"/>
+            <circle cx="${x}" cy="${y}" r="11" fill="#dbe6ff" stroke="#3a68ff" stroke-width="3"/>
+            <circle cx="${x}" cy="${y}" r="18" fill="#2553e6" opacity="0.18"/></g>`;
+        }).join('')}
+        <g fill="none" stroke="#cfeaff" stroke-opacity="0.5"><circle cx="100" cy="40" r="3"/><circle cx="106" cy="28" r="2"/><circle cx="222" cy="52" r="3"/></g>
+      </svg>`,
+    3: () => `<svg viewBox="0 0 300 180" preserveAspectRatio="xMidYMid slice">
+        <defs><radialGradient id="sa3" cx="0.5" cy="0.5"><stop offset="0" stop-color="#2553e6" stop-opacity="0.5"/><stop offset="1" stop-color="#2553e6" stop-opacity="0"/></radialGradient></defs>
+        <path d="M0,150 C70,140 170,156 300,144 L300,180 L0,180Z" fill="#1d3344"/>
+        <circle cx="150" cy="90" r="80" fill="url(#sa3)"/>
+        ${him().replace('<svg ', '<svg x="92" y="14" width="72" height="122" ')}
+        <g transform="translate(372 0) scale(-1 1)">${her().replace('<svg ', '<svg x="160" y="20" width="68" height="116" ')}</g>
+        <path d="M40,60 q10,-6 20,0 M232,48 q10,-6 20,0" stroke="#8fb0ff" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.6"/>
+      </svg>`
+  };
+  $$('.step__art').forEach(el => { el.innerHTML = stepArt[el.dataset.art](); });
+
   // ---------------------------------------------------------------- nav
   const nav = $('.nav');
   const onScroll = () => nav.classList.toggle('is-scrolled', window.scrollY > 10);
@@ -96,7 +133,7 @@
     draw();
     const p = series[series.length - 1];
     $('#s-mid').textContent = fmt(p.mid, 4);
-    $('#s-mid2').textContent = 'reservation ' + fmt((p.bid + p.ask) / 2, 4);
+    $('#s-mid2').textContent = 'res ' + fmt((p.bid + p.ask) / 2, 4);
     $('#s-bid').textContent = fmt(p.bid, 4);
     $('#s-ask').textContent = 'ask ' + fmt(p.ask, 4) + ' · ' + fmt((p.ask - p.bid) / p.mid * 1e4, 1) + ' bps';
 
@@ -111,16 +148,16 @@
       const el = document.createElement('div');
       el.className = 'fill ' + (buy ? 'fill--buy' : 'fill--sell');
       el.innerHTML = `<span class="t">${now.toTimeString().slice(0, 8)}</span><span class="side">${buy ? 'BUY' : 'SELL'}</span>` +
-        `<span>${fmt(buy ? p.bid : p.ask, 4)}</span><span>${qty}</span><span class="${edge >= 0 ? 'up' : 'down'}">${edge >= 0 ? '+' : '−'}${fmt(Math.abs(edge), 2)}</span>`;
+        `<span>${fmt(buy ? p.bid : p.ask, 4)}</span><span class="q">${qty}</span><span class="${edge >= 0 ? 'up' : 'down'}">${edge >= 0 ? '+' : '−'}${fmt(Math.abs(edge), 2)}</span>`;
       fillsEl.prepend(el);
-      while (fillsEl.children.length > 6) fillsEl.lastChild.remove();
+      while (fillsEl.children.length > 8) fillsEl.lastChild.remove();
       $('#f-count').textContent = fills + '/50';
       const invEl = $('#s-inv');
       invEl.innerHTML = (inv >= 0 ? '+' : '−') + fmt(Math.abs(inv), 0) + ' <em>base</em>';
-      invEl.className = inv >= 0 ? 'up' : 'down';
+      invEl.className = 'tile__value ' + (inv >= 0 ? 'up' : 'down');
       const pEl = $('#s-pnl');
       pEl.textContent = (pnl >= 0 ? '+' : '−') + fmt(Math.abs(pnl), 2);
-      pEl.className = pnl >= 0 ? 'up' : 'down';
+      pEl.className = 'tile__value ' + (pnl >= 0 ? 'up' : 'down');
       $('#s-eq').textContent = 'equity ' + fmt(5000 + pnl, 2);
     }
   }

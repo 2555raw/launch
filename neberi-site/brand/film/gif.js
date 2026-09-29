@@ -36,8 +36,8 @@ const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascrip
     const st = document.createElement('style');
     st.textContent = '.banner-asset{animation-duration:${DUR}s !important}.banner-grid{animation-duration:${DUR}s !important}.marquee{display:none}.reveal{opacity:1 !important;transform:none !important}';
     document.head.appendChild(st);
-    document.querySelectorAll('.cookies').forEach((el) => el.remove());   // the gate is not part of the shot
-    document.body.classList.remove('cookies-open');
+    document.querySelectorAll('.ng-welcome').forEach((el) => el.remove());   // the gate is not part of the shot
+    document.body.classList.remove('ng-welcome-open');
     // burst: each logo flies straight away from the centre of the frame, off screen, then comes back.
     // 'translate' and 'scale' compose with the float animation's transform, so both run together.
     const cl = (x) => Math.min(1, Math.max(0, x));

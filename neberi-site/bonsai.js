@@ -376,7 +376,7 @@ window.Bonsai = (function () {
     function step(t) {
       if (!running) return;
       requestAnimationFrame(step);
-      if (t - lastT < 33 || document.body.classList.contains('cookies-open')) return; // ~30 fps, and idle behind the gate
+      if (t - lastT < 33 || document.body.classList.contains('ng-welcome-open')) return; // ~30 fps, and idle behind the gate
       lastT = t;
       ctx.clearRect(0, 0, w, h);
       for (const p of list) {

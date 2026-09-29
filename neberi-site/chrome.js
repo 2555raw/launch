@@ -90,11 +90,10 @@
     const sym = (asset.symbol || '?').toUpperCase();
     const low = sym.toLowerCase();
     // transparent versions first (no disc behind the mark), then the round files, then the site icon
-    const srcs = [
-      { src: `assets/logos/bare/${low}.svg`, bare: true },
-      { src: `assets/logos/bare/${low}.png`, bare: true },
-      { src: `assets/logos/${low}.png` },
-    ];
+    const BARE = { eth: 'svg', usdg: 'svg', tsla: 'svg', nvda: 'svg', aapl: 'svg', msft: 'svg', amzn: 'png', googl: 'svg', meta: 'svg', spy: 'png' };
+    const srcs = [];
+    if (BARE[low]) srcs.push({ src: `assets/logos/bare/${low}.${BARE[low]}`, bare: true });
+    srcs.push({ src: `assets/logos/${low}.png` });
     if (asset.logo) srcs.push({ src: asset.logo });
     if (asset.domain) {
       srcs.push({ src: `https://www.google.com/s2/favicons?domain=${asset.domain}&sz=128` });
@@ -153,27 +152,35 @@
     try { seen = localStorage.getItem('nebari:cookies') === 'accepted'; } catch (_) { seen = false; }
     if (seen) return;
     const el = document.createElement('div');
-    el.className = 'cookies'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Cookies');
+    el.className = 'ng-welcome'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Welcome to Neberi');
     el.innerHTML = `
-      <div class="cookies-box">
-        <span class="cookies-mark" aria-hidden="true">${LOGO}</span>
+      <div class="ng-welcome-card">
+        <span class="ng-welcome-mark" aria-hidden="true">${LOGO}</span>
         <span class="mark">${LOGO}</span>
         <h3>A few cookies<br>before you come in.</h3>
         <p>${brand} keeps two things in this browser: which wallet you connected and your answer here. Nothing else, and nothing is sent to anyone. Accept to come in. Decline and we will show you the door.</p>
-        <div class="cookies-actions">
-          <button class="btn btn-primary" type="button" id="cookies-accept">Accept and enter</button>
-          <button class="btn btn-ghost" type="button" id="cookies-decline">Decline</button>
+        <div class="ng-welcome-actions">
+          <button class="btn btn-primary" type="button" id="ng-enter">Accept and enter</button>
+          <button class="btn btn-ghost" type="button" id="ng-leave">Decline</button>
         </div>
       </div>`;
     document.body.appendChild(el);
-    document.body.classList.add('cookies-open');
+    document.body.classList.add('ng-welcome-open');
     el.addEventListener('animationend', () => {}, { once: true });
-    el.querySelector('#cookies-accept').focus();
-    el.querySelector('#cookies-accept').addEventListener('click', () => {
+    el.querySelector('#ng-enter').focus();
+    // Safety net: some browser extensions hide consent dialogs but leave the dark backdrop, which
+    // would lock the page. If the card is not actually visible shortly after load, let the visitor in.
+    setTimeout(() => {
+      const card = el.querySelector('.ng-welcome-card');
+      const hidden = (node) => { if (!node || !node.isConnected) return true; const cs = getComputedStyle(node); const r = node.getBoundingClientRect();
+        return cs.display === 'none' || cs.visibility === 'hidden' || Number(cs.opacity) < 0.1 || r.width < 10 || r.height < 10; };
+      if (el.isConnected && (hidden(el) || hidden(card))) { el.remove(); document.body.classList.remove('ng-welcome-open'); }
+    }, 1500);
+    el.querySelector('#ng-enter').addEventListener('click', () => {
       try { localStorage.setItem('nebari:cookies', 'accepted'); } catch (_) { /* ignore */ }
-      el.remove(); document.body.classList.remove('cookies-open');
+      el.remove(); document.body.classList.remove('ng-welcome-open');
     });
-    el.querySelector('#cookies-decline').addEventListener('click', () => {
+    el.querySelector('#ng-leave').addEventListener('click', () => {
       try { localStorage.removeItem('nebari:cookies'); localStorage.removeItem('nebari:wallet'); } catch (_) { /* ignore */ }
       const to = (C.cookies && C.cookies.declineRedirect) || 'https://www.ponslaunchpad.com/';
       window.location.href = to;

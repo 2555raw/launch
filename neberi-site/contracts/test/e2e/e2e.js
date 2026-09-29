@@ -164,9 +164,9 @@ const WALLET = `(() => {
     await ev(`localStorage.removeItem('nebari:cookies'); true`);
     await send('Page.addScriptToEvaluateOnNewDocument', { source: `try { localStorage.removeItem('nebari:cookies') } catch (e) {}` });
     await go('/index.html');
-    await waitFor(`!!document.getElementById('cookies-decline')`, 8000, 'cookie gate shown');
+    await waitFor(`!!document.getElementById('ng-leave')`, 8000, 'cookie gate shown');
     pass('cookie gate: shown on a fresh visit');
-    await click('#cookies-decline'); await sleep(1500);
+    await click('#ng-leave'); await sleep(1500);
     const where = await ev('location.href');
     where.includes('ponslaunchpad.com') || where.startsWith('chrome-error') ? pass('cookie gate: Decline leaves for ' + (where.startsWith('chrome-error') ? 'ponslaunchpad.com (blocked here, navigation attempted)' : where)) : fail('cookie gate: Decline went to ' + where);
   });

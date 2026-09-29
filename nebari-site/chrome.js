@@ -160,18 +160,25 @@
     try { seen = localStorage.getItem('nebari:cookies') === 'accepted'; } catch (_) { seen = false; }
     if (seen) return;
     const el = document.createElement('div');
-    el.className = 'cookies'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Cookies');
+    el.className = 'cookies'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Cookies');
     el.innerHTML = `
-      <h3>A few cookies.</h3>
-      <p>${brand} keeps your wallet choice and your cookie answer in this browser, nothing else, and sends nothing to anyone. Decline and we will show you the door.</p>
-      <div class="cookies-actions">
-        <button class="btn btn-pink" type="button" id="cookies-accept">Accept</button>
-        <button class="btn btn-light" type="button" id="cookies-decline">Decline</button>
+      <div class="cookies-box">
+        <canvas class="cookies-canvas" aria-hidden="true"></canvas>
+        <span class="mark">${LOGO}</span>
+        <h3>A few <em>cookies</em><br>before you come in.</h3>
+        <p>${brand} keeps two things in this browser: which wallet you connected and your answer here. Nothing else, and nothing is sent to anyone. Accept to come in. Decline and we will show you the door.</p>
+        <div class="cookies-actions">
+          <button class="btn btn-primary" type="button" id="cookies-accept">Accept and enter</button>
+          <button class="btn btn-ghost" type="button" id="cookies-decline">Decline</button>
+        </div>
       </div>`;
     document.body.appendChild(el);
+    document.body.classList.add('cookies-open');
+    if (window.Bonsai) Bonsai.mount(el.querySelector('.cookies-canvas'), (w, h) => ({ x: w * 0.55, y: h * 0.96, height: h * 0.9, seed: 'nebari-cookies', growth: 1, shadow: false }));
+    el.querySelector('#cookies-accept').focus();
     el.querySelector('#cookies-accept').addEventListener('click', () => {
       try { localStorage.setItem('nebari:cookies', 'accepted'); } catch (_) { /* ignore */ }
-      el.remove();
+      el.remove(); document.body.classList.remove('cookies-open');
     });
     el.querySelector('#cookies-decline').addEventListener('click', () => {
       try { localStorage.removeItem('nebari:cookies'); localStorage.removeItem('nebari:wallet'); } catch (_) { /* ignore */ }

@@ -1,4 +1,4 @@
-// Renders the pixel-art backgrounds in paint.html to ../city-night.png and ../city-day.png.
+// Renders the pixel-art background in paint.html to ../great-wall.png.
 //   node assets/src/render.mjs            (needs playwright; set $CHROMIUM to use a local browser)
 import { chromium } from 'playwright';
 import { writeFileSync } from 'node:fs';
@@ -10,7 +10,8 @@ const browser = await chromium.launch(process.env.CHROMIUM ? { executablePath: p
 const page = await browser.newPage();
 await page.goto(pathToFileURL(join(here, 'paint.html')).href);
 
-for (const [fn, out] of [['paintNight', 'city-night.png'], ['paintDay', 'city-day.png']]) {
+// paintNight / paintDay (the New York skylines) are still in paint.html; add them here to export.
+for (const [fn, out] of [['paintWall', 'great-wall.png']]) {
   const url = await page.evaluate((f) => window[f](), fn);
   const buf = Buffer.from(url.split(',')[1], 'base64');
   writeFileSync(join(here, '..', out), buf);

@@ -7,6 +7,7 @@
   hero and the same city by day for the feature panels. Everything is drawn
   pixel by pixel at native resolution and seeded, so it can be regenerated or
   tweaked. render.mjs calls:
+    window.paintWall()  -> PNG data URL, 640x360 (the Great Wall by day; used by the site)
     window.paintNight() -> PNG data URL, 640x360
     window.paintDay()   -> PNG data URL, 400x320
   The site scales them up with `image-rendering: pixelated`.
@@ -303,6 +304,165 @@ window.paintNight = function () {
   // fade the bottom into the page's black, dithered
   for (let y = H - 70; y < H; y++) for (let x = 0; x < W; x++) {
     const t = (y - (H - 70)) / 70;
+    if (t > bayer(x, y)) S.set(x, y, hex('#000000'));
+  }
+  return S.toURL();
+};
+
+/* ---------- the Great Wall by day: hero and panels ---------- */
+
+window.paintWall = function () {
+  const W = 640, H = 360;
+  const S = surface(W, H);
+  const SUN = { x: 112, y: 58 };
+
+  // sky: deep blue overhead, pale toward the hazy horizon, brighter around the sun
+  const sky = ['#123A8C', '#1A4A9E', '#2459B0', '#3169C0', '#4279CC', '#588BD6', '#6F9DDE', '#89B0E5', '#A3C3EA', '#BDD4EE', '#D3E2F0'].map(hex);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const glow = Math.max(0, 1 - Math.hypot(x - SUN.x, (y - SUN.y) * 1.3) / 230);
+    S.set(x, y, ditherPick(sky, (y / 230) * 10 + glow * 2.4, x, y));
+  }
+  // sun
+  for (let y = -12; y <= 12; y++) for (let x = -12; x <= 12; x++) {
+    const d = Math.hypot(x, y);
+    if (d <= 9) S.set(SUN.x + x, SUN.y + y, d < 6 ? hex('#FFFDF0') : hex('#FFF3C4'));
+    else if (d <= 12 && ((x + y) & 1)) S.set(SUN.x + x, SUN.y + y, hex('#E9F0FA'));
+  }
+
+  // cumulus clouds, flat-bottomed and shaded underneath
+  const cn = valueNoise(301);
+  const cloud = { top: hex('#FFFFFF'), mid: hex('#EEF3FA'), shade: hex('#C3D2E8'), deep: hex('#A6B9D8') };
+  for (let y = 18; y < 170; y++) {
+    const band = Math.sin(clamp((y - 18) / 152) * Math.PI);
+    for (let x = 0; x < W; x++) {
+      const v = fbm(cn, x / 52, y / 17, 5) * band;
+      if (v < 0.53) continue;
+      const below = fbm(cn, x / 52, (y + 3) / 17, 5) * Math.sin(clamp((y - 15) / 152) * Math.PI);
+      const above = fbm(cn, x / 52, (y - 2) / 17, 5) * Math.sin(clamp((y - 20) / 152) * Math.PI);
+      let c = v > 0.64 ? cloud.top : cloud.mid;
+      if (below < 0.53) c = cloud.deep; else if (below < 0.57) c = cloud.shade;
+      if (above < 0.53 && x < SUN.x + 260) c = cloud.top;
+      S.set(x, y, c);
+    }
+  }
+
+  // mountain ranges, far to near
+  const ridgeLine = (seed, base, amp, scale, sharp) => {
+    const n = valueNoise(seed), ys = new Float32Array(W);
+    for (let x = 0; x < W; x++) {
+      const warp = fbm(n, x / 260, 40.3, 2) * 90;
+      const v = fbm(n, (x + warp) / scale, 3.7, 5);
+      const peak = Math.pow(1 - Math.abs(fbm(n, (x + warp) / (scale * 0.6), 9.1, 4) * 2 - 1), 3);
+      const swell = 0.55 + 0.9 * fbm(n, x / 230, 17.7, 2);
+      ys[x] = base - amp * swell * (v * (1 - sharp) + peak * sharp * 1.4);
+    }
+    return ys;
+  };
+  const smoothLine = (ys, r) => ys.map((_, x) => { let s = 0, c = 0; for (let k = -r; k <= r; k++) { const i = x + k; if (i >= 0 && i < W) { s += ys[i]; c++; } } return s / c; });
+
+  const fillRange = (ys, pal, hazeTo, seed, treeDensity) => {
+    const tn = valueNoise(seed);
+    const sm = smoothLine(ys, 5);
+    for (let x = 0; x < W; x++) {
+      const top = Math.round(ys[x]);
+      const slope = (sm[Math.min(W - 1, x + 3)] - sm[Math.max(0, x - 3)]) / 6;
+      // sun at the upper left: slopes that fall away to the right catch the light,
+      // strongest near the crest and fading down the mountainside
+      const lit = clamp(0.5 + slope * 1.1, 0, 1);
+      for (let y = Math.max(0, top); y < H; y++) {
+        const depth = y - top;
+        const near = clamp(1 - depth / 46);
+        const tex = fbm(tn, x / 16, y / 10, 4) - 0.5;
+        let f = 1.6 + (lit - 0.5) * 2.6 * (0.35 + 0.65 * near) + tex * 1.3 - depth / 70;
+        if (depth === 0 && lit > 0.55) f += 0.8; // sunlit rim along the ridge
+        if (treeDensity && depth > 3 && tn(x / 2.3, y / 1.8) > 1 - treeDensity) f -= 1.1; // clumps of trees
+        let c = ditherPick(pal, f, x, y);
+        if (hazeTo) c = mix(c, hazeTo[0], hazeTo[1] * clamp(1 - depth / 120));
+        S.set(x, y, c);
+      }
+    }
+  };
+
+  // the wall: walkway, crenellated parapet and stone face, following a ridge
+  const stone = { hi: hex('#E7D8B4'), top: hex('#CDB88E'), face: hex('#AA9570'), shade: hex('#857254'), dark: hex('#5E503C'), hole: hex('#2E2720') };
+  const wall = (line, from, to, t, haze) => {
+    const H2 = (c) => (haze ? mix(c, haze[0], haze[1]) : c);
+    for (let x = from; x < to; x++) {
+      const y = Math.round(line[x]);
+      const slope = line[Math.min(W - 1, x + 1)] - line[Math.max(0, x - 1)];
+      // face
+      for (let k = 0; k < t.body; k++) S.set(x, y + k, H2(k === t.body - 1 ? stone.dark : slope > 0.6 ? stone.shade : stone.face));
+      // walkway seen from above
+      for (let k = 0; k < t.walk; k++) S.set(x, y - 1 - k, H2(k === 0 ? stone.top : stone.hi));
+      // outer parapet with merlons
+      const py = y - 1 - t.walk;
+      S.set(x, py, H2(stone.face));
+      if (x % t.gap < t.merlon) for (let k = 1; k <= t.merlonH; k++) S.set(x, py - k, H2(k === t.merlonH ? stone.hi : stone.face));
+    }
+  };
+  const watchtower = (line, cx, t, haze, roof) => {
+    const H2 = (c) => (haze ? mix(c, haze[0], haze[1]) : c);
+    const baseY = Math.round(Math.min(line[cx - t.w / 2 | 0], line[cx + t.w / 2 | 0], line[cx])) + t.body;
+    const top = baseY - t.h;
+    for (let y = top; y < baseY + 2; y++) for (let x = cx - (t.w >> 1); x < cx + (t.w >> 1); x++) {
+      const left = x < cx - 1;
+      S.set(x, y, H2(y === top ? stone.hi : left ? stone.face : stone.shade));
+    }
+    // crenellated top
+    for (let x = cx - (t.w >> 1); x < cx + (t.w >> 1); x++) if ((x - cx) % t.gap === 0 || (x - cx + 1) % t.gap === 0) for (let k = 1; k <= t.merlonH; k++) S.set(x, top - k, H2(k === t.merlonH ? stone.hi : stone.face));
+    // arched windows
+    if (t.win) for (let wx = cx - (t.w >> 1) + 3; wx < cx + (t.w >> 1) - 3; wx += 5) {
+      for (let y = top + 5; y < top + 5 + t.win; y++) { S.set(wx, y, H2(stone.hole)); S.set(wx + 1, y, H2(stone.hole)); }
+      S.set(wx, top + 4, H2(stone.dark)); S.set(wx + 1, top + 4, H2(stone.dark));
+    }
+    // a tiled pavilion roof on the grand towers
+    if (roof) {
+      const rw = t.w + 4, ry = top - t.merlonH - 1;
+      for (let j = 0; j < 7; j++) {
+        const hw = (rw >> 1) - Math.round(j * 1.2);
+        for (let x = cx - hw; x < cx + hw; x++) S.set(x, ry - j, H2(j === 0 ? hex('#2F3A3A') : (x + j) % 3 ? hex('#4A5A58') : hex('#3A4846')));
+      }
+      S.set(cx - (rw >> 1) - 1, ry + 1, H2(hex('#4A5A58'))); S.set(cx + (rw >> 1), ry + 1, H2(hex('#4A5A58')));
+      for (let y = ry + 1; y < top; y++) { S.set(cx - (t.w >> 1) + 1, y, H2(hex('#6B3A2A'))); S.set(cx + (t.w >> 1) - 2, y, H2(hex('#6B3A2A'))); }
+    }
+  };
+  const peaks = (line, from, to, gap) => {
+    const out = [];
+    for (let x = from + 6; x < to - 6; x++) {
+      if (line[x] <= line[x - 1] && line[x] <= line[x + 1] && (!out.length || x - out[out.length - 1] > gap)) out.push(x);
+    }
+    return out;
+  };
+
+  const haze = hex('#B9CCE6');
+
+  // farthest ranges: pale blue, only shape
+  const r0 = ridgeLine(401, 200, 78, 110, 0.65);
+  fillRange(r0, ['#8FA7C9', '#9AB1D1', '#A7BCD8', '#B4C7DF'].map(hex), [haze, 0.35], 402, 0);
+  const r1 = ridgeLine(411, 238, 84, 95, 0.7);
+  fillRange(r1, ['#6F8DA8', '#7C99B2', '#8BA6BC', '#9BB3C6'].map(hex), [haze, 0.3], 412, 0);
+  const w1 = smoothLine(r1, 3).map((v) => v + 1);
+  wall(w1, 330, 600, { body: 2, walk: 1, gap: 3, merlon: 1, merlonH: 1 }, [haze, 0.35]);
+  peaks(w1, 330, 600, 60).forEach((x) => watchtower(w1, x, { w: 6, h: 6, body: 2, gap: 2, merlonH: 1 }, [haze, 0.35], false));
+
+  // middle range: green, with the wall climbing its crest
+  const r2 = ridgeLine(421, 276, 96, 105, 0.75);
+  fillRange(r2, ['#3F6B45', '#4C7C4C', '#5A8C52', '#6E9E5C', '#86B067'].map(hex), [haze, 0.15], 422, 0.12);
+  const w2 = smoothLine(r2, 4).map((v) => v + 1);
+  wall(w2, 0, 460, { body: 4, walk: 1, gap: 3, merlon: 2, merlonH: 2 }, [haze, 0.12]);
+  peaks(w2, 0, 460, 70).forEach((x, i) => watchtower(w2, x, { w: 11, h: 11, body: 4, gap: 3, merlonH: 2, win: 3 }, [haze, 0.12], i === 1));
+
+  // near range: the wall big in the foreground, running off the right edge
+  const r3 = ridgeLine(431, 326, 64, 150, 0.5);
+  fillRange(r3, ['#1F3A26', '#284A2D', '#335A34', '#416B3C', '#557E47'].map(hex), null, 432, 0.22);
+  const w3 = smoothLine(r3, 6).map((v) => v + 2);
+  wall(w3, 262, 640, { body: 8, walk: 3, gap: 4, merlon: 2, merlonH: 3 });
+  watchtower(w3, 268, { w: 20, h: 22, body: 8, gap: 4, merlonH: 3, win: 6 }, null, false); // where the wall starts
+  peaks(w3, 300, 640, 120).slice(0, 2).forEach((x, i) => watchtower(w3, x, { w: 20, h: 20, body: 8, gap: 4, merlonH: 3, win: 6 }, null, i === 0));
+
+  // bottom: fade into the page's black
+  for (let y = H - 64; y < H; y++) for (let x = 0; x < W; x++) {
+    const t = (y - (H - 64)) / 64;
     if (t > bayer(x, y)) S.set(x, y, hex('#000000'));
   }
   return S.toURL();

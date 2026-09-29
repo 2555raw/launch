@@ -223,7 +223,7 @@ em { font-style: italic; }
 .dn-panel-flip .dn-panel-art { order: 2; }
 .dn-panel-art {
   position: relative; display: grid; place-items: center; padding: 60px 40px;
-  background: #4F88DE url("assets/city-day.png") center bottom / cover no-repeat; image-rendering: pixelated;
+  background: #2459B0 url("assets/great-wall.png") 20% 48% / auto 160% no-repeat; image-rendering: pixelated;
 }
 .dn-panel-copy { padding: 56px; display: flex; flex-direction: column; justify-content: center; }
 .dn-panel-copy p { margin-top: 22px; font-size: 19px; color: var(--prose); max-width: 30em; }
@@ -550,3 +550,6 @@ em { font-style: italic; }
   background: radial-gradient(ellipse 48% 34% at 50% 40%, rgba(8, 6, 26, .55), rgba(8, 6, 26, 0) 72%);
 }
 .dn-hero-in { z-index: 1; }
+.dn-panel-flip .dn-panel-art { background-position: 88% 48%; }
+/* daytime sky is bright: a deeper scrim behind the hero copy */
+.dn-hero::after { background: radial-gradient(ellipse 50% 36% at 50% 40%, rgba(6, 18, 48, .62), rgba(6, 18, 48, 0) 74%); }

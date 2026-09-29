@@ -4,71 +4,131 @@
 <meta charset="utf-8">
 <title>Nebari — X header</title>
 <!-- The X (Twitter) header, 1500x500. Rendered to header.png and header@2x.png; edit here and re-render.
-     X lays the profile picture over the lower-left corner (about x < 372, y > 333), so nothing sits there. -->
+     Idea: nebari is the root spread of a bonsai. The mark sits on the right and neon roots grow
+     from it to every asset. X lays the profile picture over the lower-left corner
+     (about x < 372, y > 333), so the words stay above it. -->
 <style>
   @font-face { font-family: 'Poppins'; font-weight: 400; src: url('fonts/Poppins-Regular.ttf'); }
   @font-face { font-family: 'Poppins'; font-weight: 500; src: url('fonts/Poppins-Medium.ttf'); }
   @font-face { font-family: 'Poppins'; font-weight: 600; src: url('fonts/Poppins-SemiBold.ttf'); }
   html, body { margin: 0; }
-  .hdr { position: relative; width: 1500px; height: 500px; overflow: hidden; background: #0a0a0a; font-family: 'Poppins', sans-serif; color: #fff; }
-
-  /* a faint grid that fades out towards the edges */
-  .grid { position: absolute; inset: 0;
-    background-image: linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
-    background-size: 50px 50px; background-position: 25px 0;
-    -webkit-mask-image: radial-gradient(ellipse 60% 70% at 50% 50%, #000 0%, rgba(0,0,0,0.5) 45%, transparent 80%);
-            mask-image: radial-gradient(ellipse 60% 70% at 50% 50%, #000 0%, rgba(0,0,0,0.5) 45%, transparent 80%); }
-  /* a soft maroon light behind the words */
-  .glow { position: absolute; inset: 0; background: radial-gradient(ellipse 32% 48% at 50% 50%, rgba(140,31,51,0.42) 0%, rgba(140,31,51,0) 100%); }
-
-  /* two thin neon rules framing the header */
-  .rule { position: absolute; left: 0; right: 0; height: 1.5px;
-    background: linear-gradient(90deg, rgba(255,70,100,0) 0%, rgba(255,70,100,0.95) 22%, rgba(255,110,135,1) 50%, rgba(255,70,100,0.95) 78%, rgba(255,70,100,0) 100%);
-    box-shadow: 0 0 6px rgba(255,60,95,0.9), 0 0 18px rgba(214,40,75,0.65), 0 0 42px rgba(184,36,63,0.45); }
-  .rule.top { top: 46px; }
-  .rule.bottom { bottom: 46px; }
-
-  /* the marks on their own: no disc, no ring, a soft shadow that follows the shape */
-  .logo { position: absolute; width: 64px; height: 64px; transform: translate(-50%, -50%); z-index: 2;
-    filter: drop-shadow(0 10px 22px rgba(0,0,0,0.65)); }
-  .logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
-  .center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; width: 640px; z-index: 2; }
-  .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 600; font-size: 15px; letter-spacing: .28em; margin-bottom: 20px; color: #fff; }
-  .brand svg { width: 24px; height: 24px; display: block; }
-  h1 { margin: 0; font-weight: 500; font-size: 58px; line-height: 1.04; letter-spacing: -0.03em; }
-  h1 em { font-style: normal; color: #d9667a; }
-  .sub { margin: 16px 0 0; font-size: 17px; font-weight: 400; color: #a9a9a9; letter-spacing: .005em; }
-  .chip { display: inline-flex; align-items: center; gap: 9px; margin-top: 22px; font-size: 13px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: #e8e8e8;
-    border: 1px solid rgba(197,57,79,0.6); background: rgba(140,31,51,0.18); padding: 8px 16px; border-radius: 999px; }
-  .chip i { width: 7px; height: 7px; border-radius: 50%; background: #ff4b6b; box-shadow: 0 0 8px #ff4b6b; display: block; }
+  .hdr { position: relative; width: 1500px; height: 500px; overflow: hidden; background: #080808; font-family: 'Poppins', sans-serif; color: #fff; }
+  svg.roots { position: absolute; inset: 0; width: 1500px; height: 500px; }
+  .logo { position: absolute; width: 54px; height: 54px; transform: translate(-50%, -50%); filter: drop-shadow(0 8px 18px rgba(0,0,0,0.8)); }
+  .logo img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .mark { position: absolute; left: 1015px; top: 250px; width: 150px; height: 150px; transform: translate(-50%, -50%);
+    filter: drop-shadow(0 0 18px rgba(255, 70, 100, 0.55)) drop-shadow(0 0 44px rgba(197, 40, 70, 0.45)); }
+  .mark svg { width: 100%; height: 100%; display: block; }
+  .words { position: absolute; left: 64px; top: 58px; }
+  .kicker { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; letter-spacing: .3em; color: #d9667a; margin-bottom: 16px; }
+  .kicker i { width: 26px; height: 1.5px; background: #d9667a; box-shadow: 0 0 8px #ff4b6b; display: block; }
+  h1 { margin: 0; font-weight: 600; font-size: 64px; line-height: 0.98; letter-spacing: -0.04em; }
+  h1 .soft { color: rgba(255,255,255,0.42); font-weight: 500; }
+  h1 em { font-style: normal; background: linear-gradient(90deg, #ff6b85, #c5394f); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .tag { margin-top: 18px; font-size: 14px; color: #9a9a9a; letter-spacing: .01em; }
+  .tag b { color: #fff; font-weight: 500; }
 </style>
 </head>
 <body>
-<div class="hdr">
-  <div class="grid"></div>
-  <div class="glow"></div>
-  <div class="rule top"></div>
-  <div class="rule bottom"></div>
+<div class="hdr" id="hdr">
+  <svg class="roots" id="roots" viewBox="0 0 1500 500" aria-hidden="true">
+    <defs>
+      <radialGradient id="halo" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#8c1f33" stop-opacity="0.7"/>
+        <stop offset="0.5" stop-color="#5b1321" stop-opacity="0.25"/>
+        <stop offset="1" stop-color="#000" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="leftglow" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#8c1f33" stop-opacity="0.22"/>
+        <stop offset="1" stop-color="#000" stop-opacity="0"/>
+      </radialGradient>
+      <filter id="blur-wide" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter>
+      <filter id="blur-tight" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.6"/></filter>
+      <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#fff" fill-opacity="0.07"/></pattern>
+      <radialGradient id="dotmask-g" cx="70%" cy="50%" r="55%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>
+      <mask id="dotmask"><rect width="1500" height="500" fill="url(#dotmask-g)"/></mask>
+    </defs>
+    <rect width="1500" height="500" fill="url(#dots)" mask="url(#dotmask)"/>
+    <ellipse cx="300" cy="190" rx="420" ry="230" fill="url(#leftglow)"/>
+    <ellipse cx="1015" cy="250" rx="330" ry="250" fill="url(#halo)"/>
+    <g id="rings" fill="none"></g>
+    <g id="glow-wide" fill="none" stroke-linecap="round" filter="url(#blur-wide)"></g>
+    <g id="glow-tight" fill="none" stroke-linecap="round" filter="url(#blur-tight)"></g>
+    <g id="core" fill="none" stroke-linecap="round"></g>
+    <g id="nodes"></g>
+  </svg>
 
-  <!-- left cluster -->
-  <span class="logo" style="left:110px; top:170px"><img src="../assets/logos/bare/eth.svg" alt=""></span>
-  <span class="logo" style="left:230px; top:170px"><img src="../assets/logos/bare/usdg.svg" alt=""></span>
-  <span class="logo" style="left:350px; top:170px"><img src="../assets/logos/bare/tsla.svg" alt=""></span>
-  <span class="logo" style="left:170px; top:290px"><img src="../assets/logos/bare/nvda.svg" alt=""></span>
-  <span class="logo" style="left:290px; top:290px"><img src="../assets/logos/bare/aapl.svg" alt=""></span>
-  <!-- right cluster -->
-  <span class="logo" style="left:1150px; top:170px"><img src="../assets/logos/bare/msft.svg" alt=""></span>
-  <span class="logo" style="left:1270px; top:170px"><img src="../assets/logos/bare/amzn.png" alt=""></span>
-  <span class="logo" style="left:1390px; top:170px"><img src="../assets/logos/bare/googl.svg" alt=""></span>
-  <span class="logo" style="left:1210px; top:290px"><img src="../assets/logos/bare/meta.svg" alt=""></span>
-  <span class="logo" style="left:1330px; top:290px"><img src="../assets/logos/bare/spy.png" alt=""></span>
+  <div class="words">
+    <div class="kicker"><i></i>NEBARI · ROBINHOOD CHAIN</div>
+    <h1>Every asset<br><span class="soft">can grow</span><br>a <em>token</em>.</h1>
+    <div class="tag">Pair with <b>stocks</b>, <b>ETH</b> and <b>stablecoins</b>. Liquidity rooted for good.</div>
+  </div>
 
-  <div class="center">
-    <div class="brand"><svg viewBox="0 0 100 100" fill="#fff" aria-hidden="true"><rect x="33" y="0" width="34" height="18" rx="9"/><rect x="33" y="82" width="34" height="18" rx="9"/><rect x="0" y="33" width="18" height="34" rx="9"/><rect x="82" y="33" width="18" height="34" rx="9"/><rect x="16.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="16.5" y="66.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="66.5" width="17" height="17" rx="4.5"/></svg>NEBARI</div>
-    <h1>Every asset can<br>grow a <em>token</em>.</h1>
-    <p class="sub">Launch tokens paired with stocks, ETH and stablecoins.</p>
-    <span class="chip"><i></i>Live on Robinhood Chain</span>
+  <div class="mark">
+    <svg viewBox="0 0 100 100" fill="#fff" aria-hidden="true"><rect x="33" y="0" width="34" height="18" rx="9"/><rect x="33" y="82" width="34" height="18" rx="9"/><rect x="0" y="33" width="18" height="34" rx="9"/><rect x="82" y="33" width="18" height="34" rx="9"/><rect x="16.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="16.5" y="66.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="66.5" width="17" height="17" rx="4.5"/></svg>
   </div>
 </div>
+
+<script>
+  // Everything is placed from here so the roots always meet the logos exactly.
+  const C = { x: 1015, y: 250 };                    // the mark
+  const ASSETS = [                                  // angle (deg, 0 = right), reach (0..1), file
+    ['eth',   -128, 0.86, 'svg'], ['aapl',  -97, 0.93, 'svg'], ['tsla',  -68, 0.97, 'svg'],
+    ['googl', -40,  0.92, 'svg'], ['msft',  -14, 0.97, 'svg'], ['amzn',   12, 0.95, 'png'],
+    ['meta',   38,  0.93, 'svg'], ['nvda',   66, 0.97, 'svg'], ['spy',    96, 0.9,  'png'],
+    ['usdg',  126,  0.86, 'svg'],
+  ];
+  const RX = 400, RY = 208;
+  const hdr = document.getElementById('hdr');
+  const NS = 'http://www.w3.org/2000/svg';
+  const add = (g, tag, attrs) => { const el = document.createElementNS(NS, tag); for (const k in attrs) el.setAttribute(k, attrs[k]); document.getElementById(g).appendChild(el); return el; };
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  // faint orbit rings around the mark
+  [[118, 100, 0.5], [205, 150, 0.28], [300, 210, 0.16]].forEach(([rx, ry, o]) =>
+    add('rings', 'ellipse', { cx: C.x, cy: C.y, rx, ry, stroke: '#c5394f', 'stroke-opacity': o, 'stroke-width': 1, 'stroke-dasharray': '2 7' }));
+
+  function root(ex, ey, width, bend) {
+    const dx = ex - C.x, dy = ey - C.y, len = Math.hypot(dx, dy);
+    const ux = dx / len, uy = dy / len, px = -uy, py = ux;
+    const sx = C.x + ux * 60, sy = C.y + uy * 52;              // leave from the edge of the mark
+    const c1x = sx + ux * len * 0.32 + px * bend, c1y = sy + uy * len * 0.32 + py * bend;
+    const c2x = ex - ux * len * 0.3 - px * bend * 0.8, c2y = ey - uy * len * 0.3 - py * bend * 0.8;
+    const d = `M ${sx.toFixed(1)} ${sy.toFixed(1)} C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+    add('glow-wide', 'path', { d, stroke: '#c0263f', 'stroke-width': width * 5, 'stroke-opacity': 0.5 });
+    add('glow-tight', 'path', { d, stroke: '#ff3f5f', 'stroke-width': width * 2.2, 'stroke-opacity': 0.85 });
+    add('core', 'path', { d, stroke: '#ffd0d8', 'stroke-width': width * 0.7, 'stroke-opacity': 0.95 });
+    return { c1x, c1y, c2x, c2y, sx, sy };
+  }
+
+  // main roots, one per asset, each ending under its logo
+  ASSETS.forEach(([sym, deg, reach, ext], i) => {
+    const a = deg * Math.PI / 180;
+    const x = C.x + Math.cos(a) * RX * reach, y = C.y + Math.sin(a) * RY * reach;
+    const bend = (i % 2 ? 1 : -1) * (26 + rnd() * 22);
+    const r = root(x, y, 1.6, bend);
+    // one or two short offshoots per root that end in a point of light
+    const n = 1 + (i % 2);
+    for (let k = 0; k < n; k++) {
+      const t = 0.35 + rnd() * 0.3;
+      const bx = r.sx + (x - r.sx) * t + (rnd() - 0.5) * 30, by = r.sy + (y - r.sy) * t + (rnd() - 0.5) * 20;
+      const ang = Math.atan2(y - C.y, x - C.x) + (rnd() < 0.5 ? -1 : 1) * (0.5 + rnd() * 0.5);
+      const l = 34 + rnd() * 40;
+      const ex = bx + Math.cos(ang) * l, ey = by + Math.sin(ang) * l;
+      const d = `M ${bx.toFixed(1)} ${by.toFixed(1)} Q ${(bx + ex) / 2 + (rnd() - 0.5) * 18} ${(by + ey) / 2 + (rnd() - 0.5) * 18}, ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+      add('glow-tight', 'path', { d, stroke: '#ff3f5f', 'stroke-width': 1.8, 'stroke-opacity': 0.7 });
+      add('core', 'path', { d, stroke: '#ffb3c0', 'stroke-width': 0.7, 'stroke-opacity': 0.8 });
+      add('nodes', 'circle', { cx: ex, cy: ey, r: 2.4, fill: '#ffd0d8' });
+      add('nodes', 'circle', { cx: ex, cy: ey, r: 7, fill: '#ff3f5f', 'fill-opacity': 0.25 });
+    }
+    // a socket of light where the root meets the logo
+    add('nodes', 'circle', { cx: x, cy: y, r: 34, fill: '#0b0b0b' });
+    add('nodes', 'circle', { cx: x, cy: y, r: 34, fill: 'none', stroke: '#ff5a74', 'stroke-opacity': 0.55, 'stroke-width': 1.2 });
+    const img = document.createElement('span');
+    img.className = 'logo'; img.style.left = x + 'px'; img.style.top = y + 'px';
+    img.innerHTML = `<img src="../assets/logos/bare/${sym}.${ext}" alt="">`;
+    hdr.appendChild(img);
+  });
+</script>
 </body>
 </html>

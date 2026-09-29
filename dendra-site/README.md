@@ -15,7 +15,8 @@ launch.html    launch form: network choice, token details, live terms summary, c
 docs.html      guide with a sticky table of contents
 styles.css     the design system and every page's layout
 app.js         all behaviour; each block checks its elements exist, so one file serves all pages
-assets/        hero.svg, hills.svg, fund.svg — original flat illustrations
+assets/        city-night.png (hero) and city-day.png (panels): pixel-art New York skylines;
+               fund.svg; src/ holds the code that paints the pixel art
 assets/logos/  partner marks for the hero strip (see below)
 ```
 
@@ -31,6 +32,18 @@ Black ground, near-black cards, white as the primary action. **Instrument Serif*
 headings (with an italic word), **Inter** for everything else, **JetBrains Mono** for labels and
 figures. One orange, `#FF5B26`, marks the logo node and anything live or filling. The logo is a
 dendrite: a stem branching from a single node.
+
+## Pixel skylines
+
+The hero and the two feature panels use original pixel art of the New York skyline: dusk over
+the water with a suspension bridge, One WTC, the Empire State and the Chrysler for the hero, and
+midtown seen over park trees by day for the panels. They are painted pixel by pixel in
+`assets/src/paint.html` (seeded, so the output is stable) at 640×360 and 400×320, and the site
+scales them up with `image-rendering: pixelated`. To tweak and re-export:
+
+```bash
+node assets/src/render.mjs     # needs playwright; set CHROMIUM=/path/to/chrome to use a local one
+```
 
 ## Partner logos
 

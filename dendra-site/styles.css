@@ -101,7 +101,7 @@ em { font-style: italic; }
 /* ---------- hero ---------- */
 
 .dn-hero { position: relative; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; overflow: hidden; }
-.dn-hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.dn-hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; image-rendering: pixelated; }
 .dn-hero-in { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 140px; padding-bottom: 60px; }
 .dn-hero .dn-display { margin-top: 22px; text-shadow: 0 2px 30px rgba(0,0,0,.35); }
 .dn-hero-sub { margin-top: 22px; font-size: 19px; color: #F0F0F0; max-width: 40em; text-shadow: 0 1px 12px rgba(0,0,0,.5); }
@@ -223,7 +223,7 @@ em { font-style: italic; }
 .dn-panel-flip .dn-panel-art { order: 2; }
 .dn-panel-art {
   position: relative; display: grid; place-items: center; padding: 60px 40px;
-  background: #6F8FB8 url("assets/hills.svg") center / cover no-repeat;
+  background: #4F88DE url("assets/city-day.png") center bottom / cover no-repeat; image-rendering: pixelated;
 }
 .dn-panel-copy { padding: 56px; display: flex; flex-direction: column; justify-content: center; }
 .dn-panel-copy p { margin-top: 22px; font-size: 19px; color: var(--prose); max-width: 30em; }
@@ -538,3 +538,15 @@ em { font-style: italic; }
   .dn-select span { padding-left: 4px; }
   .dn-select select { max-width: 118px; }
 }
+
+/* pixel skyline: on narrow screens keep the midtown towers in frame */
+@media (max-width: 640px) {
+  .dn-hero-bg { object-position: 80% 100%; }
+}
+
+/* a soft scrim behind the headline so it reads over the brightest clouds */
+.dn-hero::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 48% 34% at 50% 40%, rgba(8, 6, 26, .55), rgba(8, 6, 26, 0) 72%);
+}
+.dn-hero-in { z-index: 1; }

@@ -615,3 +615,5 @@ img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image
   .dn-js .dn-reveal, .dn-js .dn-from-left, .dn-js .dn-from-right, .dn-js .dn-panel .dn-chat { opacity: 1; transform: none; filter: none; transition: none; }
   .dn-nav { transition: none; }
 }
+
+.dn-ticker-track img.dn-logo-round { border-radius: 50%; background: #fff; }

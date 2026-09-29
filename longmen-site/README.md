@@ -56,9 +56,9 @@ Robinhood and USDC, taken unmodified from [`@web3icons/core`](https://www.npmjs.
 (MIT), except OKX, whose fill is switched from black to white so it shows on the dark strip, and
 Base, which uses the package's earlier (v3.16.0) round mark instead of the new square one.
 
-- The package has no Bittensor logo, so the strip shows a plain τ glyph. To use the real mark,
-  drop the SVG from Bittensor's brand kit into `assets/logos/bittensor.svg` and swap the
-  `<i class="dn-tau">τ</i>` in `index.html` for an `<img>`.
+- Bittensor isn't in that package, so `bittensor.jpg` is Bittensor's own icon as listed on
+  CoinGecko. It's used in the hero strip and, with USDC, inside `assets/fund.svg` (both embedded
+  as data URIs so the illustration stays one file).
 - Showing a partner's logo is normally fine to say "works with", but check each brand's
   guidelines before going live.
 

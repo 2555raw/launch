@@ -13,6 +13,7 @@ const types = {
 
 http.createServer((req, res) => {
   let p = decodeURIComponent((req.url || '/').split('?')[0]);
+  if (p === '/health' || p === '/healthz') { res.writeHead(200, { 'Content-Type': 'text/plain' }); return res.end('ok'); }  // Railway's health check
   if (p === '/') p = '/index.html';
   const file = path.normalize(path.join(root, p));
   if (!file.startsWith(root) || file.includes(path.sep + 'contracts' + path.sep + 'node_modules')) { res.writeHead(403); return res.end(); }

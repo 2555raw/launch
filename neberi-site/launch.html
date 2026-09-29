@@ -62,6 +62,13 @@
           <span class="hint">Price floor: the pool can never trade below the start price. The supply is one billion, so the start price times one billion is the starting market cap.</span>
         </div>
 
+        <h2 style="margin-top:34px">First buy <span class="hint" style="font-size:14px">(optional, recommended)</span></h2>
+        <div class="field">
+          <label for="firstbuy">Buy right after launching, in <span id="fb-label">ETH</span></label>
+          <input class="input" id="firstbuy" placeholder="0.001" inputmode="decimal">
+          <span class="hint">A first trade gives the pool real liquidity and a price, which is what DexScreener, GeckoTerminal and other terminals need to list it. It is a normal buy: the tokens go to your wallet. You sign it right after the launch.</span>
+        </div>
+
         <button class="btn btn-primary" id="launch" type="submit">Launch on Neberi <span class="arrow" aria-hidden="true">↗</span></button>
         <div class="status" id="status">Fill the form and connect your wallet.</div>
       </form>
@@ -82,6 +89,7 @@
             <div><span>Pair</span><b id="s-pair">–</b></div>
             <div><span>Start price</span><b id="s-price">–</b></div>
             <div><span>Starting market cap</span><b id="s-cap">–</b></div>
+            <div><span>First buy</span><b id="s-fb">–</b></div>
             <div><span>Supply</span><b>1,000,000,000 (fixed)</b></div>
             <div><span>Swap fee</span><b>1% · half to holders</b></div>
             <div><span>Launch fee</span><b>None, just gas</b></div>

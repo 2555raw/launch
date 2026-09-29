@@ -62,7 +62,7 @@ const WALLET = `(() => {
   const shot = async (name) => { const s = await send('Page.captureScreenshot', { format: 'png' }); fs.writeFileSync(path.join(SHOTS, name + '.png'), Buffer.from(s.result.data, 'base64')); };
   const step = async (name, fn) => { try { await fn(); } catch (e) { fail(name + ' -> ' + e.message); try { await shot('FAIL-' + name.replace(/\W+/g, '_')); } catch (_) {} } };
 
-  async function launchAndTrade(label, pairAddr, name, symbol, price, buyAmount, sellAmount) {
+  async function launchAndTrade(label, pairAddr, name, symbol, price, buyAmount, sellAmount, firstBuy) {
     let tokenAddr;
     await step(`${label}: launch`, async () => {
       await go('/launch.html?pair=' + pairAddr);
@@ -70,12 +70,15 @@ const WALLET = `(() => {
       await waitFor(`!!document.querySelector('.pick.selected')`, 15000, 'pair preselected from the URL');
       pass(`${label}: pair preselected (${await text('#s-pair')})`);
       await setVal('#name', name); await setVal('#symbol', symbol); await setVal('#price', price);
+      if (firstBuy) await setVal('#firstbuy', firstBuy);
       await sleep(300);
       pass(`${label}: summary shows ${await text('#s-price')} start, cap ${await text('#s-cap')}`);
       await shot(label + '-1-launch-form');
       await click('#launch');
-      await waitFor(`/Launched/.test(document.getElementById('status').textContent)`, 45000, 'launch confirmed');
+      await waitFor(`/Open /.test(document.getElementById('status').textContent)`, 90000, 'launch confirmed');
+      const st = await text('#status');
       pass(`${label}: launch transaction confirmed`);
+      if (firstBuy) { if (!/First buy done/.test(st)) throw new Error('first buy missing: ' + st); pass(`${label}: ${st.match(/First buy done:[^(]*/)[0].trim()}`); }
       await waitFor(`location.pathname.endsWith('token.html')`, 15000, 'redirect to the token page');
       tokenAddr = await ev(`new URLSearchParams(location.search).get('token')`);
       pass(`${label}: token page opened for ${tokenAddr}`);
@@ -85,6 +88,7 @@ const WALLET = `(() => {
       await waitFor(`document.getElementById('t-name').textContent !== 'Loading…'`, 20000, 'token loaded');
       pass(`${label}: name "${await text('#t-name')}", price ${await text('#k-price')}, floor ${await text('#k-floor')}, cap ${await text('#k-cap')}`);
       await waitFor(`/USDG|ETH|${symbol}/.test(document.getElementById('y-bal').textContent)`, 15000, 'wallet balance shown');
+      if (firstBuy) { const b = await text('#y-bal'); if (/^0 /.test(b)) throw new Error('first-buy tokens not in the wallet: ' + b); pass(`${label}: wallet already holds ${b} from the first buy`); }
       await shot(label + '-2-token');
     });
     await step(`${label}: buy`, async () => {
@@ -140,9 +144,16 @@ const WALLET = `(() => {
   });
 
   console.log('\nETH pair');
-  const t1 = await launchAndTrade('eth', '0x0000000000000000000000000000000000000000', 'Sakura Test', 'SKT', '0.000000001', '0.05', '1000000');
+  await step('launch: ETH is the default pair', async () => {
+    await go('/launch.html');
+    await waitFor(`!!document.querySelector('.pick.selected')`, 15000, 'a pair preselected');
+    const sel = await ev(`document.querySelector('.pick.selected b').textContent`);
+    if (sel !== 'ETH') throw new Error('default pair is ' + sel);
+    pass('launch: ETH is selected by default');
+  });
+  const t1 = await launchAndTrade('eth', '0x0000000000000000000000000000000000000000', 'Sakura Test', 'SKT', '0.000000001', '0.05', '1000000', '0.001');
   console.log('\nUSDG pair (6 decimals, ERC20 approvals)');
-  const t2 = await launchAndTrade('usdg', D.testToken, 'Dollar Seed', 'DSD', '0.00001', '25', '100000');
+  const t2 = await launchAndTrade('usdg', D.testToken, 'Dollar Seed', 'DSD', '0.00001', '25', '100000', '1');
 
   console.log('\nexplore, claim, home');
   await step('explore', async () => {

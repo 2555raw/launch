@@ -15,6 +15,11 @@
     el.innerHTML = msg;
   }
 
+  function firstBuyValue() {
+    const v = parseFloat(String($('firstbuy').value).replace(',', '.'));
+    return isFinite(v) && v > 0 ? v : 0;
+  }
+
   function priceValue() {
     const v = parseFloat(String($('price').value).replace(',', '.'));
     return isFinite(v) && v > 0 ? v : 0;
@@ -28,6 +33,9 @@
     const p = priceValue();
     $('s-price').textContent = pair && p ? `${Nebari.fmt.num(p)} ${pair.symbol}` : '–';
     $('s-cap').textContent = pair && p ? `${Nebari.fmt.num(p * 1e9)} ${pair.symbol}` : '–';
+    const fb = firstBuyValue();
+    $('fb-label').textContent = pair ? pair.symbol : 'the pair asset';
+    $('s-fb').textContent = pair && fb ? `${Nebari.fmt.num(fb)} ${pair.symbol}` : 'None';
     $('s-net').textContent = `${C.network.name} (${C.network.chainId})`;
     $('preview-name').textContent = name || 'Your bonsai';
     preview.redraw();
@@ -75,11 +83,36 @@
     const pre = C.quickPicks.find((p) => p.address.toLowerCase() === want);
     if (pre) selectPick(pre);
     else if (want && E.isAddress(want)) { $('pair').value = want; resolveCustom(); }
+    else { const eth = C.quickPicks.find((p) => p.address === Nebari.ZERO); if (eth) selectPick(eth); }  // ETH by default: every terminal can price it
     try {
       const picks = await Nebari.quickPicks();
       const ok = picks.filter((p) => p.verified);
       if (ok.length !== picks.length) { draw(ok); if (pair) { const still = ok.find((p) => p.address.toLowerCase() === pair.address.toLowerCase()); if (still) selectPick(still); } }
     } catch (_) { /* keep the configured list */ }
+  }
+
+  // Buys `amount` of the new token with the pair asset, straight after the launch.
+  async function firstBuy(signer, token, amount) {
+    if (!C.router) throw new Error('Router not configured');
+    const me = await signer.getAddress();
+    const L = await Nebari.factory(signer).getLaunch(token);
+    const key = [L.key.currency0, L.key.currency1, L.key.fee, L.key.tickSpacing, L.key.hooks];
+    const tokenIsZero = L.key.currency0.toLowerCase() === token.toLowerCase();
+    const amountIn = E.parseUnits(String(amount), pair.decimals);
+    if (!pair.native) {
+      const c = Nebari.erc20(pair.address, signer);
+      if ((await c.allowance(me, C.router)) < amountIn) {
+        setStatus(`Launched. Approve ${pair.symbol} for the first buy in your wallet…`);
+        await (await c.approve(C.router, amountIn)).wait();
+      }
+    }
+    const r = Nebari.router(signer);
+    const out = await r.quoteExactIn.staticCall(key, !tokenIsZero, amountIn);
+    setStatus('Launched. Confirm the first buy in your wallet…');
+    const tx = await r.swapExactIn(key, !tokenIsZero, amountIn, (out * 95n) / 100n, me, { value: pair.native ? amountIn : 0n });
+    setStatus('Launched. First buy sent, waiting for confirmation…');
+    await tx.wait();
+    return ` First buy done: ${Nebari.fmt.units(out, 18)} tokens for ${Nebari.fmt.num(amount)} ${pair.symbol} (<a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">tx</a>).`;
   }
 
   async function launch(ev) {
@@ -91,6 +124,7 @@
     const p = priceValue();
     if (!p) return setStatus('Set a start price above zero.', 'err');
     if (!Nebari.configured()) return setStatus('The factory is not deployed yet.', 'err');
+    if ($('firstbuy').value.trim() && !firstBuyValue()) return setStatus('The first buy must be a number above zero, or leave it empty.', 'err');
 
     let startPrice;
     try { startPrice = Nebari.startPriceRaw(p, pair.decimals); } catch (e) { return setStatus(e.message, 'err'); }
@@ -112,7 +146,13 @@
       const rc = await tx.wait();
       const ev2 = rc.logs.map((l) => { try { return factory.interface.parseLog(l); } catch { return null; } }).find((e) => e && e.name === 'Launched');
       const token = ev2 ? ev2.args.token : null;
-      setStatus(`Launched. ${token ? `<a href="token.html?token=${token}">Open ${symbol}</a> · ` : ''}<a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">transaction</a>`, 'ok');
+      let bought = '';
+      const fb = firstBuyValue();
+      if (token && fb > 0) {
+        try { bought = await firstBuy(signer, token, fb); }
+        catch (e) { console.error(e); bought = ` The first buy did not go through (${Nebari.explainError(e)}); you can buy from the token page.`; }
+      }
+      setStatus(`Launched.${bought} ${token ? `<a href="token.html?token=${token}">Open ${symbol}</a> · ` : ''}<a href="${Nebari.fmt.txLink(tx.hash)}" target="_blank" rel="noopener">transaction</a>`, 'ok');
       Chrome.toast(`${symbol} is live on ${C.network.name}`);
       if (token) setTimeout(() => { location.href = 'token.html?token=' + token; }, 1800);
     } catch (e) {
@@ -126,7 +166,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     if (!Nebari.configured()) { $('not-configured').hidden = false; $('launch').disabled = true; }
     renderPicks();
-    ['name', 'symbol', 'price'].forEach((id) => $(id).addEventListener('input', updateSummary));
+    ['name', 'symbol', 'price', 'firstbuy'].forEach((id) => $(id).addEventListener('input', updateSummary));
     $('resolve').addEventListener('click', resolveCustom);
     $('pair').addEventListener('change', resolveCustom);
     $('form').addEventListener('submit', launch);

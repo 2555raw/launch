@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { PublicAgent } from "@/lib/types";
 import { CommandPalette } from "./CommandPalette";
 import { ConnectAgentDialog } from "./ConnectAgentDialog";
+import { DisclosureGate } from "./DisclosureGate";
 
 type ToastKind = "success" | "error" | "info";
 interface Toast {
@@ -92,6 +93,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       {children}
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
       <ConnectAgentDialog open={connectOpen} onOpenChange={setConnectOpen} />
+      <DisclosureGate />
       <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-20 z-[70] flex flex-col items-center gap-2 px-4 lg:bottom-6 lg:items-end lg:pr-6">
         <AnimatePresence initial={false}>
           {toasts.map((t) => (

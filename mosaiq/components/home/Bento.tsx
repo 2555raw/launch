@@ -7,7 +7,7 @@ import { TimeAgo } from "@/components/ui/TimeAgo";
 import { featuredStocks, getPad } from "@/lib/pads";
 import { site } from "@/lib/site";
 import type { PublicLaunch, Stats } from "@/lib/types";
-import { AssetIcon, TokenAvatar } from "@/components/ui/PadGlyph";
+import { TokenAvatar } from "@/components/ui/PadGlyph";
 import { Sparkline } from "@/components/ui/Sparkline";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 
@@ -38,8 +38,12 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
                 </div>
               ))
             : featuredStocks.map((a) => (
-                <div key={a.symbol} className="grid aspect-square place-items-center rounded-xl border border-white/5 bg-[#1a1a1a] transition-transform duration-500 group-hover:scale-[0.97]">
-                  <AssetIcon symbol={a.symbol} className="!size-[62%] !rounded-2xl !bg-transparent" />
+                <div
+                  key={a.symbol}
+                  className="grid aspect-square place-items-center rounded-xl border border-white/5 bg-[#1a1a1a] transition-transform duration-500 group-hover:scale-[0.97]"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- vector marks, no optimisation needed */}
+                  <img src={a.mark ?? a.logo} alt={a.name} width={64} height={64} className="size-[58%] object-contain" draggable={false} />
                 </div>
               ))}
         </div>

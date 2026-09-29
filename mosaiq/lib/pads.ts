@@ -42,6 +42,8 @@ export interface Asset {
   symbol: string;
   name: string;
   logo: string;
+  /** Vector brand mark for large tiles (crisp at any size). */
+  mark?: string;
   stock?: boolean;
 }
 
@@ -171,12 +173,12 @@ export const assets: Asset[] = [
   { symbol: "BNB", name: "BNB", logo: "/logos/bnb.png" },
   { symbol: "BTC", name: "Bitcoin", logo: "/logos/stocks/BTC.png" },
   { symbol: "cbBTC", name: "Coinbase Wrapped BTC", logo: "/logos/stocks/cbBTC.png" },
-  { symbol: "TSLA", name: "Tesla", logo: "/logos/stocks/TSLA.png", stock: true },
-  { symbol: "NVDA", name: "NVIDIA", logo: "/logos/stocks/NVDA.png", stock: true },
-  { symbol: "AAPL", name: "Apple", logo: "/logos/stocks/AAPL.png", stock: true },
-  { symbol: "HOOD", name: "Robinhood", logo: "/logos/stocks/HOOD.svg", stock: true },
-  { symbol: "COIN", name: "Coinbase", logo: "/logos/stocks/COIN.png", stock: true },
-  { symbol: "META", name: "Meta", logo: "/logos/stocks/meta.png", stock: true },
+  { symbol: "TSLA", name: "Tesla", logo: "/logos/stocks/TSLA.png", mark: "/logos/brands/tesla.svg", stock: true },
+  { symbol: "NVDA", name: "NVIDIA", logo: "/logos/stocks/NVDA.png", mark: "/logos/brands/nvidia.svg", stock: true },
+  { symbol: "AAPL", name: "Apple", logo: "/logos/stocks/AAPL.png", mark: "/logos/brands/apple.svg", stock: true },
+  { symbol: "HOOD", name: "Robinhood", logo: "/logos/brands/robinhood-badge.svg", mark: "/logos/brands/robinhood.svg", stock: true },
+  { symbol: "COIN", name: "Coinbase", logo: "/logos/brands/coinbase.svg", mark: "/logos/brands/coinbase.svg", stock: true },
+  { symbol: "META", name: "Meta", logo: "/logos/stocks/meta.png", mark: "/logos/brands/meta.svg", stock: true },
   { symbol: "SPY", name: "SPDR S&P 500", logo: "/logos/stocks/spy.png", stock: true },
   { symbol: "QQQ", name: "Invesco QQQ", logo: "/logos/stocks/QQQ.png", stock: true },
   { symbol: "AMZN", name: "Amazon", logo: "/logos/stocks/AMZN.png", stock: true },

@@ -109,7 +109,11 @@ em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var
 .nav__inner { height: 100%; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 
 .brand { display: inline-flex; align-items: center; gap: 10px; }
-.brand__mark { width: 30px; height: 30px; }
+.brand__mark {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 5px solid var(--blue);
+  box-shadow: 0 0 0 1px var(--blue-hi), 0 0 14px -2px var(--blue-hi);
+}
 .brand__name { font-weight: 600; letter-spacing: .14em; font-size: 15px; }
 
 .nav__links { display: flex; align-items: center; gap: 30px; font-size: 14px; color: var(--muted); }

@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="dark" />
   <meta name="theme-color" content="#0a0c12" />
-  <title>ORBE — Opera en varias redes desde un solo panel</title>
-  <meta name="description" content="ORBE reúne tus mercados en un solo panel: precios, órdenes y liquidez de varias redes, sin cambiar de pestaña." />
+  <title>ORBE — Every market in one panel</title>
+  <meta name="description" content="ORBE brings your markets into one panel: prices, orders and liquidity across several networks, without switching tabs." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%231E3A8A' stroke-width='5'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -61,22 +61,22 @@
   <!-- ============ nav ============ -->
   <header class="nav">
     <div class="wrap nav__inner">
-      <a class="brand" href="#top" data-scroll="top" aria-label="ORBE, inicio">
-        <svg class="brand__mark cat" aria-hidden="true"><use href="#cat"/></svg>
+      <a class="brand" href="#top" data-scroll="top" aria-label="ORBE, home">
+        <span class="brand__mark" aria-hidden="true"></span>
         <span class="brand__name">ORBE</span>
       </a>
 
-      <nav class="nav__links" id="navlinks" aria-label="Principal">
-        <a href="#como" data-scroll="como">Cómo funciona</a>
+      <nav class="nav__links" id="navlinks" aria-label="Main">
+        <a href="#how" data-scroll="how">How it works</a>
         <a href="#venues" data-scroll="venues">Venues</a>
-        <a href="#funciones" data-scroll="funciones">Funciones</a>
+        <a href="#features" data-scroll="features">Features</a>
         <a href="#faq" data-scroll="faq">FAQ</a>
-        <a class="btn btn--primary nav__cta-mobile" href="#empezar" data-scroll="empezar">Abrir app</a>
+        <a class="btn btn--primary nav__cta-mobile" href="#get-started" data-scroll="get-started">Open app</a>
       </nav>
 
       <div class="nav__right">
-        <a class="btn btn--primary nav__cta" href="#empezar" data-scroll="empezar">Abrir app</a>
-        <button class="burger" id="burger" aria-label="Menú" aria-expanded="false" aria-controls="navlinks">
+        <a class="btn btn--primary nav__cta" href="#get-started" data-scroll="get-started">Open app</a>
+        <button class="burger" id="burger" aria-label="Menu" aria-expanded="false" aria-controls="navlinks">
           <span></span><span></span>
         </button>
       </div>
@@ -90,37 +90,37 @@
       <div class="hero__glow" aria-hidden="true"></div>
       <div class="wrap hero__grid">
         <div class="hero__copy">
-          <p class="pill"><span class="dot"></span> Ya disponible en 4 redes</p>
+          <p class="pill"><span class="dot"></span> Live on 4 networks</p>
           <h1 class="display">
-            Todos tus mercados,<br /><em>un solo panel.</em>
+            Every market,<br /><em>one panel.</em>
           </h1>
           <p class="lead">
-            ORBE junta precios, órdenes y liquidez de varias redes en una sola vista.
-            Decides dónde operar con los números delante, no con veinte pestañas abiertas.
+            ORBE puts prices, orders and liquidity from several networks in a single view.
+            Pick where to trade with the numbers in front of you, not twenty open tabs.
           </p>
           <div class="hero__actions">
-            <a class="btn btn--primary btn--lg" href="#empezar" data-scroll="empezar">Empezar ahora</a>
-            <a class="btn btn--ghost btn--lg" href="#como" data-scroll="como">Ver cómo funciona</a>
+            <a class="btn btn--primary btn--lg" href="#get-started" data-scroll="get-started">Get started</a>
+            <a class="btn btn--ghost btn--lg" href="#how" data-scroll="how">See how it works</a>
           </div>
           <ul class="hero__meta">
-            <li><strong>0,1&nbsp;s</strong> refresco de precios</li>
-            <li><strong>Sin custodia</strong> tus llaves, tus fondos</li>
+            <li><strong>0.1&nbsp;s</strong> price refresh</li>
+            <li><strong>Non-custodial</strong> your keys, your funds</li>
           </ul>
         </div>
 
         <!-- panel mockup -->
-        <div class="panel" aria-label="Vista previa del panel">
+        <div class="panel" aria-label="Panel preview">
           <svg class="panel__cat cat" aria-hidden="true"><use href="#cat-wink"/></svg>
           <div class="panel__bar">
             <span class="panel__dots" aria-hidden="true"><i></i><i></i><i></i></span>
             <span class="panel__title mono">ORBE / SOL-USDC</span>
-            <span class="live"><span class="dot"></span>en vivo</span>
+            <span class="live"><span class="dot"></span>live</span>
           </div>
 
           <div class="panel__price">
-            <span class="panel__label">Mejor precio agregado</span>
-            <span class="panel__big mono" id="px">142,318</span>
-            <span class="panel__delta mono" id="pxd">+0,42%</span>
+            <span class="panel__label">Best aggregated price</span>
+            <span class="panel__big mono" id="px">142.318</span>
+            <span class="panel__delta mono" id="pxd">+0.42%</span>
           </div>
 
           <div class="spark" aria-hidden="true">
@@ -137,13 +137,13 @@
           </div>
 
           <ul class="rows" id="rows">
-            <li><span class="chip">Solana</span><span class="mono" data-v="142.318">142,318</span><span class="tag tag--best">mejor</span></li>
-            <li><span class="chip">Base</span><span class="mono" data-v="142.251">142,251</span><span class="tag">−0,05%</span></li>
-            <li><span class="chip">Arbitrum</span><span class="mono" data-v="142.204">142,204</span><span class="tag">−0,08%</span></li>
-            <li><span class="chip">Ethereum</span><span class="mono" data-v="142.117">142,117</span><span class="tag">−0,14%</span></li>
+            <li><span class="chip">Solana</span><span class="mono" data-v="142.318">142.318</span><span class="tag tag--best">best</span></li>
+            <li><span class="chip">Base</span><span class="mono" data-v="142.251">142.251</span><span class="tag">−0.05%</span></li>
+            <li><span class="chip">Arbitrum</span><span class="mono" data-v="142.204">142.204</span><span class="tag">−0.08%</span></li>
+            <li><span class="chip">Ethereum</span><span class="mono" data-v="142.117">142.117</span><span class="tag">−0.14%</span></li>
           </ul>
 
-          <button class="btn btn--primary btn--block" type="button">Ejecutar en Solana</button>
+          <button class="btn btn--primary btn--block" type="button">Execute on Solana</button>
         </div>
       </div>
     </section>
@@ -151,39 +151,39 @@
     <!-- ============ stats ============ -->
     <section class="stats">
       <div class="wrap stats__grid">
-        <div class="stat"><span class="stat__n serif">4</span><span class="stat__l">redes conectadas</span></div>
-        <div class="stat"><span class="stat__n serif">12+</span><span class="stat__l">venues de liquidez</span></div>
-        <div class="stat"><span class="stat__n serif">24/7</span><span class="stat__l">monitorización</span></div>
-        <div class="stat"><span class="stat__n serif">0</span><span class="stat__l">fondos en custodia</span></div>
+        <div class="stat"><span class="stat__n serif">4</span><span class="stat__l">networks connected</span></div>
+        <div class="stat"><span class="stat__n serif">12+</span><span class="stat__l">liquidity venues</span></div>
+        <div class="stat"><span class="stat__n serif">24/7</span><span class="stat__l">monitoring</span></div>
+        <div class="stat"><span class="stat__n serif">0</span><span class="stat__l">funds in custody</span></div>
       </div>
     </section>
 
-    <!-- ============ cómo funciona ============ -->
-    <section class="section" id="como">
+    <!-- ============ how it works ============ -->
+    <section class="section" id="how">
       <div class="wrap">
         <header class="section__head">
-          <p class="eyebrow">Cómo funciona</p>
-          <h2 class="h2">Tres pasos. <em>Nada más.</em></h2>
+          <p class="eyebrow">How it works</p>
+          <h2 class="h2">Three steps. <em>That’s it.</em></h2>
         </header>
 
         <ol class="steps">
           <li class="step reveal">
             <svg class="step__cat cat" aria-hidden="true"><use href="#cat"/></svg>
             <span class="step__n mono">01</span>
-            <h3>Conecta tu wallet</h3>
-            <p>Firma con la wallet que ya usas. ORBE nunca toca tus llaves ni guarda tus fondos.</p>
+            <h3>Connect your wallet</h3>
+            <p>Sign in with the wallet you already use. ORBE never touches your keys or holds your funds.</p>
           </li>
           <li class="step reveal">
             <svg class="step__cat cat" aria-hidden="true"><use href="#cat-cool"/></svg>
             <span class="step__n mono">02</span>
-            <h3>Elige un par</h3>
-            <p>El panel consulta todas las redes a la vez y te ordena los precios de mejor a peor, con comisiones incluidas.</p>
+            <h3>Pick a pair</h3>
+            <p>The panel queries every network at once and ranks prices from best to worst, fees included.</p>
           </li>
           <li class="step reveal">
             <svg class="step__cat cat" aria-hidden="true"><use href="#cat-happy"/></svg>
             <span class="step__n mono">03</span>
-            <h3>Ejecuta donde conviene</h3>
-            <p>Un clic y la orden sale por la venue con mejor resultado neto. Ves el coste final antes de confirmar.</p>
+            <h3>Execute where it pays</h3>
+            <p>One click routes the order to the venue with the best net result. You see the final cost before you confirm.</p>
           </li>
         </ol>
       </div>
@@ -194,104 +194,104 @@
       <div class="wrap">
         <header class="section__head">
           <p class="eyebrow">Venues</p>
-          <h2 class="h2">Dónde opera <em>ORBE.</em></h2>
-          <p class="section__sub">Cada red con sus propias fuentes de liquidez. Añadimos venues nuevas cada mes.</p>
+          <h2 class="h2">Where ORBE <em>trades.</em></h2>
+          <p class="section__sub">Each network with its own liquidity sources. We add new venues every month.</p>
         </header>
 
         <div class="venues">
           <article class="venue reveal">
             <div class="venue__top">
               <svg class="venue__icon cat" aria-hidden="true"><use href="#cat"/></svg>
-              <span class="status"><span class="dot"></span>Activa</span>
+              <span class="status"><span class="dot"></span>Live</span>
             </div>
             <h3>Solana</h3>
-            <p>Bloques rápidos y comisiones mínimas. Ideal para órdenes frecuentes y tamaños pequeños.</p>
+            <p>Fast blocks and tiny fees. Ideal for frequent, smaller orders.</p>
             <dl class="venue__facts">
               <div><dt>Venues</dt><dd class="mono">4</dd></div>
-              <div><dt>Confirmación</dt><dd class="mono">~0,4 s</dd></div>
+              <div><dt>Confirmation</dt><dd class="mono">~0.4 s</dd></div>
             </dl>
           </article>
 
           <article class="venue reveal">
             <div class="venue__top">
               <svg class="venue__icon cat" aria-hidden="true"><use href="#cat-wink"/></svg>
-              <span class="status"><span class="dot"></span>Activa</span>
+              <span class="status"><span class="dot"></span>Live</span>
             </div>
             <h3>Base</h3>
-            <p>Capa 2 de Ethereum con buena liquidez en stablecoins y costes bajos por operación.</p>
+            <p>Ethereum layer 2 with deep stablecoin liquidity and low cost per trade.</p>
             <dl class="venue__facts">
               <div><dt>Venues</dt><dd class="mono">3</dd></div>
-              <div><dt>Confirmación</dt><dd class="mono">~2 s</dd></div>
+              <div><dt>Confirmation</dt><dd class="mono">~2 s</dd></div>
             </dl>
           </article>
 
           <article class="venue reveal">
             <div class="venue__top">
               <svg class="venue__icon cat" aria-hidden="true"><use href="#cat-cool"/></svg>
-              <span class="status"><span class="dot"></span>Activa</span>
+              <span class="status"><span class="dot"></span>Live</span>
             </div>
             <h3>Arbitrum</h3>
-            <p>Profundidad de mercado sólida en pares principales y derivados on-chain.</p>
+            <p>Solid market depth on major pairs and on-chain derivatives.</p>
             <dl class="venue__facts">
               <div><dt>Venues</dt><dd class="mono">3</dd></div>
-              <div><dt>Confirmación</dt><dd class="mono">~1 s</dd></div>
+              <div><dt>Confirmation</dt><dd class="mono">~1 s</dd></div>
             </dl>
           </article>
 
           <article class="venue reveal">
             <div class="venue__top">
               <svg class="venue__icon cat" aria-hidden="true"><use href="#cat-happy"/></svg>
-              <span class="status"><span class="dot"></span>Activa</span>
+              <span class="status"><span class="dot"></span>Live</span>
             </div>
             <h3>Ethereum</h3>
-            <p>La red con más liquidez. Recomendada para órdenes grandes donde el deslizamiento importa más que el gas.</p>
+            <p>The deepest liquidity of all. Best for large orders, where slippage matters more than gas.</p>
             <dl class="venue__facts">
               <div><dt>Venues</dt><dd class="mono">2</dd></div>
-              <div><dt>Confirmación</dt><dd class="mono">~12 s</dd></div>
+              <div><dt>Confirmation</dt><dd class="mono">~12 s</dd></div>
             </dl>
           </article>
 
           <article class="venue venue--soon reveal">
             <div class="venue__top">
               <svg class="venue__icon cat" aria-hidden="true"><use href="#cat-sleep"/></svg>
-              <span class="status status--soon">Próximamente</span>
+              <span class="status status--soon">Coming soon</span>
             </div>
-            <h3>Más redes</h3>
-            <p>¿Echas en falta alguna? Escríbenos y la priorizamos en la hoja de ruta.</p>
-            <a class="link" href="#empezar" data-scroll="empezar">Proponer una red →</a>
+            <h3>More networks</h3>
+            <p>Missing one? Tell us and we’ll move it up the roadmap.</p>
+            <a class="link" href="#get-started" data-scroll="get-started">Suggest a network →</a>
           </article>
         </div>
       </div>
     </section>
 
-    <!-- ============ funciones ============ -->
-    <section class="section" id="funciones">
+    <!-- ============ features ============ -->
+    <section class="section" id="features">
       <div class="wrap">
         <header class="section__head">
-          <p class="eyebrow">Funciones</p>
-          <h2 class="h2">Hecho para decidir <em>rápido.</em></h2>
+          <p class="eyebrow">Features</p>
+          <h2 class="h2">Built for fast <em>decisions.</em></h2>
         </header>
 
         <div class="features">
           <div class="feature reveal">
             <svg class="feature__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4" /></svg>
-            <h3>Precio neto real</h3>
-            <p>Comparamos después de comisiones, gas y deslizamiento estimado. El número que ves es el que recibes.</p>
+            <h3>True net price</h3>
+            <p>We compare after fees, gas and estimated slippage. The number you see is the number you get.</p>
           </div>
           <div class="feature reveal">
             <svg class="feature__ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" /></svg>
-            <h3>Sin custodia</h3>
-            <p>Cada operación la firmas tú. No hay depósitos, ni saldos retenidos, ni cuentas que abrir.</p>
+            <h3>Non-custodial</h3>
+            <p>You sign every trade. No deposits, no held balances, no accounts to open.</p>
           </div>
           <div class="feature reveal">
             <svg class="feature__ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M12 8v4l3 2" /></svg>
-            <h3>Alertas de precio</h3>
-            <p>Define un objetivo y te avisamos cuando alguna red lo alcance, en el navegador o por Telegram.</p>
+            <h3>Price alerts</h3>
+            <p>Set a target and we’ll ping you when any network hits it, in the browser or on Telegram.</p>
           </div>
           <div class="feature reveal">
             <svg class="feature__ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6" /></svg>
-            <h3>Historial claro</h3>
-            <p>Todas tus órdenes, en todas las redes, en una única tabla exportable a CSV.</p>
+            <h3>Clean history</h3>
+            <p>Every order, on every network, in one table you can export to CSV.</p>
           </div>
         </div>
       </div>
@@ -302,37 +302,37 @@
       <div class="wrap wrap--narrow">
         <header class="section__head">
           <p class="eyebrow">FAQ</p>
-          <h2 class="h2">Preguntas <em>frecuentes.</em></h2>
+          <h2 class="h2">Frequently asked <em>questions.</em></h2>
         </header>
 
         <div class="faq">
           <details>
-            <summary>¿ORBE guarda mis fondos?</summary>
-            <p>No. ORBE solo prepara la transacción; la firmas tú desde tu propia wallet y los fondos nunca pasan por nosotros.</p>
+            <summary>Does ORBE hold my funds?</summary>
+            <p>No. ORBE only prepares the transaction. You sign it from your own wallet, and your funds never pass through us.</p>
           </details>
           <details>
-            <summary>¿Cuánto cuesta?</summary>
-            <p>El panel es gratuito. Solo pagas las comisiones de la red y de la venue donde se ejecuta tu orden, y siempre las ves antes de confirmar.</p>
+            <summary>How much does it cost?</summary>
+            <p>The panel is free. You only pay the network and venue fees for your order, and you always see them before you confirm.</p>
           </details>
           <details>
-            <summary>¿Qué wallets son compatibles?</summary>
-            <p>Cualquier wallet compatible con WalletConnect, además de las extensiones más usadas de cada red.</p>
+            <summary>Which wallets are supported?</summary>
+            <p>Any WalletConnect-compatible wallet, plus the most popular browser extensions on each network.</p>
           </details>
           <details>
-            <summary>¿Puedo usarlo desde el móvil?</summary>
-            <p>Sí. La app funciona en el navegador del móvil y se adapta a pantallas pequeñas sin perder funciones.</p>
+            <summary>Can I use it on my phone?</summary>
+            <p>Yes. The app runs in your mobile browser and fits small screens without losing features.</p>
           </details>
         </div>
       </div>
     </section>
 
     <!-- ============ cta ============ -->
-    <section class="cta" id="empezar">
+    <section class="cta" id="get-started">
       <div class="wrap cta__inner">
         <svg class="cta__cat cat" aria-hidden="true"><use href="#cat-sleep"/></svg>
-        <h2 class="display display--sm">Deja de comparar <em>a mano.</em></h2>
-        <p class="lead">Conecta tu wallet y mira todos tus mercados en menos de un minuto.</p>
-        <a class="btn btn--primary btn--lg" href="#top" data-scroll="top">Abrir ORBE</a>
+        <h2 class="display display--sm">Stop comparing <em>by hand.</em></h2>
+        <p class="lead">Connect your wallet and see every market in under a minute.</p>
+        <a class="btn btn--primary btn--lg" href="#top" data-scroll="top">Open ORBE</a>
       </div>
     </section>
   </main>
@@ -341,16 +341,16 @@
   <footer class="footer">
     <div class="wrap footer__inner">
       <a class="brand" href="#top" data-scroll="top">
-        <svg class="brand__mark cat" aria-hidden="true"><use href="#cat"/></svg>
+        <span class="brand__mark" aria-hidden="true"></span>
         <span class="brand__name">ORBE</span>
       </a>
-      <nav class="footer__links" aria-label="Pie de página">
+      <nav class="footer__links" aria-label="Footer">
         <a href="#venues" data-scroll="venues">Venues</a>
         <a href="#faq" data-scroll="faq">FAQ</a>
         <a href="#">X / Twitter</a>
         <a href="#">Telegram</a>
       </nav>
-      <p class="footer__legal">© <span id="year">2026</span> ORBE. Operar con criptoactivos conlleva riesgo.</p>
+      <p class="footer__legal">© <span id="year">2026</span> ORBE. Trading crypto assets involves risk.</p>
     </div>
   </footer>
 

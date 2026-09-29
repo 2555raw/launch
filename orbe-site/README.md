@@ -1,6 +1,6 @@
 # ORBE — site
 
-Static landing page for **ORBE** (placeholder name): one panel that compares prices across
+Static landing page for **ORBE** (placeholder name, English copy): one panel that compares prices across
 several networks. Dark theme with dark-blue accents and original cat mascots.
 
 No build step, no dependencies. Plain HTML, CSS and vanilla JS.

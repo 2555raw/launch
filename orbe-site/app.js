@@ -77,7 +77,7 @@
 
   /* ---------- live-price mockup ---------- */
 
-  const fmt = (n) => n.toFixed(3).replace('.', ',');
+  const fmt = (n) => n.toFixed(3);
   const px    = $('#px');
   const pxd   = $('#pxd');
   const line  = $('#sparkLine');
@@ -107,7 +107,7 @@
     const last = series[N - 1];
     const pct = ((last - OPEN) / OPEN) * 100;
     px.textContent = fmt(last);
-    pxd.textContent = `${pct >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(2).replace('.', ',')}%`;
+    pxd.textContent = `${pct >= 0 ? '+' : '−'}${Math.abs(pct).toFixed(2)}%`;
     pxd.classList.toggle('is-down', pct < 0);
 
     // the other venues trail the best price by a small, slowly drifting spread
@@ -115,7 +115,7 @@
     rows.forEach((row, i) => {
       const s = spreads[i] + (i ? (Math.random() - .5) * .01 : 0);
       row.children[1].textContent = fmt(last * (1 - s / 100));
-      if (i) row.children[2].textContent = `−${s.toFixed(2).replace('.', ',')}%`;
+      if (i) row.children[2].textContent = `−${s.toFixed(2)}%`;
     });
   };
 

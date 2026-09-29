@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Longmen oil background</title></head>
+<body style="margin:0;background:#000">
+<!--
+  Paints the hero background as an oil-style landscape: the Great Wall at
+  golden hour, climbing receding mountain ranges toward a low sun.
+  Two passes: a clean underpainting (sky, clouds, ranges, the wall), then
+  tens of thousands of short brush strokes laid over it, each sampling the
+  underpainting and following the form, finished with canvas grain.
+  Seeded, so the same code always gives the same picture.
+    window.paintOil() -> WebP data URL, 2400x1350
+-->
+<script>
+'use strict';
+
+/* ---------- noise ---------- */
+
+function rng(seed) {
+  let s = seed >>> 0;
+  return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+function noise2(seed) {
+  const r = rng(seed), P = new Uint8Array(512), G = [];
+  for (let i = 0; i < 256; i++) { P[i] = i; const a = r() * Math.PI * 2; G.push([Math.cos(a), Math.sin(a)]); }
+  for (let i = 255; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [P[i], P[j]] = [P[j], P[i]]; }
+  for (let i = 0; i < 256; i++) P[i + 256] = P[i];
+  const fade = (t) => t * t * t * (t * (t * 6 - 15) + 10);
+  const dot = (h, x, y) => { const g = G[h & 255]; return g[0] * x + g[1] * y; };
+  return (x, y) => {
+    const X = Math.floor(x), Y = Math.floor(y), xf = x - X, yf = y - Y, xi = X & 255, yi = Y & 255;
+    const u = fade(xf), v = fade(yf);
+    const aa = P[P[xi] + yi], ab = P[P[xi] + yi + 1], ba = P[P[xi + 1] + yi], bb = P[P[xi + 1] + yi + 1];
+    const x1 = dot(aa, xf, yf) + u * (dot(ba, xf - 1, yf) - dot(aa, xf, yf));
+    const x2 = dot(ab, xf, yf - 1) + u * (dot(bb, xf - 1, yf - 1) - dot(ab, xf, yf - 1));
+    return x1 + v * (x2 - x1);
+  };
+}
+const fbm = (n, x, y, oct = 5) => { let a = 1, f = 1, s = 0, t = 0; for (let i = 0; i < oct; i++) { s += a * n(x * f, y * f); t += a; a *= 0.5; f *= 2.02; } return s / t; };
+const ridged = (n, x, y, oct = 6) => { let a = 1, f = 1, s = 0, t = 0; for (let i = 0; i < oct; i++) { const v = 1 - Math.abs(n(x * f, y * f) * 1.45); s += a * v * v; t += a; a *= 0.5; f *= 2.05; } return s / t; };
+
+const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const rgba = (c, a = 1) => `rgba(${c.map((v) => Math.round(Math.max(0, Math.min(255, v)))).join(',')},${a})`;
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a)); return t * t * (3 - 2 * t); };
+function canvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d', { willReadFrequently: true })]; }
+
+window.paintOil = function () {
+  const W = 2400, H = 1350, w = 1200, h = 675;           // final size, and the underpainting grid
+  const SUN = { x: 0.6, y: 0.37 };
+  const [base, ctx] = canvas(W, H);
+  const flow = new Float32Array(w * h).fill(NaN);        // stroke angle per underpainting cell; NaN = sky
+  const detail = new Uint8Array(W * H);                  // 1 where the brush should stay fine (the wall)
+
+  /* ---- sky and clouds, per pixel ---- */
+  {
+    const [c, g] = canvas(w, h), img = g.createImageData(w, h), d = img.data;
+    const n = noise2(12), n2 = noise2(19);
+    const top = hex('#1B2C4A'), upper = hex('#3A5474'), low = hex('#C9936E'), glowC = hex('#F7C987'), core = hex('#FFF3D6');
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const fx = x / w, fy = y / h;
+      let col = fy < 0.25 ? mix(top, upper, fy / 0.25) : mix(upper, low, clamp((fy - 0.25) / 0.35));
+      const dSun = Math.hypot((fx - SUN.x) * 1.7, fy - SUN.y);
+      col = mix(col, glowC, Math.pow(1 - clamp(dSun / 0.55), 2.2) * 0.9);
+      col = mix(col, core, Math.pow(1 - clamp(dSun / 0.08), 2));
+      col = mix(col, hex('#101B30'), clamp((0.45 - fx) * 0.9) * (1 - fy)); // cooler, darker to the left
+      // clouds: long masses, dark underneath, gilded where the sun reaches them
+      const warp = fbm(n2, fx * 2, fy * 2, 3) * 0.8;
+      const v = smooth(0.0, 0.32, fbm(n, fx * 2.6 + warp, fy * 6.5, 6)) * (1 - smooth(0.34, 0.5, fy)) * smooth(0.02, 0.1, fy);
+      if (v > 0) {
+        const above = smooth(0.0, 0.32, fbm(n, fx * 2.6 + warp, (fy - 0.01) * 6.5, 6));
+        const edge = clamp((v - above) * 5 + 0.15);
+        const lit = Math.pow(1 - clamp(dSun / 0.65), 1.6);
+        let cc = mix(hex('#243450'), hex('#566781'), fy * 2);
+        cc = mix(cc, hex('#F0A870'), clamp(lit * 0.85));
+        cc = mix(cc, hex('#FFE0AA'), clamp(edge * lit * 1.6) * 0.7);
+        col = mix(col, cc, clamp(v * 1.15));
+      }
+      const i = (y * w + x) * 4; d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(c, 0, 0, W, H);
+  }
+
+  /* ---- mountain masses, per pixel with a rock heightfield lit from the sun ---- */
+  const sunDir = (x) => (x / w < SUN.x ? 1 : -1);        // light comes from the sun's side
+  const mass = (o) => {
+    const n = noise2(o.seed), rn = noise2(o.seed + 1), vn = noise2(o.seed + 2);
+    const ys = new Float32Array(w);
+    for (let x = 0; x < w; x++) ys[x] = h * o.line(x / w) - h * o.jag * (ridged(n, x / w * o.freq, 0.5, 6) - 0.5);
+    const [c, g] = canvas(w, h), img = g.createImageData(w, h), d = img.data;
+    const hf = (x, y) => ridged(rn, x / o.sx, y / o.sy, 5) + fbm(rn, x / (o.sx * 3), y / (o.sy * 3), 3) * 0.6;
+    // the mass's overall tilt, from a heavily smoothed outline so it never bands column by column
+    const soft = ys.map((_, x) => { let s = 0, c = 0; for (let k = -24; k <= 24; k++) { const i = x + k; if (i >= 0 && i < w) { s += ys[i]; c++; } } return s / c; });
+    for (let x = 0; x < w; x++) {
+      const top = Math.max(0, Math.floor(ys[x]));
+      const massSlope = (soft[Math.min(w - 1, x + 6)] - soft[Math.max(0, x - 6)]) / 12;
+      for (let y = top; y < h; y++) {
+        const depth = (y - ys[x]) / h;
+        const gx = hf(x + 1, y) - hf(x - 1, y), gy = hf(x, y + 1) - hf(x, y - 1);
+        const s = sunDir(x);
+        // lambert-ish: rock faces tilted toward the sun and up are lit
+        let lam = 0.5 + (gx * s * 2.4 - gy * 1.4) + clamp(-massSlope * s * 0.8, -0.35, 0.35);
+        lam = clamp(lam);
+        const reach = 0.45 + 0.55 * (1 - clamp(Math.abs(x / w - SUN.x) / 0.8));
+        let col = mix(o.shadow, o.body, clamp(lam * 1.4));
+        col = mix(col, o.lit, clamp((lam - 0.55) * 2.2) * reach);
+        // vegetation settles in the hollows and lower slopes
+        if (o.green) {
+          const veg = clamp(smooth(0.2, 0.7, depth / o.greenAt) + (fbm(vn, x / 14, y / 10, 4) + 0.1) * 0.9 - gy * 3);
+          col = mix(col, mix(o.green[0], o.green[1], clamp(lam)), veg * (o.greenMax || 0.85));
+        }
+        col = mix(col, o.shadow, clamp(depth / o.fall) * 0.55);  // darker toward the base
+        if (o.haze) col = mix(col, o.haze[0], o.haze[1] * (1 - clamp(depth * 3)) + o.haze[2] * smooth(0.02, 0.25, depth)); // air and valley haze
+        if (y - ys[x] < 2.2) col = mix(col, hex('#FFD7A0'), o.rim * reach * (s > 0 ? 1 : 0.6));
+        const i = (y * w + x) * 4; d[i] = col[0]; d[i + 1] = col[1]; d[i + 2] = col[2]; d[i + 3] = 255;
+        flow[y * w + x] = Math.atan2(gy, gx) + Math.PI / 2;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    ctx.drawImage(c, 0, 0, W, H);
+    return Float32Array.from({ length: W }, (_, X) => ys[Math.min(w - 1, X >> 1)] * 2);
+  };
+
+  /* ---- the wall ---- */
+  const smoothLine = (ys, r) => { const o = new Float32Array(W); for (let x = 0; x < W; x++) { let s = 0, c = 0; for (let k = -r; k <= r; k++) { const i = x + k; if (i >= 0 && i < W) { s += ys[i]; c++; } } o[x] = s / c; } return o; };
+  const stone = { lit: hex('#E6C090'), mid: hex('#B39270'), shade: hex('#6F5C4A'), dark: hex('#3E332B'), top: hex('#F0D4A2'), hole: hex('#1E1814') };
+  const wall = (line, from, to, th, o) => {
+    const tint = (c) => (o.haze ? mix(c, o.haze[0], o.haze[1]) : c);
+    for (let x = from; x < to; x++) {
+      const y = line[x], slope = line[Math.min(W - 1, x + 3)] - line[Math.max(0, x - 3)];
+      const sunny = clamp(0.55 + (x < W * SUN.x ? -slope : slope) * 0.18);
+      const g = ctx.createLinearGradient(0, y, 0, y + th);
+      g.addColorStop(0, rgba(tint(mix(stone.shade, stone.lit, sunny)))); g.addColorStop(1, rgba(tint(stone.dark)));
+      ctx.fillStyle = g; ctx.fillRect(x, y, 1.6, th);
+      ctx.fillStyle = rgba(tint(stone.top)); ctx.fillRect(x, y - th * 0.16, 1.6, th * 0.16);
+      ctx.fillStyle = rgba(tint(mix(stone.mid, stone.lit, sunny))); ctx.fillRect(x, y - th * 0.32, 1.6, th * 0.16);
+      if (Math.floor(x / o.gap) % 2 === 0) { ctx.fillStyle = rgba(tint(mix(stone.mid, stone.top, sunny))); ctx.fillRect(x, y - th * 0.56, 1.6, th * 0.24); }
+      for (let yy = Math.floor(y - th * 0.6); yy < y + th; yy++) if (yy >= 0 && yy < H) detail[yy * W + x] = 1;
+    }
+    if (th > 18) {
+      ctx.save(); ctx.globalAlpha = 0.2; ctx.strokeStyle = rgba(stone.dark); ctx.lineWidth = 1.2;
+      for (let k = 0.22; k < 1; k += 0.2) { ctx.beginPath(); for (let x = from; x < to; x += 3) { const y = line[x] + th * k; x === from ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } ctx.stroke(); }
+      for (let x = from; x < to; x += 7) { const y = line[x]; ctx.beginPath(); ctx.moveTo(x, y + th * 0.25 + (x % 14 ? 0 : th * 0.2)); ctx.lineTo(x, y + th * 0.45 + (x % 14 ? 0 : th * 0.2)); ctx.stroke(); }
+      ctx.restore();
+    }
+  };
+  const tower = (cx, baseY, tw, th, o) => {
+    const tint = (c) => (o.haze ? mix(c, o.haze[0], o.haze[1]) : c);
+    const x0 = cx - tw / 2, top = baseY - th, side = tw * 0.3, lightRight = cx < W * SUN.x;
+    ctx.fillStyle = rgba(tint(stone.lit)); ctx.fillRect(lightRight ? x0 + tw - side : x0, top, side, th);
+    const fg = ctx.createLinearGradient(0, top, 0, baseY);
+    fg.addColorStop(0, rgba(tint(stone.mid))); fg.addColorStop(1, rgba(tint(stone.shade)));
+    ctx.fillStyle = fg; ctx.fillRect(lightRight ? x0 : x0 + side, top, tw - side, th);
+    ctx.fillStyle = rgba(tint(stone.top)); ctx.fillRect(x0 - tw * 0.03, top - th * 0.06, tw * 1.06, th * 0.07);
+    for (let i = 0; i < 7; i += 2) { ctx.fillStyle = rgba(tint(i === 6 && lightRight ? stone.lit : stone.mid)); ctx.fillRect(x0 + i * tw / 7, top - th * 0.19, tw / 7, th * 0.13); }
+    if (o.win) for (let i = 0; i < o.win; i++) {
+      const ww = tw * 0.1, hh = th * 0.24, wx = (lightRight ? x0 : x0 + side) + (tw - side) * (i + 0.5) / o.win - ww / 2, wy = top + th * 0.3;
+      ctx.fillStyle = rgba(tint(stone.hole));
+      ctx.beginPath(); ctx.moveTo(wx, wy + hh); ctx.lineTo(wx, wy + ww / 2); ctx.arc(wx + ww / 2, wy + ww / 2, ww / 2, Math.PI, 0); ctx.lineTo(wx + ww, wy + hh); ctx.closePath(); ctx.fill();
+    }
+    if (o.roof) {
+      const rw = tw * 1.2, rh = th * 0.42, ry = top - th * 0.19;
+      ctx.fillStyle = rgba(tint(hex('#3A3530')));
+      ctx.beginPath(); ctx.moveTo(cx - rw / 2 - tw * 0.1, ry); ctx.quadraticCurveTo(cx - rw / 2, ry - rh * 0.2, cx - rw * 0.3, ry - rh * 0.7);
+      ctx.lineTo(cx + rw * 0.3, ry - rh * 0.7); ctx.quadraticCurveTo(cx + rw / 2, ry - rh * 0.2, cx + rw / 2 + tw * 0.1, ry); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = rgba(tint(hex('#9A6A42'))); ctx.fillRect(cx - rw * 0.3, ry - rh * 0.74, rw * 0.6, rh * 0.08);
+      ctx.fillStyle = rgba(tint(hex('#6E3226'))); ctx.fillRect(x0 + tw * 0.1, ry, tw * 0.07, th * 0.19); ctx.fillRect(x0 + tw * 0.83, ry, tw * 0.07, th * 0.19);
+    }
+    for (let yy = Math.floor(top - th * 0.7); yy < baseY; yy++) for (let xx = Math.floor(x0 - tw * 0.25); xx < x0 + tw * 1.25; xx++) if (yy >= 0 && yy < H && xx >= 0 && xx < W) detail[yy * W + xx] = 1;
+  };
+
+  const airCool = hex('#A7AEC2'), airWarm = hex('#E2B08A');
+
+  // far range under the sun
+  const far = mass({ seed: 3, line: (f) => 0.6 - 0.1 * Math.exp(-((f - 0.35) ** 2) / 0.02) - 0.06 * Math.exp(-((f - 0.85) ** 2) / 0.01), jag: 0.07, freq: 5, sx: 40, sy: 30,
+    body: hex('#8E8AA6'), lit: hex('#F4C29A'), shadow: hex('#5E5E80'), fall: 0.2, rim: 0.7, haze: [airWarm, 0.3, 0.35] });
+  const wf = smoothLine(far, 7);
+  wall(wf, 1500, 2300, 5, { gap: 3, haze: [airWarm, 0.4] });
+  [1640, 1900, 2180].forEach((x) => tower(x, wf[x] + 5, 11, 13, { haze: [airWarm, 0.4] }));
+
+  // the two flanks of the valley
+  mass({ seed: 8, line: (f) => 0.22 + 0.5 * smooth(0, 0.62, f) + 0.2 * smooth(0.62, 0.8, f), jag: 0.12, greenMax: 0.62, freq: 3.5, sx: 55, sy: 38,
+    body: hex('#566478'), lit: hex('#E7A876'), shadow: hex('#27314A'), green: [hex('#34432F'), hex('#6A7A45')], greenAt: 0.25, fall: 0.5, rim: 0.55, haze: [airCool, 0.12, 0.25] });
+  mass({ seed: 14, line: (f) => 0.3 + 0.5 * (1 - smooth(0.52, 1, f)) * 0 + 0.44 * smooth(0, 1, 1 - (f - 0.55) / 0.45) * (f > 0.55 ? 1 : 0) + (f <= 0.55 ? 0.74 : 0), jag: 0.12, greenMax: 0.62, freq: 3.2, sx: 55, sy: 38,
+    body: hex('#5A6374'), lit: hex('#EBAA78'), shadow: hex('#2A2F44'), green: [hex('#34422E'), hex('#6F7D46')], greenAt: 0.22, fall: 0.5, rim: 0.6, haze: [airCool, 0.1, 0.22] });
+
+  // mid ridge across the valley, carrying the wall
+  const mid = mass({ seed: 21, line: (f) => 0.7 - 0.07 * Math.sin(f * 7.5 + 0.6) - 0.05 * Math.sin(f * 17), jag: 0.05, freq: 4, sx: 30, sy: 22,
+    body: hex('#58623F'), lit: hex('#D9A465'), shadow: hex('#232C1E'), green: [hex('#253320'), hex('#5E7338')], greenAt: 0.12, fall: 0.3, rim: 0.45, haze: [airWarm, 0.05, 0.08] });
+  const wm = smoothLine(mid, 12).map((v) => v + 4);
+  wall(wm, 0, W, 14, { gap: 6, haze: [airWarm, 0.08] });
+  [220, 820, 1480, 2050].forEach((x, i) => tower(x, wm[x] + 14, 40, 44, { win: 2, roof: i === 2, haze: [airWarm, 0.08] }));
+
+  // near slope with the big wall and towers
+  const near = mass({ seed: 34, line: (f) => 0.9 - 0.15 * smooth(0.3, 1, f) + 0.02 * Math.sin(f * 11), jag: 0.03, freq: 3, sx: 18, sy: 14,
+    body: hex('#4C5A31'), lit: hex('#CE9855'), shadow: hex('#141C10'), green: [hex('#1C2A17'), hex('#5E7234')], greenAt: 0.06, fall: 0.28, rim: 0.5 });
+  const wn = smoothLine(near, 18).map((v) => v + 6);
+  wall(wn, 950, W, 34, { gap: 9 });
+  tower(1010, wn[1010] + 34, 84, 96, { win: 3 });
+  tower(2120, wn[2120] + 34, 110, 124, { win: 3, roof: true });
+
+  // shrubs catching the light along the near slope
+  {
+    const n = noise2(77), r = rng(78);
+    for (let i = 0; i < 4200; i++) {
+      const x = r() * W, y = H * (0.8 + r() * 0.2), s = 6 + r() * 22;
+      if (detail[(y | 0) * W + (x | 0)]) continue;
+      const lit = clamp(n(x / 70, y / 70) + 0.35) * (x / W > 0.35 ? 1 : 0.55);
+      ctx.fillStyle = rgba(mix(hex('#0C120B'), hex('#6C6A30'), lit * 0.75), 0.85);
+      ctx.beginPath(); ctx.ellipse(x, y, s, s * 0.65, r() * 3, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
+  /* ---- brush pass ---- */
+  const src = ctx.getImageData(0, 0, W, H).data;
+  const [out, o] = canvas(W, H);
+  o.drawImage(base, 0, 0);
+  o.lineCap = 'round';
+  const r = rng(101), jn = noise2(55);
+  for (let i = 0; i < 300000; i++) {
+    const x = r() * W, y = r() * H, xi = x | 0, yi = y | 0, idx = yi * W + xi;
+    const fine = detail[idx];
+    if (fine && r() < 0.85) continue;
+    const p = idx * 4, j = jn(x / 40, y / 40) * 16;
+    const c = [src[p] + j + (r() - 0.5) * 10, src[p + 1] + j * 0.9 + (r() - 0.5) * 10, src[p + 2] + j * 0.7 + (r() - 0.5) * 10];
+    const f = flow[(yi >> 1) * w + (xi >> 1)], sky = Number.isNaN(f);
+    const ang = sky ? (r() - 0.5) * 0.3 + jn(x / 400, y / 400) * 0.5 : f + (r() - 0.5) * 0.6;
+    const len = sky ? 16 + r() * 30 : fine ? 3 + r() * 3 : 5 + r() * 12;
+    o.strokeStyle = rgba(c, 0.5 + r() * 0.4);
+    o.lineWidth = sky ? 3 + r() * 5 : fine ? 1 + r() : 1.6 + r() * 3;
+    o.beginPath(); o.moveTo(x - Math.cos(ang) * len / 2, y - Math.sin(ang) * len / 2); o.lineTo(x + Math.cos(ang) * len / 2, y + Math.sin(ang) * len / 2); o.stroke();
+  }
+
+  /* ---- finishing: canvas grain, vignette, fade into the page ---- */
+  {
+    const img = o.getImageData(0, 0, W, H), d = img.data, gr = rng(202), tn = noise2(303);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const i = (y * W + x) * 4, g = (gr() - 0.5) * 6 + tn(x / 3, y / 3) * 5;
+      d[i] += g; d[i + 1] += g; d[i + 2] += g;
+    }
+    o.putImageData(img, 0, 0);
+  }
+  const v = o.createRadialGradient(W * 0.5, H * 0.45, H * 0.3, W * 0.5, H * 0.5, W * 0.72);
+  v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(0,0,0,.4)');
+  o.fillStyle = v; o.fillRect(0, 0, W, H);
+  const fade = o.createLinearGradient(0, H * 0.7, 0, H);
+  fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(0.7, 'rgba(0,0,0,.72)'); fade.addColorStop(1, '#000');
+  o.fillStyle = fade; o.fillRect(0, 0, W, H);
+
+  return out.toDataURL('image/webp', 0.84);
+};
+</script>
+</body>
+</html>

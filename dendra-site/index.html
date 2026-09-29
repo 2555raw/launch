@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dendra — give any idea a market on Bittensor</title>
+  <meta name="description" content="Launch a token paired with TAO or subnet alpha. Subnet coins, candidates, theses all in one place. Live on Robinhood Chain &amp; Bittensor EVM.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23101012'/%3E%3Cg fill='none' stroke='%23FF5B26' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M16 26V16M16 16l-6-6M16 16l6-6M10 10l-3 1M10 10l-1-3M22 10l3 1M22 10l1-3'/%3E%3C/g%3E%3Ccircle cx='16' cy='26' r='2.6' fill='%23FF5B26'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="dn" id="top">
+
+  <nav class="dn-nav">
+    <div class="dn-wrap dn-nav-in">
+      <a class="dn-brand" data-scroll="top">
+        <svg class="dn-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M16 26V16M16 16l-6-6M16 16l6-6M10 10l-3 1M10 10l-1-3M22 10l3 1M22 10l1-3"/>
+          <circle cx="16" cy="26" r="2.6" fill="currentColor" stroke="none"/>
+        </svg>
+        Dendra
+      </a>
+      <div class="dn-nav-links" id="navlinks">
+        <a data-scroll="how">How it works</a>
+        <a data-scroll="markets">Markets</a>
+        <a data-scroll="features">Features</a>
+        <a data-scroll="creators">Creators</a>
+        <a data-scroll="faq">FAQ</a>
+      </div>
+      <div class="dn-nav-right">
+        <button class="dn-icon-btn dn-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <button class="dn-icon-btn" id="theme" type="button" aria-label="Switch theme"></button>
+        <a class="dn-btn dn-btn-primary dn-btn-sm" data-scroll="launch">Open app</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- hero -->
+    <section class="dn-hero" id="launch">
+      <svg class="dn-hero-art" viewBox="0 0 600 600" fill="none" aria-hidden="true">
+        <g stroke="currentColor" stroke-width="1">
+          <circle cx="300" cy="300" r="90"/>
+          <circle cx="300" cy="300" r="160"/>
+          <circle cx="300" cy="300" r="230"/>
+          <circle cx="300" cy="300" r="290"/>
+          <path d="M300 10v580M10 300h580M95 95l410 410M505 95L95 505"/>
+        </g>
+      </svg>
+      <div class="dn-wrap dn-hero-grid">
+        <div class="dn-hero-copy">
+          <span class="dn-eyebrow"><i class="dn-dot"></i>Live on Robinhood Chain &amp; Bittensor EVM</span>
+          <h1>Give any idea<br>a <em>market</em>.</h1>
+          <p class="dn-hero-sub">
+            Launch a token paired with TAO or subnet alpha.
+            Subnet coins, candidates, theses all in one place.
+          </p>
+          <div class="dn-hero-cta">
+            <a class="dn-btn dn-btn-primary" data-scroll="launch-card">Start a launch</a>
+            <a class="dn-btn dn-btn-ghost" data-scroll="markets">Browse markets</a>
+          </div>
+        </div>
+
+        <!-- launch composer: a mock, nothing is sent anywhere -->
+        <form class="dn-composer" id="launch-card" autocomplete="off">
+          <div class="dn-composer-head">
+            <span class="dn-label">New launch</span>
+            <span class="dn-label dn-muted" id="chain-label">Bittensor EVM</span>
+          </div>
+
+          <label class="dn-field">
+            <span class="dn-label">What are you launching?</span>
+            <textarea id="idea" rows="3" maxlength="240" placeholder="e.g. Subnet 19 ships real inference demand before the next halving"></textarea>
+          </label>
+
+          <div class="dn-field-row">
+            <label class="dn-field">
+              <span class="dn-label">Ticker</span>
+              <input id="ticker" type="text" maxlength="8" placeholder="AUTO">
+            </label>
+            <label class="dn-field">
+              <span class="dn-label">Network</span>
+              <select id="chain">
+                <option>Bittensor EVM</option>
+                <option>Robinhood Chain</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="dn-field">
+            <span class="dn-label">Pair with</span>
+            <div class="dn-seg" role="radiogroup" id="pair">
+              <button type="button" role="radio" aria-checked="true" data-pair="TAO">TAO</button>
+              <button type="button" role="radio" aria-checked="false" data-pair="alpha">Subnet alpha</button>
+              <button type="button" role="radio" aria-checked="false" data-pair="usdc">USDC → TAO</button>
+            </div>
+          </div>
+
+          <div class="dn-preview">
+            <div class="dn-preview-tok">
+              <span class="dn-coin" id="coin">?</span>
+              <div>
+                <b id="preview-ticker">$TICKER</b>
+                <span class="dn-muted" id="preview-pair">paired with TAO</span>
+              </div>
+            </div>
+            <div class="dn-preview-fee">
+              <span class="dn-label">Deploy cost</span>
+              <b>~0.02 TAO</b>
+            </div>
+          </div>
+
+          <button class="dn-btn dn-btn-primary dn-btn-block" type="submit">Deploy token</button>
+          <p class="dn-form-note" id="form-note" aria-live="polite">One signature. No presale, no team allocation.</p>
+        </form>
+      </div>
+    </section>
+
+    <!-- networks & wallets -->
+    <section class="dn-logos">
+      <div class="dn-wrap dn-logos-in">
+        <div>
+          <span class="dn-label">Networks &amp; venues</span>
+          <div class="dn-pills"><b>Bittensor EVM</b><b>Robinhood Chain</b><b>Uniswap</b><b>Base</b></div>
+        </div>
+        <div>
+          <span class="dn-label">Wallets</span>
+          <div class="dn-pills"><b>MetaMask</b><b>Rabby</b><b>Coinbase Wallet</b><b>OKX Wallet</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- how it works -->
+    <section class="dn-sec" id="how">
+      <div class="dn-wrap">
+        <div class="dn-head dn-rise">
+          <span class="dn-label">How it works</span>
+          <h2>From a sentence to a live market in four moves</h2>
+          <p>No listings to apply for, no liquidity to seed, no multisig to wrangle. You bring the conviction; the contracts do the rest.</p>
+        </div>
+        <ol class="dn-steps">
+          <li class="dn-card dn-step dn-rise">
+            <span class="dn-step-n">01</span>
+            <h3>Choose the pair</h3>
+            <p>TAO for broad reach, a subnet's alpha to plant your flag inside that subnet's economy.</p>
+          </li>
+          <li class="dn-card dn-step dn-rise">
+            <span class="dn-step-n">02</span>
+            <h3>State the thesis</h3>
+            <p>A few lines on why this should exist. It's pinned to the token page and every trader reads it first.</p>
+          </li>
+          <li class="dn-card dn-step dn-rise">
+            <span class="dn-step-n">03</span>
+            <h3>Sign once</h3>
+            <p>Token, curve and metadata are created in a single transaction. No follow-up approvals.</p>
+          </li>
+          <li class="dn-card dn-step dn-rise">
+            <span class="dn-step-n">04</span>
+            <h3>Trade immediately</h3>
+            <p>The curve quotes from block one. Buy, sell and track progress right on the token page.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- markets -->
+    <section class="dn-sec dn-sec-alt" id="markets">
+      <div class="dn-wrap">
+        <div class="dn-head dn-rise">
+          <span class="dn-label">Markets</span>
+          <h2>See what the network is betting on</h2>
+          <p>Every launch in one list, sorted by what's moving. Filter by kind, watch curves fill, and pit two subnets against each other.</p>
+        </div>
+
+        <div class="dn-markets dn-rise">
+          <div class="dn-card dn-table-card">
+            <div class="dn-tabs" role="tablist" id="market-tabs">
+              <button type="button" role="tab" aria-selected="true" data-filter="all">All</button>
+              <button type="button" role="tab" aria-selected="false" data-filter="subnet">Subnets</button>
+              <button type="button" role="tab" aria-selected="false" data-filter="thesis">Theses</button>
+              <button type="button" role="tab" aria-selected="false" data-filter="graduating">Graduating</button>
+            </div>
+            <div class="dn-table" role="table" aria-label="Markets">
+              <div class="dn-tr dn-th" role="row">
+                <span role="columnheader">Token</span>
+                <span role="columnheader">Pair</span>
+                <span role="columnheader" class="dn-num">24h</span>
+                <span role="columnheader">Curve</span>
+              </div>
+              <div id="market-rows"></div>
+            </div>
+          </div>
+
+          <div class="dn-card dn-faceoff">
+            <span class="dn-label">Subnet face-off</span>
+            <div class="dn-faceoff-pick">
+              <select id="sn-a" aria-label="First subnet"></select>
+              <span class="dn-vs">vs</span>
+              <select id="sn-b" aria-label="Second subnet"></select>
+            </div>
+            <div id="faceoff-bars"></div>
+            <p class="dn-muted dn-small">Share of Dendra volume over the last 7 days.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- features -->
+    <section class="dn-sec" id="features">
+      <div class="dn-wrap">
+        <div class="dn-head dn-rise">
+          <span class="dn-label">Features</span>
+          <h2>Built for the Bittensor economy, not bolted on</h2>
+          <p>Launchpads elsewhere pair with whatever gas token is lying around. Dendra is designed around TAO and subnet alpha from the start.</p>
+        </div>
+        <div class="dn-feats">
+          <article class="dn-card dn-feat dn-rise">
+            <div class="dn-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="12" r="5"/><circle cx="16" cy="12" r="5"/></svg></div>
+            <h3>Native TAO &amp; alpha pairs</h3>
+            <p>Every buy routes value into TAO or the subnet's alpha, so your launch strengthens the network it lives on.</p>
+          </article>
+          <article class="dn-card dn-feat dn-rise">
+            <div class="dn-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20c6 0 10-4 16-16"/><path d="M15 4h5v5"/></svg></div>
+            <h3>Curve to pool graduation</h3>
+            <p>Once the curve fills, liquidity migrates to a Uniswap-style pool automatically and the LP is locked.</p>
+          </article>
+          <article class="dn-card dn-feat dn-rise">
+            <div class="dn-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg></div>
+            <h3>Fund from anywhere</h3>
+            <p>Holding USDC on Base? Bridge and swap into TAO inside the same flow; no second app, no copy-pasted addresses.</p>
+          </article>
+          <article class="dn-card dn-feat dn-rise">
+            <div class="dn-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 7.5c0-1.9 2.2-3 5-3s5 1.1 5 3-2.2 2.6-5 3.5-5 1.6-5 3.5 2.2 3 5 3 5-1.1 5-3"/></svg></div>
+            <h3>Creator fee share</h3>
+            <p>A slice of every trade goes to the launcher's wallet, forever, so good theses pay the people who write them.</p>
+          </article>
+          <article class="dn-card dn-feat dn-rise">
+            <div class="dn-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg></div>
+            <h3>Fair by default</h3>
+            <p>No presale, no hidden allocation, no admin mint. Everyone buys on the same curve, including the creator.</p>
+          </article>
+          <article class="dn-card dn-feat dn-rise">
+            <div class="dn-feat-i"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+            <h3>Live chain data</h3>
+            <p>Prices, holders and curve progress are read straight from the chain, not from a cache that lags behind.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- creators -->
+    <section class="dn-sec dn-sec-alt" id="creators">
+      <div class="dn-wrap">
+        <div class="dn-head dn-rise">
+          <span class="dn-label">Creators</span>
+          <h2>Theses worth reading</h2>
+          <p>Some of the arguments people have put a market behind this week.</p>
+        </div>
+        <div class="dn-theses" id="theses"></div>
+      </div>
+    </section>
+
+    <!-- faq -->
+    <section class="dn-sec" id="faq">
+      <div class="dn-wrap dn-faq-grid">
+        <div class="dn-head dn-rise">
+          <span class="dn-label">FAQ</span>
+          <h2>Before you sign</h2>
+          <p>Still unsure? Read the docs or ask in the community channel.</p>
+        </div>
+        <div class="dn-faq dn-rise">
+          <details>
+            <summary>What can I launch?</summary>
+            <p>Anything you can describe in a sentence: a subnet, a person, a prediction, an in-joke. Tokens impersonating real projects or people without permission are delisted from the front end.</p>
+          </details>
+          <details>
+            <summary>How does the bonding curve work?</summary>
+            <p>Price rises as supply is bought and falls as it's sold, according to a fixed formula. There's always a quote, so there's always an exit, until the curve fills and graduates to a pool.</p>
+          </details>
+          <details>
+            <summary>What happens at graduation?</summary>
+            <p>When the curve reaches its target, the collected TAO or alpha and the remaining supply are deposited into a pool and the LP tokens are locked. Trading continues there.</p>
+          </details>
+          <details>
+            <summary>How much does it cost?</summary>
+            <p>Deploying costs network gas plus a small flat fee. Each trade carries a 1% fee, part of which goes to the creator.</p>
+          </details>
+          <details>
+            <summary>Are the contracts audited?</summary>
+            <p>An audit is in progress and the report will be published here when it's done. Until then, treat Dendra as beta software and only use what you can afford to lose.</p>
+          </details>
+          <details>
+            <summary>Which wallet do I need?</summary>
+            <p>Any EVM wallet that can add a custom network: MetaMask, Rabby, Coinbase Wallet and OKX Wallet are tested. The app adds Bittensor EVM for you.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- closing call -->
+    <section class="dn-sec dn-cta-sec">
+      <div class="dn-wrap">
+        <div class="dn-cta dn-rise">
+          <h2>Your conviction, priced by the market.</h2>
+          <p>It takes one sentence and one signature.</p>
+          <a class="dn-btn dn-btn-primary" data-scroll="launch">Launch on Dendra</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="dn-foot">
+    <div class="dn-wrap dn-foot-in">
+      <span class="dn-brand dn-brand-sm">
+        <svg class="dn-mark" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M16 26V16M16 16l-6-6M16 16l6-6M10 10l-3 1M10 10l-1-3M22 10l3 1M22 10l1-3"/>
+          <circle cx="16" cy="26" r="2.6" fill="currentColor" stroke="none"/>
+        </svg>
+        Dendra
+      </span>
+      <nav class="dn-foot-links">
+        <a href="#docs">Docs</a><a href="#terms">Terms</a><a href="#risk">Risk disclosure</a><a href="#x">X</a><a href="#discord">Discord</a>
+      </nav>
+      <p class="dn-muted dn-small">Market figures on this page are sample data. Tokens launched on Dendra are highly speculative. Not financial advice.</p>
+    </div>
+  </footer>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

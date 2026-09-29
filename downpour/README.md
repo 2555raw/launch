@@ -254,7 +254,8 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   teaser: a phone drops in over the Earth with a coin's market cap counting up and its
   chart drawing, currency chips round it, then the mark, the name and SOON on the sound's
   hit; `isotope-soon.gif` is it as a GIF (720 px, 20 fps, under 5 MB for X).
-  `isotope-30.mp4` is the site teaser at 30 s on the whole song, every cut on its beat:
+  `isotope-tour.gif` (800 px, 20 fps, 3 s) is a quick tour: the hero, down the home page,
+  the board, a coin page and the swap. `isotope-30.mp4` is the site teaser at 30 s on the whole song, every cut on its beat:
   the intro reads "Is it possible to launch a coin in any currency", "Yes" lands on the
   drop, the break on "and we thought", and the mark forms on a downbeat of the second
   drop before the song's own fade.

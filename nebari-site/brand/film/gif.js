@@ -1,5 +1,6 @@
 // A 3 second loop of the real home page: the banner with its neon floor and floating logos.
-//   node gif.js [out.gif]      (serves ../../ on a local port itself)
+//   node gif.js [out.gif]              (serves ../../ on a local port itself)
+//   node gif.js --burst [out.gif]      the logos burst out of frame and fly back in
 // Every CSS animation is paused and set to the frame's time, with the banner's loops
 // retimed to 3 s, so the last frame runs straight back into the first.
 const { spawn, execFileSync } = require('child_process');
@@ -12,7 +13,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png', '.svg': 'image/svg+xml', '.ttf': 'font/ttf' };
 
 (async () => {
-  const out = path.resolve(process.argv[2] || path.join(__dirname, 'nebari.gif'));
+  const argv = process.argv.slice(2);
+  const BURST = argv[0] === '--burst'; if (BURST) argv.shift();
+  const out = path.resolve(argv[0] || path.join(__dirname, BURST ? 'nebari-burst.gif' : 'nebari.gif'));
   const server = http.createServer((q, s) => { let p = decodeURIComponent(q.url.split('?')[0]); if (p === '/') p = '/index.html';
     fs.readFile(path.join(SITE, p), (e, d) => { if (e) { s.writeHead(404); return s.end(); } s.writeHead(200, { 'content-type': types[path.extname(p)] || 'application/octet-stream' }); s.end(d); }); });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
@@ -32,13 +35,36 @@ const types = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascrip
     document.head.appendChild(st);
     document.querySelectorAll('.cookies').forEach((el) => el.remove());   // the gate is not part of the shot
     document.body.classList.remove('cookies-open');
+    // burst: each logo flies straight away from the centre of the frame, off screen, then comes back.
+    // 'translate' and 'scale' compose with the float animation's transform, so both run together.
+    const cl = (x) => Math.min(1, Math.max(0, x));
+    const ein = (x) => x * x * x;                                                      // speeds up on the way out
+    const eback = (x) => { const c = 1.25; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); }; // lands with a bounce
+    const items = [...document.querySelectorAll('.banner-asset')].map((el) => {
+      const r = el.getBoundingClientRect();
+      const dx = r.left + r.width / 2 - innerWidth / 2, dy = r.top + r.height / 2 - innerHeight * 0.45;
+      const len = Math.hypot(dx, dy) || 1;
+      return { el, ux: dx / len, uy: dy / len, far: innerWidth * 0.95, spin: (dx > 0 ? 1 : -1) * (25 + Math.random() * 30) };
+    });
+    window.__burst = (t) => items.forEach((it, i) => {
+      const d = i * 0.035;
+      const out = ein(cl((t - 0.55 - d) / 0.55));            // 0.55 s to fly out
+      const back = eback(cl((t - 1.55 - d) / 0.75));         // gone for a beat, then 0.75 s back in
+      const k = out * (1 - back);                             // 0 in place, 1 fully off screen
+      const x = it.ux * it.far * k, y = it.uy * it.far * k;
+      it.el.style.translate = x.toFixed(1) + 'px ' + y.toFixed(1) + 'px';
+      it.el.style.scale = String(1 + 0.35 * Math.sin(Math.PI * Math.min(1, k * 1.2)));
+      it.el.style.rotate = (it.spin * k).toFixed(1) + 'deg';
+      const blur = Math.min(10, Math.abs(k - (it._k ?? k)) * 90); it._k = k;
+      it.el.style.filter = blur > 0.3 ? 'blur(' + blur.toFixed(1) + 'px)' : '';
+    });
     return document.fonts.ready.then(() => true);
   })()`, awaitPromise: true });
   await sleep(400);
   const dir = fs.mkdtempSync(path.join(require('os').tmpdir(), 'nebari-gif-'));
   for (let i = 0; i < FPS * DUR; i++) {
     const ms = (i / FPS) * 1000;
-    await send('Runtime.evaluate', { expression: `document.getAnimations().forEach(a => { a.pause(); a.currentTime = ${ms}; }); true` });
+    await send('Runtime.evaluate', { expression: `document.getAnimations().forEach(a => { a.pause(); a.currentTime = ${ms}; }); ${BURST ? `window.__burst(${ms / 1000});` : ''} true` });
     const r = await send('Page.captureScreenshot', { format: 'png', clip: { x: 0, y: 0, width: W, height: H, scale: 1 } });
     fs.writeFileSync(path.join(dir, `f${String(i).padStart(3, '0')}.png`), Buffer.from(r.result.data, 'base64'));
   }

@@ -92,4 +92,4 @@ http
       send(res, path.join(ROOT, 'index.html'));
     });
   })
-  .listen(PORT, () => console.log(`Starmint on :${PORT}`));
+  .listen(PORT, () => console.log(`Isotope on :${PORT}`));

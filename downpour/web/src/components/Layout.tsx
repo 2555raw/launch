@@ -199,7 +199,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="top" data-solid>
         <header className="nav glass">
           <Link to="/" className="brand" aria-label={`${SITE.name} home`}>
-            <img className="brand-mark" src="/brand/mark.svg" alt="" width={20} height={20} />
+            <img className="brand-mark" src="/brand/mark-lime.svg" alt="" width={20} height={20} />
             {SITE.name}
           </Link>
           <nav className="nav-links" aria-label="Main">

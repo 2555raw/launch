@@ -1,21 +1,21 @@
 /* Starmint — space theme. Tokens first, then base, then shared components. */
 
 :root {
-  --bg: #08051a;
-  --ink: #eef3ff;
-  --ink-2: #b7c3da;
-  --ink-3: #7f8ca8;
-  --line: rgba(150, 180, 255, 0.14);
-  --line-2: rgba(150, 180, 255, 0.26);
-  --glass: rgba(12, 19, 36, 0.8);
-  --glass-2: rgba(19, 30, 54, 0.84);
-  --glass-strong: rgba(10, 16, 31, 0.9);
+  --bg: #040a03;
+  --ink: #f0ffe6;
+  --ink-2: #bcd6b0;
+  --ink-3: #86a07c;
+  --line: rgba(170, 255, 90, 0.14);
+  --line-2: rgba(170, 255, 90, 0.26);
+  --glass: rgba(8, 18, 8, 0.8);
+  --glass-2: rgba(14, 28, 12, 0.84);
+  --glass-strong: rgba(6, 14, 6, 0.9);
   --tint: rgba(255, 255, 255, 0.04);
-  --bolt: #a18cff;
-  --bolt-2: #d2c8ff;
-  --bolt-ink: #150b3d;
-  --rain: #b9a8ff;
-  --rain-2: #d8cfff;
+  --bolt: #bfff2a;
+  --bolt-2: #e6ffa8;
+  --bolt-ink: #0a1a00;
+  --rain: #c8ff5c;
+  --rain-2: #e9ffbd;
   --up: #3ddc97;
   --down: #ff6b81;
   --warn: #ffb454;
@@ -77,7 +77,7 @@ img {
 }
 
 ::selection {
-  background: rgba(90, 63, 209, 0.4);
+  background: rgba(191, 255, 42, 0.35);
 }
 
 :focus-visible {
@@ -90,7 +90,7 @@ img {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: #08051a;
+  background: #040a03;
 }
 
 .storm-canvas {
@@ -669,7 +669,7 @@ textarea.input:focus {
   display: block;
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #3fa8ff, var(--rain));
+  background: linear-gradient(90deg, #5fbf00, var(--rain));
 }
 
 .bar.full > i {

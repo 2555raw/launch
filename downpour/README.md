@@ -1,4 +1,4 @@
-# Starmint
+# Isotope
 
 A star-themed token launchpad where every coin is paired with a currency.
 
@@ -236,7 +236,7 @@ Any static host works too, as long as unknown paths fall back to `index.html`.
   is the token mark from Global Dollar's brand page (globaldollar.com/brand), unchanged;
   Pons is the mark from its public repository (ReptilianHQ/ponsfamily), lifted off its white
   background. The marks belong to their owners, and the row doesn't say they endorse
-  Starmint.
+  Isotope.
 - `web/public/brand/`: the logo, six rounded arms around a hexagon with six drops
   circling them. `mark.svg` (white) and `mark-black.svg` are the mark alone on a
   transparent background, with 1024 px PNGs; `logo.svg` is the mark on a black disc

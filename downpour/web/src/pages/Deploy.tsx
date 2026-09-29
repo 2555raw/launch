@@ -1,3 +1,4 @@
+import { SITE } from '../config/site';
 import { useEffect, useState } from 'react';
 import { formatEther, type Address } from 'viem';
 import { PageHead } from '../components/bits';
@@ -98,7 +99,7 @@ export default function Deploy() {
     <div className="wrap narrow" style={{ maxWidth: 860 }}>
       <PageHead
         kicker="For the owner"
-        title="Put Starmint on chain"
+        title={`Put ${SITE.name} on chain`}
         lead={`This deploys the currency desk, the launchpad and the router to ${meta.name} from your own wallet; every coin launched on it opens as a Uniswap V3 pool with its whole supply locked in. ${
           real ? `The desk lists ${tokenNames}, the tokens that trade there. ` : ''
         }You sign ${txCount(TARGET, TOKENS)} transactions there; no private key is shared with anyone.`}

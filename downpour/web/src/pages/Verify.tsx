@@ -1,3 +1,4 @@
+import { SITE } from '../config/site';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { createPublicClient, formatUnits, getAddress, http, isAddress, keccak256, parseAbi, parseAbiItem, type Hex } from 'viem';
@@ -302,7 +303,7 @@ export default function Verify() {
         <div className="panel" style={{ marginTop: 30 }}>
           <b>Run the same checks from a terminal</b>
           <p className="muted small">If this page and the script ever disagree, trust the script: it is short enough to read.</p>
-          <div className="code-block">{`cd starmint && npm install
+          <div className="code-block">{`cd ${SITE.name.toLowerCase()} && npm install
 node scripts/verify.mjs \\
   --rpc ${rpc || 'https://…'} \\
   --pad ${padAddr || '0x…'} \\

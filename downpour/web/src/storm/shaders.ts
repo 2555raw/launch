@@ -75,8 +75,8 @@ void main() {
   vec2 p = vec2(uv.x * uAspect, uv.y);
   float t = uTime;
 
-  // the void: near black, a touch of deep violet toward the top
-  vec3 col = mix(vec3(0.012, 0.008, 0.026), vec3(0.018, 0.011, 0.046), uv.y);
+  // the void: near black, a touch of deep green toward the top
+  vec3 col = mix(vec3(0.006, 0.014, 0.006), vec3(0.010, 0.026, 0.010), uv.y);
 
   // nebulae: faint domain-warped wisps of gas, blue-grey and blue
   vec2 q = p * 1.3 + vec2(t * 0.004, t * 0.002);
@@ -85,8 +85,8 @@ void main() {
   float n2 = fbm(q * 1.7 - 1.2 * w + 4.0);
   float mask1 = smoothstep(0.45, 0.85, n1);
   float mask2 = smoothstep(0.5, 0.9, n2);
-  col += vec3(0.20, 0.14, 0.32) * mask1 * 0.28;         // violet-grey
-  col += vec3(0.14, 0.08, 0.36) * mask2 * 0.32;         // purple
+  col += vec3(0.20, 0.36, 0.08) * mask1 * 0.28;         // lime
+  col += vec3(0.08, 0.34, 0.10) * mask2 * 0.32;         // green
   // dark dust eating into the gas
   float dust = smoothstep(0.55, 0.75, fbm3(q * 2.3 + w * 1.4 + 11.0));
   col *= 1.0 - dust * 0.55;
@@ -98,7 +98,7 @@ void main() {
   float along = bp.x * cos(ang) + bp.y * sin(ang);
   float band = exp(-across * across * 14.0);
   float lane = smoothstep(0.35, 0.7, fbm(vec2(along * 2.5, across * 9.0) + 3.0)) * exp(-across * across * 60.0);
-  vec3 bandCol = mix(vec3(0.56, 0.5, 0.66), vec3(0.66, 0.6, 0.7), fbm3(vec2(along * 3.0, 1.0)));
+  vec3 bandCol = mix(vec3(0.52, 0.68, 0.40), vec3(0.62, 0.74, 0.46), fbm3(vec2(along * 3.0, 1.0)));
   col += bandCol * band * 0.16 * (0.6 + 0.8 * fbm3(vec2(along * 6.0, across * 12.0)));
   col *= 1.0 - lane * 0.6;
 
@@ -115,12 +115,12 @@ void main() {
   float ga = atan(gp.y, gp.x);
   float arms = 0.5 + 0.5 * sin(ga * 2.0 - log(gr + 0.001) * 5.0 + t * 0.02);
   float gal = exp(-gr * 26.0) * (0.35 + 0.65 * arms) + exp(-gr * gr * 2200.0) * 1.4;
-  col += vec3(0.88, 0.9, 0.96) * gal * 0.5;
+  col += vec3(0.84, 0.95, 0.78) * gal * 0.5;
 
   // a shooting star lights up the gas it passes
   vec2 fp = vec2(uFlash.x * uAspect, uFlash.y);
   float fr = length(p - fp);
-  col += vec3(0.7, 0.6, 1.0) * uFlash.z * exp(-fr * 6.0) * (0.15 + mask1 + mask2) * 0.35;
+  col += vec3(0.7, 1.0, 0.35) * uFlash.z * exp(-fr * 6.0) * (0.15 + mask1 + mask2) * 0.35;
 
   o = vec4(col, 1.0);
 }`;

@@ -1,9 +1,9 @@
 /* Everything a fork would rename lives here. */
 
 export const SITE = {
-  name: 'Starmint',
-  tagline: 'Mint a star in any currency.',
-  footerLine: 'Coins that shine in the money you already use.',
+  name: 'Isotope',
+  tagline: 'Hot coins in any currency.',
+  footerLine: 'Coins that glow in the money you already use.',
   /** The platform's own token. Leave `address` empty until it exists: the bar under
    *  the nav with its contract address only shows once it is set. */
   token: {

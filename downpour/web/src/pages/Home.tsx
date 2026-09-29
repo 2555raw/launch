@@ -1,3 +1,4 @@
+import { SITE } from '../config/site';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { usePad } from '../backend/PadProvider';
@@ -233,7 +234,7 @@ export function Home() {
         <div className="wrap hero-inner">
           <div className="kicker">Every star is a currency</div>
           <h1 className="hero-title">
-            Mint a star
+            Hot coins
             <br />
             in any currency
           </h1>
@@ -269,7 +270,7 @@ export function Home() {
         <div className="wrap">
           <div className="section-head">
             <div>
-              <div className="kicker">New launches on Starmint</div>
+              <div className="kicker">New launches on {SITE.name}</div>
               <h2 className="h-section">Pick a star</h2>
               <p className="lead">
                 {few

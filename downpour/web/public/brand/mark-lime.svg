@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <!-- The mark, dark on a lime disc: the favicon, the phone icon, listings. -->
-  <circle cx="512" cy="512" r="512" fill="#bfff2a"/>
-  <g fill="#0a1a00" transform="translate(512 512) scale(0.6) translate(-512 -512)">
+  <!-- The mark in the lime: a ring of eight rounded blocks on a six-by-six grid, a diamond drawn in pixels.
+       Blocks meet only at their corners, so the ring reads as one shape with notched joins. -->
+  <g fill="#bfff2a">
     <rect x="384" y="128" width="256" height="128" rx="42"/>
     <rect x="256" y="256" width="128" height="128" rx="42"/>
     <rect x="640" y="256" width="128" height="128" rx="42"/>

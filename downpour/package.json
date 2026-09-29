@@ -1,9 +1,9 @@
 {
-  "name": "starmint",
+  "name": "isotope",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Starmint — a star-themed launchpad where every coin is paired with a currency.",
+  "description": "Isotope — a launchpad where every coin is paired with a currency.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -p tsconfig.json --noEmit && vite build",

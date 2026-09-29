@@ -27,12 +27,12 @@
   --ink-3: #465267;
   --line: rgba(15, 28, 50, 0.12);
   --line-2: rgba(15, 28, 50, 0.22);
-  --rain: #5a3fd1;
-  --rain-2: #5a3fd1;
+  --rain: #3f8f00;
+  --rain-2: #3f8f00;
   --up: #0c9a5f;
   --down: #d13a55;
-  --bolt: #5a3fd1;
-  --bolt-2: #6c52dc;
+  --bolt: #3f8f00;
+  --bolt-2: #52ad0a;
   color: var(--ink);
   background: var(--glass);
   border-color: rgba(255, 255, 255, 0.9);
@@ -89,7 +89,7 @@
   color: var(--ink);
 }
 .nav-links a.on::after {
-  background: #5a3fd1;
+  background: #bfff2a;
   box-shadow: none;
   bottom: 0;
 }
@@ -155,8 +155,8 @@ main {
 .modal .select:focus,
 .toolbar .input:focus,
 .toolbar .select:focus {
-  border-color: rgba(90, 63, 209, 0.5);
-  box-shadow: 0 0 0 3px rgba(90, 63, 209, 0.14);
+  border-color: rgba(120, 200, 20, 0.55);
+  box-shadow: 0 0 0 3px rgba(191, 255, 42, 0.3);
 }
 
 /* the board's and the desk's search, sort and filters sit on the sky: white pills */
@@ -196,7 +196,7 @@ main {
 .panel .btn:not(.btn-primary):hover,
 .modal .btn:not(.btn-primary):hover,
 .card .btn:not(.btn-primary):hover {
-  border-color: rgba(90, 63, 209, 0.45);
+  border-color: rgba(120, 200, 20, 0.5);
 }
 .panel .chip,
 .modal .chip,
@@ -206,16 +206,16 @@ main {
   color: var(--ink-2);
 }
 .chip.on .muted {
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(10, 26, 0, 0.62);
 }
 .chip.on,
 .panel .chip.on,
 .modal .chip.on,
 .toolbar .chip.on,
 .cur-filter .chip.on {
-  background: #5a3fd1;
-  border-color: #5a3fd1;
-  color: #fff;
+  background: #bfff2a;
+  border-color: #bfff2a;
+  color: #0a1a00;
 }
 /* buy / sell: a segmented control, the chosen side lifted in white */
 .tabs {
@@ -275,9 +275,9 @@ main {
 }
 .panel .pill.new,
 .card .pill.new {
-  color: #5a3fd1;
-  background: rgba(90, 63, 209, 0.08);
-  border-color: rgba(90, 63, 209, 0.3);
+  color: #3f8f00;
+  background: rgba(160, 255, 40, 0.16);
+  border-color: rgba(120, 200, 20, 0.4);
 }
 .bar {
   background: rgba(15, 28, 50, 0.1);
@@ -300,8 +300,8 @@ main {
 .panel .callout.bolt,
 .modal .callout.bolt,
 .glass .callout.bolt {
-  background: #f3f0ff;
-  border-left-color: #5a3fd1;
+  background: #f4ffe6;
+  border-left-color: #8fe000;
 }
 .fill:hover,
 .pairs-side .pair-row:hover,
@@ -349,28 +349,27 @@ main {
 /* ------------------------------ quiet primary buttons ------------------------------ */
 /* Deep ink on the glass panels and the nav; frosted glass where they sit on the open sky. */
 .btn-primary {
-  background: linear-gradient(180deg, #262d4a, #171c33);
-  color: #f3f5ff;
-  border-color: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(180deg, #d4ff66, #bfff2a);
+  color: #0a1a00;
+  border-color: rgba(191, 255, 42, 0.7);
   box-shadow: 0 8px 22px -14px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .btn-primary:hover {
-  background: linear-gradient(180deg, #2f3759, #1d2340);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(180deg, #e0ff8a, #c9ff45);
+  border-color: rgba(191, 255, 42, 0.9);
   box-shadow: 0 10px 26px -14px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 .hero .btn-primary,
 .final .btn-primary {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(14px) saturate(140%);
-  box-shadow: 0 10px 30px -18px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  background: #bfff2a;
+  color: #0a1a00;
+  border-color: #bfff2a;
+  box-shadow: 0 10px 30px -14px rgba(191, 255, 42, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
 .hero .btn-primary:hover,
 .final .btn-primary:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.46);
+  background: #d4ff66;
+  border-color: #d4ff66;
 }
 .hero-word-sym {
   color: rgba(255, 255, 255, 0.72);
@@ -469,10 +468,10 @@ main {
   }
 }
 
-/* ------------------------------ selected things: the site's purple ------------------------------ */
+/* ------------------------------ selected things: the site's lime ------------------------------ */
 .sheet a.on {
-  color: #5a3fd1;
-  background: rgba(90, 63, 209, 0.08);
+  color: #3f8f00;
+  background: rgba(160, 255, 40, 0.16);
 }
 
 /* ------------------------------ real currency marks ------------------------------ */
@@ -503,8 +502,8 @@ main {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .swap-card .swap-box:focus-within {
-  border-color: rgba(90, 63, 209, 0.45);
-  box-shadow: 0 0 0 3px rgba(90, 63, 209, 0.12);
+  border-color: rgba(120, 200, 20, 0.5);
+  box-shadow: 0 0 0 3px rgba(191, 255, 42, 0.3);
 }
 .swap-card .swap-box .big-input input {
   color: #0b1322;
@@ -522,12 +521,12 @@ main {
   font-size: 15px;
 }
 .swap-card .token-btn:hover {
-  border-color: rgba(90, 63, 209, 0.5);
+  border-color: rgba(120, 200, 20, 0.55);
 }
 .swap-card .token-btn.empty {
-  background: #5a3fd1;
-  border-color: #5a3fd1;
-  color: #fff;
+  background: #bfff2a;
+  border-color: #bfff2a;
+  color: #0a1a00;
   padding: 0 16px;
 }
 .swap-card .flip {
@@ -537,7 +536,7 @@ main {
   transition: color 0.15s ease, transform 0.2s ease;
 }
 .swap-card .flip:hover {
-  color: #5a3fd1;
+  color: #3f8f00;
   transform: rotate(180deg);
 }
 .swap-quick {
@@ -562,34 +561,34 @@ main {
   cursor: pointer;
 }
 .quick-pick:hover {
-  border-color: rgba(90, 63, 209, 0.45);
+  border-color: rgba(120, 200, 20, 0.5);
 }
 .quick-pick.on {
-  border-color: #5a3fd1;
-  box-shadow: 0 0 0 2px rgba(90, 63, 209, 0.18);
+  border-color: #8fe000;
+  box-shadow: 0 0 0 2px rgba(191, 255, 42, 0.4);
 }
 .swap-card .pair-callout {
   background: #fff;
   border: 1px solid rgba(15, 28, 50, 0.08);
-  border-left: 3px solid var(--c, #5a3fd1);
+  border-left: 3px solid var(--c, #8fe000);
   color: var(--ink-2);
 }
 .pairs-side .pair-row {
   border-radius: 12px;
 }
 .pairs-side .pair-row:hover {
-  background: rgba(90, 63, 209, 0.06);
+  background: rgba(160, 255, 40, 0.14);
 }
 
 
-/* the token picker: badge and name aligned to the left, a soft purple hover */
+/* the token picker: badge and name aligned to the left, a soft lime hover */
 .token-row .name {
   align-items: flex-start;
   gap: 3px;
 }
 .token-row:hover,
 .token-row:focus-visible {
-  background: rgba(90, 63, 209, 0.07);
+  background: rgba(160, 255, 40, 0.14);
 }
 
 /* ------------------------------ the top menu ------------------------------ */
@@ -614,8 +613,8 @@ main {
 }
 .wallet-row.featured:hover {
   background: #fff;
-  border-color: rgba(90, 63, 209, 0.45);
-  box-shadow: 0 10px 22px -14px rgba(90, 63, 209, 0.55);
+  border-color: rgba(120, 200, 20, 0.5);
+  box-shadow: 0 10px 22px -14px rgba(120, 200, 20, 0.5);
 }
 .wallet-row.featured > img {
   width: 38px;
@@ -629,7 +628,7 @@ main {
 .wallet-state {
   font-size: 12px;
   font-weight: 600;
-  color: #5a3fd1;
+  color: #3f8f00;
 }
 .wallet-state.ready {
   display: inline-flex;
@@ -660,7 +659,7 @@ main {
   color: #fff;
   /* dark enough by itself for white text over a white panel, where a browser has no
      backdrop filter */
-  background: rgba(16, 20, 34, 0.62);
+  background: rgba(10, 20, 10, 0.62);
   border: 1px solid rgba(255, 255, 255, 0.24);
   box-shadow: 0 12px 34px -20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
@@ -680,17 +679,17 @@ main {
   color: #fff;
 }
 .nav-links a.on::after {
-  background: #b9a8ff;
+  background: #bfff2a;
 }
 .nav .btn-primary {
-  background: #fff;
-  color: #0b1322;
-  border-color: #fff;
+  background: #bfff2a;
+  color: #0a1a00;
+  border-color: #bfff2a;
   box-shadow: 0 8px 20px -12px rgba(0, 0, 0, 0.7);
 }
 .nav .btn-primary:hover {
-  background: #eef0fa;
-  border-color: #eef0fa;
+  background: #d4ff66;
+  border-color: #d4ff66;
 }
 .nav .icon-btn,
 .nav .acct-btn {
@@ -700,7 +699,7 @@ main {
 }
 /* the phone menu covers the page, so it is darker glass to keep its links readable */
 .sheet {
-  background: rgba(10, 14, 26, 0.86);
+  background: rgba(6, 14, 6, 0.86);
   backdrop-filter: blur(20px) saturate(140%);
 }
 .sheet a.on,
@@ -750,8 +749,8 @@ main {
   background: rgba(15, 28, 50, 0.06);
 }
 .seg button.on {
-  background: #5a3fd1;
-  color: #fff;
+  background: #bfff2a;
+  color: #0a1a00;
 }
 .board-find {
   display: flex;
@@ -859,7 +858,7 @@ main {
   background: #e9ecf3;
 }
 .coin-card .bar > i {
-  background: #3b82f6;
+  background: #8fe000;
 }
 .coin-card .bar.full > i {
   background: #0c9a5f;

@@ -16,7 +16,7 @@ docs.html      guide with a sticky table of contents
 styles.css     the design system and every page's layout
 app.js         all behaviour; each block checks its elements exist, so one file serves all pages
 assets/        great-wall.webp: oil-style Great Wall at golden hour (hero and panels);
-               fund.svg; src/ holds the code that paints it
+               src/ holds the code that paints it
 assets/logos/  partner marks for the hero strip (see below)
 ```
 
@@ -30,11 +30,11 @@ python3 -m http.server 8000     # then open http://localhost:8000
 
 Black ground, near-black cards, white as the primary action. **Instrument Serif** for display
 headings (with an italic word), **Inter** for everything else, **JetBrains Mono** for labels and
-figures. One orange, `#FF5B26`, marks the logo's plaque and anything live or filling.
+figures. One jade green, `#2BD48F`, marks the logo's plaque and anything live or filling.
 
 **The name.** Longmen (龙门) is the Dragon Gate: in the old story, the carp that leaps it becomes
 a dragon. A launch that fills its curve and graduates to a pool is the same leap. The logo is a
-simple gate — two posts, a crossbeam and a curved roof — with the plaque in orange.
+simple gate — two posts, a crossbeam and a curved roof — with the plaque in jade.
 
 ## Background painting
 
@@ -57,8 +57,8 @@ Robinhood and USDC, taken unmodified from [`@web3icons/core`](https://www.npmjs.
 Base, which uses the package's earlier (v3.16.0) round mark instead of the new square one.
 
 - Bittensor isn't in that package, so `bittensor.jpg` is Bittensor's own icon as listed on
-  CoinGecko. It's used in the hero strip and, with USDC, inside `assets/fund.svg` (both embedded
-  as data URIs so the illustration stays one file).
+  CoinGecko. It's used in the hero strip and, with USDC and Base, in the swap preview on the
+  "Top up from Base" card.
 - Showing a partner's logo is normally fine to say "works with", but check each brand's
   guidelines before going live.
 

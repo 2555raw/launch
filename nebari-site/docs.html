@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Docs — Nebari</title>
-  <meta name="description" content="How Nebari works: the contracts, the fee split, the addresses, and how to deploy your own.">
+  <title>Docs — Neberi</title>
+  <meta name="description" content="How Neberi works: the contracts, the fee split, the addresses, and how to deploy your own.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%230b0b0b'/%3E%3Cg fill='%23ffffff' transform='translate(22 22) scale(.56)'%3E%3Crect x='33' y='0' width='34' height='18' rx='9'/%3E%3Crect x='33' y='82' width='34' height='18' rx='9'/%3E%3Crect x='0' y='33' width='18' height='34' rx='9'/%3E%3Crect x='82' y='33' width='18' height='34' rx='9'/%3E%3Crect x='16.5' y='16.5' width='17' height='17' rx='4.5'/%3E%3Crect x='66.5' y='16.5' width='17' height='17' rx='4.5'/%3E%3Crect x='16.5' y='66.5' width='17' height='17' rx='4.5'/%3E%3Crect x='66.5' y='66.5' width='17' height='17' rx='4.5'/%3E%3C/g%3E%3C/svg%3E">
   <link rel="preload" href="assets/fonts/Poppins-Regular.ttf" as="font" type="font/ttf" crossorigin>
   <link rel="stylesheet" href="styles.css">
@@ -15,14 +15,14 @@
     <div class="app-head">
       <div>
         <span class="eyebrow">Docs</span>
-        <h1>How Nebari works.</h1>
+        <h1>How Neberi works.</h1>
         <p>Three small contracts, no owner, no upgrade path. This page is the whole spec.</p>
       </div>
     </div>
 
     <div class="panel doc">
       <h2 id="overview">Overview</h2>
-      <p>Nebari is a launchpad on Robinhood Chain (chain id 4663). A launch is one transaction that creates a token with a fixed supply of one billion, initialises a Uniswap v4 pool between that token and the asset you chose, and deposits the whole supply as single-sided liquidity from the start price upwards. The factory keeps the position and has no function to remove it, so the liquidity is locked for as long as the chain exists.</p>
+      <p>Neberi is a launchpad on Robinhood Chain (chain id 4663). A launch is one transaction that creates a token with a fixed supply of one billion, initialises a Uniswap v4 pool between that token and the asset you chose, and deposits the whole supply as single-sided liquidity from the start price upwards. The factory keeps the position and has no function to remove it, so the liquidity is locked for as long as the chain exists.</p>
       <p>Because the whole supply sits above the start price and nothing sits below it, the start price is a floor: the pool cannot quote lower than the tick it was initialised on.</p>
 
       <h2 id="fees">Fees</h2>

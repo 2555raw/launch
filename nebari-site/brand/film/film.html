@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Nebari — film</title>
+<title>Neberi — film</title>
 <!-- A 30 second film about the site, 1920x1080. Every frame is a pure function of time:
      render(t) sets the whole picture for second t, and build.js captures it frame by frame. -->
 <style>
@@ -67,7 +67,7 @@
 
   /* end card */
   .mark { width: 150px; height: 150px; display: block; margin: 0 auto 34px; filter: drop-shadow(0 0 30px rgba(224,64,94,0.55)); }
-  .word { font-size: 74px; font-weight: 600; letter-spacing: 0.22em; margin-left: 0.22em; }
+  .word { font-size: 104px; font-weight: 600; letter-spacing: -0.03em; }
   .sub { margin-top: 18px; font-size: 30px; color: var(--ink2); font-weight: 400; }
   .glow { position: absolute; inset: 0; background: radial-gradient(40% 50% at 50% 50%, rgba(140,31,51,0.45), rgba(0,0,0,0) 70%); }
 </style>
@@ -88,7 +88,7 @@
   <!-- 2 -->
   <div class="scene" id="s2">
     <div class="dither" id="d2a"></div><div class="dither" id="d2b"></div>
-    <div class="win" id="w2" style="width:1900px"><div class="bar"><i></i><i></i><i></i><span>nebari · launchpad on Robinhood Chain</span></div><img src="shots/home.png" width="1900"></div>
+    <div class="win" id="w2" style="width:1900px"><div class="bar"><i></i><i></i><i></i><span>Neberi · launchpad on Robinhood Chain</span></div><img src="shots/home.png" width="1900"></div>
   </div>
 
   <!-- 3 -->
@@ -101,7 +101,7 @@
       <div class="row"><div class="lbl">Name</div><div class="fld" id="f1"></div></div>
       <div class="row"><div class="lbl">Root it to</div><div class="fld" id="f2"></div></div>
       <div class="row"><div class="lbl">Start price</div><div class="fld" id="f3"></div></div>
-      <div class="go"><small>One signature · no launch fee · just gas</small><div class="btn" id="b4">Launch on Nebari ↗</div></div>
+      <div class="go"><small>One signature · no launch fee · just gas</small><div class="btn" id="b4">Launch on Neberi ↗</div></div>
     </div>
   </div>
 
@@ -124,7 +124,7 @@
   <!-- 7 -->
   <div class="scene" id="s7">
     <div class="dither" id="d7"></div>
-    <div class="win" id="w7" style="width:1440px"><div class="bar"><i></i><i></i><i></i><span>nebari · Sakura Test (SKT)</span></div><img src="shots/token.png" width="1440"></div>
+    <div class="win" id="w7" style="width:1440px"><div class="bar"><i></i><i></i><i></i><span>Neberi · Sakura Test (SKT)</span></div><img src="shots/token.png" width="1440"></div>
     <div class="center line" id="l7" style="top:90%; font-size:54px"></div>
   </div>
 
@@ -135,7 +135,7 @@
   <div class="scene" id="s9"><div class="glow" id="g9"></div>
     <div class="center" id="e9">
       <svg class="mark" id="m9" viewBox="0 0 100 100" fill="#fff"><rect x="33" y="0" width="34" height="18" rx="9"/><rect x="33" y="82" width="34" height="18" rx="9"/><rect x="0" y="33" width="18" height="34" rx="9"/><rect x="82" y="33" width="18" height="34" rx="9"/><rect x="16.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="16.5" width="17" height="17" rx="4.5"/><rect x="16.5" y="66.5" width="17" height="17" rx="4.5"/><rect x="66.5" y="66.5" width="17" height="17" rx="4.5"/></svg>
-      <div class="word" id="n9">NEBARI</div>
+      <div class="word" id="n9">Neberi</div>
       <div class="sub" id="t9">Every asset can grow a token · Robinhood Chain</div>
     </div>
   </div>
@@ -276,7 +276,7 @@ function render(t) {
     const m = eb(P(t, 27.85, 28.45));
     $('m9').style.transform = `scale(${0.5 + 0.5 * m}) rotate(${(1 - m) * -45}deg)`; $('m9').style.opacity = P(t, 27.85, 28.0);
     const n = eo(P(t, 28.3, 28.9));
-    $('n9').style.opacity = n; $('n9').style.letterSpacing = `${0.5 - 0.28 * n}em`; $('n9').style.filter = `blur(${(1 - n) * 10}px)`;
+    $('n9').style.opacity = n; $('n9').style.letterSpacing = `${0.25 - 0.28 * n}em`; $('n9').style.filter = `blur(${(1 - n) * 10}px)`;
     $('t9').style.opacity = eo(P(t, 28.8, 29.3));
     $('g9').style.opacity = eo(P(t, 27.8, 28.8));
   }

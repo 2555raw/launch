@@ -3,7 +3,7 @@
 // After deploying the contracts (see contracts/README.md) paste the factory and router
 // addresses below. Until then the site runs in read-only mode and says so.
 window.NEBARI_CONFIG = {
-  brand: 'Nebari',
+  brand: 'Neberi',
 
   network: {
     chainId: 4663,

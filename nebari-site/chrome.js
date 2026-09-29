@@ -17,7 +17,7 @@
   const X_ICON = '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.3L23 22h-6.6l-5.2-6.8L5.3 22H2.1l7.7-8.8L1.6 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.4 3.9H5.5L17.7 20z"/></svg>';
 
   const page = document.body.dataset.page || '';
-  const brand = C.brand || 'Nebari';
+  const brand = C.brand || 'Neberi';
 
   const NAV = [
     ['index.html#about', 'About', 'about'],
@@ -34,7 +34,7 @@
     el.className = 'nav'; el.id = 'nav';
     el.innerHTML = `
       <div class="wrap nav-in">
-        <a class="brand" href="index.html" aria-label="${brand}, home"><span class="mark">${LOGO}</span><span class="brand-name">${brand.toUpperCase()}</span></a>
+        <a class="brand" href="index.html" aria-label="${brand}, home"><span class="mark">${LOGO}</span><span class="brand-name">${brand}</span></a>
         <nav class="nav-links" id="navlinks" aria-label="Main">
           ${NAV.map(([href, label, key]) => `<a href="${href}" class="${page === key ? 'active' : ''}">${label}</a>`).join('')}
         </nav>
@@ -57,7 +57,7 @@
       <div class="wrap footer-in">
         <div class="footer-top">
           <div class="footer-brand">
-            <a class="brand" href="index.html"><span class="mark">${LOGO}</span><span class="brand-name">${brand.toUpperCase()}</span></a>
+            <a class="brand" href="index.html"><span class="mark">${LOGO}</span><span class="brand-name">${brand}</span></a>
             <p>Robinhood Chain tokens with roots in any stock or asset. Liquidity sealed at launch, fees paid to the people who hold them.</p>
             <div class="footer-social">
               <a class="icon-btn" href="${C.links.x}" target="_blank" rel="noopener" aria-label="${brand} on X">${X_ICON}</a>

@@ -21,4 +21,4 @@ http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream', 'Cache-Control': p.startsWith('/vendor/') ? 'public, max-age=31536000' : 'no-cache' });
     fs.createReadStream(file).pipe(res);
   });
-}).listen(port, () => console.log('Nebari on http://localhost:' + port));
+}).listen(port, () => console.log('Neberi on http://localhost:' + port));

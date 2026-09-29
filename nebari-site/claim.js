@@ -22,7 +22,7 @@
         return { L, symbol, name, bal, claimable, pair, mine: L.creator.toLowerCase() === me.toLowerCase() };
       }));
       const relevant = rows.filter((r) => r.bal > 0n || r.claimable > 0n || r.mine);
-      if (!relevant.length) { list.innerHTML = '<p style="color:var(--muted)">You do not hold any Nebari token yet. <a class="link-pink" href="explore.html">Browse the garden</a>.</p>'; return; }
+      if (!relevant.length) { list.innerHTML = '<p style="color:var(--muted)">You do not hold any Neberi token yet. <a class="link-pink" href="explore.html">Browse the garden</a>.</p>'; return; }
       list.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:14px">
         <thead><tr style="text-align:left;color:var(--muted);font-size:12px"><th style="padding:8px 6px">Token</th><th style="padding:8px 6px">Rooted to</th><th style="padding:8px 6px">Your balance</th><th style="padding:8px 6px">Claimable</th><th style="padding:8px 6px"></th></tr></thead>
         <tbody>${relevant.map((r, i) => `<tr style="border-top:1px solid var(--line)">

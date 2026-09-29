@@ -24,7 +24,7 @@
     if (!tokenAddr || !E.isAddress(tokenAddr) || !Nebari.configured()) return notFound();
     try { L = await Nebari.factory().getLaunch(tokenAddr); } catch (e) { return notFound(); }
     S = await Nebari.tokenStats(L);
-    document.title = `${S.name} (${S.symbol}) — Nebari`;
+    document.title = `${S.name} (${S.symbol}) — Neberi`;
     $('t-name').textContent = S.name; $('t-symbol').textContent = S.symbol;
     $('t-desc').textContent = S.meta.description || '';
     const logo = $('t-logo');

@@ -81,7 +81,7 @@ export function Hero({ counts }: { counts: Record<string, number> }) {
             <p className="tracked leading-loose">
               One form for every launchpad.
               <br />
-              People draft, agents sign.
+              Your wallet or your agent signs.
             </p>
             <span className="mt-5 block h-px w-10 bg-line-strong" />
           </motion.div>

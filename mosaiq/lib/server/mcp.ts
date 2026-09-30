@@ -1,10 +1,10 @@
 import "server-only";
 import { buildHandoff, studioUrl } from "@/lib/handoff";
 import { chains, pairOptions, pads, stocks } from "@/lib/pads";
-import { canLaunchOnChain } from "@/lib/onchain";
+import { canLaunchOnChain, onchainPads } from "@/lib/onchain";
 import { site } from "@/lib/site";
 import type { Agent } from "@/lib/types";
-import { confirmOnChain, createDraft, prepareOnChain, queryLaunches, submitDraft, toPublic } from "./launches";
+import { confirmOnChain, createDraft, preparedForClient, prepareOnChain, queryLaunches, submitDraft, toPublic } from "./launches";
 import { store } from "./store";
 
 /**
@@ -55,7 +55,7 @@ export const tools = [
   {
     name: "prepare_launch",
     description:
-      "Pump.fun (Solana, SOL pair) only: returns the unsigned create transaction (base64, versioned) for a draft. Generate a fresh mint keypair, pass its public key as mint and your wallet as creator. Sign with your wallet first, then the mint keypair, send it to Solana, then call confirm_launch.",
+      "Returns the unsigned launch for a draft on a pad that launches on-chain (see list_pads onchain_pairs). Solana pads: pass your wallet as creator and the public key of a fresh mint keypair as mint; you get one base64 transaction to sign (wallet, then mint) and send. EVM pads: pass your 0x wallet as creator; you get calls to send in order. Then call confirm_launch.",
     inputSchema: {
       type: "object",
       properties: { draft_id: { type: "string" }, creator: { type: "string" }, mint: { type: "string" } },
@@ -64,7 +64,7 @@ export const tools = [
   },
   {
     name: "confirm_launch",
-    description: "Check a prepared Pump.fun launch on Solana by its transaction signature. Returns pending, live or failed.",
+    description: "Check a prepared launch on-chain by its transaction signature (Solana) or hash (EVM). Returns pending, live or failed, and the token's contract address once live.",
     inputSchema: {
       type: "object",
       properties: { draft_id: { type: "string" }, signature: { type: "string" } },
@@ -96,7 +96,7 @@ async function callTool(name: string, args: Json, ctx: { agent: Agent | null; or
           name: c.name,
           native: c.native,
           min_opening_buy: c.minBuy,
-          pads: pads.filter((p) => p.chain === c.id).map((p) => ({ id: p.id, name: p.name, pairs: p.pairs, accepted_pairs: pairOptions(p) })),
+          pads: pads.filter((p) => p.chain === c.id).map((p) => ({ id: p.id, name: p.name, pairs: p.pairs, accepted_pairs: pairOptions(p), onchain_pairs: onchainPads[p.id]?.pairs ?? [] })),
         })),
         stocks: stocks.map((s) => ({ symbol: s.symbol, name: s.name })),
       });
@@ -138,9 +138,13 @@ async function callTool(name: string, args: Json, ctx: { agent: Agent | null; or
     }
 
     case "prepare_launch": {
-      const r = await prepareOnChain(String(args.draft_id ?? ""), { creator: args.creator, mint: args.mint }, ctx.origin);
+      const r = await prepareOnChain(String(args.draft_id ?? ""), { creator: args.creator, mint: args.mint }, { origin: ctx.origin });
       if (!r.ok) return text(r.error, true);
-      return text({ transaction: r.transaction, encoding: "base64", mint: r.mint, next: "Sign (wallet, then mint), send to Solana, then call confirm_launch with the signature." });
+      const next =
+        r.prepared.kind === "solana"
+          ? "Sign with your wallet, then the mint keypair, send it to Solana, then call confirm_launch with the signature."
+          : `Switch to chainId ${r.prepared.chainId} and send each call in order from the creator wallet, waiting for each to confirm. Then call confirm_launch with the hash of the last one.`;
+      return text({ ...preparedForClient(r.prepared), next });
     }
 
     case "confirm_launch": {

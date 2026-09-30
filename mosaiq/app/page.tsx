@@ -78,7 +78,7 @@ export default async function HomePage() {
           <div className="card mt-4 p-6">
             <p className="text-sm leading-relaxed text-fog">
               Pick {pads.slice(0, -1).map((p) => p.name).join(", ")} or {pads.at(-1)!.name}, fill in the token, then bring your agent.
-              The agent places the launch with its {site.name} key. A person on the page can shape the draft but cannot send it.
+              Launch it from your own wallet, or hand the draft to your agent and it places the launch with its {site.name} key.
             </p>
             <Link href="/launch" className="btn btn-ghost btn-sm mt-5">
               Open the launch form

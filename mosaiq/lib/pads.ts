@@ -79,7 +79,7 @@ export const chains: Chain[] = [
     addressKind: "evm",
     color: "#CCFF00",
     logo: "/logos/robinhood.png",
-    explorer: "https://explorer.mainnet.chain.robinhood.com/address/",
+    explorer: "https://robinhoodchain.blockscout.com/token/",
   },
   {
     id: "arc",
@@ -90,7 +90,7 @@ export const chains: Chain[] = [
     addressKind: "evm",
     color: "#7C9CFF",
     logo: "/logos/arc.png",
-    explorer: "https://argus.world/token/",
+    explorer: "https://explorer.arc.io/token/",
   },
 ];
 

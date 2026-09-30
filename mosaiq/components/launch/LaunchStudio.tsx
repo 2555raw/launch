@@ -26,7 +26,7 @@ import type { PublicLaunch } from "@/lib/types";
 import { useApp } from "@/components/shell/AppProvider";
 import { AssetIcon, ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
 import { useCopy } from "@/components/ui/useCopy";
-import { canLaunchOnChain } from "@/lib/onchain";
+import { onchainPads, onchainSupport, supportsOpeningBuy } from "@/lib/onchain";
 import { OnChainLaunch } from "./OnChainLaunch";
 import { prepareImage } from "./image";
 
@@ -147,6 +147,10 @@ export function LaunchStudio({
   const pad = getPad(form.pad)!;
   const [stockPicker, setStockPicker] = useState(false);
 
+  const support = onchainSupport(form);
+  const onchain = support !== null;
+  const buyAllowed = !onchain || supportsOpeningBuy(form);
+
   const payload = useMemo(
     () => ({
       mode: form.mode,
@@ -160,18 +164,16 @@ export function LaunchStudio({
       websiteMode: form.websiteMode,
       website: form.websiteMode === "custom" ? form.website : undefined,
       description: form.description,
-      openingBuy: form.mode === "create" ? form.openingBuy : undefined,
+      openingBuy: form.mode === "create" && buyAllowed ? form.openingBuy : undefined,
       address: form.mode === "import" ? form.address : undefined,
     }),
-    [form],
+    [form, buyAllowed],
   );
-
-  const onchain = canLaunchOnChain(form);
 
   const clientErrors = useMemo(() => {
     const r = draftInputSchema.safeParse(payload);
     const errors = r.success ? {} : fieldErrors(r.error);
-    if (onchain && !payload.image && !errors.image) errors.image = "Pump.fun needs a token image";
+    if (onchain && !payload.image && !errors.image) errors.image = `${pad.name} launches need a token image`;
     return errors;
   }, [payload, onchain]);
 
@@ -569,7 +571,12 @@ export function LaunchStudio({
 
           {/* 03 */}
           <Section id="studio-settings" n="03" title="Launch settings">
-            {form.mode === "create" && (
+            {form.mode === "create" && !buyAllowed && (
+              <p className="rounded-xl border border-line bg-ink-2 p-3 text-sm text-fog">
+                No opening buy with the {form.pair} pair on {pad.name}. {support?.buyPairs.length ? `Pick ${support.buyPairs.join(" or ")} to add one.` : ""}
+              </p>
+            )}
+            {form.mode === "create" && buyAllowed && (
               <Field
                 id="openingBuy"
                 label={`Opening buy (${chain.native})`}
@@ -665,6 +672,8 @@ export function LaunchStudio({
                   {onchain && (
                     <div className="mb-6">
                       <OnChainLaunch
+                        wallet={support.wallet}
+                        pad={form.pad}
                         payload={payload}
                         ticker={form.ticker}
                         openingBuy={form.openingBuy}
@@ -674,9 +683,11 @@ export function LaunchStudio({
                       <p className="mt-6 text-sm text-fog">Or save it for an agent to sign:</p>
                     </div>
                   )}
-                  {form.pad === "pump" && form.mode === "create" && !onchain && (
+                  {form.mode === "create" && !onchain && (
                     <p className="mb-4 rounded-xl border border-line bg-ink-2 p-3 text-sm text-fog">
-                      Stock pairs on Pump.fun are not on-chain yet. Pick <span className="text-bone">SOL</span> to launch from your wallet.
+                      {onchainPads[form.pad]
+                        ? `The ${form.pair} pair on ${pad.name} does not launch from a wallet yet. Pick ${onchainPads[form.pad].pairs.slice(0, 4).join(", ")}${onchainPads[form.pad].pairs.length > 4 ? "…" : ""} to launch it yourself.`
+                        : `${pad.name} launches go through an agent for now: save the draft below and hand it over.`}
                     </p>
                   )}
                   {submit.state === "error" && (
@@ -894,7 +905,7 @@ function ImageDrop({
           )}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-medium">Token image <span className="font-normal text-mute">{required ? "(required for Pump.fun)" : "(optional)"}</span></span>
+          <span className="block text-sm font-medium">Token image <span className="font-normal text-mute">{required ? "(required to launch)" : "(optional)"}</span></span>
           <span className="block text-xs text-mute">
             {busy ? "Optimising…" : image ? "Click or drop to replace" : "Drop an image, or click to upload. PNG, JPG, WebP or GIF, up to 5 MB."}
           </span>

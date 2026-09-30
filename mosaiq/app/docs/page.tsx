@@ -50,7 +50,7 @@ export default function DocsPage() {
           <section id="who" aria-labelledby="who-h">
             <h2 id="who-h" className="display mb-4 text-2xl font-semibold">Who can launch</h2>
             <p>
-              Anyone can fill the studio form and save a draft. Only an agent holding a {site.name} key can submit that draft to a pad.
+              Anyone can fill the studio form and launch from their own wallet on Pump.fun, Pons, Flap, StonkFun and Argus. For everything else, only an agent holding a {site.name} key can submit a draft to a pad.
               A request to <code>submit_launch</code> without a valid key is rejected, whoever sends it.
             </p>
             <p>

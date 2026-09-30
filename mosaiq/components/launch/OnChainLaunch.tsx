@@ -5,26 +5,34 @@ import { ArrowUpRight, Check, CircleCheck, Copy, LoaderCircle, RotateCcw, Triang
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
-import { PUMP_CREATE_COST_SOL, pumpCoinUrl, shortAddress, solscanTxUrl } from "@/lib/onchain";
+import { connectEvm, detectEvmWallets, ensureChain, evmMetaMaskLink, sendEvmTx, type Eip1193, type EvmWalletOption } from "@/lib/evm-wallet";
+import { evmChains, padTokenUrl, PUMP_CREATE_COST_SOL, shortAddress, txUrl, type WalletKind } from "@/lib/onchain";
+import { getChain, getPad } from "@/lib/pads";
 import { connectWallet, detectWallets, phantomBrowseLink, walletErrorMessage, type WalletOption } from "@/lib/wallet";
 import { useApp } from "@/components/shell/AppProvider";
 import { PadGlyph } from "@/components/ui/PadGlyph";
 import { useCopy } from "@/components/ui/useCopy";
 
 type Step = "save" | "prepare" | "sign" | "send" | "confirm";
-const steps: { id: Step; label: string }[] = [
-  { id: "save", label: "Save the draft" },
-  { id: "prepare", label: "Upload metadata and build the transaction" },
-  { id: "sign", label: "Approve in your wallet" },
-  { id: "send", label: "Send to Solana" },
-  { id: "confirm", label: "Wait for confirmation" },
-];
 
 type Run =
   | { state: "idle" }
-  | { state: "running"; step: Step }
-  | { state: "error"; step: Step; message: string; signature?: string }
-  | { state: "live"; mint: string; signature: string; ticker: string };
+  | { state: "running"; step: Step; detail?: string }
+  | { state: "error"; step: Step; message: string; tx?: string }
+  | { state: "live"; token: string; tx: string; ticker: string };
+
+type Connected =
+  | { kind: "solana"; option: WalletOption; address: string }
+  | { kind: "evm"; option: EvmWalletOption; address: string };
+
+/** What the launch costs on each pad, before any opening buy. */
+const costs: Record<string, string> = {
+  pump: `about ${PUMP_CREATE_COST_SOL} SOL`,
+  pons: "the 0.0005 ETH Pons launch fee plus gas",
+  flap: "gas only (Flap has no launch fee)",
+  argus: "gas only, paid in USDC",
+  stonk: "rent and network fees in SOL",
+};
 
 const toBase64 = (bytes: Uint8Array) => {
   let s = "";
@@ -41,17 +49,33 @@ async function post<T>(url: string, body: unknown): Promise<T & { fields?: Recor
   return data;
 }
 
+async function waitForReceipt(p: Eip1193, hash: string) {
+  for (let i = 0; i < 90; i++) {
+    const r = (await p.request({ method: "eth_getTransactionReceipt", params: [hash] }).catch(() => null)) as { status?: string } | null;
+    if (r?.status) {
+      if (r.status !== "0x1") throw new Error("The approval transaction failed.");
+      return;
+    }
+    await sleep(2000);
+  }
+  throw new Error("The approval is taking too long to confirm. Try again in a moment.");
+}
+
 /**
- * The on-chain path for Pump.fun: the person's own Solana wallet signs and
- * pays. The server builds the transaction and relays it; keys stay in the wallet.
+ * The on-chain path: the person's own wallet (Solana or EVM) signs and pays.
+ * The server builds the transaction and checks the result; keys stay in the wallet.
  */
 export function OnChainLaunch({
+  wallet: kind,
+  pad: padId,
   payload,
   ticker,
   openingBuy,
   validate,
   onFieldErrors,
 }: {
+  wallet: WalletKind;
+  pad: string;
   payload: Record<string, unknown>;
   ticker: string;
   openingBuy: string;
@@ -60,8 +84,11 @@ export function OnChainLaunch({
 }) {
   const { toast } = useApp();
   const { copied, copy } = useCopy();
-  const [wallets, setWallets] = useState<WalletOption[] | null>(null);
-  const [wallet, setWallet] = useState<{ option: WalletOption; address: string } | null>(null);
+  const pad = getPad(padId)!;
+  const chain = getChain(pad.chain)!;
+  const [solWallets, setSolWallets] = useState<WalletOption[] | null>(null);
+  const [evmWallets, setEvmWallets] = useState<EvmWalletOption[] | null>(null);
+  const [wallet, setWallet] = useState<Connected | null>(null);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [walletError, setWalletError] = useState<string>();
   const [run, setRun] = useState<Run>({ state: "idle" });
@@ -69,16 +96,49 @@ export function OnChainLaunch({
 
   // Wallet extensions inject after load; look again shortly after mount.
   useEffect(() => {
-    setWallets(detectWallets());
-    const t = setTimeout(() => setWallets(detectWallets()), 800);
-    return () => clearTimeout(t);
-  }, []);
+    if (kind === "solana") {
+      setSolWallets(detectWallets());
+      const t = setTimeout(() => setSolWallets(detectWallets()), 800);
+      return () => clearTimeout(t);
+    }
+    let alive = true;
+    detectEvmWallets().then((w) => alive && setEvmWallets(w));
+    return () => {
+      alive = false;
+    };
+  }, [kind]);
 
-  async function connect(option: WalletOption) {
+  // A connected wallet of the other kind is useless on this pad.
+  useEffect(() => {
+    setWallet((w) => (w && w.kind !== kind ? null : w));
+    setRun({ state: "idle" });
+  }, [kind, padId]);
+
+  const steps: { id: Step; label: string }[] = [
+    { id: "save", label: "Save the draft" },
+    { id: "prepare", label: "Prepare the launch" },
+    { id: "sign", label: "Approve in your wallet" },
+    { id: "send", label: kind === "solana" ? "Send to Solana" : `Send to ${chain.name}` },
+    { id: "confirm", label: "Wait for confirmation" },
+  ];
+
+  async function connectSol(option: WalletOption) {
     setConnecting(option.id);
     setWalletError(undefined);
     try {
-      setWallet({ option, address: await connectWallet(option) });
+      setWallet({ kind: "solana", option, address: await connectWallet(option) });
+    } catch (err) {
+      setWalletError(walletErrorMessage(err));
+    } finally {
+      setConnecting(null);
+    }
+  }
+
+  async function connectE(option: EvmWalletOption) {
+    setConnecting(option.id);
+    setWalletError(undefined);
+    try {
+      setWallet({ kind: "evm", option, address: await connectEvm(option) });
     } catch (err) {
       setWalletError(walletErrorMessage(err));
     } finally {
@@ -90,7 +150,7 @@ export function OnChainLaunch({
     if (!wallet || run.state === "running") return;
     if (!validate()) return;
     let step: Step = "save";
-    let signature: string | undefined;
+    let tx: string | undefined;
     try {
       setRun({ state: "running", step });
       const key = JSON.stringify(payload);
@@ -99,60 +159,97 @@ export function OnChainLaunch({
         draft.current = { key, id: saved.id };
       }
       const id = draft.current.id;
+      let token: string | undefined;
 
-      setRun({ state: "running", step: (step = "prepare") });
-      const { Keypair, VersionedTransaction } = await import("@solana/web3.js");
-      const mint = Keypair.generate();
-      const prepared = await post<{ transaction: string }>(`/api/launches/${id}/prepare`, {
-        creator: wallet.address,
-        mint: mint.publicKey.toBase58(),
-      });
+      if (wallet.kind === "solana") {
+        setRun({ state: "running", step: (step = "prepare") });
+        const { Keypair, VersionedTransaction } = await import("@solana/web3.js");
+        const mint = Keypair.generate();
+        token = mint.publicKey.toBase58();
+        const prepared = await post<{ transaction: string }>(`/api/launches/${id}/prepare`, { creator: wallet.address, mint: token });
 
-      setRun({ state: "running", step: (step = "sign") });
-      const tx = VersionedTransaction.deserialize(fromBase64(prepared.transaction));
-      const provider = wallet.option.provider;
-      if (provider.signAndSendTransaction) {
-        // Wallets that submit themselves (Phantom's recommended path): the mint
-        // signs first, then the wallet adds its signature and sends it.
-        tx.sign([mint]);
-        const sent = await provider.signAndSendTransaction(tx).catch((err) => {
-          throw new Error(walletErrorMessage(err));
-        });
-        signature = typeof sent === "string" ? sent : sent.signature;
-        setRun({ state: "running", step: (step = "send") });
+        setRun({ state: "running", step: (step = "sign") });
+        const t = VersionedTransaction.deserialize(fromBase64(prepared.transaction));
+        const provider = wallet.option.provider;
+        if (provider.signAndSendTransaction) {
+          // Wallets that submit themselves (Phantom's recommended path): the mint
+          // signs first, then the wallet adds its signature and sends it.
+          t.sign([mint]);
+          const sent = await provider.signAndSendTransaction(t).catch((err) => {
+            throw new Error(walletErrorMessage(err));
+          });
+          tx = typeof sent === "string" ? sent : sent.signature;
+          setRun({ state: "running", step: (step = "send") });
+        } else {
+          // Otherwise the wallet signs, the mint adds its signature and the server relays it.
+          const signed = await provider.signTransaction(t).catch((err) => {
+            throw new Error(walletErrorMessage(err));
+          });
+          signed.sign([mint]);
+          setRun({ state: "running", step: (step = "send") });
+          ({ signature: tx } = await post<{ signature: string }>(`/api/launches/${id}/send`, { transaction: toBase64(signed.serialize()) }));
+        }
       } else {
-        // Otherwise the wallet signs, the mint adds its signature and the server relays it.
-        const signed = await provider.signTransaction(tx).catch((err) => {
+        const evm = evmChains[pad.chain];
+        setRun({ state: "running", step: (step = "prepare") });
+        const prepared = await post<{ chainId: number; calls: { to: string; data: string; value: string; label: string }[] }>(
+          `/api/launches/${id}/prepare`,
+          { creator: wallet.address },
+        );
+        const p = wallet.option.provider;
+        setRun({ state: "running", step: (step = "sign"), detail: `Switch to ${evm.chainName}` });
+        await ensureChain(p, {
+          chainId: evm.chainId,
+          chainName: evm.chainName,
+          rpcUrls: [evm.rpcUrl],
+          nativeCurrency: evm.nativeCurrency,
+          blockExplorerUrls: [evm.explorer],
+        }).catch((err) => {
           throw new Error(walletErrorMessage(err));
         });
-        signed.sign([mint]);
+        for (const [i, c] of prepared.calls.entries()) {
+          const last = i === prepared.calls.length - 1;
+          setRun({ state: "running", step: (step = "sign"), detail: prepared.calls.length > 1 ? `${c.label} (${i + 1}/${prepared.calls.length})` : undefined });
+          const hash = await sendEvmTx(p, wallet.address, c).catch((err) => {
+            throw new Error(walletErrorMessage(err));
+          });
+          if (last) tx = hash;
+          else {
+            setRun({ state: "running", step: (step = "send"), detail: c.label });
+            await waitForReceipt(p, hash);
+          }
+        }
         setRun({ state: "running", step: (step = "send") });
-        ({ signature } = await post<{ signature: string }>(`/api/launches/${id}/send`, { transaction: toBase64(signed.serialize()) }));
       }
 
       setRun({ state: "running", step: (step = "confirm") });
-      for (let i = 0; i < 45; i++) {
+      for (let i = 0; i < 60; i++) {
         await sleep(2000);
-        const r = await post<{ state: string; launch: { statusNote?: string } }>(`/api/launches/${id}/confirm`, { signature }).catch(() => null);
+        const r = await post<{ state: string; launch: { statusNote?: string; address?: string } }>(`/api/launches/${id}/confirm`, { signature: tx }).catch(
+          () => null,
+        );
         if (r?.state === "live") {
           draft.current = null;
-          setRun({ state: "live", mint: mint.publicKey.toBase58(), signature, ticker });
-          toast({ kind: "success", title: `$${ticker} is live`, body: "Created on Pump.fun from your wallet." });
+          token = r.launch.address ?? token!;
+          setRun({ state: "live", token, tx: tx!, ticker });
+          toast({ kind: "success", title: `$${ticker} is live`, body: `Created on ${pad.name} from your wallet.` });
           return;
         }
-        if (r?.state === "failed") throw new Error(r.launch.statusNote ?? "The transaction failed on Solana.");
+        if (r?.state === "failed") throw new Error(r.launch.statusNote ?? "The transaction failed on-chain.");
       }
-      throw new Error("Still not confirmed. Check the transaction on Solscan; it may land in a moment.");
+      throw new Error("Still not confirmed. Check the transaction in the explorer; it may land in a moment.");
     } catch (err) {
       const e = err as Error & { fields?: Record<string, string> };
       if (e.fields) onFieldErrors(e.fields);
-      setRun({ state: "error", step, message: e.message || "Something went wrong.", signature });
+      setRun({ state: "error", step, message: e.message || "Something went wrong.", tx });
     }
   }
 
   const running = run.state === "running";
   const stepIndex = run.state === "running" || run.state === "error" ? steps.findIndex((s) => s.id === run.step) : -1;
   const buy = Number(openingBuy) || 0;
+  const here = typeof window === "undefined" ? "https://padpicker.xyz/launch" : window.location.href;
+  const options = kind === "solana" ? solWallets : evmWallets;
 
   return (
     <div className="rounded-2xl border border-line-strong bg-ink-2 p-5">
@@ -160,25 +257,31 @@ export function OnChainLaunch({
         {run.state === "live" ? (
           <motion.div key="live" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} role="status">
             <p className="flex items-center gap-2 text-lg font-semibold">
-              <CircleCheck className="size-5 text-mint" aria-hidden="true" /> ${run.ticker} is live on Pump.fun
+              <CircleCheck className="size-5 text-mint" aria-hidden="true" /> ${run.ticker} is live on {pad.name}
             </p>
-            <p className="mt-2 text-sm text-fog">Created and signed by your wallet. The contract address:</p>
+            <p className="mt-2 text-sm text-fog">Created and signed by your wallet. The contract address (CA):</p>
             <button
               type="button"
-              onClick={() => copy(run.mint, "mint")}
+              onClick={() => copy(run.token, "mint")}
               className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface-2 px-4 py-3 text-left font-mono text-sm transition hover:border-white/25"
             >
-              <span className="min-w-0 break-all">{run.mint}</span>
+              <span className="min-w-0 break-all">{run.token}</span>
               {copied === "mint" ? <Check className="size-4 shrink-0 text-mint" /> : <Copy className="size-4 shrink-0 text-fog" />}
             </button>
             <div className="mt-4 flex flex-wrap gap-2">
-              <a href={pumpCoinUrl(run.mint)} target="_blank" rel="noreferrer" className="btn btn-primary">
-                Open on Pump.fun <ArrowUpRight className="size-4" />
-              </a>
-              <a href={solscanTxUrl(run.signature)} target="_blank" rel="noreferrer" className="btn btn-ghost">
+              {padTokenUrl(pad.id, run.token) ? (
+                <a href={padTokenUrl(pad.id, run.token)!} target="_blank" rel="noreferrer" className="btn btn-primary">
+                  Open on {pad.name} <ArrowUpRight className="size-4" />
+                </a>
+              ) : (
+                <a href={`${chain.explorer}${run.token}`} target="_blank" rel="noreferrer" className="btn btn-primary">
+                  View token <ArrowUpRight className="size-4" />
+                </a>
+              )}
+              <a href={txUrl(pad.chain, run.tx)} target="_blank" rel="noreferrer" className="btn btn-ghost">
                 Transaction <ArrowUpRight className="size-4" />
               </a>
-              <Link href={`/explore?q=${run.mint}`} className="btn btn-ghost">
+              <Link href={`/explore?q=${run.token}`} className="btn btn-ghost">
                 See it on Explore
               </Link>
               <button type="button" className="btn btn-ghost text-fog" onClick={() => setRun({ state: "idle" })}>
@@ -189,12 +292,14 @@ export function OnChainLaunch({
         ) : (
           <motion.div key="flow" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex items-start gap-3">
-              <PadGlyph pad="pump" size="sm" className="mt-0.5" />
+              <PadGlyph pad={pad.id} size="sm" className="mt-0.5" />
               <div className="min-w-0">
-                <p className="font-semibold">Launch on Pump.fun from your wallet</p>
+                <p className="font-semibold">
+                  Launch on {pad.name} from your wallet
+                </p>
                 <p className="mt-1 text-sm text-fog">
-                  Your wallet signs and pays: about {PUMP_CREATE_COST_SOL} SOL
-                  {buy > 0 ? ` plus the ${buy} SOL opening buy (with a small routing fee)` : ""}.
+                  Your wallet signs and pays {costs[pad.id] ?? "the network fees"}
+                  {buy > 0 ? `, plus the ${buy} ${String(payload.pair ?? chain.native)} opening buy` : ""}.
                 </p>
               </div>
             </div>
@@ -210,25 +315,52 @@ export function OnChainLaunch({
                     Change
                   </button>
                 </div>
-              ) : wallets === null ? null : wallets.length ? (
+              ) : options === null ? null : options.length ? (
                 <div className="flex flex-wrap gap-2">
-                  {wallets.map((w) => (
-                    <button key={w.id} type="button" className="btn btn-ghost" disabled={connecting !== null} onClick={() => connect(w)}>
-                      {connecting === w.id ? <LoaderCircle className="size-4 animate-spin" /> : <Wallet className="size-4" />}
-                      Connect {w.name}
-                    </button>
-                  ))}
+                  {kind === "solana"
+                    ? solWallets!.map((w) => (
+                        <button key={w.id} type="button" className="btn btn-ghost" disabled={connecting !== null} onClick={() => connectSol(w)}>
+                          {connecting === w.id ? <LoaderCircle className="size-4 animate-spin" /> : <Wallet className="size-4" />}
+                          Connect {w.name}
+                        </button>
+                      ))
+                    : evmWallets!.map((w) => (
+                        <button key={w.id} type="button" className="btn btn-ghost" disabled={connecting !== null} onClick={() => connectE(w)}>
+                          {connecting === w.id ? (
+                            <LoaderCircle className="size-4 animate-spin" />
+                          ) : w.icon ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={w.icon} alt="" className="size-4 rounded" />
+                          ) : (
+                            <Wallet className="size-4" />
+                          )}
+                          Connect {w.name}
+                        </button>
+                      ))}
                 </div>
               ) : (
                 <div className="rounded-xl border border-line bg-surface-2 p-4 text-sm">
-                  <p className="text-fog">No Solana wallet in this browser.</p>
+                  <p className="text-fog">No {kind === "solana" ? "Solana" : "EVM"} wallet in this browser.</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <a href="https://phantom.app/download" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
-                      Get Phantom <ArrowUpRight className="size-3.5" />
-                    </a>
-                    <a href={phantomBrowseLink(typeof window === "undefined" ? "https://padpicker.xyz/launch" : window.location.href)} className="btn btn-ghost btn-sm">
-                      Open in Phantom app <ArrowUpRight className="size-3.5" />
-                    </a>
+                    {kind === "solana" ? (
+                      <>
+                        <a href="https://phantom.app/download" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+                          Get Phantom <ArrowUpRight className="size-3.5" />
+                        </a>
+                        <a href={phantomBrowseLink(here)} className="btn btn-ghost btn-sm">
+                          Open in Phantom app <ArrowUpRight className="size-3.5" />
+                        </a>
+                      </>
+                    ) : (
+                      <>
+                        <a href="https://metamask.io/download" target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">
+                          Get MetaMask <ArrowUpRight className="size-3.5" />
+                        </a>
+                        <a href={evmMetaMaskLink(here)} className="btn btn-ghost btn-sm">
+                          Open in MetaMask app <ArrowUpRight className="size-3.5" />
+                        </a>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -246,7 +378,7 @@ export function OnChainLaunch({
                   const current = i === stepIndex;
                   const failed = current && run.state === "error";
                   return (
-                    <li key={s.id} className={cn("flex items-center gap-2.5", done ? "text-bone" : current ? "text-bone" : "text-mute")}>
+                    <li key={s.id} className={cn("flex items-center gap-2.5", done || current ? "text-bone" : "text-mute")}>
                       {done ? (
                         <Check className="size-4 text-mint" aria-hidden="true" />
                       ) : failed ? (
@@ -257,6 +389,7 @@ export function OnChainLaunch({
                         <span className="size-4 rounded-full border border-line-strong" aria-hidden="true" />
                       )}
                       {s.label}
+                      {current && run.state === "running" && run.detail && <span className="text-xs text-mute">· {run.detail}</span>}
                     </li>
                   );
                 })}
@@ -268,19 +401,23 @@ export function OnChainLaunch({
                 <p className="flex items-start gap-2">
                   <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" /> {run.message}
                 </p>
-                {run.signature && (
-                  <a href={solscanTxUrl(run.signature)} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs text-fog underline underline-offset-4">
-                    View on Solscan <ArrowUpRight className="size-3" />
+                {run.tx && (
+                  <a href={txUrl(pad.chain, run.tx)} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-xs text-fog underline underline-offset-4">
+                    View the transaction <ArrowUpRight className="size-3" />
                   </a>
                 )}
               </div>
             )}
 
             <button type="button" className="btn btn-accent btn-lg mt-4 w-full sm:w-auto" disabled={!wallet || running} onClick={launch} aria-busy={running}>
-              {running ? <LoaderCircle className="size-4 animate-spin" /> : <PadGlyph pad="pump" size="sm" className="!size-4 !rounded-full" />}
-              {running ? steps[stepIndex]?.label + "…" : run.state === "error" ? "Try again" : "Launch on Pump.fun"}
+              {running ? <LoaderCircle className="size-4 animate-spin" /> : <PadGlyph pad={pad.id} size="sm" className="!size-4 !rounded-full" />}
+              {running ? steps[stepIndex]?.label + "…" : run.state === "error" ? "Try again" : `Launch on ${pad.name}`}
             </button>
-            {!wallet && <p className="mt-2 text-xs text-mute">Connect a wallet to launch. You approve a single transaction.</p>}
+            {!wallet && (
+              <p className="mt-2 text-xs text-mute">
+                Connect a wallet to launch. You approve {kind === "evm" && pad.id === "argus" && buy > 0 ? "a USDC approval and then the launch" : "a single transaction"}.
+              </p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

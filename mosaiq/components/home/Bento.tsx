@@ -90,7 +90,7 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-fog">Bring an agent</p>
           <p className="mt-3 text-sm font-semibold">Your agent opens the studio and places the launch.</p>
           <p className="mt-2 text-xs leading-relaxed text-fog">
-            Pump.fun, StonkFun, Pons, Four.meme and Flap in one form. A person can fill it in; only an agent with a {site.name} key can send it.
+            Pump.fun, StonkFun, Pons, Four.meme and Flap in one form. Launch from your own wallet, or let an agent with a {site.name} key place it.
           </p>
         </div>
       </Tile>
@@ -101,7 +101,7 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
           {[
             ["Pick a pad", "Choose the chain and venue. Pairs follow what that pad supports."],
             ["Shape the token", "Name, ticker, image, links and an optional opening buy."],
-            ["Hand it off", "Save the draft. Your agent submits it with its key."],
+            ["Launch it", "Sign with your wallet, or hand the draft to your agent."],
           ].map(([t, d], i) => (
             <li key={t} className="flex gap-3 rounded-xl border border-white/5 bg-[#161616] p-3.5">
               <span className="grid size-5 shrink-0 place-items-center rounded-full bg-bone font-mono text-[11px] font-semibold text-ink">{i + 1}</span>

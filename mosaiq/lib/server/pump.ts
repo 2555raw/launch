@@ -3,6 +3,9 @@ import { createHash } from "node:crypto";
 import { PublicKey, VersionedTransaction } from "@solana/web3.js";
 import { PUMP_PROGRAM } from "@/lib/onchain";
 import type { Launch } from "@/lib/types";
+import { LaunchError } from "./pads/types";
+
+const PumpError = LaunchError;
 
 /**
  * Pump.fun on Solana. The token is created by the person's own wallet:
@@ -15,14 +18,7 @@ const RPC_URL = process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.c
 const PORTAL_URL = "https://pumpportal.fun/api/trade-local";
 const IPFS_URL = "https://pump.fun/api/ipfs";
 
-export class PumpError extends Error {
-  constructor(
-    message: string,
-    public status = 400,
-  ) {
-    super(message);
-  }
-}
+export { LaunchError as PumpError };
 
 export function isPublicKey(v: unknown): v is string {
   if (typeof v !== "string" || v.length < 32 || v.length > 44) return false;

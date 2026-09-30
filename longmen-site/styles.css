@@ -822,3 +822,9 @@ html.dn-locked { overflow: hidden; }
   .dn-consent-yes { order: -1; }
 }
 @media (prefers-reduced-motion: reduce) { .dn-consent, .dn-consent-card { transition: none; } }
+
+/* the nav gathers into its pill more slowly */
+.dn-nav {
+  transition: max-width 1.2s cubic-bezier(.22, .61, .36, 1), height 1.2s cubic-bezier(.22, .61, .36, 1), padding 1.2s cubic-bezier(.22, .61, .36, 1),
+              background-color 1s ease, border-color 1s ease, box-shadow 1s ease, backdrop-filter 1s ease, -webkit-backdrop-filter 1s ease;
+}

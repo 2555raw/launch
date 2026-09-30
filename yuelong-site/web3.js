@@ -24,7 +24,7 @@
   const ethers = () => (ethersP ||= new Promise((resolve, reject) => {
     if (window.ethers) return resolve(window.ethers);
     const s = document.createElement('script');
-    s.src = 'assets/vendor/ethers-6.13.4.umd.min.js';
+    s.src = 'assets/vendor/ethers-6.17.0.umd.min.js';
     s.onload = () => resolve(window.ethers);
     s.onerror = () => reject(new Error('Could not load ethers'));
     document.head.appendChild(s);

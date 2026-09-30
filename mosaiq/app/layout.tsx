@@ -9,7 +9,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
-  title: { default: `${site.name} · ${site.tagline}`, template: `%s · ${site.name}` },
+  title: { default: site.name, template: `%s · ${site.name}` },
   description: site.description,
   applicationName: site.name,
   keywords: ["token launchpad", "launch a token", "Robinhood Chain", "Solana", "BNB Chain", "Arc", "Pons", "Pump.fun", "Four.meme", "MCP", "AI agent", site.name],

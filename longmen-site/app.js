@@ -28,6 +28,9 @@
     { name: 'Weather Mesh',   ticker: 'WTHR', kind: 'candidate', label: 'Subnet Candidate', chain: 'Robinhood', sn: '',     desc: 'Forecasts scored against what actually happened, every hour.',      price: '0.0₇18 TAO',  curve: 1.4,  age: '3h' },
     { name: 'Validator Row',  ticker: 'VROW', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Robinhood', sn: '',     desc: 'Stake concentrates before it spreads. Bet on the top five.',       price: '0.0₄55 ETH',  curve: 3.2,  age: '3h' },
     { name: 'Compute Bazaar', ticker: 'CBZR', kind: 'subnet',    label: 'Subnet Coin',      chain: 'Robinhood', sn: 'SN51', desc: 'A night market for GPU hours, priced by the minute.',               price: '0.0₆254 TAO', curve: 18.6, age: '4h' },
+    { name: 'Tao Cat',        ticker: 'TAOCAT', kind: 'ecosystem', label: 'TAO Ecosystem',  chain: 'Robinhood', sn: '',     desc: 'A cat that only answers to τ.',                                     price: '0.0₇2767 TAO', curve: 13.0, age: '5h' },
+    { name: 'TAOISM',         ticker: 'TAOISM', kind: 'ecosystem', label: 'TAO Ecosystem',  chain: 'Robinhood', sn: '',     desc: 'The way that can be staked is not the eternal way.',               price: '0.0₇2017 TAO', curve: 5.3,  age: '6h' },
+    { name: 'OAT',            ticker: 'OAT',    kind: 'ecosystem', label: 'TAO Ecosystem',  chain: 'Robinhood', sn: '',     desc: 'Slow-release fuel for long holds.',                                 price: '0.0₇1893 TAO', curve: 3.9,  age: '7h' },
     { name: 'Agent Payroll',  ticker: 'PAYR', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Bittensor', sn: '',     desc: 'Agents will hire agents, and settle in TAO.',                        price: '0.0₅31 TAO',  curve: 0,    age: '5h' },
   ];
 
@@ -176,7 +179,7 @@
   const botIco = '<span class="dn-chat-ico dn-bot-ico" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 9.5c4 1.6 20 1.6 24 0M7 13.5h18M10 11.2V27M22 11.2V27"/><rect x="13.5" y="15.5" width="5" height="4" rx="0.8" fill="currentColor" stroke="none"/></svg></span>';
 
   const lookupAnswer = (q) => {
-    const found = [...new Set((q.toUpperCase().match(/\$?[A-Z0-9]{3,5}/g) || []).map((t) => t.replace('$', '')))]
+    const found = [...new Set((q.toUpperCase().match(/\$?[A-Z0-9]{3,8}/g) || []).map((t) => t.replace('$', '')))]
       .map((t) => MARKETS.find((m) => m.ticker === t)).filter(Boolean);
     if (!found.length) return `<div class="dn-res"><p class="dn-res-note">I don't know that ticker yet. Try <b>$INFR</b>, <b>$DATA</b>, <b>$JADE</b> or <b>$PRTN</b>.</p></div>`;
     return `<div class="dn-res">${found.map((m, i) => `

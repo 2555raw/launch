@@ -767,3 +767,21 @@ img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image
 .dn-bot-ico svg { width: 12px; height: 12px; color: var(--accent); }
 .dn-res-row .dn-av { width: 34px; height: 34px; padding: 0; border-radius: 8px; }
 .dn-res-val small { font-weight: 400; }
+
+/* footer, a size down */
+.dn-foot { padding: 72px 0 40px; }
+.dn-brand-lg { font-size: 26px; gap: 10px; }
+.dn-brand-lg .dn-mark { width: 26px; height: 26px; }
+.dn-select-box { margin-top: 16px; }
+.dn-select-box select { font-size: 13px; padding: 8px 30px 8px 4px; }
+.dn-foot-cols { grid-template-columns: repeat(3, 160px); }
+.dn-foot-cols div { gap: 9px; }
+.dn-foot-cols b { font-size: 15px; margin-bottom: 2px; }
+.dn-foot-cols a { font-size: 15px; }
+.dn-foot-bottom { margin-top: 36px; padding-top: 24px; }
+.dn-foot-bottom p { font-size: 13.5px; }
+@media (max-width: 640px) {
+  .dn-foot { padding-top: 56px; }
+  .dn-foot-cols { grid-template-columns: 1fr 1fr; }
+  .dn-foot-cols a, .dn-foot-cols b { font-size: 14.5px; }
+}

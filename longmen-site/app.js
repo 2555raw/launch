@@ -75,36 +75,36 @@
     return (artCache[t] = 'data:image/svg+xml,' + encodeURIComponent(svg));
   };
 
-  /* ---------- cookie notice ---------- */
+  /* ---------- terms notice ---------- */
 
-  // Where "Decline" sends the visitor. Set this to the launcher's URL.
+  // Shown once on first visit. "Decline" sends the visitor to DECLINE_URL.
   const DECLINE_URL = 'https://www.ponsfamily.com/launchpad';
-  const CONSENT_KEY = 'longmen-cookies';
+  const CONSENT_KEY = 'longmen-terms';
+  const onPolicyPage = /(terms|privacy)\.html$/.test(location.pathname);
 
   let consent = null;
   try { consent = localStorage.getItem(CONSENT_KEY); } catch (_) { /* storage blocked */ }
-  if (!consent) {
+  if (!consent && !onPolicyPage) {
     const bar = document.createElement('div');
     bar.className = 'dn-cookie';
     bar.setAttribute('role', 'dialog');
-    bar.setAttribute('aria-label', 'Cookie preferences');
+    bar.setAttribute('aria-label', 'Terms of Use and Privacy Policy');
     bar.innerHTML = `
       <div class="dn-cookie-text">
-        <b>Cookies on Longmen</b>
-        <p>We use essential cookies to keep the app working and optional ones to understand how it's used. You can accept or decline the optional ones.</p>
+        <b>Before you continue</b>
+        <p>Longmen is experimental software for launching and trading speculative tokens. By continuing you agree to our <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Policy</a>.</p>
       </div>
       <div class="dn-cookie-btns">
         <button type="button" class="dn-cookie-no" data-choice="declined">Decline</button>
-        <button type="button" class="dn-cookie-yes" data-choice="accepted">Accept all</button>
+        <button type="button" class="dn-cookie-yes" data-choice="accepted">Accept</button>
       </div>`;
     document.body.appendChild(bar);
     requestAnimationFrame(() => requestAnimationFrame(() => bar.classList.add('is-in')));
     bar.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-choice]');
       if (!btn) return;
-      const choice = btn.dataset.choice;
-      try { localStorage.setItem(CONSENT_KEY, choice); } catch (_) { /* storage blocked */ }
-      if (choice === 'declined' && DECLINE_URL) { location.href = DECLINE_URL; return; }
+      if (btn.dataset.choice === 'declined') { location.href = DECLINE_URL; return; }
+      try { localStorage.setItem(CONSENT_KEY, 'accepted'); } catch (_) { /* storage blocked */ }
       bar.classList.remove('is-in');
       setTimeout(() => bar.remove(), 400);
     });

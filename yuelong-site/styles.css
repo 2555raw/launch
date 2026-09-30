@@ -1171,3 +1171,8 @@ a.dn-thesis { color: inherit; }
 .yl-steps li.is-done { color: var(--ink); }
 .yl-steps li.is-done small { color: var(--accent); }
 .dn-kv b { overflow-wrap: anywhere; text-align: right; }
+
+/* the logo beside the name, as a rounded tile */
+.dn-brand { gap: 10px; }
+.dn-brand .dn-mark { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; flex: none; box-shadow: 0 0 0 1px rgba(255, 255, 255, .12), 0 2px 10px rgba(0, 0, 0, .35); }
+.dn-brand-lg .dn-mark { width: 36px; height: 36px; border-radius: 9px; }

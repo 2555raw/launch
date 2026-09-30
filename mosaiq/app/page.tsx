@@ -7,13 +7,13 @@ import { TopTokens } from "@/components/home/TopTokens";
 import { ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
 import { Reveal } from "@/components/ui/Reveal";
 import { getChain, pads, pairsLabel } from "@/lib/pads";
-import { queryLaunches, stats as getStats, topCreators } from "@/lib/server/launches";
+import { queryLaunches, stats as getStats } from "@/lib/server/launches";
 import { site } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [stats, latest, creators] = await Promise.all([getStats(30), queryLaunches({ limit: 60 }), topCreators(5)]);
+  const [stats, latest] = await Promise.all([getStats(30), queryLaunches({ limit: 60 })]);
 
   return (
     <div className="mx-auto max-w-6xl space-y-16 px-4 py-6 sm:px-6 sm:py-8">
@@ -26,28 +26,8 @@ export default async function HomePage() {
         <Bento latest={latest} stats={stats} />
       </Reveal>
 
-      <Reveal className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_18rem]">
+      <Reveal>
         <TopTokens launches={latest} />
-        <section aria-labelledby="top-creators">
-          <h2 id="top-creators" className="display text-xl font-semibold">
-            Top creators
-          </h2>
-          {creators.length ? (
-            <ol className="card mt-4 divide-y divide-line">
-              {creators.map((c, i) => (
-                <li key={c.name} className="flex items-center gap-3 px-4 py-3">
-                  <span className="grid size-8 place-items-center rounded-lg bg-surface-3 font-mono text-xs">{i + 1}</span>
-                  <span className="flex-1 truncate font-medium">{c.name}</span>
-                  <span className="font-mono text-xs text-fog">
-                    {c.launches} {c.launches === 1 ? "launch" : "launches"}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <p className="card mt-4 p-5 text-sm leading-relaxed text-fog">Launch counts show here once an agent submits its first token.</p>
-          )}
-        </section>
       </Reveal>
 
       <Reveal className="grid grid-cols-1 gap-8 lg:grid-cols-2">

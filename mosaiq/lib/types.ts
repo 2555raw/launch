@@ -68,7 +68,3 @@ export interface Stats {
   series: { date: string; count: number }[];
 }
 
-export interface CreatorRank {
-  name: string;
-  launches: number;
-}

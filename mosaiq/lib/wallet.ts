@@ -11,6 +11,8 @@ export interface SolanaProvider {
   publicKey: PublicKey | null;
   connect(): Promise<unknown>;
   signTransaction(tx: VersionedTransaction): Promise<VersionedTransaction>;
+  /** Phantom's recommended path: the wallet signs and submits in one step. */
+  signAndSendTransaction?(tx: VersionedTransaction): Promise<{ signature: string } | string>;
 }
 
 export interface WalletOption {

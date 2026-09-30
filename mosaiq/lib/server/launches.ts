@@ -1,7 +1,7 @@
 import "server-only";
 import { draftInputSchema, fieldErrors, type DraftInput } from "@/lib/schemas";
 import { pads } from "@/lib/pads";
-import type { Agent, CreatorRank, Launch, PublicLaunch, Stats } from "@/lib/types";
+import type { Agent, Launch, PublicLaunch, Stats } from "@/lib/types";
 import { canLaunchOnChain, shortAddress } from "@/lib/onchain";
 import { VersionedTransaction } from "@solana/web3.js";
 import { adapterFor } from "./adapters";
@@ -269,13 +269,4 @@ export async function stats(days: number | "all" = 30): Promise<Stats> {
     byPad,
     series,
   };
-}
-
-export async function topCreators(limit = 5): Promise<CreatorRank[]> {
-  const counts = new Map<string, number>();
-  for (const l of await ledger()) if (l.agentName) counts.set(l.agentName, (counts.get(l.agentName) ?? 0) + 1);
-  return [...counts]
-    .map(([name, launches]) => ({ name, launches }))
-    .sort((a, b) => b.launches - a.launches)
-    .slice(0, limit);
 }

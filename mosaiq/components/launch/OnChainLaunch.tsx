@@ -110,14 +110,25 @@ export function OnChainLaunch({
 
       setRun({ state: "running", step: (step = "sign") });
       const tx = VersionedTransaction.deserialize(fromBase64(prepared.transaction));
-      // The wallet signs first, then the mint keypair adds its signature.
-      const signed = await wallet.option.provider.signTransaction(tx).catch((err) => {
-        throw new Error(walletErrorMessage(err));
-      });
-      signed.sign([mint]);
-
-      setRun({ state: "running", step: (step = "send") });
-      ({ signature } = await post<{ signature: string }>(`/api/launches/${id}/send`, { transaction: toBase64(signed.serialize()) }));
+      const provider = wallet.option.provider;
+      if (provider.signAndSendTransaction) {
+        // Wallets that submit themselves (Phantom's recommended path): the mint
+        // signs first, then the wallet adds its signature and sends it.
+        tx.sign([mint]);
+        const sent = await provider.signAndSendTransaction(tx).catch((err) => {
+          throw new Error(walletErrorMessage(err));
+        });
+        signature = typeof sent === "string" ? sent : sent.signature;
+        setRun({ state: "running", step: (step = "send") });
+      } else {
+        // Otherwise the wallet signs, the mint adds its signature and the server relays it.
+        const signed = await provider.signTransaction(tx).catch((err) => {
+          throw new Error(walletErrorMessage(err));
+        });
+        signed.sign([mint]);
+        setRun({ state: "running", step: (step = "send") });
+        ({ signature } = await post<{ signature: string }>(`/api/launches/${id}/send`, { transaction: toBase64(signed.serialize()) }));
+      }
 
       setRun({ state: "running", step: (step = "confirm") });
       for (let i = 0; i < 45; i++) {

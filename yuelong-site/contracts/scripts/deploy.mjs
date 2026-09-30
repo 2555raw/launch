@@ -10,6 +10,9 @@
 //   PHANTOM=20  THRESHOLD=50                     # native-pair curve: virtual reserve, graduation target
 //   WNATIVE=0x…                                  # reuse an existing wrapped native coin (default: deploy one)
 //   NATIVE_NAME="Wrapped TAO"  NATIVE_SYMBOL=WTAO
+//   OWNER=0x…                                    # hand the factory to this wallet; it confirms with acceptOwnership()
+//                                                #   (the Accept button on /admin.html). Default: the deployer keeps it.
+//   SITE=1                                       # also write the addresses into ../deployments.json for the site
 //
 //   node scripts/deploy.mjs [pairs.json]
 //
@@ -71,8 +74,24 @@ for (const s of pairsFile ? JSON.parse(fs.readFileSync(pairsFile, 'utf8')) : [])
   pairs.push({ address: getAddress(s.address), symbol: s.symbol, decimals: dec, native: false });
 }
 
-const out = { chainId, factory: factoryAddr, router, wnative, graduator, treasury, startBlock, pairs, deployer: wallet.address, at: new Date().toISOString() };
+let pendingOwner = null;
+if (env('OWNER')) {
+  pendingOwner = getAddress(env('OWNER'));
+  await send('transferOwnership', factory.transferOwnership(pendingOwner));
+}
+
+const out = { chainId, factory: factoryAddr, router, wnative, graduator, treasury, startBlock, pairs, launchFee: String(await factory.launchFee()),
+  deployer: wallet.address, pendingOwner, at: new Date().toISOString() };
 fs.mkdirSync(path.join(ROOT, 'out'), { recursive: true });
 const outFile = path.join(ROOT, 'out', `deployment.${chainId}.json`);
 fs.writeFileSync(outFile, JSON.stringify(out, null, 2));
 console.log('\nwritten', outFile, '\n' + JSON.stringify(out, null, 2));
+
+// the site reads deployments.json (keyed by chain id) and indexes from startBlock
+if (env('SITE')) {
+  const siteFile = path.join(ROOT, '..', 'deployments.json');
+  const site = fs.existsSync(siteFile) ? JSON.parse(fs.readFileSync(siteFile, 'utf8')) : {};
+  site[chainId] = { chainId, factory: factoryAddr, router, wnative, graduator, treasury, startBlock, pairs, launchFee: out.launchFee };
+  fs.writeFileSync(siteFile, JSON.stringify(site, null, 2) + '\n');
+  console.log('site deployments updated:', siteFile);
+}

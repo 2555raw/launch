@@ -157,6 +157,42 @@
     renderSteps();
   });
 
+  /* ownership: shows who owns each live factory and lets the pending owner accept it */
+  let ownNet = null;
+  async function showOwnership() {
+    const box = el('own'), go = el('own-go');
+    const c = await Y.config();
+    if (!c.live) { box.innerHTML = '<p class="dn-dim yl-admin-p">No contracts are live yet.</p>'; go.hidden = true; return; }
+    const [e, A] = await Promise.all([Y.ethers(), Y.abi()]);
+    const me = (W.state.account || '').toLowerCase();
+    ownNet = null;
+    const rows = [];
+    for (const n of c.networks) {
+      const f = new e.Contract(n.factory, A.YuelongFactory, await Y.reader(n));
+      const [owner, pending] = await Promise.all([f.owner(), f.pendingOwner()]);
+      const zero = /^0x0+$/.test(pending);
+      if (!zero && pending.toLowerCase() === me) ownNet = n;
+      rows.push(`<div class="dn-kv"><div><span>${esc(n.name)} · owner</span><b>${esc(owner)}${owner.toLowerCase() === me ? ' (you)' : ''}</b></div>${zero ? '' : `<div><span>Waiting for</span><b>${esc(pending)}${pending.toLowerCase() === me ? ' (you)' : ''}</b></div>`}</div>`);
+    }
+    box.innerHTML = rows.join('') + (W.state.account ? '' : '<p class="dn-dim yl-admin-p">Connect your wallet (top right) to see whether one is waiting for you.</p>');
+    go.hidden = !ownNet;
+    go.textContent = ownNet ? `Accept ownership on ${ownNet.name}` : 'Accept ownership';
+  }
+  el('own-go').addEventListener('click', async () => {
+    const n = ownNet;   // the list refreshes when the wallet switches network, so hold on to this one
+    if (!n) return;
+    try {
+      const [e, A, signer] = await Promise.all([Y.ethers(), Y.abi(), W.signer(n)]);
+      const tx = await new e.Contract(n.factory, A.YuelongFactory, signer).acceptOwnership();
+      Y.toast('Confirming…');
+      await tx.wait();
+      Y.toast(`<b>Done.</b> You own Yuelong on ${esc(n.name)}.`, 'is-good');
+    } catch (err) { Y.toast(esc(Y.cleanError(err)), 'is-bad'); }
+    showOwnership().catch(() => {});
+  });
+  W.onChange(() => showOwnership().catch(() => {}));
+  showOwnership().catch(() => {});
+
   el('import-go').addEventListener('click', async () => {
     let body;
     try { body = JSON.parse(el('import').value); } catch (_) { Y.toast('That is not valid JSON.', 'is-bad'); return; }

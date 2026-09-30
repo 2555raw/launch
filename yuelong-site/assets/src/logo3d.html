@@ -1,8 +1,8 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
-<!-- The Yuelong mark in 3D: two open rings of beige glass, one inside the other (the pearl in its
-     orbit), lit by a warm glow from the lower left. Open over http; ?bg=none for a transparent
-     background, ?w=&h= size, ?s= scale, ?ry=&rx=&rz= pose (the logo uses ry=-0.55 rx=0.25 rz=0.15).
+<!-- The Yuelong mark in 3D: a thick open ring of clear beige glass whose ends meet a smaller ring
+     sitting in its opening, backlit by warm haze. Open over http; ?bg=none for a transparent
+     background, ?w=&h= size, ?s= scale, ?ry=&rx=&rz= pose (the logo uses ry=0.5 rx=0.25 rz=-0.3).
      Screenshot once window.ready is true. -->
 <style>
   html,body{margin:0;background:#000}
@@ -47,9 +47,11 @@ scene.environment = envTex;
 const cv = document.createElement('canvas'); cv.width = 512; cv.height = 512;
 const g2 = cv.getContext('2d');
 g2.fillStyle = '#000'; g2.fillRect(0, 0, 512, 512);
-const glow = g2.createRadialGradient(120, 440, 10, 120, 440, 300);   // warm light from the lower left
-glow.addColorStop(0, '#c09a6a'); glow.addColorStop(0.3, '#5c4630'); glow.addColorStop(0.62, '#140f0a'); glow.addColorStop(1, '#000');
-g2.fillStyle = glow; g2.fillRect(0, 0, 512, 512);
+const blob = (x, y, r, stops) => { const g = g2.createRadialGradient(x, y, 0, x, y, r); stops.forEach(([o, c]) => g.addColorStop(o, c)); g2.fillStyle = g; g2.fillRect(0, 0, 512, 512); };
+g2.globalCompositeOperation = 'lighter';
+blob(60, 470, 420, [[0, '#f0d6aa'], [0.25, '#b08a5a'], [0.55, '#4a3824'], [1, 'rgba(0,0,0,0)']]);   // strong haze, lower left
+blob(480, 420, 300, [[0, '#9c7c52'], [0.4, '#3a2c1c'], [1, 'rgba(0,0,0,0)']]);                     // softer haze, lower right
+blob(40, 60, 200, [[0, '#3a2e20'], [1, 'rgba(0,0,0,0)']]);                                        // faint top left
 const bgTex = new THREE.CanvasTexture(cv); bgTex.colorSpace = THREE.SRGBColorSpace;
 const back = new THREE.Mesh(new THREE.PlaneGeometry(1500, 1500), new THREE.MeshBasicMaterial({ map: bgTex, toneMapped: false }));
 back.position.z = -700;
@@ -63,17 +65,19 @@ const ring = (R, r, a0, a1, depth) => {
   sh.absarc(0, 0, R, a0, a1, false);
   sh.absarc(0, 0, r, a1, a0, true);
   sh.closePath();
-  return new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: true, bevelThickness: 3.5, bevelSize: 3, bevelSegments: 10, curveSegments: 160 });
+  return new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: true, bevelThickness: 1.6, bevelSize: 1.4, bevelSegments: 6, curveSegments: 200 });
 };
 const glass = new THREE.MeshPhysicalMaterial({
-  color: 0xEED6AF, metalness: 0.08, roughness: 0.03, transmission: 1, thickness: 24, ior: 1.5,
-  clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.6, specularIntensity: 1, dispersion: 0.5, iridescence: 0.12,
-  attenuationColor: new THREE.Color(0xD9B27C), attenuationDistance: 9, side: THREE.DoubleSide,
+  color: 0xF7EBD8, metalness: 0, roughness: 0.06, transmission: 1, thickness: 30, ior: 1.46,
+  clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 2.6, specularIntensity: 1, dispersion: 1.2, iridescence: 0.08,
+  attenuationColor: new THREE.Color(0xDDBA86), attenuationDistance: 30, side: THREE.DoubleSide,
 });
 const D = Math.PI / 180;
-const outer = new THREE.Mesh(ring(104, 66, 38 * D, 322 * D, 26), glass);
-const inner = new THREE.Mesh(ring(58, 34, 212 * D, 508 * D, 26), glass);
-inner.position.set(22, 0, 16);
+// outer C: a thick band open to the right; its ends land on the inner ring
+const outer = new THREE.Mesh(ring(112, 66, 58 * D, 302 * D, 34), glass);
+// inner ring: sits in the opening, cut where the C meets it
+const inner = new THREE.Mesh(ring(60, 36, 188 * D, 532 * D, 34), glass);
+inner.position.set(62, 0, 0);
 const mark = new THREE.Group(); mark.add(outer); mark.add(inner);
 { const bb = new THREE.Box3().setFromObject(mark), c = bb.getCenter(new THREE.Vector3()); mark.children.forEach((m) => m.position.sub(c)); }
 scene.add(mark);

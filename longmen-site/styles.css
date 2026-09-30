@@ -794,7 +794,7 @@ html.dn-locked { overflow: hidden; }
 .dn-consent.is-in .dn-consent-card { transform: none; }
 .dn-consent-mark { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: #1F1F1F; border: 1px solid rgba(255, 255, 255, .08); color: var(--ink); }
 .dn-consent-mark svg { width: 28px; height: 28px; }
-.dn-consent-card h2 { margin-top: 22px; font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 6vw, 50px); line-height: 1.02; }
+.dn-consent-card h2 { margin-top: 0; font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 6vw, 50px); line-height: 1.02; }
 .dn-consent-card p { margin-top: 16px; color: var(--prose); font-size: 16px; line-height: 1.6; }
 .dn-consent-card p + p { margin-top: 10px; }
 .dn-consent-card a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255, 255, 255, .35); }

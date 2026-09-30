@@ -87,7 +87,6 @@
     gate.className = 'dn-consent';
     gate.innerHTML = `
       <div class="dn-consent-card" role="dialog" aria-modal="true" aria-labelledby="dn-consent-title">
-        <span class="dn-consent-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9.5c4 1.6 20 1.6 24 0M7 13.5h18M10 11.2V27M22 11.2V27"/><rect x="13.5" y="15.5" width="5" height="4" rx="0.8" fill="var(--accent)" stroke="none"/></svg></span>
         <h2 id="dn-consent-title">Before you <em>continue</em></h2>
         <p>Longmen is experimental software for launching and trading highly speculative tokens. You act from your own wallet and carry the risk.</p>
         <p>To use the site, please accept our <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
@@ -224,7 +223,7 @@
 
   const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
   const sleep = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
-  const botIco = '<span class="dn-chat-ico dn-bot-ico" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 9.5c4 1.6 20 1.6 24 0M7 13.5h18M10 11.2V27M22 11.2V27"/><rect x="13.5" y="15.5" width="5" height="4" rx="0.8" fill="currentColor" stroke="none"/></svg></span>';
+  const botIco = '<span class="dn-chat-ico dn-bot-ico" aria-hidden="true">✦</span>';
 
   const lookupAnswer = (q) => {
     const found = [...new Set((q.toUpperCase().match(/\$?[A-Z0-9]{3,8}/g) || []).map((t) => t.replace('$', '')))]

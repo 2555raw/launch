@@ -20,7 +20,7 @@ import { SessionProvider, useSession } from "./SessionProvider";
 
 const Disclaimer: DisclaimerComponent = ({ Text }) => (
   <Text>
-    TrailFi only reads your <strong>public address</strong>, which is used to identify you and to send your rewards.
+    Stepit only reads your <strong>public address</strong>, which is used to identify you and to send your rewards.
     You will sign a free message to verify ownership — no transaction, no gas, no token approvals. We will never ask
     for your seed phrase or private key.
   </Text>
@@ -88,7 +88,7 @@ function AuthBridge({ children }: { children: ReactNode }) {
         theme={theme}
         modalSize="compact"
         initialChain={PAYOUT_CHAIN_ID}
-        appInfo={{ appName: "TrailFi", disclaimer: Disclaimer, learnMoreUrl: "/docs" }}
+        appInfo={{ appName: "Stepit", disclaimer: Disclaimer, learnMoreUrl: "/docs" }}
       >
         {children}
       </RainbowKitProvider>

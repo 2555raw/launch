@@ -10,7 +10,7 @@ export const SUPPORTED_CHAINS: Record<number, Chain> = {
   [baseSepolia.id]: baseSepolia,
 };
 
-/** The single network TrailFi pays rewards on. Base Sepolia (testnet) unless configured otherwise. */
+/** The single network Stepit pays rewards on. Base Sepolia (testnet) unless configured otherwise. */
 export const PAYOUT_CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || baseSepolia.id);
 
 export function getPayoutChain(): Chain {

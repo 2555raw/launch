@@ -1,5 +1,5 @@
 /**
- * TrailFi reward engine — pure functions, no I/O.
+ * Stepit reward engine — pure functions, no I/O.
  *
  * How a distribution works:
  *   1. pool = eligibleFees × rewardPercent / 100

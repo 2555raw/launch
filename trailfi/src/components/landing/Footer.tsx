@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 
 const LINKS = [
-  { href: "/about", label: "About TrailFi" },
+  { href: "/about", label: "About Stepit" },
   { href: "/docs", label: "Documentation" },
   { href: "/terms", label: "Terms of Service" },
   { href: "/privacy", label: "Privacy Policy" },
@@ -17,7 +17,7 @@ export function Footer() {
           <div className="max-w-sm">
             <Logo />
             <p className="mt-4 text-sm leading-relaxed text-white/50">
-              Walk. Explore. Earn. TrailFi rewards verified real-world activity with a share of platform fees, paid to
+              Walk. Explore. Earn. Stepit rewards verified real-world activity with a share of platform fees, paid to
               your wallet.
             </p>
           </div>
@@ -31,7 +31,7 @@ export function Footer() {
         </div>
         <div className="hairline my-10" />
         <div className="flex flex-col justify-between gap-4 text-xs text-white/35 sm:flex-row">
-          <p>© {new Date().getFullYear()} TrailFi. Rewards are variable, subject to review, and not guaranteed. Not financial advice.</p>
+          <p>© {new Date().getFullYear()} Stepit. Rewards are variable, subject to review, and not guaranteed. Not financial advice.</p>
           <p>
             Photography via{" "}
             <a href="https://unsplash.com/license" className="underline decoration-white/20 underline-offset-2 hover:text-white/60" target="_blank" rel="noreferrer">

@@ -4,20 +4,20 @@ export const metadata = { title: "Documentation" };
 
 export default function DocsPage() {
   return (
-    <InfoPage label="Documentation" title="How TrailFi works" intro="The rules behind rewards, verification and payouts.">
+    <InfoPage label="Documentation" title="How Stepit works" intro="The rules behind rewards, verification and payouts.">
       <Section title="1. Connecting a wallet">
         <p>
-          TrailFi uses <strong>Sign-In With Ethereum</strong> (EIP-4361). After you connect MetaMask, WalletConnect or
+          Stepit uses <strong>Sign-In With Ethereum</strong> (EIP-4361). After you connect MetaMask, WalletConnect or
           another wallet, you sign a plain-text message. It is not a transaction: it costs no gas and gives no one
           permission to move your funds. It only proves that you control the address.
         </p>
-        <p>TrailFi never asks for, and never stores, seed phrases, private keys or wallet credentials.</p>
+        <p>Stepit never asks for, and never stores, seed phrases, private keys or wallet credentials.</p>
       </Section>
       <Section title="2. Step data and verification">
         <ul>
           <li>
-            <strong>Apple Health</strong> and <strong>Google Health Connect</strong> are read on your phone by the TrailFi
-            companion app and sent to TrailFi signed. These entries start as verified.
+            <strong>Apple Health</strong> and <strong>Google Health Connect</strong> are read on your phone by the Stepit
+            companion app and sent to Stepit signed. These entries start as verified.
           </li>
           <li>
             <strong>Manual entries</strong> from the browser exist for demonstration. They are stored as unverified and
@@ -44,7 +44,7 @@ export default function DocsPage() {
       <Section title="4. Payouts">
         <p>
           Rewards are reviewed and approved by an administrator. Approved rewards are bundled into a payout to your public
-          address, sent from an authorised TrailFi wallet after explicit confirmation, and verified on-chain. You can see
+          address, sent from an authorised Stepit wallet after explicit confirmation, and verified on-chain. You can see
           the transaction hash in your dashboard.
         </p>
       </Section>

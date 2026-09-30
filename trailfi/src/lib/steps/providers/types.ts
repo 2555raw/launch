@@ -9,7 +9,7 @@ export interface ProviderStepRecord {
 
 /**
  * A source of step data. Apple Health (HealthKit) and Google Health Connect are
- * on-device APIs with no web endpoint, so both reach TrailFi through a
+ * on-device APIs with no web endpoint, so both reach Stepit through a
  * companion mobile app that reads the data on the phone and posts it to
  * /api/steps/ingest, signed. Cloud fitness APIs (Fitbit, Garmin, Strava…) fit
  * the same shape through a server-side OAuth connector.

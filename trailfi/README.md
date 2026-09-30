@@ -1,4 +1,4 @@
-# TrailFi — Walk. Explore. Earn.
+# Stepit — Walk. Explore. Earn.
 
 Plataforma Web3 que recompensa a los usuarios por caminar: conectan su wallet, registran pasos verificados y reciben una parte de los fees elegibles de la plataforma, pagada en stablecoins a su dirección pública tras la revisión de un administrador.
 
@@ -87,7 +87,7 @@ npm run build
 
 ## Conexión de wallets y seguridad
 
-- **Sign-In With Ethereum (EIP-4361)**: el usuario firma un mensaje de texto. No es una transacción, no cuesta gas y no concede permisos. El texto incluye el consentimiento: *"I agree that TrailFi uses this public address to identify me and to send my rewards."* El servidor rechaza cualquier mensaje con otro texto, otro dominio, un nonce ya usado o caducado.
+- **Sign-In With Ethereum (EIP-4361)**: el usuario firma un mensaje de texto. No es una transacción, no cuesta gas y no concede permisos. El texto incluye el consentimiento: *"I agree that Stepit uses this public address to identify me and to send my rewards."* El servidor rechaza cualquier mensaje con otro texto, otro dominio, un nonce ya usado o caducado.
 - Solo se guarda la **dirección pública**. Nunca se piden ni se almacenan frases semilla, claves privadas ni credenciales. No se solicitan `approve` de tokens.
 - Sesión en cookie `httpOnly`, `SameSite=Lax`, `Secure` en producción, firmada con `SESSION_SECRET`. Comprobación de `Origin` en todas las peticiones que modifican datos (CSRF).
 - **Roles**: el acceso admin exige rol `admin` en la base de datos **y** que la wallet esté en `ADMIN_WALLETS`. Se comprueba en el layout de `/admin` (servidor) y en cada endpoint `/api/admin/*`. Quitar una wallet de la variable revoca el acceso al instante.

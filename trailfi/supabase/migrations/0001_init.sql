@@ -1,4 +1,4 @@
--- TrailFi — initial schema.
+-- Stepit — initial schema.
 --
 -- Runs unchanged on Supabase (Postgres 15+) and on the embedded PGlite database
 -- used for local demos. Every table has row level security switched on and no

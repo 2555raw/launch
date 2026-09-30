@@ -287,7 +287,7 @@ export function DashboardView() {
           </div>
           {data.payouts.length === 0 ? (
             <div className="px-6 pb-6">
-              <EmptyState title="No payments yet">Approved rewards are bundled and sent to your wallet by the TrailFi team.</EmptyState>
+              <EmptyState title="No payments yet">Approved rewards are bundled and sent to your wallet by the Stepit team.</EmptyState>
             </div>
           ) : (
             <div className="overflow-x-auto">

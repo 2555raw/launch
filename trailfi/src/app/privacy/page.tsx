@@ -4,7 +4,7 @@ export const metadata = { title: "Privacy Policy" };
 
 export default function PrivacyPage() {
   return (
-    <InfoPage label="Legal" title="Privacy Policy" intro="What TrailFi stores, why, and what it never touches.">
+    <InfoPage label="Legal" title="Privacy Policy" intro="What Stepit stores, why, and what it never touches.">
       <Section title="What we store">
         <ul>
           <li>Your public wallet address, to identify you and send rewards.</li>

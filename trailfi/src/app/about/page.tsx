@@ -5,13 +5,13 @@ export const metadata = { title: "About" };
 export default function AboutPage() {
   return (
     <InfoPage
-      label="About TrailFi"
+      label="About Stepit"
       title="Built for people who'd rather be outside."
-      intro="TrailFi is a Web3 platform that rewards verified real-world activity. Walk, hike and explore — and receive a share of the platform's fees in your own wallet."
+      intro="Stepit is a Web3 platform that rewards verified real-world activity. Walk, hike and explore — and receive a share of the platform's fees in your own wallet."
     >
-      <Section title="Why TrailFi">
+      <Section title="Why Stepit">
         <p>
-          Most move-to-earn projects paid people in a token that only had value while new users kept buying it. TrailFi
+          Most move-to-earn projects paid people in a token that only had value while new users kept buying it. Stepit
           does the opposite: rewards come from a configurable share of <strong>real, eligible platform fees</strong>, paid
           in established stablecoins.
         </p>

@@ -20,10 +20,10 @@ export function LogoMark({ className }: { className?: string }) {
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <Link href="/" className={cn("group inline-flex items-center gap-2.5", className)} aria-label="TrailFi home">
+    <Link href="/" className={cn("group inline-flex items-center gap-2.5", className)} aria-label="Stepit home">
       <LogoMark className="transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-105" />
       <span className="font-display text-[19px] font-bold tracking-tight">
-        Trail<span className="text-lime-400">Fi</span>
+        Step<span className="text-lime-400">it</span>
       </span>
     </Link>
   );

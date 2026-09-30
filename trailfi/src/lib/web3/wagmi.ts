@@ -32,7 +32,7 @@ export function makeWagmiConfig(): Config {
           { groupName: "More", wallets: [rabbyWallet, injectedWallet] },
         ]
       : [{ groupName: "Browser wallets", wallets: [metaMaskWallet, rabbyWallet, coinbaseWallet, injectedWallet] }],
-    { appName: "TrailFi", projectId: projectId || "trailfi-local-no-walletconnect" },
+    { appName: "Stepit", projectId: projectId || "trailfi-local-no-walletconnect" },
   );
 
   const chains = chainList();

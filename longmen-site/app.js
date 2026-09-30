@@ -45,6 +45,8 @@
     { label: 'TAO Ecosystem',    sn: '',     ticker: 'HALV', name: 'Halving Clock',  quote: 'Alpha holders are pricing the next emission cut as if it were years away.' },
     { label: 'Subnet Coin',      sn: 'SN13', ticker: 'DATA', name: 'Open Corpus',    quote: 'The best open dataset is the moat. Everyone trains on it; nobody can fork the years it took to collect.' },
     { label: 'TAO Ecosystem',    sn: '',     ticker: 'PAYR', name: 'Agent Payroll',  quote: 'Agents will hire other agents for narrow jobs, and the invoices will be in TAO.' },
+    { label: 'TAO Ecosystem',    sn: '',     ticker: 'JADE', name: 'Jade Rabbit',    quote: 'Every network needs a mascot that outlives the roadmap. This one lives on the moon and answers to no one.' },
+    { label: 'Subnet Coin',      sn: 'SN51', ticker: 'CBZR', name: 'Compute Bazaar', quote: 'GPU hours should trade like produce at a night market: priced by the minute, gone by morning.' },
   ];
 
   const color = (s) => COLORS[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) % COLORS.length];
@@ -165,52 +167,114 @@
 
   /* ---------- chat panels ---------- */
 
-  const bubble = (html, me) => {
-    const d = document.createElement('div');
-    d.className = 'dn-bubble ' + (me ? 'dn-bubble-me' : 'dn-bubble-bot');
-    if (me) d.textContent = html; else d.innerHTML = html;
-    return d;
+  // Each panel plays its demo question when it scrolls into view: the question types itself
+  // into the box, is sent, the assistant "types", and the answer rows slide in one by one.
+  // Visitors can then ask their own; the same sequence runs for them.
+
+  const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+  const sleep = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
+  const botIco = '<span class="dn-chat-ico dn-bot-ico" aria-hidden="true">✦</span>';
+
+  const lookupAnswer = (q) => {
+    const found = [...new Set((q.toUpperCase().match(/\$?[A-Z0-9]{3,5}/g) || []).map((t) => t.replace('$', '')))]
+      .map((t) => MARKETS.find((m) => m.ticker === t)).filter(Boolean);
+    if (!found.length) return `<div class="dn-res"><p class="dn-res-note">I don't know that ticker yet. Try <b>$INFR</b>, <b>$DATA</b>, <b>$JADE</b> or <b>$PRTN</b>.</p></div>`;
+    return `<div class="dn-res">${found.map((m, i) => `
+      <div class="dn-res-row" style="--i:${i}">
+        <img class="dn-av" src="${tokenArt(m.ticker)}" alt="">
+        <span class="dn-res-name"><b>${esc(m.name)}</b><small>$${esc(m.ticker)} · ${esc(m.label)}</small></span>
+        <span class="dn-res-val"><b>${esc(m.price)}</b><small>${m.chain === 'Bittensor' ? 'locked pool' : m.curve.toFixed(1) + '% curve'}</small></span>
+      </div>`).join('')}</div>`;
   };
 
-  const answerLookup = (q) => {
-    const found = (q.toUpperCase().match(/\$?[A-Z0-9]{3,5}/g) || [])
-      .map((t) => MARKETS.find((m) => m.ticker === t.replace('$', '')))
-      .filter(Boolean);
-    if (!found.length) return `I don't know that ticker yet. Try <b>$INFR</b>, <b>$DATA</b>, <b>$PRTN</b> or <b>$HALV</b>.`;
-    return found.map((m) => `
-      <b>$${esc(m.ticker)}</b> · ${esc(m.name)}
-      <div class="dn-row"><span>price</span><span>${esc(m.price)}</span></div>
-      <div class="dn-bar"><i style="width:${m.curve}%"></i></div>
-      <div class="dn-row"><span>${m.chain === 'Bittensor' ? 'locked pool' : 'curve'}</span><span>${m.chain === 'Bittensor' ? '—' : m.curve.toFixed(1) + '%'}</span></div>`).join('<br>');
-  };
-
-  const answerFaceoff = (q) => {
-    const ids = (q.toUpperCase().match(/SN\s?\d+/g) || []).map((s) => s.replace(/\s/g, '')).filter((s) => SUBNETS[s]);
-    if (ids.length < 2) return `Name two of <b>SN9</b>, <b>SN13</b>, <b>SN19</b>, <b>SN25</b> or <b>SN51</b>.`;
-    const [a, b] = ids.slice(0, 2).map((id) => ({ id, ...SUBNETS[id] }));
-    const pct = (x, y) => Math.round((x / (x + y)) * 100);
-    const row = (s, o, cls) => `
-      <div class="dn-row"><span><b>${s.id}</b> ${esc(s.name)}</span><span>${pct(s.vol, o.vol)}% vol</span></div>
-      <div class="dn-bar ${cls}"><i style="width:${pct(s.vol, o.vol)}%"></i></div>
-      <div class="dn-row"><span>α ${s.price.toFixed(4)} TAO</span><span>${s.reserve.toLocaleString('en-US')} τ reserve</span></div>`;
-    const lead = a.vol >= b.vol ? a : b;
-    return `${row(a, b, '')}${row(b, a, 'is-b')}<br>7-day volume leans <b>${lead.id}</b>.`;
+  const faceoffAnswer = (q) => {
+    const ids = [...new Set((q.toUpperCase().match(/SN\s?\d+/g) || []).map((s) => s.replace(/\s/g, '')))].filter((s) => SUBNETS[s]);
+    if (ids.length < 2) return `<div class="dn-res"><p class="dn-res-note">Name two of <b>SN9</b>, <b>SN13</b>, <b>SN19</b>, <b>SN25</b> or <b>SN51</b>.</p></div>`;
+    const pair = ids.slice(0, 2).map((id) => ({ id, ...SUBNETS[id] }));
+    const total = pair[0].vol + pair[1].vol;
+    const lead = pair[0].vol >= pair[1].vol ? pair[0] : pair[1];
+    return `<div class="dn-res">${pair.map((s, i) => {
+      const share = Math.round((s.vol / total) * 100);
+      return `
+      <div class="dn-res-row${s === lead ? ' is-lead' : ''}" style="--i:${i}">
+        <span class="dn-sn-chip">${s.id}</span>
+        <span class="dn-res-name"><b>${esc(s.name)}</b><small>α ${s.price.toFixed(4)} TAO</small></span>
+        <span class="dn-res-val"><b>${s.reserve.toLocaleString('en-US')} τ</b><small>${share}% of volume</small></span>
+        <i class="dn-res-bar"><i style="--w:${share}%"></i></i>
+      </div>`;
+    }).join('')}
+      <p class="dn-res-note dn-res-foot" style="--i:2">7-day volume leans <b>${lead.id}</b>.</p></div>`;
   };
 
   $$('.dn-chat').forEach((chat) => {
     const body = $('.dn-chat-body', chat);
-    const answer = chat.dataset.chat === 'faceoff' ? answerFaceoff : answerLookup;
-    const first = $('.dn-bubble-me', body);
-    if (first) body.appendChild(bubble(answer(first.textContent)));
-    $('form', chat).addEventListener('submit', (e) => {
-      e.preventDefault();
-      const input = $('input', chat);
-      const q = input.value.trim();
-      if (!q) return;
-      body.appendChild(bubble(q, true));
-      body.appendChild(bubble(answer(q)));
+    const form = $('form', chat);
+    const input = $('input', form);
+    const answer = chat.dataset.chat === 'faceoff' ? faceoffAnswer : lookupAnswer;
+    const demo = $('.dn-bubble-me', body)?.textContent.trim() || '';
+    let busy = false;
+    let autoplay = null; // cancelled when the visitor takes over
+
+    const scrollDown = () => body.scrollTo({ top: body.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
+
+    const ask = async (q) => {
+      busy = true;
+      form.classList.add('is-busy');
+      body.appendChild(el(`<div class="dn-bubble dn-bubble-me dn-pop"></div>`)).textContent = q;
+      scrollDown();
+      await sleep(350);
+      const typing = body.appendChild(el(`<div class="dn-msg-bot dn-pop">${botIco}<span class="dn-typing" aria-label="typing"><i></i><i></i><i></i></span></div>`));
+      scrollDown();
+      await sleep(900);
+      typing.replaceWith(el(`<div class="dn-msg-bot is-answer">${botIco}${answer(q)}</div>`));
+      scrollDown();
+      await sleep(600);
+      scrollDown();
+      form.classList.remove('is-busy');
+      busy = false;
+    };
+
+    const typeInto = async (text, token) => {
+      input.classList.add('is-typing');
+      for (let i = 1; i <= text.length; i++) {
+        if (token.cancelled) return false;
+        input.value = text.slice(0, i);
+        await sleep(38 + Math.random() * 40);
+      }
+      input.classList.remove('is-typing');
+      await sleep(250);
+      return !token.cancelled;
+    };
+
+    const play = async () => {
+      if (!demo) return;
+      const token = (autoplay = { cancelled: false });
+      body.innerHTML = '';
+      if (reduced) { body.appendChild(el(`<div class="dn-bubble dn-bubble-me"></div>`)).textContent = demo; body.appendChild(el(`<div class="dn-msg-bot is-answer">${botIco}${answer(demo)}</div>`)); return; }
+      await sleep(500);
+      if (!(await typeInto(demo, token))) return;
+      form.querySelector('button').classList.add('is-sent');
+      setTimeout(() => form.querySelector('button').classList.remove('is-sent'), 400);
       input.value = '';
-      body.scrollTop = body.scrollHeight;
+      await ask(demo);
+      autoplay = null;
+    };
+
+    body.innerHTML = '';
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { io.disconnect(); play(); } }, { threshold: 0.55 });
+      io.observe(chat);
+    } else play();
+
+    input.addEventListener('focus', () => {
+      if (autoplay) { autoplay.cancelled = true; autoplay = null; input.value = ''; input.classList.remove('is-typing'); }
+    });
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = input.value.trim();
+      if (!q || busy) return;
+      input.value = '';
+      ask(q);
     });
   });
 
@@ -272,10 +336,12 @@
 
   /* ---------- theses rail ---------- */
 
+  // The cards drift left in an endless loop: the set is rendered twice and the track slides by
+  // exactly one set, so the seam never shows. Hover pauses it; reduced motion leaves it still.
   const rail = $('#rail');
   if (rail) {
-    rail.innerHTML = THESES.map((t) => `
-      <article class="dn-thesis">
+    const card = (t, hidden) => `
+      <article class="dn-thesis"${hidden ? ' aria-hidden="true"' : ''}>
         <div class="dn-thesis-top">
           <img class="dn-av" src="${tokenArt(t.ticker)}" alt="">
           ${esc(t.label)}
@@ -283,7 +349,8 @@
         </div>
         <blockquote>${esc(t.quote)}</blockquote>
         <cite>${esc(t.name)} · $${esc(t.ticker)}</cite>
-      </article>`).join('');
+      </article>`;
+    rail.innerHTML = `<div class="dn-rail-track">${THESES.map((t) => card(t)).join('')}${reduced ? '' : THESES.map((t) => card(t, true)).join('')}</div>`;
   }
 
   /* ---------- launch page ---------- */
@@ -440,7 +507,7 @@
 
   const groups = [
     '.dn-sec .dn-center > *', '.dn-steps-side > *', '#market-tabs', '.dn-market-grid .dn-mcard',
-    '.dn-bento .dn-tile', '.dn-rail .dn-thesis', '.dn-faq-wrap > h2', '.dn-faq details',
+    '.dn-bento .dn-tile', '.dn-rail', '.dn-faq-wrap > h2', '.dn-faq details',
     '.dn-foot-top > *, .dn-foot-cols > div', '.dn-launch > *', '.dn-launch-grid > *', '.dn-doc section',
   ];
   groups.forEach((sel) => window.dnReveal($$(sel)));

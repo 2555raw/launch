@@ -78,7 +78,7 @@
   /* ---------- cookie notice ---------- */
 
   // Where "Decline" sends the visitor. Set this to the launcher's URL.
-  const DECLINE_URL = '';
+  const DECLINE_URL = 'https://www.ponsfamily.com/launchpad';
   const CONSENT_KEY = 'longmen-cookies';
 
   let consent = null;

@@ -1,0 +1,85 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<!-- The Yuelong mark in 3D: two glass channels that part like a carp tail (a Y) around the
+     dragon pearl. Open over http; ?bg=none for a transparent background, ?w=<html><head><meta charset="utf-8">h= for size,
+     ?s= to scale, ?ry=<html><head><meta charset="utf-8">rx=<html><head><meta charset="utf-8">rz= to turn it. Screenshot once window.ready is true. -->
+<style>
+  html,body{margin:0;background:#000}
+  #stage{position:relative;width:1024px;height:1024px;overflow:hidden;
+    background:radial-gradient(ellipse 70% 65% at 50% 42%,#2a2a2a 0%,#141414 55%,#070707 100%)}
+  canvas{position:absolute;inset:0}
+</style>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.169.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.169.0/examples/jsm/"}}</script>
+</head><body><div id="stage"></div>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+const P = new URLSearchParams(location.search);
+const W = +(P.get('w') || 1024), H = +(P.get('h') || 1024);
+const stage = document.getElementById('stage');
+stage.style.width = W + 'px'; stage.style.height = H + 'px';
+if (P.get('bg') === 'none') { stage.style.background = 'transparent'; document.documentElement.style.background = document.body.style.background = 'transparent'; }
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setSize(W, H); renderer.setPixelRatio(1);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stage.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+const camera = new THREE.PerspectiveCamera(30, W / H, 1, 2000);
+camera.position.set(0, 0, 560);
+
+// Studio: black room with strip lights, so the glass has sharp reflections to show.
+const studio = new THREE.Scene();
+studio.background = new THREE.Color(0x050505);
+const strip = (w, h, x, y, z, ry, rx, col, k) => {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(col).multiplyScalar(k), side: THREE.DoubleSide }));
+  m.position.set(x, y, z); m.rotation.set(rx, ry, 0); studio.add(m);
+};
+strip(9, 2.2, 0, 5, 0, 0, Math.PI / 2, 0xffffff, 26);          // big top softbox
+for (let i = 0; i < 8; i++) {                                    // a ring of tall strips
+  const ang = i / 8 * Math.PI * 2, r = 6;
+  strip(0.55, 9, Math.cos(ang) * r, 0.5, Math.sin(ang) * r, -ang + Math.PI / 2, 0, i % 2 ? 0xffe6c4 : 0xffffff, i % 2 ? 14 : 22);
+}
+strip(12, 6, 0, -5, 0, 0, -Math.PI / 2, 0xb07a42, 5);            // bronze floor bounce
+strip(5, 2, 0, 1, 6, Math.PI, 0, 0xffffff, 10);                   // key behind the camera
+const envTex = pmrem.fromScene(studio, 0).texture;
+scene.environment = envTex;
+if (P.get('bg') !== 'none') scene.background = envTex; scene.backgroundBlurriness = 0.55; scene.backgroundIntensity = 0.013;
+
+// The mark: two glass channels rise side by side, then part like a carp's tail (a Y),
+// with the dragon's pearl between the tips. Each channel is a U profile swept along its curve.
+const U = new THREE.Shape();
+const R = 3.2, W2 = 13, H2 = 11, IW = 7, IB = -4;
+U.moveTo(-H2, -W2 + R); U.lineTo(-H2, W2 - R); U.quadraticCurveTo(-H2, W2, -H2 + R, W2);
+U.lineTo(H2 - 1.6, W2); U.quadraticCurveTo(H2, W2, H2, W2 - 1.6); U.lineTo(H2, IW + 1.6); U.quadraticCurveTo(H2, IW, H2 - 1.6, IW);
+U.lineTo(IB + 2, IW); U.quadraticCurveTo(IB, IW, IB, IW - 2); U.lineTo(IB, -IW + 2); U.quadraticCurveTo(IB, -IW, IB + 2, -IW);
+U.lineTo(H2 - 1.6, -IW); U.quadraticCurveTo(H2, -IW, H2, -IW - 1.6); U.lineTo(H2, -W2 + 1.6); U.quadraticCurveTo(H2, -W2, H2 - 1.6, -W2);
+U.lineTo(-H2 + R, -W2); U.quadraticCurveTo(-H2, -W2, -H2, -W2 + R);
+const glass = new THREE.MeshPhysicalMaterial({
+  color: 0xFFF4E4, metalness: 0.38, roughness: 0.03, transmission: 0.75, thickness: 8, ior: 1.52,
+  clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.4, specularIntensity: 1,
+  attenuationColor: new THREE.Color(0xB7824A), attenuationDistance: 55, side: THREE.DoubleSide,
+});
+const channel = (sx) => {
+  const c = new THREE.CubicBezierCurve3(
+    new THREE.Vector3(14 * sx, -96, 0), new THREE.Vector3(15 * sx, -8, 0),
+    new THREE.Vector3(30 * sx, 62, 0), new THREE.Vector3(92 * sx, 66, 0));
+  const g = new THREE.ExtrudeGeometry(U, { steps: 260, curveSegments: 6, bevelEnabled: false, extrudePath: c });
+  return new THREE.Mesh(g, glass);
+};
+const pearl = new THREE.Mesh(new THREE.SphereGeometry(16, 128, 128), new THREE.MeshPhysicalMaterial({
+  color: 0xF1DDBD, metalness: 0.3, roughness: 0.3, transmission: 0.25, thickness: 26, ior: 1.55, clearcoat: 0.6, clearcoatRoughness: 0.35,
+  sheen: 1, sheenColor: new THREE.Color(0xFFF1DA), sheenRoughness: 0.4, envMapIntensity: 1.8,
+}));
+pearl.position.set(0, 50, 0);
+const mark = new THREE.Group(); mark.add(channel(-1)); mark.add(channel(1)); mark.add(pearl);
+mark.position.y = 10;
+scene.add(mark);
+window.pose = (ry = -0.5, rx = 0.32, rz = 0.08, scale = 1) => {
+  mark.rotation.set(rx, ry, rz); mark.scale.setScalar(scale); renderer.render(scene, camera); return true;
+};
+window.pose(+(P.get('ry') ?? -0.7), +(P.get('rx') ?? 0.45), +(P.get('rz') ?? 0.12), +(P.get('s') || 1));
+window.ready = true;
+</script></body></html>

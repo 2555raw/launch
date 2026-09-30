@@ -1171,3 +1171,8 @@ a.dn-thesis { color: inherit; }
 .yl-steps li.is-done { color: var(--ink); }
 .yl-steps li.is-done small { color: var(--accent); }
 .dn-kv b { overflow-wrap: anywhere; text-align: right; }
+
+/* the glass mark beside the name */
+.dn-brand { gap: 9px; }
+.dn-brand .dn-mark { width: 26px; height: 26px; object-fit: contain; flex: none; filter: drop-shadow(0 1px 6px rgba(217, 195, 160, .25)); }
+.dn-brand-lg .dn-mark { width: 32px; height: 32px; }

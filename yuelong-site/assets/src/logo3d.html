@@ -1,8 +1,9 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
-<!-- The Yuelong mark in 3D: two glass channels that part like a carp tail (a Y) around the
-     dragon pearl. Open over http; ?bg=none for a transparent background, ?w=<html><head><meta charset="utf-8">h= for size,
-     ?s= to scale, ?ry=<html><head><meta charset="utf-8">rx=<html><head><meta charset="utf-8">rz= to turn it. Screenshot once window.ready is true. -->
+<!-- The Yuelong mark in 3D: thick glass crescents with a stepped groove, two back to back as
+     the carp tail (a Y) and one as the stem, with the dragon pearl in the notch. Open over http;
+     ?bg=none for a transparent background, ?w=<html><head><meta charset="utf-8">h= size, ?s= scale, ?ry=<html><head><meta charset="utf-8">rx=<html><head><meta charset="utf-8">rz= pose (the logo
+     uses ry=-0.5 rx=0.42 rz=0.1). Screenshot once window.ready is true. -->
 <style>
   html,body{margin:0;background:#000}
   #stage{position:relative;width:1024px;height:1024px;overflow:hidden;
@@ -21,7 +22,7 @@ stage.style.width = W + 'px'; stage.style.height = H + 'px';
 if (P.get('bg') === 'none') { stage.style.background = 'transparent'; document.documentElement.style.background = document.body.style.background = 'transparent'; }
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
 renderer.setSize(W, H); renderer.setPixelRatio(1);
-renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.15;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.4;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 stage.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
@@ -30,52 +31,67 @@ scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 const camera = new THREE.PerspectiveCamera(30, W / H, 1, 2000);
 camera.position.set(0, 0, 560);
 
-// Studio: black room with strip lights, so the glass has sharp reflections to show.
-const studio = new THREE.Scene();
-studio.background = new THREE.Color(0x050505);
-const strip = (w, h, x, y, z, ry, rx, col, k) => {
+// Soft studio light plus a dark grey gradient backdrop that the glass refracts.
+const room = new RoomEnvironment();
+const bar = (w, h, x, y, z, ry, rx, k, col = 0xffffff) => {
   const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: new THREE.Color(col).multiplyScalar(k), side: THREE.DoubleSide }));
-  m.position.set(x, y, z); m.rotation.set(rx, ry, 0); studio.add(m);
+  m.position.set(x, y, z); m.rotation.set(rx, ry, 0); room.add(m);
 };
-strip(9, 2.2, 0, 5, 0, 0, Math.PI / 2, 0xffffff, 26);          // big top softbox
-for (let i = 0; i < 8; i++) {                                    // a ring of tall strips
-  const ang = i / 8 * Math.PI * 2, r = 6;
-  strip(0.55, 9, Math.cos(ang) * r, 0.5, Math.sin(ang) * r, -ang + Math.PI / 2, 0, i % 2 ? 0xffe6c4 : 0xffffff, i % 2 ? 14 : 22);
-}
-strip(12, 6, 0, -5, 0, 0, -Math.PI / 2, 0xb07a42, 5);            // bronze floor bounce
-strip(5, 2, 0, 1, 6, Math.PI, 0, 0xffffff, 10);                   // key behind the camera
-const envTex = pmrem.fromScene(studio, 0).texture;
+bar(0.35, 7, -4.5, 1, 2, Math.PI / 2, 0, 55);            // tall strip left: long white edge lines
+bar(0.3, 7, 4.5, 1, -1, -Math.PI / 2, 0, 40, 0xffd9a8);  // warm strip right
+bar(7, 0.35, 0, 5, 1, 0, Math.PI / 2, 45);               // top bar
+bar(6, 2, 0, -4.5, 0, 0, -Math.PI / 2, 9, 0xc0803c);     // bronze bounce below
+const envTex = pmrem.fromScene(room, 0.01).texture;
 scene.environment = envTex;
-if (P.get('bg') !== 'none') scene.background = envTex; scene.backgroundBlurriness = 0.55; scene.backgroundIntensity = 0.013;
-
-// The mark: two glass channels rise side by side, then part like a carp's tail (a Y),
-// with the dragon's pearl between the tips. Each channel is a U profile swept along its curve.
-const U = new THREE.Shape();
-const R = 3.2, W2 = 13, H2 = 11, IW = 7, IB = -4;
-U.moveTo(-H2, -W2 + R); U.lineTo(-H2, W2 - R); U.quadraticCurveTo(-H2, W2, -H2 + R, W2);
-U.lineTo(H2 - 1.6, W2); U.quadraticCurveTo(H2, W2, H2, W2 - 1.6); U.lineTo(H2, IW + 1.6); U.quadraticCurveTo(H2, IW, H2 - 1.6, IW);
-U.lineTo(IB + 2, IW); U.quadraticCurveTo(IB, IW, IB, IW - 2); U.lineTo(IB, -IW + 2); U.quadraticCurveTo(IB, -IW, IB + 2, -IW);
-U.lineTo(H2 - 1.6, -IW); U.quadraticCurveTo(H2, -IW, H2, -IW - 1.6); U.lineTo(H2, -W2 + 1.6); U.quadraticCurveTo(H2, -W2, H2 - 1.6, -W2);
-U.lineTo(-H2 + R, -W2); U.quadraticCurveTo(-H2, -W2, -H2, -W2 + R);
-const glass = new THREE.MeshPhysicalMaterial({
-  color: 0xFFF4E4, metalness: 0.38, roughness: 0.03, transmission: 0.75, thickness: 8, ior: 1.52,
-  clearcoat: 1, clearcoatRoughness: 0.02, envMapIntensity: 2.4, specularIntensity: 1,
-  attenuationColor: new THREE.Color(0xB7824A), attenuationDistance: 55, side: THREE.DoubleSide,
-});
-const channel = (sx) => {
-  const c = new THREE.CubicBezierCurve3(
-    new THREE.Vector3(14 * sx, -96, 0), new THREE.Vector3(15 * sx, -8, 0),
-    new THREE.Vector3(30 * sx, 62, 0), new THREE.Vector3(92 * sx, 66, 0));
-  const g = new THREE.ExtrudeGeometry(U, { steps: 260, curveSegments: 6, bevelEnabled: false, extrudePath: c });
-  return new THREE.Mesh(g, glass);
+const cv = document.createElement('canvas'); cv.width = 16; cv.height = 512;
+const g2 = cv.getContext('2d'); const gr = g2.createLinearGradient(0, 0, 0, 512);
+gr.addColorStop(0, '#0d0d0d'); gr.addColorStop(0.55, '#262626'); gr.addColorStop(1, '#3a3a3a');
+g2.fillStyle = gr; g2.fillRect(0, 0, 16, 512);
+const bgTex = new THREE.CanvasTexture(cv); bgTex.colorSpace = THREE.SRGBColorSpace;
+const back = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), new THREE.MeshBasicMaterial({ map: bgTex, toneMapped: false }));
+back.position.z = -700;
+if (P.get('bg') !== 'none') scene.add(back);
+const warm = new THREE.DirectionalLight(0xffd9a8, 2.5); warm.position.set(-300, 300, 200); scene.add(warm);
+const cool = new THREE.DirectionalLight(0xffffff, 1.2); cool.position.set(300, -100, 300); scene.add(cool);
+// The mark: thick glass crescents with a stepped groove. Two back to back make the carp's
+// tail (the Y), a third is the stem, the pearl sits in the notch.
+const FLIP = (P.get('flip') || '0') === '1';
+// a polygon with every corner rounded, so each edge catches a line of light
+const prof = (pts, r = 2.4) => {
+  const sh = new THREE.Shape(); const n = pts.length - 1;   // last point repeats the first
+  const P2 = pts.slice(0, n).map(([x, y]) => (FLIP ? [y, x] : [x, y]));
+  for (let i = 0; i < n; i++) {
+    const [px, py] = P2[(i - 1 + n) % n], [cx, cy] = P2[i], [nx, ny] = P2[(i + 1) % n];
+    const d1 = Math.hypot(cx - px, cy - py), d2 = Math.hypot(nx - cx, ny - cy), rr = Math.min(r, d1 / 2, d2 / 2);
+    const ax = cx + (px - cx) / d1 * rr, ay = cy + (py - cy) / d1 * rr, bx = cx + (nx - cx) / d2 * rr, by = cy + (ny - cy) / d2 * rr;
+    i ? sh.lineTo(ax, ay) : sh.moveTo(ax, ay);
+    sh.quadraticCurveTo(cx, cy, bx, by);
+  }
+  sh.closePath();
+  return sh;
 };
-const pearl = new THREE.Mesh(new THREE.SphereGeometry(16, 128, 128), new THREE.MeshPhysicalMaterial({
-  color: 0xF1DDBD, metalness: 0.3, roughness: 0.3, transmission: 0.25, thickness: 26, ior: 1.55, clearcoat: 0.6, clearcoatRoughness: 0.35,
-  sheen: 1, sheenColor: new THREE.Color(0xFFF1DA), sheenRoughness: 0.4, envMapIntensity: 1.8,
+const U = prof([[-18,-15],[18,-15],[18,15],[13.5,15],[13.5,9],[10,9],[10,-3],[-10,-3],[-10,9],[-13.5,9],[-13.5,15],[-18,15],[-18,-15]]);
+const glass = new THREE.MeshPhysicalMaterial({
+  color: 0xFFFFFF, metalness: 0, roughness: 0.04, transmission: 1, thickness: 22, ior: 1.5,
+  clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.8, specularIntensity: 1, dispersion: 0.4,
+  attenuationColor: new THREE.Color(0xB8773A), attenuationDistance: 30, side: THREE.DoubleSide,
+});
+const sweep = (curve) => new THREE.Mesh(new THREE.ExtrudeGeometry(U, { steps: 160, bevelEnabled: false, curveSegments: 8, extrudePath: curve }), glass);
+const arc = (cx, cy, r, a0, a1) => {
+  const pts = []; for (let i = 0; i <= 64; i++) { const a = a0 + (a1 - a0) * i / 64; pts.push(new THREE.Vector3(cx + r * Math.cos(a), cy + r * Math.sin(a), 0)); }
+  return new THREE.CatmullRomCurve3(pts);
+};
+const D = Math.PI / 180;
+const mark = new THREE.Group();
+mark.add(sweep(arc(-74, 0, 74, 0 * D, 88 * D)));      // left lobe: rises from the middle, sweeps out to the top-left
+mark.add(sweep(arc(74, 0, 74, 180 * D, 92 * D)));     // right lobe, mirrored
+mark.add(sweep(arc(-150, -64, 150, 25 * D, 0 * D)));  // stem: a gentle crescent down from the fork
+const pearl = new THREE.Mesh(new THREE.SphereGeometry(15, 128, 128), new THREE.MeshPhysicalMaterial({
+  color: 0xE8CFA6, metalness: 0.65, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 2,
 }));
-pearl.position.set(0, 50, 0);
-const mark = new THREE.Group(); mark.add(channel(-1)); mark.add(channel(1)); mark.add(pearl);
-mark.position.y = 10;
+pearl.position.set(0, 74, 12);
+mark.add(pearl);
+{ const bb = new THREE.Box3().setFromObject(mark), c = bb.getCenter(new THREE.Vector3()); mark.children.forEach((m) => m.position.sub(c)); }
 scene.add(mark);
 window.pose = (ry = -0.5, rx = 0.32, rz = 0.08, scale = 1) => {
   mark.rotation.set(rx, ry, rz); mark.scale.setScalar(scale); renderer.render(scene, camera); return true;

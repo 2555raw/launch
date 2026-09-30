@@ -395,7 +395,7 @@
   Y.config().then((cfg) => {
     net = cfg.networks.find((n) => n.chainId === chainId);
     if (!net || !/^0x[0-9a-fA-F]{40}$/.test(curveAddr)) {
-      state(`<h2>Coin not found</h2><p>${cfg.live ? 'This link does not point at a coin on a network Yuelong runs on.' : 'Trading opens as soon as the contracts are live.'} <a href="index.html#markets">Back to the markets</a>.</p>`);
+      state(`<h2>Coin not found</h2><p>${cfg.live ? 'This link does not point at a coin on a network Yuelong runs on.' : 'Trading switches on when the contracts go live.'} <a href="index.html#markets">Back to the markets</a>.</p>`);
       return;
     }
     load(true);

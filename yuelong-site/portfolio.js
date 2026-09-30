@@ -25,7 +25,7 @@
     }
     box.innerHTML = '<div class="yl-state"><p>Reading your balances…</p></div>';
     const cfg = await Y.config();
-    if (!cfg.live) { box.innerHTML = '<div class="yl-state"><p>Trading opens as soon as the contracts are live.</p></div>'; return; }
+    if (!cfg.live) { box.innerHTML = '<div class="yl-state"><p>Trading switches on when the contracts go live.</p></div>'; return; }
     const { tokens } = await Y.api('/api/markets');
     const [e, A] = await Promise.all([Y.ethers(), Y.abi()]);
     const held = [];

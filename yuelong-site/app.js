@@ -457,11 +457,11 @@
       const list = cfg.live ? cfg.networks : cfg.known.filter((n) => !n.testnet);
       $('#nets').innerHTML = list.map((n) => `
         <button type="button" role="radio" aria-checked="${!!net && n.chainId === net.chainId}" data-chain="${n.chainId}"${cfg.live ? '' : ' disabled'}>
-          <b>${esc(n.name)} ${cfg.live ? `<em class="dn-live${n.testnet ? ' is-test' : ''}">${n.testnet ? 'testnet' : 'live'}</em>` : '<em class="dn-chip dn-chip-sm">soon</em>'}</b>
+          <b>${esc(n.name)} ${cfg.live ? `<em class="dn-live${n.testnet ? ' is-test' : ''}">${n.testnet ? 'testnet' : 'live'}</em>` : ''}</b>
           <span>Paired with ${esc(n.native)} · bonding curve, then a locked pool</span>
         </button>`).join('');
       $('#net-note').innerHTML = !cfg.live
-        ? '<p>Launching opens as soon as the contracts are live. You can fill in the form now; nothing is sent.</p>'
+        ? '<p>Fill in your coin below. Launching switches on when the contracts go live; until then nothing is sent.</p>'
         : `<p>Connect an EVM wallet such as MetaMask or Rabby. If it doesn't know ${esc(net.name)} (chain ID ${net.chainId}) yet, Yuelong adds it for you. Gas and the pair are paid in native ${esc(net.native)}.</p><p>${net.testnet ? 'This is a test network: its coins have no value. ' : ''}Switching networks in your wallet never moves funds between them.</p>`;
       pairSel.innerHTML = (net ? net.pairs : [{ address: '', symbol: 'TAO', native: true }])
         .map((p) => `<option value="${esc(p.address)}">${p.native ? 'Native ' + esc(p.symbol) : esc(p.symbol)}</option>`).join('');
@@ -515,7 +515,7 @@
     const renderButton = () => {
       if (busy) return;
       btn.disabled = !cfg.live;
-      if (!cfg.live) btn.textContent = 'Launching opens soon';
+      if (!cfg.live) btn.textContent = 'Launching not open yet';
       else if (!W.state.account) btn.textContent = 'Connect wallet';
       else if (W.state.chainId !== net.chainId) btn.textContent = `Switch to ${net.short}`;
       else btn.textContent = ticker.value.length >= 2 ? `Launch $${ticker.value}` : 'Launch';

@@ -760,3 +760,10 @@ img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image
 @media (max-width: 640px) { .dn-res.dn-vs { grid-template-columns: 1fr; } }
 
 .dn-kebab { font-size: 16px; line-height: 1; letter-spacing: 0; }
+
+/* chat: brand mark as the assistant icon, token art filling its tile */
+.dn-chat-ico svg { width: 16px; height: 16px; color: var(--ink); }
+.dn-chat-head .dn-chat-ico { width: 36px; height: 36px; }
+.dn-bot-ico svg { width: 12px; height: 12px; color: var(--accent); }
+.dn-res-row .dn-av { width: 34px; height: 34px; padding: 0; border-radius: 8px; }
+.dn-res-val small { font-weight: 400; }

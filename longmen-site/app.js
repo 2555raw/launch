@@ -173,7 +173,7 @@
 
   const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
   const sleep = (ms) => new Promise((r) => setTimeout(r, reduced ? 0 : ms));
-  const botIco = '<span class="dn-chat-ico dn-bot-ico" aria-hidden="true">✦</span>';
+  const botIco = '<span class="dn-chat-ico dn-bot-ico" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 9.5c4 1.6 20 1.6 24 0M7 13.5h18M10 11.2V27M22 11.2V27"/><rect x="13.5" y="15.5" width="5" height="4" rx="0.8" fill="currentColor" stroke="none"/></svg></span>';
 
   const lookupAnswer = (q) => {
     const found = [...new Set((q.toUpperCase().match(/\$?[A-Z0-9]{3,5}/g) || []).map((t) => t.replace('$', '')))]

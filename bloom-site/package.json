@@ -1,0 +1,13 @@
+{
+  "name": "bloom-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bloom — swap tokenized stocks on Robinhood Chain through Uniswap v3.",
+  "scripts": {
+    "start": "node server.js",
+    "tokens": "node scripts/build-tokens.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

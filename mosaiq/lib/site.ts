@@ -9,9 +9,9 @@ export const site = {
   description:
     "Picker puts every token launchpad on Robinhood Chain, Solana, BNB Chain and Arc in one place. Pick your pad, draft the token, and your agent places the launch.",
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
-  /** Set the X account here once it exists; while null, X links are hidden. */
+  /** Set to null to hide every X link. */
   social: {
-    x: null as { handle: string; url: string } | null,
+    x: { handle: "@usePicker", url: "https://x.com/usePicker" } as { handle: string; url: string } | null,
   },
   keyPrefix: "pk_live_",
 } as const;

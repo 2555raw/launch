@@ -825,6 +825,6 @@ html.dn-locked { overflow: hidden; }
 
 /* the nav gathers into its pill more slowly */
 .dn-nav {
-  transition: max-width 1.2s cubic-bezier(.22, .61, .36, 1), height 1.2s cubic-bezier(.22, .61, .36, 1), padding 1.2s cubic-bezier(.22, .61, .36, 1),
-              background-color 1s ease, border-color 1s ease, box-shadow 1s ease, backdrop-filter 1s ease, -webkit-backdrop-filter 1s ease;
+  transition: max-width .85s cubic-bezier(.22, .61, .36, 1), height .85s cubic-bezier(.22, .61, .36, 1), padding .85s cubic-bezier(.22, .61, .36, 1),
+              background-color .7s ease, border-color .7s ease, box-shadow .7s ease, backdrop-filter .7s ease, -webkit-backdrop-filter .7s ease;
 }

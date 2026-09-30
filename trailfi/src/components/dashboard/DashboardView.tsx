@@ -1,0 +1,517 @@
+"use client";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import confetti from "canvas-confetti";
+import { motion } from "framer-motion";
+import {
+  Activity,
+  CheckCircle2,
+  Clock3,
+  Copy,
+  ExternalLink,
+  Footprints,
+  Hourglass,
+  Info,
+  PlusCircle,
+  Sparkles,
+  Wallet,
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
+import { useSession } from "@/components/providers/SessionProvider";
+import { Badge, DemoBadge, StatusBadge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { Modal } from "@/components/ui/Modal";
+import { ProgressRing } from "@/components/ui/ProgressRing";
+import { EmptyState, Skeleton } from "@/components/ui/Skeleton";
+import { AddressAvatar } from "@/components/wallet/ConnectWallet";
+import { useCountUp } from "@/hooks/useCountUp";
+import { api } from "@/lib/fetcher";
+import { fmtAmount, fmtDate, fmtDateTime, fmtSteps, shortAddress } from "@/lib/format";
+import { PAYOUT_CHAIN_ID, SUPPORTED_CHAINS, explorerTxUrl } from "@/lib/web3/chains";
+import { StatCard } from "./StatCard";
+import { StepsChart } from "./StepsChart";
+
+interface StepEntry {
+  id: string;
+  day: string;
+  steps: number;
+  source: string;
+  verification: string;
+  flags: string[];
+  reviewNote: string | null;
+  createdAt: string;
+}
+
+interface MeResponse {
+  user: { id: string; shortId: number; walletAddress: string; payoutConsentAt: string | null; createdAt: string };
+  settings: {
+    dailyStepGoal: number;
+    rewardPercent: number;
+    maxRewardPerUser: number;
+    distributionFrequency: string;
+    payoutTokenSymbol: string;
+  };
+  today: { today: string; steps: number; goal: number; amount: string; eligible: boolean; tokenSymbol: string };
+  summary: { pending: number; approved: number; processing: number; paid: number; total: number };
+  steps: StepEntry[];
+  rewards: Array<{ id: string; periodStart: string; periodEnd: string; amount: number; status: string; validSteps: number; tokenSymbol: string }>;
+  payouts: Array<{
+    id: string;
+    amount: string;
+    tokenSymbol: string;
+    chainId: number;
+    status: string;
+    simulated: boolean;
+    txHash: string | null;
+    createdAt: string;
+    confirmedAt: string | null;
+  }>;
+}
+
+const SOURCE_LABEL: Record<string, string> = {
+  manual_demo: "Manual (demo)",
+  apple_health: "Apple Health",
+  health_connect: "Health Connect",
+  fitness_api: "Fitness API",
+};
+
+function celebrate() {
+  const colors = ["#c4fb6d", "#5dff9d", "#ffffff", "#d8ff9c"];
+  confetti({ particleCount: 120, spread: 75, origin: { y: 0.35 }, colors, scalar: 0.9 });
+  setTimeout(() => confetti({ particleCount: 60, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors }), 220);
+  setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors }), 380);
+}
+
+export function DashboardView() {
+  const { user } = useSession();
+  const [activityOpen, setActivityOpen] = useState(false);
+  const [logOpen, setLogOpen] = useState(false);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["me"],
+    queryFn: () => api<MeResponse>("/api/me"),
+    enabled: Boolean(user),
+    refetchInterval: 60_000,
+  });
+
+  // Celebrate once per day when the goal is reached.
+  const goalMet = data ? data.today.steps >= data.today.goal : false;
+  useEffect(() => {
+    if (!data || !goalMet) return;
+    const key = `trailfi:celebrated:${data.user.id}:${data.today.today}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
+    } catch {
+      /* storage unavailable: celebrate anyway */
+    }
+    celebrate();
+    toast.success("Daily goal complete!", { description: "You're eligible for today's reward pool once your steps are verified." });
+  }, [data, goalMet]);
+
+  const chart = useMemo(() => {
+    if (!data) return [];
+    const byDay = new Map<string, { steps: number; status: string }>();
+    for (const s of data.steps) {
+      if (s.verification === "rejected") continue;
+      const prev = byDay.get(s.day);
+      if (!prev || s.steps > prev.steps) byDay.set(s.day, { steps: s.steps, status: s.verification });
+    }
+    const out = [];
+    const today = new Date(`${data.today.today}T00:00:00Z`);
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date(today.getTime() - i * 86_400_000).toISOString().slice(0, 10);
+      out.push({ day: d, steps: byDay.get(d)?.steps ?? 0, status: byDay.get(d)?.status });
+    }
+    return out;
+  }, [data]);
+
+  if (isLoading || !data) {
+    if (error) return <EmptyState title="Could not load your dashboard">{(error as Error).message}</EmptyState>;
+    return (
+      <div className="grid gap-5 lg:grid-cols-3">
+        <Skeleton className="h-[420px]" />
+        <div className="grid gap-5 sm:grid-cols-2 lg:col-span-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-36" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  const { today, summary, settings } = data;
+  const token = settings.payoutTokenSymbol;
+  const progress = today.goal ? today.steps / today.goal : 0;
+  const todayEntry = data.steps.find((s) => s.day === today.today && s.verification !== "rejected");
+  const chain = SUPPORTED_CHAINS[PAYOUT_CHAIN_ID];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
+        <div>
+          <div className="label">Dashboard · member #{data.user.shortId}</div>
+          <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Good to see you on the trail.</h1>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="glass flex items-center gap-3 rounded-2xl py-2 pl-2.5 pr-3">
+            <span className="relative">
+              <AddressAvatar address={data.user.walletAddress} className="h-8 w-8" />
+              <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-ink-900 bg-neon shadow-neon" />
+            </span>
+            <div className="leading-tight">
+              <div className="font-mono text-[13px]">{shortAddress(data.user.walletAddress)}</div>
+              <div className="text-[11px] text-lime-300/80">Connected · payouts on {chain?.name}</div>
+            </div>
+            <button
+              className="ml-1 rounded-lg p-1.5 text-white/40 transition hover:bg-white/5 hover:text-white"
+              onClick={() => {
+                void navigator.clipboard.writeText(data.user.walletAddress);
+                toast.success("Address copied");
+              }}
+              aria-label="Copy address"
+            >
+              <Copy className="h-3.5 w-3.5" />
+            </button>
+          </div>
+          <Button variant="secondary" onClick={() => setActivityOpen(true)} icon={<Activity className="h-4 w-4" />}>
+            View activity
+          </Button>
+        </div>
+      </motion.div>
+
+      <div className="grid gap-5 lg:grid-cols-3">
+        {/* Today */}
+        <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="lg:row-span-2">
+          <Card className="relative h-full overflow-hidden p-6">
+            <div className="pointer-events-none absolute -top-20 left-1/2 h-48 w-72 -translate-x-1/2 rounded-full bg-lime-400/15 blur-3xl" />
+            <CardHeader
+              label={`Today · ${fmtDate(today.today, { weekday: "short", month: "short", day: "numeric" })}`}
+              title="Daily goal"
+              action={todayEntry ? <StatusBadge status={todayEntry.verification} /> : <Badge>no entry</Badge>}
+            />
+            <div className="relative mt-6 flex justify-center">
+              <ProgressRing value={progress} size={220} stroke={16} id="dash-ring">
+                <TodaySteps steps={today.steps} goal={today.goal} />
+              </ProgressRing>
+            </div>
+            <div className="mt-6 text-center">
+              {goalMet ? (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="inline-flex items-center gap-2 rounded-full border border-lime-400/30 bg-lime-400/10 px-4 py-1.5 text-sm font-medium text-lime-300"
+                >
+                  <CheckCircle2 className="h-4 w-4" /> Goal complete — {Math.round(progress * 100)}%
+                </motion.div>
+              ) : (
+                <p className="text-sm text-white/55">
+                  <span className="font-semibold text-white">{fmtSteps(Math.max(0, today.goal - today.steps))}</span> steps to reach
+                  today&apos;s goal
+                </p>
+              )}
+            </div>
+            <div className="mt-6 grid gap-2">
+              <Button variant="primary" onClick={() => setLogOpen(true)} icon={<PlusCircle className="h-4 w-4" />}>
+                {todayEntry ? "Log another day" : "Log today's steps"}
+              </Button>
+              <p className="text-center text-[11.5px] text-white/40">
+                Health app sync arrives with the mobile companion app. Manual entries are demo-only and unverified.
+              </p>
+            </div>
+          </Card>
+        </motion.div>
+
+        {/* Stats */}
+        <div className="grid gap-5 sm:grid-cols-2 lg:col-span-2">
+          <StatCard
+            label="Estimated today"
+            value={Number(today.amount)}
+            prefix="$"
+            suffix={token}
+            hint={today.eligible ? "Projection · not guaranteed" : "Reach the goal to be eligible"}
+            icon={Sparkles}
+            accent
+          />
+          <StatCard
+            label="Pending rewards"
+            value={summary.pending + summary.approved + summary.processing}
+            prefix="$"
+            suffix={token}
+            hint={`${fmtAmount(summary.approved)} approved · ${fmtAmount(summary.processing)} in payment`}
+            icon={Hourglass}
+            delay={0.05}
+          />
+          <StatCard label="Rewards paid" value={summary.paid} prefix="$" suffix={token} hint="Sent to your wallet" icon={Wallet} delay={0.1} />
+          <StatCard
+            label="Total earned"
+            value={summary.total}
+            prefix="$"
+            suffix={token}
+            hint="All allocated rewards, excluding rejected"
+            icon={Footprints}
+            delay={0.15}
+          />
+        </div>
+
+        {/* Chart */}
+        <Card className="p-6 lg:col-span-2">
+          <CardHeader
+            label="Last 14 days"
+            title="Steps history"
+            action={
+              <div className="hidden items-center gap-4 text-[11px] text-white/50 sm:flex">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-sm bg-lime-400" /> goal met
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-sm bg-white/25" /> below goal
+                </span>
+              </div>
+            }
+          />
+          <div className="mt-8">
+            <StepsChart data={chart} goal={today.goal} />
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-3">
+        {/* Payment history */}
+        <Card className="overflow-hidden lg:col-span-2">
+          <div className="p-6 pb-4">
+            <CardHeader label="Payouts" title="Payment history" />
+          </div>
+          {data.payouts.length === 0 ? (
+            <div className="px-6 pb-6">
+              <EmptyState title="No payments yet">Approved rewards are bundled and sent to your wallet by the TrailFi team.</EmptyState>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[520px]">
+                <thead className="border-y border-white/10 bg-white/[0.02]">
+                  <tr>
+                    <th className="table-head">Date</th>
+                    <th className="table-head">Amount</th>
+                    <th className="table-head">Status</th>
+                    <th className="table-head text-right">Transaction</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.payouts.map((p) => {
+                    const url = p.txHash ? explorerTxUrl(p.chainId, p.txHash) : null;
+                    return (
+                      <tr key={p.id} className="border-b border-white/5 last:border-0">
+                        <td className="table-cell">{fmtDateTime(p.confirmedAt ?? p.createdAt)}</td>
+                        <td className="table-cell font-mono text-lime-300">
+                          {fmtAmount(p.amount)} <span className="text-white/40">{p.tokenSymbol}</span>
+                        </td>
+                        <td className="table-cell">
+                          <div className="flex items-center gap-2">
+                            <StatusBadge status={p.status} />
+                            {p.simulated && <DemoBadge>simulated</DemoBadge>}
+                          </div>
+                        </td>
+                        <td className="table-cell text-right">
+                          {url ? (
+                            <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-mono text-[12.5px] text-white/70 hover:text-lime-300">
+                              {shortAddress(p.txHash, 8, 6)} <ExternalLink className="h-3 w-3" />
+                            </a>
+                          ) : (
+                            <span className="text-white/30">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+
+        {/* Rules */}
+        <Card className="p-6">
+          <CardHeader label="Current rules" title="How your rewards work" />
+          <dl className="mt-5 space-y-3 text-sm">
+            <Rule k="Daily goal" v={`${fmtSteps(settings.dailyStepGoal)} steps`} />
+            <Rule k="Fees shared with walkers" v={`${settings.rewardPercent}%`} />
+            <Rule k="Max per user / period" v={`${fmtAmount(settings.maxRewardPerUser)} ${token}`} />
+            <Rule k="Distribution" v={settings.distributionFrequency === "weekly" ? "Weekly" : "Daily"} />
+            <Rule k="Payout token" v={`${token} on ${chain?.name ?? "—"}`} />
+          </dl>
+          <p className="mt-5 flex gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 text-[12px] leading-relaxed text-white/50">
+            <Info className="mt-0.5 h-4 w-4 shrink-0" />
+            Only verified activity is rewarded. Rewards are reviewed before payment and depend on the fees actually
+            collected — they are never guaranteed.
+          </p>
+        </Card>
+      </div>
+
+      {/* Reward allocations */}
+      <Card className="overflow-hidden">
+        <div className="p-6 pb-4">
+          <CardHeader label="Allocations" title="Reward history" />
+        </div>
+        {data.rewards.length === 0 ? (
+          <div className="px-6 pb-6">
+            <EmptyState title="No rewards allocated yet">Rewards appear here after each distribution period closes.</EmptyState>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[520px]">
+              <thead className="border-y border-white/10 bg-white/[0.02]">
+                <tr>
+                  <th className="table-head">Period</th>
+                  <th className="table-head">Valid steps</th>
+                  <th className="table-head">Amount</th>
+                  <th className="table-head">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.rewards.map((r) => (
+                  <tr key={r.id} className="border-b border-white/5 last:border-0">
+                    <td className="table-cell">
+                      {fmtDate(r.periodStart)}
+                      {r.periodEnd !== r.periodStart && ` – ${fmtDate(r.periodEnd)}`}
+                    </td>
+                    <td className="table-cell font-mono">{fmtSteps(r.validSteps)}</td>
+                    <td className="table-cell font-mono text-lime-300">
+                      {fmtAmount(r.amount)} <span className="text-white/40">{r.tokenSymbol}</span>
+                    </td>
+                    <td className="table-cell">
+                      <StatusBadge status={r.status} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      <ActivityModal open={activityOpen} onClose={() => setActivityOpen(false)} entries={data.steps} />
+      <LogStepsModal open={logOpen} onClose={() => setLogOpen(false)} today={today.today} goal={today.goal} />
+    </div>
+  );
+}
+
+function TodaySteps({ steps, goal }: { steps: number; goal: number }) {
+  const v = useCountUp(steps, 1500);
+  return (
+    <div>
+      <div className="font-display text-[42px] font-bold leading-none tracking-tight tabular">{fmtSteps(v)}</div>
+      <div className="mt-2 font-mono text-[11px] uppercase tracking-widest text-white/45">of {fmtSteps(goal)} steps</div>
+    </div>
+  );
+}
+
+function Rule({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex items-center justify-between gap-4 border-b border-white/5 pb-3 last:border-0">
+      <dt className="text-white/50">{k}</dt>
+      <dd className="font-medium text-white/90">{v}</dd>
+    </div>
+  );
+}
+
+function ActivityModal({ open, onClose, entries }: { open: boolean; onClose: () => void; entries: StepEntry[] }) {
+  return (
+    <Modal open={open} onClose={onClose} title="Your activity" subtitle="Every step entry and its verification status." className="sm:max-w-2xl">
+      {entries.length === 0 ? (
+        <EmptyState title="No activity yet">Log your first walk to see it here.</EmptyState>
+      ) : (
+        <ul className="divide-y divide-white/5">
+          {entries.map((e) => (
+            <li key={e.id} className="flex items-center justify-between gap-4 py-3">
+              <div className="flex items-center gap-3">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/5 text-lime-300">
+                  <Footprints className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="font-mono text-[15px] tabular">{fmtSteps(e.steps)} steps</div>
+                  <div className="text-[12px] text-white/45">
+                    {fmtDate(e.day, { weekday: "short", month: "short", day: "numeric" })} · {SOURCE_LABEL[e.source] ?? e.source}
+                  </div>
+                  {e.flags.length > 0 && <div className="mt-0.5 text-[11px] text-amber-200/70">Flagged: {e.flags.join(", ").replaceAll("_", " ")}</div>}
+                  {e.reviewNote && <div className="mt-0.5 text-[11px] text-white/40">Review: {e.reviewNote}</div>}
+                </div>
+              </div>
+              <StatusBadge status={e.verification} />
+            </li>
+          ))}
+        </ul>
+      )}
+    </Modal>
+  );
+}
+
+function LogStepsModal({ open, onClose, today, goal }: { open: boolean; onClose: () => void; today: string; goal: number }) {
+  const qc = useQueryClient();
+  const [day, setDay] = useState(today);
+  const [steps, setSteps] = useState("");
+  useEffect(() => setDay(today), [today]);
+
+  const mutation = useMutation({
+    mutationFn: () => api<{ entry: StepEntry }>("/api/steps", { method: "POST", json: { day, steps: Number(steps) } }),
+    onSuccess: async ({ entry }) => {
+      await qc.invalidateQueries({ queryKey: ["me"] });
+      onClose();
+      setSteps("");
+      if (entry.verification === "flagged") {
+        toast.warning("Steps saved and flagged for review", { description: entry.flags.join(", ").replaceAll("_", " ") });
+      } else {
+        toast.success("Steps saved", { description: "Stored as unverified until reviewed." });
+      }
+      if (entry.day === today && entry.steps >= goal) celebrate();
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const n = Number(steps);
+  const valid = steps !== "" && Number.isInteger(n) && n >= 0 && n <= 100_000;
+
+  return (
+    <Modal open={open} onClose={onClose} title="Log steps" subtitle="Manual entry for the demo.">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (valid) mutation.mutate();
+        }}
+        className="space-y-4"
+      >
+        <div className="flex gap-2.5 rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] p-3.5 text-[12.5px] leading-relaxed text-amber-100/80">
+          <Clock3 className="mt-0.5 h-4 w-4 shrink-0" />
+          Browser entries are never verified automatically. They count for real payouts only after an admin reviews them.
+          Entries can&apos;t be edited afterwards.
+        </div>
+        <label className="block">
+          <span className="label mb-2 block">Date</span>
+          <input type="date" className="input" value={day} max={today} onChange={(e) => setDay(e.target.value)} required />
+        </label>
+        <label className="block">
+          <span className="label mb-2 block">Steps</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={0}
+            max={100000}
+            step={1}
+            className="input font-mono text-lg"
+            placeholder="10482"
+            value={steps}
+            onChange={(e) => setSteps(e.target.value)}
+            required
+            autoFocus
+          />
+        </label>
+        <Button type="submit" className="w-full" loading={mutation.isPending} disabled={!valid}>
+          Save steps
+        </Button>
+      </form>
+    </Modal>
+  );
+}

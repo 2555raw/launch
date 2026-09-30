@@ -1,0 +1,46 @@
+import Link from "next/link";
+import { Logo } from "@/components/Logo";
+
+const LINKS = [
+  { href: "/about", label: "About TrailFi" },
+  { href: "/docs", label: "Documentation" },
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/privacy", label: "Privacy Policy" },
+  { href: "/contact", label: "Contact" },
+];
+
+export function Footer() {
+  return (
+    <footer className="relative border-t border-white/10 bg-ink-950">
+      <div className="container py-14">
+        <div className="flex flex-col justify-between gap-10 md:flex-row md:items-start">
+          <div className="max-w-sm">
+            <Logo />
+            <p className="mt-4 text-sm leading-relaxed text-white/50">
+              Walk. Explore. Earn. TrailFi rewards verified real-world activity with a share of platform fees, paid to
+              your wallet.
+            </p>
+          </div>
+          <nav className="grid grid-cols-2 gap-x-10 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-8" aria-label="Footer">
+            {LINKS.map((l) => (
+              <Link key={l.href} href={l.href} className="text-sm text-white/65 transition hover:text-lime-300">
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+        <div className="hairline my-10" />
+        <div className="flex flex-col justify-between gap-4 text-xs text-white/35 sm:flex-row">
+          <p>© {new Date().getFullYear()} TrailFi. Rewards are variable, subject to review, and not guaranteed. Not financial advice.</p>
+          <p>
+            Photography via{" "}
+            <a href="https://unsplash.com/license" className="underline decoration-white/20 underline-offset-2 hover:text-white/60" target="_blank" rel="noreferrer">
+              Unsplash
+            </a>
+            .
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}

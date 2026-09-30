@@ -1,0 +1,29 @@
+import { InfoPage, Section } from "@/components/info/InfoPage";
+
+export const metadata = { title: "About" };
+
+export default function AboutPage() {
+  return (
+    <InfoPage
+      label="About TrailFi"
+      title="Built for people who'd rather be outside."
+      intro="TrailFi is a Web3 platform that rewards verified real-world activity. Walk, hike and explore — and receive a share of the platform's fees in your own wallet."
+    >
+      <Section title="Why TrailFi">
+        <p>
+          Most move-to-earn projects paid people in a token that only had value while new users kept buying it. TrailFi
+          does the opposite: rewards come from a configurable share of <strong>real, eligible platform fees</strong>, paid
+          in established stablecoins.
+        </p>
+      </Section>
+      <Section title="Principles">
+        <ul>
+          <li>Your wallet is your account. We only ever see your public address.</li>
+          <li>Activity must be verified before it can be paid.</li>
+          <li>Every payout is reviewed and authorised by a human, and recorded on-chain.</li>
+          <li>Estimates are estimates. Rewards are variable and never guaranteed.</li>
+        </ul>
+      </Section>
+    </InfoPage>
+  );
+}

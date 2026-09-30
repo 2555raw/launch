@@ -871,7 +871,8 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 .dn-gate.is-leaping .dn-splash { animation: dn-splash .7s ease-out; }
 @keyframes dn-splash { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-10px); } }
 .dn-gate-glow { opacity: 0; transition: opacity .8s ease; }
-.dn-dragon path.dn-dragon-body { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.dn-dragon path.dn-dragon-body { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0; }
+.dn-gate.is-risen .dn-dragon path.dn-dragon-body { opacity: 1; } /* the round cap of a hidden dash still shows as a dot */
 .dn-dragon path.dn-dragon-ridge { opacity: 0; }
 .dn-dragon-head { opacity: 0; transform-box: fill-box; transform-origin: center; }
 .dn-gate.is-risen .dn-carp { opacity: 0; }

@@ -610,13 +610,13 @@
         if (!en.isIntersecting) return;
         en.target.classList.add('is-in');
         revealIO.unobserve(en.target);
-      }), { rootMargin: '0px 0px -10% 0px', threshold: 0.08 })
+      }), { rootMargin: '0px 0px -4% 0px', threshold: 0.01 })
     : null;
 
   window.dnReveal = (els, now) => {
     els.forEach((el, i) => {
       el.classList.add('dn-reveal');
-      el.style.setProperty('--d', `${Math.min(i % 6, 5) * 70}ms`);
+      el.style.setProperty('--d', `${Math.min(i % 6, 3) * 40}ms`);
       if (!revealIO) { el.classList.add('is-in'); return; }
       if (now) { el.classList.remove('is-in'); requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('is-in'))); }
       else revealIO.observe(el);

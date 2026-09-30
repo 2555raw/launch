@@ -758,3 +758,5 @@ img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image
 .dn-msg-bot.is-answer .dn-vs-card { animation: dn-rowin .55s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(120ms + var(--i, 0) * 140ms); }
 @media (prefers-reduced-motion: reduce) { .dn-msg-bot.is-answer .dn-vs-card { animation: none; } }
 @media (max-width: 640px) { .dn-res.dn-vs { grid-template-columns: 1fr; } }
+
+.dn-kebab { font-size: 16px; line-height: 1; letter-spacing: 0; }

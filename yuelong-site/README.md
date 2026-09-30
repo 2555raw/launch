@@ -23,6 +23,12 @@ privacy.html   Privacy Policy (template)
 assets/logos/  partner marks for the hero strip (see below)
 ```
 
+## Ticker
+
+The planned ticker is **$YUE**. No listed token used it exactly as of September 2026 (CoinGecko and
+DexScreener searches; the closest was an unrelated "YUET" on BSC). It is deliberately not shown on
+the site yet, so nobody takes it for a live token; add it once the token actually exists.
+
 ## Run it
 
 ```bash

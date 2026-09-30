@@ -1,0 +1,232 @@
+<!doctype html>
+<!-- Yuelong promo, 30.12 s at 1920x1080. window.draw(t) paints one frame; cuts follow the
+     reference edit (3.0, 6.0, 8.0, 11.0, 14.5, 17.5, 22.0, 24.0) so they land on its music. -->
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="file:///home/user/launch/yuelong-site/assets/fonts.css">
+<style>
+  html, body { margin: 0; background: #000; }
+  #v { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: #050505; color: #fff; font-family: "Inter", sans-serif; }
+  .scene { position: absolute; inset: 0; display: none; }
+  .bg-warm { background: radial-gradient(ellipse 70% 60% at 50% 55%, #15120e 0%, #070605 60%, #000 100%); }
+  .bg-panel { background: #0C0B0A; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  /* A */
+  #A .head { position: absolute; top: 330px; left: 0; right: 0; text-align: center; font: 500 76px/1 "Inter"; letter-spacing: -0.035em; }
+  #A .head span { display: inline-block; white-space: pre; }
+  #A .rail { position: absolute; left: 0; right: 0; top: 0; bottom: 0; transform-origin: 0 0; }
+  /* B */
+  #B .win { position: absolute; left: 50%; top: 50%; width: 1600px; height: 950px; margin: -475px 0 0 -800px; border-radius: 22px; overflow: hidden;
+            background: #0b0b0b; border: 1px solid #2a2a2a; box-shadow: 0 60px 140px -30px rgba(0,0,0,.9); transform-origin: 50% 40%; }
+  #B .bar { height: 50px; display: flex; align-items: center; gap: 9px; padding: 0 20px; background: #141414; border-bottom: 1px solid #222; }
+  #B .bar i { width: 13px; height: 13px; border-radius: 50%; background: #3a3a3a; }
+  #B .bar b { margin: 0 auto; padding: 6px 60px; border-radius: 8px; background: #0b0b0b; font: 400 17px/1 "JetBrains Mono"; color: #bbb; }
+  #B .shot { position: absolute; top: 50px; left: 0; width: 1600px; height: 900px; object-fit: cover; }
+  #B .wash { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(217,195,160,.55), rgba(217,195,160,0) 40%, rgba(217,195,160,0) 60%, rgba(217,195,160,.55)); mix-blend-mode: screen; }
+  /* C */
+  #C .row { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; font: 500 76px/1 "Inter"; letter-spacing: -0.035em; white-space: nowrap; }
+  #C .lit { display: inline-block; overflow: hidden; text-align: center; }
+  #C .pill { display: inline-flex; align-items: center; overflow: hidden; height: 92px; border-radius: 18px; background: #121212; border: 1px solid #2c2c2c; box-sizing: border-box; }
+  #C .pill span { flex: 1; padding-left: 26px; font: 400 24px/1 "JetBrains Mono"; color: #777; letter-spacing: 0; white-space: nowrap; }
+  #C .pill em { width: 52px; height: 52px; margin-right: 18px; border-radius: 50%; background: #D9C3A0; flex: none; display: grid; place-items: center; color: #000; font: 700 26px/1 "Inter"; font-style: normal; }
+  /* D, F: big typing */
+  .typer { position: absolute; top: 50%; left: 0; white-space: pre; font: 500 190px/1 "Inter"; letter-spacing: -0.045em; transform: translateY(-50%); }
+  .caret { display: inline-block; width: 12px; height: 170px; margin-left: 10px; vertical-align: -18px; background: linear-gradient(#EFE3CD, #D9C3A0 60%, #A48B67); border-radius: 3px; }
+  #D .box { position: absolute; left: 50%; top: 50%; width: 1180px; margin-left: -590px; border-radius: 26px; background: #0a0a0a; border: 1px solid #262626; padding: 34px 40px 28px; box-sizing: border-box; transform-origin: 50% 50%; }
+  #D .box .t { font: 400 38px/1.35 "Inter"; color: #fff; min-height: 104px; display: flex; gap: 18px; }
+  #D .box .t i { font-style: normal; color: #666; }
+  #D .box .t b { font-weight: 500; color: #D9C3A0; }
+  #D .box .f { margin-top: 26px; display: flex; align-items: center; gap: 30px; font: 400 22px/1 "Inter"; color: #8a8a8a; }
+  #D .box .f span:last-of-type { margin-left: auto; }
+  #D .send { width: 70px; height: 70px; border-radius: 50%; background: #D9C3A0; display: grid; place-items: center; color: #000; font: 700 34px/1 "Inter"; }
+  .cursor-sm { display: inline-block; width: 4px; height: 40px; background: #D9C3A0; vertical-align: -6px; margin-left: 4px; }
+  /* E: curve */
+  #E svg { position: absolute; inset: 0; }
+  /* G: pearl and panel */
+  #G .orb { position: absolute; left: 470px; top: 540px; width: 380px; height: 380px; margin: -190px 0 0 -190px; border-radius: 50%;
+            background: radial-gradient(circle at 36% 32%, #FFF6E8 0%, #EFE3CD 18%, #D9C3A0 45%, #8C7654 80%, #5a4a33 100%); }
+  #G .panel { position: absolute; left: 900px; top: 300px; width: 680px; font: 400 26px/1 "Inter"; color: #bdbdbd; }
+  #G .panel div { display: flex; align-items: center; justify-content: space-between; height: 72px; border-bottom: 1px solid #1c1c1c; }
+  #G .panel b { font: 500 26px/1 "JetBrains Mono"; color: #fff; }
+  #G .bar2 { width: 260px; height: 12px; border-radius: 99px; background: #1c1c1c; overflow: hidden; }
+  #G .bar2 i { display: block; height: 100%; background: linear-gradient(90deg, #A48B67, #D9C3A0 70%, #EFE3CD); }
+  #G .tog { width: 64px; height: 36px; border-radius: 99px; background: #2a2a2a; position: relative; }
+  #G .tog i { position: absolute; top: 4px; left: 4px; width: 28px; height: 28px; border-radius: 50%; background: #777; }
+  /* H */
+  #H .w { position: absolute; top: 50%; left: 0; right: 0; text-align: center; transform: translateY(-50%); white-space: nowrap; }
+  /* I */
+  #I .w { position: absolute; top: 470px; left: 0; right: 0; text-align: center; font: 600 132px/1 "Inter"; letter-spacing: -0.055em; }
+  #I .u { position: absolute; top: 640px; left: 0; right: 0; text-align: center; font: 500 30px/1 "JetBrains Mono"; color: #D9C3A0; letter-spacing: .02em; }
+</style></head>
+<body>
+<div id="v">
+  <div class="scene bg-warm" id="A">
+    <div class="rail" id="Arail">
+      <div class="head" id="Ahead"></div>
+      <svg width="1920" height="1080" id="Asvg"></svg>
+    </div>
+  </div>
+  <div class="scene bg-warm" id="B">
+    <div class="win" id="Bwin"><div class="bar"><i></i><i></i><i></i><b>yuelong.xyz</b></div>
+      <img class="shot" id="Bs1" src="hero.png"><img class="shot" id="Bs2" src="markets.png"><div class="wash" id="Bwash"></div></div>
+  </div>
+  <div class="scene bg-warm" id="C">
+    <div class="row"><span>Launch&nbsp;</span><span class="lit" id="Clit">literally</span><span class="pill" id="Cpill"><span>Describe your coin… $TICKER</span><em>↑</em></span><span id="Cany">&nbsp;anything</span></div>
+  </div>
+  <div class="scene bg-panel" id="D">
+    <div class="typer" id="Dt"></div>
+    <div class="box" id="Dbox"><div class="t"><i>+</i><span id="Dbt"></span></div>
+      <div class="f"><span>Pair · TAO</span><span>Kind · Subnet coin</span><span>Bittensor EVM</span><div class="send" id="Dsend">↑</div></div></div>
+  </div>
+  <div class="scene bg-panel" id="E"><svg width="1920" height="1080" id="Esvg"></svg></div>
+  <div class="scene bg-panel" id="F"><div class="typer" id="Ft"></div></div>
+  <div class="scene bg-warm" id="G">
+    <div class="orb" id="Gorb"></div>
+    <div class="panel">
+      <div><span>Curve</span><span class="bar2"><i id="Gbar"></i></span><b id="Gpct">62.4%</b></div>
+      <div><span>Raised</span><b id="Graised">31.2 TAO</b></div>
+      <div><span>Price</span><b id="Gprice">0.0₆412 TAO</b></div>
+      <div><span>Holders</span><b id="Ghold">184</b></div>
+      <div><span>Liquidity locked</span><span class="tog" id="Gtog"><i></i></span></div>
+      <div><span>Status</span><b id="Gstat">Bonding curve</b></div>
+    </div>
+  </div>
+  <div class="scene bg-warm" id="H"><div class="w" id="Hw"></div></div>
+  <div class="scene" id="I" style="background:#000"><div class="w" id="Iw">Yuelong</div><div class="u" id="Iu">yuelong.xyz</div></div>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const cl = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const seg = (t, a, b) => cl((t - a) / (b - a));
+const eio = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+const eo = (k) => 1 - Math.pow(1 - k, 3);
+const SUB = '₀₁₂₃₄₅₆₇₈₉';
+
+// A: the headline letters and the curve rail
+const HEAD = 'Launch a coin on TAO';
+$('Ahead').innerHTML = [...HEAD].map((c) => `<span>${c}</span>`).join('');
+const Aspans = [...$('Ahead').children];
+{
+  let s = '<line x1="560" x2="1360" y1="700" y2="700" stroke="#3a3a3a" stroke-width="2"/>';
+  for (let i = 0; i <= 40; i++) { const x = 560 + i * 20, big = i % 10 === 0; s += `<line x1="${x}" x2="${x}" y1="${big ? 676 : 688}" y2="700" stroke="${big ? '#5a5a5a' : '#333'}" stroke-width="2"/>`; }
+  ['0 TAO', '25', '50', '75', '100%'].forEach((l, i) => { s += `<text x="${560 + i * 200}" y="656" fill="#777" font-family="JetBrains Mono" font-size="22" text-anchor="middle">${l}</text>`; });
+  s += '<g id="Ahead2"><line id="Aline" x1="0" x2="0" y1="600" y2="1080" stroke="#D9C3A0" stroke-width="4"/><rect id="Aknob" x="-18" y="585" width="36" height="46" rx="10" fill="#D9C3A0"/></g>';
+  $('Asvg').innerHTML = s;
+}
+// E: the bonding curve, price against TAO raised, constant product with a virtual reserve
+const EX0 = 420, EX1 = 1500, EY0 = 860, EY1 = 220;
+const curvePts = [];
+for (let i = 0; i <= 120; i++) { const q = i / 120; const p = Math.pow(0.35 + q * 0.65, 2); curvePts.push([EX0 + q * (EX1 - EX0), EY0 - (p - 0.1225) / (1 - 0.1225) * (EY0 - EY1)]); }
+{
+  let s = '';
+  for (let i = 0; i <= 6; i++) { const x = EX0 + i * (EX1 - EX0) / 6; s += `<line x1="${x}" x2="${x}" y1="${EY1}" y2="${EY0}" stroke="#1e1e1e" stroke-width="2"/>`; }
+  for (let i = 0; i <= 4; i++) { const y = EY1 + i * (EY0 - EY1) / 4; s += `<line x1="${EX0}" x2="${EX1}" y1="${y}" y2="${y}" stroke="#1e1e1e" stroke-width="2"/>`; }
+  s += `<text x="${EX0}" y="${EY0 + 52}" fill="#777" font-family="JetBrains Mono" font-size="24">TAO raised →</text>`;
+  s += `<text x="${EX0 - 20}" y="${EY1 - 24}" fill="#777" font-family="JetBrains Mono" font-size="24">price</text>`;
+  s += `<text x="${EX1}" y="${EY1 - 24}" fill="#D9C3A0" font-family="JetBrains Mono" font-size="24" text-anchor="end" id="Egrad" opacity="0">graduates → locked pool</text>`;
+  s += `<defs><linearGradient id="Ef" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D9C3A0" stop-opacity=".28"/><stop offset="1" stop-color="#D9C3A0" stop-opacity="0"/></linearGradient></defs>`;
+  s += `<path id="Earea" fill="url(#Ef)" d=""/>`;
+  s += `<path id="Ecurve" fill="none" stroke="#D9C3A0" stroke-width="6" stroke-linecap="round" d="M${curvePts.map((p) => p.join(' ')).join(' L')}"/>`;
+  s += `<line id="Evline" stroke="#D9C3A0" stroke-opacity=".35" stroke-dasharray="6 8" stroke-width="2"/>`;
+  s += `<circle id="Edot" r="16" fill="#EFE3CD" stroke="#0C0B0A" stroke-width="5"/><text id="Elab" fill="#fff" font-family="JetBrains Mono" font-size="28" font-weight="500"></text>`;
+  $('Esvg').innerHTML = s;
+}
+const Elen = () => $('Ecurve').getTotalLength();
+
+function typer(el, text, t0, cps, t, follow = 1300) {
+  const n = Math.max(0, Math.min(text.length, Math.floor((t - t0) * cps)));
+  el.innerHTML = `${text.slice(0, n)}<span class="caret" style="opacity:${(Math.floor(t * 2.4) % 2 === 0 || n < text.length) ? 1 : 0}"></span>`;
+  const w = el.getBoundingClientRect().width;
+  el.style.transform = `translate(${Math.min(160, follow - w)}px, -50%)`;
+  return n;
+}
+
+window.draw = (t) => {
+  const show = (id, on) => { $(id).style.display = on ? 'block' : 'none'; };
+  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'].forEach((id) => show(id, false));
+
+  if (t < 3.0) {                                   // A: headline blurs in, the playhead runs, then we dive into the rail
+    show('A', true);
+    Aspans.forEach((s, i) => { const k = eo(seg(t, 0.05 + i * 0.035, 0.45 + i * 0.035)); s.style.opacity = k; s.style.filter = `blur(${(1 - k) * 14}px)`; s.style.transform = `translateY(${(1 - k) * 18}px)`; });
+    const px = 560 + eio(seg(t, 0.3, 2.9)) * 560;
+    $('Ahead2').setAttribute('transform', `translate(${px} 0)`);
+    const z = 1 + eio(seg(t, 1.35, 3.0)) * 1.6;
+    $('Arail').style.transform = `translate(${px}px, 620px) scale(${z}) translate(${-px}px, -620px)`;
+  } else if (t < 6.0) {                            // B: the site, from a close crop out to the whole window
+    show('B', true);
+    const k = eio(seg(t, 3.0, 5.4));
+    $('Bwin').style.transform = `scale(${2.3 - 1.48 * k}) translateY(${(1 - k) * 60}px)`;
+    $('Bwash').style.opacity = 1 - eo(seg(t, 3.0, 4.2));
+    $('Bs2').style.opacity = eo(seg(t, 4.85, 5.3));
+  } else if (t < 8.0) {                            // C: "Launch literally anything" → the composer takes the middle word's place
+    show('C', true);
+    const k = eio(seg(t, 6.95, 7.35));
+    const lw = 238 * (1 - k); $('Clit').style.width = lw + 'px'; $('Clit').style.opacity = 1 - k; $('Clit').style.filter = `blur(${k * 8}px)`;
+    $('Cpill').style.width = 540 * k + 'px'; $('Cpill').style.opacity = k; $('Cpill').style.marginRight = 0;
+  } else if (t < 11.0) {                           // D: typing, then the composer box
+    show('D', true);
+    const LINE = 'A lantern for every subnet that ships';
+    const zoomOut = seg(t, 9.3, 9.75);
+    $('Dt').style.display = 'none'; $('Dbox').style.display = 'none';
+    if (zoomOut < 1) {
+      $('Dt').style.display = 'block';
+      typer($('Dt'), LINE, 8.0, 14, t, 1500);
+      $('Dt').style.opacity = 1 - zoomOut; $('Dt').style.filter = `blur(${zoomOut * 10}px)`;
+    }
+    if (zoomOut > 0) {
+      const b = $('Dbox'); b.style.display = 'block';
+      const k = eo(zoomOut);
+      b.style.transform = `translateY(-50%) scale(${1.6 - 0.6 * k})`; b.style.opacity = k;
+      const full = LINE + ' ';
+      const n = Math.min(full.length + 5, Math.floor(18 + (t - 9.3) * 22));
+      const txt = n <= full.length ? full.slice(0, n) : full;
+      const tick = n > full.length ? '$LNTN'.slice(0, n - full.length) : '';
+      $('Dbt').innerHTML = `${txt}${tick ? `<b>${tick}</b>` : ''}<span class="cursor-sm" style="opacity:${Math.floor(t * 2.4) % 2 ? 0 : 1}"></span>`;
+      const press = seg(t, 10.45, 10.6), rel = seg(t, 10.6, 10.9);
+      const s = 1 - 0.14 * press + 0.14 * rel;
+      $('Dsend').style.transform = `scale(${s})`; $('Dsend').style.boxShadow = press > 0 ? `0 0 ${50 * (press - rel * 0.7)}px rgba(217,195,160,.8)` : 'none';
+    }
+  } else if (t < 14.5) {                           // E: the curve draws itself, then the price climbs it
+    show('E', true);
+    const L = Elen(), draw = eio(seg(t, 11.0, 12.0));
+    const c = $('Ecurve'); c.style.strokeDasharray = L; c.style.strokeDashoffset = L * (1 - draw);
+    const k = eio(seg(t, 12.0, 14.2));
+    const idx = Math.round(k * 120), [x, y] = curvePts[idx];
+    $('Earea').setAttribute('d', `M${EX0} ${EY0} L${curvePts.slice(0, idx + 1).map((p) => p.join(' ')).join(' L')} L${x} ${EY0} Z`);
+    const vis = seg(t, 11.9, 12.1);
+    $('Edot').setAttribute('cx', x); $('Edot').setAttribute('cy', y); $('Edot').style.opacity = vis;
+    $('Evline').setAttribute('x1', x); $('Evline').setAttribute('x2', x); $('Evline').setAttribute('y1', y + 20); $('Evline').setAttribute('y2', EY0); $('Evline').style.opacity = vis;
+    const lab = $('Elab'); lab.textContent = `${Math.round(k * 100)}%`; lab.setAttribute('x', x - 40); lab.setAttribute('y', y - 36); lab.style.opacity = vis;
+    $('Egrad').setAttribute('opacity', eo(seg(t, 13.9, 14.3)));
+    $('Esvg').style.transform = `scale(${1 + 0.05 * seg(t, 11, 14.5)})`;
+  } else if (t < 17.5) {                           // F: typing again
+    show('F', true);
+    typer($('Ft'), 'Graduate into a locked pool', 14.5, 11, t, 1520);
+  } else if (t < 22.0) {                           // G: the pearl comes into focus as the curve fills
+    show('G', true);
+    const k = eio(seg(t, 17.9, 21.0));
+    const pct = 62.4 + (100 - 62.4) * k;
+    $('Gorb').style.filter = `blur(${(1 - k) * 34}px)`;
+    $('Gorb').style.boxShadow = `0 0 ${60 + 80 * k}px rgba(217,195,160,${0.15 + 0.35 * k})`;
+    $('Gbar').style.width = pct + '%'; $('Gpct').textContent = pct.toFixed(1) + '%';
+    $('Graised').textContent = (31.2 + (50 - 31.2) * k).toFixed(1) + ' TAO';
+    const pr = Math.round(412 + (1180 - 412) * k); $('Gprice').textContent = pr >= 1000 ? `0.0${SUB[5]}${String(pr).slice(0, 3)} TAO` : `0.0${SUB[6]}${pr} TAO`;
+    $('Ghold').textContent = Math.round(184 + (412 - 184) * k);
+    const done = seg(t, 21.0, 21.25);
+    $('Gtog').style.background = done > 0.5 ? '#D9C3A0' : '#2a2a2a';
+    $('Gtog').firstElementChild.style.left = 4 + 28 * done + 'px'; $('Gtog').firstElementChild.style.background = done > 0.5 ? '#000' : '#777';
+    $('Gstat').textContent = done > 0.5 ? 'Graduated' : 'Bonding curve'; $('Gstat').style.color = done > 0.5 ? '#D9C3A0' : '#fff';
+  } else if (t < 24.0) {                           // H: the line
+    show('H', true);
+    const w = $('Hw');
+    if (t < 22.55) { w.innerHTML = 'Put a price on'; w.style.font = '700 190px/1 Inter'; w.style.letterSpacing = '-0.05em'; w.style.transform = `translateY(-50%) scale(${1.04 - 0.04 * seg(t, 22, 22.55)})`; }
+    else { const k = seg(t, 22.55, 24); w.innerHTML = 'conviction.'; w.style.font = `italic 400 ${300 - 30 * eo(k)}px/1 "Instrument Serif"`; w.style.letterSpacing = '0'; w.style.transform = 'translateY(-50%)'; w.style.color = '#EFE3CD'; }
+  } else {                                         // I: the name and the address
+    show('I', true);
+    const k = eo(seg(t, 24.0, 24.6)), u = eo(seg(t, 24.35, 24.95));
+    $('Iw').style.opacity = k; $('Iw').style.filter = `blur(${(1 - k) * 12}px)`; $('Iw').style.transform = `translateY(${(1 - k) * 16}px)`;
+    $('Iu').style.opacity = u; $('Iu').style.transform = `translateY(${(1 - u) * 10}px)`;
+  }
+};
+window.draw(0);
+window.ready = true;
+</script></body></html>

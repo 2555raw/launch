@@ -187,23 +187,19 @@
       </div>`).join('')}</div>`;
   };
 
+  const kTau = (v) => (v >= 1000 ? `${(v / 1000).toFixed(2)}K` : v.toFixed(2)) + ' τ';
   const faceoffAnswer = (q) => {
     const ids = [...new Set((q.toUpperCase().match(/SN\s?\d+/g) || []).map((s) => s.replace(/\s/g, '')))].filter((s) => SUBNETS[s]);
     if (ids.length < 2) return `<div class="dn-res"><p class="dn-res-note">Name two of <b>SN9</b>, <b>SN13</b>, <b>SN19</b>, <b>SN25</b> or <b>SN51</b>.</p></div>`;
     const pair = ids.slice(0, 2).map((id) => ({ id, ...SUBNETS[id] }));
-    const total = pair[0].vol + pair[1].vol;
     const lead = pair[0].vol >= pair[1].vol ? pair[0] : pair[1];
-    return `<div class="dn-res">${pair.map((s, i) => {
-      const share = Math.round((s.vol / total) * 100);
-      return `
-      <div class="dn-res-row${s === lead ? ' is-lead' : ''}" style="--i:${i}">
-        <span class="dn-sn-chip">${s.id}</span>
-        <span class="dn-res-name"><b>${esc(s.name)}</b><small>α ${s.price.toFixed(4)} TAO</small></span>
-        <span class="dn-res-val"><b>${s.reserve.toLocaleString('en-US')} τ</b><small>${share}% of volume</small></span>
-        <i class="dn-res-bar"><i style="--w:${share}%"></i></i>
-      </div>`;
-    }).join('')}
-      <p class="dn-res-note dn-res-foot" style="--i:2">7-day volume leans <b>${lead.id}</b>.</p></div>`;
+    return `<div class="dn-res dn-vs">${pair.map((s, i) => `
+      <div class="dn-vs-card${s === lead ? ' is-lead' : ''}" style="--i:${i}">
+        <b><span>${esc(s.name)}</span><i>${s.id}</i></b>
+        <span>Alpha price <em>${s.price.toFixed(5)} τ</em></span>
+        <span>TAO reserve <em>${kTau(s.reserve)}</em></span>
+        <span>7d volume <em>${kTau(s.vol)}</em></span>
+      </div>`).join('')}</div>`;
   };
 
   $$('.dn-chat').forEach((chat) => {

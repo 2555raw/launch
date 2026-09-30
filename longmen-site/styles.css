@@ -732,3 +732,29 @@ img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image
   .dn-thesis { width: 300px; min-height: 420px; padding: 26px; }
   .dn-thesis blockquote { font-size: 19px; }
 }
+
+/* chat answers: roomier rows with icon tiles, sans-serif figures */
+.dn-res { padding: 8px 10px; border-radius: 14px; background: #1A1A1A; }
+.dn-res-row { gap: 14px; padding: 9px 2px; }
+.dn-res-row .dn-av { width: 34px; height: 34px; border-radius: 8px; padding: 3px; background: #262626; }
+.dn-sn-chip { width: 34px; height: 34px; border-radius: 8px; font-size: 10px; }
+.dn-res-name b { font-size: 14.5px; }
+.dn-res-name small { margin-top: 1px; font-size: 12.5px; color: #8A8A8A; }
+.dn-res-val b { font: 400 13.5px/1.35 var(--sans); color: #E6E6E6; }
+.dn-res-val small { margin-top: 1px; font: 500 12.5px/1.35 var(--sans); color: var(--accent); }
+.dn-res-bar { left: 50px; right: 2px; }
+
+/* face-off answer: the two subnets side by side */
+.dn-res.dn-vs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 8px; }
+.dn-vs-card { display: grid; gap: 3px; padding: 12px 14px; border-radius: 10px; background: #111111; border: 1px solid transparent; min-width: 0; }
+.dn-vs-card.is-lead { border-color: rgba(217, 195, 160, .35); }
+.dn-vs-card b { display: flex; align-items: center; gap: 6px; min-width: 0; color: var(--ink); font-size: 14.5px; font-weight: 600; margin-bottom: 3px; }
+.dn-vs-card b span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dn-vs-card b i { flex: none; font: 600 10px/1 var(--mono); font-style: normal; padding: 3px 5px; border-radius: 5px; background: #242424; color: #BDBDBD; }
+.dn-vs-card.is-lead b i { background: rgba(217, 195, 160, .16); color: var(--accent); }
+.dn-vs-card span { color: #8A8A8A; font-size: 12.5px; white-space: nowrap; }
+.dn-vs-card em { font-style: normal; color: #E6E6E6; font-weight: 500; }
+.dn-vs-card.is-lead em { color: var(--accent); }
+.dn-msg-bot.is-answer .dn-vs-card { animation: dn-rowin .55s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(120ms + var(--i, 0) * 140ms); }
+@media (prefers-reduced-motion: reduce) { .dn-msg-bot.is-answer .dn-vs-card { animation: none; } }
+@media (max-width: 640px) { .dn-res.dn-vs { grid-template-columns: 1fr; } }

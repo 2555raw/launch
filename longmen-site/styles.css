@@ -786,30 +786,39 @@ img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image
   .dn-foot-cols a, .dn-foot-cols b { font-size: 14.5px; }
 }
 
-/* ---------- terms notice ---------- */
+/* ---------- terms gate ---------- */
 
-.dn-cookie {
-  position: fixed; left: 50%; bottom: 20px; z-index: 80; width: min(760px, calc(100% - 32px));
-  display: flex; align-items: center; gap: 24px; padding: 18px 20px;
-  background: rgba(20, 20, 20, .96); border: 1px solid rgba(255, 255, 255, .08); border-radius: 16px;
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .85);
-  transform: translate(-50%, 24px); opacity: 0; transition: transform .45s cubic-bezier(.2, .8, .2, 1), opacity .45s ease;
+html.dn-locked { overflow: hidden; }
+.dn-consent {
+  position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 20px;
+  background: rgba(6, 6, 6, .55); backdrop-filter: blur(14px) saturate(.9); -webkit-backdrop-filter: blur(14px) saturate(.9);
+  opacity: 0; transition: opacity .45s ease;
 }
-.dn-cookie.is-in { transform: translate(-50%, 0); opacity: 1; }
-.dn-cookie-text b { display: block; color: var(--ink); font-size: 15px; font-weight: 600; }
-.dn-cookie-text p { margin-top: 4px; color: var(--dim); font-size: 13.5px; line-height: 1.5; }
-.dn-cookie-btns { display: flex; gap: 8px; flex: none; }
-.dn-cookie button { height: 40px; padding: 0 18px; border-radius: 999px; font-size: 14px; font-weight: 600; border: 0; }
-.dn-cookie-no { background: #2A2A2A; color: var(--ink); }
-.dn-cookie-no:hover { background: #353535; }
-.dn-cookie-yes { background: #FFF; color: #000; }
-.dn-cookie-yes:hover { background: #E6E6E6; }
+.dn-consent.is-in { opacity: 1; }
+.dn-consent-card {
+  width: min(560px, 100%); padding: 44px 44px 36px; text-align: center;
+  background: rgba(18, 18, 18, .82); border: 1px solid rgba(255, 255, 255, .1); border-radius: 24px;
+  box-shadow: 0 40px 120px -30px rgba(0, 0, 0, .9), inset 0 1px 0 rgba(255, 255, 255, .06);
+  transform: translateY(18px) scale(.97); transition: transform .55s cubic-bezier(.2, .8, .2, 1);
+}
+.dn-consent.is-in .dn-consent-card { transform: none; }
+.dn-consent-mark { display: inline-grid; place-items: center; width: 56px; height: 56px; border-radius: 16px; background: #1F1F1F; border: 1px solid rgba(255, 255, 255, .08); color: var(--ink); }
+.dn-consent-mark svg { width: 28px; height: 28px; }
+.dn-consent-card h2 { margin-top: 22px; font-family: var(--serif); font-weight: 400; font-size: clamp(36px, 6vw, 50px); line-height: 1.02; }
+.dn-consent-card p { margin-top: 16px; color: var(--prose); font-size: 16px; line-height: 1.6; }
+.dn-consent-card p + p { margin-top: 10px; }
+.dn-consent-card a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255, 255, 255, .35); }
+.dn-consent-card a:hover { text-decoration-color: var(--accent); }
+.dn-consent-btns { margin-top: 30px; display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; }
+.dn-consent-btns button { height: 50px; border-radius: 999px; border: 0; font-size: 15.5px; font-weight: 600; }
+.dn-consent-no { background: #2A2A2A; color: var(--ink); }
+.dn-consent-no:hover { background: #353535; }
+.dn-consent-yes { background: #FFF; color: #000; }
+.dn-consent-yes:hover { background: #E6E6E6; }
+.dn-consent button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 @media (max-width: 640px) {
-  .dn-cookie { flex-direction: column; align-items: stretch; gap: 14px; bottom: 12px; }
-  .dn-cookie-btns button { flex: 1; }
+  .dn-consent-card { padding: 34px 22px 24px; border-radius: 20px; }
+  .dn-consent-btns { grid-template-columns: 1fr; }
+  .dn-consent-yes { order: -1; }
 }
-@media (prefers-reduced-motion: reduce) { .dn-cookie { transition: none; } }
-
-.dn-cookie-text a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; text-decoration-color: rgba(255,255,255,.35); }
-.dn-cookie-text a:hover { text-decoration-color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .dn-consent, .dn-consent-card { transition: none; } }

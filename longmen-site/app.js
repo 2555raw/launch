@@ -75,9 +75,10 @@
     return (artCache[t] = 'data:image/svg+xml,' + encodeURIComponent(svg));
   };
 
-  /* ---------- terms notice ---------- */
+  /* ---------- terms gate ---------- */
 
-  // Shown once on first visit. "Decline" sends the visitor to DECLINE_URL.
+  // Shown once on first visit, centred over a translucent, blurred backdrop.
+  // "Accept" is remembered; "Decline" sends the visitor to DECLINE_URL.
   const DECLINE_URL = 'https://www.ponsfamily.com/launchpad';
   const CONSENT_KEY = 'longmen-terms';
   const onPolicyPage = /(terms|privacy)\.html$/.test(location.pathname);
@@ -85,28 +86,31 @@
   let consent = null;
   try { consent = localStorage.getItem(CONSENT_KEY); } catch (_) { /* storage blocked */ }
   if (!consent && !onPolicyPage) {
-    const bar = document.createElement('div');
-    bar.className = 'dn-cookie';
-    bar.setAttribute('role', 'dialog');
-    bar.setAttribute('aria-label', 'Terms of Use and Privacy Policy');
-    bar.innerHTML = `
-      <div class="dn-cookie-text">
-        <b>Before you continue</b>
-        <p>Longmen is experimental software for launching and trading speculative tokens. By continuing you agree to our <a href="terms.html">Terms of Use</a> and <a href="privacy.html">Privacy Policy</a>.</p>
-      </div>
-      <div class="dn-cookie-btns">
-        <button type="button" class="dn-cookie-no" data-choice="declined">Decline</button>
-        <button type="button" class="dn-cookie-yes" data-choice="accepted">Accept</button>
+    const gate = document.createElement('div');
+    gate.className = 'dn-consent';
+    gate.innerHTML = `
+      <div class="dn-consent-card" role="dialog" aria-modal="true" aria-labelledby="dn-consent-title">
+        <span class="dn-consent-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 9.5c4 1.6 20 1.6 24 0M7 13.5h18M10 11.2V27M22 11.2V27"/><rect x="13.5" y="15.5" width="5" height="4" rx="0.8" fill="var(--accent)" stroke="none"/></svg></span>
+        <h2 id="dn-consent-title">Before you <em>continue</em></h2>
+        <p>Longmen is experimental software for launching and trading highly speculative tokens. You act from your own wallet and carry the risk.</p>
+        <p>To use the site, please accept our <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+        <div class="dn-consent-btns">
+          <button type="button" class="dn-consent-no" data-choice="declined">Decline</button>
+          <button type="button" class="dn-consent-yes" data-choice="accepted">Accept and enter</button>
+        </div>
       </div>`;
-    document.body.appendChild(bar);
-    requestAnimationFrame(() => requestAnimationFrame(() => bar.classList.add('is-in')));
-    bar.addEventListener('click', (e) => {
+    document.body.appendChild(gate);
+    document.documentElement.classList.add('dn-locked');
+    requestAnimationFrame(() => requestAnimationFrame(() => gate.classList.add('is-in')));
+    $('.dn-consent-yes', gate).focus({ preventScroll: true });
+    gate.addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-choice]');
       if (!btn) return;
       if (btn.dataset.choice === 'declined') { location.href = DECLINE_URL; return; }
       try { localStorage.setItem(CONSENT_KEY, 'accepted'); } catch (_) { /* storage blocked */ }
-      bar.classList.remove('is-in');
-      setTimeout(() => bar.remove(), 400);
+      document.documentElement.classList.remove('dn-locked');
+      gate.classList.remove('is-in');
+      setTimeout(() => gate.remove(), 450);
     });
   }
 

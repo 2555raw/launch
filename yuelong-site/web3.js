@@ -115,7 +115,7 @@
   window.dispatchEvent(new Event('eip6963:requestProvider'));
   const allWallets = () => {
     const list = [...found];
-    if (!list.length && window.ethereum) list.push({ info: { uuid: 'injected', name: window.ethereum.isRabby ? 'Rabby' : window.ethereum.isMetaMask ? 'MetaMask' : 'Browser wallet', icon: '', rdns: 'injected' }, provider: window.ethereum });
+    if (!list.length && window.ethereum) list.push({ info: { uuid: 'injected', name: window.ethereum.isPhantom ? 'Phantom' : window.ethereum.isRabby ? 'Rabby' : window.ethereum.isMetaMask ? 'MetaMask' : 'Browser wallet', icon: '', rdns: 'injected' }, provider: window.ethereum });
     return list;
   };
 
@@ -174,7 +174,7 @@
       <h3>Connect a wallet</h3>
       ${list.length ? `<div class="yl-wallets">${list.map((w, i) => `<button type="button" data-i="${i}">${w.info.icon ? `<img src="${esc(w.info.icon)}" alt="">` : '<span class="yl-wdot"></span>'}<b>${esc(w.info.name)}</b></button>`).join('')}</div>`
         : `<p>No browser wallet found. Install one, then reload this page:</p>
-           <div class="yl-wallets"><a href="https://metamask.io/download/" target="_blank" rel="noopener"><img src="assets/logos/metamask.svg" alt=""><b>MetaMask</b></a><a href="https://rabby.io/" target="_blank" rel="noopener"><img src="assets/logos/rabby.svg" alt=""><b>Rabby</b></a></div>`}
+           <div class="yl-wallets"><a href="https://metamask.io/download/" target="_blank" rel="noopener"><img src="assets/logos/metamask.svg" alt=""><b>MetaMask</b></a><a href="https://rabby.io/" target="_blank" rel="noopener"><img src="assets/logos/rabby.svg" alt=""><b>Rabby</b></a><a href="https://phantom.com/download" target="_blank" rel="noopener"><img src="assets/logos/phantom.svg" alt=""><b>Phantom</b></a></div>`}
       <p class="yl-fine">Yuelong never sees your keys. Every action is a transaction you approve in your wallet.</p>
     </div>`;
     document.body.appendChild(picker);
@@ -200,15 +200,22 @@
     if (!state.provider) await connect();
     if (state.chainId === net.chainId) return;
     const hex = '0x' + net.chainId.toString(16);
+    // Phantom only runs the networks it ships with and cannot add others
+    const phantom = state.info?.rdns === 'app.phantom' || state.provider.isPhantom;
     try {
-      await state.provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] });
+      try {
+        await state.provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: hex }] });
+      } catch (e) {
+        if (e.code !== 4902 && !/unrecognized|not added|unknown chain|unsupported/i.test(e.message || '')) throw e;
+        await state.provider.request({ method: 'wallet_addEthereumChain', params: [{
+          chainId: hex, chainName: net.name, rpcUrls: [net.rpc],
+          nativeCurrency: { name: net.native, symbol: net.native, decimals: 18 },
+          ...(net.explorer ? { blockExplorerUrls: [net.explorer] } : {}),
+        }] });
+      }
     } catch (e) {
-      if (e.code !== 4902 && !/unrecognized|not added|unknown chain/i.test(e.message || '')) throw e;
-      await state.provider.request({ method: 'wallet_addEthereumChain', params: [{
-        chainId: hex, chainName: net.name, rpcUrls: [net.rpc],
-        nativeCurrency: { name: net.native, symbol: net.native, decimals: 18 },
-        ...(net.explorer ? { blockExplorerUrls: [net.explorer] } : {}),
-      }] });
+      if (phantom && e.code !== 4001) throw new Error(`Phantom doesn't support ${net.name} yet. Connect MetaMask or Rabby to trade here.`);
+      throw e;
     }
     state.chainId = Number(await state.provider.request({ method: 'eth_chainId' }));
     emit();

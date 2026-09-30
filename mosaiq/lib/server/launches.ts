@@ -2,7 +2,7 @@ import "server-only";
 import { draftInputSchema, fieldErrors, type DraftInput } from "@/lib/schemas";
 import { pads } from "@/lib/pads";
 import type { Agent, Launch, PublicLaunch, Stats } from "@/lib/types";
-import { canLaunchOnChain, shortAddress } from "@/lib/onchain";
+import { canLaunchOnChain } from "@/lib/onchain";
 import { VersionedTransaction } from "@solana/web3.js";
 import { adapterFor } from "./adapters";
 import { newId } from "./ids";
@@ -11,8 +11,22 @@ import { store } from "./store";
 
 export type Sort = "newest" | "oldest" | "marketcap";
 
-export function toPublic({ agentId: _agentId, ...rest }: Launch): PublicLaunch {
-  return rest;
+/**
+ * What the site and API show. The launcher's wallet never leaves the server:
+ * no creator, no signature, and a name only when a registered agent placed it.
+ */
+export function toPublic(l: Launch): PublicLaunch {
+  const {
+    agentId,
+    agentName,
+    creator: _creator,
+    signature: _signature,
+    preparedHash: _preparedHash,
+    metadataUri: _metadataUri,
+    mint: _mint,
+    ...rest
+  } = l;
+  return agentId && agentName ? { ...rest, agentName } : rest;
 }
 
 export async function createDraft(input: unknown): Promise<{ ok: true; launch: Launch } | { ok: false; errors: Record<string, string> }> {
@@ -176,7 +190,7 @@ export async function confirmOnChain(
         address: launch.mint,
         statusNote: "Live on Pump.fun",
         agentId: agent?.id ?? launch.agentId,
-        agentName: agent?.name ?? launch.agentName ?? shortAddress(launch.creator),
+        agentName: agent?.name ?? launch.agentName,
         marketCapUsd: await adapterFor(launch.pad).marketCap({ ...launch, address: launch.mint }),
       };
       if (agent) await store().updateAgent(agent.id, { launches: agent.launches + 1, lastSeenAt: new Date().toISOString() });

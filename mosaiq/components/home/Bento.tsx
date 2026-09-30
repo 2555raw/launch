@@ -2,7 +2,7 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import { formatNumber, formatUsd } from "@/lib/format";
+import { formatNumber, formatUsd, shortAddress } from "@/lib/format";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 import { featuredStocks, getPad } from "@/lib/pads";
 import { site } from "@/lib/site";
@@ -58,7 +58,8 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{l.name}</p>
                   <p className="truncate text-xs text-mute">
-                    ${l.ticker} · {getPad(l.pad)?.name} · <TimeAgo iso={l.submittedAt ?? l.createdAt} />
+                    ${l.ticker} · {l.address ? <span className="font-mono">CA {shortAddress(l.address)}</span> : getPad(l.pad)?.name} ·{" "}
+                    <TimeAgo iso={l.submittedAt ?? l.createdAt} />
                   </p>
                 </div>
                 <StatusBadge status={l.status} />

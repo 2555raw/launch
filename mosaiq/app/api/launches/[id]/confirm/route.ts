@@ -14,6 +14,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const { id } = await params;
   const r = await confirmOnChain(id, (body as { signature?: unknown } | null)?.signature, await agentFromRequest(req));
   if (!r.ok) return problem(r.status, r.error);
-  const { image: _image, preparedHash: _hash, ...launch } = toPublic(r.launch);
+  const { image: _image, ...launch } = toPublic(r.launch);
   return NextResponse.json({ state: r.state, launch });
 }

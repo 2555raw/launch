@@ -146,7 +146,7 @@ async function callTool(name: string, args: Json, ctx: { agent: Agent | null; or
     case "confirm_launch": {
       const r = await confirmOnChain(String(args.draft_id ?? ""), args.signature, ctx.agent);
       if (!r.ok) return text(r.error, true);
-      const { image: _image, preparedHash: _hash, ...launch } = toPublic(r.launch);
+      const { image: _image, ...launch } = toPublic(r.launch);
       return text({ state: r.state, launch });
     }
 

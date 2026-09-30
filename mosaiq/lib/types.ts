@@ -41,7 +41,7 @@ export interface Launch {
 }
 
 /** What the public API returns: drafts never leave the server this way. */
-export type PublicLaunch = Omit<Launch, "agentId">;
+export type PublicLaunch = Omit<Launch, "agentId" | "creator" | "signature" | "preparedHash" | "metadataUri" | "mint">;
 
 export interface Agent {
   id: string;

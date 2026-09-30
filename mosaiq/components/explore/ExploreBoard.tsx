@@ -6,12 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/cn";
-import { formatUsd, shortAddress } from "@/lib/format";
+import { formatUsd } from "@/lib/format";
 import { chains, getChain, getPad } from "@/lib/pads";
 import type { PublicLaunch } from "@/lib/types";
 import { LogoMark } from "@/components/ui/Logo";
 import { ChainDot, PadGlyph, TokenAvatar } from "@/components/ui/PadGlyph";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { CopyAddress } from "@/components/ui/CopyAddress";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 
 type Sort = "newest" | "oldest" | "marketcap";
@@ -186,7 +187,7 @@ export function ExploreBoard({ launches, initial }: { launches: PublicLaunch[]; 
                   <th scope="col" className="px-4 py-3 font-normal">Token</th>
                   <th scope="col" className="px-4 py-3 font-normal">Pad</th>
                   <th scope="col" className="px-4 py-3 font-normal">Status</th>
-                  <th scope="col" className="px-4 py-3 font-normal">Agent</th>
+                  <th scope="col" className="px-4 py-3 font-normal">CA</th>
                   <th scope="col" className="px-4 py-3 text-right font-normal">Market cap</th>
                   <th scope="col" className="px-4 py-3 text-right font-normal">Submitted</th>
                 </tr>
@@ -211,7 +212,7 @@ export function ExploreBoard({ launches, initial }: { launches: PublicLaunch[]; 
                     <td className="px-4 py-3">
                       <StatusBadge status={l.status} />
                     </td>
-                    <td className="px-4 py-3 text-fog">{l.agentName ?? "—"}</td>
+                    <td className="px-4 py-3 text-fog">{l.address ? <CopyAddress address={l.address} /> : "—"}</td>
                     <td className="px-4 py-3 text-right font-mono">{formatUsd(l.marketCapUsd, true)}</td>
                     <td className="px-4 py-3 text-right text-fog">
                       <TimeAgo iso={l.submittedAt ?? l.createdAt} />
@@ -253,8 +254,8 @@ function LaunchCard({ l }: { l: PublicLaunch }) {
           <dd className="mt-1 font-mono text-bone">{formatUsd(l.marketCapUsd, true)}</dd>
         </div>
         <div>
-          <dt className="text-mute">Agent</dt>
-          <dd className="mt-1 truncate text-bone">{l.agentName ?? "—"}</dd>
+          <dt className="text-mute">Pair</dt>
+          <dd className="mt-1 truncate text-bone">{l.pair}</dd>
         </div>
         <div className="text-right">
           <dt className="text-mute">Submitted</dt>
@@ -263,16 +264,21 @@ function LaunchCard({ l }: { l: PublicLaunch }) {
           </dd>
         </div>
       </dl>
-      {l.address && chain && (
-        <a
-          href={`${chain.explorer}${l.address}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-1.5 self-start font-mono text-xs text-fog hover:text-bone"
-        >
-          {shortAddress(l.address)} <ExternalLink className="size-3" aria-hidden="true" />
-        </a>
-      )}
+      <div className="mt-4 border-t border-line pt-4 text-xs">
+        <p className="text-mute">CA</p>
+        {l.address ? (
+          <div className="mt-1 flex items-start justify-between gap-3">
+            <CopyAddress address={l.address} full className="text-bone" />
+            {chain && (
+              <a href={`${chain.explorer}${l.address}`} target="_blank" rel="noopener noreferrer" aria-label="Open in explorer" className="shrink-0 text-fog hover:text-bone">
+                <ExternalLink className="size-3.5" aria-hidden="true" />
+              </a>
+            )}
+          </div>
+        ) : (
+          <p className="mt-1 text-fog">Not on-chain yet</p>
+        )}
+      </div>
     </article>
   );
 }

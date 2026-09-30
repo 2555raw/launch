@@ -1,9 +1,10 @@
 import "server-only";
 import { buildHandoff, studioUrl } from "@/lib/handoff";
 import { chains, pairOptions, pads, stocks } from "@/lib/pads";
+import { canLaunchOnChain } from "@/lib/onchain";
 import { site } from "@/lib/site";
 import type { Agent } from "@/lib/types";
-import { createDraft, queryLaunches, submitDraft, toPublic } from "./launches";
+import { confirmOnChain, createDraft, prepareOnChain, queryLaunches, submitDraft, toPublic } from "./launches";
 import { store } from "./store";
 
 /**
@@ -22,6 +23,7 @@ const draftProps = {
   name: { type: "string", maxLength: 32 },
   ticker: { type: "string", maxLength: 10 },
   description: { type: "string", maxLength: 280 },
+  image: { type: "string", description: "data:image/png|jpeg|webp|gif;base64,… up to ~300 KB, 512px is plenty. Required to launch on Pump.fun" },
   x: { type: "string", description: "https://x.com/… link" },
   website: { type: "string", description: "Your own site; omit to use the Picker token page" },
   opening_buy: { type: "string", description: "Dev buy in the chain's native asset; omit for none" },
@@ -49,6 +51,25 @@ export const tools = [
     name: "submit_launch",
     description: "Submit a draft to its launchpad. Requires an agent key in the Authorization header.",
     inputSchema: { type: "object", properties: { draft_id: { type: "string" } }, required: ["draft_id"] },
+  },
+  {
+    name: "prepare_launch",
+    description:
+      "Pump.fun (Solana, SOL pair) only: returns the unsigned create transaction (base64, versioned) for a draft. Generate a fresh mint keypair, pass its public key as mint and your wallet as creator. Sign with your wallet first, then the mint keypair, send it to Solana, then call confirm_launch.",
+    inputSchema: {
+      type: "object",
+      properties: { draft_id: { type: "string" }, creator: { type: "string" }, mint: { type: "string" } },
+      required: ["draft_id", "creator", "mint"],
+    },
+  },
+  {
+    name: "confirm_launch",
+    description: "Check a prepared Pump.fun launch on Solana by its transaction signature. Returns pending, live or failed.",
+    inputSchema: {
+      type: "object",
+      properties: { draft_id: { type: "string" }, signature: { type: "string" } },
+      required: ["draft_id", "signature"],
+    },
   },
   {
     name: "list_launches",
@@ -89,6 +110,7 @@ async function callTool(name: string, args: Json, ctx: { agent: Agent | null; or
         name: args.name,
         ticker: args.ticker,
         description: args.description,
+        image: args.image,
         x: args.x,
         websiteMode: args.website ? "custom" : "hosted",
         website: args.website,
@@ -97,7 +119,7 @@ async function callTool(name: string, args: Json, ctx: { agent: Agent | null; or
       });
       if (!result.ok) return text({ errors: result.errors }, true);
       const l = result.launch;
-      return text({ draft_id: l.id, studio_url: studioUrl(ctx.origin, l, l.id), next: "Call submit_launch with this draft_id." });
+      return text({ draft_id: l.id, studio_url: studioUrl(ctx.origin, l, l.id), next: canLaunchOnChain(l) ? "Call prepare_launch with this draft_id, your wallet and a fresh mint." : "Call submit_launch with this draft_id." });
     }
 
     case "get_draft": {
@@ -113,6 +135,19 @@ async function callTool(name: string, args: Json, ctx: { agent: Agent | null; or
       if (!res.ok) return text(res.error, true);
       const { image: _image, ...rest } = toPublic(res.launch);
       return text({ launch: rest, explore_url: `${ctx.origin}/explore?q=${encodeURIComponent(res.launch.ticker)}` });
+    }
+
+    case "prepare_launch": {
+      const r = await prepareOnChain(String(args.draft_id ?? ""), { creator: args.creator, mint: args.mint }, ctx.origin);
+      if (!r.ok) return text(r.error, true);
+      return text({ transaction: r.transaction, encoding: "base64", mint: r.mint, next: "Sign (wallet, then mint), send to Solana, then call confirm_launch with the signature." });
+    }
+
+    case "confirm_launch": {
+      const r = await confirmOnChain(String(args.draft_id ?? ""), args.signature, ctx.agent);
+      if (!r.ok) return text(r.error, true);
+      const { image: _image, preparedHash: _hash, ...launch } = toPublic(r.launch);
+      return text({ state: r.state, launch });
     }
 
     case "list_launches": {
@@ -150,7 +185,7 @@ export async function handleRpc(msg: RpcRequest, ctx: { agent: Agent | null; ori
         protocolVersion: PROTOCOL_VERSION,
         capabilities: { tools: { listChanged: false } },
         serverInfo: { name: site.name.toLowerCase(), version: "0.1.0" },
-        instructions: `Draft a launch with draft_launch (or read one a person saved with get_draft), then call submit_launch with your ${site.name} agent key.`,
+        instructions: `Draft a launch with draft_launch (or read one a person saved with get_draft). Pump.fun drafts paired with SOL launch on-chain: prepare_launch, sign with your Solana wallet and the mint keypair, send, then confirm_launch. Other pads: submit_launch with your ${site.name} agent key.`,
       });
     case "ping":
       return reply({});

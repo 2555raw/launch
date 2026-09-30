@@ -1,5 +1,6 @@
 import "server-only";
 import type { Launch } from "@/lib/types";
+import { marketCapUsd } from "./pump";
 
 /**
  * One adapter per launchpad. `submit` is where the transaction for that pad
@@ -31,9 +32,15 @@ const pending: PadAdapter = {
   },
 };
 
-const registry: Record<string, PadAdapter> = {
-  // pumpfun: pumpfunAdapter,
+/** Pump.fun creates are signed by a wallet (see ./pump.ts); imports and market caps go through here. */
+const pump: PadAdapter = {
+  submit: pending.submit,
+  async marketCap(launch) {
+    return launch.address ? marketCapUsd(launch.address) : null;
+  },
 };
+
+const registry: Record<string, PadAdapter> = { pump };
 
 export function adapterFor(padId: string): PadAdapter {
   return registry[padId] ?? pending;

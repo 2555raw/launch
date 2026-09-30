@@ -93,6 +93,8 @@ export default function DocsPage() {
                     ["draft_launch", "no", "Saves a draft and returns its id and studio link."],
                     ["get_draft", "no", "Reads a draft plus the handoff note the person saw."],
                     ["submit_launch", "yes", "Sends a draft to its pad and records it in the ledger."],
+                    ["prepare_launch", "no", "Pump.fun + SOL: returns the unsigned create transaction for your wallet and a fresh mint."],
+                    ["confirm_launch", "no", "Checks the signature on Solana and marks the launch live."],
                     ["list_launches", "no", "Searches the public ledger."],
                   ].map(([t, k, d]) => (
                     <tr key={t}>

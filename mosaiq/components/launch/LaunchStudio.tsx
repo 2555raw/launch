@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import { buildHandoff } from "@/lib/handoff";
 import { basePairs, chains, getAsset, getChain, getPad, isValidPair, padsOn, pairOptions, pairsLabel, resolveSelection, stocks, supportsStocks, type ChainId } from "@/lib/pads";
@@ -26,6 +26,8 @@ import type { PublicLaunch } from "@/lib/types";
 import { useApp } from "@/components/shell/AppProvider";
 import { AssetIcon, ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
 import { useCopy } from "@/components/ui/useCopy";
+import { canLaunchOnChain } from "@/lib/onchain";
+import { OnChainLaunch } from "./OnChainLaunch";
 import { prepareImage } from "./image";
 
 type Mode = "create" | "import";
@@ -164,10 +166,14 @@ export function LaunchStudio({
     [form],
   );
 
+  const onchain = canLaunchOnChain(form);
+
   const clientErrors = useMemo(() => {
     const r = draftInputSchema.safeParse(payload);
-    return r.success ? {} : fieldErrors(r.error);
-  }, [payload]);
+    const errors = r.success ? {} : fieldErrors(r.error);
+    if (onchain && !payload.image && !errors.image) errors.image = "Pump.fun needs a token image";
+    return errors;
+  }, [payload, onchain]);
 
   const errorFor = (field: string) => (submitted || touched[field] ? (serverErrors[field] ?? clientErrors[field]) : undefined);
 
@@ -215,12 +221,20 @@ export function LaunchStudio({
     origin,
   );
 
+  /** Show every field error and focus the first; true when the form is ready. */
+  function validate(): boolean {
+    setSubmitted(true);
+    const first = Object.keys(clientErrors)[0];
+    if (!first) return true;
+    const el = document.getElementById(`field-${first}`);
+    el?.focus();
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+    return false;
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setSubmitted(true);
-    if (Object.keys(clientErrors).length) {
-      const first = Object.keys(clientErrors)[0];
-      document.getElementById(`field-${first}`)?.focus();
+    if (!validate()) {
       setSubmit({ state: "error", message: "Some fields need attention before the draft can be saved." });
       return;
     }
@@ -497,6 +511,7 @@ export function LaunchStudio({
               image={form.image}
               busy={imageState.busy}
               error={imageState.error ?? errorFor("image")}
+              required={onchain}
               onFile={onImage}
               onClear={() => update("image", undefined)}
             />
@@ -560,7 +575,7 @@ export function LaunchStudio({
                 label={`Opening buy (${chain.native})`}
                 optional
                 error={errorFor("openingBuy")}
-                hint={`Leave empty for no dev buy. Minimum ${chain.minBuy} ${chain.native} if set; it is paid from the agent's wallet.`}
+                hint={`Leave empty for no dev buy. Minimum ${chain.minBuy} ${chain.native} if set; it is paid from ${onchain ? "your" : "the agent's"} wallet.`}
               >
                 <input
                   id="field-openingBuy"
@@ -609,7 +624,9 @@ export function LaunchStudio({
                 <pre className="max-h-56 overflow-auto whitespace-pre-wrap p-4 font-mono text-[12px] leading-relaxed text-fog">{handoff}</pre>
               </div>
               <p className="mt-2 text-xs text-mute">
-                People draft; only an agent holding a {site.name} key can submit. Save the draft to give the agent an id it can act on.
+                {onchain
+                  ? "An agent can launch it too, signing with its own Solana wallet. Save the draft to give it an id to act on."
+                  : `People draft; only an agent holding a ${site.name} key can submit. Save the draft to give the agent an id it can act on.`}
               </p>
             </div>
 
@@ -625,7 +642,7 @@ export function LaunchStudio({
                   <p className="flex items-center gap-2 font-medium">
                     <CircleCheck className="size-5 text-mint" aria-hidden="true" /> Draft saved · <span className="font-mono text-sm">{submit.id}</span>
                   </p>
-                  <p className="mt-2 text-sm text-fog">Give this note to your agent. It submits with <code className="font-mono text-bone">submit_launch</code>.</p>
+                  <p className="mt-2 text-sm text-fog">Give this note to your agent. It submits with <code className="font-mono text-bone">{onchain ? "prepare_launch" : "submit_launch"}</code>.</p>
                   <pre className="mt-4 max-h-48 overflow-auto whitespace-pre-wrap rounded-xl border border-line bg-ink-2 p-4 font-mono text-[12px] leading-relaxed text-fog">
                     {submit.handoff}
                   </pre>
@@ -645,6 +662,23 @@ export function LaunchStudio({
                 </motion.div>
               ) : (
                 <motion.div key="actions" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                  {onchain && (
+                    <div className="mb-6">
+                      <OnChainLaunch
+                        payload={payload}
+                        ticker={form.ticker}
+                        openingBuy={form.openingBuy}
+                        validate={validate}
+                        onFieldErrors={setServerErrors}
+                      />
+                      <p className="mt-6 text-sm text-fog">Or save it for an agent to sign:</p>
+                    </div>
+                  )}
+                  {form.pad === "pump" && form.mode === "create" && !onchain && (
+                    <p className="mb-4 rounded-xl border border-line bg-ink-2 p-3 text-sm text-fog">
+                      Stock pairs on Pump.fun are not on-chain yet. Pick <span className="text-bone">SOL</span> to launch from your wallet.
+                    </p>
+                  )}
                   {submit.state === "error" && (
                     <p role="alert" className="mb-4 flex items-start gap-2 rounded-xl border border-danger/30 bg-danger/5 p-3 text-sm text-danger">
                       <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" /> {submit.message}
@@ -716,7 +750,11 @@ export function LaunchStudio({
               </dl>
               <p className="mt-4 flex items-start gap-2 rounded-xl bg-ink-2 p-3 text-xs leading-relaxed text-fog">
                 <Bot className="mt-0.5 size-3.5 shrink-0 text-accent" aria-hidden="true" />
-                {agent ? `${agent.name} will sign with its own wallet.` : "Connect an agent to sign and submit this launch."}
+                {onchain
+                  ? "Launches from your Solana wallet, or hand it to an agent."
+                  : agent
+                    ? `${agent.name} will sign with its own wallet.`
+                    : "Connect an agent to sign and submit this launch."}
               </p>
             </div>
           </div>
@@ -815,14 +853,16 @@ function ImageDrop({
   error,
   onFile,
   onClear,
+  required,
 }: {
   image?: string;
   busy: boolean;
   error?: string;
   onFile: (f: File | undefined) => void;
   onClear: () => void;
+  required?: boolean;
 }) {
-  const inputId = useId();
+  const inputId = "field-image";
   const [over, setOver] = useState(false);
   return (
     <div>
@@ -854,7 +894,7 @@ function ImageDrop({
           )}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-medium">Token image <span className="font-normal text-mute">(optional)</span></span>
+          <span className="block text-sm font-medium">Token image <span className="font-normal text-mute">{required ? "(required for Pump.fun)" : "(optional)"}</span></span>
           <span className="block text-xs text-mute">
             {busy ? "Optimising…" : image ? "Click or drop to replace" : "Drop an image, or click to upload. PNG, JPG, WebP or GIF, up to 5 MB."}
           </span>

@@ -1,3 +1,4 @@
+import { canLaunchOnChain } from "./onchain";
 import { getChain, getPad } from "./pads";
 import { site } from "./site";
 
@@ -41,7 +42,15 @@ export function buildHandoff(f: HandoffFields, origin: string = site.url, draftI
   if (f.mode === "import") lines.push(`Contract: ${f.address || blank}`);
   else lines.push(`Opening buy: ${f.openingBuy ? `${f.openingBuy} ${chain?.native ?? ""}`.trim() : "none"}`);
   lines.push(``);
-  if (draftId) {
+  if (canLaunchOnChain(f)) {
+    lines.push(
+      draftId ? `Draft: ${draftId}` : `First call draft_launch on ${origin}/api/mcp with these fields and the image as a data URL.`,
+      `This launch goes on-chain from a Solana wallet. On ${origin}/api/mcp:`,
+      `1. prepare_launch with {"draft_id": "${draftId ?? "<draft_id>"}", "creator": "<your wallet>", "mint": "<public key of a fresh keypair>"}.`,
+      `2. Sign the returned transaction with your wallet, then with the mint keypair, and send it to Solana.`,
+      `3. confirm_launch with the draft_id and the transaction signature.`,
+    );
+  } else if (draftId) {
     lines.push(
       `Draft: ${draftId}`,
       `Call the ${site.name} MCP server at ${origin}/api/mcp with the tool submit_launch and {"draft_id": "${draftId}"}.`,

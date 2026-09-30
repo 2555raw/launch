@@ -27,6 +27,15 @@ export interface Launch {
   agentId?: string;
   agentName?: string;
   statusNote?: string;
+  /** On-chain launches: the wallet that pays and signs. */
+  creator?: string;
+  /** On-chain launches: the mint the prepared transaction creates. */
+  mint?: string;
+  /** Pump.fun metadata JSON, uploaded once per draft. */
+  metadataUri?: string;
+  /** SHA-256 of the prepared transaction message, so only that message is relayed. */
+  preparedHash?: string;
+  signature?: string;
   createdAt: string;
   submittedAt?: string;
 }

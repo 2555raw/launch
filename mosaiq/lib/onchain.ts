@@ -44,7 +44,7 @@ export const evmChains: Record<string, EvmChain> = {
 
 /** Stocks each pad can pair with on-chain (the server holds their token addresses). */
 const PONS_STOCKS = ["TSLA", "NVDA", "AAPL", "COIN", "META", "SPY", "QQQ", "AMZN", "GOOGL", "MSFT", "NFLX", "PLTR", "AMD", "MSTR", "CRCL"];
-export const FLAP_STOCKS = ["NVDA", "AAPL", "TSLA", "MSFT", "GOOGL", "SPY", "QQQ", "HOOD", "NFLX", "MSTR"];
+const FLAP_STOCKS = ["NVDA", "AAPL", "TSLA", "MSFT", "GOOGL", "SPY", "QQQ", "HOOD", "NFLX", "MSTR"];
 const STONK_STOCKS = ["TSLA", "NVDA", "AAPL", "META", "MSFT", "AMZN", "COIN", "GOOGL", "SPY", "QQQ"];
 
 interface Support {
@@ -58,7 +58,7 @@ interface Support {
 export const onchainPads: Record<string, Support> = {
   pump: { wallet: "solana", pairs: ["SOL"], buyPairs: ["SOL"] },
   pons: { wallet: "evm", pairs: ["ETH", "USDG", "cbBTC", ...PONS_STOCKS], buyPairs: ["ETH"] },
-  // flap: { wallet: "evm", pairs: ["BNB", "BTC", ...FLAP_STOCKS], buyPairs: ["BNB"] },
+  flap: { wallet: "evm", pairs: ["BNB", "BTC", ...FLAP_STOCKS], buyPairs: ["BNB"] },
   argus: { wallet: "evm", pairs: ["USDC"], buyPairs: ["USDC"] },
   stonk: { wallet: "solana", pairs: STONK_STOCKS, buyPairs: [] },
 };

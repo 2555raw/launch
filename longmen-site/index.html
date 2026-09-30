@@ -6,13 +6,13 @@
   <title>Longmen — launch a token paired with TAO or subnet alpha</title>
   <meta name="description" content="Launch a token paired with TAO or subnet alpha. Subnet coins, candidates, theses all in one place. Live on Robinhood Chain &amp; Bittensor EVM.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23000'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M4 9.5c4 1.6 20 1.6 24 0M7 13.5h18M10 11.2V27M22 11.2V27'/%3E%3C/g%3E%3Crect x='13.5' y='15.5' width='5' height='4' rx='.8' fill='%23D9C3A0'/%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&text=%E9%BE%99%E9%97%A8&display=swap">
+  <link rel="preload" href="assets/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/instrument-serif-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/fonts.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <a class="dn-skip" href="#main">Skip to content</a>
 
   <!-- floating pill nav -->
   <header class="dn-nav-wrap">
@@ -41,15 +41,21 @@
     </nav>
   </header>
 
-  <main>
+  <main id="main" tabindex="-1">
 
     <!-- hero -->
     <section class="dn-hero">
-      <img class="dn-hero-bg" src="assets/great-wall.webp" alt="" aria-hidden="true">
+      <img class="dn-hero-bg" src="assets/great-wall.webp" srcset="assets/great-wall-1280.webp 1280w, assets/great-wall.webp 2400w" sizes="100vw" alt="" aria-hidden="true" fetchpriority="high">
       <div class="dn-wrap dn-hero-in">
         <span class="dn-tag">Live on Robinhood Chain &amp; Bittensor EVM</span>
         <h1 class="dn-display">Put a price on <em>conviction</em>.</h1>
         <p class="dn-hero-sub">Launch a token paired with TAO or subnet alpha. Subnet coins, candidates, theses all in one place.</p>
+
+        <dl class="dn-live-stats" aria-label="Network totals (sample data)">
+          <div><dt>TAO launched</dt><dd data-count="2418.6" data-dec="1">2,418.6 τ</dd></div>
+          <div><dt>Launches</dt><dd data-count="412">412</dd></div>
+          <div><dt>Graduated</dt><dd data-count="36">36</dd></div>
+        </dl>
 
         <form class="dn-composer" id="composer" autocomplete="off">
           <textarea id="composer-text" rows="3" maxlength="240" placeholder="Describe your token. Start a word with $ to set its ticker…" aria-label="Describe your token"></textarea>
@@ -165,7 +171,7 @@
             <div class="dn-chat" data-chat="lookup">
               <div class="dn-chat-head"><span class="dn-chat-ico"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M4 9.5c4 1.6 20 1.6 24 0M7 13.5h18M10 11.2V27M22 11.2V27"/><rect x="13.5" y="15.5" width="5" height="4" rx="0.8" fill="currentColor" stroke="none"/></svg></span>Market explorer</div>
               <div class="dn-chat-body" aria-live="polite">
-                <div class="dn-bubble dn-bubble-me">Show me $TAOCAT, $TAOISM, $OAT today</div>
+                <div class="dn-bubble dn-bubble-me">Show me $INFR, $JADE, $DATA today</div>
               </div>
               <form class="dn-chat-input">
                 <input type="text" placeholder="Ask anything" aria-label="Ask about a ticker">
@@ -272,6 +278,83 @@
     </section>
 
     <!-- theses carousel -->
+    <!-- the Dragon Gate: the carp that clears the falls becomes a dragon -->
+    <section class="dn-sec dn-gate" id="dragon-gate">
+      <div class="dn-wrap dn-gate-grid">
+        <div class="dn-gate-copy">
+          <span class="dn-tag dn-tag-mono">龙门 · The Dragon Gate</span>
+          <h2 class="dn-h2">Every launch is a <em>leap</em>.</h2>
+          <p class="dn-lead">In the old story, carp swim upriver to the falls at Longmen. The few that clear the gate turn into dragons. Here, a token that fills its curve graduates: its reserve moves into a pool that's locked for good.</p>
+          <ol class="dn-gate-steps">
+            <li data-step="0"><b>Enter the river</b><span>Your token opens on a curve, priced from its first trade.</span></li>
+            <li data-step="1"><b>Climb the falls</b><span>Every buy pushes it further up the curve.</span></li>
+            <li data-step="2"><b>Clear the gate</b><span>At 100% it graduates, and the liquidity is locked.</span></li>
+          </ol>
+          <button type="button" class="dn-link dn-gate-replay" aria-label="Replay the animation">Watch it again <span>↻</span></button>
+        </div>
+
+        <div class="dn-gate-art" aria-hidden="true">
+          <svg viewBox="0 0 560 520" fill="none">
+            <defs>
+              <linearGradient id="gFall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A3440"/><stop offset="1" stop-color="#14191F"/></linearGradient>
+              <linearGradient id="gWater" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1A222B"/><stop offset=".5" stop-color="#26313C"/><stop offset="1" stop-color="#1A222B"/></linearGradient>
+              <radialGradient id="gGlow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#EFE3CD" stop-opacity=".55"/><stop offset="1" stop-color="#EFE3CD" stop-opacity="0"/></radialGradient>
+              <linearGradient id="gFish" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3C98B"/><stop offset="1" stop-color="#C9803E"/></linearGradient>
+            </defs>
+
+            <!-- cliffs and the falls -->
+            <path d="M0 520V250c40-10 70-40 96-38 30 2 44 30 70 34 18 3 30-8 44-6v280z" fill="#121212"/>
+            <path d="M560 520V240c-36-8-62-36-92-34-28 2-40 28-64 32-16 2-28-6-40-4v286z" fill="#121212"/>
+            <rect x="210" y="246" width="140" height="210" fill="url(#gFall)"/>
+            <g class="dn-fall-lines" stroke="#9FB0BF" stroke-opacity=".35" stroke-width="2" stroke-linecap="round">
+              <path d="M226 250v200"/><path d="M246 250v200"/><path d="M266 250v200"/><path d="M286 250v200"/><path d="M306 250v200"/><path d="M326 250v200"/>
+            </g>
+            <!-- river below -->
+            <rect x="0" y="448" width="560" height="72" fill="url(#gWater)"/>
+            <g class="dn-ripples" stroke="#6C7C8A" stroke-opacity=".5" stroke-width="2" stroke-linecap="round">
+              <path d="M40 470h60"/><path d="M150 486h80"/><path d="M330 474h70"/><path d="M450 492h60"/><path d="M90 505h50"/><path d="M380 506h60"/>
+            </g>
+            <ellipse cx="280" cy="452" rx="92" ry="10" fill="#EFE3CD" fill-opacity=".12"/>
+
+            <!-- the gate on the cliff top -->
+            <g class="dn-paifang">
+              <path d="M186 150c30 10 158 10 188 0" stroke="#D9C3A0" stroke-width="8" stroke-linecap="round"/>
+              <path d="M172 136c36 16 180 16 216 0" stroke="#D9C3A0" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+              <rect x="200" y="166" width="160" height="10" rx="3" fill="#D9C3A0"/>
+              <rect x="210" y="150" width="12" height="100" fill="#D9C3A0"/>
+              <rect x="338" y="150" width="12" height="100" fill="#D9C3A0"/>
+              <rect x="258" y="178" width="44" height="26" rx="3" fill="#0B0B0B" stroke="#D9C3A0" stroke-width="2"/>
+              <text x="280" y="197" text-anchor="middle" font-family="'Noto Serif SC', serif" font-weight="700" font-size="17" fill="#D9C3A0">龙门</text>
+            </g>
+            <circle class="dn-gate-glow" cx="280" cy="200" r="120" fill="url(#gGlow)"/>
+
+            <!-- the dragon, drawn in when the carp clears the gate -->
+            <g class="dn-dragon" transform="translate(-6 -44)" stroke="#EFE3CD" stroke-linecap="round" stroke-linejoin="round">
+              <path class="dn-dragon-body" pathLength="1" stroke-width="9" d="M284 208c-40-10-70-40-58-72 12-30 64-26 76-2 12 24-12 50-38 38-22-10-10-40 12-36 30 6 38-40 72-58 24-12 52-6 64 10"/>
+              <path class="dn-dragon-ridge" pathLength="1" stroke-width="2.5" stroke-dasharray=".02 .03" d="M284 198c-36-10-62-36-52-64 10-26 56-22 66-2 10 20-10 42-32 32"/>
+              <g class="dn-dragon-head">
+                <path d="M412 88c12-6 30-4 38 6-8 2-14 6-18 12-8-4-14-10-20-18z" fill="#EFE3CD" stroke="none"/>
+                <path d="M440 92c10-16 26-22 40-20M444 100c16-2 30 6 38 16" stroke-width="2"/>
+                <path d="M426 84l-6-16M434 82l2-16" stroke-width="3"/>
+                <circle cx="432" cy="92" r="2.4" fill="#0B0B0B" stroke="none"/>
+              </g>
+            </g>
+
+            <!-- the carp, animated along its leap -->
+            <g class="dn-carp">
+              <path d="M-22 0c8-12 26-14 38-6 6 4 10 8 12 6-2 6-6 10-12 12-12 8-30 6-38-6-6 4-12 8-18 6 4-4 6-8 6-12 0-4-2-8-6-12 6-2 12 2 18 6z" fill="url(#gFish)"/>
+              <path d="M-4-10c4 4 4 16 0 20" stroke="#8C4F22" stroke-width="1.5" stroke-opacity=".6"/>
+              <circle cx="16" cy="-2" r="2" fill="#1A0E06"/>
+            </g>
+            <g class="dn-splash" stroke="#CFE0EA" stroke-width="2.5" stroke-linecap="round">
+              <path d="M170 450l-10-18M180 448l2-22M192 450l12-16M160 452l-18-6M200 452l18-6"/>
+            </g>
+          </svg>
+          <div class="dn-gate-meter"><span>Curve</span><i><b></b></i><em>0%</em></div>
+        </div>
+      </div>
+    </section>
+
     <section class="dn-sec" id="theses">
       <div class="dn-wrap">
         <div class="dn-center">
@@ -292,6 +375,11 @@
           <details><summary>How much does it cost?</summary><p>Network gas, plus the initial reserve you choose on Bittensor EVM. Trades pay a small fee, part of which goes to the creator.</p></details>
           <details><summary>Can I take the starting liquidity back out?</summary><p>No. Pool liquidity is sent to an address nobody controls, which is what lets traders trust the market won't be pulled.</p></details>
           <details><summary>Do I need to sign up?</summary><p>No account and no email. Your wallet is your login.</p></details>
+          <details><summary>What does "graduation" mean?</summary><p>On Robinhood Chain every token starts on a bonding curve. When the curve reaches its target, its reserve and the unsold supply move into a pool automatically and the pool's liquidity is locked. On Bittensor EVM tokens open straight into a locked pool, so there's no curve to graduate from.</p></details>
+          <details><summary>Which wallets work?</summary><p>Any EVM wallet that can add a custom network: MetaMask, Rabby, Coinbase Wallet and OKX Wallet are the ones we test with. The app offers to add Robinhood Chain or Bittensor EVM for you.</p></details>
+          <details><summary>Where are the contracts?</summary><p>Contract addresses are listed on the <a href="docs.html#security">Security</a> section of the docs, together with how to verify them on a block explorer. Always check the address in your wallet before you sign.</p></details>
+          <details><summary>Will Longmen ever DM me or ask for my seed phrase?</summary><p>Never. We don't run support by direct message and nothing on this site asks for a seed phrase or private key. Anyone who does is not us.</p></details>
+          <details><summary>How do I report a bug or a scam token?</summary><p>See <a href="docs.html#security">Security</a> in the docs for how to reach us. For vulnerabilities, please report privately before sharing anything publicly.</p></details>
           <details><summary>Has the code been audited?</summary><p>Not yet by an independent firm. The contracts are tested and open to read; treat launches as experimental and risk only what you can lose.</p></details>
         </div>
       </div>
@@ -320,7 +408,7 @@
         <div class="dn-foot-cols">
           <div><b>Product</b><a href="launch.html">Launch</a><a href="#markets">Markets</a><a href="#faceoff">Subnets</a><a href="#theses">Candidates</a><a href="#faceoff">Face-offs</a><a href="#features">Fund</a></div>
           <div><b>Explore</b><a href="#portfolio">Portfolio</a><a href="#markets">Inference</a><a href="#markets">Compute</a><a href="#markets">Data</a><a href="#markets">Science</a></div>
-          <div><b>Learn</b><a href="docs.html">Docs</a><a href="docs.html#risk">Risk disclosure</a><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="#faq">FAQ</a><a href="#x">X</a></div>
+          <div><b>Learn</b><a href="docs.html">Docs</a><a href="docs.html#risk">Risk disclosure</a><a href="terms.html">Terms</a><a href="privacy.html">Privacy</a><a href="#faq">FAQ</a><a href="docs.html#security">Security</a><a href="#x">X</a></div>
         </div>
       </div>
       <div class="dn-foot-bottom">

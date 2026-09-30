@@ -15,8 +15,11 @@ launch.html    launch form: network choice, token details, live terms summary, c
 docs.html      guide with a sticky table of contents
 styles.css     the design system and every page's layout
 app.js         all behaviour; each block checks its elements exist, so one file serves all pages
-assets/        great-wall.webp: oil-style Great Wall at golden hour (hero and panels);
-               src/ holds the code that paints it
+assets/        great-wall.webp (2400w) and great-wall-1280.webp: the hero painting, served by size;
+               fonts.css + fonts/: self-hosted Inter, Instrument Serif, JetBrains Mono and a
+               two-character Noto Serif SC subset (SIL OFL); src/ holds the painting code
+terms.html     Terms of Use (template)
+privacy.html   Privacy Policy (template)
 assets/logos/  partner marks for the hero strip (see below)
 ```
 
@@ -62,10 +65,26 @@ Base, which uses the package's earlier (v3.16.0) round mark instead of the new s
 - Showing a partner's logo is normally fine to say "works with", but check each brand's
   guidelines before going live.
 
+## The Dragon Gate
+
+A section of its own between the bento and the theses: a carp leaps out of the river, up the
+falls and through a 龙门 gate, a curve meter fills with it, and at 100% the carp becomes a dragon.
+It plays when the illustration scrolls into view and can be replayed; reduced motion shows the end
+state. The SVG is drawn in `index.html`; the leap is driven from `app.js`.
+
+## Accessibility and performance
+
+- Skip link on every page, visible keyboard focus in the accent colour, muted text raised to
+  #727272 for contrast, `prefers-reduced-motion` respected by every animation.
+- Fonts are self-hosted (no requests to Google), the two most used faces are preloaded, and the
+  hero image is picked by screen width (40 KB on phones, 107 KB on large screens).
+
 ## Before going live
 
-- **Every figure is sample data**: `MARKETS`, `SUBNETS` and `THESES` in `app.js`, the indexer
-  table in `docs.html`.
+- **Every figure is sample data**: `MARKETS`, `SUBNETS` and `THESES` in `app.js`, the hero totals,
+  the indexer table in `docs.html`.
+- Fill in the contract addresses and the audit report in the Security section of `docs.html`, and
+  have `terms.html` and `privacy.html` reviewed by a lawyer.
 - The wallet button, the composer, the chat panels and the launch form are mocks: nothing touches
   a chain. Wire them to the real contracts and indexer.
 - Fees, minimums and the audit status in the FAQ, the launch page and the docs are placeholders;

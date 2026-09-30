@@ -6,12 +6,13 @@
   <title>Docs — Longmen</title>
   <meta name="description" content="How Longmen launches work on Robinhood Chain and Bittensor EVM: pairing, curves, pools, trading, gas and data.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23000'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M4 9.5c4 1.6 20 1.6 24 0M7 13.5h18M10 11.2V27M22 11.2V27'/%3E%3C/g%3E%3Crect x='13.5' y='15.5' width='5' height='4' rx='.8' fill='%23D9C3A0'/%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="preload" href="assets/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/instrument-serif-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/fonts.css">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="dn-page">
+  <a class="dn-skip" href="#main">Skip to content</a>
 
   <header class="dn-nav-wrap">
     <nav class="dn-nav">
@@ -39,7 +40,7 @@
     </nav>
   </header>
 
-  <main class="dn-wrap dn-docs">
+  <main class="dn-wrap dn-docs" id="main" tabindex="-1">
     <div class="dn-center">
       <nav class="dn-crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><b>Docs</b></nav>
       <h1 class="dn-h1-page">How it <em>all fits</em>.</h1>
@@ -56,6 +57,7 @@
         <a href="#data">Subnet data</a>
         <a href="#indexer">Indexer status</a>
         <a href="#wallets">Wallets</a>
+        <a href="#security">Security</a>
         <a href="#risk">Risk →</a>
       </nav>
 
@@ -115,6 +117,19 @@
         <section id="wallets">
           <h2>Wallets</h2>
           <p>There's no account. Connect any injected EVM wallet (MetaMask, Rabby, Coinbase Wallet, OKX Wallet and the like), let the app add the right network, and sign in your wallet. Watchlists are kept in your browser. The app never asks for a seed phrase or private key; if something does, it isn't us.</p>
+        </section>
+
+        <section id="security">
+          <h2>Security</h2>
+          <p><b>Audit status.</b> The contracts have unit and integration tests but have <b>not</b> yet been audited by an independent firm. When an audit is done, the report will be linked here in full, including any findings that were not fixed.</p>
+          <p><b>Contract addresses.</b> The factory, router and pool contracts for each network will be listed here at launch, each linked to its verified source on the block explorer. Compare the address your wallet shows with this list before you sign anything.</p>
+          <div class="dn-kv">
+            <div><span>Robinhood Chain · factory</span><b>published at launch</b></div>
+            <div><span>Bittensor EVM · factory</span><b>published at launch</b></div>
+            <div><span>Audit report</span><b>not yet available</b></div>
+          </div>
+          <p><b>Reporting a vulnerability.</b> Please report security issues privately rather than in public channels, with enough detail to reproduce them. Give us a reasonable time to fix the issue before disclosing it.</p>
+          <p><b>What we will never do.</b> Ask for your seed phrase or private key, contact you first by direct message, or ask you to approve an unlimited token allowance.</p>
         </section>
 
         <section id="risk">

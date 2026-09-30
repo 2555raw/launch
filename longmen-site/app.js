@@ -28,9 +28,6 @@
     { name: 'Weather Mesh',   ticker: 'WTHR', kind: 'candidate', label: 'Subnet Candidate', chain: 'Robinhood', sn: '',     desc: 'Forecasts scored against what actually happened, every hour.',      price: '0.0₇18 TAO',  curve: 1.4,  age: '3h' },
     { name: 'Validator Row',  ticker: 'VROW', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Robinhood', sn: '',     desc: 'Stake concentrates before it spreads. Bet on the top five.',       price: '0.0₄55 ETH',  curve: 3.2,  age: '3h' },
     { name: 'Compute Bazaar', ticker: 'CBZR', kind: 'subnet',    label: 'Subnet Coin',      chain: 'Robinhood', sn: 'SN51', desc: 'A night market for GPU hours, priced by the minute.',               price: '0.0₆254 TAO', curve: 18.6, age: '4h' },
-    { name: 'Tao Cat',        ticker: 'TAOCAT', kind: 'ecosystem', label: 'TAO Ecosystem',  chain: 'Robinhood', sn: '',     desc: 'A cat that only answers to τ.',                                     price: '0.0₇2767 TAO', curve: 13.0, age: '5h' },
-    { name: 'TAOISM',         ticker: 'TAOISM', kind: 'ecosystem', label: 'TAO Ecosystem',  chain: 'Robinhood', sn: '',     desc: 'The way that can be staked is not the eternal way.',               price: '0.0₇2017 TAO', curve: 5.3,  age: '6h' },
-    { name: 'OAT',            ticker: 'OAT',    kind: 'ecosystem', label: 'TAO Ecosystem',  chain: 'Robinhood', sn: '',     desc: 'Slow-release fuel for long holds.',                                 price: '0.0₇1893 TAO', curve: 3.9,  age: '7h' },
     { name: 'Agent Payroll',  ticker: 'PAYR', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Bittensor', sn: '',     desc: 'Agents will hire agents, and settle in TAO.',                        price: '0.0₅31 TAO',  curve: 0,    age: '5h' },
   ];
 
@@ -521,6 +518,78 @@
     renderNet();
   }
 
+  /* ---------- hero: live totals (sample) ---------- */
+
+  const stats = $$('.dn-live-stats dd[data-count]');
+  if (stats.length) {
+    const fmt = (v, dec) => v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+    const show = (dd, v) => { const dec = +dd.dataset.dec || 0; dd.textContent = fmt(v, dec) + (dec ? ' τ' : ''); };
+    const vals = stats.map((dd) => +dd.dataset.count);
+    if (!reduced) {
+      const t0 = performance.now();
+      const run = (t) => {
+        const k = Math.min((t - t0) / 1600, 1), e = 1 - Math.pow(1 - k, 3);
+        stats.forEach((dd, i) => show(dd, vals[i] * e));
+        if (k < 1) requestAnimationFrame(run);
+      };
+      requestAnimationFrame(run);
+      // now and then a new launch lands: nudge the totals and flash them
+      setInterval(() => {
+        if (document.hidden) return;
+        vals[0] += Math.round((0.4 + Math.random() * 3.2) * 10) / 10;
+        vals[1] += 1;
+        stats.forEach((dd, i) => { if (i < 2) { show(dd, vals[i]); dd.classList.remove('is-tick'); void dd.offsetWidth; dd.classList.add('is-tick'); } });
+      }, 7000);
+    } else stats.forEach((dd, i) => show(dd, vals[i]));
+  }
+
+  /* ---------- the Dragon Gate ---------- */
+
+  const gateSec = $('#dragon-gate');
+  if (gateSec) {
+    const carp = $('.dn-carp', gateSec);
+    const steps = $$('.dn-gate-steps li', gateSec);
+    const meterBar = $('.dn-gate-meter b', gateSec);
+    const meterTxt = $('.dn-gate-meter em', gateSec);
+    // the leap: out of the river, up the face of the falls, over the gate
+    const P = [[150, 470], [170, 430], [200, 360], [228, 290], [250, 230], [268, 180], [290, 150], [318, 150], [350, 170]];
+    const along = (k) => {
+      const f = k * (P.length - 1), i = Math.min(Math.floor(f), P.length - 2), u = f - i;
+      const [x0, y0] = P[i], [x1, y1] = P[i + 1];
+      return [x0 + (x1 - x0) * u, y0 + (y1 - y0) * u, Math.atan2(y1 - y0, x1 - x0) * 180 / Math.PI];
+    };
+    const setStep = (n) => steps.forEach((li, i) => li.classList.toggle('is-on', i <= n));
+    const setMeter = (p) => { meterBar.style.width = p + '%'; meterTxt.textContent = Math.round(p) + '%'; };
+    let raf = 0;
+
+    const play = () => {
+      cancelAnimationFrame(raf);
+      gateSec.classList.remove('is-risen');
+      setStep(0); setMeter(0);
+      if (reduced) { gateSec.classList.add('is-risen'); setStep(2); setMeter(100); return; }
+      gateSec.classList.add('is-leaping');
+      const t0 = performance.now(), D = 3200;
+      const tick = (t) => {
+        const k = Math.min((t - t0) / D, 1);
+        const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+        const [x, y, a] = along(e);
+        carp.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)})`);
+        setMeter(e * 100);
+        setStep(e < 0.25 ? 0 : e < 0.85 ? 1 : 2);
+        if (k < 1) raf = requestAnimationFrame(tick);
+        else { gateSec.classList.remove('is-leaping'); gateSec.classList.add('is-risen'); }
+      };
+      raf = requestAnimationFrame(tick);
+    };
+
+    carp.setAttribute('transform', 'translate(150 470) rotate(-60)');
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(([en]) => { if (en.isIntersecting) { io.disconnect(); play(); } }, { threshold: 0.6 });
+      io.observe($('.dn-gate-art', gateSec));
+    } else play();
+    $('.dn-gate-replay', gateSec).addEventListener('click', play);
+  }
+
   /* ---------- scroll motion ---------- */
 
   // Entrances: things fade up out of a slight blur as they reach the viewport, staggered
@@ -545,7 +614,7 @@
 
   const groups = [
     '.dn-sec .dn-center > *', '.dn-steps-side > *', '#market-tabs', '.dn-market-grid .dn-mcard',
-    '.dn-bento .dn-tile', '.dn-rail', '.dn-faq-wrap > h2', '.dn-faq details',
+    '.dn-bento .dn-tile', '.dn-rail', '.dn-gate-copy > *', '.dn-gate-art', '.dn-faq-wrap > h2', '.dn-faq details',
     '.dn-foot-top > *, .dn-foot-cols > div', '.dn-launch > *', '.dn-launch-grid > *', '.dn-doc section',
   ];
   groups.forEach((sel) => window.dnReveal($$(sel)));

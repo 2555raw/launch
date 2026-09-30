@@ -518,23 +518,16 @@
     $('.dn-panel-copy', panel).classList.add(flip ? 'dn-from-left' : 'dn-from-right');
   });
 
-  // Hero parallax, the nav tightening, and a reading-progress line under the nav.
+  // Hero parallax and the nav tightening.
   const heroBg = $('.dn-hero-bg');
   const heroIn = $('.dn-hero-in');
   const navWrap = $('.dn-nav-wrap');
-  const nav = $('.dn-nav');
-  let bar = null;
-  if (nav) { bar = document.createElement('i'); bar.className = 'dn-progress'; bar.setAttribute('aria-hidden', 'true'); nav.appendChild(bar); }
 
   let ticking = false;
   const onScroll = () => {
     ticking = false;
     const y = window.scrollY, vh = window.innerHeight;
     navWrap?.classList.toggle('is-scrolled', y > 40);
-    if (bar) {
-      const max = document.documentElement.scrollHeight - vh;
-      bar.style.setProperty('--p', max > 0 ? (y / max).toFixed(4) : 0);
-    }
     if (reduced || !heroBg) return;
     const p = Math.min(y / vh, 1);
     heroBg.style.transform = `translate3d(0, ${(y * 0.35).toFixed(1)}px, 0) scale(${(1.04 + p * 0.1).toFixed(4)})`;

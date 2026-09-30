@@ -628,7 +628,7 @@ img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image
 .dn-hero-bg { transform-origin: 50% 70%; will-change: transform; }
 .dn-hero-in { will-change: transform, opacity; }
 
-/* nav tightens once you leave the top, and shows how far down you are */
+/* nav tightens once you leave the top */
 .dn-nav {
   transition: max-width .55s cubic-bezier(.2,.7,.2,1), height .55s cubic-bezier(.2,.7,.2,1), padding .55s cubic-bezier(.2,.7,.2,1),
               background-color .45s ease, border-color .45s ease, box-shadow .45s ease, backdrop-filter .45s ease, -webkit-backdrop-filter .45s ease;
@@ -645,13 +645,7 @@ img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image
 .dn-nav-wrap:not(.is-scrolled) .dn-nav-launch { text-shadow: 0 1px 10px rgba(0,0,0,.45); }
 /* once you scroll: it gathers into the dark pill */
 .dn-nav-wrap.is-scrolled .dn-nav { max-width: 880px; height: 54px; background-color: rgba(18,18,18,.92); box-shadow: 0 14px 40px -12px rgba(0,0,0,.8); }
-.dn-progress {
-  position: absolute; left: 22px; right: 22px; bottom: -1px; height: 2px; border-radius: 2px;
-  background: linear-gradient(90deg, var(--accent), #9CF2CB);
-  transform-origin: left center; transform: scaleX(var(--p, 0)); opacity: 0; transition: opacity .3s ease;
-  pointer-events: none;
-}
-.dn-nav-wrap.is-scrolled .dn-progress { opacity: 1; }
+
 
 @media (prefers-reduced-motion: reduce) {
   .dn-js .dn-reveal, .dn-js .dn-from-left, .dn-js .dn-from-right, .dn-js .dn-panel .dn-chat { opacity: 1; transform: none; filter: none; transition: none; }

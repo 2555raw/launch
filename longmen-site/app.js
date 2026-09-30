@@ -163,13 +163,25 @@
 
   const steps = $$('#steps li');
   if (steps.length && 'IntersectionObserver' in window) {
+    const build = $('.dn-build');
     const io = new IntersectionObserver((entries) => {
       entries.forEach((en) => en.target.classList.toggle('is-lit', en.isIntersecting || en.boundingClientRect.top < 0));
-    }, { rootMargin: '0px 0px -45% 0px' });
+      // the token card beside the steps fills in one row per lit step
+      if (build) {
+        const stage = steps.filter((li) => li.classList.contains('is-lit')).length;
+        build.dataset.stage = String(stage);
+        $('.dn-build-badge', build).textContent = stage >= 3 ? 'Live' : 'Draft';
+      }
+    }, { rootMargin: '0px 0px -28% 0px' });
     steps.forEach((li) => io.observe(li));
   } else {
     steps.forEach((li) => li.classList.add('is-lit'));
+    const build = $('.dn-build');
+    if (build) { build.dataset.stage = '4'; $('.dn-build-badge', build).textContent = 'Live'; }
   }
+
+  const buildAv = $('.dn-build-av');
+  if (buildAv) buildAv.style.backgroundImage = `url("${tokenArt('LNTN')}")`;
 
   /* ---------- markets ---------- */
 
@@ -613,7 +625,7 @@
   };
 
   const groups = [
-    '.dn-sec .dn-center > *', '.dn-steps-side > *', '#market-tabs', '.dn-market-grid .dn-mcard',
+    '.dn-sec .dn-center > *', '.dn-steps-side > h2', '#market-tabs', '.dn-market-grid .dn-mcard',
     '.dn-bento .dn-tile', '.dn-rail', '.dn-gate-copy > *', '.dn-gate-art', '.dn-faq-wrap > h2', '.dn-faq details',
     '.dn-foot-top > *, .dn-foot-cols > div', '.dn-launch > *', '.dn-launch-grid > *', '.dn-doc section',
   ];

@@ -94,29 +94,39 @@
       <div class="dn-wrap dn-steps-grid">
         <div class="dn-steps-side">
           <h2 class="dn-h2">From <em>one line</em> of text to a live market</h2>
-          <!-- a seal (印章) reading 龙门 over a 回纹 lattice -->
-          <div class="dn-seal-art" aria-hidden="true">
-            <svg viewBox="0 0 460 440" fill="none">
-              <defs>
-                <pattern id="dn-huiwen" width="44" height="44" patternUnits="userSpaceOnUse">
-                  <path d="M3 3h38v38H9V9h26v26H15V15h14v14h-8v-8" stroke="#1E1C19" stroke-width="2"/>
-                </pattern>
-                <linearGradient id="dn-fade" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
-                </linearGradient>
-                <mask id="dn-fade-mask"><rect width="460" height="440" fill="url(#dn-fade)"/></mask>
-              </defs>
-              <rect width="460" height="440" fill="url(#dn-huiwen)" mask="url(#dn-fade-mask)"/>
-              <g transform="translate(150 60) rotate(-4 80 95)">
-                <g class="dn-seal">
-                  <rect width="160" height="190" rx="10" fill="#0A0A0A" stroke="#D9C3A0" stroke-width="4"/>
-                  <rect x="10" y="10" width="140" height="170" rx="5" stroke="#D9C3A0" stroke-width="1.5" opacity=".6"/>
-                  <text x="80" y="94" text-anchor="middle" font-family="'Noto Serif SC', 'Songti SC', 'SimSun', serif" font-weight="700" font-size="70" fill="#D9C3A0">龙</text>
-                  <text x="80" y="166" text-anchor="middle" font-family="'Noto Serif SC', 'Songti SC', 'SimSun', serif" font-weight="700" font-size="70" fill="#D9C3A0">门</text>
-                </g>
-              </g>
-            </svg>
-            <p class="dn-seal-cap">Dragon Gate · the leap every launch takes</p>
+          <!-- a token card that fills in as the steps light up -->
+          <div class="dn-build" data-stage="0" aria-hidden="true">
+            <div class="dn-build-head">
+              <span class="dn-build-av"></span>
+              <div class="dn-build-id">
+                <b class="dn-build-sk dn-build-name"><span>Red Lantern</span></b>
+                <small class="dn-build-sk"><span>$LNTN · TAO Ecosystem</span></small>
+              </div>
+              <span class="dn-build-badge">Draft</span>
+            </div>
+
+            <div class="dn-build-row" data-at="1">
+              <span class="dn-build-k">Pair</span>
+              <span class="dn-build-v"><img src="assets/logos/bittensor.jpg" alt="">Native TAO</span>
+            </div>
+            <div class="dn-build-row dn-build-thesis" data-at="2">
+              <span class="dn-build-k">Thesis</span>
+              <p>Light one for every subnet that ships this month.</p>
+            </div>
+            <div class="dn-build-row" data-at="3">
+              <span class="dn-build-k">Transaction</span>
+              <span class="dn-build-v dn-mono">0x7a3f…c91e <i class="dn-build-ok">✓ confirmed</i></span>
+            </div>
+            <div class="dn-build-row dn-build-live" data-at="4">
+              <div class="dn-build-price">
+                <b>0.0₇176 TAO</b>
+                <small>+12.4% · 1h</small>
+              </div>
+              <svg class="dn-build-spark" viewBox="0 0 160 44" preserveAspectRatio="none">
+                <path d="M0 38 L14 36 L26 37 L38 31 L50 33 L62 26 L74 28 L86 21 L98 23 L110 15 L122 17 L134 10 L146 12 L160 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" pathLength="1"/>
+              </svg>
+              <div class="dn-build-curve"><i><b></b></i><span>8.2% curve</span></div>
+            </div>
           </div>
         </div>
         <ol class="dn-steps" id="steps">

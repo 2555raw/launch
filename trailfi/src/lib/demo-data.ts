@@ -21,13 +21,3 @@ export const DEMO_LEADERBOARD = [
   { rank: 8, wallet: "0x2c61…b8E3", steps: 11_541, rewards: 139.26 },
 ];
 
-export const DEMO_TICKER = [
-  { wallet: "0x7a3F…91cE", steps: 24_918, place: "Torres del Paine" },
-  { wallet: "0xB21d…0f4A", steps: 21_307, place: "Dolomites" },
-  { wallet: "0x5e9C…a7D2", steps: 19_842, place: "Picos de Europa" },
-  { wallet: "0xC0fe…3B19", steps: 17_455, place: "Yosemite" },
-  { wallet: "0x19aA…e64F", steps: 15_620, place: "Kungsleden" },
-  { wallet: "0x8d4E…22c7", steps: 14_203, place: "Camino de Santiago" },
-  { wallet: "0xF3b8…5dA0", steps: 12_977, place: "Mont Blanc" },
-  { wallet: "0x2c61…b8E3", steps: 11_541, place: "Annapurna" },
-];

@@ -7,7 +7,6 @@ import { useRef } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { HeroStatsCard } from "./HeroStatsCard";
-import { Ticker } from "./Ticker";
 
 const LINES = [
   { text: "Your steps.", className: "text-white" },
@@ -150,10 +149,6 @@ export function Hero() {
           </motion.div>
         </div>
       </motion.div>
-
-      <div className="absolute inset-x-0 bottom-0">
-        <Ticker />
-      </div>
     </section>
   );
 }

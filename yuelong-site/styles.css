@@ -590,10 +590,6 @@ em { font-style: italic; }
 /* daytime sky is bright: a deeper scrim behind the hero copy */
 .dn-hero::after { background: radial-gradient(ellipse 50% 36% at 50% 40%, rgba(10, 16, 30, .5), rgba(10, 16, 30, 0) 74%); }
 
-/* the name's characters beside the wordmark */
-.dn-han { font-weight: 500; font-size: .78em; color: var(--dim); letter-spacing: .08em; margin-left: 2px; }
-.dn-brand-lg .dn-han { font-size: .6em; }
-@media (max-width: 640px) { .dn-nav .dn-han { display: none; } }
 
 /* token art: pixel sprites in the market cards, the rail and the avatar stack */
 img.dn-av { display: block; width: 24px; height: 24px; border-radius: 5px; image-rendering: pixelated; background: #161616; }

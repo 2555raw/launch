@@ -16,8 +16,8 @@ docs.html      guide with a sticky table of contents
 styles.css     the design system and every page's layout
 app.js         all behaviour; each block checks its elements exist, so one file serves all pages
 assets/        great-wall.webp (2400w) and great-wall-1280.webp: the hero painting, served by size;
-               fonts.css + fonts/: self-hosted Inter, Instrument Serif, JetBrains Mono and a
-               two-character Noto Serif SC subset (SIL OFL); src/ holds the painting code
+               fonts.css + fonts/: self-hosted Inter, Instrument Serif and JetBrains Mono
+               (SIL OFL); src/ holds the painting code
 terms.html     Terms of Use (template)
 privacy.html   Privacy Policy (template)
 assets/logos/  partner marks for the hero strip (see below)
@@ -35,9 +35,9 @@ Black ground, near-black cards, white as the primary action. **Instrument Serif*
 headings (with an italic word), **Inter** for everything else, **JetBrains Mono** for labels and
 figures. One beige, `#D9C3A0`, marks the logo's plaque and anything live or filling.
 
-**The name.** Yuelong (跃龙) means *the leaping dragon*: in the old story, the carp that leaps the falls at
-Longmen (龙门, the Dragon Gate) becomes a dragon. A launch that fills its curve and graduates to a pool
-makes the same leap. The favicon is a rising arc; the wordmark is set with its characters.
+**The name.** Yuelong means *the leaping dragon*: in the old story, the carp that leaps the falls at
+Longmen, the Dragon Gate, becomes a dragon. A launch that fills its curve and graduates to a pool
+makes the same leap. The favicon is a rising arc; the wordmark is plain text, with no Chinese characters on the site.
 
 ## Background painting
 
@@ -68,7 +68,7 @@ Base, which uses the package's earlier (v3.16.0) round mark instead of the new s
 ## The Dragon Gate
 
 A section of its own between the bento and the theses: a carp leaps out of the river, up the
-falls and through a 龙门 gate, a curve meter fills with it, and at 100% the carp becomes a dragon.
+falls and through the gate, a curve meter fills with it, and at 100% the carp becomes a dragon.
 It plays when the illustration scrolls into view and can be replayed; reduced motion shows the end
 state. The SVG is drawn in `index.html`; the leap is driven from `app.js`.
 

@@ -1,5 +1,5 @@
-/* Self-hosted web fonts (SIL Open Font License): Inter, Instrument Serif, JetBrains Mono,
-   and Noto Serif SC subset to the characters of 跃龙 and 龙门. Latin and Latin Extended only. */
+/* Self-hosted web fonts (SIL Open Font License): Inter, Instrument Serif, JetBrains Mono.
+   Latin and Latin Extended only. */
 
 @font-face {
   font-family: 'Instrument Serif';
@@ -160,12 +160,4 @@
   font-display: swap;
   src: url(fonts/jetbrains-mono-700-latin.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Noto Serif SC';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url(fonts/noto-serif-sc-700-han.woff2) format('woff2');
-  unicode-range: U+8dc3, U+95e8, U+9f99;
 }

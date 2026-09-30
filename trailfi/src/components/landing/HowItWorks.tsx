@@ -7,6 +7,7 @@ import { Reveal, SectionHeading } from "./Reveal";
 const STEPS = [
   {
     n: "01",
+    stage: "Trailhead",
     title: "Connect Your Wallet",
     body: "Connect your crypto wallet securely.",
     detail: "MetaMask, WalletConnect, Coinbase and more. You sign one free message — no transaction, no approvals.",
@@ -15,6 +16,7 @@ const STEPS = [
   },
   {
     n: "02",
+    stage: "Ascent",
     title: "Track Your Steps",
     body: "Complete your daily walking goals and submit verified activity.",
     detail: "Sync from Apple Health or Google Health Connect. Only verified activity counts toward payouts.",
@@ -23,6 +25,7 @@ const STEPS = [
   },
   {
     n: "03",
+    stage: "Summit",
     title: "Earn Rewards",
     body: "Receive your share of eligible platform fees.",
     detail: "A configurable share of fees is split by verified steps and sent to your wallet after review.",
@@ -68,7 +71,9 @@ export function HowItWorks() {
                   </div>
                   <span className="font-display text-6xl font-bold text-white/[0.07] transition duration-500 group-hover:text-lime-400/20">{s.n}</span>
                 </div>
-                <div className="mt-8 font-mono text-[11px] text-lime-400">{s.n} —</div>
+                <div className="mt-8 font-mono text-[11px] uppercase tracking-[0.16em] text-lime-400">
+                  {s.n} — {s.stage}
+                </div>
                 <h3 className="mt-1.5 font-display text-2xl font-semibold tracking-tight">{s.title}</h3>
                 <p className="mt-3 text-[15px] text-white/80">{s.body}</p>
                 <p className="mt-3 text-sm leading-relaxed text-white/50">{s.detail}</p>

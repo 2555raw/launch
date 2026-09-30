@@ -11,8 +11,9 @@
  * Pools. For every stock, and for ETH/USDG itself, the script looks for:
  *   - Uniswap v3 pools against WETH or USDG, at each fee tier, via the factory;
  *   - Uniswap v4 pools against native ETH or USDG, via the PoolManager's
- *     Initialize events. Only pools without hooks are kept: a hook can charge or
- *     behave differently at swap time from what the quote showed.
+ *     Initialize events. Only pools without hooks and with a fee of at most 1%
+ *     are kept: a hook can charge or behave differently at swap time from what
+ *     the quote showed, and some pools carry fees of 50% or more as a trap.
  * and keeps the ones with liquidity in range right now.
  *
  * The public RPC caps log queries (30,000 blocks with no address filter,
@@ -34,6 +35,8 @@ const BEACON_SLOT = '0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b3
 const BEACON_UPGRADED = '0x1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e';
 const V4_INITIALIZE = '0xdd466e674ea557f56295e2d0218a125ea4b4f0f6f3307b95f85e6110838d6438';
 const V3_FEES = [100, 500, 3000, 10000];
+const POOLS_PER_BASE = 4;
+const MAX_FEE = 10000; // 1%
 const CACHE = path.join(__dirname, 'chain-cache.json');
 const OUT = path.join(__dirname, '..', 'tokens.js');
 
@@ -57,6 +60,34 @@ async function rpc(method, params) {
       await sleep(1000 * (attempt + 1));
     }
   }
+}
+/* many eth_calls in one HTTP request; null where a call failed */
+async function callBatch(calls, size = 20) {
+  const out = [];
+  for (let i = 0; i < calls.length; i += size) {
+    const chunk = calls.slice(i, i + size);
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const res = await fetch(RPC, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(chunk.map(([to, data], j) => ({ jsonrpc: '2.0', id: j, method: 'eth_call', params: [{ to, data }, 'latest'] }))),
+          signal: AbortSignal.timeout(60_000)
+        });
+        if (res.status === 429) throw new Error('rate limited');
+        const body = await res.json();
+        if (!Array.isArray(body)) throw new Error('batch refused');
+        const byId = new Map(body.map((r) => [r.id, r.error ? null : r.result]));
+        out.push(...chunk.map((_, j) => byId.get(j) ?? null));
+        await sleep(150);
+        break;
+      } catch (e) {
+        if (attempt >= 12) throw e;
+        await sleep(2000 * (attempt + 1));
+      }
+    }
+  }
+  return out;
 }
 const word = (a) => a.toLowerCase().replace(/^0x/, '').padStart(64, '0');
 const hexNum = (n) => '0x' + n.toString(16);
@@ -136,20 +167,21 @@ async function discoverV4(cache, head) {
   v4.scannedTo = head;
 }
 
-async function v3Pools(token, bases) {
-  const out = [];
-  for (const base of bases) for (const fee of V3_FEES) {
-    const pool = '0x' + (await call(V3_FACTORY, '0x1698ee82' + word(token) + word(base) + fee.toString(16).padStart(64, '0'))).slice(-40);
-    if (/^0x0+$/.test(pool)) continue;
-    const liquidity = uint(await call(pool, '0x1a686502'));
-    if (liquidity > 0n) out.push({ v: 3, base: base === WETH ? 'ETH' : 'USDG', fee, pool, liquidity: liquidity.toString() });
-  }
+/* v3 pools of each token against each base and fee tier, with their liquidity */
+async function v3Pools(tokens) {
+  const probes = [];
+  for (const token of tokens) for (const base of token === USDG ? [WETH] : [WETH, USDG]) for (const fee of V3_FEES) probes.push({ token, base, fee });
+  const addrs = await callBatch(probes.map((q) => [V3_FACTORY, '0x1698ee82' + word(q.token) + word(q.base) + q.fee.toString(16).padStart(64, '0')]));
+  const found = probes.map((q, i) => ({ ...q, pool: addrs[i] ? '0x' + addrs[i].slice(-40) : null })).filter((q) => q.pool && !/^0x0+$/.test(q.pool));
+  const liqs = await callBatch(found.map((q) => [q.pool, '0x1a686502']));
+  const out = new Map();
+  found.forEach((q, i) => {
+    const liquidity = liqs[i] ? uint(liqs[i]) : 0n;
+    if (liquidity === 0n) return;
+    if (!out.has(q.token)) out.set(q.token, []);
+    out.get(q.token).push({ v: 3, base: q.base === WETH ? 'ETH' : 'USDG', fee: q.fee, pool: q.pool, liquidity: liquidity.toString() });
+  });
   return out;
-}
-
-async function v4Live(p) {
-  const liquidity = uint(await call(STATE_VIEW, '0xfa6793d5' + p.id.slice(2))); // getLiquidity(bytes32)
-  return liquidity;
 }
 
 (async () => {
@@ -161,35 +193,41 @@ async function v4Live(p) {
   await discoverV4(cache, head);
   fs.writeFileSync(CACHE, JSON.stringify(cache) + '\n');
 
-  const hookless = cache.v4.pools.filter((p) => p.hooks === ZERO);
+  /* no hooks, and a fee no higher than Uniswap's top standard tier: some pools
+     are set up with 50-95% fees to catch careless routers */
+  const hookless = cache.v4.pools.filter((p) => p.hooks === ZERO && p.fee <= MAX_FEE);
   console.log(`${cache.stocks.length} stocks, ${cache.v4.pools.length} v4 pools (${hookless.length} without hooks); checking liquidity`);
 
   const v4ByToken = new Map();
-  await pool(hookless, 6, async (p) => {
-    const liquidity = await v4Live(p);
+  const liqs = await callBatch(hookless.map((p) => [STATE_VIEW, '0xfa6793d5' + p.id.slice(2)])); // getLiquidity(bytes32)
+  hookless.forEach((p, i) => {
+    const liquidity = liqs[i] ? uint(liqs[i]) : 0n;
     if (liquidity === 0n) return;
     const [c0, c1] = [p.currency0, p.currency1];
     const token = c0 === ZERO || (c0 === USDG && c1 !== USDG) ? c1 : c0;
     const base = token === USDG ? 'ETH' : (c0 === ZERO ? 'ETH' : 'USDG');
-    const entry = { v: 4, base, id: p.id, key: { currency0: c0, currency1: c1, fee: p.fee, tickSpacing: p.tickSpacing, hooks: ZERO }, liquidity: liquidity.toString() };
+    const entry = { v: 4, base, fee: p.fee, id: p.id, key: { currency0: c0, currency1: c1, fee: p.fee, tickSpacing: p.tickSpacing, hooks: ZERO }, liquidity: liquidity.toString() };
     if (!v4ByToken.has(token)) v4ByToken.set(token, []);
     v4ByToken.get(token).push(entry);
   });
 
+  const all = [...cache.stocks, USDG];
+  const v3ByToken = await v3Pools(all);
+  const live = all.filter((a) => v3ByToken.has(a) || v4ByToken.has(a));
+  const meta = await callBatch(live.flatMap((a) => [[a, '0x95d89b41'], [a, '0x06fdde03'], [a, '0x313ce567']]));
   const tokens = [];
-  await pool([...cache.stocks, USDG], 4, async (address) => {
-    try {
-      const pools = [...await v3Pools(address, address === USDG ? [WETH] : [WETH, USDG]), ...(v4ByToken.get(address) || [])];
-      if (!pools.length) return;
-      pools.sort((a, b) => (BigInt(b.liquidity) > BigInt(a.liquidity) ? 1 : -1));
-      const symbol = decodeString(await call(address, '0x95d89b41'));
-      const name = decodeString(await call(address, '0x06fdde03'));
-      const decimals = Number(uint(await call(address, '0x313ce567')));
-      tokens.push({ symbol, name, address, decimals, pools });
-      console.log(`  ${symbol.padEnd(6)} ${pools.map((p) => `v${p.v}/${p.base}/${p.fee}`).join(' ')}`);
-    } catch (e) {
-      console.warn(`  skipped ${address}: ${e.message}`);
-    }
+  live.forEach((address, i) => {
+    const [sym, nm, dec] = meta.slice(i * 3, i * 3 + 3);
+    if (!sym || !dec) return;
+    /* liquidity is only comparable between pools of the same pair, so rank per
+       base and keep the deepest few; the swap never needs more */
+    const all = [...(v3ByToken.get(address) || []), ...(v4ByToken.get(address) || [])];
+    const pools = ['ETH', 'USDG'].flatMap((b) => all.filter((p) => p.base === b)
+      .sort((x, y) => (BigInt(y.liquidity) > BigInt(x.liquidity) ? 1 : -1))
+      .slice(0, POOLS_PER_BASE));
+    const t = { symbol: decodeString(sym), name: decodeString(nm), address, decimals: Number(uint(dec)), pools };
+    tokens.push(t);
+    console.log(`  ${t.symbol.padEnd(6)} ${pools.map((p) => `v${p.v}/${p.base}/${p.fee}`).join(' ')}`);
   });
   tokens.sort((a, b) => a.symbol.localeCompare(b.symbol));
 

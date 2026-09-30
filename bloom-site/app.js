@@ -985,7 +985,7 @@
   /* ?simulate exposes the router for scripted dry-runs against the live chain;
      it can only read and build calldata, never sign or send. */
   if (new URLSearchParams(location.search).has('simulate')) {
-    window.bloomSim = { tokens: TOKENS, bestQuote, quoteDetails, buildPlan, addresses: { UNIVERSAL_ROUTER, PERMIT2, CHAIN_ID: CHAIN.id } };
+    window.bloomSim = { tokens: TOKENS, bestQuote, quoteHop, edgePools, quoteDetails, buildPlan, addresses: { UNIVERSAL_ROUTER, PERMIT2, CHAIN_ID: CHAIN.id } };
   }
 
   document.title = `${BRAND} — Swap tokenized stocks on ${CHAIN.name}`;

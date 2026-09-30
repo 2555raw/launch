@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: site.social.x.handle,
+    ...(site.social.x ? { site: site.social.x.handle } : {}),
     title: `${site.name} · ${site.tagline}`,
     description: site.description,
   },

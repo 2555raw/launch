@@ -15,9 +15,11 @@ export function Footer() {
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-mute">
             An independent launch studio for {pads.map((p) => p.name).join(", ").replace(/, ([^,]*)$/, " and $1")}. Not affiliated with any of them.
           </p>
-          <a href={site.social.x.url} target="_blank" rel="noopener noreferrer" className={`${linkCls} mt-5 inline-flex items-center gap-2`}>
-            <XIcon className="size-3.5" /> {site.social.x.handle}
-          </a>
+          {site.social.x && (
+            <a href={site.social.x.url} target="_blank" rel="noopener noreferrer" className={`${linkCls} mt-5 inline-flex items-center gap-2`}>
+              <XIcon className="size-3.5" /> {site.social.x.handle}
+            </a>
+          )}
           <p className="mt-3 text-sm text-mute">© {year} {site.name}</p>
         </div>
         <FooterCol title="Product">

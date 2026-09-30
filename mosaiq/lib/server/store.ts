@@ -34,7 +34,7 @@ class JsonFileStore implements Store {
   private queue: Promise<unknown> = Promise.resolve();
 
   constructor(dir: string) {
-    this.file = path.join(dir, "padpicker.json");
+    this.file = path.join(dir, "picker.json");
   }
 
   private async load(): Promise<Db> {
@@ -96,9 +96,9 @@ class JsonFileStore implements Store {
   }
 }
 
-const globalForStore = globalThis as unknown as { __padpickerStore?: Store };
+const globalForStore = globalThis as unknown as { __pickerStore?: Store };
 
 export function store(): Store {
-  globalForStore.__padpickerStore ??= new JsonFileStore(path.resolve(/*turbopackIgnore: true*/ process.cwd(), process.env.DATA_DIR ?? ".data"));
-  return globalForStore.__padpickerStore;
+  globalForStore.__pickerStore ??= new JsonFileStore(path.resolve(/*turbopackIgnore: true*/ process.cwd(), process.env.DATA_DIR ?? ".data"));
+  return globalForStore.__pickerStore;
 }

@@ -51,7 +51,7 @@ type Submit =
   | { state: "error"; message: string }
   | { state: "done"; id: string; url: string; handoff: string };
 
-const AUTOSAVE_KEY = "padpicker.studio.v1";
+const AUTOSAVE_KEY = "picker.studio.v1";
 const sections = [
   { id: "studio-network", label: "Network & launchpad" },
   { id: "studio-details", label: "Token details" },

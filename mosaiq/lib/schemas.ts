@@ -82,7 +82,7 @@ export const draftInputSchema = z
       });
     }
     if (d.websiteMode === "custom" && !d.website) {
-      ctx.addIssue({ code: "custom", path: ["website"], message: "Add your site, or use the PadPicker page" });
+      ctx.addIssue({ code: "custom", path: ["website"], message: "Add your site, or use the Picker page" });
     }
     if (d.mode === "import") {
       if (!d.address) {

@@ -15,7 +15,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 
 type Sort = "newest" | "oldest" | "marketcap";
-const VIEW_KEY = "padpicker.explore.view";
+const VIEW_KEY = "picker.explore.view";
 
 export function ExploreBoard({ launches, initial }: { launches: PublicLaunch[]; initial: { q: string; sort: Sort; chain: string } }) {
   const pathname = usePathname();

@@ -17,7 +17,7 @@ export async function createAgent(name: string): Promise<{ agent: PublicAgent; k
   return { agent: { id: agent.id, name, keyPrefix: prefix, createdAt: agent.createdAt }, key };
 }
 
-/** Resolve `Authorization: Bearer pp_live_…` to an agent, or null. */
+/** Resolve `Authorization: Bearer pk_live_…` to an agent, or null. */
 export async function agentFromRequest(req: Request): Promise<Agent | null> {
   const header = req.headers.get("authorization") ?? "";
   const match = /^Bearer\s+(\S+)$/i.exec(header);

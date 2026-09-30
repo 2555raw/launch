@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { site } from "@/lib/site";
 
-const KEY = "padpicker.disclosure.v1";
+const KEY = "picker.disclosure.v1";
 /** Where a visitor who denies the disclosure is sent. */
 export const DENY_URL = "https://www.ponsfamily.com/launchpad";
 

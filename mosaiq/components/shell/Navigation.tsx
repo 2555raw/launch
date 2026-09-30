@@ -21,10 +21,10 @@ export function Sidebar() {
   const isActive = useActive();
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center border-r border-line bg-ink py-4 lg:flex">
-      <Link href="/" aria-label={`${site.name} home`} className="flex h-8 items-center px-1 text-[11.5px] font-bold tracking-tight">
+      <Link href="/" aria-label={`${site.name} home`} className="flex h-8 items-center px-1 text-[14px] font-bold tracking-tight">
         {site.name}
       </Link>
-      <nav aria-label="Sections" className="mt-5 flex flex-col gap-2">
+      <nav aria-label="Sections" className="mt-5 mb-auto flex flex-col gap-2">
         {nav.map((item) => {
           const Icon = icons[item.href];
           const active = isActive(item.href);
@@ -47,6 +47,7 @@ export function Sidebar() {
           );
         })}
       </nav>
+      {site.social.x && (
       <a
         href={site.social.x.url}
         target="_blank"
@@ -56,6 +57,7 @@ export function Sidebar() {
       >
         <XIcon />
       </a>
+      )}
     </aside>
   );
 }

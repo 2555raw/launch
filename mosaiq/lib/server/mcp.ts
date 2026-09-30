@@ -23,7 +23,7 @@ const draftProps = {
   ticker: { type: "string", maxLength: 10 },
   description: { type: "string", maxLength: 280 },
   x: { type: "string", description: "https://x.com/… link" },
-  website: { type: "string", description: "Your own site; omit to use the PadPicker token page" },
+  website: { type: "string", description: "Your own site; omit to use the Picker token page" },
   opening_buy: { type: "string", description: "Dev buy in the chain's native asset; omit for none" },
   address: { type: "string", description: "Only for mode=import" },
   mode: { type: "string", enum: ["create", "import"], default: "create" },

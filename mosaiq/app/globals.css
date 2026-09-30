@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * PadPicker identity: near-black monochrome. Surfaces step up in greys, type is
+ * Picker identity: near-black monochrome. Surfaces step up in greys, type is
  * white, and the only fills of colour come from the chain and pad icons.
  * `accent` is the "on" state (primary buttons, selected pills, focus).
  */

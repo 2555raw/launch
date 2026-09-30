@@ -1,0 +1,87 @@
+<!doctype html>
+<!-- "Coming soon" loop, 3 s. Rendered frame by frame by render-soon.mjs (window.draw(t)). -->
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="../fonts.css">
+<style>
+  html, body { margin: 0; background: #0A0A0A; }
+  .s { position: relative; width: 1200px; height: 675px; overflow: hidden; font-family: "Inter", sans-serif;
+       background: radial-gradient(ellipse 60% 55% at 50% 40%, #171513 0%, #0A0A0A 70%); }
+  .k { position: absolute; top: 118px; width: 100%; text-align: center; font: 500 30px/1 "Inter"; color: #8A8A8A; letter-spacing: -0.01em; }
+  .k em { font: italic 400 36px/1 "Instrument Serif", serif; color: #D9C3A0; letter-spacing: 0; }
+  .w { position: absolute; top: 158px; width: 100%; text-align: center; font: 600 132px/1 "Inter"; color: #fff; letter-spacing: -0.055em; }
+  .p { position: absolute; top: 318px; left: 50%; transform: translateX(-50%); padding: 11px 26px; border-radius: 999px;
+       background: #151515; border: 1px solid #2A2A2A; font: 500 22px/1 "JetBrains Mono", monospace; color: #C8C8C8; }
+  svg { position: absolute; inset: 0; }
+  .t { position: absolute; width: 66px; height: 66px; margin: -33px 0 0 -33px; border-radius: 16px; background: #141414;
+       border: 1.5px solid #2A2A2A; display: grid; place-items: center; box-sizing: border-box; }
+  .t img { width: 32px; height: 32px; }
+  .t img.r { border-radius: 50%; }
+</style></head>
+<body>
+<div class="s" id="s">
+  <div class="k">Coming <em>soon</em></div>
+  <div class="w">Yuelong</div>
+  <div class="p">yuelong.xyz</div>
+  <svg width="1200" height="675" viewBox="0 0 1200 675">
+    <defs>
+      <radialGradient id="glow"><stop offset="0" stop-color="#EFE3CD" stop-opacity=".9"/><stop offset="1" stop-color="#D9C3A0" stop-opacity="0"/></radialGradient>
+    </defs>
+    <g id="lines" fill="none" stroke="#2C2C2C" stroke-width="1.5"></g>
+    <g id="dots"></g>
+    <!-- the Yuelong mark -->
+    <g id="mark" transform="translate(600 432)">
+      <rect x="-50" y="-50" width="100" height="100" rx="26" fill="#000" stroke="#E8E8E8" stroke-width="5"/>
+      <g transform="translate(-32 -32) scale(2)">
+        <path d="M6 25C9 12 19 6 26 9" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
+        <path d="M22 6.5l4.4 2.4-2.6 4.2" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="7" cy="25" r="3.2" fill="#D9C3A0"/>
+      </g>
+    </g>
+  </svg>
+</div>
+<script>
+  const LOGOS = [['bittensor.jpg', 1], ['robinhood.svg', 0], ['metamask.svg', 0], ['rabby.svg', 0], ['phantom.svg', 0]];
+  const XS = [340, 470, 600, 730, 860], TY = 600, CX = 600, CY = 482;
+  const s = document.getElementById('s'), lines = document.getElementById('lines'), dots = document.getElementById('dots');
+  const tiles = [], paths = [], dotEls = [];
+  XS.forEach((x, i) => {
+    const d = `M${CX} ${CY} C${CX} ${CY + 52}, ${x} ${TY - 86}, ${x} ${TY - 34}`;
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', d); lines.appendChild(p); paths.push(p);
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.innerHTML = '<circle r="11" fill="url(#glow)"/><circle r="3.6" fill="#EFE3CD"/>';
+    dots.appendChild(g); dotEls.push(g);
+    const t = document.createElement('div');
+    t.className = 't'; t.style.left = x + 'px'; t.style.top = TY + 'px';
+    t.innerHTML = `<img src="../logos/${LOGOS[i][0]}" class="${LOGOS[i][1] ? 'r' : ''}">`;
+    s.appendChild(t); tiles.push(t);
+  });
+  // every 0.6 s a spark leaves the mark for one of the five, in this order; the pattern repeats every 3 s
+  const ORDER = [2, 4, 0, 3, 1], PERIOD = 3, GAP = 0.6, TRAVEL = 0.72, FLASH = 0.9;
+  const ease = (k) => (k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2);
+  window.draw = (t) => {
+    t = ((t % PERIOD) + PERIOD) % PERIOD;
+    let pulse = 0;
+    ORDER.forEach((tile, n) => {
+      // time since this spark left, wrapped into the loop
+      const since = ((t - n * GAP) % PERIOD + PERIOD) % PERIOD;
+      const dot = dotEls[tile], path = paths[tile];
+      if (since < TRAVEL) {
+        const L = path.getTotalLength(), pt = path.getPointAtLength(ease(since / TRAVEL) * L);
+        dot.setAttribute('transform', `translate(${pt.x} ${pt.y})`);
+        dot.style.opacity = Math.min(1, since / 0.08, (TRAVEL - since) / 0.06 + 0.2);
+      } else dot.style.opacity = 0;
+      pulse = Math.max(pulse, since < 0.25 ? 1 - since / 0.25 : 0);
+      const hit = since - TRAVEL;
+      const k = hit >= 0 && hit < FLASH ? Math.pow(1 - hit / FLASH, 1.6) : 0;
+      const el = tiles[tile];
+      el.style.borderColor = `rgba(217,195,160,${0.15 + 0.85 * k})`;
+      el.style.boxShadow = k ? `0 0 ${26 * k}px rgba(217,195,160,${0.35 * k}), 0 ${6 * k}px ${18 * k}px rgba(0,0,0,.6)` : 'none';
+      el.style.transform = `translateY(${-5 * k}px) scale(${1 + 0.06 * k})`;
+      path.setAttribute('stroke', k || since < TRAVEL ? `rgba(217,195,160,${0.18 + 0.3 * Math.max(k, since < TRAVEL ? 0.6 : 0)})` : '#2C2C2C');
+    });
+    document.getElementById('mark').setAttribute('transform', `translate(600 432) scale(${1 + 0.035 * pulse})`);
+  };
+  window.draw(0);
+</script>
+</body></html>

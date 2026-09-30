@@ -73,7 +73,7 @@ export function Hero({ counts }: { counts: Record<string, number> }) {
           >
             Every pad.
             <br />
-            One canvas.
+            Your pick.
           </motion.h1>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="mt-8">
             <p className="tracked leading-loose">

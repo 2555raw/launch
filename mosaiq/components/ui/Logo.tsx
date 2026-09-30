@@ -1,7 +1,7 @@
 import { cn } from "@/lib/cn";
 import { site } from "@/lib/site";
 
-/** The mark: a 2×2 mosaic with one tile nudged out of the grid. */
+/** The mark: a 2×2 grid of pads with one picked out of it. */
 export function LogoMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" aria-hidden="true" className={cn("size-7 shrink-0", className)}>

@@ -38,7 +38,7 @@ interface Form {
   ticker: string;
   image?: string;
   x: string;
-  websiteMode: "mosaiq" | "custom";
+  websiteMode: "hosted" | "custom";
   website: string;
   description: string;
   openingBuy: string;
@@ -51,7 +51,7 @@ type Submit =
   | { state: "error"; message: string }
   | { state: "done"; id: string; url: string; handoff: string };
 
-const AUTOSAVE_KEY = "mosaiq.studio.v1";
+const AUTOSAVE_KEY = "padpicker.studio.v1";
 const sections = [
   { id: "studio-network", label: "Network & launchpad" },
   { id: "studio-details", label: "Token details" },
@@ -80,7 +80,7 @@ export function LaunchStudio({
       ticker: draft?.ticker ?? "",
       image: draft?.image,
       x: draft?.x ?? "",
-      websiteMode: draft?.website ? "custom" : "mosaiq",
+      websiteMode: draft?.website ? "custom" : "hosted",
       website: draft?.website ?? "",
       description: draft?.description ?? "",
       openingBuy: draft?.openingBuy ?? "",
@@ -110,7 +110,7 @@ export function LaunchStudio({
           ticker: saved.ticker ?? "",
           x: saved.x ?? "",
           description: saved.description ?? "",
-          websiteMode: saved.websiteMode ?? "mosaiq",
+          websiteMode: saved.websiteMode ?? "hosted",
           website: saved.website ?? "",
         }));
       }
@@ -259,7 +259,7 @@ export function LaunchStudio({
       ticker: "",
       image: undefined,
       x: "",
-      websiteMode: "mosaiq",
+      websiteMode: "hosted",
       website: "",
       description: "",
       openingBuy: "",
@@ -518,7 +518,7 @@ export function LaunchStudio({
 
             <Fieldset legend="Website">
               <div role="radiogroup" aria-label="Website" className="flex flex-wrap gap-2">
-                <button type="button" role="radio" aria-checked={form.websiteMode === "mosaiq"} className="chip" onClick={() => update("websiteMode", "mosaiq")}>
+                <button type="button" role="radio" aria-checked={form.websiteMode === "hosted"} className="chip" onClick={() => update("websiteMode", "hosted")}>
                   {site.name} token page
                 </button>
                 <button type="button" role="radio" aria-checked={form.websiteMode === "custom"} className="chip" onClick={() => update("websiteMode", "custom")}>
@@ -544,7 +544,7 @@ export function LaunchStudio({
                     </Field>
                   </motion.div>
                 ) : (
-                  <motion.p key="mosaiq" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-2 text-xs text-mute">
+                  <motion.p key="hosted" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-2 text-xs text-mute">
                     The token gets a page on {site.name} with its chart link and socials.
                   </motion.p>
                 )}

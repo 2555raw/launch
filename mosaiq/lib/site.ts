@@ -4,15 +4,15 @@
  * read from this object.
  */
 export const site = {
-  name: "Mosaiq",
-  tagline: "Every launchpad. One canvas.",
+  name: "PadPicker",
+  tagline: "Every pad. Your pick.",
   description:
-    "Mosaiq brings token launchpads on Robinhood Chain, Solana, BNB Chain and Arc into a single launch studio. You draft the token, your agent places the launch.",
+    "PadPicker puts every token launchpad on Robinhood Chain, Solana, BNB Chain and Arc in one place. Pick your pad, draft the token, and your agent places the launch.",
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
   social: {
-    x: { handle: "@mosaiqhq", url: "https://x.com/mosaiqhq" },
+    x: { handle: "@padpicker", url: "https://x.com/padpicker" },
   },
-  keyPrefix: "mq_live_",
+  keyPrefix: "pp_live_",
 } as const;
 
 export const nav = [

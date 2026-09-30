@@ -46,7 +46,7 @@ export const draftInputSchema = z
       .regex(/^data:image\/(png|jpeg|webp|gif);base64,/, "Unsupported image")
       .optional(),
     x: optionalUrl(["x.com", "twitter.com"]),
-    websiteMode: z.enum(["mosaiq", "custom"]),
+    websiteMode: z.enum(["hosted", "custom"]),
     website: optionalUrl(),
     description: z
       .string()
@@ -82,7 +82,7 @@ export const draftInputSchema = z
       });
     }
     if (d.websiteMode === "custom" && !d.website) {
-      ctx.addIssue({ code: "custom", path: ["website"], message: "Add your site, or use the Mosaiq page" });
+      ctx.addIssue({ code: "custom", path: ["website"], message: "Add your site, or use the PadPicker page" });
     }
     if (d.mode === "import") {
       if (!d.address) {

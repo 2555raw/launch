@@ -27,8 +27,8 @@ export default function OpengraphImage() {
             {site.name}
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -3, lineHeight: 1 }}>Every launchpad.</div>
-            <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -3, lineHeight: 1, color: "#a3a6ad" }}>One canvas.</div>
+            <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -3, lineHeight: 1 }}>Every pad.</div>
+            <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -3, lineHeight: 1, color: "#a3a6ad" }}>Your pick.</div>
           </div>
           <div style={{ fontSize: 26, color: "#a3a6ad" }}>Robinhood Chain · Solana · BNB Chain · Arc — you draft, your agent launches.</div>
         </div>

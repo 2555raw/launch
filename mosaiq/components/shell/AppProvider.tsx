@@ -25,7 +25,7 @@ interface AppState {
 }
 
 const Ctx = createContext<AppState | null>(null);
-const AGENT_KEY = "mosaiq.agent";
+const AGENT_KEY = "padpicker.agent";
 
 export function useApp() {
   const ctx = useContext(Ctx);

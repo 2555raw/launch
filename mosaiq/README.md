@@ -1,9 +1,9 @@
-# Mosaiq
+# PadPicker
 
-**Every pad. One canvas.** Un estudio de lanzamiento de tokens que reúne las launchpads Pons (Robinhood Chain), Pump.fun
+**Every pad. Your pick.** Un estudio de lanzamiento de tokens que reúne las launchpads Pons (Robinhood Chain), Pump.fun
 y StonkFun (Solana), Four.meme y Flap (BNB Chain) y Argus (Arc) detrás de un solo formulario, con pares en ETH, USDG,
 cbBTC, BTC, SOL, BNB, USDC o acciones tokenizadas (TSLA, NVDA, AAPL…). La persona redacta el token;
-un **agente** con clave de Mosaiq lo envía a través de un servidor MCP.
+un **agente** con clave de PadPicker lo envía a través de un servidor MCP.
 
 Inspirado en el concepto y la estructura de dotspad.io, con nombre, identidad visual, textos, componentes y código propios.
 
@@ -19,15 +19,15 @@ Requiere Node 20+. Copia `.env.example` a `.env.local` si quieres fijar la URL p
 
 ## Análisis de la referencia → qué se implementó
 
-| Referencia | Mosaiq |
+| Referencia | PadPicker |
 | --- | --- |
 | Rail lateral de iconos + barra superior con búsqueda ⌘K, “Launch” y “Connect your Dot” | Rail con tooltips e indicador activo; en móvil, tab bar inferior. Paleta ⌘K real (páginas, pads y búsqueda en el ledger con debounce). “Connect agent” emite una clave real |
-| Hero con carrusel de tarjetas 3D de pads | Hero con **mosaico**: foco animado sobre el pad activo + rejilla de 6 teselas, autoplay con barra de progreso, pausa, anterior/siguiente, respeta `prefers-reduced-motion` |
+| Hero con carrusel de tarjetas 3D de pads | Carrusel de tarjetas 3D inclinadas: arrastrable, con teclado, autoplay con pausa, respeta `prefers-reduced-motion` |
 | Marquesina de pads | Marquesina infinita con pausa al hover/focus; los clones no son enfocables |
 | Bento (Explore / Launches / Analytics / Bring a Dot / How it works) | Bento con datos reales del ledger: últimos lanzamientos, sparkline acumulado, pasos |
 | Top Tokens con filtros, Top creators, lista de Launchpads | Filtro por cadena, ranking de agentes por lanzamientos, contador por pad; enlaces preseleccionan el pad en el estudio |
 | `/launch`: cadena → pad → par, nombre, ticker, imagen, X, web, compra inicial, descripción, nota para el agente, Create/Import | Todo lo anterior con validación zod compartida cliente/servidor, subida por arrastrar o clic (se redimensiona a WebP 512 px en el navegador), selección sincronizada con la URL, autoguardado local, vista previa en vivo, índice con scroll-spy, estados de carga/error/éxito |
-| “Solo un Dot puede lanzar; MCP en /api/mcp” | Las personas guardan borradores; `submit_launch` exige `Authorization: Bearer mq_live_…`. Clave mostrada una sola vez, se guarda solo su hash |
+| “Solo un Dot puede lanzar; MCP en /api/mcp” | Las personas guardan borradores; `submit_launch` exige `Authorization: Bearer pp_live_…`. Clave mostrada una sola vez, se guarda solo su hash |
 | `/explore`: búsqueda, orden, cuadrícula/lista, filtro de red, estado vacío | Igual, con filtros reflejados en la URL, vista recordada, tabla accesible en modo lista |
 | `/analytics`: tarjetas, gráfico con Total/Daily y 7D/30D/All | Gráfico SVG propio con tooltip por puntero, barras diarias, recarga por rango con estados, tabla oculta para lectores de pantalla, desglose por pad |
 | `/docs` con índice lateral, páginas legales | Docs con scroll-spy y tabla de herramientas MCP; términos, privacidad y avisos |

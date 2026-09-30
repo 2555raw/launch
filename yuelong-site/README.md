@@ -1,6 +1,6 @@
-# Longmen — site
+# Yuelong — site
 
-Static site for **Longmen**, a token launchpad for the Bittensor economy: launch a token paired
+Static site for **Yuelong**, a token launchpad for the Bittensor economy: launch a token paired
 with TAO or subnet alpha, on Robinhood Chain (bonding curve → pool) or Bittensor EVM (locked
 pool from block one).
 
@@ -35,9 +35,9 @@ Black ground, near-black cards, white as the primary action. **Instrument Serif*
 headings (with an italic word), **Inter** for everything else, **JetBrains Mono** for labels and
 figures. One beige, `#D9C3A0`, marks the logo's plaque and anything live or filling.
 
-**The name.** Longmen (龙门) is the Dragon Gate: in the old story, the carp that leaps it becomes
-a dragon. A launch that fills its curve and graduates to a pool is the same leap. The logo is a
-simple gate — two posts, a crossbeam and a curved roof — with the plaque in beige.
+**The name.** Yuelong (跃龙) means *the leaping dragon*: in the old story, the carp that leaps the falls at
+Longmen (龙门, the Dragon Gate) becomes a dragon. A launch that fills its curve and graduates to a pool
+makes the same leap. The favicon is a rising arc; the wordmark is set with its characters.
 
 ## Background painting
 

@@ -1,4 +1,4 @@
-/* Longmen — design system and layout, shared by index, launch and docs.
+/* Yuelong — design system and layout, shared by index, launch and docs.
    Black ground, near-black cards, white as the primary action. One beige
    (--accent) marks the logo node and things that are live or filling. */
 
@@ -971,3 +971,5 @@ input:focus-visible, select:focus-visible, textarea:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .dn-build-row, .dn-build-sk span, .dn-build-sk::after, .dn-build-av, .dn-build-curve b, .dn-build-spark path { transition: none; }
 }
+
+.dn-foot-tag { margin-top: 10px; font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--accent); }

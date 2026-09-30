@@ -1,5 +1,5 @@
 /* Self-hosted web fonts (SIL Open Font License): Inter, Instrument Serif, JetBrains Mono,
-   and Noto Serif SC subset to the two characters of 龙门. Latin and Latin Extended only. */
+   and Noto Serif SC subset to the characters of 跃龙 and 龙门. Latin and Latin Extended only. */
 
 @font-face {
   font-family: 'Instrument Serif';
@@ -167,5 +167,5 @@
   font-weight: 700;
   font-display: swap;
   src: url(fonts/noto-serif-sc-700-han.woff2) format('woff2');
-  unicode-range: U+95e8, U+9f99;
+  unicode-range: U+8dc3, U+95e8, U+9f99;
 }

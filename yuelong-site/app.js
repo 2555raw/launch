@@ -1,4 +1,4 @@
-/* Longmen — page behaviour for index, launch and docs.
+/* Yuelong — page behaviour for index, launch and docs.
    No dependencies. Every block checks that its elements exist, so one file
    serves the three pages. All market figures below are sample data. */
 
@@ -18,7 +18,7 @@
 
   const MARKETS = [
     { name: 'Inference Rush', ticker: 'INFR', kind: 'subnet',    label: 'Subnet Coin',      chain: 'Robinhood', sn: 'SN19', desc: 'Cheap open-model inference eats the cloud margin, starting here.', price: '0.0₆412 TAO', curve: 62.4, age: '6m' },
-    { name: 'Jade Rabbit',    ticker: 'JADE', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Robinhood', sn: '',     desc: 'The moon-bound mascot of the Longmen crowd.',                        price: '0.0₈203 ETH', curve: 0.4,  age: '14m' },
+    { name: 'Jade Rabbit',    ticker: 'JADE', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Robinhood', sn: '',     desc: 'The moon-bound mascot of the Yuelong crowd.',                        price: '0.0₈203 ETH', curve: 0.4,  age: '14m' },
     { name: 'Fold Theory',    ticker: 'PRTN', kind: 'candidate', label: 'Subnet Candidate', chain: 'Robinhood', sn: '',     desc: 'A protein-structure subnet that pays for verified folds.',           price: '0.0₇93 TAO',  curve: 8.1,  age: '31m' },
     { name: 'Open Corpus',    ticker: 'DATA', kind: 'subnet',    label: 'Subnet Coin',      chain: 'Robinhood', sn: 'SN13', desc: 'Models come and go. The data underneath them compounds.',           price: '0.0₆201 TAO', curve: 91.7, age: '48m' },
     { name: 'Halving Clock',  ticker: 'HALV', kind: 'ecosystem', label: 'TAO Ecosystem',    chain: 'Bittensor', sn: '',     desc: 'The next emission cut is still underpriced by alpha holders.',        price: '0.0₅108 TAO', curve: 0,    age: '1h' },
@@ -77,7 +77,7 @@
   // Shown once on first visit, centred over a translucent, blurred backdrop.
   // "Accept" is remembered; "Decline" sends the visitor to DECLINE_URL.
   const DECLINE_URL = 'https://www.ponsfamily.com/launchpad';
-  const CONSENT_KEY = 'longmen-terms';
+  const CONSENT_KEY = 'yuelong-terms';
   const onPolicyPage = /(terms|privacy)\.html$/.test(location.pathname);
 
   let consent = null;
@@ -88,7 +88,7 @@
     gate.innerHTML = `
       <div class="dn-consent-card" role="dialog" aria-modal="true" aria-labelledby="dn-consent-title">
         <h2 id="dn-consent-title">Before you <em>continue</em></h2>
-        <p>Longmen is experimental software for launching and trading highly speculative tokens. You act from your own wallet and carry the risk.</p>
+        <p>Yuelong is experimental software for launching and trading highly speculative tokens. You act from your own wallet and carry the risk.</p>
         <p>To use the site, please accept our <a href="terms.html" target="_blank" rel="noopener">Terms of Use</a> and <a href="privacy.html" target="_blank" rel="noopener">Privacy Policy</a>.</p>
         <div class="dn-consent-btns">
           <button type="button" class="dn-consent-no" data-choice="declined">Decline</button>

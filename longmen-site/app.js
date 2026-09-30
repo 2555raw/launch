@@ -75,6 +75,41 @@
     return (artCache[t] = 'data:image/svg+xml,' + encodeURIComponent(svg));
   };
 
+  /* ---------- cookie notice ---------- */
+
+  // Where "Decline" sends the visitor. Set this to the launcher's URL.
+  const DECLINE_URL = '';
+  const CONSENT_KEY = 'longmen-cookies';
+
+  let consent = null;
+  try { consent = localStorage.getItem(CONSENT_KEY); } catch (_) { /* storage blocked */ }
+  if (!consent) {
+    const bar = document.createElement('div');
+    bar.className = 'dn-cookie';
+    bar.setAttribute('role', 'dialog');
+    bar.setAttribute('aria-label', 'Cookie preferences');
+    bar.innerHTML = `
+      <div class="dn-cookie-text">
+        <b>Cookies on Longmen</b>
+        <p>We use essential cookies to keep the app working and optional ones to understand how it's used. You can accept or decline the optional ones.</p>
+      </div>
+      <div class="dn-cookie-btns">
+        <button type="button" class="dn-cookie-no" data-choice="declined">Decline</button>
+        <button type="button" class="dn-cookie-yes" data-choice="accepted">Accept all</button>
+      </div>`;
+    document.body.appendChild(bar);
+    requestAnimationFrame(() => requestAnimationFrame(() => bar.classList.add('is-in')));
+    bar.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-choice]');
+      if (!btn) return;
+      const choice = btn.dataset.choice;
+      try { localStorage.setItem(CONSENT_KEY, choice); } catch (_) { /* storage blocked */ }
+      if (choice === 'declined' && DECLINE_URL) { location.href = DECLINE_URL; return; }
+      bar.classList.remove('is-in');
+      setTimeout(() => bar.remove(), 400);
+    });
+  }
+
   /* ---------- mobile menu ---------- */
 
   const burger = $('#burger');

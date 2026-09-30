@@ -1,14 +1,31 @@
 import { cn } from "@/lib/cn";
 import { site } from "@/lib/site";
 
-/** The mark: a 2×2 grid of pads with one picked out of it. */
+/**
+ * The Picker mark: a square whose four sides each carry a half-disc and whose
+ * corners are scooped out. Drawn on a 100-unit square; the half-discs reach
+ * 24 units past each edge, hence the -24…124 view box.
+ */
+
+export function LogoShapes({ fill = "currentColor" }: { fill?: string }) {
+  const corner = "M0 0H26A26 26 0 0 1 0 26Z";
+  const half = "M26 0A24 24 0 0 1 74 0Z";
+  return (
+    <g fill={fill}>
+      {[0, 90, 180, 270].map((r) => (
+        <g key={r} transform={`rotate(${r} 50 50)`}>
+          <path d={corner} />
+          <path d={half} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
 export function LogoMark({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 32 32" aria-hidden="true" className={cn("size-7 shrink-0", className)}>
-      <rect x="3" y="3" width="12" height="12" rx="3.5" fill="#F3EFE7" />
-      <rect x="3" y="17" width="12" height="12" rx="3.5" fill="#F3EFE7" opacity="0.3" />
-      <rect x="17" y="17" width="12" height="12" rx="3.5" fill="#F3EFE7" opacity="0.7" />
-      <rect x="18" y="1.5" width="12" height="12" rx="3.5" fill="#FFFFFF" transform="rotate(8 24 7.5)" />
+    <svg viewBox="-24 -24 148 148" aria-hidden="true" className={cn("size-7 shrink-0 text-bone", className)}>
+      <LogoShapes />
     </svg>
   );
 }

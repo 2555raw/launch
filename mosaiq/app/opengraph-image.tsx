@@ -5,7 +5,21 @@ export const alt = `${site.name} · ${site.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const tiles = ["#3DD9B3", "#F5C84B", "#7C9CFF", "#FF6A3D", "#C9A7FF", "#FF9F43"];
+const corner = "M0 0H26A26 26 0 0 1 0 26Z";
+const half = "M26 0A24 24 0 0 1 74 0Z";
+
+function Mark({ px }: { px: number }) {
+  return (
+    <svg width={px} height={px} viewBox="-24 -24 148 148">
+      {[0, 90, 180, 270].map((r) => (
+        <g key={r} transform={`rotate(${r} 50 50)`} fill="#FAFAFA">
+          <path d={corner} />
+          <path d={half} />
+        </g>
+      ))}
+    </svg>
+  );
+}
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -15,38 +29,25 @@ export default function OpengraphImage() {
           width: "100%",
           height: "100%",
           display: "flex",
-          background: "radial-gradient(900px 500px at 85% 0%, rgba(255,106,61,0.22), transparent 70%), #07080a",
-          color: "#F3EFE7",
-          padding: 72,
+          alignItems: "center",
+          background: "radial-gradient(700px 420px at 78% 50%, rgba(255,255,255,0.08), transparent 70%), #0a0a0a",
+          color: "#FAFAFA",
+          padding: 80,
           fontFamily: "sans-serif",
         }}
       >
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", flex: 1 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, fontSize: 34, fontWeight: 700 }}>
-            <div style={{ display: "flex", width: 40, height: 40, borderRadius: 10, background: "#FF6A3D" }} />
+        <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 18, fontSize: 44, fontWeight: 700 }}>
+            <Mark px={56} />
             {site.name}
           </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -3, lineHeight: 1 }}>Every pad.</div>
-            <div style={{ fontSize: 88, fontWeight: 700, letterSpacing: -3, lineHeight: 1, color: "#a3a6ad" }}>Your pick.</div>
+          <div style={{ display: "flex", flexDirection: "column", marginTop: 44 }}>
+            <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1 }}>Every pad.</div>
+            <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1, color: "#9a9a9a" }}>Your pick.</div>
           </div>
-          <div style={{ fontSize: 26, color: "#a3a6ad" }}>Robinhood Chain · Solana · BNB Chain · Arc — you draft, your agent launches.</div>
+          <div style={{ fontSize: 26, color: "#8c8c8c", marginTop: 44 }}>padpicker.xyz · People draft, agents launch</div>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", width: 300, gap: 16, alignContent: "center" }}>
-          {tiles.map((c, i) => (
-            <div
-              key={c}
-              style={{
-                display: "flex",
-                width: 136,
-                height: 136,
-                borderRadius: 28,
-                background: i === 3 ? c : `${c}33`,
-                border: `2px solid ${c}66`,
-              }}
-            />
-          ))}
-        </div>
+        <Mark px={330} />
       </div>
     ),
     size,

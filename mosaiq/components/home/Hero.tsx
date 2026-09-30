@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { defaultPad, getChain, pads } from "@/lib/pads";
 import { site } from "@/lib/site";
+import { LogoMark } from "@/components/ui/Logo";
 import { ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
 
 const INTERVAL = 4500;
@@ -60,9 +61,10 @@ export function Hero({ counts }: { counts: Record<string, number> }) {
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="metal display text-5xl font-semibold leading-none sm:text-6xl"
+            className="flex items-center gap-4"
           >
-            {site.name}
+            <LogoMark className="size-12 sm:size-14" />
+            <span className="metal display text-5xl font-semibold leading-none sm:text-6xl">{site.name}</span>
           </motion.p>
           <motion.h1
             id="hero-title"

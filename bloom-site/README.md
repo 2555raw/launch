@@ -37,8 +37,17 @@ The look follows a night-blue interface over a real cosmos field in bloom.
 There is no backend in the money path: the server only serves files. There is
 no platform fee either; the user pays the pool fee and gas.
 
-Only v4 pools **without hooks** are used. A hook can change what a swap does at
-execution time, so a pool with one isn't trusted to match its quote.
+Which pools are trusted:
+
+- v4 pools **without hooks** only. A hook can change what a swap does at
+  execution time, so a pool with one isn't trusted to match its quote.
+- Fees of **1% or less**. Some pools are created with 50-95% fees as a trap.
+- Pools that survive a **round-trip test trade**: buy about $25 of the token
+  and sell it straight back through the quoter; more than 10% lost means the
+  pool is too thin to price anything, and it's dropped.
+- Stocks **deployed by Robinhood**: the proxy must have been created by
+  Robinhood's deployer through its stock factory. Anyone can put a proxy on a
+  public beacon and call it "Apple".
 
 ### Contracts (Uniswap's deployments for chain 4663)
 
@@ -77,7 +86,8 @@ each stock (and USDG):
 - v4: reads the PoolManager's `Initialize` events for pools against native ETH
   and USDG, and drops any with a hook;
 
-and keeps the pools with liquidity in range. The public RPC caps log queries,
+and keeps the pools with liquidity in range that pass the filters above. The
+public RPC caps log queries,
 so the scans are chunked and cached in `scripts/chain-cache.json`; a rerun only
 reads new blocks. Run it when new stocks or pools appear.
 

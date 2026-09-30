@@ -6,7 +6,8 @@
  * Stocks. Robinhood's stock tokens are beacon proxies behind one beacon, and a
  * beacon proxy emits BeaconUpgraded(beacon) when it is created. The script reads
  * the beacon out of a known stock (AAPL) and collects every contract that
- * emitted that event.
+ * emitted that event and was deployed by Robinhood's own account through its
+ * stock factory (anyone can put a proxy on a public beacon and name it Apple).
  *
  * Pools. For every stock, and for ETH/USDG itself, the script looks for:
  *   - Uniswap v3 pools against WETH or USDG, at each fee tier, via the factory;
@@ -14,7 +15,8 @@
  *     Initialize events. Only pools without hooks and with a fee of at most 1%
  *     are kept: a hook can charge or behave differently at swap time from what
  *     the quote showed, and some pools carry fees of 50% or more as a trap.
- * and keeps the ones with liquidity in range right now.
+ * and keeps the ones with liquidity in range right now that also survive a
+ * round-trip test trade (buy ~$25, sell it back, lose under 10%).
  *
  * The public RPC caps log queries (30,000 blocks with no address filter,
  * 10,000,000 with one), so both scans are chunked and cached in
@@ -27,10 +29,15 @@ const RPC = process.env.RPC_URL || 'https://rpc.mainnet.chain.robinhood.com';
 const V3_FACTORY = '0x1f7d7550b1b028f7571e69a784071f0205fd2efa';
 const POOL_MANAGER = '0x8366a39cc670b4001a1121b8f6a443a643e40951';
 const STATE_VIEW = '0xf3334192d15450cdd385c8b70e03f9a6bd9e673b';
+const QUOTER_V3 = '0x33e885ed0ec9bf04ecfb19341582aadcb4c8a9e7';
+const QUOTER_V4 = '0x8dc178efb8111bb0973dd9d722ebeff267c98f94';
 const WETH = '0x0bd7d308f8e1639fab988df18a8011f41eacad73';
 const USDG = '0x5fc5360d0400a0fd4f2af552add042d716f1d168';
 const ZERO = '0x0000000000000000000000000000000000000000';
 const SEED_STOCK = '0xaf3d76f1834a1d425780943c99ea8a608f8a93f9'; // AAPL
+/* every Robinhood stock token was created by this account calling this factory */
+const STOCK_DEPLOYER = '0x5516b3451d4d6c9f63353fe7bc9537477ecce000';
+const STOCK_FACTORY = '0x4783c67b63de2b358ac5951a7d41f47a38f3c046';
 const BEACON_SLOT = '0xa3f0ad74e5423aebfd80d3ef4346578335a9a72aeaee59ff6cb3582b35133d50';
 const BEACON_UPGRADED = '0x1cf3b03a6cf19fa2baba4df148e9dcabedea7f8a5c07840e207e5c089be95d3e';
 const V4_INITIALIZE = '0xdd466e674ea557f56295e2d0218a125ea4b4f0f6f3307b95f85e6110838d6438';
@@ -120,12 +127,23 @@ async function discoverStocks(cache, head) {
   for (let s = cache.stocksScannedTo + 1; s <= head; s += 30_000) ranges.push([s, Math.min(head, s + 29_999)]);
   console.log(`stocks: beacon ${beacon}, ${ranges.length} windows to scan`);
   const found = new Set(cache.stocks);
+  const candidates = [];
   let done = 0;
   await pool(ranges, 6, async ([a, b]) => {
     const logs = await rpc('eth_getLogs', [{ fromBlock: hexNum(a), toBlock: hexNum(b), topics: [BEACON_UPGRADED, '0x' + word(beacon)] }]);
-    for (const l of logs) found.add(l.address.toLowerCase());
-    if (++done % 250 === 0) console.log(`  ${done}/${ranges.length} windows, ${found.size} stocks`);
+    for (const l of logs) if (!found.has(l.address.toLowerCase())) candidates.push(l);
+    if (++done % 250 === 0) console.log(`  ${done}/${ranges.length} windows, ${found.size + candidates.length} candidates`);
   });
+  /* Anyone can deploy a proxy on a public beacon, or emit the event from any
+     contract, and call it "Apple". Only proxies Robinhood deployed through its
+     own factory count. */
+  for (const l of candidates) {
+    const tx = await rpc('eth_getTransactionByHash', [l.transactionHash]);
+    const slot = await rpc('eth_getStorageAt', [l.address, BEACON_SLOT, 'latest']);
+    const ok = tx && tx.from.toLowerCase() === STOCK_DEPLOYER && (tx.to || '').toLowerCase() === STOCK_FACTORY && '0x' + slot.slice(-40) === beacon;
+    if (ok) found.add(l.address.toLowerCase());
+    else console.warn(`  ignored ${l.address}: not deployed by Robinhood's stock factory`);
+  }
   cache.stocks = [...found].sort();
   cache.stocksScannedTo = head;
 }
@@ -184,6 +202,56 @@ async function v3Pools(tokens) {
   return out;
 }
 
+/* Quoter calldata, hand-encoded: QuoterV2.quoteExactInput(bytes path, uint256
+   amountIn) and V4Quoter.quoteExactInputSingle((PoolKey, bool zeroForOne,
+   uint128 exactAmount, bytes hookData)). Both return amountOut first. */
+function v3QuoteData(tokenIn, fee, tokenOut, amount) {
+  const path = tokenIn.slice(2) + fee.toString(16).padStart(6, '0') + tokenOut.slice(2);
+  return '0xcdca1753' + (0x40).toString(16).padStart(64, '0') + amount.toString(16).padStart(64, '0') +
+    (path.length / 2).toString(16).padStart(64, '0') + path.padEnd(128, '0');
+}
+function v4QuoteData(key, zeroForOne, amount) {
+  return '0xaa9d21cb' + (0x20).toString(16).padStart(64, '0') + word(key.currency0) + word(key.currency1) +
+    key.fee.toString(16).padStart(64, '0') + key.tickSpacing.toString(16).padStart(64, '0') + word(key.hooks) +
+    (zeroForOne ? 1 : 0).toString(16).padStart(64, '0') + amount.toString(16).padStart(64, '0') +
+    (0x100).toString(16).padStart(64, '0') + '0'.repeat(64);
+}
+
+/* A pool can hold liquidity yet be so thin that a small trade moves it to an
+   absurd price. Buy about $25 of the token from each pool and sell it straight
+   back; a pool that loses more than 10% on the round trip is dropped. */
+async function dropThinPools(tokens) {
+  const probes = [];
+  for (const t of tokens) for (const p of t.pools) {
+    const baseAddr = p.base === 'USDG' ? USDG : p.v === 3 ? WETH : ZERO;
+    const tokenAddr = t.address;
+    probes.push({ t, p, baseAddr, tokenAddr, amountIn: p.base === 'USDG' ? 25_000_000n : 10n ** 16n });
+  }
+  const quote = (q, from, to, amount) => {
+    if (q.p.v === 3) return [QUOTER_V3, v3QuoteData(from === ZERO ? WETH : from, q.p.fee, to === ZERO ? WETH : to, amount)];
+    return [QUOTER_V4, v4QuoteData(q.p.key, from.toLowerCase() === q.p.key.currency0.toLowerCase(), amount)];
+  };
+  const bought = await callBatch(probes.map((q) => quote(q, q.baseAddr, q.tokenAddr, q.amountIn)));
+  const soldCalls = probes.map((q, i) => (bought[i] && uint(bought[i]) > 0n ? quote(q, q.tokenAddr, q.baseAddr, uint(bought[i])) : null));
+  const sold = await callBatch(soldCalls.filter(Boolean));
+  let k = 0;
+  const keep = new Set();
+  probes.forEach((q, i) => {
+    if (!soldCalls[i]) return;
+    const back = sold[k++];
+    if (!back) return;
+    const loss = 1 - Number(uint(back)) / Number(q.amountIn);
+    if (loss < 0.10) keep.add(q.p);
+  });
+  let dropped = 0;
+  for (const t of tokens) {
+    const before = t.pools.length;
+    t.pools = t.pools.filter((p) => keep.has(p));
+    dropped += before - t.pools.length;
+  }
+  console.log(`dropped ${dropped} thin pools`);
+}
+
 (async () => {
   let cache = {};
   try { cache = JSON.parse(fs.readFileSync(CACHE, 'utf8')); } catch { /* first run */ }
@@ -196,7 +264,7 @@ async function v3Pools(tokens) {
   /* no hooks, and a fee no higher than Uniswap's top standard tier: some pools
      are set up with 50-95% fees to catch careless routers */
   const hookless = cache.v4.pools.filter((p) => p.hooks === ZERO && p.fee <= MAX_FEE);
-  console.log(`${cache.stocks.length} stocks, ${cache.v4.pools.length} v4 pools (${hookless.length} without hooks); checking liquidity`);
+  console.log(`${cache.stocks.length} stocks, ${cache.v4.pools.length} v4 pools (${hookless.length} with no hooks and a fee of 1% or less); checking liquidity`);
 
   const v4ByToken = new Map();
   const liqs = await callBatch(hookless.map((p) => [STATE_VIEW, '0xfa6793d5' + p.id.slice(2)])); // getLiquidity(bytes32)
@@ -229,7 +297,12 @@ async function v3Pools(tokens) {
     tokens.push(t);
     console.log(`  ${t.symbol.padEnd(6)} ${pools.map((p) => `v${p.v}/${p.base}/${p.fee}`).join(' ')}`);
   });
+  await dropThinPools(tokens);
+  for (let i = tokens.length - 1; i >= 0; i--) if (!tokens[i].pools.length) tokens.splice(i, 1);
   tokens.sort((a, b) => a.symbol.localeCompare(b.symbol));
+  /* the page keys prices and balances by symbol, so two tokens can't share one */
+  const dupes = tokens.map((t) => t.symbol).filter((s, i, all) => all.indexOf(s) !== i);
+  if (dupes.length) throw new Error(`duplicate symbols: ${[...new Set(dupes)].join(', ')}`);
 
   fs.writeFileSync(OUT,
     `/* Generated by scripts/build-tokens.js at block ${head}. Do not edit by hand. */\n` +

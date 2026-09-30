@@ -265,7 +265,7 @@ img { display: block; }
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  background: #fff;
+  background: var(--panel-2);
   flex-shrink: 0;
 }
 .tok-text { display: flex; flex-direction: column; text-align: left; line-height: 1.2; min-width: 0; }
@@ -356,7 +356,7 @@ img { display: block; }
   display: grid;
   place-items: center;
 }
-.pick img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; background: #fff; }
+.pick img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; background: var(--panel-2); }
 .pick b { font-size: 15px; margin-top: 4px; }
 .pick small { color: var(--muted); font-size: 12px; }
 .pick .px { color: var(--ink); font-weight: 600; font-size: 13px; }
@@ -422,7 +422,7 @@ img { display: block; }
   transition: border-color .2s, transform .15s;
 }
 .mkt:hover { border-color: var(--border-strong); transform: translateY(-2px); }
-.mkt img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #fff; }
+.mkt img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: var(--panel-2); }
 .mkt-text { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
 .mkt-text b { font-size: 15px; }
 .mkt-text small { color: var(--muted); font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

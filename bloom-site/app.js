@@ -192,6 +192,7 @@
       return;
     }
     const inBase = new Map(); // `${symbol}|${base}` -> price of token in base units
+    const depth = new Map();  // `${symbol}|${base}` -> the pool's base-side virtual reserve, in base units
     reads.forEach((r, i) => {
       const res = results[i];
       if (!res.success || res.returnData === '0x') return;
@@ -201,16 +202,23 @@
       const baseAddr = (r.pool.v === 3 ? v3Addr(r.base) : v4Addr(r.base)).toLowerCase();
       const tokenIs0 = tokenAddr < baseAddr;
       const p = tokenIs0 ? poolPrice(sqrt, r.token.decimals, r.base.decimals) : 1 / poolPrice(sqrt, r.base.decimals, r.token.decimals);
-      if (isFinite(p) && p > 0) inBase.set(r.token.symbol + '|' + r.base.symbol, p);
+      if (!(isFinite(p) && p > 0)) return;
+      inBase.set(r.token.symbol + '|' + r.base.symbol, p);
+      /* virtual reserves of an in-range pool: token1 = L·√P, token0 = L/√P */
+      const L = Number(r.pool.liquidity), rootP = Number(sqrt) / 2 ** 96;
+      const baseRaw = tokenIs0 ? L * rootP : L / rootP;
+      depth.set(r.token.symbol + '|' + r.base.symbol, baseRaw / 10 ** r.base.decimals);
     });
     const usdgInEth = USDG ? inBase.get('USDG|ETH') : null;
     if (usdgInEth) { state.ethPer.set('USDG', usdgInEth); state.ethUsd = 1 / usdgInEth; }
     for (const t of STOCKS) {
       const viaEth = inBase.get(t.symbol + '|ETH');
-      const viaUsd = inBase.get(t.symbol + '|USDG');
-      /* the deepest pool decides which base to believe */
-      const deepest = t.pools[0];
-      const pick = deepest && deepest.base === 'USDG' && viaUsd && usdgInEth ? viaUsd * usdgInEth : (viaEth ?? (viaUsd && usdgInEth ? viaUsd * usdgInEth : null));
+      const viaUsd = inBase.get(t.symbol + '|USDG') && usdgInEth ? inBase.get(t.symbol + '|USDG') * usdgInEth : null;
+      /* believe whichever pool is deeper, comparing both in ETH: a thin pool on
+         one side can sit at a stale price */
+      const ethDepth = depth.get(t.symbol + '|ETH') ?? 0;
+      const usdDepth = (depth.get(t.symbol + '|USDG') ?? 0) * (usdgInEth ?? 0);
+      const pick = viaEth && viaUsd ? (ethDepth >= usdDepth ? viaEth : viaUsd) : (viaEth ?? viaUsd);
       if (pick) state.ethPer.set(t.symbol, pick);
     }
     renderPrices();
@@ -545,12 +553,12 @@
   /* Selling a token goes through Permit2, Uniswap's approval contract: the token
      is approved to Permit2 for exactly this amount, then a signed permit lets the
      router pull exactly that amount, for the next 30 minutes. */
-  async function preparePermit(signer, token, amount, onStep) {
+  async function preparePermit(signer, send, token, amount, onStep) {
     const owner = state.account;
     const erc20Allowance = BigInt(await read.call({ to: token.address, data: erc20Iface.encodeFunctionData('allowance', [owner, PERMIT2]) }));
     if (erc20Allowance < amount) {
       onStep(`Approve ${token.symbol}`, `Step 1 of 3 — allow Uniswap's Permit2 contract to use exactly ${fmtAmount(toNum(amount, token.decimals))} ${token.symbol}.`);
-      const tx = await signer.sendTransaction({ to: token.address, data: erc20Iface.encodeFunctionData('approve', [PERMIT2, amount]) });
+      const tx = await send(signer, { to: token.address, data: erc20Iface.encodeFunctionData('approve', [PERMIT2, amount]) });
       onStep('Approving…', `Waiting for the approval to confirm on ${CHAIN.name}.`);
       const rc = await read.waitForTransaction(tx.hash, 1, 180000);
       if (!rc || rc.status !== 1) throw new Error('The approval did not go through.');
@@ -576,10 +584,14 @@
     return { value, signature };
   }
 
+  let reviewed = null; // what the user saw on the review screen
+  let busy = false;
+
   function openReview() {
     const q = state.quote;
-    if (!q) return;
+    if (!q || busy) return;
     const d = quoteDetails(q);
+    reviewed = { from: q.from, to: q.to, amountIn: q.amountIn, minOut: d.minOut };
     $('rv-pay').textContent = `${fmtAmount(d.inNum)} ${q.from.symbol}`;
     $('rv-recv').textContent = `${fmtAmount(d.outNum)} ${q.to.symbol}`;
     const uIn = priceUsd(q.from), uOut = priceUsd(q.to);
@@ -604,36 +616,51 @@
     $('tx-step-desc').textContent = desc;
   }
 
+  /* Wallets sign for whatever network they're on when asked. Pin every
+     transaction to Robinhood Chain and check again right before each one, so a
+     network switch mid-flow can't send the swap somewhere else. */
+  async function send(signer, tx) {
+    const id = await state.wallet.request({ method: 'eth_chainId' });
+    if (Number(id) !== CHAIN.id) throw new Error(`Your wallet switched away from ${CHAIN.name}. Switch back and try again; nothing was sent.`);
+    return signer.sendTransaction({ ...tx, chainId: CHAIN.id });
+  }
+
   async function executeSwap() {
-    const from = state.pay, to = state.recv;
-    const amountIn = state.quote?.amountIn;
-    if (!amountIn || !state.account) return;
+    if (busy || !reviewed || !state.account) return;
+    busy = true;
+    const { from, to, amountIn, minOut: reviewedMin } = reviewed;
+    const account = state.account;
     let hash = null;
+    progress('Getting ready…', 'Checking your wallet and network.');
     try {
       if (!(await ensureChain())) throw new Error(`Switch your wallet to ${CHAIN.name} to swap.`);
-      const signer = await new ethers.BrowserProvider(state.wallet, 'any').getSigner(state.account);
+      const signer = await new ethers.BrowserProvider(state.wallet, 'any').getSigner(account);
 
-      const permit = from.native ? null : await preparePermit(signer, from, amountIn, progress);
+      const permit = from.native ? null : await preparePermit(signer, send, from, amountIn, progress);
 
       progress('Checking the price…', 'Getting a fresh quote from the pools.');
       const q = await bestQuote(from, to, amountIn);
       const d = quoteDetails(q);
-      const tx = buildPlan(q, d.minOut, permit);
+      /* never accept less than the minimum shown on the review screen */
+      if (q.amountOut < reviewedMin) {
+        throw Object.assign(new Error(`The price moved since you reviewed it: you'd now get about ${fmtAmount(d.outNum)} ${to.symbol}, below the ${fmtAmount(toNum(reviewedMin, to.decimals))} ${to.symbol} minimum you accepted. Nothing was sent; review the new price and try again.`), { priceMoved: true });
+      }
+      const minOut = d.minOut > reviewedMin ? d.minOut : reviewedMin;
+      const tx = buildPlan(q, minOut, permit);
 
       /* dry-run first, so a swap that would revert never reaches the wallet */
       try {
-        await read.call({ from: state.account, to: tx.to, data: tx.data, value: tx.value });
+        await read.call({ from: account, to: tx.to, data: tx.data, value: tx.value });
       } catch (e) {
         throw new Error(`This swap would fail right now (${e.shortMessage || e.reason || 'reverted'}). The price may have moved; try again or raise your slippage.`);
       }
 
-      progress('Confirm in your wallet', `${from.native ? '' : 'Last step — '}swap ${fmtAmount(d.inNum)} ${from.symbol} for at least ${fmtAmount(toNum(d.minOut, to.decimals))} ${to.symbol}.`);
-      const sent = await signer.sendTransaction(tx);
+      progress('Confirm in your wallet', `${from.native ? '' : 'Last step — '}swap ${fmtAmount(d.inNum)} ${from.symbol} for at least ${fmtAmount(toNum(minOut, to.decimals))} ${to.symbol}.`);
+      const sent = await send(signer, tx);
       hash = sent.hash;
       progress('Swap submitted', `Waiting for ${CHAIN.name} to confirm it…`);
       const rc = await read.waitForTransaction(hash, 1, 180000);
-      if (!rc) throw new Error('Still waiting for confirmation. Check the explorer for its status.');
-      if (rc.status !== 1) throw new Error('The swap reverted on-chain, most likely because the price moved past your slippage limit. Your tokens were not swapped.');
+      if (!rc || rc.status !== 1) throw Object.assign(new Error('The swap reverted on-chain, most likely because the price moved past your slippage limit. Your tokens were not swapped.'), { reverted: true });
 
       showTxStep('done');
       $('tx-title').textContent = 'Done';
@@ -641,15 +668,26 @@
       $('tx-done-link').href = `${CHAIN.explorer}/tx/${hash}`;
       $('pay-amt').value = '';
       requestQuote(0);
-      refreshBalances();
     } catch (e) {
-      showTxStep('fail');
-      $('tx-title').textContent = 'Not swapped';
-      $('tx-fail-title').textContent = isRejection(e) ? 'Request cancelled' : 'Swap failed';
-      $('tx-fail-desc').textContent = humanError(e);
-      const link = $('tx-fail-link');
-      link.hidden = !hash;
-      if (hash) link.href = `${CHAIN.explorer}/tx/${hash}`;
+      if (hash && !e.reverted) {
+        /* sent, but we stopped waiting: it may still land, so don't call it failed */
+        showTxStep('done');
+        $('tx-title').textContent = 'Submitted';
+        $('tx-done-desc').textContent = 'Your swap was sent but hasn’t confirmed yet. It may still go through — check the explorer before trying again.';
+        $('tx-done-link').href = `${CHAIN.explorer}/tx/${hash}`;
+      } else {
+        showTxStep('fail');
+        $('tx-title').textContent = 'Not swapped';
+        $('tx-fail-title').textContent = isRejection(e) ? 'Request cancelled' : e.priceMoved ? 'Price moved' : 'Swap failed';
+        $('tx-fail-desc').textContent = humanError(e);
+        const link = $('tx-fail-link');
+        link.hidden = !hash;
+        if (hash) link.href = `${CHAIN.explorer}/tx/${hash}`;
+        if (e.priceMoved) requestQuote(0);
+      }
+    } finally {
+      busy = false;
+      reviewed = null;
       refreshBalances();
     }
   }

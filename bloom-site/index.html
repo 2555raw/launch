@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bloom — Swap tokenized stocks on Robinhood Chain</title>
+<meta name="description" content="Swap ETH for tokenized stocks on Robinhood Chain, straight from your wallet, routed through live Uniswap liquidity.">
+<meta name="theme-color" content="#0b1024">
+<link rel="icon" type="image/svg+xml" href="assets/mark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/field.jpg">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="field" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="brand" href="#top" aria-label="Bloom home">
+    <img src="assets/mark.svg" alt="" width="28" height="28">
+    <span>Bloom</span>
+  </a>
+  <nav class="main-nav" aria-label="Sections">
+    <a href="#swap">Swap</a>
+    <a href="#stocks">Stocks</a>
+    <a href="#how">How it works</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <button class="btn btn-primary btn-sm" id="nav-connect" type="button">Connect wallet</button>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <h1>
+      <span class="line">Plant a swap.
+        <span class="hero-tile" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+        </span>
+      </span>
+      <span class="line">Grow a portfolio.</span>
+    </h1>
+    <p class="lede">Swap ETH for tokenized stocks on Robinhood Chain, straight from your wallet.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-primary btn-lg" href="#swap">Start swapping <span class="arrow-dot" aria-hidden="true">→</span></a>
+      <a class="btn btn-ghost btn-lg" href="#how">How it works</a>
+    </div>
+    <ul class="trust">
+      <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>Non-custodial</li>
+      <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>Live Uniswap liquidity</li>
+      <li><svg viewBox="0 0 24 24" width="16" height="16" fill="#ff8b06"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>Robinhood Chain</li>
+    </ul>
+  </section>
+
+  <section class="swap-wrap" id="swap">
+    <div class="card swap-card">
+      <div class="swap-head">
+        <h2>Swap</h2>
+        <div class="swap-tools">
+          <span class="pill pill-blue" id="slip-pill">Auto</span>
+          <button class="icon-btn" id="settings-btn" type="button" aria-label="Slippage settings" aria-expanded="false">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+          </button>
+          <div class="settings-pop" id="settings-pop" hidden>
+            <div class="settings-title">Max slippage</div>
+            <div class="slip-row">
+              <button type="button" class="slip-opt" data-slip="auto">Auto</button>
+              <button type="button" class="slip-opt" data-slip="0.1">0.1%</button>
+              <button type="button" class="slip-opt" data-slip="0.5">0.5%</button>
+              <button type="button" class="slip-opt" data-slip="1">1%</button>
+              <label class="slip-custom"><input id="slip-input" inputmode="decimal" placeholder="Custom" aria-label="Custom slippage in percent">%</label>
+            </div>
+            <p class="settings-note">Your swap reverts if the price moves against you by more than this. Auto uses 0.5%.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="tok-box">
+        <div class="tok-top">
+          <span class="tok-label">You pay</span>
+          <span class="tok-bal">Balance: <b id="pay-bal">0.0000</b> <button type="button" class="max-btn" id="max-btn">MAX</button></span>
+        </div>
+        <div class="tok-mid">
+          <input class="amt-input" id="pay-amt" inputmode="decimal" autocomplete="off" placeholder="0" value="0.01" aria-label="Amount to pay">
+          <button type="button" class="tok-select" id="pay-select" data-side="pay">
+            <img id="pay-logo" alt="" width="32" height="32">
+            <span class="tok-text"><b id="pay-sym">ETH</b><small id="pay-sub">Robinhood Chain (native)</small></span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="tok-usd" id="pay-usd">$0.00</div>
+      </div>
+
+      <button type="button" class="flip-btn" id="flip-btn" aria-label="Switch pay and receive tokens">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/></svg>
+      </button>
+
+      <div class="tok-box">
+        <div class="tok-top">
+          <span class="tok-label">You receive</span>
+          <span class="tok-bal">Balance: <b id="recv-bal">0.0000</b></span>
+        </div>
+        <div class="tok-mid">
+          <input class="amt-input" id="recv-amt" readonly placeholder="0" aria-label="Estimated amount to receive">
+          <button type="button" class="tok-select" id="recv-select" data-side="recv">
+            <img id="recv-logo" alt="" width="32" height="32">
+            <span class="tok-text"><b id="recv-sym">AAPL</b><small id="recv-sub">Apple</small></span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+        <div class="tok-usd" id="recv-usd">$0.00</div>
+      </div>
+
+      <div class="quote-box" id="quote-box">
+        <div class="q-row q-rate"><span id="q-rate">Fetching live price…</span><span class="q-live" id="q-live"><i></i>Live</span></div>
+        <div class="q-row"><span>Route</span><span id="q-route">—</span></div>
+        <div class="q-row"><span>Minimum received</span><span id="q-min">—</span></div>
+        <div class="q-row"><span>Price impact</span><span id="q-impact">—</span></div>
+        <div class="q-row"><span>Liquidity provider fee</span><span id="q-lpfee">—</span></div>
+      </div>
+
+      <div class="swap-alert" id="swap-alert" hidden></div>
+
+      <button type="button" class="btn btn-primary btn-block" id="swap-btn">Connect wallet</button>
+      <p class="fine">Quotes come straight from Uniswap v3 pools on Robinhood Chain. Network fees apply.</p>
+    </div>
+
+    <aside class="card side-card">
+      <div class="side-head">
+        <h3>Pick a stock</h3>
+        <p>Live prices, straight from the pools</p>
+      </div>
+      <div class="pick-grid" id="pick-grid"></div>
+      <button type="button" class="more-btn" id="more-stocks">All stocks (<span id="stock-count">0</span>)</button>
+      <div class="eth-price">
+        <span>ETH price</span>
+        <b id="eth-price">—</b>
+      </div>
+      <ul class="side-notes">
+        <li>Your wallet signs every trade</li>
+        <li>Slippage protection on every swap</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section class="section" id="stocks">
+    <div class="section-head reveal">
+      <span class="eyebrow">Markets</span>
+      <h2>Every stock with live liquidity.</h2>
+      <p>Each token below has an active Uniswap v3 pool on Robinhood Chain. Prices are read from the pools as the page loads.</p>
+    </div>
+    <div class="market-tools reveal">
+      <label class="search">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="market-search" placeholder="Search Apple, NVDA, Tesla…" aria-label="Search stocks">
+      </label>
+    </div>
+    <div class="market-grid reveal" id="market-grid"></div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="section-head reveal">
+      <span class="eyebrow">How it works</span>
+      <h2>Swap on Robinhood Chain.<br>Own a slice of the market.</h2>
+      <p>Bloom is a window onto Uniswap. It finds the best pool for your trade, shows you exactly what you'll get, and hands the transaction to your wallet.</p>
+    </div>
+    <div class="steps">
+      <div class="card step reveal"><span class="step-n">1</span><h3>Connect your wallet</h3><p>MetaMask, Rabby, Coinbase Wallet or any browser wallet. No sign-up. Your wallet is your account.</p></div>
+      <div class="card step reveal"><span class="step-n">2</span><h3>Pick a stock</h3><p>Choose from every tokenized stock with live liquidity. Bloom quotes each pool tier and routes through the best one.</p></div>
+      <div class="card step reveal"><span class="step-n">3</span><h3>Swap and hold</h3><p>Confirm in your wallet. The tokens land at your address in seconds, and you can swap back to ETH any time.</p></div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="section-head reveal">
+      <span class="eyebrow">Features</span>
+      <h2>Everything Bloom does</h2>
+    </div>
+    <div class="features">
+      <div class="card feat reveal"><span class="feat-ic">🔀</span><h3>Best-pool routing</h3><p>Every quote checks each fee tier and, between two stocks, the route through ETH, then takes whichever pays you most.</p></div>
+      <div class="card feat reveal"><span class="feat-ic">🔐</span><h3>Non-custodial</h3><p>Bloom never holds your funds. Swaps go from your wallet to the Uniswap router and back, in one transaction.</p></div>
+      <div class="card feat reveal"><span class="feat-ic">📈</span><h3>Live prices</h3><p>Every price on this page is read from the pools on Robinhood Chain. Nothing is hard-coded.</p></div>
+      <div class="card feat reveal"><span class="feat-ic">🛡️</span><h3>Slippage protection</h3><p>You set the worst price you'll accept. If the market moves past it, the swap reverts and you keep your tokens.</p></div>
+      <div class="card feat reveal"><span class="feat-ic">✅</span><h3>Exact approvals</h3><p>When you sell a stock, Bloom asks your wallet to approve only the amount you're swapping, never an unlimited allowance.</p></div>
+      <div class="card feat reveal"><span class="feat-ic">🧾</span><h3>No platform fee</h3><p>You pay the pool's own liquidity fee and the network fee. Bloom adds nothing on top.</p></div>
+    </div>
+    <div class="stats reveal">
+      <div><b id="stat-stocks">—</b><span>tokenized stocks</span></div>
+      <div><b id="stat-pools">—</b><span>live pools</span></div>
+      <div><b>0%</b><span>platform fee</span></div>
+      <div><b>4663</b><span>chain ID</span></div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="section-head reveal">
+      <span class="eyebrow">FAQ</span>
+      <h2>Questions, answered</h2>
+    </div>
+    <div class="faq">
+      <div class="faq-item"><button class="faq-q" type="button">What is Bloom?<span>▾</span></button><div class="faq-a"><p>Bloom is a swap interface for tokenized stocks on Robinhood Chain. It reads prices from Uniswap v3 pools and sends your swap to the official Uniswap router, signed by your own wallet.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Which stocks can I swap?<span>▾</span></button><div class="faq-a"><p>Every tokenized stock that has an active Uniswap v3 pool against ETH on Robinhood Chain: Apple, NVIDIA, Tesla, Microsoft, Amazon, Alphabet, Meta and more. The list in Markets is the full set.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">What fees do I pay?<span>▾</span></button><div class="faq-a"><p>The pool's liquidity fee (0.01%, 0.05%, 0.3% or 1%, shown before you swap) and the Robinhood Chain network fee. Bloom charges no platform fee.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Why do I sign twice when selling a stock?<span>▾</span></button><div class="faq-a"><p>The first signature approves the Uniswap router to move exactly the amount you're selling. The second is the swap itself. Buying with ETH needs only one.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Is holding a tokenized stock the same as holding the share?<span>▾</span></button><div class="faq-a"><p>No. Tokenized stocks track the price of the underlying security and are issued by third parties. Holding one is not holding the share. Not investment advice.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Which network does Bloom run on?<span>▾</span></button><div class="faq-a"><p>Robinhood Chain (chain ID 4663). If your wallet isn't on it yet, Bloom will ask to add and switch to it when you connect.</p></div></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="foot-top">
+    <div class="foot-brand">
+      <a class="brand" href="#top"><img src="assets/mark.svg" alt="" width="26" height="26"><span>Bloom</span></a>
+      <p>Swap on <b>Robinhood Chain</b> and grow a portfolio of <b>tokenized stocks</b>, one swap at a time.</p>
+    </div>
+    <div class="foot-col"><h4>Product</h4><a href="#swap">Swap</a><a href="#stocks">Stocks</a><a href="#features">Features</a></div>
+    <div class="foot-col"><h4>Learn</h4><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noopener">Block explorer</a></div>
+  </div>
+  <div class="foot-legal">
+    <p>Tokenized stocks track the price of the underlying security and are issued by third parties. Holding one is not holding the share. Not investment advice.</p>
+    <p>Swaps settle through Uniswap v3 on Robinhood Chain. Liquidity and network fees apply.</p>
+    <p class="credit">Background photo: “Cosmos flower field #2” by Takashi Hososhima, <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener">CC BY-SA 2.0</a>, via <a href="https://commons.wikimedia.org/wiki/File:Cosmos_flower_field_-2_(8090495110).jpg" target="_blank" rel="noopener">Wikimedia Commons</a>. Company logos are trademarks of their owners.</p>
+    <p>© 2026 Bloom</p>
+  </div>
+</footer>
+
+<!-- Token picker -->
+<div class="modal" id="token-modal" role="dialog" aria-modal="true" aria-labelledby="token-modal-title" hidden>
+  <div class="modal-card">
+    <div class="modal-head"><h3 id="token-modal-title">Select a token</h3><button type="button" class="icon-btn" data-close aria-label="Close">✕</button></div>
+    <label class="search"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="token-search" placeholder="Search name or ticker" aria-label="Search tokens"></label>
+    <div class="token-list" id="token-list"></div>
+  </div>
+</div>
+
+<!-- Wallet picker -->
+<div class="modal" id="wallet-modal" role="dialog" aria-modal="true" aria-labelledby="wallet-modal-title" hidden>
+  <div class="modal-card modal-sm">
+    <div class="modal-head"><h3 id="wallet-modal-title">Connect wallet</h3><button type="button" class="icon-btn" data-close aria-label="Close">✕</button></div>
+    <div class="wallet-list" id="wallet-list"></div>
+  </div>
+</div>
+
+<!-- Swap status -->
+<div class="modal" id="tx-modal" role="dialog" aria-modal="true" aria-labelledby="tx-title" hidden>
+  <div class="modal-card modal-sm">
+    <div class="modal-head"><h3 id="tx-title">Confirm swap</h3><button type="button" class="icon-btn" data-close aria-label="Close">✕</button></div>
+    <div id="tx-review">
+      <div class="rv-box"><span>You pay</span><b id="rv-pay">—</b><small id="rv-pay-usd"></small></div>
+      <div class="rv-arrow">↓</div>
+      <div class="rv-box"><span>You receive (estimated)</span><b id="rv-recv">—</b><small id="rv-recv-usd"></small></div>
+      <div class="rv-rows">
+        <div><span>Rate</span><span id="rv-rate">—</span></div>
+        <div><span>Minimum received</span><span id="rv-min">—</span></div>
+        <div><span>Route</span><span id="rv-route">—</span></div>
+        <div><span>Max slippage</span><span id="rv-slip">—</span></div>
+        <div><span>Network</span><span>Robinhood Chain (4663)</span></div>
+      </div>
+      <button type="button" class="btn btn-primary btn-block" id="rv-confirm">Confirm swap</button>
+    </div>
+    <div id="tx-progress" hidden>
+      <div class="spinner" aria-hidden="true"></div>
+      <h4 id="tx-step-title">Waiting for your wallet…</h4>
+      <p id="tx-step-desc">Confirm the transaction in your wallet.</p>
+    </div>
+    <div id="tx-done" hidden>
+      <div class="done-ic ok" aria-hidden="true">✓</div>
+      <h4>Swap complete</h4>
+      <p id="tx-done-desc"></p>
+      <a class="tx-link" id="tx-done-link" target="_blank" rel="noopener">View on explorer ↗</a>
+      <button type="button" class="btn btn-primary btn-block" data-close>Done</button>
+    </div>
+    <div id="tx-fail" hidden>
+      <div class="done-ic bad" aria-hidden="true">✕</div>
+      <h4 id="tx-fail-title">Swap failed</h4>
+      <p id="tx-fail-desc"></p>
+      <a class="tx-link" id="tx-fail-link" target="_blank" rel="noopener" hidden>View on explorer ↗</a>
+      <button type="button" class="btn btn-ghost btn-block" data-close>Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="vendor/ethers.umd.min.js"></script>
+<script src="tokens.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

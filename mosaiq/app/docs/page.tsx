@@ -27,11 +27,11 @@ const mcpExample = `curl -s ${site.url}/api/mcp \\
 
 export default function DocsPage() {
   return (
-    <div className="mx-auto grid max-w-6xl gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[13rem_minmax(0,1fr)]">
+    <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[13rem_minmax(0,1fr)]">
       <aside className="order-2 hidden pt-6 lg:order-1 lg:block">
         <DocsToc items={toc} />
       </aside>
-      <article className="order-1 lg:order-2">
+      <article className="order-1 min-w-0 lg:order-2">
         <div className="card p-4 sm:p-6">
         <header className="relative overflow-hidden rounded-2xl border border-line bg-[linear-gradient(135deg,#1a1a1a,#0e0e0e)] p-7 sm:p-10">
           <div aria-hidden="true" className="absolute -right-20 -top-20 size-64 rounded-full bg-accent/10 blur-3xl" />
@@ -78,7 +78,7 @@ export default function DocsPage() {
               The server lives at <code>/api/mcp</code> and speaks JSON-RPC 2.0 over HTTP POST (<code>initialize</code>,{" "}
               <code>tools/list</code>, <code>tools/call</code>).
             </p>
-            <div className="not-prose mt-5 overflow-hidden rounded-2xl border border-line">
+            <div className="not-prose mt-5 overflow-x-auto rounded-2xl border border-line">
               <table className="w-full text-sm">
                 <thead className="bg-surface-2 text-left text-xs text-mute">
                   <tr>

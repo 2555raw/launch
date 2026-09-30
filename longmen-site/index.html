@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700&text=%E9%BE%99%E9%97%A8&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -87,7 +88,30 @@
       <div class="dn-wrap dn-steps-grid">
         <div class="dn-steps-side">
           <h2 class="dn-h2">From <em>one line</em> of text to a live market</h2>
-          <div class="dn-rings" aria-hidden="true"></div>
+          <!-- a seal (印章) reading 龙门 over a 回纹 lattice -->
+          <div class="dn-seal-art" aria-hidden="true">
+            <svg viewBox="0 0 460 440" fill="none">
+              <defs>
+                <pattern id="dn-huiwen" width="44" height="44" patternUnits="userSpaceOnUse">
+                  <path d="M3 3h38v38H9V9h26v26H15V15h14v14h-8v-8" stroke="#1E1C19" stroke-width="2"/>
+                </pattern>
+                <linearGradient id="dn-fade" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+                </linearGradient>
+                <mask id="dn-fade-mask"><rect width="460" height="440" fill="url(#dn-fade)"/></mask>
+              </defs>
+              <rect width="460" height="440" fill="url(#dn-huiwen)" mask="url(#dn-fade-mask)"/>
+              <g transform="translate(150 60) rotate(-4 80 95)">
+                <g class="dn-seal">
+                  <rect width="160" height="190" rx="10" fill="#0A0A0A" stroke="#D9C3A0" stroke-width="4"/>
+                  <rect x="10" y="10" width="140" height="170" rx="5" stroke="#D9C3A0" stroke-width="1.5" opacity=".6"/>
+                  <text x="80" y="94" text-anchor="middle" font-family="'Noto Serif SC', 'Songti SC', 'SimSun', serif" font-weight="700" font-size="70" fill="#D9C3A0">龙</text>
+                  <text x="80" y="166" text-anchor="middle" font-family="'Noto Serif SC', 'Songti SC', 'SimSun', serif" font-weight="700" font-size="70" fill="#D9C3A0">门</text>
+                </g>
+              </g>
+            </svg>
+            <p class="dn-seal-cap">Dragon Gate · the leap every launch takes</p>
+          </div>
         </div>
         <ol class="dn-steps" id="steps">
           <li>

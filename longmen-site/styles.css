@@ -156,12 +156,15 @@ em { font-style: italic; }
 .dn-steps-grid { display: grid; grid-template-columns: 1fr 1.25fr; gap: 64px; max-width: 1180px; }
 .dn-steps-side { position: sticky; top: 130px; align-self: start; }
 .dn-steps-side .dn-h2 { max-width: 7.5em; font-size: clamp(44px, 5vw, 64px); }
-.dn-rings {
-  margin-top: 36px; height: 420px; max-width: 460px;
-  background-image: radial-gradient(circle at center, transparent 20px, #141414 21px, #141414 32px, transparent 33px);
-  background-size: 110px 110px;
-  -webkit-mask-image: linear-gradient(#000 20%, transparent 95%); mask-image: linear-gradient(#000 20%, transparent 95%);
-}
+/* the seal beside the steps: 龙门 over a 回纹 lattice; it stamps in when revealed */
+.dn-seal-art { margin-top: 36px; max-width: 460px; }
+.dn-seal-art svg { display: block; width: 100%; height: auto; }
+.dn-seal { transform-box: fill-box; transform-origin: center; }
+.dn-js .dn-seal-art.dn-reveal .dn-seal { opacity: 0; }
+.dn-js .dn-seal-art.dn-reveal.is-in .dn-seal { animation: dn-stamp .7s cubic-bezier(.2, .9, .25, 1.15) .25s both; }
+@keyframes dn-stamp { 0% { opacity: 0; transform: scale(1.35) rotate(6deg); } 60% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+.dn-seal-cap { margin-top: 8px; padding-left: 150px; font: 400 11.5px/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--dim); }
+@media (prefers-reduced-motion: reduce) { .dn-js .dn-seal-art.dn-reveal .dn-seal { opacity: 1; animation: none; } }
 .dn-steps { list-style: none; margin: 0; padding: 40px 0 0; display: grid; gap: 64px; }
 .dn-steps li { position: relative; padding-left: 50px; opacity: .45; transition: opacity .4s; }
 .dn-steps li.is-lit { opacity: 1; }
@@ -530,7 +533,8 @@ em { font-style: italic; }
   .dn-burger { display: inline-grid; }
   .dn-steps-grid { grid-template-columns: 1fr; gap: 16px; }
   .dn-steps-side { position: static; }
-  .dn-rings { display: none; }
+  .dn-seal-art { max-width: 300px; margin-top: 20px; }
+  .dn-seal-cap { padding-left: 0; text-align: center; font-size: 10.5px; }
   .dn-panel { grid-template-columns: 1fr; }
   .dn-panel-flip .dn-panel-art { order: 0; }
   .dn-panel-copy { padding: 40px 28px 48px; }

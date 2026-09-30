@@ -1,9 +1,9 @@
 <!doctype html>
 <html><head><meta charset="utf-8">
-<!-- The Yuelong mark in 3D: thick clear-glass crescents with a stepped groove, two back to back as
-     the carp tail (a Y) and one as the stem, with the dragon pearl in the notch. Open over http;
-     ?bg=none for a transparent background, ?w=&h= size, ?s= scale, ?ry=&rx=&rz= pose (the logo
-     uses ry=-0.38 rx=0.36 rz=0.12). Screenshot once window.ready is true. -->
+<!-- The Yuelong mark in 3D: two open rings of beige glass, one inside the other (the pearl in its
+     orbit), lit by a warm glow from the lower left. Open over http; ?bg=none for a transparent
+     background, ?w=&h= size, ?s= scale, ?ry=&rx=&rz= pose (the logo uses ry=-0.55 rx=0.25 rz=0.15).
+     Screenshot once window.ready is true. -->
 <style>
   html,body{margin:0;background:#000}
   #stage{position:relative;width:1024px;height:1024px;overflow:hidden;
@@ -44,54 +44,37 @@ bar(6, 2, 0, -4.5, 0, 0, -Math.PI / 2, 18, 0xc27a34);
 bar(2, 5, 0, 0, -4.5, 0, 0, 10, 0xb8753a);   // warm panel behind     // bronze bounce below
 const envTex = pmrem.fromScene(room, 0.01).texture;
 scene.environment = envTex;
-const cv = document.createElement('canvas'); cv.width = 16; cv.height = 512;
-const g2 = cv.getContext('2d'); const gr = g2.createLinearGradient(0, 0, 0, 512);
-gr.addColorStop(0, '#111111'); gr.addColorStop(0.5, '#2c2c2c'); gr.addColorStop(1, '#4a4a4a');
-g2.fillStyle = gr; g2.fillRect(0, 0, 16, 512);
+const cv = document.createElement('canvas'); cv.width = 512; cv.height = 512;
+const g2 = cv.getContext('2d');
+g2.fillStyle = '#000'; g2.fillRect(0, 0, 512, 512);
+const glow = g2.createRadialGradient(120, 440, 10, 120, 440, 300);   // warm light from the lower left
+glow.addColorStop(0, '#c09a6a'); glow.addColorStop(0.3, '#5c4630'); glow.addColorStop(0.62, '#140f0a'); glow.addColorStop(1, '#000');
+g2.fillStyle = glow; g2.fillRect(0, 0, 512, 512);
 const bgTex = new THREE.CanvasTexture(cv); bgTex.colorSpace = THREE.SRGBColorSpace;
-const back = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), new THREE.MeshBasicMaterial({ map: bgTex, toneMapped: false }));
+const back = new THREE.Mesh(new THREE.PlaneGeometry(1500, 1500), new THREE.MeshBasicMaterial({ map: bgTex, toneMapped: false }));
 back.position.z = -700;
 if (P.get('bg') !== 'none') scene.add(back);
 const warm = new THREE.DirectionalLight(0xffc98f, 3.2); warm.position.set(-300, 300, 200); scene.add(warm);
 const cool = new THREE.DirectionalLight(0xffffff, 1.2); cool.position.set(300, -100, 300); scene.add(cool);
-// The mark: thick glass crescents with a stepped groove. Two back to back make the carp's
-// tail (the Y), a third is the stem, the pearl sits in the notch.
-const FLIP = (P.get('flip') || '0') === '1';
-// a polygon with every corner rounded, so each edge catches a line of light
-const prof = (pts, r = 2.4) => {
-  const sh = new THREE.Shape(); const n = pts.length - 1;   // last point repeats the first
-  const P2 = pts.slice(0, n).map(([x, y]) => (FLIP ? [y, x] : [x, y]));
-  for (let i = 0; i < n; i++) {
-    const [px, py] = P2[(i - 1 + n) % n], [cx, cy] = P2[i], [nx, ny] = P2[(i + 1) % n];
-    const d1 = Math.hypot(cx - px, cy - py), d2 = Math.hypot(nx - cx, ny - cy), rr = Math.min(r, d1 / 2, d2 / 2);
-    const ax = cx + (px - cx) / d1 * rr, ay = cy + (py - cy) / d1 * rr, bx = cx + (nx - cx) / d2 * rr, by = cy + (ny - cy) / d2 * rr;
-    i ? sh.lineTo(ax, ay) : sh.moveTo(ax, ay);
-    sh.quadraticCurveTo(cx, cy, bx, by);
-  }
+// The mark: two open glass rings, one inside the other, the pearl's orbit. Each is an annulus
+// sector extruded with rounded edges; the outer opens to the right, the inner turns the other way.
+const ring = (R, r, a0, a1, depth) => {
+  const sh = new THREE.Shape();
+  sh.absarc(0, 0, R, a0, a1, false);
+  sh.absarc(0, 0, r, a1, a0, true);
   sh.closePath();
-  return sh;
+  return new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: true, bevelThickness: 3.5, bevelSize: 3, bevelSegments: 10, curveSegments: 160 });
 };
-const U = prof([[-22,-17],[22,-17],[22,17],[16.5,17],[16.5,10],[12,10],[12,-4],[-12,-4],[-12,10],[-16.5,10],[-16.5,17],[-22,17],[-22,-17]], 3);
 const glass = new THREE.MeshPhysicalMaterial({
-  color: 0xFFFFFF, metalness: 0, roughness: 0.04, transmission: 1, thickness: 22, ior: 1.5,
-  clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.8, specularIntensity: 1, dispersion: 0.4,
-  attenuationColor: new THREE.Color(0xBF8446), attenuationDistance: 48, side: THREE.DoubleSide,
+  color: 0xEED6AF, metalness: 0.08, roughness: 0.03, transmission: 1, thickness: 24, ior: 1.5,
+  clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 2.6, specularIntensity: 1, dispersion: 0.5, iridescence: 0.12,
+  attenuationColor: new THREE.Color(0xD9B27C), attenuationDistance: 9, side: THREE.DoubleSide,
 });
-const sweep = (curve) => new THREE.Mesh(new THREE.ExtrudeGeometry(U, { steps: 160, bevelEnabled: false, curveSegments: 8, extrudePath: curve }), glass);
-const arc = (cx, cy, r, a0, a1) => {
-  const pts = []; for (let i = 0; i <= 64; i++) { const a = a0 + (a1 - a0) * i / 64; pts.push(new THREE.Vector3(cx + r * Math.cos(a), cy + r * Math.sin(a), 0)); }
-  return new THREE.CatmullRomCurve3(pts);
-};
 const D = Math.PI / 180;
-const mark = new THREE.Group();
-mark.add(sweep(arc(-70, 0, 70, 0 * D, 78 * D)));      // left lobe: rises from the middle, sweeps out to the top-left
-mark.add(sweep(arc(70, 0, 70, 180 * D, 102 * D)));     // right lobe, mirrored
-mark.add(sweep(arc(-130, -52, 130, 24 * D, 0 * D)));  // stem: a gentle crescent down from the fork
-const pearl = new THREE.Mesh(new THREE.SphereGeometry(16, 128, 128), new THREE.MeshPhysicalMaterial({
-  color: 0xE8CFA6, metalness: 0.65, roughness: 0.16, clearcoat: 1, clearcoatRoughness: 0.12, envMapIntensity: 2,
-}));
-pearl.position.set(0, 62, 14);
-mark.add(pearl);
+const outer = new THREE.Mesh(ring(104, 66, 38 * D, 322 * D, 26), glass);
+const inner = new THREE.Mesh(ring(58, 34, 212 * D, 508 * D, 26), glass);
+inner.position.set(22, 0, 16);
+const mark = new THREE.Group(); mark.add(outer); mark.add(inner);
 { const bb = new THREE.Box3().setFromObject(mark), c = bb.getCenter(new THREE.Vector3()); mark.children.forEach((m) => m.position.sub(c)); }
 scene.add(mark);
 window.pose = (ry = -0.5, rx = 0.32, rz = 0.08, scale = 1) => {

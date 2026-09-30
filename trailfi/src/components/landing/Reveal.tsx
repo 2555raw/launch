@@ -33,7 +33,6 @@ export function SectionHeading({
     <Reveal className={center ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
       <div className={`mb-5 flex items-center gap-3 ${center ? "justify-center" : ""}`}>
         <span className="font-mono text-[11px] text-lime-400">{index}</span>
-        <span className="h-px w-8 bg-white/20" />
         <span className="label">{label}</span>
       </div>
       <h2 className="font-display text-4xl font-bold leading-[1.02] tracking-[-0.02em] sm:text-5xl lg:text-[56px]">

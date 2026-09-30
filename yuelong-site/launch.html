@@ -43,53 +43,58 @@
       <h1 class="dn-h1-page">Plant it in <em>TAO</em>.</h1>
       <p class="dn-lead">Turn an idea about intelligence into something people can trade.</p>
       <div class="dn-subnav">
-        <a href="index.html#markets">Markets</a><a href="index.html#faceoff">Subnets</a><a href="index.html#theses">Candidates</a><a href="index.html#faceoff">Face-offs</a><a href="#portfolio">Portfolio</a><a class="is-active" href="launch.html">Launch</a><a href="index.html#features">Fund</a>
+        <a href="index.html#markets">Markets</a><a href="index.html#faceoff">Subnets</a><a href="index.html#theses">Candidates</a><a href="index.html#faceoff">Face-offs</a><a href="portfolio.html">Portfolio</a><a class="is-active" href="launch.html">Launch</a><a href="index.html#features">Fund</a>
       </div>
     </div>
 
     <div class="dn-box dn-recover">
       <div>
         <b>Launched already and can't find it?</b>
-        <p>If your wallet timed out or the token isn't showing, look up the transaction first. Deploying again costs gas twice.</p>
+        <p>If your wallet timed out or the coin isn't showing, look up the transaction first. Launching again costs gas twice.</p>
       </div>
-      <button type="button" class="dn-chip">Find my launch</button>
+      <form class="yl-find" id="find-form">
+        <input id="find-tx" type="text" placeholder="0x… transaction hash" spellcheck="false" autocomplete="off">
+        <button type="submit" class="dn-chip">Find my launch</button>
+      </form>
     </div>
 
     <section class="dn-box">
       <span class="dn-kicker">Network</span>
       <h2 class="dn-h4 dn-h4-lg">Where should it live?</h2>
-      <p class="dn-dim">A token, its pool and its balances stay on the network you launch it on.</p>
-      <div class="dn-nets" role="radiogroup" id="nets">
-        <button type="button" role="radio" aria-checked="true" data-net="bittensor">
-          <b>Bittensor EVM</b><span>TAO or subnet alpha · locked pool from block one</span>
-        </button>
-        <button type="button" role="radio" aria-checked="false" data-net="robinhood">
-          <b>Robinhood Chain <em class="dn-live">live</em></b><span>Bonding curve · moves to a pool when it fills</span>
-        </button>
-      </div>
+      <p class="dn-dim">A coin, its curve and its pool stay on the network you launch it on.</p>
+      <div class="dn-nets" role="radiogroup" id="nets"></div>
       <div class="dn-note" id="net-note"></div>
     </section>
 
     <div class="dn-launch-grid">
       <form class="dn-box dn-form" id="launch-form" autocomplete="off" novalidate>
-        <span class="dn-kicker" id="form-kicker">Bittensor EVM · native TAO</span>
-        <h2 class="dn-h4 dn-h4-lg" id="form-title">Straight into a pool.</h2>
-        <p class="dn-dim" id="form-sub">One transaction deploys the token and opens its pool, funded by the reserve you set below. There's no extra platform fee to deploy.</p>
+        <span class="dn-kicker" id="form-kicker">Bonding curve · native TAO</span>
+        <h2 class="dn-h4 dn-h4-lg" id="form-title">Start on a curve.</h2>
+        <p class="dn-dim" id="form-sub">One transaction creates the coin and its bonding curve. When the curve fills, its TAO and the remaining coins move into a pool whose liquidity nobody can pull.</p>
 
-        <label class="dn-f">
-          <span>Pair against</span>
-          <select id="f-pair">
-            <option value="TAO">Native TAO</option>
-            <option value="SN9">SN9 alpha (wrapped)</option>
-            <option value="SN13">SN13 alpha (wrapped)</option>
-            <option value="SN19">SN19 alpha (wrapped)</option>
-            <option value="SN51">SN51 alpha (wrapped)</option>
-          </select>
+        <div class="dn-f-row">
+          <label class="dn-f">
+            <span>Pair against</span>
+            <select id="f-pair"></select>
+          </label>
+          <label class="dn-f">
+            <span>Kind</span>
+            <select id="f-kind">
+              <option value="ecosystem">TAO Ecosystem</option>
+              <option value="subnet">Subnet coin</option>
+              <option value="candidate">Subnet candidate</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="dn-f" id="sn-field" hidden>
+          <span>Subnet number</span>
+          <input id="f-sn" type="number" min="0" max="4095" step="1" placeholder="19">
         </label>
 
         <div class="dn-f-row">
           <label class="dn-f"><span>Name</span><input id="f-name" type="text" maxlength="40" placeholder="Project name"></label>
-          <label class="dn-f"><span>Ticker</span><input id="f-ticker" type="text" maxlength="10" placeholder="TICKER" class="dn-mono-in"></label>
+          <label class="dn-f"><span>Ticker</span><input id="f-ticker" type="text" maxlength="8" placeholder="TICKER" class="dn-mono-in"></label>
         </div>
 
         <label class="dn-f">
@@ -102,26 +107,48 @@
           <span class="dn-f-head">Image <em class="dn-chip dn-chip-sm">Optional</em></span>
           <div class="dn-upload">
             <span class="dn-avatar" id="f-avatar">?</span>
-            <label class="dn-chip">Upload<input type="file" id="f-file" accept="image/png,image/jpeg,image/webp" hidden></label>
+            <label class="dn-chip">Upload<input type="file" id="f-file" accept="image/png,image/jpeg,image/webp,image/gif" hidden></label>
+            <small class="dn-dim" id="f-upmsg"></small>
           </div>
-          <small class="dn-dim">PNG, JPG or WebP up to 2 MB; square looks best. The image is public once uploaded.</small>
+          <small class="dn-dim">PNG, JPG, WebP or GIF up to 2 MB; square looks best. The image is public once uploaded.</small>
           <input id="f-url" type="url" placeholder="…or paste an image URL (https://)">
         </div>
 
-        <label class="dn-f" id="reserve-field">
-          <span>Starting reserve (<span id="reserve-unit">TAO</span>)</span>
-          <input id="f-reserve" type="number" min="0.01" step="0.01" value="1" class="dn-big-in">
-          <small class="dn-dim">Minimum 0.01, plus gas. This seeds the pool and sets the opening price; it isn't a fee. <a href="index.html#features">Top up a wallet</a></small>
-        </label>
+        <div class="dn-f">
+          <span class="dn-f-head">Links <em class="dn-chip dn-chip-sm">Optional</em></span>
+          <div class="yl-links">
+            <input id="f-web" type="url" placeholder="Website https://">
+            <input id="f-x" type="url" placeholder="X https://x.com/…">
+            <input id="f-tg" type="url" placeholder="Telegram https://t.me/…">
+          </div>
+        </div>
+
+        <div class="dn-f-row">
+          <label class="dn-f">
+            <span>First buy (<span class="yl-unit">TAO</span>)</span>
+            <input id="f-buy" type="number" min="0" step="0.01" value="0" class="dn-big-in">
+            <small class="dn-dim" id="f-buy-est">Optional. Lands in the same transaction, before anyone else can trade, with no snipe tax.</small>
+          </label>
+          <label class="dn-f">
+            <span>Creator fee</span>
+            <select id="f-tax">
+              <option value="0">0%</option>
+              <option value="50">0.5% of every trade</option>
+              <option value="100">1% of every trade</option>
+              <option value="200">2% of every trade</option>
+            </select>
+            <small class="dn-dim">Paid to your wallet in <span class="yl-unit">TAO</span> on every curve trade, on top of the 1% protocol fee.</small>
+          </label>
+        </div>
       </form>
 
       <aside class="dn-box dn-terms">
         <span class="dn-kicker">Summary</span>
         <dl id="terms"></dl>
-        <p class="dn-dim dn-small" id="terms-note"></p>
-        <div class="dn-warn" id="terms-warn"></div>
-        <label class="dn-check"><input type="checkbox" id="f-ack"><span id="ack-text"></span></label>
-        <button class="dn-btn-white" type="button" id="review" data-wallet>Connect wallet to review</button>
+        <p class="dn-dim dn-small" id="terms-note">Anyone can buy or sell against the curve from the first block. Buys in the first 60 blocks pay a snipe tax that falls from 20% to 0 and stays in the curve. Graduation happens on its own when the target is reached.</p>
+        <div class="dn-warn" id="terms-warn">Graduated liquidity is locked permanently. The contracts are tested but have not had an independent audit yet.</div>
+        <label class="dn-check"><input type="checkbox" id="f-ack"><span id="ack-text">I understand graduated liquidity is locked for good and that this coin isn't subnet alpha.</span></label>
+        <button class="dn-btn-white" type="button" id="review">Connect wallet</button>
         <p class="dn-form-msg" id="form-msg" aria-live="polite"></p>
       </aside>
     </div>
@@ -135,6 +162,7 @@
     </div>
   </footer>
 
+<script src="web3.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

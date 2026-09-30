@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yuelong</title>
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Yuelong owner tools.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23000'/%3E%3Cpath d='M6 25C9 12 19 6 26 9' fill='none' stroke='%23fff' stroke-width='2.8' stroke-linecap='round'/%3E%3Cpath d='M22 6.5l4.4 2.4-2.6 4.2' fill='none' stroke='%23fff' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7' cy='25' r='3.2' fill='%23D9C3A0'/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/instrument-serif-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/fonts.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dn-page">
+  <a class="dn-skip" href="#main">Skip to content</a>
+
+  <header class="dn-nav-wrap">
+    <nav class="dn-nav">
+      <a class="dn-brand" href="index.html">
+        Yuelong
+      </a>
+      <div class="dn-nav-links" id="navlinks">
+        <a href="index.html#markets">Markets</a>
+        <a href="index.html#faceoff">Subnets</a>
+        <a href="index.html#theses">Candidates</a>
+        <a href="docs.html">Docs</a>
+        <a class="dn-only-sm" href="launch.html">Launch</a>
+      </div>
+      <div class="dn-nav-right">
+        <a class="dn-nav-launch" href="launch.html">Launch</a>
+        <button class="dn-pill-btn" type="button" data-wallet>Connect wallet</button>
+        <button class="dn-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="dn-wrap yl-page yl-admin" id="main" tabindex="-1">
+    <div class="dn-center">
+      <nav class="dn-crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><b>Owner</b></nav>
+      <h1 class="dn-h1-page">Deploy <em>Yuelong</em>.</h1>
+      <p class="dn-lead">Put the contracts on a chain from your own wallet and switch the site on. Your key never leaves the wallet; this page only asks it to sign.</p>
+    </div>
+
+    <section class="dn-box">
+      <span class="dn-kicker">1 · Admin key</span>
+      <p class="dn-dim yl-admin-p">The <code>ADMIN_KEY</code> variable of the Railway service. It only lets this page save which contracts the site shows.</p>
+      <form class="yl-admin-row" id="key-form"><input id="key" type="password" autocomplete="off" placeholder="ADMIN_KEY"><button class="dn-chip" type="submit">Unlock</button></form>
+      <div id="current"></div>
+    </section>
+
+    <section class="dn-box" id="deploy-box" hidden>
+      <span class="dn-kicker">2 · Deploy from your wallet</span>
+      <div class="dn-form yl-admin-form">
+        <div class="dn-f-row">
+          <label class="dn-f"><span>Network</span><select id="d-net"></select></label>
+          <label class="dn-f"><span>Treasury (receives the fees)</span><input id="d-treasury" type="text" placeholder="0x… (default: your wallet)" spellcheck="false"></label>
+        </div>
+        <div class="dn-f-row">
+          <label class="dn-f"><span>Virtual reserve (TAO)</span><input id="d-phantom" type="text" value="25"><small class="dn-dim">Sets the starting price: launch price = reserve ÷ 1,000,000,000.</small></label>
+          <label class="dn-f"><span>Graduation target (TAO raised)</span><input id="d-threshold" type="text" value="60"><small class="dn-dim">When a curve holds this much, it moves into a locked pool.</small></label>
+        </div>
+        <div class="dn-f-row">
+          <label class="dn-f"><span>Launch fee (native coin)</span><input id="d-fee" type="text" value="0"></label>
+          <label class="dn-f"><span>Existing wrapped TAO <em class="dn-chip dn-chip-sm">Optional</em></span><input id="d-wnative" type="text" placeholder="Leave empty to deploy WTAO" spellcheck="false"></label>
+        </div>
+        <ol class="yl-steps" id="steps"></ol>
+        <button class="dn-btn-white" type="button" id="deploy">Connect wallet</button>
+        <p class="dn-form-msg" id="d-msg" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="dn-box" id="import-box" hidden>
+      <span class="dn-kicker">Or · import a deployment</span>
+      <p class="dn-dim yl-admin-p">Paste <code>contracts/out/deployment.&lt;chainId&gt;.json</code> from <code>npm run deploy</code>. The server checks it against the chain before using it.</p>
+      <textarea id="import" rows="6" spellcheck="false" placeholder='{"chainId":945,"factory":"0x…","router":"0x…","wnative":"0x…","graduator":"0x…","startBlock":123}'></textarea>
+      <button class="dn-chip" type="button" id="import-go">Save deployment</button>
+    </section>
+  </main>
+
+  <footer class="dn-foot">
+    <div class="dn-wrap">
+      <div class="dn-foot-bottom">
+        <p>© 2026 Yuelong. Independent software, not affiliated with the Opentensor Foundation, Bittensor or Robinhood Markets, Inc.</p>
+      </div>
+    </div>
+  </footer>
+
+<script src="web3.js"></script>
+<script src="app.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

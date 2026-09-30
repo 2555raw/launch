@@ -408,12 +408,12 @@
       <div class="dn-wrap dn-faq-wrap">
         <h2 class="dn-h2 dn-h2-sans dn-center-text">Before you sign</h2>
         <div class="dn-faq">
-          <details><summary>Is the token I launch subnet alpha?</summary><p>No. You're launching your own ERC-20 that trades against TAO or a subnet's alpha. It doesn't register a subnet or receive emissions.</p></details>
-          <details><summary>What actually happens when I launch?</summary><p>One transaction creates the token, writes its metadata and opens its market: a bonding curve on Robinhood Chain, or a locked pool seeded by you on Bittensor EVM.</p></details>
-          <details><summary>How much does it cost?</summary><p>Network gas, plus the initial reserve you choose on Bittensor EVM. Trades pay a small fee, part of which goes to the creator.</p></details>
-          <details><summary>Can I take the starting liquidity back out?</summary><p>No. Pool liquidity is sent to an address nobody controls, which is what lets traders trust the market won't be pulled.</p></details>
+          <details><summary>Is the token I launch subnet alpha?</summary><p>No. You're launching your own ERC-20 that trades against TAO. It doesn't register a subnet or receive emissions.</p></details>
+          <details><summary>What actually happens when I launch?</summary><p>One transaction creates the coin, writes its metadata and opens its bonding curve. You can add a first buy to the same transaction, before anyone else can trade.</p></details>
+          <details><summary>How much does it cost?</summary><p>Network gas and the launch fee shown before you sign. Curve trades pay 1%, plus a creator fee of up to 2% if the creator set one.</p></details>
+          <details><summary>Can anyone pull the liquidity?</summary><p>No. When a curve graduates, its pool is seeded with no LP tokens at all, so nobody, the creator and Yuelong included, can take the liquidity out.</p></details>
           <details><summary>Do I need to sign up?</summary><p>No account and no email. Your wallet is your login.</p></details>
-          <details><summary>What does "graduation" mean?</summary><p>On Robinhood Chain every token starts on a bonding curve. When the curve reaches its target, its reserve and the unsold supply move into a pool automatically and the pool's liquidity is locked. On Bittensor EVM tokens open straight into a locked pool, so there's no curve to graduate from.</p></details>
+          <details><summary>What does "graduation" mean?</summary><p>Every coin starts on a bonding curve. When the curve has raised its target, the TAO and the matching share of the unsold supply move into a pool in the same transaction, at the curve's last price, and the rest of the supply is burned. Trading carries on in the pool from the same page.</p></details>
           <details><summary>Which wallets work?</summary><p>Any EVM wallet that can add a custom network: MetaMask, Rabby, Coinbase Wallet and OKX Wallet are the ones we test with. The app offers to add Robinhood Chain or Bittensor EVM for you.</p></details>
           <details><summary>Where are the contracts?</summary><p>Contract addresses are listed on the <a href="docs.html#security">Security</a> section of the docs, together with how to verify them on a block explorer. Always check the address in your wallet before you sign.</p></details>
           <details><summary>Will Yuelong ever DM me or ask for my seed phrase?</summary><p>Never. We don't run support by direct message and nothing on this site asks for a seed phrase or private key. Anyone who does is not us.</p></details>
@@ -452,6 +452,7 @@
     </div>
   </footer>
 
+<script src="web3.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

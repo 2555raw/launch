@@ -71,6 +71,7 @@
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" shape-rendering="crispEdges"><rect width="8" height="8" fill="#161616"/>${cells}</svg>`;
     return (artCache[t] = 'data:image/svg+xml,' + encodeURIComponent(svg));
   };
+  window.YLart = tokenArt;
 
   /* ---------- terms gate ---------- */
 
@@ -122,19 +123,6 @@
     if (e.target.closest('a')) { links.classList.remove('is-open'); burger?.setAttribute('aria-expanded', 'false'); }
   });
 
-  /* ---------- wallet (mock) ---------- */
-
-  $$('[data-wallet]').forEach((btn) => btn.addEventListener('click', () => {
-    const on = !document.body.classList.contains('is-connected');
-    document.body.classList.toggle('is-connected', on);
-    $$('.dn-nav [data-wallet]').forEach((b) => {
-      b.textContent = on ? '0x7a3…c91e' : 'Connect wallet';
-      b.classList.toggle('is-on', on);
-    });
-    const review = $('#review');
-    if (review) review.textContent = on ? 'Review launch' : 'Connect wallet to review';
-  }));
-
   /* ---------- hero composer ---------- */
 
   const cText = $('#composer-text');
@@ -184,28 +172,54 @@
 
   /* ---------- markets ---------- */
 
+  // Cards are drawn from one shape, so the sample set and the live index share the renderer.
+  const KIND_LABEL = { subnet: 'Subnet Coin', candidate: 'Subnet Candidate', ecosystem: 'TAO Ecosystem' };
+  let cards = MARKETS.map((m) => ({
+    href: 'launch.html', img: tokenArt(m.ticker), fallback: '', kind: m.kind, name: m.name, ticker: m.ticker, desc: m.desc,
+    meta: `${m.label}${m.sn ? ' · ' + m.sn : ''} · ${m.chain}`,
+    stats: [m.price, m.chain === 'Bittensor' ? 'pool' : m.curve.toFixed(1) + '% curve', m.age + ' ago'], hot: m.curve > 50,
+  }));
+  const liveCard = (t, nets) => {
+    const Y = window.YL, net = nets.find((n) => n.chainId === t.chainId);
+    return {
+      href: `token.html?chain=${t.chainId}&c=${t.curve}`, img: t.image || tokenArt(t.symbol), fallback: tokenArt(t.symbol),
+      kind: t.category, name: t.name, ticker: t.symbol, desc: t.description,
+      meta: `${KIND_LABEL[t.category] || 'TAO Ecosystem'}${t.subnet != null ? ' · SN' + t.subnet : ''} · ${net ? net.short : ''}`,
+      stats: [`${Y.fmtPrice(Y.toNum(t.price))} ${t.quoteSymbol}`, t.graduated ? 'graduated' : (t.progress * 100).toFixed(1) + '% curve', Y.ago(t.createdAt) + ' ago'],
+      hot: t.graduated || t.progress > 0.5,
+    };
+  };
+
   const stack = $('#stack');
-  if (stack) {
-    stack.innerHTML = MARKETS.slice(0, 5).map((m) => `<img src="${tokenArt(m.ticker)}" alt="">`).join('')
-      + `<span>${MARKETS.length} launches</span>`;
-  }
+  const renderStack = (n) => {
+    if (stack) stack.innerHTML = cards.slice(0, 5).map((m) => `<img src="${esc(m.img)}" alt="">`).join('') + `<span>${n} launch${n === 1 ? '' : 'es'}</span>`;
+  };
+  renderStack(MARKETS.length);
 
   const grid = $('#market-grid');
+  let marketFilter = 'all', isLive = false;
   const renderMarkets = (filter) => {
-    const list = MARKETS.filter((m) => filter === 'all' || m.kind === filter);
+    marketFilter = filter;
+    const list = cards.filter((m) => filter === 'all' || m.kind === filter);
     grid.innerHTML = list.map((m) => `
-      <a class="dn-mcard" href="#markets">
+      <a class="dn-mcard" href="${esc(m.href)}">
         <div class="dn-mcard-top">
-          <img class="dn-av" src="${tokenArt(m.ticker)}" alt="">
-          <span class="dn-meta">${esc(m.label)}${m.sn ? ' · ' + esc(m.sn) : ''} · ${esc(m.chain)}</span>
+          <img class="dn-av" src="${esc(m.img)}" alt=""${m.fallback ? ` data-fallback="${esc(m.fallback)}"` : ''}>
+          <span class="dn-meta">${esc(m.meta)}</span>
         </div>
         <h3>${esc(m.name)} <span>$${esc(m.ticker)}</span></h3>
         <p>${esc(m.desc)}</p>
-        <div class="dn-stats"><span>${esc(m.price)}</span><span class="${m.curve > 50 ? 'is-hot' : ''}">${m.chain === 'Bittensor' ? 'pool' : m.curve.toFixed(1) + '% curve'}</span><span>${esc(m.age)} ago</span></div>
-      </a>`).join('');
+        <div class="dn-stats"><span>${esc(m.stats[0])}</span><span class="${m.hot ? 'is-hot' : ''}">${esc(m.stats[1])}</span><span>${esc(m.stats[2])}</span></div>
+      </a>`).join('') || `
+      <div class="dn-mcard yl-empty">
+        <h3>${isLive ? 'Nothing here yet.' : 'No coins in this list.'}</h3>
+        <p>${isLive ? 'Be the first: a launch takes one transaction.' : ''}</p>
+        <div class="dn-stats"><a class="dn-chip" href="launch.html">Launch a coin</a></div>
+      </div>`;
   };
   if (grid) {
     renderMarkets('all');
+    grid.addEventListener('error', (e) => { const f = e.target.dataset?.fallback; if (f && e.target.src !== f) e.target.src = f; }, true);
     $('#market-tabs').addEventListener('click', (e) => {
       const btn = e.target.closest('button[data-filter]');
       if (!btn) return;
@@ -333,41 +347,50 @@
   }
 
   const meter = $('#meter');
+  let meterTo = null;
   if (meter) {
-    const TARGET = 62;
+    let target = 62;
     const n = 44;
     meter.innerHTML = Array.from({ length: n }, () => '<i></i>').join('');
     const bars = $$('i', meter);
     const paint = (p) => {
       const filled = Math.round((p / 100) * n);
       bars.forEach((b, i) => { b.className = i < filled - 3 ? 'k-res' : i < filled ? 'k-new' : ''; });
-      $('#meter-v').textContent = Math.round(p);
+      $('#meter-v').textContent = p >= 10 ? Math.round(p) : p.toFixed(1);
     };
-    if (reduced || !('IntersectionObserver' in window)) paint(TARGET);
+    let shown = false, current = 0;
+    const animate = () => {
+      const from = current, t0 = performance.now();
+      const tick = (t) => {
+        const k = Math.min((t - t0) / 1400, 1);
+        current = from + (target - from) * (1 - Math.pow(1 - k, 3));
+        paint(current);
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    meterTo = (p) => { target = p; if (shown || reduced) { if (reduced) paint(p); else animate(); } };
+    if (reduced || !('IntersectionObserver' in window)) { shown = true; paint(target); }
     else {
       paint(0);
       const io = new IntersectionObserver(([en]) => {
         if (!en.isIntersecting) return;
         io.disconnect();
-        const t0 = performance.now();
-        const tick = (t) => {
-          const k = Math.min((t - t0) / 1400, 1);
-          paint(TARGET * (1 - Math.pow(1 - k, 3)));
-          if (k < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
+        shown = true;
+        animate();
       }, { threshold: 0.4 });
       io.observe(meter);
     }
   }
 
   const feed = $('#feed');
+  let feedTimer = 0;
   if (feed) {
     const item = (m) => `<b>${esc(m.name)} · $${esc(m.ticker)}</b><span>${esc(m.desc)}</span><small>${esc(m.label)} · ${esc(m.age)} ago</small>`;
     feed.innerHTML = MARKETS.slice(0, 3).map((m) => `<div>${item(m)}</div>`).join('');
     if (!reduced) {
       let i = 3;
-      setInterval(() => {
+      feedTimer = setInterval(() => {
         if (document.hidden) return;
         const m = { ...MARKETS[i % MARKETS.length], age: 'now' };
         i += 1;
@@ -385,174 +408,351 @@
   // The cards drift left in an endless loop: the set is rendered twice and the track slides by
   // exactly one set, so the seam never shows. Hover pauses it; reduced motion leaves it still.
   const rail = $('#rail');
+  let renderRail = null;
   if (rail) {
     const card = (t, hidden) => `
-      <article class="dn-thesis"${hidden ? ' aria-hidden="true"' : ''}>
+      <${t.href ? `a href="${esc(t.href)}"` : 'article'} class="dn-thesis"${hidden ? ' aria-hidden="true" tabindex="-1"' : ''}>
         <div class="dn-thesis-top">
-          <img class="dn-av" src="${tokenArt(t.ticker)}" alt="">
+          <img class="dn-av" src="${esc(t.img || tokenArt(t.ticker))}" alt="">
           ${esc(t.label)}
           <span class="dn-meta">Thesis${t.sn ? ' · ' + esc(t.sn) : ''}</span>
         </div>
         <blockquote>${esc(t.quote)}</blockquote>
         <cite>${esc(t.name)} · $${esc(t.ticker)}</cite>
-      </article>`;
-    rail.innerHTML = `<div class="dn-rail-track">${THESES.map((t) => card(t)).join('')}${reduced ? '' : THESES.map((t) => card(t, true)).join('')}</div>`;
+      </${t.href ? 'a' : 'article'}>`;
+    renderRail = (list) => { rail.innerHTML = `<div class="dn-rail-track">${list.map((t) => card(t)).join('')}${reduced ? '' : list.map((t) => card(t, true)).join('')}</div>`; };
+    renderRail(THESES);
   }
 
   /* ---------- launch page ---------- */
 
+  // The networks come from /api/config, the pair's economics from the factory itself, and the
+  // launch is one transaction from the visitor's wallet. Until a deployment exists the form
+  // still fills in as a preview and says so.
   const form = $('#launch-form');
-  if (form) {
+  if (form && window.YL) {
+    const Y = window.YL;
+    const W = Y.wallet;
     const qs = new URLSearchParams(location.search);
-    let net = qs.get('chain') === 'robinhood' ? 'robinhood' : 'bittensor';
+    const el = (id) => document.getElementById(id);
+    const pairSel = el('f-pair'), kind = el('f-kind'), sn = el('f-sn'), name = el('f-name'), ticker = el('f-ticker');
+    const desc = el('f-desc'), url = el('f-url'), buy = el('f-buy'), tax = el('f-tax'), ack = el('f-ack');
+    const btn = el('review'), msg = el('form-msg'), avatar = el('f-avatar');
+    const SUPPLY = 10n ** 27n;
+    let cfg = { live: false, networks: [], known: [] }, net = null, econ = null, image = '', busy = false;
 
-    const NET = {
-      bittensor: {
-        kicker: 'Bittensor EVM · native TAO', title: 'Straight into a pool.',
-        sub: "One transaction deploys the token and opens its pool, funded by the reserve you set below. There's no extra platform fee to deploy.",
-        note: '<p>Connect an EVM wallet such as MetaMask or Rabby on Bittensor EVM (chain ID 964). Gas and TAO-paired liquidity are paid in native TAO; alpha pairs need the wrapped alpha of the subnet you pick.</p><p>Switching networks in your wallet never moves funds between them.</p>',
-        mech: 'Locked pool from block one', reserve: true,
-        tnote: 'No curve and no graduation on this path: the full supply goes into the pool, and the creator buys afterwards like anyone else. Your starting reserve sets the opening price.',
-        warn: 'Pool liquidity is sent to an address nobody controls, so the starting reserve can never be withdrawn. The contracts are tested but have not had an independent audit yet.',
-        ack: "I understand the liquidity is locked for good and that this token isn't subnet alpha.",
-      },
-      robinhood: {
-        kicker: 'Robinhood Chain · bonding curve', title: 'Start on a curve.',
-        sub: 'One transaction deploys the token on a bonding curve. When the curve fills, its reserve and remaining supply move into a pool automatically.',
-        note: '<p>Connect an EVM wallet on Robinhood Chain. Gas is paid in ETH; TAO pairs use bridged TAO, and the launch fee is read from the contract and shown before you sign.</p><p>Switching networks in your wallet never moves funds between them.</p>',
-        mech: 'Bonding curve → pool', reserve: false,
-        tnote: 'Anyone can buy or sell against the curve from the first block. Graduation happens on its own when the target is reached; nobody has to trigger it.',
-        warn: 'Graduated liquidity is locked permanently. The contracts are tested but have not had an independent audit yet.',
-        ack: "I understand graduated liquidity is locked for good and that this token isn't subnet alpha.",
-      },
+    const toWei = (v) => {
+      const [i, f = ''] = String(v || '0').trim().split('.');
+      if (!/^\d*$/.test(i) || !/^\d*$/.test(f)) return -1n;
+      return BigInt(i || '0') * 10n ** 18n + BigInt((f + '0'.repeat(18)).slice(0, 18) || '0');
     };
+    const say = (t, bad) => { msg.textContent = t; msg.classList.toggle('is-bad', !!bad); };
+    const pair = () => net?.pairs.find((p) => p.address === pairSel.value);
+    const unit = () => pair()?.symbol || net?.native || 'TAO';
 
-    const pairSel = $('#f-pair');
-    const name = $('#f-name');
-    const ticker = $('#f-ticker');
-    const desc = $('#f-desc');
-    const reserve = $('#f-reserve');
-
-    if (qs.get('ticker')) ticker.value = qs.get('ticker').slice(0, 10);
+    if (qs.get('ticker')) ticker.value = qs.get('ticker').replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 8);
     if (qs.get('desc')) desc.value = qs.get('desc').slice(0, 600);
-    if (qs.get('pair') === 'alpha') pairSel.value = 'SN19';
 
-    const renderTerms = () => {
-      const c = NET[net];
-      const pairTxt = pairSel.value === 'TAO' ? 'Native TAO' : pairSel.value + ' alpha (wrapped)';
-      const unit = pairSel.value === 'TAO' ? 'TAO' : pairSel.value + ' α';
-      const rows = [
-        ['Network', net === 'bittensor' ? 'Bittensor EVM' : 'Robinhood Chain'],
-        ['Paired with', pairTxt],
-        ['Total supply', '1,000,000,000'],
-        ['Into the market', '100%'],
-        ['Creator allocation', '0%'],
-        ['Liquidity', 'Locked permanently'],
-        ['Mechanism', c.mech],
-      ];
-      if (c.reserve) rows.splice(3, 0, ['Starting reserve', `${reserve.value || 0} ${unit}`]);
-      $('#terms').innerHTML = rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
-      $('#terms-note').textContent = c.tnote;
-      $('#terms-warn').textContent = c.warn;
-      $('#ack-text').textContent = c.ack;
-      $('#reserve-unit').textContent = unit;
+    const renderNets = () => {
+      const list = cfg.live ? cfg.networks : cfg.known.filter((n) => !n.testnet);
+      $('#nets').innerHTML = list.map((n) => `
+        <button type="button" role="radio" aria-checked="${!!net && n.chainId === net.chainId}" data-chain="${n.chainId}"${cfg.live ? '' : ' disabled'}>
+          <b>${esc(n.name)} ${cfg.live ? `<em class="dn-live${n.testnet ? ' is-test' : ''}">${n.testnet ? 'testnet' : 'live'}</em>` : '<em class="dn-chip dn-chip-sm">soon</em>'}</b>
+          <span>Paired with ${esc(n.native)} · bonding curve, then a locked pool</span>
+        </button>`).join('');
+      $('#net-note').innerHTML = !cfg.live
+        ? '<p>Launching opens as soon as the contracts are live. You can fill in the form now; nothing is sent.</p>'
+        : `<p>Connect an EVM wallet such as MetaMask or Rabby. If it doesn't know ${esc(net.name)} (chain ID ${net.chainId}) yet, Yuelong adds it for you. Gas and the pair are paid in native ${esc(net.native)}.</p><p>${net.testnet ? 'This is a test network: its coins have no value. ' : ''}Switching networks in your wallet never moves funds between them.</p>`;
+      pairSel.innerHTML = (net ? net.pairs : [{ address: '', symbol: 'TAO', native: true }])
+        .map((p) => `<option value="${esc(p.address)}">${p.native ? 'Native ' + esc(p.symbol) : esc(p.symbol)}</option>`).join('');
+      $('#form-kicker').textContent = `${net ? net.short : 'Bittensor EVM'} · bonding curve · ${unit()}`;
     };
 
-    const renderNet = () => {
-      const c = NET[net];
-      $$('#nets button').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.net === net)));
-      $('#net-note').innerHTML = c.note;
-      $('#form-kicker').textContent = net === 'bittensor' ? `Bittensor EVM · ${pairSel.value === 'TAO' ? 'native TAO' : pairSel.value + ' alpha'}` : c.kicker;
-      $('#form-title').textContent = c.title;
-      $('#form-sub').textContent = c.sub;
-      $('#reserve-field').hidden = !c.reserve;
+    const loadEcon = async () => {
+      econ = null;
+      renderTerms();
+      if (!net || !pairSel.value) return;
+      try {
+        const [A, p, e] = await Promise.all([Y.abi(), Y.reader(net), Y.ethers()]);
+        const f = new e.Contract(net.factory, A.YuelongFactory, p);
+        const [s, feeBps, launchFee, paused] = await Promise.all([f.stocks(pairSel.value), f.feeBps(), f.launchFee(), f.paused()]);
+        econ = { phantom: s[0], threshold: s[1], enabled: s[2], feeBps: BigInt(feeBps), launchFee, paused };
+      } catch (_) { econ = { error: true }; }
       renderTerms();
     };
 
-    $('#nets').addEventListener('click', (e) => {
-      const b = e.target.closest('button[data-net]');
-      if (!b) return;
-      net = b.dataset.net;
-      renderNet();
-    });
-    pairSel.addEventListener('change', renderNet);
-    reserve.addEventListener('input', renderTerms);
-    ticker.addEventListener('input', () => { ticker.value = ticker.value.replace(/[^a-z0-9]/gi, '').toUpperCase(); updateAvatar(); });
-    name.addEventListener('input', () => updateAvatar());
-    desc.addEventListener('input', () => { $('#f-count').textContent = `${desc.value.length} / 600`; });
+    const estimate = () => {
+      const v = toWei(buy.value);
+      if (!econ?.threshold || v <= 0n) return 0n;
+      const net_ = v - v * econ.feeBps / 10000n - v * BigInt(tax.value) / 10000n;
+      return net_ * SUPPLY / (econ.phantom + net_);
+    };
 
-    const avatar = $('#f-avatar');
-    let hasImage = false;
+    const renderTerms = () => {
+      const u = unit(), n = (w) => Y.fmtAmt(Y.toNum(w));
+      const dev = toWei(buy.value), est = estimate();
+      const rows = [
+        ['Network', net ? net.name : 'Bittensor EVM'],
+        ['Paired with', pair()?.native ? `Native ${u}` : u],
+        ['Total supply', '1,000,000,000'],
+        ['Creator allocation', '0% (buy like anyone)'],
+        ['Launch fee', econ?.launchFee !== undefined ? (econ.launchFee ? `${n(econ.launchFee)} ${u}` : 'Free') : '…'],
+        ['First buy', dev > 0n ? `${n(dev)} ${u}` : 'None'],
+        ['Creator fee', tax.value === '0' ? 'None' : `${+tax.value / 100}% per trade`],
+        ['Graduates at', econ?.threshold ? `${n(econ.threshold)} ${u} raised` : '…'],
+        ['Liquidity', 'Locked permanently'],
+      ];
+      $('#terms').innerHTML = rows.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
+      $$('.yl-unit').forEach((x) => { x.textContent = u; });
+      const estEl = el('f-buy-est');
+      if (dev > 0n && econ?.threshold) {
+        const pct = Number(est * 10000n / SUPPLY) / 100;
+        estEl.textContent = `≈ ${Y.fmtAmt(Y.toNum(est))} coins, ${pct.toFixed(2)}% of the supply.` + (dev >= econ.threshold ? ' That fills the curve: the coin graduates in the same transaction.' : '');
+      } else estEl.textContent = 'Optional. Lands in the same transaction, before anyone else can trade, with no snipe tax.';
+      renderButton();
+    };
+
+    const renderButton = () => {
+      if (busy) return;
+      btn.disabled = !cfg.live;
+      if (!cfg.live) btn.textContent = 'Launching opens soon';
+      else if (!W.state.account) btn.textContent = 'Connect wallet';
+      else if (W.state.chainId !== net.chainId) btn.textContent = `Switch to ${net.short}`;
+      else btn.textContent = ticker.value.length >= 2 ? `Launch $${ticker.value}` : 'Launch';
+    };
+    W.onChange(renderButton);
+
+    $('#nets').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-chain]');
+      if (!b || !cfg.live) return;
+      net = cfg.networks.find((n) => n.chainId === +b.dataset.chain);
+      renderNets(); loadEcon();
+    });
+    pairSel.addEventListener('change', loadEcon);
+    kind.addEventListener('change', () => { el('sn-field').hidden = kind.value !== 'subnet'; });
+    [buy, tax].forEach((x) => x.addEventListener('input', renderTerms));
+    ticker.addEventListener('input', () => { ticker.value = ticker.value.replace(/[^a-z0-9]/gi, '').toUpperCase().slice(0, 8); updateAvatar(); renderButton(); });
+    name.addEventListener('input', () => updateAvatar());
+    desc.addEventListener('input', () => { el('f-count').textContent = `${desc.value.length} / 600`; });
+
     const updateAvatar = () => {
-      if (hasImage) return;
+      if (image) return;
       const t = ticker.value || name.value;
       avatar.textContent = t ? t[0].toUpperCase() : '?';
       avatar.style.background = t ? color(t.toUpperCase()) : '';
       avatar.style.color = t ? '#000' : '';
     };
-    $('#f-file').addEventListener('change', (e) => {
+    const showImage = (src) => { avatar.textContent = ''; avatar.style.background = ''; avatar.style.backgroundImage = `url("${src}")`; };
+
+    // the image is uploaded when picked, so the launch transaction only carries its address
+    el('f-file').addEventListener('change', async (e) => {
       const f = e.target.files[0];
-      const msg = $('#form-msg');
+      const up = el('f-upmsg');
       if (!f) return;
-      if (f.size > 2 * 1024 * 1024) { msg.textContent = 'That image is over 2 MB.'; msg.classList.add('is-bad'); return; }
-      const reader = new FileReader();
-      reader.onload = () => {
-        hasImage = true;
-        avatar.textContent = '';
-        avatar.style.backgroundImage = `url("${reader.result}")`;
-      };
-      reader.readAsDataURL(f);
+      if (f.size > 2 * 1024 * 1024) { up.textContent = 'That image is over 2 MB.'; return; }
+      showImage(URL.createObjectURL(f));
+      up.textContent = 'Uploading…';
+      try {
+        const j = await Y.api('/api/upload', { method: 'POST', headers: { 'content-type': f.type || 'application/octet-stream' }, body: f });
+        image = location.protocol === 'https:' ? location.origin + j.url : j.url;
+        url.value = '';
+        up.textContent = 'Uploaded.';
+      } catch (err) { image = ''; up.textContent = err.message; updateAvatar(); }
+    });
+    url.addEventListener('change', () => {
+      const v = url.value.trim();
+      if (/^https:\/\/\S+$/i.test(v)) { image = v; showImage(v); } else if (!v) { image = ''; avatar.style.backgroundImage = ''; updateAvatar(); }
     });
 
-    $('#review').addEventListener('click', (e) => {
-      if (!document.body.classList.contains('is-connected')) return; // the wallet handler connects first
-      e.stopImmediatePropagation();
-      const msg = $('#form-msg');
+    const https = (v) => (/^https:\/\/\S+$/i.test(v.trim()) ? v.trim().slice(0, 200) : '');
+
+    btn.addEventListener('click', async () => {
+      if (busy || !cfg.live) return;
+      try {
+        if (!W.state.account) { await W.connect(); return; }
+        if (W.state.chainId !== net.chainId) { await W.ensureChain(net); return; }
+      } catch (err) { if (err.message !== 'closed') say(Y.cleanError(err), true); return; }
+
       const problems = [];
-      [name, ticker, desc, reserve].forEach((el) => el.classList.remove('is-bad'));
+      [name, ticker, desc, buy, sn].forEach((x) => x.classList.remove('is-bad'));
       if (!name.value.trim()) { problems.push('a name'); name.classList.add('is-bad'); }
-      if (ticker.value.length < 2) { problems.push('a ticker'); ticker.classList.add('is-bad'); }
+      if (ticker.value.length < 2) { problems.push('a ticker of 2–8 letters'); ticker.classList.add('is-bad'); }
       if (desc.value.trim().length < 20) { problems.push('a thesis of 20+ characters'); desc.classList.add('is-bad'); }
-      if (NET[net].reserve && !(parseFloat(reserve.value) >= 0.01)) { problems.push('a reserve of at least 0.01'); reserve.classList.add('is-bad'); }
-      if (!$('#f-ack').checked) problems.push('the confirmation box');
-      if (problems.length) {
-        msg.textContent = 'Still needed: ' + problems.join(', ') + '.';
-        msg.classList.add('is-bad');
+      if (kind.value === 'subnet' && !(sn.value !== '' && +sn.value >= 0)) { problems.push('the subnet number'); sn.classList.add('is-bad'); }
+      if (toWei(buy.value) < 0n) { problems.push('a valid first buy'); buy.classList.add('is-bad'); }
+      if (!ack.checked) problems.push('the confirmation box');
+      if (!econ || econ.error) problems.push('the pair settings (still loading)');
+      else if (!econ.enabled) problems.push('a pair that is open for launches');
+      else if (econ.paused) problems.push('launches to be unpaused');
+      if (problems.length) { say('Still needed: ' + problems.join(', ') + '.', true); return; }
+
+      busy = true; btn.disabled = true; btn.textContent = 'Check your wallet…';
+      try {
+        const [e, A, signer] = await Promise.all([Y.ethers(), Y.abi(), W.signer(net)]);
+        const factory = new e.Contract(net.factory, A.YuelongFactory, signer);
+        const dev = toWei(buy.value), p = pair();
+        if (dev > 0n && !p.native) {
+          const erc = new e.Contract(p.address, ['function allowance(address,address) view returns (uint256)', 'function approve(address,uint256) returns (bool)'], signer);
+          if (await erc.allowance(W.state.account, net.factory) < dev) {
+            say(`Approve ${p.symbol} for the first buy…`);
+            await (await erc.approve(net.factory, dev)).wait();
+          }
+        }
+        const meta = { description: desc.value.trim(), category: kind.value };
+        if (kind.value === 'subnet') meta.subnet = Math.floor(+sn.value);
+        if (image) meta.image = image;
+        const links = { website: https(el('f-web').value), x: https(el('f-x').value), telegram: https(el('f-tg').value) };
+        for (const [k, v] of Object.entries(links)) if (v) meta[k] = v;
+        const params = {
+          name: name.value.trim().slice(0, 40), symbol: ticker.value, metadata: JSON.stringify(meta), stock: p.address,
+          creatorTaxBps: +tax.value, snipeExemptions: [], devBuyQuote: dev, minDevTokens: estimate() * 99n / 100n,
+          salt: e.hexlify(e.randomBytes(32)),
+        };
+        const value = econ.launchFee + (p.native ? dev : 0n);
+        say('Confirm the launch in your wallet…');
+        const tx = await factory.launch(params, { value });
+        try { localStorage.setItem('yuelong-last-launch', tx.hash); } catch (_) { /* storage blocked */ }
+        btn.textContent = 'Launching…';
+        say('Sent. Waiting for the block…');
+        const rc = await tx.wait();
+        const ev = rc.logs.map((l) => { try { return factory.interface.parseLog(l); } catch (_) { return null; } }).find((x) => x && x.name === 'PairCreated');
+        if (!ev) throw new Error('The transaction went through but no coin was created.');
+        fetch(`/api/poke/${net.chainId}`, { method: 'POST' }).catch(() => {});
+        say('Launched. Opening your coin…');
+        location.href = `token.html?chain=${net.chainId}&c=${ev.args.curve}&new=1`;
         return;
+      } catch (err) {
+        say(Y.cleanError(err), true);
       }
-      msg.classList.remove('is-bad');
-      msg.textContent = 'Preview only — this page is not wired to the contracts yet.';
-    }, true);
+      busy = false;
+      renderButton();
+    });
+
+    // find a launch by its transaction: the receipt names the curve
+    const findTx = el('find-tx');
+    try { const last = localStorage.getItem('yuelong-last-launch'); if (last) findTx.value = last; } catch (_) { /* storage blocked */ }
+    el('find-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const h = findTx.value.trim();
+      if (!/^0x[0-9a-f]{64}$/i.test(h)) { Y.toast('That is not a transaction hash.', 'is-bad'); return; }
+      const [eth, A] = await Promise.all([Y.ethers(), Y.abi()]);
+      const iface = new eth.Interface(A.YuelongFactory);
+      for (const n of cfg.networks) {
+        try {
+          const rc = await (await Y.reader(n)).getTransactionReceipt(h);
+          if (!rc) continue;
+          if (!rc.status) { Y.toast(`That transaction failed on ${esc(n.name)}, so nothing was launched.`, 'is-bad'); return; }
+          const log = rc.logs.find((l) => l.address.toLowerCase() === n.factory.toLowerCase());
+          const ev = log && iface.parseLog(log);
+          if (ev && ev.name === 'PairCreated') { location.href = `token.html?chain=${n.chainId}&c=${ev.args.curve}`; return; }
+        } catch (_) { /* not on this network */ }
+      }
+      Y.toast('No launch found for that transaction yet. If it was just sent, wait a few seconds and try again.', 'is-bad');
+    });
 
     desc.dispatchEvent(new Event('input'));
     updateAvatar();
-    renderNet();
+    Y.config().then((c) => {
+      cfg = c;
+      if (cfg.live) {
+        const want = qs.get('chain');
+        net = cfg.networks.find((n) => String(n.chainId) === want || n.key === want)
+          || cfg.networks.find((n) => want && n.key.startsWith(want)) || cfg.networks[0];
+      }
+      renderNets();
+      loadEcon();
+    });
+    renderNets();
+    renderTerms();
   }
 
-  /* ---------- hero: live totals (sample) ---------- */
+  /* ---------- hero: totals ---------- */
 
   const stats = $$('.dn-live-stats dd[data-count]');
-  if (stats.length) {
-    const fmt = (v, dec) => v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
-    const show = (dd, v) => { const dec = +dd.dataset.dec || 0; dd.textContent = fmt(v, dec) + (dec ? ' τ' : ''); };
-    const vals = stats.map((dd) => +dd.dataset.count);
-    if (!reduced) {
-      const t0 = performance.now();
-      const run = (t) => {
-        const k = Math.min((t - t0) / 1600, 1), e = 1 - Math.pow(1 - k, 3);
-        stats.forEach((dd, i) => show(dd, vals[i] * e));
-        if (k < 1) requestAnimationFrame(run);
+  const fmtStat = (v, dec) => v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  const showStat = (dd, v) => { const dec = +dd.dataset.dec || 0; dd.textContent = fmtStat(v, dec) + (dec ? ' τ' : ''); };
+  let statsTimer = 0, statVals = stats.map((dd) => +dd.dataset.count);
+  const countUp = () => {
+    if (reduced) { stats.forEach((dd, i) => showStat(dd, statVals[i])); return; }
+    const t0 = performance.now();
+    const run = (t) => {
+      const k = Math.min((t - t0) / 1600, 1), e = 1 - Math.pow(1 - k, 3);
+      stats.forEach((dd, i) => showStat(dd, statVals[i] * e));
+      if (k < 1) requestAnimationFrame(run);
+    };
+    requestAnimationFrame(run);
+  };
+  const flashStats = (vals) => {
+    stats.forEach((dd, i) => {
+      if (vals[i] === statVals[i]) return;
+      statVals[i] = vals[i];
+      showStat(dd, vals[i]);
+      dd.classList.remove('is-tick'); void dd.offsetWidth; dd.classList.add('is-tick');
+    });
+  };
+
+  /* ---------- live data ---------- */
+
+  // Once a deployment is live the homepage shows the chain: coins, totals, the feed and the
+  // fullest curve, refreshed every 15 seconds. Before that it keeps the samples above.
+  if (window.YL && (grid || stats.length || feed || meter || rail)) {
+    const Y = window.YL;
+    Y.config().then((cfg) => {
+      if (!cfg.live) {
+        countUp();
+        if (!reduced && stats.length) statsTimer = setInterval(() => {
+          if (document.hidden) return;
+          flashStats([statVals[0] + Math.round((0.4 + Math.random() * 3.2) * 10) / 10, statVals[1] + 1, statVals[2]]);
+        }, 7000);
+        return;
+      }
+      isLive = true;
+      clearInterval(feedTimer);
+      const dl = $('.dn-live-stats');
+      if (dl) { dl.setAttribute('aria-label', 'Network totals'); const dt = $('dt', dl); if (dt) dt.textContent = `${cfg.networks[0].native} traded`; }
+      const netName = (id) => (cfg.networks.find((n) => n.chainId === id) || {}).short || '';
+      const nt = (w, sym) => `${Y.fmtAmt(Y.toNum(w))} ${sym}`;
+
+      const load = async (first) => {
+        const [m, st, fd] = await Promise.all([Y.api('/api/markets'), Y.api('/api/stats'), Y.api('/api/feed')]);
+        const toks = m.tokens;
+        cards = toks.map((t) => liveCard(t, cfg.networks));
+        if (grid) { renderMarkets(marketFilter); if (first) window.dnReveal?.($$('.dn-mcard', grid), true); }
+        renderStack(toks.length);
+
+        const vals = [st.networks.reduce((a, n) => a + Y.toNum(n.volume), 0), st.launches, st.graduated];
+        if (first) { statVals = vals; countUp(); } else flashStats(vals);
+
+        if (meter && meterTo) {
+          const open = toks.filter((t) => !t.graduated).sort((a, b) => b.progress - a.progress)[0] || toks.find((t) => t.graduated);
+          const tile = meter.closest('.dn-tile');
+          if (open && tile) {
+            $('.dn-mini-head span', tile).textContent = `$${open.symbol} · curve progress`;
+            const lg = $$('.dn-legend span', tile);
+            if (lg[0]) lg[0].innerHTML = `<i class="k-res"></i>${esc(nt(open.quoteReserve, open.quoteSymbol))} raised`;
+            if (lg[2]) lg[2].innerHTML = `<i class="k-left"></i>${open.graduated ? 'Graduated' : esc(nt(BigInt(open.threshold) - BigInt(open.quoteReserve), open.quoteSymbol)) + ' to go'}`;
+            meterTo(open.progress * 100);
+          }
+        }
+
+        if (feed) {
+          const events = [
+            ...toks.map((t) => ({ t: t.createdAt, html: `<b>${esc(t.name)} · $${esc(t.symbol)}</b><span>${esc(t.description || 'Launched on a bonding curve.')}</span><small>Launched · ${esc(netName(t.chainId))} · ${Y.ago(t.createdAt)} ago</small>` })),
+            ...fd.trades.map((x) => ({ t: x.t, html: `<b>$${esc(x.symbol)} · ${x.s === 'b' ? 'buy' : 'sell'}</b><span>${esc(nt(x.q, (toks.find((t) => t.curve === x.curve) || {}).quoteSymbol || ''))} ${x.s === 'b' ? 'for' : 'from'} ${esc(Y.fmtAmt(Y.toNum(x.n)))} coins</span><small>${esc(Y.short(x.w))} · ${Y.ago(x.t)} ago</small>` })),
+          ].sort((a, b) => b.t - a.t).slice(0, 3);
+          const html = events.map((e) => `<div>${e.html}</div>`).join('') || '<div><b>Waiting for the first launch</b><span>New coins and trades appear here as the chain confirms them.</span></div>';
+          if (feed.dataset.last !== html) { feed.innerHTML = html; if (!first && feed.firstElementChild) feed.firstElementChild.className = 'is-new'; feed.dataset.last = html; }
+        }
+
+        if (renderRail && first) {
+          const th = toks.filter((t) => (t.description || '').length >= 40).slice(0, 12);
+          if (th.length >= 4) renderRail(th.map((t) => ({ label: KIND_LABEL[t.category] || 'TAO Ecosystem', sn: t.subnet != null ? 'SN' + t.subnet : '', ticker: t.symbol, name: t.name, quote: t.description, img: t.image || tokenArt(t.symbol), href: `token.html?chain=${t.chainId}&c=${t.curve}` })));
+        }
       };
-      requestAnimationFrame(run);
-      // now and then a new launch lands: nudge the totals and flash them
-      setInterval(() => {
-        if (document.hidden) return;
-        vals[0] += Math.round((0.4 + Math.random() * 3.2) * 10) / 10;
-        vals[1] += 1;
-        stats.forEach((dd, i) => { if (i < 2) { show(dd, vals[i]); dd.classList.remove('is-tick'); void dd.offsetWidth; dd.classList.add('is-tick'); } });
-      }, 7000);
-    } else stats.forEach((dd, i) => show(dd, vals[i]));
-  }
+      load(true).catch(() => countUp());
+      setInterval(() => { if (!document.hidden) load(false).catch(() => {}); }, 15000);
+    });
+  } else if (stats.length) countUp();
 
   /* ---------- the Dragon Gate ---------- */
 

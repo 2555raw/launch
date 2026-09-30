@@ -1,26 +1,63 @@
 # Yuelong — site
 
-Static site for **Yuelong**, a token launchpad for the Bittensor economy: launch a token paired
-with TAO or subnet alpha, on Robinhood Chain (bonding curve → pool) or Bittensor EVM (locked
-pool from block one).
+**Yuelong** is a token launchpad for the Bittensor economy. Anyone launches a coin paired with
+native TAO on a bonding curve; when the curve fills, it graduates into a pool whose liquidity nobody
+can pull. Everything on the site is real once contracts are deployed: wallet connection, launching,
+buying and selling, the markets, the charts and the totals.
 
-No build step, no dependencies. Plain HTML, CSS and vanilla JS.
+- `contracts/`: the protocol (Solidity, tested on an in-process EVM). See `contracts/README.md`.
+- `server.js` + `server/`: serves the site and indexes the chain into a small JSON API.
+- The pages: plain HTML, CSS and vanilla JS, no build step. ethers is vendored for the browser.
 
 ## Structure
 
 ```
-index.html     landing: floating nav, hero + composer, partner strip, steps, markets grid,
-               ticker lookup and subnet face-off panels, bento, theses rail, FAQ, footer
-launch.html    launch form: network choice, token details, live terms summary, confirmation
-docs.html      guide with a sticky table of contents
-styles.css     the design system and every page's layout
-app.js         all behaviour; each block checks its elements exist, so one file serves all pages
-assets/        great-wall.webp (2400w) and great-wall-1280.webp: the hero painting, served by size;
-               fonts.css + fonts/: self-hosted Inter, Instrument Serif and JetBrains Mono
-               (SIL OFL); src/ holds the painting code
-terms.html     Terms of Use (template)
-privacy.html   Privacy Policy (template)
-assets/logos/  partner marks for the hero strip (see below)
+index.html      landing: hero + composer, steps, live markets grid, chat demos, bento (live feed
+                and the fullest curve), theses rail (live theses once there are enough), FAQ
+launch.html     launch form wired to the factory: network, pair, kind, name, ticker, thesis,
+                image upload, links, first buy, creator fee, live summary read from the contract
+token.html      one coin: price, step chart, curve progress, thesis, addresses, trades, buy/sell
+portfolio.html  the connected wallet's holdings and launches
+admin.html      owner page (not linked): deploy from a browser wallet, switch networks on/off
+docs.html       guide; its Security section lists the live contract addresses
+web3.js         wallets (EIP-6963 + window.ethereum), network switching, formatting, toasts
+app.js          page behaviour; sample data only until a deployment is live
+token.js, portfolio.js, admin.js   their pages
+server.js       static files + /api (config, markets, token, feed, stats, upload, admin)
+server/         networks.js (chain list) and indexer.js (launches, trades, graduations)
+assets/chain/   ABIs and bytecode exported by `npm test` in contracts/
+assets/vendor/  ethers 6 (UMD)
+deployments.json  deployments baked into the repo (optional; the admin page saves to DATA_DIR)
+```
+
+## Making it live
+
+1. **Railway variables** on the service (never paste these in chat):
+   - `ADMIN_KEY`: any long random string. It unlocks `/admin.html`.
+   - `DATA_DIR=/app/data` with a volume mounted there, so the index and uploaded images survive
+     restarts.
+2. **Get test TAO** for Bittensor EVM testnet (chain 945) in the wallet you will deploy from.
+3. Open **`/admin.html`**, enter the admin key, pick *Bittensor EVM Testnet*, connect the wallet
+   and press *Deploy*. Six transactions: wrapped TAO, factory, pool graduator, one setting, router,
+   one setting. The page then saves the addresses; the server checks them on chain and starts
+   indexing. The site switches from sample data to the chain on the next page load.
+4. Launch a coin, buy, sell, graduate one (testnet defaults: 2 TAO virtual reserve, 5 TAO target).
+5. For **mainnet** (chain 964): get the contracts audited and the terms reviewed first, then do the
+   same from `/admin.html` with the mainnet settings. *Hide from site* takes the testnet off the
+   public pages.
+
+Prefer a terminal? `cd contracts && npm i && npm test && npm run deploy` with `RPC_URL` and
+`PRIVATE_KEY` in `contracts/.env` (ignored by git), then paste `out/deployment.<chainId>.json`
+into the import box on `/admin.html`.
+
+Optional variables: `RPC_<chainId>` and `EXPLORER_<chainId>` override a chain's RPC or explorer;
+`LOCAL_CHAIN=1` enables chain 31337 at 127.0.0.1:8545 for development.
+
+## Run it
+
+```bash
+npm install
+ADMIN_KEY=dev node server.js          # http://localhost:8080
 ```
 
 ## Ticker
@@ -28,12 +65,6 @@ assets/logos/  partner marks for the hero strip (see below)
 The planned ticker is **$YUE**. No listed token used it exactly as of September 2026 (CoinGecko and
 DexScreener searches; the closest was an unrelated "YUET" on BSC). It is deliberately not shown on
 the site yet, so nobody takes it for a live token; add it once the token actually exists.
-
-## Run it
-
-```bash
-python3 -m http.server 8000     # then open http://localhost:8000
-```
 
 ## Design
 
@@ -88,12 +119,9 @@ prints the SVG fragment used in `index.html`; the leap is driven from `app.js`.
 
 ## Before going live
 
-- **Every figure is sample data**: `MARKETS`, `SUBNETS` and `THESES` in `app.js`, the hero totals,
-  the indexer table in `docs.html`.
-- Fill in the contract addresses and the audit report in the Security section of `docs.html`, and
-  have `terms.html` and `privacy.html` reviewed by a lawyer.
-- The wallet button, the composer, the chat panels and the launch form are mocks: nothing touches
-  a chain. Wire them to the real contracts and indexer.
-- Fees, minimums and the audit status in the FAQ, the launch page and the docs are placeholders;
-  confirm them against the contracts.
-- Footer links such as `#portfolio`, `#x` are still anchors.
+- **Audit** the contracts and publish the report in the Security section of `docs.html`.
+- Have `terms.html` and `privacy.html` reviewed by a lawyer.
+- Until a deployment is live, the homepage shows sample data (`MARKETS`, `THESES` in `app.js`).
+  The chat panels (market explorer, subnet face-off) and the Base → TAO funding tile are still
+  demos with sample data.
+- Footer links such as `#x` are still anchors.

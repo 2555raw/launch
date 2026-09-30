@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yuelong</title>
+  <meta name="description" content="A coin on Yuelong: its price, its bonding curve, its trades. Buy and sell with native TAO.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23000'/%3E%3Cpath d='M6 25C9 12 19 6 26 9' fill='none' stroke='%23fff' stroke-width='2.8' stroke-linecap='round'/%3E%3Cpath d='M22 6.5l4.4 2.4-2.6 4.2' fill='none' stroke='%23fff' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='7' cy='25' r='3.2' fill='%23D9C3A0'/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/instrument-serif-400-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/fonts.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="dn-page">
+  <a class="dn-skip" href="#main">Skip to content</a>
+
+  <header class="dn-nav-wrap">
+    <nav class="dn-nav">
+      <a class="dn-brand" href="index.html">
+        Yuelong
+      </a>
+      <div class="dn-nav-links" id="navlinks">
+        <a href="index.html#markets">Markets</a>
+        <a href="index.html#faceoff">Subnets</a>
+        <a href="index.html#theses">Candidates</a>
+        <a href="docs.html">Docs</a>
+        <a class="dn-only-sm" href="launch.html">Launch</a>
+      </div>
+      <div class="dn-nav-right">
+        <a class="dn-nav-launch" href="launch.html">Launch</a>
+        <button class="dn-pill-btn" type="button" data-wallet>Connect wallet</button>
+        <button class="dn-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 8h16M4 16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="dn-wrap yl-page" id="main" tabindex="-1">
+    <nav class="dn-crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><a href="index.html#markets">Markets</a><span>/</span><b id="crumb">Coin</b></nav>
+
+    <div class="yl-state" id="tk-state" hidden></div>
+
+    <div class="yl-tk" id="tk" hidden>
+      <header class="yl-tk-head">
+        <img class="yl-tk-av" id="tk-av" alt="">
+        <div class="yl-tk-id">
+          <span class="dn-kicker" id="tk-kind"></span>
+          <h1><span id="tk-name"></span> <em id="tk-sym"></em></h1>
+          <div class="yl-tk-by" id="tk-by"></div>
+        </div>
+        <div class="yl-tk-price">
+          <b id="tk-price">…</b>
+          <span id="tk-change"></span>
+        </div>
+      </header>
+      <div class="yl-tk-main">
+
+        <dl class="yl-tk-stats">
+          <div><dt>Market cap</dt><dd id="tk-mcap">…</dd></div>
+          <div><dt>Volume 24h</dt><dd id="tk-vol">…</dd></div>
+          <div><dt>Trades</dt><dd id="tk-trades">…</dd></div>
+          <div><dt>Age</dt><dd id="tk-age">…</dd></div>
+        </dl>
+
+        <section class="dn-box yl-chart">
+          <div class="yl-box-head">
+            <span class="dn-kicker">Price · <span id="tk-unit">TAO</span> per coin</span>
+            <div class="yl-seg" id="tk-range" role="tablist">
+              <button type="button" data-r="3600">1H</button><button type="button" data-r="86400">24H</button><button type="button" data-r="0" aria-selected="true">All</button>
+            </div>
+          </div>
+          <div class="yl-chart-plot" id="tk-chart"></div>
+        </section>
+
+        <section class="dn-box yl-curve">
+          <div class="yl-box-head"><span class="dn-kicker" id="tk-curve-k">Bonding curve</span><b id="tk-curve-pct"></b></div>
+          <div class="yl-bar"><i id="tk-bar"></i></div>
+          <p class="dn-dim dn-small" id="tk-curve-txt"></p>
+        </section>
+
+        <section class="dn-box yl-about">
+          <span class="dn-kicker">Thesis</span>
+          <p id="tk-desc"></p>
+          <div class="yl-links-out" id="tk-links"></div>
+          <dl class="dn-kv" id="tk-addrs"></dl>
+        </section>
+
+        <section class="dn-box yl-trades">
+          <div class="yl-box-head"><span class="dn-kicker">Trades</span><span class="dn-live">live</span></div>
+          <div class="yl-table-wrap">
+            <table>
+              <thead><tr><th>When</th><th>Side</th><th>Trader</th><th class="r" id="tk-th-q">TAO</th><th class="r">Coins</th><th class="r">Price</th></tr></thead>
+              <tbody id="tk-rows"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <aside class="dn-box yl-trade" id="trade">
+        <div class="yl-seg yl-seg-lg" id="side" role="tablist">
+          <button type="button" data-side="buy" aria-selected="true">Buy</button>
+          <button type="button" data-side="sell">Sell</button>
+        </div>
+        <label class="dn-f">
+          <span class="dn-f-head"><span id="amt-label">You pay</span><small class="dn-dim" id="bal"></small></span>
+          <div class="yl-amt">
+            <input id="amt" type="text" inputmode="decimal" placeholder="0.0" autocomplete="off">
+            <b id="amt-unit">TAO</b>
+          </div>
+        </label>
+        <div class="yl-presets" id="presets"></div>
+        <div class="yl-quote">
+          <div><span>You receive</span><b id="out">–</b></div>
+          <div><span>Price impact</span><span id="impact">–</span></div>
+          <div><span>Fees</span><span id="fees">–</span></div>
+          <div><span>Slippage limit</span>
+            <span class="yl-slip" id="slip"><button type="button" data-s="100">1%</button><button type="button" data-s="300" aria-selected="true">3%</button><button type="button" data-s="1000">10%</button></span>
+          </div>
+        </div>
+        <div class="dn-warn yl-snipe" id="snipe" hidden></div>
+        <button class="dn-btn-white" type="button" id="go">Connect wallet</button>
+        <p class="dn-form-msg" id="trade-msg" aria-live="polite"></p>
+        <p class="dn-dim dn-small yl-fine" id="trade-fine">Trades go through the Yuelong router: on the curve until it fills, then in the coin's locked pool. Nothing moves until you approve it in your wallet.</p>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="dn-foot">
+    <div class="dn-wrap">
+      <div class="dn-foot-bottom">
+        <p>© 2026 Yuelong. Independent software, not affiliated with the Opentensor Foundation, Bittensor or Robinhood Markets, Inc.</p>
+      </div>
+    </div>
+  </footer>
+
+<script src="web3.js"></script>
+<script src="app.js"></script>
+<script src="token.js"></script>
+</body>
+</html>

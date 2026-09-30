@@ -61,36 +61,41 @@
         <section id="what">
           <h2>What Yuelong is</h2>
           <p>Yuelong is a front end for creating and trading tokens that orbit the Bittensor economy, on two EVM networks: Robinhood Chain and Bittensor EVM. It reads subnet data from Bittensor and token data from the EVM side, and never mixes the two up: a token launched here is not a subnet and not an alpha token.</p>
-          <p>From one place you can launch a token against TAO or subnet alpha, browse every launch, compare subnets and bring TAO in from USDC on Base.</p>
+          <p>From one place you can launch a coin paired with TAO, trade it on its bonding curve and then in its pool, and browse every launch.</p>
         </section>
 
         <section id="launching">
           <h2>Launching</h2>
-          <p><b>On Robinhood Chain</b> your token starts on a bonding curve priced in the pair you picked. Before asking for a signature the app reads the live launch fee, simulates the transaction and shows you the result. The launch counts once the receipt is confirmed. When the curve reaches its target, its reserve and the unsold supply move into a pool on their own.</p>
-          <p><b>On Bittensor EVM</b> there is no curve. Your wallet deploys the token and opens a pool you seed yourself. With native TAO that's a single transaction; with an alpha pair it's a deploy, an approval and a deposit. The whole supply goes into the pool and the LP position is locked.</p>
+          <p>One transaction from your wallet creates the coin and its <b>bonding curve</b>, on either network. The whole supply of 1,000,000,000 sits on the curve; nobody, the creator included, gets an allocation. The price starts from a virtual reserve and rises with every buy.</p>
+          <p>You can add a <b>first buy</b> to the same transaction. It lands before anyone else can trade and pays no snipe tax, so it is the fair way for a creator to hold some of their own coin. On a native-TAO pair you simply send the TAO along with the launch.</p>
+          <p>When the curve has raised its target, the buy that crosses the line <b>graduates</b> it in the same transaction: the TAO it raised and the matching share of the remaining coins seed a pool at the curve's last price, and the coins left over are burned. The pool has no LP tokens, so its liquidity can never be pulled.</p>
           <ul>
-            <li>Every token has a fixed supply of 1,000,000,000.</li>
-            <li>Robinhood Chain: a launch fee read from the contract and shown before you sign, plus gas.</li>
-            <li>Bittensor EVM: no platform fee; a starting reserve of at least 0.01 TAO, plus gas.</li>
+            <li>Fixed supply of 1,000,000,000, 18 decimals, no owner, no mint, no tax in the token itself.</li>
+            <li>A launch fee read from the factory and shown before you sign (it may be zero), plus gas.</li>
+            <li>An optional creator fee of up to 2% of every curve trade, paid to the creator's wallet.</li>
           </ul>
         </section>
 
         <section id="kinds">
           <h2>Coins, candidates, theses</h2>
-          <p><b>Subnet coins</b> point at an existing subnet. The creator names the NetUID and the app checks it against the live registry before letting the launch through. <b>Candidates</b> are for subnets that don't exist yet: purpose, roadmap, team and stage go into the launch metadata. <b>Theses</b> are opinions about a sector (inference, data, compute) rather than any single subnet.</p>
-          <p>Whatever is written at launch stays on chain as it was. Creators can publish signed profile updates later; the token page shows both, clearly labelled.</p>
+          <p><b>Subnet coins</b> point at an existing subnet: the creator names its NetUID. <b>Candidates</b> are for subnets that don't exist yet. <b>TAO Ecosystem</b> coins are about the network as a whole, or a sector of it. The label, the thesis, the image and the links are written into the launch transaction and stay on chain as they were.</p>
+          <p>None of these is subnet alpha. A subnet coin is a separate token that points at a subnet; it gives no stake, emissions or rights in it.</p>
         </section>
 
         <section id="trading">
           <h2>Trading</h2>
-          <p>Every order is quoted and simulated before you sign, with a minimum-received amount enforced by the contract. Quotes go stale after 30 seconds. Slippage can be set to 0.5%, 1% or 3%; ERC-20 inputs ask for an approval of the exact amount, never an unlimited one.</p>
-          <p>Pools on Bittensor EVM trade through a single verified router with a fixed 1% slippage cap. Markets whose quote asset can't be verified are shown but can't be traded.</p>
+          <p>Every coin trades through one router, in native TAO: on its curve until it graduates, in its pool after that, from the same page and the same button. Each quote is read from the contracts just before you sign, and the router enforces your minimum: if the price moves past your slippage limit (1%, 3% or 10%) the trade reverts and nothing is spent but gas.</p>
+          <ul>
+            <li>Curve trades pay a 1% protocol fee plus the coin's creator fee, if it has one.</li>
+            <li>Buys in the first 60 blocks after a launch pay a <b>snipe tax</b> that falls from 20% to 0. It stays in the curve, raising the floor for everyone who already holds.</li>
+            <li>Pool trades pay 0.3%, which stays in the pool.</li>
+            <li>Selling asks you to approve the exact amount you sell, never an unlimited allowance.</li>
+          </ul>
         </section>
 
         <section id="settlement">
           <h2>Pairs, gas and settlement</h2>
-          <p>A market settles in whatever it's paired with. On Robinhood Chain, TAO pairs use bridged TAO and alpha pairs need a wrapper the protocol has approved. Dollar figures anywhere in the app are for orientation only.</p>
-          <p>Gas is paid in ETH on Robinhood Chain and Base, and in native TAO on Bittensor EVM. The Fund flow bridges USDC from Base with a 5% price-impact ceiling and tracks delivery separately, so a slow bridge never looks like a lost payment.</p>
+          <p>A market settles in whatever it's paired with. On Bittensor EVM that is native TAO: the router wraps it for you on the way in and unwraps it on the way out, so you never hold a wrapped token unless you want to. Gas is paid in TAO on Bittensor EVM and in ETH on Robinhood Chain. Dollar figures anywhere in the app are for orientation only.</p>
         </section>
 
         <section id="data">
@@ -100,14 +105,8 @@
 
         <section id="indexer">
           <h2>Indexer status</h2>
-          <p>Market lists and charts come from an indexer that starts at the factory's deployment block and follows finalized blocks only. The table below is what the status endpoint reports; delays in the feed show up here first.</p>
-          <div class="dn-kv">
-            <div><span>launches</span><b>block 4,210,388 · 6s ago</b></div>
-            <div><span>trades</span><b>block 4,210,388 · 6s ago</b></div>
-            <div><span>finalized</span><b>4,210,388</b></div>
-            <div><span>start block</span><b>3,902,117</b></div>
-          </div>
-          <p class="dn-dim dn-small">Sample figures.</p>
+          <p>Market lists, charts and the trade history come from an indexer that starts at the factory's deployment block and reads every launch, trade and graduation from the chain. Prices and balances on a coin's page are read from the chain directly. This is what it reports right now:</p>
+          <div class="dn-kv" id="idx-status"><div><span>status</span><b>loading…</b></div></div>
         </section>
 
         <section id="wallets">
@@ -117,13 +116,9 @@
 
         <section id="security">
           <h2>Security</h2>
-          <p><b>Audit status.</b> The contracts have unit and integration tests but have <b>not</b> yet been audited by an independent firm. When an audit is done, the report will be linked here in full, including any findings that were not fixed.</p>
-          <p><b>Contract addresses.</b> The factory, router and pool contracts for each network will be listed here at launch, each linked to its verified source on the block explorer. Compare the address your wallet shows with this list before you sign anything.</p>
-          <div class="dn-kv">
-            <div><span>Robinhood Chain · factory</span><b>published at launch</b></div>
-            <div><span>Bittensor EVM · factory</span><b>published at launch</b></div>
-            <div><span>Audit report</span><b>not yet available</b></div>
-          </div>
+          <p><b>Audit status.</b> The contracts have a full test suite but have <b>not</b> yet been audited by an independent firm. When an audit is done, the report will be linked here in full, including any findings that were not fixed.</p>
+          <p><b>Contract addresses.</b> These are the contracts this site talks to. Compare the address your wallet shows with this list before you sign anything.</p>
+          <div class="dn-kv" id="sec-addrs"><div><span>Contracts</span><b>published at launch</b></div></div>
           <p><b>Reporting a vulnerability.</b> Please report security issues privately rather than in public channels, with enough detail to reproduce them. Give us a reasonable time to fix the issue before disclosing it.</p>
           <p><b>What we will never do.</b> Ask for your seed phrase or private key, contact you first by direct message, or ask you to approve an unlimited token allowance.</p>
         </section>
@@ -144,6 +139,19 @@
     </div>
   </footer>
 
+<script src="web3.js"></script>
 <script src="app.js"></script>
+<script>
+  /* live contract addresses and indexer status */
+  (async () => {
+    const Y = window.YL; if (!Y) return;
+    const cfg = await Y.config();
+    if (!cfg.live) return;
+    const st = await Y.api('/api/stats').catch(() => null);
+    const a = (n, x) => n.explorer ? `<a href="${Y.esc(Y.explorer(n, 'address', x))}" target="_blank" rel="noopener">${Y.esc(x)}</a>` : Y.esc(x);
+    document.getElementById('sec-addrs').innerHTML = cfg.networks.map((n) => [['factory', n.factory], ['router', n.router], ['wrapped ' + n.native, n.wnative], ['graduator', n.graduator]].map(([k, x]) => `<div><span>${Y.esc(n.short)} · ${k}</span><b>${a(n, x)}</b></div>`).join('')).join('') + '<div><span>Audit report</span><b>not yet available</b></div>';
+    if (st) document.getElementById('idx-status').innerHTML = st.networks.map((x) => { const n = cfg.networks.find((m) => m.chainId === x.chainId) || {}; return `<div><span>${Y.esc(n.short)} · indexed</span><b>block ${x.indexed.toLocaleString('en-US')} of ${x.head.toLocaleString('en-US')}${x.error ? ' · retrying' : ''}</b></div><div><span>${Y.esc(n.short)} · launches</span><b>${x.launches} · ${x.graduated} graduated · ${x.traders} traders</b></div>`; }).join('');
+  })();
+</script>
 </body>
 </html>

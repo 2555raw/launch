@@ -30,11 +30,11 @@ python3 -m http.server 8000     # then open http://localhost:8000
 
 Black ground, near-black cards, white as the primary action. **Instrument Serif** for display
 headings (with an italic word), **Inter** for everything else, **JetBrains Mono** for labels and
-figures. One jade green, `#2BD48F`, marks the logo's plaque and anything live or filling.
+figures. One beige, `#D9C3A0`, marks the logo's plaque and anything live or filling.
 
 **The name.** Longmen (龙门) is the Dragon Gate: in the old story, the carp that leaps it becomes
 a dragon. A launch that fills its curve and graduates to a pool is the same leap. The logo is a
-simple gate — two posts, a crossbeam and a curved roof — with the plaque in jade.
+simple gate — two posts, a crossbeam and a curved roof — with the plaque in beige.
 
 ## Background painting
 

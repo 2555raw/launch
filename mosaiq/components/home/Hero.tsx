@@ -32,26 +32,31 @@ function offsetOf(i: number, active: number, n: number) {
 /** The Picker token's CA, copied on click; "Soon" until it is set. */
 function TokenCa({ ca }: { ca: string | null }) {
   const { copied, copy } = useCopy();
+  const label = (
+    <span className="metal shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
+      <span className="mr-2 inline-block size-1.5 -translate-y-px animate-pulse rounded-full bg-mint align-middle shadow-[0_0_10px_2px_rgb(61_217_179/0.7)]" />
+      CA
+    </span>
+  );
   if (!ca) {
     return (
-      <div className="mx-auto mb-6 flex max-w-[460px] items-center justify-between gap-3 rounded-full border border-dashed border-line-strong px-5 py-3 text-sm">
-        <span className="font-mono text-xs uppercase tracking-[0.18em] text-mute">CA</span>
-        <span className="font-medium text-fog">Soon</span>
+      <div className="ca-shine mx-auto mb-6 max-w-[460px]">
+        <div className="ca-inner flex items-center justify-between gap-3 px-5 py-3.5">
+          {label}
+          <span className="metal display text-base font-semibold tracking-tight">Soon</span>
+        </div>
       </div>
     );
   }
   return (
-    <button
-      type="button"
-      onClick={() => copy(ca, "ca")}
-      aria-label={`Copy contract address ${ca}`}
-      className="group mx-auto mb-6 flex w-full max-w-[460px] items-center gap-3 rounded-full border border-line-strong bg-surface-2/70 py-2.5 pl-5 pr-2.5 text-left transition hover:border-white/30"
-    >
-      <span className="shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-mute">CA</span>
-      <span className="min-w-0 flex-1 truncate font-mono text-sm text-bone">{ca}</span>
-      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-bone px-3 py-1.5 text-xs font-semibold text-ink">
-        {copied === "ca" ? <Check className="size-3.5" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
-        {copied === "ca" ? "Copied" : "Copy"}
+    <button type="button" onClick={() => copy(ca, "ca")} aria-label={`Copy contract address ${ca}`} className="ca-shine group mx-auto mb-6 block w-full max-w-[460px] text-left">
+      <span className="ca-inner flex items-center gap-3 py-2.5 pl-5 pr-2.5">
+        {label}
+        <span className="min-w-0 flex-1 truncate font-mono text-sm text-bone">{ca}</span>
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[linear-gradient(180deg,#ffffff,#d9d9d9)] px-3.5 py-1.5 text-xs font-semibold text-ink shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_4px_14px_-4px_rgb(255_255_255/0.5)] transition group-hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_6px_20px_-4px_rgb(255_255_255/0.7)]">
+          {copied === "ca" ? <Check className="size-3.5" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+          {copied === "ca" ? "Copied" : "Copy"}
+        </span>
       </span>
     </button>
   );

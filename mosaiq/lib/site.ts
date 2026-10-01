@@ -14,7 +14,7 @@ export const site = {
     x: { handle: "@usePicker", url: "https://x.com/usePicker" } as { handle: string; url: string } | null,
   },
   keyPrefix: "pk_live_",
-  /** The Picker token's contract address, shown in the home hero. Empty shows "Soon"; TOKEN_CA overrides it. */
+  /** The Picker token's contract address, shown in the home hero. Empty hides it; TOKEN_CA overrides it. */
   tokenCa: "",
 } as const;
 

@@ -93,7 +93,7 @@ export function Leaderboard() {
                       className="border-b border-white/5 transition last:border-0 hover:bg-white/[0.03]"
                     >
                       <td className="table-cell">
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-0.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-emerald-300">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-lime-400/30 bg-lime-400/10 px-2.5 py-0.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-lime-300">
                           <Check className="h-3 w-3" /> Paid
                         </span>
                       </td>

@@ -91,6 +91,22 @@ export async function submitManualSteps(userId: string, input: unknown) {
   return insertEntry({ userId, day, steps, source: "manual_demo", proof });
 }
 
+/**
+ * Lets a walker take back an upload the team has not reviewed yet (a typo, the
+ * wrong screenshot) so the day can be uploaded again. Reviewed entries stay.
+ */
+export async function deleteOwnUpload(userId: string, wallet: string, entryId: string) {
+  const row = await one<{ day: string; steps: number }>(
+    `delete from step_entries
+      where id = $1 and user_id = $2 and source = 'manual_demo' and verification in ('unverified', 'flagged')
+      returning day::text as day, steps`,
+    [entryId, userId],
+  );
+  if (!row) throw new HttpError(409, "Only uploads still waiting for review can be deleted.", "not_deletable");
+  await audit(wallet, "steps.delete_own", "step_entry", entryId, row);
+  return row;
+}
+
 /** The screenshot attached to an entry, for the admin review. */
 export async function getStepProof(entryId: string): Promise<string | null> {
   const row = await one<{ proof: string | null }>("select proof_image as proof from step_entries where id = $1", [entryId]);

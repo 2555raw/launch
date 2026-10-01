@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import confetti from "canvas-confetti";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, CheckCircle2, Footprints, Hourglass, ImagePlus, Info, ShieldCheck, Sparkles, TrendingUp, Upload, X } from "lucide-react";
+import { CalendarDays, CheckCircle2, Footprints, Hourglass, ImagePlus, Info, ShieldCheck, Sparkles, Trash2, TrendingUp, Upload, X } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/Badge";
@@ -368,6 +368,16 @@ function AverageCard({ summary }: { summary: StepsResponse["summary"] }) {
 }
 
 function History({ steps, token }: { steps: Entry[]; token: string }) {
+  const qc = useQueryClient();
+  const remove = useMutation({
+    mutationFn: (id: string) => api(`/api/steps/${id}`, { method: "DELETE" }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["steps"] });
+      await qc.invalidateQueries({ queryKey: ["me"] });
+      toast.success("Upload deleted", { description: "You can upload that day again." });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
   return (
     <Card className="overflow-hidden">
       <div className="p-6 pb-4">
@@ -387,6 +397,7 @@ function History({ steps, token }: { steps: Entry[]; token: string }) {
                 <th className="table-head">Screenshot</th>
                 <th className="table-head">Status</th>
                 <th className="table-head text-right">Estimated</th>
+                <th className="table-head w-12" aria-label="Actions" />
               </tr>
             </thead>
             <tbody>
@@ -403,6 +414,23 @@ function History({ steps, token }: { steps: Entry[]; token: string }) {
                   </td>
                   <td className={cn("table-cell text-right font-mono", e.estimate > 0 ? "text-lime-300" : "text-white/30")}>
                     ${fmtAmount(e.estimate)} <span className="text-white/35">{token}</span>
+                  </td>
+                  <td className="table-cell text-right">
+                    {e.source === "manual_demo" && (e.verification === "unverified" || e.verification === "flagged") && (
+                      <button
+                        className="rounded-lg p-1.5 text-white/35 transition hover:bg-red-500/10 hover:text-red-300 disabled:opacity-40"
+                        aria-label={`Delete the upload for ${e.day}`}
+                        title="Delete this upload"
+                        disabled={remove.isPending}
+                        onClick={() => {
+                          if (window.confirm(`Delete your upload for ${fmtDate(e.day, { weekday: "long", month: "short", day: "numeric" })}? You can upload that day again.`)) {
+                            remove.mutate(e.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

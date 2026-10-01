@@ -15,7 +15,7 @@ export const site = {
   },
   keyPrefix: "pk_live_",
   /** The Picker token's contract address, shown in the home hero. Empty hides it; TOKEN_CA overrides it. */
-  tokenCa: "0xa833f1c2ac97ca32ef40e86277d6a81ef4f31830",
+  tokenCa: "",
 } as const;
 
 export const nav = [

@@ -175,7 +175,9 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
 
   const busy = phase !== "idle";
   const insufficient = balance !== undefined && balance < amountUnits;
-  const canSend = (payout?.status === "prepared" || payout?.status === "requested") && isConnected && authorised && onRightChain && confirmed && !busy && !insufficient;
+  const tokenReady = meta?.tokenReady !== false;
+  const canSend =
+    (payout?.status === "prepared" || payout?.status === "requested") && tokenReady && isConnected && authorised && onRightChain && confirmed && !busy && !insufficient;
   const txUrl = payout?.txHash ? explorerTxUrl(payout.chainId, payout.txHash) : null;
 
   return (
@@ -301,6 +303,9 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                   {/* Sender checks */}
                   <div className="space-y-2 rounded-2xl border border-white/10 bg-black/20 p-4 text-[13px]">
                     <div className="label !text-[10px]">Sending wallet</div>
+                    {!tokenReady && (
+                      <Check2 ok={false} text={`${payout.tokenSymbol} is not a token on ${chain?.name ?? "this network"}. Set the right contract in Settings.`} />
+                    )}
                     {!isConnected ? (
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-white/60">Connect an authorised payout wallet.</span>

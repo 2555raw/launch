@@ -30,6 +30,8 @@ export interface AdminOverview {
   };
   payoutWallets: string[];
   demoMode: boolean;
+  /** False when the payout token is not a contract on the payout network. */
+  tokenReady: boolean;
   distributions: Array<{
     id: string;
     periodStart: string;

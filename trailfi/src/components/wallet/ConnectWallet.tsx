@@ -11,6 +11,7 @@ import { useSession } from "@/components/providers/SessionProvider";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { shortAddress } from "@/lib/format";
+import { MobileWalletSheet, useNeedsWalletApp } from "./MobileWallets";
 
 export function AddressAvatar({ address, className }: { address: string; className?: string }) {
   // Deterministic gradient per address — purely cosmetic.
@@ -25,6 +26,8 @@ export function AddressAvatar({ address, className }: { address: string; classNa
 }
 
 export function ConnectWallet({ size = "md", className, label = "Connect Wallet" }: { size?: "sm" | "md" | "lg"; className?: string; label?: string }) {
+  const needsWalletApp = useNeedsWalletApp();
+  const [sheetOpen, setSheetOpen] = useState(false);
   return (
     <ConnectButton.Custom>
       {({ account, chain, openConnectModal, openChainModal, mounted, authenticationStatus }) => {
@@ -40,9 +43,17 @@ export function ConnectWallet({ size = "md", className, label = "Connect Wallet"
         }
         if (!connected) {
           return (
-            <Button size={size} className={className} onClick={openConnectModal} icon={<Wallet className="h-4 w-4" />}>
-              {account ? "Verify wallet" : label}
-            </Button>
+            <>
+              <Button
+                size={size}
+                className={className}
+                onClick={() => (needsWalletApp && !account ? setSheetOpen(true) : openConnectModal())}
+                icon={<Wallet className="h-4 w-4" />}
+              >
+                {account ? "Verify wallet" : label}
+              </Button>
+              <MobileWalletSheet open={sheetOpen} onClose={() => setSheetOpen(false)} openConnectModal={openConnectModal} />
+            </>
           );
         }
         if (chain.unsupported) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, ClipboardCheck, Coins, Footprints, Inbox, ScrollText, Send, Settings2, Users } from "lucide-react";
+import { AlertTriangle, BarChart3, ClipboardCheck, Coins, Footprints, Inbox, ScrollText, Send, Settings2, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -92,7 +92,22 @@ export function AdminShell({ children }: { children: ReactNode }) {
             ))}
           </nav>
         </header>
-        <main className="relative px-4 py-8 sm:px-8">{children}</main>
+        <main className="relative px-4 py-8 sm:px-8">
+          {data && !data.tokenReady && (
+            <Link
+              href="/admin/settings"
+              className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/[0.08] p-4 text-[13px] leading-relaxed text-amber-100/90 transition hover:border-amber-400/50"
+            >
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+              <span>
+                <strong className="font-semibold">Payout token not set for this network.</strong> The token address in Settings is not a
+                contract on the payout network, so payouts are blocked. Open Settings and enter the token contract (for example USDC or
+                $STEPIT on Robinhood Chain).
+              </span>
+            </Link>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

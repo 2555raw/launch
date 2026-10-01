@@ -6,10 +6,10 @@ export type { StepProvider, ProviderStepRecord } from "./types";
 export const STEP_PROVIDERS: Record<StepSource, StepProvider> = {
   manual_demo: {
     source: "manual_demo",
-    label: "Manual entry (demo)",
-    status: "demo",
+    label: "Upload with screenshot",
+    status: "live",
     description:
-      "Typed in the browser. Stored as unverified and never counted for real payouts until an admin reviews it.",
+      "Daily steps uploaded from the browser with a screenshot of the health app. Stored as unverified and never paid until the team checks the screenshot.",
     trusted: false,
   },
   apple_health: {

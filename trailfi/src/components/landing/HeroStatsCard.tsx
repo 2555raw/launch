@@ -1,21 +1,25 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Flame, Footprints, Mountain, TrendingUp } from "lucide-react";
+import { Coins, Footprints, Mountain, Users } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useUtcMidnightCountdown } from "@/hooks/useCountdown";
-import { DEMO_STATS } from "@/lib/demo-data";
-import { fmtSteps } from "@/lib/format";
+import { fmtAmount, fmtSteps } from "@/lib/format";
+import { usePublicStats } from "./usePublicStats";
 
-const BARS = [42, 55, 38, 61, 72, 48, 66, 80, 58, 74, 69, 88, 64, 92];
-
+/** Live community card in the hero. Every number comes from the database. */
 export function HeroStatsCard() {
-  const steps = useCountUp(DEMO_STATS.stepsToday, 1800);
-  const reward = useCountUp(DEMO_STATS.estimatedRewards, 2000);
+  const { data } = usePublicStats();
+  const today = data?.today ?? { walkers: 0, steps: 0, goalMet: 0 };
+  const steps = useCountUp(today.steps, 1800);
+  const paid = useCountUp(data?.paid.total ?? 0, 2000);
   const countdown = useUtcMidnightCountdown();
-  const pct = DEMO_STATS.stepsToday / DEMO_STATS.dailyGoal;
+  const goalShare = today.walkers ? today.goalMet / today.walkers : 0;
+  const series = data?.series ?? [];
+  const peak = Math.max(1, ...series.map((d) => d.steps));
+  const token = data?.tokenSymbol ?? "USDC";
 
   return (
     <div className="relative w-full max-w-[400px]">
@@ -27,11 +31,11 @@ export function HeroStatsCard() {
         className="glass-strong absolute -left-3 -top-6 z-10 hidden items-center gap-2 rounded-2xl px-3 py-2 shadow-glow sm:flex lg:-left-12"
       >
         <span className="grid h-7 w-7 place-items-center rounded-lg bg-lime-400/15 text-lime-300">
-          <TrendingUp className="h-3.5 w-3.5" />
+          <Users className="h-3.5 w-3.5" />
         </span>
         <div className="leading-tight">
-          <div className="font-mono text-[12px] font-semibold text-lime-300">+0.42 USDC</div>
-          <div className="text-[10.5px] text-white/50">reward accrued</div>
+          <div className="font-mono text-[12px] font-semibold text-lime-300">{(data?.walkers ?? 0).toLocaleString("en-US")}</div>
+          <div className="text-[10.5px] text-white/50">walkers joined</div>
         </div>
       </motion.div>
       <motion.div
@@ -40,8 +44,8 @@ export function HeroStatsCard() {
         transition={{ delay: 1.9 }}
         className="glass-strong absolute -bottom-5 -right-2 z-10 hidden items-center gap-2 rounded-2xl px-3 py-2 sm:flex lg:-right-6"
       >
-        <Flame className="h-4 w-4 text-orange-300" />
-        <span className="text-[12px] font-medium text-white/85">6 day streak</span>
+        <Coins className="h-4 w-4 text-lime-300" />
+        <span className="text-[12px] font-medium text-white/85">{(data?.paid.count ?? 0).toLocaleString("en-US")} payouts sent</span>
       </motion.div>
 
       <div className="animate-float">
@@ -50,40 +54,38 @@ export function HeroStatsCard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 animate-pulse-dot rounded-full bg-neon shadow-neon" />
-              <span className="label !text-white/60">Today · live</span>
+              <span className="label !text-white/60">Community · today</span>
             </div>
-            <Badge tone="lime">Goal reached</Badge>
+            <Badge tone="lime">Live</Badge>
           </div>
 
           <div className="mt-5 flex items-center justify-between gap-4">
             <div>
-              <div className="font-display text-[52px] font-bold leading-none tracking-tight tabular">
-                {fmtSteps(steps)}
-              </div>
+              <div className="font-display text-[52px] font-bold leading-none tracking-tight tabular">{fmtSteps(steps)}</div>
               <div className="mt-2 flex items-center gap-1.5 text-sm text-white/60">
-                <Footprints className="h-4 w-4 text-lime-400" /> Steps Today
+                <Footprints className="h-4 w-4 text-lime-400" /> Steps logged today
               </div>
             </div>
-            <ProgressRing value={pct} size={104} stroke={9} id="hero-ring">
+            <ProgressRing value={goalShare} size={104} stroke={9} id="hero-ring">
               <div>
-                <div className="font-display text-xl font-bold tabular">{Math.round(pct * 100)}%</div>
-                <div className="font-mono text-[9px] uppercase tracking-widest text-white/45">goal</div>
+                <div className="font-display text-xl font-bold tabular">{Math.round(goalShare * 100)}%</div>
+                <div className="font-mono text-[9px] uppercase tracking-widest text-white/45">hit goal</div>
               </div>
             </ProgressRing>
           </div>
 
-          {/* 14-day activity bars */}
+          {/* Community steps over the last 14 days */}
           <div className="mt-6 flex h-16 items-end gap-[5px]" aria-hidden>
-            {BARS.map((h, i) => (
+            {(series.length ? series : Array.from({ length: 14 }, () => ({ steps: 0 }))).map((d, i, all) => (
               <motion.div
                 key={i}
                 className={
-                  i === BARS.length - 1
+                  i === all.length - 1
                     ? "flex-1 rounded-sm bg-gradient-to-t from-lime-500 to-neon shadow-[0_0_12px_rgba(93,255,157,0.5)]"
                     : "flex-1 rounded-sm bg-white/15"
                 }
                 initial={{ height: 0 }}
-                animate={{ height: `${h}%` }}
+                animate={{ height: `${Math.max(4, (d.steps / peak) * 100)}%` }}
                 transition={{ delay: 1 + i * 0.04, duration: 0.6, ease: "easeOut" }}
               />
             ))}
@@ -95,30 +97,22 @@ export function HeroStatsCard() {
 
           <div className="mt-5 grid grid-cols-2 gap-3">
             <div className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.07] p-4">
-              <div className="label !text-[10px] !text-lime-300/80">Estimated Rewards</div>
-              <div className="mt-1.5 font-display text-2xl font-bold text-lime-300 tabular">${reward.toFixed(2)}</div>
-              <div className="mt-0.5 text-[10.5px] text-white/45">USDC · not guaranteed</div>
+              <div className="label !text-[10px] !text-lime-300/80">Paid to walkers</div>
+              <div className="mt-1.5 font-display text-2xl font-bold text-lime-300 tabular">${fmtAmount(paid)}</div>
+              <div className="mt-0.5 text-[10.5px] text-white/45">{token} · all time</div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-              <div className="label !text-[10px]">Daily Goal</div>
-              <div className="mt-1.5 font-display text-2xl font-bold tabular">{Math.round(pct * 100)}%</div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
-                <motion.div
-                  className="h-full rounded-full bg-gradient-to-r from-lime-400 to-neon"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${Math.min(1, pct) * 100}%` }}
-                  transition={{ delay: 1.2, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </div>
-              <div className="mt-1.5 text-[10.5px] text-white/45 tabular">
-                {fmtSteps(DEMO_STATS.stepsToday)} / {fmtSteps(DEMO_STATS.dailyGoal)}
+              <div className="label !text-[10px]">Walking today</div>
+              <div className="mt-1.5 font-display text-2xl font-bold tabular">{today.walkers.toLocaleString("en-US")}</div>
+              <div className="mt-0.5 text-[10.5px] text-white/45">
+                goal {fmtSteps(data?.dailyGoal ?? 10_000)} steps
               </div>
             </div>
           </div>
 
           <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-black/25 px-4 py-3">
             <div className="flex items-center gap-2 text-[12.5px] text-white/60">
-              <Mountain className="h-4 w-4 text-white/40" /> Distribution window closes
+              <Mountain className="h-4 w-4 text-white/40" /> Today closes in
             </div>
             <span className="font-mono text-[13px] font-medium text-white tabular">{countdown}</span>
           </div>

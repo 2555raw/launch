@@ -171,8 +171,8 @@ export async function checkCreate(signature: string, creator: string, mint: stri
 }
 
 /** Market cap in USD from Dexscreener, once the token trades anywhere. */
-export async function marketCapUsd(mint: string): Promise<number | null> {
-  const res = await fetch(`https://api.dexscreener.com/tokens/v1/solana/${mint}`, {
+export async function marketCapUsd(mint: string, chain: "solana" | "bsc" = "solana"): Promise<number | null> {
+  const res = await fetch(`https://api.dexscreener.com/tokens/v1/${chain}/${mint}`, {
     signal: AbortSignal.timeout(8_000),
     next: { revalidate: 60 },
   }).catch(() => null);

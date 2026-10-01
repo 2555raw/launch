@@ -213,7 +213,7 @@ export async function confirmOnChain(
         statusNote: undefined,
         agentId: agent?.id ?? launch.agentId,
         agentName: agent?.name ?? launch.agentName,
-        marketCapUsd: await adapterFor(launch.pad).marketCap({ ...launch, address: result.token }).catch(() => null),
+        marketCapUsd: await adapterFor(launch.pad).marketCap({ ...launch, address: result.token, signature: sig }).catch(() => null),
       };
       if (agent) await store().updateAgent(agent.id, { launches: agent.launches + 1, lastSeenAt: new Date().toISOString() });
     } else if (result.state === "failed") {
@@ -276,7 +276,7 @@ export async function restoreLaunch(input: Record<string, unknown>): Promise<Res
       signature,
       createdAt: when,
       submittedAt: when,
-      marketCapUsd: await adapterFor(d.pad).marketCap({ ...launch, address: result.token }).catch(() => null),
+      marketCapUsd: await adapterFor(d.pad).marketCap({ ...launch, address: result.token, signature }).catch(() => null),
     });
     return { ok: true, launch: (await store().getLaunch(launch.id))! };
   } catch (err) {

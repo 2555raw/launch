@@ -1,9 +1,10 @@
 import "server-only";
 import { randomBytes } from "node:crypto";
-import { encodeFunctionData, parseEther, zeroAddress, type Address, type Hex } from "viem";
+import { encodeFunctionData, parseUnits, zeroAddress, type Address, type Hex } from "viem";
 import type { Launch } from "@/lib/types";
 import { pinImage } from "./ipfs";
-import { assertBalance, assertEvmAddress, call, evmClient, simulationError, verifyEvm } from "./evm";
+import { usdPrice } from "../prices";
+import { assertBalance, assertEvmAddress, call, erc20Abi, evmClient, simulationError, verifyEvm } from "./evm";
 import { LaunchError, type OnchainAdapter } from "./types";
 
 /**
@@ -77,7 +78,20 @@ const factoryAbi = [
   { type: "function", name: "launchEnabled", stateMutability: "view", inputs: [], outputs: [{ type: "bool" }] },
   { type: "function", name: "canLaunch", stateMutability: "view", inputs: [{ type: "address" }], outputs: [{ type: "bool" }] },
   { type: "function", name: "approvedPairTokens", stateMutability: "view", inputs: [{ type: "address" }], outputs: [{ type: "bool" }] },
+  {
+    type: "function",
+    name: "pairTokenEconomics",
+    stateMutability: "view",
+    inputs: [{ type: "address" }],
+    outputs: [{ name: "phantomQuote", type: "uint256" }, { name: "graduationThreshold", type: "uint256" }, { name: "decimals", type: "uint8" }],
+  },
 ] as const;
+
+const curveAbi = [
+  { type: "function", name: "getReserves", stateMutability: "view", inputs: [], outputs: [{ name: "quoteReserve", type: "uint256" }, { name: "tokenReserve", type: "uint256" }] },
+] as const;
+
+const balanceAbi = [{ type: "function", name: "balanceOf", stateMutability: "view", inputs: [{ type: "address" }], outputs: [{ type: "uint256" }] }] as const;
 
 const routerAbi = [
   {
@@ -121,8 +135,14 @@ export const pons: OnchainAdapter = {
     if (!allowed) throw new LaunchError("Pons does not allow this wallet to launch right now.", 403);
     if (!approved) throw new LaunchError(`Pons no longer accepts ${launch.pair} as a pair.`, 422);
 
-    const buy = launch.openingBuy ? parseEther(launch.openingBuy) : 0n;
-    if (buy > 0n && pair !== zeroAddress) throw new LaunchError("On Pons an opening buy works with the ETH pair only. Leave it empty.", 422);
+    // The opening buy is paid in the pair itself (ETH, USDG, cbBTC or the stock), in its own decimals.
+    const native = pair === zeroAddress;
+    const decimals = native ? 18 : Number((await read<readonly [bigint, bigint, number]>("pairTokenEconomics", [pair]))[2]);
+    const buy = launch.openingBuy ? parseUnits(launch.openingBuy, decimals) : 0n;
+    if (buy > 0n && !native) {
+      const held = (await client.readContract({ address: pair, abi: balanceAbi, functionName: "balanceOf", args: [creator] })) as bigint;
+      if (held < buy) throw new LaunchError(`Your wallet does not hold ${launch.openingBuy} ${launch.pair} on Robinhood Chain for this opening buy.`);
+    }
 
     // Pons' own uploader only accepts its site, so pin to IPFS ourselves or link our hosted image.
     const logo = launch.metadataUri ?? (await pinImage(launch.image!, launch.ticker)) ?? ctx.imageUrl;
@@ -139,7 +159,7 @@ export const pons: OnchainAdapter = {
       salt: `0x${randomBytes(32).toString("hex")}` as Hex,
     };
 
-    await assertBalance("robinhood", creator, fee + buy);
+    await assertBalance("robinhood", creator, native ? fee + buy : fee);
 
     if (buy === 0n) {
       const args = [params, 0n, pair, []] as const;
@@ -150,15 +170,36 @@ export const pons: OnchainAdapter = {
       return { prepared: { kind: "evm", chainId: 4663, calls: [call(FACTORY, data, fee, "Launch on Pons")] }, metadataUri: logo };
     }
 
-    // Simulate once to learn the tokens out, then allow 5% slippage.
-    const sim = await client
-      .simulateContract({ address: ROUTER, abi: routerAbi, functionName: "launchAndBuy", args: [params, 0n, pair, buy, 0n, creator, []], value: fee + buy, account: creator })
-      .catch((e) => {
+    // ERC-20 pairs: the router pulls the buy, so approve it first if needed (docs: approve the router for quoteIn).
+    const value = native ? fee + buy : fee;
+    const calls = [];
+    let needsApproval = false;
+    if (!native) {
+      const allowance = (await client.readContract({ address: pair, abi: erc20Abi, functionName: "allowance", args: [creator, ROUTER] })) as bigint;
+      if (allowance < buy) {
+        needsApproval = true;
+        calls.push(call(pair, encodeFunctionData({ abi: erc20Abi, functionName: "approve", args: [ROUTER, buy] }), 0n, `Approve ${launch.pair}`));
+      }
+    }
+
+    // Simulate to learn the tokens out and allow 5% slippage. Until an approval is mined the buy cannot be
+    // simulated; the launch and buy happen in one transaction, so nothing can trade ahead of it anyway.
+    let minOut = 0n;
+    if (needsApproval) {
+      await client.simulateContract({ address: FACTORY, abi: factoryAbi, functionName: "launchToken", args: [params, 0n, pair, []], value: fee, account: creator }).catch((e) => {
         throw simulationError(e);
       });
-    const minOut = (sim.result[2] * 95n) / 100n;
+    } else {
+      const sim = await client
+        .simulateContract({ address: ROUTER, abi: routerAbi, functionName: "launchAndBuy", args: [params, 0n, pair, buy, 0n, creator, []], value, account: creator })
+        .catch((e) => {
+          throw simulationError(e);
+        });
+      minOut = (sim.result[2] * 95n) / 100n;
+    }
     const data = encodeFunctionData({ abi: routerAbi, functionName: "launchAndBuy", args: [params, 0n, pair, buy, minOut, creator, []] });
-    return { prepared: { kind: "evm", chainId: 4663, calls: [call(ROUTER, data, fee + buy, "Launch and buy on Pons")] }, metadataUri: logo };
+    calls.push(call(ROUTER, data, value, "Launch and buy on Pons"));
+    return { prepared: { kind: "evm", chainId: 4663, calls }, metadataUri: logo };
   },
 
   async verify(launch, hash) {
@@ -173,3 +214,39 @@ export const pons: OnchainAdapter = {
     });
   },
 };
+
+const curves = new Map<string, Address>();
+
+/**
+ * Market cap in USD from the token's bonding curve: spot price in the pair
+ * (quote reserve / token reserve) times the supply, then the pair's USD price.
+ * The curve address comes from the TokenLaunched log of the launch transaction.
+ */
+export async function ponsMarketCap(launch: Launch): Promise<number | null> {
+  const token = launch.address;
+  if (!token || !launch.signature) return null;
+  const client = evmClient("robinhood");
+  let curve = curves.get(token.toLowerCase());
+  if (!curve) {
+    const receipt = await client.getTransactionReceipt({ hash: launch.signature as Hex }).catch(() => null);
+    const log = receipt?.logs.find((l) => l.topics[0] === TOKEN_LAUNCHED && `0x${l.topics[1]?.slice(26)}`.toLowerCase() === token.toLowerCase());
+    if (!log?.topics[2]) return null;
+    curve = `0x${log.topics[2].slice(26)}` as Address;
+    curves.set(token.toLowerCase(), curve);
+  }
+  const pair = PAIRS[launch.pair];
+  if (!pair) return null;
+  const [reserves, supply, decimals, usd] = await Promise.all([
+    client.readContract({ address: curve, abi: curveAbi, functionName: "getReserves" }),
+    client.readContract({ address: token as Address, abi: erc20SupplyAbi, functionName: "totalSupply" }),
+    pair === zeroAddress
+      ? Promise.resolve(18)
+      : client.readContract({ address: FACTORY, abi: factoryAbi, functionName: "pairTokenEconomics", args: [pair] }).then((r) => Number(r[2])),
+    usdPrice(launch.pair),
+  ]).catch(() => [null, null, null, null] as const);
+  if (!reserves || !supply || decimals === null || usd === null || reserves[1] === 0n) return null;
+  const priceInPair = Number(reserves[0]) / 10 ** decimals / (Number(reserves[1]) / 1e18);
+  return Math.round(priceInPair * (Number(supply) / 1e18) * usd * 100) / 100;
+}
+
+const erc20SupplyAbi = [{ type: "function", name: "totalSupply", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] }] as const;

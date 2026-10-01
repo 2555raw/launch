@@ -424,7 +424,7 @@ export function OnChainLaunch({
             </button>
             {!wallet && (
               <p className="mt-2 text-xs text-mute">
-                Connect a wallet to launch. You approve {kind === "evm" && pad.id === "argus" && buy > 0 ? "a USDC approval and then the launch" : "a single transaction"}.
+                Connect a wallet to launch. You approve {kind === "evm" && buy > 0 && (payload.pair !== chain.native || pad.id === "argus") ? `a ${String(payload.pair)} approval and then the launch` : "a single transaction"}.
               </p>
             )}
           </motion.div>

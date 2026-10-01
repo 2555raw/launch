@@ -1,5 +1,6 @@
 import "server-only";
 import type { Launch } from "@/lib/types";
+import { ponsMarketCap } from "./pads/pons";
 import { marketCapUsd } from "./pump";
 
 /**
@@ -40,7 +41,24 @@ const pump: PadAdapter = {
   },
 };
 
-const registry: Record<string, PadAdapter> = { pump };
+/** Pads whose tokens Dexscreener indexes, curve included. */
+const dexscreener = (chain: "solana" | "bsc"): PadAdapter => ({
+  submit: pending.submit,
+  async marketCap(launch) {
+    return launch.address ? marketCapUsd(launch.address, chain) : null;
+  },
+});
+
+/** Pons on Robinhood Chain is not on Dexscreener: price it from its bonding curve. */
+const pons: PadAdapter = { submit: pending.submit, marketCap: ponsMarketCap };
+
+const registry: Record<string, PadAdapter> = {
+  pump,
+  stonk: dexscreener("solana"),
+  flap: dexscreener("bsc"),
+  four: dexscreener("bsc"),
+  pons,
+};
 
 export function adapterFor(padId: string): PadAdapter {
   return registry[padId] ?? pending;

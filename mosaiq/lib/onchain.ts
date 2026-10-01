@@ -57,7 +57,7 @@ interface Support {
 
 export const onchainPads: Record<string, Support> = {
   pump: { wallet: "solana", pairs: ["SOL"], buyPairs: ["SOL"] },
-  pons: { wallet: "evm", pairs: ["ETH", "USDG", "cbBTC", ...PONS_STOCKS], buyPairs: ["ETH"] },
+  pons: { wallet: "evm", pairs: ["ETH", "USDG", "cbBTC", ...PONS_STOCKS], buyPairs: ["ETH", "USDG", "cbBTC", ...PONS_STOCKS] },
   four: { wallet: "evm", pairs: ["BNB", "NVDA", "QQQ", "HOOD"], buyPairs: ["BNB"] },
   flap: { wallet: "evm", pairs: ["BNB", "BTC", ...FLAP_STOCKS], buyPairs: ["BNB"] },
   argus: { wallet: "evm", pairs: ["USDC"], buyPairs: ["USDC"] },

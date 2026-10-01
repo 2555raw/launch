@@ -150,6 +150,8 @@ export function LaunchStudio({
   const support = onchainSupport(form);
   const onchain = support !== null;
   const buyAllowed = !onchain || supportsOpeningBuy(form);
+  /** On-chain buys are paid in the pair itself (ETH, USDG, a stock token…). */
+  const buyUnit = onchain ? form.pair : chain.native;
 
   const payload = useMemo(
     () => ({
@@ -579,10 +581,10 @@ export function LaunchStudio({
             {form.mode === "create" && buyAllowed && (
               <Field
                 id="openingBuy"
-                label={`Opening buy (${chain.native})`}
+                label={`Opening buy (${buyUnit})`}
                 optional
                 error={errorFor("openingBuy")}
-                hint={`Leave empty for no dev buy. Minimum ${chain.minBuy} ${chain.native} if set; it is paid from ${onchain ? "your" : "the agent's"} wallet.`}
+                hint={`Leave empty for no dev buy. Minimum ${chain.minBuy} ${buyUnit} if set; it is paid from ${onchain ? "your" : "the agent's"} wallet.`}
               >
                 <input
                   id="field-openingBuy"

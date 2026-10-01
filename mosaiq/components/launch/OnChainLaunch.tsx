@@ -5,7 +5,7 @@ import { ArrowUpRight, Check, CircleCheck, Copy, LoaderCircle, RotateCcw, Triang
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
-import { connectEvm, detectEvmWallets, ensureChain, evmMetaMaskLink, sendEvmTx, type Eip1193, type EvmWalletOption } from "@/lib/evm-wallet";
+import { connectEvm, detectEvmWallets, ensureChain, evmMetaMaskLink, sendEvmTx, signEvmMessage, type Eip1193, type EvmWalletOption } from "@/lib/evm-wallet";
 import { evmChains, padTokenUrl, PUMP_CREATE_COST_SOL, shortAddress, txUrl, type WalletKind } from "@/lib/onchain";
 import { getChain, getPad } from "@/lib/pads";
 import { connectWallet, detectWallets, phantomBrowseLink, walletErrorMessage, type WalletOption } from "@/lib/wallet";
@@ -32,6 +32,7 @@ const costs: Record<string, string> = {
   flap: "gas only (Flap has no launch fee)",
   argus: "gas only, paid in USDC",
   stonk: "rent and network fees in SOL",
+  four: "gas only (Four.meme has no launch fee today)",
 };
 
 const toBase64 = (bytes: Uint8Array) => {
@@ -192,11 +193,19 @@ export function OnChainLaunch({
       } else {
         const evm = evmChains[pad.chain];
         setRun({ state: "running", step: (step = "prepare") });
-        const prepared = await post<{ chainId: number; calls: { to: string; data: string; value: string; label: string }[] }>(
-          `/api/launches/${id}/prepare`,
-          { creator: wallet.address },
-        );
+        type EvmPrepared = { kind: "evm"; chainId: number; calls: { to: string; data: string; value: string; label: string }[] } | { kind: "sign"; message: string };
         const p = wallet.option.provider;
+        let prepared = await post<EvmPrepared>(`/api/launches/${id}/prepare`, { creator: wallet.address });
+        if (prepared.kind === "sign") {
+          // The pad asks the wallet to sign in first (a message, not a transaction).
+          setRun({ state: "running", step: (step = "sign"), detail: `Sign in to ${pad.name}` });
+          const signature = await signEvmMessage(p, wallet.address, prepared.message).catch((err) => {
+            throw new Error(walletErrorMessage(err));
+          });
+          setRun({ state: "running", step: (step = "prepare") });
+          prepared = await post<EvmPrepared>(`/api/launches/${id}/prepare`, { creator: wallet.address, signature });
+          if (prepared.kind !== "evm") throw new Error(`${pad.name} did not accept the sign-in. Try again.`);
+        }
         setRun({ state: "running", step: (step = "sign"), detail: `Switch to ${evm.chainName}` });
         await ensureChain(p, {
           chainId: evm.chainId,

@@ -58,7 +58,12 @@ export const tools = [
       "Returns the unsigned launch for a draft on a pad that launches on-chain (see list_pads onchain_pairs). Solana pads: pass your wallet as creator and the public key of a fresh mint keypair as mint; you get one base64 transaction to sign (wallet, then mint) and send. EVM pads: pass your 0x wallet as creator; you get calls to send in order. Then call confirm_launch.",
     inputSchema: {
       type: "object",
-      properties: { draft_id: { type: "string" }, creator: { type: "string" }, mint: { type: "string" } },
+      properties: {
+        draft_id: { type: "string" },
+        creator: { type: "string" },
+        mint: { type: "string", description: "Solana pads only" },
+        signature: { type: "string", description: "Only when a previous call returned kind=sign: personal_sign of that message by the creator" },
+      },
       required: ["draft_id", "creator", "mint"],
     },
   },
@@ -138,10 +143,12 @@ async function callTool(name: string, args: Json, ctx: { agent: Agent | null; or
     }
 
     case "prepare_launch": {
-      const r = await prepareOnChain(String(args.draft_id ?? ""), { creator: args.creator, mint: args.mint }, { origin: ctx.origin });
+      const r = await prepareOnChain(String(args.draft_id ?? ""), { creator: args.creator, mint: args.mint, signature: args.signature }, { origin: ctx.origin });
       if (!r.ok) return text(r.error, true);
       const next =
-        r.prepared.kind === "solana"
+        r.prepared.kind === "sign"
+          ? "Sign this message with the creator wallet (personal_sign) and call prepare_launch again with the same arguments plus signature."
+          : r.prepared.kind === "solana"
           ? "Sign with your wallet, then the mint keypair, send it to Solana, then call confirm_launch with the signature."
           : `Switch to chainId ${r.prepared.chainId} and send each call in order from the creator wallet, waiting for each to confirm. Then call confirm_launch with the hash of the last one.`;
       return text({ ...preparedForClient(r.prepared), next });

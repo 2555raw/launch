@@ -94,6 +94,7 @@ const EXPIRY_MS = 120_000;
 /** What the wallet or agent receives: Solana gets one base64 transaction, EVM a list of calls to send in order. */
 export function preparedForClient(p: Prepared) {
   if (p.kind === "solana") return { kind: p.kind, transaction: p.transaction, mint: p.mint, encoding: "base64" };
+  if (p.kind === "sign") return { kind: p.kind, message: p.message };
   return { kind: p.kind, chainId: p.chainId, calls: p.calls };
 }
 
@@ -103,7 +104,7 @@ export function preparedForClient(p: Prepared) {
  */
 export async function prepareOnChain(
   id: string,
-  body: { creator?: unknown; mint?: unknown },
+  body: { creator?: unknown; mint?: unknown; signature?: unknown },
   urls: { origin: string },
 ): Promise<Result<{ prepared: Prepared }>> {
   try {
@@ -127,10 +128,12 @@ export async function prepareOnChain(
     const { prepared, metadataUri } = await adapter.prepare(launch, {
       creator: body.creator,
       mint: typeof body.mint === "string" ? body.mint : undefined,
+      signature: typeof body.signature === "string" && body.signature.length < 400 ? body.signature : undefined,
       origin: base,
       imageUrl: `${base}/api/launches/${id}/image`,
       metadataUrl: `${base}/api/launches/${id}/metadata`,
     });
+    if (prepared.kind === "sign") return { ok: true, prepared };
     await store().updateLaunch(id, {
       status: "draft",
       statusNote: undefined,

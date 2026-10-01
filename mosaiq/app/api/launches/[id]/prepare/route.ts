@@ -11,6 +11,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   const body = await readJson(req, 2_000);
   if (body instanceof Response) return body;
   const { id } = await params;
-  const r = await prepareOnChain(id, (body ?? {}) as { creator?: unknown; mint?: unknown }, { origin: originOf(req) });
+  const r = await prepareOnChain(id, (body ?? {}) as { creator?: unknown; mint?: unknown; signature?: unknown }, { origin: originOf(req) });
   return r.ok ? NextResponse.json(preparedForClient(r.prepared)) : problem(r.status, r.error);
 }

@@ -16,12 +16,16 @@ export interface EvmCall {
 
 export type Prepared =
   | { kind: "evm"; chainId: number; calls: EvmCall[] }
-  | { kind: "solana"; transaction: string; mint: string; messageHash: string };
+  | { kind: "solana"; transaction: string; mint: string; messageHash: string }
+  /** The pad first needs the wallet to sign this message (a login); call prepare again with the signature. */
+  | { kind: "sign"; message: string };
 
 export interface PrepareContext {
   creator: string;
   /** Solana only: public key of the fresh mint keypair the browser generated. */
   mint?: string;
+  /** Signature of a message an earlier prepare returned (kind "sign"). */
+  signature?: string;
   origin: string;
   /** Public URL of the token image hosted by this site. */
   imageUrl: string;

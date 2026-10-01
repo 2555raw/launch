@@ -33,14 +33,14 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
         <div className="grid grid-cols-3 gap-2">
           {mosaic
             ? mosaic.map((l) => (
-                <div key={l.id} className="grid aspect-square place-items-center rounded-xl border border-white/5 bg-[#14203a]">
+                <div key={l.id} className="grid aspect-square place-items-center rounded-xl border border-white/5 bg-[#161d13]">
                   <TokenAvatar image={l.image} ticker={l.ticker} color={getPad(l.pad)?.color} className="size-14" />
                 </div>
               ))
             : featuredStocks.map((a) => (
                 <div
                   key={a.symbol}
-                  className="grid aspect-square place-items-center rounded-xl border border-white/5 bg-[#14203a] transition-transform duration-500 group-hover:scale-[0.97]"
+                  className="grid aspect-square place-items-center rounded-xl border border-white/5 bg-[#161d13] transition-transform duration-500 group-hover:scale-[0.97]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- vector marks, no optimisation needed */}
                   <img src={a.mark ?? a.logo} alt={a.name} width={64} height={64} className="size-[58%] object-contain" draggable={false} />
@@ -53,7 +53,7 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
         {latest.length ? (
           <ul className="space-y-2">
             {latest.slice(0, 4).map((l) => (
-              <li key={l.id} className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#111a2e] p-2.5">
+              <li key={l.id} className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#121810] p-2.5">
                 <TokenAvatar image={l.image} ticker={l.ticker} color={getPad(l.pad)?.color} className="size-9 rounded-lg text-xs" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{l.name}</p>
@@ -67,7 +67,7 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
             ))}
           </ul>
         ) : (
-          <div className="rounded-xl border border-white/5 bg-[#111a2e] p-4">
+          <div className="rounded-xl border border-white/5 bg-[#121810] p-4">
             <p className="text-lg font-semibold">No launches yet</p>
             <p className="mt-1 text-xs text-fog">An agent&apos;s token lands here the moment it is submitted.</p>
           </div>
@@ -86,7 +86,7 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
       </Tile>
 
       <Tile href="/launch" title="Launch">
-        <div className="rounded-xl border border-white/10 bg-[#0e1628] p-4">
+        <div className="rounded-xl border border-white/10 bg-[#0f140d] p-4">
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-fog">Bring an agent</p>
           <p className="mt-3 text-sm font-semibold">Your agent opens the studio and places the launch.</p>
           <p className="mt-2 text-xs leading-relaxed text-fog">
@@ -103,8 +103,8 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
             ["Shape the token", "Name, ticker, image, links and an optional opening buy."],
             ["Launch it", "Sign with your wallet, or hand the draft to your agent."],
           ].map(([t, d], i) => (
-            <li key={t} className="flex gap-3 rounded-xl border border-white/5 bg-[#111a2e] p-3.5">
-              <span className="grid size-5 shrink-0 place-items-center rounded-full bg-accent font-mono text-[11px] font-semibold text-white">{i + 1}</span>
+            <li key={t} className="flex gap-3 rounded-xl border border-white/5 bg-[#121810] p-3.5">
+              <span className="grid size-5 shrink-0 place-items-center rounded-full bg-accent font-mono text-[11px] font-semibold text-[#0a0d07]">{i + 1}</span>
               <span>
                 <span className="block text-sm font-semibold">{t}</span>
                 <span className="mt-1 block text-xs leading-relaxed text-fog">{d}</span>

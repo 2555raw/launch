@@ -318,10 +318,10 @@ export function LaunchStudio({
               role="tab"
               aria-selected={form.mode === m}
               onClick={() => update("mode", m)}
-              className="relative rounded-lg px-6 py-2.5 text-sm font-medium capitalize text-fog transition-colors aria-selected:text-ink"
+              className="relative rounded-lg px-6 py-2.5 text-sm font-medium capitalize text-fog transition-colors aria-selected:text-white"
             >
               {form.mode === m && (
-                <motion.span layoutId="mode-pill" className="absolute inset-0 rounded-lg bg-[#e8e8e8]" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
+                <motion.span layoutId="mode-pill" className="absolute inset-0 rounded-lg bg-[linear-gradient(180deg,#3b82f6,#2563eb)] shadow-[0_6px_20px_-8px_rgb(59_130_246/0.8)]" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
               )}
               <span className="relative">{m}</span>
             </button>
@@ -344,7 +344,7 @@ export function LaunchStudio({
                     onClick={() => selectChain(c.id)}
                     className={cn(
                       "flex h-12 items-center gap-2.5 rounded-xl border px-3 text-sm transition-colors",
-                      form.chain === c.id ? "border-bone/80 bg-surface-3 text-bone" : "border-line-strong text-fog hover:border-white/25 hover:text-bone",
+                      form.chain === c.id ? "border-accent bg-accent/10 text-bone shadow-[0_0_18px_-6px_rgb(59_130_246/0.8)]" : "border-line-strong text-fog hover:border-accent/50 hover:text-bone",
                     )}
                   >
                     <ChainDot chain={c.id} className="size-6" />
@@ -365,7 +365,7 @@ export function LaunchStudio({
                     onClick={() => selectPad(p.id)}
                     className={cn(
                       "flex items-center gap-3 rounded-xl border p-2.5 text-left transition-colors",
-                      form.pad === p.id ? "border-bone/80 bg-surface-3" : "border-line-strong hover:border-white/25",
+                      form.pad === p.id ? "border-accent bg-accent/10 shadow-[0_0_18px_-6px_rgb(59_130_246/0.8)]" : "border-line-strong hover:border-accent/50",
                     )}
                   >
                     <PadGlyph pad={p.id} size="md" className="!rounded-lg" />
@@ -373,7 +373,7 @@ export function LaunchStudio({
                       <span className="block text-sm font-medium">{p.name}</span>
                       <span className="hidden truncate text-xs text-mute sm:block">{p.blurb}</span>
                     </span>
-                    <span aria-hidden="true" className={cn("mr-1 size-1.5 rounded-full", form.pad === p.id ? "bg-bone" : "bg-transparent")} />
+                    <span aria-hidden="true" className={cn("mr-1 size-1.5 rounded-full", form.pad === p.id ? "bg-accent-2 shadow-[0_0_8px_1px_rgb(34_211_238/0.8)]" : "bg-transparent")} />
                   </button>
                 ))}
               </div>
@@ -764,7 +764,7 @@ export function LaunchStudio({
               <p className="mt-4 flex items-start gap-2 rounded-xl bg-ink-2 p-3 text-xs leading-relaxed text-fog">
                 <Bot className="mt-0.5 size-3.5 shrink-0 text-accent" aria-hidden="true" />
                 {onchain
-                  ? "Launches from your Solana wallet, or hand it to an agent."
+                  ? `Launches from your ${support?.wallet === "solana" ? "Solana" : "EVM"} wallet, or hand it to an agent.`
                   : agent
                     ? `${agent.name} will sign with its own wallet.`
                     : "Connect an agent to sign and submit this launch."}

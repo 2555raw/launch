@@ -22,10 +22,19 @@ export function LogoShapes({ fill = "currentColor" }: { fill?: string }) {
   );
 }
 
-export function LogoMark({ className }: { className?: string }) {
+/** The mark in the brand gradient (blue to cyan). Pass `mono` for a single colour (currentColor). */
+export function LogoMark({ className, mono = false }: { className?: string; mono?: boolean }) {
   return (
     <svg viewBox="-24 -24 148 148" aria-hidden="true" className={cn("size-7 shrink-0 text-bone", className)}>
-      <LogoShapes />
+      {!mono && (
+        <defs>
+          <linearGradient id="picker-mark" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#60a5fa" />
+            <stop offset="1" stopColor="#22d3ee" />
+          </linearGradient>
+        </defs>
+      )}
+      <LogoShapes fill={mono ? "currentColor" : "url(#picker-mark)"} />
     </svg>
   );
 }

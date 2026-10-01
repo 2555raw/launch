@@ -11,8 +11,14 @@ const half = "M26 0A24 24 0 0 1 74 0Z";
 function Mark({ px }: { px: number }) {
   return (
     <svg width={px} height={px} viewBox="-24 -24 148 148">
+      <defs>
+        <linearGradient id="og-mark" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#60A5FA" />
+          <stop offset="1" stopColor="#22D3EE" />
+        </linearGradient>
+      </defs>
       {[0, 90, 180, 270].map((r) => (
-        <g key={r} transform={`rotate(${r} 50 50)`} fill="#FAFAFA">
+        <g key={r} transform={`rotate(${r} 50 50)`} fill="url(#og-mark)">
           <path d={corner} />
           <path d={half} />
         </g>
@@ -30,8 +36,8 @@ export default function OpengraphImage() {
           height: "100%",
           display: "flex",
           alignItems: "center",
-          background: "radial-gradient(700px 420px at 78% 50%, rgba(255,255,255,0.08), transparent 70%), #0a0a0a",
-          color: "#FAFAFA",
+          background: "radial-gradient(700px 420px at 78% 50%, rgba(59,130,246,0.28), transparent 70%), radial-gradient(500px 300px at 10% 0%, rgba(34,211,238,0.10), transparent 70%), #070B14",
+          color: "#EEF4FF",
           padding: 80,
           fontFamily: "sans-serif",
         }}
@@ -43,9 +49,9 @@ export default function OpengraphImage() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", marginTop: 44 }}>
             <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1 }}>Every pad.</div>
-            <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1, color: "#9a9a9a" }}>Your pick.</div>
+            <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1, color: "#7FA7F5" }}>Your pick.</div>
           </div>
-          <div style={{ fontSize: 26, color: "#8c8c8c", marginTop: 44 }}>padpicker.xyz · People draft, agents launch</div>
+          <div style={{ fontSize: 26, color: "#8A9BBE", marginTop: 44 }}>padpicker.xyz · People draft, agents launch</div>
         </div>
         <Mark px={330} />
       </div>

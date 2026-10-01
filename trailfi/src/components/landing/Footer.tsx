@@ -77,7 +77,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://robinhood.com/us/en/crypto/chain/"
+                  href="https://docs.robinhood.com/chain/"
                   target="_blank"
                   rel="noreferrer"
                   className="flex items-center gap-3 transition hover:text-lime-300"

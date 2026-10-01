@@ -1,3 +1,4 @@
+import { Smartphone } from "lucide-react";
 import Image from "next/image";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { ButtonLink } from "@/components/ui/Button";
@@ -29,6 +30,29 @@ export function CallToAction() {
               <ButtonLink href="/dashboard" variant="secondary" size="lg">
                 Open dashboard
               </ButtonLink>
+            </div>
+            <div className="mt-10">
+              <div className="label mb-3">Mobile app · Apple Health &amp; Health Connect sync</div>
+              <div className="flex flex-wrap gap-3">
+                {[
+                  ["Coming soon on the", "App Store"],
+                  ["Coming soon on", "Google Play"],
+                ].map(([sub, store]) => (
+                  <div
+                    key={store}
+                    className="flex items-center gap-3 rounded-2xl border border-white/15 bg-black/50 px-4 py-2.5 backdrop-blur-md transition hover:-translate-y-0.5 hover:border-lime-400/40"
+                  >
+                    <Smartphone className="h-5 w-5 text-white/80" />
+                    <span className="leading-tight">
+                      <span className="block text-[10px] uppercase tracking-[0.14em] text-white/50">{sub}</span>
+                      <span className="block text-[15px] font-semibold">{store}</span>
+                    </span>
+                    <span className="ml-2 rounded-full bg-lime-400/15 px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wider text-lime-300">
+                      Soon
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

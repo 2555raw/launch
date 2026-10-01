@@ -81,7 +81,9 @@ export function Hero() {
               <span className="whitespace-nowrap rounded-full bg-lime-400 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-forest-950">
                 Walk-to-earn
               </span>
-              <span className="text-[13px] text-white/75">Rewards paid in stablecoins, on-chain</span>
+              <span className="text-[13px] text-white/75">
+                Funded by <span className="font-mono text-lime-300">$STEPIT</span> trading fees
+              </span>
             </motion.div>
 
             <h1 className="font-display text-[42px] font-bold uppercase leading-[0.92] tracking-[-0.03em] sm:text-6xl lg:text-[74px] xl:text-[84px]">
@@ -105,8 +107,8 @@ export function Hero() {
               transition={{ delay: 0.85, duration: 0.7 }}
               className="mt-7 max-w-xl text-[17px] leading-relaxed text-white/75 sm:text-lg"
             >
-              Turn your daily steps into crypto rewards. Explore the outdoors, stay active and earn a share of platform
-              fees.
+              Turn your daily steps into crypto rewards. Explore the outdoors, stay active and earn a share of the $STEPIT
+              token&apos;s trading fees.
             </motion.p>
 
             <motion.div

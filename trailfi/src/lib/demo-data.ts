@@ -5,7 +5,6 @@
 export const DEMO_STATS = {
   stepsToday: 10_482,
   estimatedRewards: 4.82,
-  dailyGoalProgress: 0.8,
   dailyGoal: 10_000,
   totalEarned: 128.4,
 };

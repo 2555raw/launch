@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Flame, Footprints, Mountain, TrendingUp } from "lucide-react";
-import { DemoBadge } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/Badge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { useCountUp } from "@/hooks/useCountUp";
 import { useUtcMidnightCountdown } from "@/hooks/useCountdown";
@@ -10,14 +10,12 @@ import { DEMO_STATS } from "@/lib/demo-data";
 import { fmtSteps } from "@/lib/format";
 
 const BARS = [42, 55, 38, 61, 72, 48, 66, 80, 58, 74, 69, 88, 64, 92];
-// The hero shows a stretch goal of 13,000 steps: 10,482 / 13,000 ≈ 80%.
-const HERO_GOAL = 13_000;
 
 export function HeroStatsCard() {
   const steps = useCountUp(DEMO_STATS.stepsToday, 1800);
   const reward = useCountUp(DEMO_STATS.estimatedRewards, 2000);
   const countdown = useUtcMidnightCountdown();
-  const pct = DEMO_STATS.dailyGoalProgress;
+  const pct = DEMO_STATS.stepsToday / DEMO_STATS.dailyGoal;
 
   return (
     <div className="relative w-full max-w-[400px]">
@@ -54,7 +52,7 @@ export function HeroStatsCard() {
               <span className="h-2 w-2 animate-pulse-dot rounded-full bg-neon shadow-neon" />
               <span className="label !text-white/60">Today · live</span>
             </div>
-            <DemoBadge>Demo</DemoBadge>
+            <Badge tone="lime">Goal reached</Badge>
           </div>
 
           <div className="mt-5 flex items-center justify-between gap-4">
@@ -103,17 +101,17 @@ export function HeroStatsCard() {
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <div className="label !text-[10px]">Daily Goal</div>
-              <div className="mt-1.5 font-display text-2xl font-bold tabular">80%</div>
+              <div className="mt-1.5 font-display text-2xl font-bold tabular">{Math.round(pct * 100)}%</div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
                 <motion.div
                   className="h-full rounded-full bg-gradient-to-r from-lime-400 to-neon"
                   initial={{ width: 0 }}
-                  animate={{ width: `${pct * 100}%` }}
+                  animate={{ width: `${Math.min(1, pct) * 100}%` }}
                   transition={{ delay: 1.2, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
                 />
               </div>
               <div className="mt-1.5 text-[10.5px] text-white/45 tabular">
-                {fmtSteps(DEMO_STATS.stepsToday)} / {fmtSteps(HERO_GOAL)}
+                {fmtSteps(DEMO_STATS.stepsToday)} / {fmtSteps(DEMO_STATS.dailyGoal)}
               </div>
             </div>
           </div>

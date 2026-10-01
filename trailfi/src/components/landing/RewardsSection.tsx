@@ -8,10 +8,12 @@ import { DEMO_STATS } from "@/lib/demo-data";
 import { fmtSteps } from "@/lib/format";
 import { Reveal, SectionHeading } from "./Reveal";
 
+// Where the money comes from: a fee on every $STEPIT trade. Figures are illustrative.
 const FLOW = [
-  { k: "Eligible fees", v: "100 USDC", sub: "collected by the platform today" },
-  { k: "Reward share", v: "30%", sub: "set by governance / admin" },
-  { k: "Daily pool", v: "30 USDC", sub: "split by verified steps", accent: true },
+  { k: "$STEPIT trades today", v: "2,000 USDC", sub: "buys and sells on-chain" },
+  { k: "Trading fee", v: "100 USDC", sub: "charged on every trade · 5%" },
+  { k: "Walkers' share", v: "× 30%", sub: "of the fees · 30%" },
+  { k: "Daily reward pool", v: "30 USDC", sub: "split by verified steps", accent: true },
 ];
 
 export function RewardsSection() {
@@ -21,9 +23,10 @@ export function RewardsSection() {
       <div className="pointer-events-none absolute right-0 top-1/3 h-[520px] w-[520px] rounded-full bg-lime-400/[0.07] blur-[140px]" />
       <div className="container relative grid items-center gap-16 lg:grid-cols-2">
         <div>
-          <SectionHeading index="02" label="Rewards" title="Real fees," accent="shared with the people who move.">
-            A configurable percentage of eligible platform fees becomes a daily reward pool. Everyone who reaches the
-            daily goal with verified activity gets a share proportional to their valid steps, up to a per-user cap.
+          <SectionHeading index="02" label="Rewards" title="Token fees," accent="shared with the people who move.">
+            Every buy and sell of the $STEPIT token pays a small trading fee. A share of those fees fills a daily reward
+            pool, and everyone who reaches the daily goal with verified activity gets a part proportional to their
+            valid steps, up to a per-user cap.
           </SectionHeading>
 
           <Reveal delay={0.15} className="mt-10 space-y-3">
@@ -45,8 +48,8 @@ export function RewardsSection() {
             ))}
             <p className="flex gap-2 pt-2 text-[13px] leading-relaxed text-white/45">
               <Info className="mt-0.5 h-4 w-4 shrink-0" />
-              Illustrative example. Rewards depend on actual eligible fees and total verified activity, are reviewed
-              before payment, and are never guaranteed.
+              Illustrative figures. The fee rate, volume and walkers&apos; share are examples. Actual rewards depend on the
+              real trading fees and on total verified activity, are reviewed before payment, and are never guaranteed.
             </p>
           </Reveal>
         </div>

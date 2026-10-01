@@ -17,8 +17,8 @@ export function Footer() {
           <div className="max-w-sm">
             <Logo />
             <p className="mt-4 text-sm leading-relaxed text-white/50">
-              Walk. Explore. Earn. Stepit rewards verified real-world activity with a share of platform fees, paid to
-              your wallet.
+              Walk. Explore. Earn. Stepit rewards verified real-world activity with a share of the $STEPIT token&apos;s
+              trading fees, paid to your wallet.
             </p>
           </div>
           <nav className="grid grid-cols-2 gap-x-10 gap-y-3 sm:flex sm:flex-wrap sm:gap-x-8" aria-label="Footer">

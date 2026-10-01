@@ -11,9 +11,19 @@ export function LogoMark({ className }: { className?: string }) {
         </linearGradient>
       </defs>
       <rect x="0.5" y="0.5" width="31" height="31" rx="9.5" fill="#071d14" stroke="rgba(196,251,109,0.35)" />
-      <path d="M5.5 22.5 12.5 11l4.3 6.4 3-4.4 6.7 9.5" fill="none" stroke="url(#tf-g)" strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" />
-      <path d="M8 26.2h16" stroke="#c4fb6d" strokeOpacity="0.55" strokeWidth="1.6" strokeDasharray="1.5 2.6" strokeLinecap="round" />
-      <circle cx="19.8" cy="13" r="1.9" fill="#5dff9d" />
+      {/* Two footprints, one step ahead of the other */}
+      <g fill="url(#tf-g)" opacity="0.7">
+        <ellipse cx="11" cy="20.3" rx="2.9" ry="4.3" transform="rotate(-12 11 20.3)" />
+        <circle cx="9.1" cy="14.2" r="1.05" />
+        <circle cx="11.1" cy="13.5" r="1.15" />
+        <circle cx="13" cy="14.1" r="0.95" />
+      </g>
+      <g fill="url(#tf-g)">
+        <ellipse cx="20.8" cy="14.6" rx="2.9" ry="4.3" transform="rotate(12 20.8 14.6)" />
+        <circle cx="19.3" cy="8.5" r="1.05" />
+        <circle cx="21.3" cy="7.9" r="1.15" />
+        <circle cx="23.2" cy="8.6" r="0.95" />
+      </g>
     </svg>
   );
 }

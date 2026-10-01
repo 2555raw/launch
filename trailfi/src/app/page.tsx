@@ -1,4 +1,5 @@
 import { CallToAction } from "@/components/landing/CallToAction";
+import { Faq } from "@/components/landing/Faq";
 import { Footer } from "@/components/landing/Footer";
 import { Hero } from "@/components/landing/Hero";
 import { HowItWorks } from "@/components/landing/HowItWorks";
@@ -15,6 +16,7 @@ export default function HomePage() {
         <HowItWorks />
         <RewardsSection />
         <Leaderboard />
+        <Faq />
         <CallToAction />
       </main>
       <Footer />

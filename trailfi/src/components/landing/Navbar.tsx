@@ -13,6 +13,7 @@ const LINKS = [
   { href: "/#home", label: "Home" },
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#rewards", label: "Rewards" },
+  { href: "/#faq", label: "FAQ" },
   { href: "/#leaderboard", label: "Leaderboard" },
   { href: "/dashboard", label: "Dashboard" },
 ];

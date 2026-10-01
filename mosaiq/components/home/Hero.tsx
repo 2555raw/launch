@@ -171,7 +171,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
                     rotateY: d * -18,
                     scale: d === 0 ? 1 : 0.9,
                     opacity: visible ? 1 : 0,
-                    filter: d === 0 ? "brightness(1) saturate(1)" : "brightness(0.97) saturate(0.7) blur(0.4px)",
+                    filter: d === 0 ? "brightness(1) saturate(1)" : "brightness(0.62) saturate(0.85)",
                   }}
                   transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 170, damping: 24 }}
                   drag={d === 0 ? "x" : false}
@@ -185,7 +185,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
                     tabIndex={d === 0 ? 0 : -1}
                     onClick={() => d !== 0 && setIndex(i)}
                     aria-label={d === 0 ? `${p.name} on ${c.name}` : `Show ${p.name}`}
-                    className="flex size-full cursor-grab flex-col rounded-[22px] border border-line-strong bg-[linear-gradient(160deg,#fafafa_0%,#f1f2f4_60%,#e6e8eb_100%)] p-4 text-left shadow-[0_30px_60px_-24px_rgb(15_23_42/0.35),inset_0_1px_0_rgb(255_255_255/0.9)] active:cursor-grabbing"
+                    className="flex size-full cursor-grab flex-col rounded-[22px] border border-white/12 bg-[linear-gradient(160deg,#34363d_0%,#26272c_50%,#1c1d21_100%)] p-4 text-left shadow-[0_30px_60px_-20px_rgb(0_0_0/0.8),inset_0_1px_0_rgb(255_255_255/0.08)] active:cursor-grabbing"
                   >
                     <span className="flex items-start justify-between">
                       <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-bone">
@@ -193,7 +193,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
                       </span>
                       <span className="font-mono text-[11px] text-fog">{String(i + 1).padStart(2, "0")}</span>
                     </span>
-                    <span className="mx-auto mt-6 grid size-[104px] place-items-center rounded-full border-[3px] border-white bg-[radial-gradient(circle_at_35%_30%,#ffffff,#e3e9f4)] shadow-[inset_0_2px_10px_rgb(15_23_42/0.12),0_0_0_1px_rgb(15_23_42/0.08),0_10px_24px_-12px_rgb(37_99_235/0.4)] sm:size-[116px]">
+                    <span className="mx-auto mt-6 grid size-[104px] place-items-center rounded-full border-[3px] border-white/10 bg-[radial-gradient(circle_at_35%_30%,#3a3c43,#1c1d21)] shadow-[inset_0_2px_10px_rgb(0_0_0/0.7),0_0_0_1px_rgb(255_255_255/0.06),0_10px_24px_-12px_rgb(59_130_246/0.45)] sm:size-[116px]">
                       <PadGlyph pad={p.id} size="xl" className="!size-[72px] !rounded-full sm:!size-[84px]" />
                     </span>
                     <span className="mt-auto text-center">

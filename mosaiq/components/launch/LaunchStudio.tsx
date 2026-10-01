@@ -344,7 +344,7 @@ export function LaunchStudio({
                     onClick={() => selectChain(c.id)}
                     className={cn(
                       "flex h-12 items-center gap-2.5 rounded-xl border px-3 text-sm transition-colors",
-                      form.chain === c.id ? "border-accent bg-accent/10 text-accent shadow-[0_0_18px_-6px_rgb(37_99_235/0.45)]" : "border-line-strong text-fog hover:border-accent/50 hover:text-bone",
+                      form.chain === c.id ? "border-accent bg-accent/15 text-bone shadow-[0_0_18px_-6px_rgb(37_99_235/0.45)]" : "border-line-strong text-fog hover:border-accent/50 hover:text-bone",
                     )}
                   >
                     <ChainDot chain={c.id} className="size-6" />
@@ -365,7 +365,7 @@ export function LaunchStudio({
                     onClick={() => selectPad(p.id)}
                     className={cn(
                       "flex items-center gap-3 rounded-xl border p-2.5 text-left transition-colors",
-                      form.pad === p.id ? "border-accent bg-accent/10 shadow-[0_0_18px_-6px_rgb(37_99_235/0.45)]" : "border-line-strong hover:border-accent/50",
+                      form.pad === p.id ? "border-accent bg-accent/15 shadow-[0_0_18px_-6px_rgb(37_99_235/0.45)]" : "border-line-strong hover:border-accent/50",
                     )}
                   >
                     <PadGlyph pad={p.id} size="md" className="!rounded-lg" />

@@ -10,7 +10,7 @@ export function CallToAction() {
       <Reveal>
         <div className="grain relative isolate overflow-hidden rounded-[36px] border border-white/10">
           <Image
-            src="/images/trail-valley.jpg"
+            src="/images/trail-valley.webp"
             alt="Hiker with a yellow backpack walking through an alpine valley"
             fill
             sizes="(min-width: 1280px) 1240px, 100vw"

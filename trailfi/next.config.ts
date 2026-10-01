@@ -2,7 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  images: { qualities: [75, 80] },
+  // Images are served pre-sized from /public; resizing them on request used too much memory.
+  images: { unoptimized: true },
   // PGlite ships a WASM build of Postgres; keep it (and the Postgres driver) out of the bundle.
   serverExternalPackages: ["@electric-sql/pglite", "postgres"],
   // Migrations are read from disk at runtime by the embedded database.

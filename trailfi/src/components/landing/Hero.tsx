@@ -2,7 +2,6 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowDown, KeyRound, Lock, ShieldCheck } from "lucide-react";
-import { getImageProps } from "next/image";
 import { useRef } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
@@ -16,19 +15,19 @@ const LINES = [
 
 function HeroBackground() {
   // Art direction: a landscape crop for wide screens, a portrait crop centred on the hikers for phones.
-  const common = { alt: "Two hikers walking a rocky trail towards snowcapped peaks", sizes: "100vw", quality: 80, priority: true };
-  const {
-    props: { srcSet: desktop },
-  } = getImageProps({ ...common, src: "/images/hero-trail.jpg", width: 2560, height: 1708 });
-  const {
-    props: { srcSet: mobile, ...rest },
-  } = getImageProps({ ...common, src: "/images/hero-trail-mobile.jpg", width: 1080, height: 1920 });
+  // The WebP files are pre-sized, so the server never has to resize images on the fly.
   return (
     <picture>
-      <source media="(min-width: 768px)" srcSet={desktop} />
-      <source media="(max-width: 767px)" srcSet={mobile} />
-      {/* eslint-disable-next-line jsx-a11y/alt-text */}
-      <img {...rest} className="h-full w-full object-cover object-[70%_center] md:object-center" />
+      <source media="(min-width: 768px)" srcSet="/images/hero-trail-1280.webp 1280w, /images/hero-trail.webp 2000w" sizes="100vw" />
+      <source media="(max-width: 767px)" srcSet="/images/hero-trail-mobile.webp" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/hero-trail.webp"
+        alt="Two hikers walking a rocky trail towards snowcapped peaks"
+        fetchPriority="high"
+        decoding="async"
+        className="h-full w-full object-cover object-[70%_center] md:object-center"
+      />
     </picture>
   );
 }

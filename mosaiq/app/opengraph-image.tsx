@@ -36,7 +36,7 @@ export default function OpengraphImage() {
           height: "100%",
           display: "flex",
           alignItems: "center",
-          background: "radial-gradient(700px 420px at 78% 50%, rgba(37,99,235,0.14), transparent 70%), radial-gradient(500px 300px at 10% 0%, rgba(14,165,233,0.10), transparent 70%), #F5F7FB",
+          background: "radial-gradient(700px 420px at 78% 50%, rgba(37,99,235,0.14), transparent 70%), radial-gradient(500px 300px at 10% 0%, rgba(14,165,233,0.10), transparent 70%), #DFE6F1",
           color: "#0B1220",
           padding: 80,
           fontFamily: "sans-serif",
@@ -49,7 +49,7 @@ export default function OpengraphImage() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", marginTop: 44 }}>
             <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1 }}>Every pad.</div>
-            <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1, color: "#2563EB" }}>Your pick.</div>
+            <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1, color: "#2563EB" }}>Your choice.</div>
           </div>
           <div style={{ fontSize: 26, color: "#475569", marginTop: 44 }}>One form for every launchpad · Launch from your wallet</div>
         </div>

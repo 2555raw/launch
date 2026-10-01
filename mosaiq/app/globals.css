@@ -6,12 +6,12 @@
  * state: primary buttons, selected pills, focus, glows and the logo.
  */
 @theme {
-  --color-ink: #f5f7fb;
-  --color-ink-2: #f8fafd;
-  --color-surface: #ffffff;
-  --color-surface-2: #f1f4fa;
-  --color-surface-3: #e8edf6;
-  --color-line: rgb(15 23 42 / 0.08);
+  --color-ink: #dfe6f1;
+  --color-ink-2: #edf1f8;
+  --color-surface: #f4f7fc;
+  --color-surface-2: #e8eef7;
+  --color-surface-3: #dbe3ef;
+  --color-line: rgb(15 23 42 / 0.09);
   --color-line-strong: rgb(15 23 42 / 0.14);
   --color-bone: #0b1220;
   --color-fog: #475569;
@@ -72,22 +72,22 @@
   /* Page backdrop: a faint square grid over the whole canvas. */
   .backdrop {
     background-image:
-      radial-gradient(70rem 40rem at 50% -20%, rgb(37 99 235 / 0.10), transparent 70%),
+      radial-gradient(70rem 40rem at 50% -20%, rgb(37 99 235 / 0.16), transparent 70%),
       radial-gradient(40rem 30rem at 100% 0%, rgb(14 165 233 / 0.07), transparent 70%),
-      linear-gradient(rgb(15 23 42 / 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(15 23 42 / 0.045) 1px, transparent 1px);
+      linear-gradient(rgb(15 23 42 / 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(15 23 42 / 0.055) 1px, transparent 1px);
     background-size: auto, 64px 64px, 64px 64px;
   }
 
   .card {
-    @apply rounded-[var(--radius-tile)] border border-line bg-white;
+    @apply rounded-[var(--radius-tile)] border border-line bg-[linear-gradient(180deg,#f7f9fd_0%,#eef3fa_100%)];
     box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -12px rgb(15 23 42 / 0.10);
   }
   .card-hover {
     @apply transition-[border-color,background-color,transform] duration-300;
   }
   .card-hover:hover {
-    @apply border-accent/30 bg-white shadow-[0_12px_30px_-14px_rgb(37_99_235/0.35)];
+    @apply border-accent/30 bg-[linear-gradient(180deg,#f9fbfe_0%,#f0f5fc_100%)] shadow-[0_12px_30px_-14px_rgb(37_99_235/0.35)];
   }
 
   .label {
@@ -200,7 +200,7 @@
   position: relative;
   overflow: hidden;
   border-radius: 9999px;
-  background: radial-gradient(120% 160% at 0% 0%, #eef4ff 0%, #ffffff 60%);
+  background: radial-gradient(120% 160% at 0% 0%, #e3ecfb 0%, #f4f7fc 60%);
 }
 .ca-shine > .ca-inner::after {
   content: "";

@@ -5,9 +5,9 @@
  */
 export const site = {
   name: "Chooser",
-  tagline: "Every pad. Your pick.",
+  tagline: "Every pad. Your choice.",
   description:
-    "Chooser puts every token launchpad on Robinhood Chain, Solana, BNB Chain and Arc in one place. Pick your pad, draft the token, and launch it from your wallet or let your agent do it.",
+    "Chooser puts every token launchpad on Robinhood Chain, Solana, BNB Chain and Arc in one place. Choose your pad, draft the token, and launch it from your wallet or let your agent do it.",
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
   /** Set to null to hide every X link. */
   social: {

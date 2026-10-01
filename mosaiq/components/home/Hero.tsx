@@ -97,7 +97,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
           >
             Every pad.
             <br />
-            Your pick.
+            Your choice.
           </motion.h1>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="mt-8">
             <p className="tracked leading-loose">
@@ -185,7 +185,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
                     tabIndex={d === 0 ? 0 : -1}
                     onClick={() => d !== 0 && setIndex(i)}
                     aria-label={d === 0 ? `${p.name} on ${c.name}` : `Show ${p.name}`}
-                    className="flex size-full cursor-grab flex-col rounded-[22px] border border-line-strong bg-[linear-gradient(160deg,#ffffff_0%,#f3f6fc_60%,#e9eff9_100%)] p-4 text-left shadow-[0_30px_60px_-24px_rgb(15_23_42/0.35),inset_0_1px_0_rgb(255_255_255/0.9)] active:cursor-grabbing"
+                    className="flex size-full cursor-grab flex-col rounded-[22px] border border-line-strong bg-[linear-gradient(160deg,#f8fafd_0%,#edf2f9_60%,#e2e9f4_100%)] p-4 text-left shadow-[0_30px_60px_-24px_rgb(15_23_42/0.35),inset_0_1px_0_rgb(255_255_255/0.9)] active:cursor-grabbing"
                   >
                     <span className="flex items-start justify-between">
                       <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-bone">

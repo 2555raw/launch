@@ -99,7 +99,7 @@ export function Bento({ latest, stats }: { latest: PublicLaunch[]; stats: Stats 
         <p className="px-1.5 text-xs text-fog">How it works</p>
         <ol className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
           {[
-            ["Pick a pad", "Choose the chain and venue. Pairs follow what that pad supports."],
+            ["Choose a pad", "Select the chain and venue. Pairs follow what that pad supports."],
             ["Shape the token", "Name, ticker, image, links and an optional opening buy."],
             ["Launch it", "Sign with your wallet, or hand the draft to your agent."],
           ].map(([t, d], i) => (

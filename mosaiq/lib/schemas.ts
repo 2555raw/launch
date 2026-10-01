@@ -69,10 +69,10 @@ export const draftInputSchema = z
   .superRefine((d, ctx) => {
     const pad = getPad(d.pad);
     if (!pad || pad.chain !== d.chain) {
-      ctx.addIssue({ code: "custom", path: ["pad"], message: "Pick a launchpad on this chain" });
+      ctx.addIssue({ code: "custom", path: ["pad"], message: "Choose a launchpad on this chain" });
       return;
     }
-    if (!isValidPair(pad, d.pair)) ctx.addIssue({ code: "custom", path: ["pair"], message: "Pick a pair this pad supports" });
+    if (!isValidPair(pad, d.pair)) ctx.addIssue({ code: "custom", path: ["pair"], message: "Choose a pair this pad supports" });
     const chain = getChain(d.chain)!;
     if (d.openingBuy !== undefined && Number(d.openingBuy) < chain.minBuy) {
       ctx.addIssue({

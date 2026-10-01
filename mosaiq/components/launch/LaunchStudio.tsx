@@ -575,7 +575,7 @@ export function LaunchStudio({
           <Section id="studio-settings" n="03" title="Launch settings">
             {form.mode === "create" && !buyAllowed && (
               <p className="rounded-xl border border-line bg-ink-2 p-3 text-sm text-fog">
-                No opening buy with the {form.pair} pair on {pad.name}. {support?.buyPairs.length ? `Pick ${support.buyPairs.join(" or ")} to add one.` : ""}
+                No opening buy with the {form.pair} pair on {pad.name}. {support?.buyPairs.length ? `Choose ${support.buyPairs.join(" or ")} to add one.` : ""}
               </p>
             )}
             {form.mode === "create" && buyAllowed && (
@@ -688,7 +688,7 @@ export function LaunchStudio({
                   {form.mode === "create" && !onchain && (
                     <p className="mb-4 rounded-xl border border-line bg-ink-2 p-3 text-sm text-fog">
                       {onchainPads[form.pad]
-                        ? `The ${form.pair} pair on ${pad.name} does not launch from a wallet yet. Pick ${onchainPads[form.pad].pairs.slice(0, 4).join(", ")}${onchainPads[form.pad].pairs.length > 4 ? "…" : ""} to launch it yourself.`
+                        ? `The ${form.pair} pair on ${pad.name} does not launch from a wallet yet. Choose ${onchainPads[form.pad].pairs.slice(0, 4).join(", ")}${onchainPads[form.pad].pairs.length > 4 ? "…" : ""} to launch it yourself.`
                         : `${pad.name} launches go through an agent for now: save the draft below and hand it over.`}
                     </p>
                   )}

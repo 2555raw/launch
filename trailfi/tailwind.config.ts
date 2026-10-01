@@ -36,7 +36,6 @@ const config: Config = {
         display: ['"Space Grotesk Variable"', "ui-sans-serif", "system-ui", "sans-serif"],
         sans: ['"Inter Variable"', "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
-        serif: ['"EB Garamond"', "ui-serif", "Georgia", "serif"],
       },
       boxShadow: {
         glass: "0 1px 0 0 rgba(255,255,255,0.06) inset, 0 20px 60px -20px rgba(0,0,0,0.6)",

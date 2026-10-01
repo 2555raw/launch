@@ -47,7 +47,7 @@ const SOCIALS = [
 
 export function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-white/[0.06] bg-ink-950 font-serif text-white">
+    <footer className="relative overflow-hidden border-t border-white/[0.06] bg-ink-950 text-white">
       {/* Paper grain */}
       <div
         className="pointer-events-none absolute inset-0 opacity-[0.06] mix-blend-overlay"
@@ -62,14 +62,14 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-3" aria-label="Stepit home">
               <LogoMark className="h-11 w-11" />
-              <span className="text-[40px] font-normal leading-none tracking-tight">
+              <span className="font-display text-[34px] font-bold leading-none tracking-tight">
                 Step<span className="text-lime-400">it</span>
               </span>
             </Link>
-            <p className="mt-6 max-w-xs text-[19px] italic leading-snug text-white/85">
+            <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-white/60">
               Every step counts. Walk the trail, earn from the token, keep what you make.
             </p>
-            <ul className="mt-7 space-y-3 text-[16.5px] text-white/90">
+            <ul className="mt-6 space-y-3 text-[14.5px] text-white/75">
               <li>
                 <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center gap-3 transition hover:text-lime-300">
                   <Mail className="h-[17px] w-[17px] shrink-0 text-lime-400" strokeWidth={1.5} /> {CONTACT_EMAIL}
@@ -106,7 +106,7 @@ export function Footer() {
               <ul className="mt-6 space-y-3">
                 {c.links.map((l) => (
                   <li key={l.label}>
-                    <Link href={l.href} className="text-[17.5px] text-white/90 transition hover:text-lime-300">
+                    <Link href={l.href} className="text-[15px] text-white/70 transition hover:text-lime-300">
                       {l.label}
                     </Link>
                   </li>
@@ -117,15 +117,15 @@ export function Footer() {
 
           <div className="col-span-2 lg:col-span-1">
             <FooterHeading>Newsletter</FooterHeading>
-            <p className="mt-6 text-[18px] italic leading-snug text-white/85">
+            <p className="mt-6 text-[15px] leading-relaxed text-white/60">
               Subscribe for launch news, new trails and payout updates.
             </p>
             <NewsletterForm />
           </div>
         </div>
 
-        <div className="relative z-10 mt-14 flex flex-col-reverse gap-4 text-[15px] italic sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-md text-[13.5px] leading-snug text-white/55">
+        <div className="relative z-10 mt-14 flex flex-col-reverse gap-4 text-[13.5px] sm:flex-row sm:items-center sm:justify-between">
+          <p className="max-w-md text-xs leading-relaxed text-white/40">
             © {new Date().getFullYear()} Stepit. Rewards are variable, reviewed before payment and never guaranteed. Not
             financial advice.
           </p>
@@ -162,7 +162,7 @@ export function Footer() {
 function FooterHeading({ children }: { children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="text-[15px] font-normal uppercase tracking-[0.18em] sm:text-[16.5px]">{children}</h3>
+      <h3 className="font-display text-[13px] font-semibold uppercase tracking-[0.18em] text-white">{children}</h3>
       <span className="mt-4 block h-px w-10 bg-lime-400" />
     </div>
   );
@@ -201,13 +201,13 @@ function NewsletterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder={done ? "Thanks for subscribing" : "Enter your email"}
-        className="h-[52px] min-w-0 flex-1 border border-white/25 bg-transparent px-5 text-[17px] italic text-white placeholder:text-white/40 focus:border-lime-400 focus:outline-none"
+        className="h-12 min-w-0 flex-1 rounded-l-xl border border-r-0 border-white/15 bg-black/30 px-4 text-sm text-white placeholder:text-white/35 focus:border-lime-400/60 focus:outline-none"
       />
       <button
         type="submit"
         disabled={busy}
         aria-label="Subscribe"
-        className="grid h-[52px] w-[52px] shrink-0 place-items-center bg-lime-400 text-ink-950 transition hover:bg-lime-300 disabled:opacity-60"
+        className="grid h-12 w-12 shrink-0 place-items-center rounded-r-xl bg-lime-400 text-ink-950 transition hover:bg-lime-300 disabled:opacity-60"
       >
         <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
       </button>

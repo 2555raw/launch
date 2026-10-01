@@ -18,7 +18,7 @@ export default async function HomePage() {
   return (
     <div className="mx-auto max-w-6xl space-y-16 px-4 py-6 sm:px-6 sm:py-8">
       <div className="space-y-4">
-        <Hero counts={stats.byPad} />
+        <Hero counts={stats.byPad} ca={process.env.TOKEN_CA || site.tokenCa || null} />
         <PadMarquee />
       </div>
 

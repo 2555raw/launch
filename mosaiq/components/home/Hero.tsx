@@ -1,13 +1,14 @@
 "use client";
 
 import { motion, useReducedMotion, type PanInfo } from "framer-motion";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Check, ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { defaultPad, getChain, pads } from "@/lib/pads";
 import { site } from "@/lib/site";
 import { LogoMark } from "@/components/ui/Logo";
 import { ChainDot, PadGlyph } from "@/components/ui/PadGlyph";
+import { useCopy } from "@/components/ui/useCopy";
 
 const INTERVAL = 4500;
 
@@ -28,7 +29,35 @@ function offsetOf(i: number, active: number, n: number) {
   return d;
 }
 
-export function Hero({ counts }: { counts: Record<string, number> }) {
+/** The Picker token's CA, copied on click; "Soon" until it is set. */
+function TokenCa({ ca }: { ca: string | null }) {
+  const { copied, copy } = useCopy();
+  if (!ca) {
+    return (
+      <div className="mx-auto mb-6 flex max-w-[460px] items-center justify-between gap-3 rounded-full border border-dashed border-line-strong px-5 py-3 text-sm">
+        <span className="font-mono text-xs uppercase tracking-[0.18em] text-mute">CA</span>
+        <span className="font-medium text-fog">Soon</span>
+      </div>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={() => copy(ca, "ca")}
+      aria-label={`Copy contract address ${ca}`}
+      className="group mx-auto mb-6 flex w-full max-w-[460px] items-center gap-3 rounded-full border border-line-strong bg-surface-2/70 py-2.5 pl-5 pr-2.5 text-left transition hover:border-white/30"
+    >
+      <span className="shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-mute">CA</span>
+      <span className="min-w-0 flex-1 truncate font-mono text-sm text-bone">{ca}</span>
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-bone px-3 py-1.5 text-xs font-semibold text-ink">
+        {copied === "ca" ? <Check className="size-3.5" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
+        {copied === "ca" ? "Copied" : "Copy"}
+      </span>
+    </button>
+  );
+}
+
+export function Hero({ counts, ca }: { counts: Record<string, number>; ca: string | null }) {
   const reduce = useReducedMotion();
   const [index, setIndex] = useState(() => Math.max(0, pads.findIndex((p) => p.id === defaultPad.id)));
   const [paused, setPaused] = useState(false);
@@ -92,7 +121,7 @@ export function Hero({ counts }: { counts: Record<string, number> }) {
             className="mt-6 max-w-md text-[16px] leading-relaxed text-fog"
           >
             {pads.filter((p) => !p.featured && p.chain !== "arc").map((p) => p.name).join(", ").replace(/, ([^,]*)$/, " and $1")} keep their own
-            chains. Here you fill a single form, and your agent places the launch. Home is{" "}
+            chains. Here you fill a single form and launch it from your own wallet, or let your agent do it. Home is{" "}
             <Link
               href={`/launch?chain=${defaultPad.chain}&pad=${defaultPad.id}`}
               className="inline-flex translate-y-[3px] items-center gap-1.5 rounded-full border border-line-strong bg-surface-2 py-0.5 pl-1 pr-2.5 text-sm text-bone transition hover:border-white/30"
@@ -116,7 +145,9 @@ export function Hero({ counts }: { counts: Record<string, number> }) {
           </motion.div>
         </div>
 
-        <div
+        <div>
+          <TokenCa ca={ca} />
+          <div
           role="region"
           aria-roledescription="carousel"
           aria-label="Launchpads"
@@ -207,6 +238,7 @@ export function Hero({ counts }: { counts: Record<string, number> }) {
               <span className="sr-only">({counts[pad.id] ?? 0} launches)</span>
             </Link>
           </div>
+        </div>
         </div>
       </div>
     </section>

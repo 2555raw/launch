@@ -32,6 +32,7 @@ import { fmtAmount, fmtDate, fmtDateTime, fmtSteps, shortAddress } from "@/lib/f
 import { PAYOUT_CHAIN_ID, SUPPORTED_CHAINS, explorerTxUrl } from "@/lib/web3/chains";
 import { StatCard } from "./StatCard";
 import { StepsChart } from "./StepsChart";
+import { TokenIcon } from "@/components/ui/TokenIcon";
 
 interface StepEntry {
   id: string;
@@ -306,7 +307,10 @@ export function DashboardView() {
                       <tr key={p.id} className="border-b border-white/5 last:border-0">
                         <td className="table-cell">{fmtDateTime(p.confirmedAt ?? p.createdAt)}</td>
                         <td className="table-cell font-mono text-lime-300">
-                          {fmtAmount(p.amount)} <span className="text-white/40">{p.tokenSymbol}</span>
+                          {fmtAmount(p.amount)}{" "}
+                          <span className="inline-flex items-center gap-1 text-white/40">
+                            <TokenIcon symbol={p.tokenSymbol} /> {p.tokenSymbol}
+                          </span>
                         </td>
                         <td className="table-cell">
                           <div className="flex items-center gap-2">
@@ -378,7 +382,10 @@ export function DashboardView() {
                     </td>
                     <td className="table-cell font-mono">{fmtSteps(r.validSteps)}</td>
                     <td className="table-cell font-mono text-lime-300">
-                      {fmtAmount(r.amount)} <span className="text-white/40">{r.tokenSymbol}</span>
+                      {fmtAmount(r.amount)}{" "}
+                      <span className="inline-flex items-center gap-1 text-white/40">
+                        <TokenIcon symbol={r.tokenSymbol} /> {r.tokenSymbol}
+                      </span>
                     </td>
                     <td className="table-cell">
                       <StatusBadge status={r.status} />
@@ -425,7 +432,10 @@ function RequestBanner({
           <div>
             <div className="label !text-amber-200/80">Payout requested</div>
             <div className="mt-1 font-display text-xl font-bold tabular">
-              {fmtAmount(openRequest.amount)} <span className="text-base text-white/50">{openRequest.tokenSymbol}</span>
+              {fmtAmount(openRequest.amount)}{" "}
+              <span className="inline-flex items-center gap-1.5 text-base text-white/50">
+                <TokenIcon symbol={openRequest.tokenSymbol} className="h-5 w-5" /> {openRequest.tokenSymbol}
+              </span>
             </div>
             <div className="text-[12.5px] text-white/50">The team will send it to your wallet soon.</div>
           </div>
@@ -446,7 +456,10 @@ function RequestBanner({
           <div>
             <div className="label !text-lime-300/80">Ready to request</div>
             <div className="mt-1 font-display text-2xl font-bold text-lime-300 tabular">
-              {fmtAmount(summary.approved)} <span className="text-base text-white/50">{token}</span>
+              {fmtAmount(summary.approved)}{" "}
+              <span className="inline-flex items-center gap-1.5 text-base text-white/50">
+                <TokenIcon symbol={token} className="h-5 w-5" /> {token}
+              </span>
             </div>
             <div className="text-[12.5px] text-white/50">Approved rewards, paid to your connected wallet.</div>
           </div>

@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import type { LucideIcon } from "lucide-react";
 import { useCountUp } from "@/hooks/useCountUp";
 import { cn } from "@/lib/cn";
+import { TokenIcon } from "@/components/ui/TokenIcon";
 
 export function StatCard({
   label,
@@ -47,7 +48,12 @@ export function StatCard({
       <div className={cn("mt-4 font-display text-[28px] font-bold leading-none tracking-tight tabular", accent && "text-lime-300")}>
         {prefix}
         {v.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
-        {suffix && <span className="ml-1.5 text-sm font-medium text-white/40">{suffix}</span>}
+        {suffix && (
+          <span className="ml-1.5 inline-flex items-center gap-1 text-sm font-medium text-white/40">
+            <TokenIcon symbol={suffix} />
+            {suffix}
+          </span>
+        )}
       </div>
       {hint && <div className="mt-2 text-[12px] text-white/45">{hint}</div>}
     </motion.div>

@@ -3,8 +3,10 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { HttpError } from "@/lib/api";
 import { audit } from "@/lib/audit";
-import { one, query } from "@/lib/db";
+import { one, query, tx } from "@/lib/db";
+import { tierReward } from "@/lib/rewards/engine";
 import { checkStepSubmission, initialVerification, utcToday, type StepSource } from "@/lib/steps/validation";
+import { getSettings, toTiers } from "./settings";
 
 export interface StepEntry {
   id: string;
@@ -164,20 +166,41 @@ export const reviewSchema = z.object({
 /** Manual admin review — the only way a browser-submitted entry becomes payable. */
 export async function reviewStepEntry(entryId: string, input: unknown, actor: string) {
   const { decision, note } = reviewSchema.parse(input);
-  const rewarded = await one<{ n: number }>(
-    `select count(*)::int as n from rewards r join step_entries s on s.user_id = r.user_id
-      where s.id = $1 and s.day between r.period_start and r.period_end and r.status <> 'rejected'`,
-    [entryId],
-  );
-  if (rewarded && rewarded.n > 0) {
-    throw new HttpError(409, "This day is already part of a reward distribution and can no longer change.", "locked");
-  }
-  const row = await one<StepEntry>(
-    `update step_entries set verification = $2, reviewed_by = $3, reviewed_at = now(), review_note = $4
-      where id = $1 returning ${ENTRY_COLUMNS}`,
-    [entryId, decision, actor, note ?? null],
-  );
-  if (!row) throw new HttpError(404, "Step entry not found.", "not_found");
-  await audit(actor, `steps.${decision}`, "step_entry", entryId, { note, day: row.day, steps: row.steps });
-  return row;
+  const settings = await getSettings();
+  const { row, reward } = await tx(async (q) => {
+    const [rewarded] = await q.query<{ n: number }>(
+      `select count(*)::int as n from rewards r join step_entries s on s.user_id = r.user_id
+        where s.id = $1 and s.day between r.period_start and r.period_end and r.status <> 'rejected'`,
+      [entryId],
+    );
+    if (rewarded && rewarded.n > 0) {
+      throw new HttpError(409, "This day already has a reward and can no longer change.", "locked");
+    }
+    const [row] = await q.query<StepEntry & { userId: string }>(
+      `update step_entries set verification = $2, reviewed_by = $3, reviewed_at = now(), review_note = $4
+        where id = $1 returning ${ENTRY_COLUMNS}, user_id as "userId"`,
+      [entryId, decision, actor, note ?? null],
+    );
+    if (!row) throw new HttpError(404, "Step entry not found.", "not_found");
+
+    // A verified day is credited right away at the current rates, ready for the walker to request.
+    let reward: number | null = null;
+    if (decision === "verified") {
+      const amount = tierReward(row.steps, toTiers(settings));
+      if (amount > 0) {
+        await q.query(
+          `insert into rewards (user_id, step_entry_id, period_start, period_end, valid_steps, eligible_days, weight, amount,
+                                token_symbol, status, reviewed_by, reviewed_at)
+           values ($1, $2, $3::date, $3::date, $4::int, 1, $5::numeric, $6::numeric, $7, 'approved', $8, now())`,
+          [row.userId, entryId, row.day, row.steps, row.steps, amount, settings.payoutTokenSymbol, actor],
+        );
+        reward = amount;
+      }
+    }
+    await audit(actor, `steps.${decision}`, "step_entry", entryId, { note, day: row.day, steps: row.steps, reward }, q);
+    return { row, reward };
+  });
+  const { userId: _userId, ...entry } = row;
+  void _userId;
+  return { ...entry, reward };
 }

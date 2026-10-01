@@ -2,6 +2,7 @@ import { Coins, ShieldCheck, Upload } from "lucide-react";
 import Image from "next/image";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { ButtonLink } from "@/components/ui/Button";
+import { TokenIcon } from "@/components/ui/TokenIcon";
 import { Reveal } from "./Reveal";
 
 export function CallToAction() {
@@ -42,7 +43,7 @@ export function CallToAction() {
                   className="flex items-center gap-3 rounded-2xl border border-white/15 bg-black/50 px-4 py-3 backdrop-blur-md transition hover:-translate-y-0.5 hover:border-lime-400/40"
                 >
                   <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-lime-400/15 text-lime-300">
-                    <s.icon className="h-4 w-4" />
+                    {s.title === "Get paid" ? <TokenIcon className="h-6 w-6" /> : <s.icon className="h-4 w-4" />}
                     <span className="absolute -right-1.5 -top-1.5 grid h-4 w-4 place-items-center rounded-full bg-lime-400 font-mono text-[9px] font-bold text-ink-950">
                       {i + 1}
                     </span>

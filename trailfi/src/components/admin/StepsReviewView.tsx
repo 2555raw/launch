@@ -36,8 +36,11 @@ export function StepsReviewView() {
   const review = useMutation({
     mutationFn: (v: { id: string; decision: "verified" | "rejected"; note?: string }) =>
       api(`/api/admin/steps/${v.id}`, { method: "PATCH", json: { decision: v.decision, note: v.note } }),
-    onSuccess: async (_d, v) => {
-      toast.success(v.decision === "verified" ? "Steps verified" : "Upload rejected");
+    onSuccess: async (d, v) => {
+      const reward = (d as { entry?: { reward?: number | null } }).entry?.reward;
+      toast.success(v.decision === "verified" ? "Steps verified" : "Upload rejected", {
+        description: v.decision === "verified" && reward ? `$${reward.toFixed(2)} credited to the walker.` : undefined,
+      });
       await qc.invalidateQueries({ queryKey: ["admin"] });
     },
     onError: (e: Error) => toast.error(e.message),

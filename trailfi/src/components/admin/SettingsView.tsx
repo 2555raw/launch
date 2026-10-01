@@ -38,7 +38,7 @@ export function SettingsView() {
   const save = useMutation({
     mutationFn: (f: Form) => api<{ settings: Settings }>("/api/admin/settings", { method: "PUT", json: f }),
     onSuccess: async () => {
-      toast.success("Settings saved", { description: "New rules apply to the next distribution." });
+      toast.success("Settings saved", { description: "New rates apply to the next photos you verify." });
       await qc.invalidateQueries({ queryKey: ["admin"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -51,14 +51,17 @@ export function SettingsView() {
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => (f ? { ...f, [k]: v } : f));
 
   // What a day earns under the edited rates.
-  const example = [500, 1000, 4000, 7000, 10000, 15000].map((n) => ({ steps: n, amount: tierReward(n, form) }));
+  const example = [1000, 3500, form.tierThreshold, Math.round((form.tierThreshold + form.tierCap) / 2), form.tierCap, form.tierCap + 5000].map((n) => ({
+    steps: n,
+    amount: tierReward(n, form),
+  }));
 
   return (
     <div>
       <PageHeader
         label="Settings"
-        title="Distribution rules"
-        description="Changes apply to future distributions only. Every change is versioned and logged."
+        title="Rates & settings"
+        description="Changes apply to photos you verify from now on. Every change is saved in the history."
         action={
           <Button loading={save.isPending} onClick={() => save.mutate(form)} icon={<Save className="h-4 w-4" />}>
             Save changes
@@ -67,43 +70,30 @@ export function SettingsView() {
       />
       <div className="grid gap-5 xl:grid-cols-3">
         <Card className="space-y-6 p-6 xl:col-span-2">
-          <CardHeader label="Rewards" title="Private reward rates" />
+          <CardHeader label="Rates" title="What a day of steps pays" />
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Minimum steps to earn" hint="Below this, a day earns nothing.">
-              <input type="number" className="input font-mono" min={0} step={100} value={form.tierMin} onChange={(e) => set("tierMin", Number(e.target.value))} />
-            </Field>
-            <Field label={`Average reward up to the threshold (${form.payoutTokenSymbol})`} hint="Days between the minimum and the threshold earn around this.">
-              <input type="number" className="input font-mono" min={0} step={0.1} value={form.tierAvg} onChange={(e) => set("tierAvg", Number(e.target.value))} />
-            </Field>
-            <Field label="Bonus threshold (steps)" hint="From here on, a day earns a bit more.">
+            <Field label="First milestone (steps)" hint="Pay grows in a straight line from 0 up to here.">
               <input type="number" className="input font-mono" min={1000} step={500} value={form.tierThreshold} onChange={(e) => set("tierThreshold", Number(e.target.value))} />
             </Field>
-            <Field label={`Maximum reward per day (${form.payoutTokenSymbol})`} hint="Reached 8,000 steps above the threshold.">
-              <input type="number" className="input font-mono" min={0} step={0.1} value={form.tierMax} onChange={(e) => set("tierMax", Number(e.target.value))} />
+            <Field label={`Pays at the first milestone (${form.payoutTokenSymbol})`} hint="For example $3.70 at 7,000 steps.">
+              <input type="number" className="input font-mono" min={0} step={0.05} value={form.tierAvg} onChange={(e) => set("tierAvg", Number(e.target.value))} />
+            </Field>
+            <Field label="Top milestone (steps)" hint="From here on a day pays the top amount.">
+              <input type="number" className="input font-mono" min={1000} step={500} value={form.tierCap} onChange={(e) => set("tierCap", Number(e.target.value))} />
+            </Field>
+            <Field label={`Top amount per day (${form.payoutTokenSymbol})`} hint="The most a single day can pay, for example $5.">
+              <input type="number" className="input font-mono" min={0} step={0.05} value={form.tierMax} onChange={(e) => set("tierMax", Number(e.target.value))} />
+            </Field>
+            <Field label="Minimum steps to earn" hint="Days at or below this pay nothing. 0 means every step counts.">
+              <input type="number" className="input font-mono" min={0} step={100} value={form.tierMin} onChange={(e) => set("tierMin", Number(e.target.value))} />
             </Field>
             <Field label="Daily goal shown to walkers" hint="Only used for the progress ring.">
               <input type="number" className="input font-mono" min={1000} max={100000} step={500} value={form.dailyStepGoal} onChange={(e) => set("dailyStepGoal", Number(e.target.value))} />
             </Field>
-            <Field label="Distribution frequency" hint="Daily: one day per run. Weekly: up to seven days per run.">
-              <div className="grid grid-cols-2 gap-2">
-                {(["daily", "weekly"] as const).map((f) => (
-                  <button
-                    key={f}
-                    type="button"
-                    onClick={() => set("distributionFrequency", f)}
-                    className={cn(
-                      "rounded-xl border px-3 py-2.5 text-sm font-medium capitalize transition",
-                      form.distributionFrequency === f ? "border-lime-400/50 bg-lime-400/10 text-lime-300" : "border-white/10 text-white/60 hover:text-white",
-                    )}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </Field>
           </div>
           <p className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.05] p-4 text-[12.5px] text-lime-100/80">
-            These rates are private. The public API and the walkers&apos; dashboard only ever show the amounts earned.
+            These rates are private. Walkers only see the amount each verified day earns. Verifying a photo credits that day
+            straight away.
           </p>
 
           <div className="hairline" />
@@ -155,7 +145,7 @@ export function SettingsView() {
               </li>
               {data.history.map((h) => (
                 <li key={h.id} className="rounded-xl border border-white/5 px-3 py-2 text-white/55">
-                  {fmtDateTime(h.createdAt)} · {shortAddress(h.changedBy)} replaced: ~{h.snapshot.tierAvg ?? "n/a"} avg · up to {h.snapshot.tierMax ?? "n/a"} · goal {h.snapshot.dailyStepGoal}
+                  {fmtDateTime(h.createdAt)} · {shortAddress(h.changedBy)} replaced: {h.snapshot.tierAvg ?? "n/a"} at {h.snapshot.tierThreshold ?? "n/a"} steps · {h.snapshot.tierMax ?? "n/a"} top
                 </li>
               ))}
             </ul>

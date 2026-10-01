@@ -4,6 +4,7 @@ import { AnimatePresence, animate, motion, useInView, useMotionTemplate, useMoti
 import { Check, Coins, Footprints, MousePointerClick, Plus, RotateCcw, Send, ShieldCheck, Wallet } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { TokenIcon } from "@/components/ui/TokenIcon";
 import { Reveal, SectionHeading } from "./Reveal";
 
 const STEPS = [
@@ -417,7 +418,7 @@ function PayoutVisual() {
                 className="flex items-center justify-between rounded-xl border border-lime-400/25 bg-lime-400/[0.06] px-3 py-2"
               >
                 <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-lime-300">
-                  <span className="h-1.5 w-1.5 rounded-full bg-neon shadow-neon" /> Paid · Robinhood Chain
+                  <TokenIcon className="h-3.5 w-3.5" /> Paid in USDG
                 </span>
                 <button type="button" onClick={run} className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-white/50 hover:text-lime-300">
                   <RotateCcw className="h-3 w-3" /> Again

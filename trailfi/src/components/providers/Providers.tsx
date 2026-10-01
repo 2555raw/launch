@@ -68,7 +68,14 @@ function AuthBridge({ children }: { children: ReactNode }) {
           });
           if (!res.ok) {
             const err = await res.json().catch(() => ({}));
-            toast.error(err.error ?? "Wallet verification failed");
+            if (err.code === "token_required") {
+              toast.error(err.error, {
+                duration: 12_000,
+                action: { label: "Get USDG", onClick: () => window.open("https://docs.robinhood.com/chain/bridging", "_blank", "noopener") },
+              });
+            } else {
+              toast.error(err.error ?? "Wallet verification failed");
+            }
             return false;
           }
           await session.refresh();

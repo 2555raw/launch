@@ -20,7 +20,6 @@ function HeroBackground() {
     <picture>
       <source media="(min-width: 768px)" srcSet="/images/hero-trail-1280.webp 1280w, /images/hero-trail.webp 2000w" sizes="100vw" />
       <source media="(max-width: 767px)" srcSet="/images/hero-trail-mobile.webp" />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/hero-trail.webp"
         alt="Two hikers walking a rocky trail towards snowcapped peaks"

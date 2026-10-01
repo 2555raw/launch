@@ -14,6 +14,7 @@ import { StatCard } from "@/components/dashboard/StatCard";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDate, fmtSteps } from "@/lib/format";
+import { TokenIcon } from "@/components/ui/TokenIcon";
 
 interface Entry {
   id: string;
@@ -109,7 +110,7 @@ export function StepsUploadView() {
         <StatCard label="Average steps · 7 days" value={summary.avgSteps7} decimals={0} hint={`${summary.daysLogged7} of 7 days logged`} icon={Footprints} />
         <StatCard label="This week · estimate" value={summary.week7} prefix="$" suffix={token} hint="Days logged in the last 7" icon={CalendarDays} delay={0.05} />
         <StatCard label="In review · estimate" value={summary.inReview} prefix="$" suffix={token} hint="Waiting for the team" icon={Hourglass} delay={0.1} />
-        <StatCard label="Verified · estimate" value={summary.verified} prefix="$" suffix={token} hint="Counts at the next distribution" icon={CheckCircle2} delay={0.15} accent />
+        <StatCard label="Verified · estimate" value={summary.verified} prefix="$" suffix={token} hint="Credited · request it from your dashboard" icon={CheckCircle2} delay={0.15} accent />
       </div>
 
       <History steps={steps} token={token} />
@@ -341,7 +342,10 @@ function AverageCard({ summary }: { summary: StepsResponse["summary"] }) {
         <div className="font-display text-6xl font-bold tracking-tight text-lime-300 tabular">
           {has ? `$${fmtAmount(summary.avgDaily7)}` : "$0.00"}
         </div>
-        <div className="mt-2 text-sm text-white/50">{has ? `${summary.tokenSymbol} per day · last 7 days` : "Upload your first day to see it"}</div>
+        <div className="mt-2 flex items-center gap-1.5 text-sm text-white/50">
+          {has && <TokenIcon symbol={summary.tokenSymbol} />}
+          {has ? `${summary.tokenSymbol} per day · last 7 days` : "Upload your first day to see it"}
+        </div>
       </div>
       <div className="relative mt-8 flex gap-1.5">
         {Array.from({ length: 7 }, (_, i) => (
@@ -413,7 +417,10 @@ function History({ steps, token }: { steps: Entry[]; token: string }) {
                     <StatusBadge status={e.verification === "flagged" ? "unverified" : e.verification} />
                   </td>
                   <td className={cn("table-cell text-right font-mono", e.estimate > 0 ? "text-lime-300" : "text-white/30")}>
-                    ${fmtAmount(e.estimate)} <span className="text-white/35">{token}</span>
+                    ${fmtAmount(e.estimate)}{" "}
+                    <span className="inline-flex items-center gap-1 text-white/35">
+                      <TokenIcon symbol={token} className="h-3.5 w-3.5" /> {token}
+                    </span>
                   </td>
                   <td className="table-cell text-right">
                     {e.source === "manual_demo" && (e.verification === "unverified" || e.verification === "flagged") && (

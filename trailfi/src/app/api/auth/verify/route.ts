@@ -4,6 +4,7 @@ import { z } from "zod";
 import { HttpError, clientIp, json, rateLimit, readJson, route } from "@/lib/api";
 import { SIWE_STATEMENT } from "@/lib/auth/constants";
 import { consumeNonceCookie, createSession } from "@/lib/auth/session";
+import { assertHoldsPayoutToken } from "@/lib/services/gate";
 import { upsertOnLogin } from "@/lib/services/users";
 import { publicClient } from "@/lib/web3/server";
 import { SUPPORTED_CHAINS } from "@/lib/web3/chains";
@@ -42,6 +43,7 @@ export const POST = route(async (req) => {
       .catch(() => false);
   }
   if (!ok) throw new HttpError(401, "Signature does not match the wallet.", "bad_signature");
+  await assertHoldsPayoutToken(parsed.address);
 
   const user = await upsertOnLogin(parsed.address);
   if (user.status !== "active") throw new HttpError(403, "This account is suspended.", "suspended");

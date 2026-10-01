@@ -7,6 +7,7 @@ import { AddressAvatar } from "@/components/wallet/ConnectWallet";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { fmtAmount, fmtSteps } from "@/lib/format";
 import { Reveal, SectionHeading } from "./Reveal";
+import { TokenIcon } from "@/components/ui/TokenIcon";
 
 interface PublicPayout {
   wallet: string;
@@ -110,7 +111,10 @@ export function Leaderboard() {
                         </span>
                       </td>
                       <td className="table-cell text-right font-mono text-lime-300 tabular">
-                        +{fmtAmount(r.amount)} <span className="text-white/40">{r.token}</span>
+                        +{fmtAmount(r.amount)}{" "}
+                        <span className="inline-flex items-center gap-1 text-white/40">
+                          <TokenIcon symbol={r.token} /> {r.token}
+                        </span>
                       </td>
                       <td className="table-cell text-right text-[12.5px] text-white/45">{ago(r.paidAt)}</td>
                     </motion.tr>

@@ -26,6 +26,7 @@ export interface AdminOverview {
     tierAvg: number;
     tierThreshold: number;
     tierMax: number;
+    tierCap: number;
     updatedBy: string | null;
     updatedAt: string;
   };

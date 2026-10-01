@@ -57,7 +57,7 @@ export function Footer() {
         }}
       />
 
-      <div className="container relative pt-20 sm:pt-24">
+      <div className="container relative z-10 pt-20 sm:pt-24">
         <div className="grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-[1.35fr_1fr_1fr_1.1fr_1.45fr] lg:gap-10">
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-3" aria-label="Stepit home">
@@ -146,7 +146,7 @@ export function Footer() {
       </div>
 
       {/* Engraved landscape: two hikers crossing below the range */}
-      <div className="pointer-events-none relative -mt-[9%] aspect-[1600/520] min-h-[260px] w-full">
+      <div className="pointer-events-none relative -mt-[17%] aspect-[1600/520] min-h-[260px] w-full max-sm:-mt-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/footer-trail.svg"

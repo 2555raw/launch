@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, BarChart3, ClipboardCheck, Coins, Footprints, Inbox, ScrollText, Send, Settings2, Users } from "lucide-react";
+import { AlertTriangle, BarChart3, ClipboardCheck, Footprints, Inbox, ScrollText, Send, Settings2, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -10,21 +10,26 @@ import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { cn } from "@/lib/cn";
 import { useAdminMeta } from "./hooks";
 
-const NAV = [
+// The daily work: review photos, pay requests. Everything else sits under "More".
+const MAIN = [
   { href: "/admin", label: "Overview", icon: BarChart3 },
-  { href: "/admin/requests", label: "Requests", icon: Inbox },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/steps", label: "Step review", icon: Footprints },
-  { href: "/admin/rewards", label: "Rewards", icon: Coins },
-  { href: "/admin/payouts", label: "Payouts", icon: Send },
-  { href: "/admin/settings", label: "Settings", icon: Settings2 },
+  { href: "/admin/steps", label: "Photos to review", icon: Footprints },
+  { href: "/admin/requests", label: "Payout requests", icon: Inbox },
+  { href: "/admin/settings", label: "Rates & settings", icon: Settings2 },
+];
+const MORE = [
+  { href: "/admin/users", label: "Walkers", icon: Users },
+  { href: "/admin/payouts", label: "Payout history", icon: Send },
   { href: "/admin/audit", label: "Audit log", icon: ScrollText },
 ];
+const NAV = [...MAIN, ...MORE];
 
 export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { data } = useAdminMeta();
   const isActive = (href: string) => (href === "/admin" ? pathname === "/admin" : pathname.startsWith(href));
+  const countFor = (href: string) =>
+    href === "/admin/steps" ? data?.stepsAwaitingReview : href === "/admin/requests" ? data?.payouts.requested : undefined;
 
   return (
     <div className="min-h-screen bg-ink-950">
@@ -34,29 +39,18 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <Logo />
           <Badge tone="lime">Admin</Badge>
         </div>
-        <nav className="mt-8 flex-1 space-y-1">
-          {NAV.map((n) => (
-            <Link
-              key={n.href}
-              href={n.href}
-              className={cn(
-                "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-                isActive(n.href) ? "bg-lime-400/10 text-lime-300" : "text-white/60 hover:bg-white/5 hover:text-white",
-              )}
-            >
-              <n.icon className="h-4 w-4" />
-              {n.label}
-              {n.href === "/admin/requests" && data && data.payouts.requested > 0 && (
-                <span className="ml-auto rounded-full bg-lime-400 px-2 py-0.5 font-mono text-[10px] font-bold text-forest-950">{data.payouts.requested}</span>
-              )}
-              {n.href === "/admin/steps" && data && data.stepsAwaitingReview > 0 && (
-                <span className="ml-auto rounded-full bg-amber-400/15 px-2 py-0.5 font-mono text-[10px] text-amber-200">{data.stepsAwaitingReview}</span>
-              )}
-              {n.href === "/admin/payouts" && data && data.payouts.inFlight > 0 && (
-                <span className="ml-auto rounded-full bg-sky-400/15 px-2 py-0.5 font-mono text-[10px] text-sky-200">{data.payouts.inFlight}</span>
-              )}
-            </Link>
-          ))}
+        <nav className="mt-8 flex-1">
+          <div className="space-y-1">
+            {MAIN.map((n) => (
+              <NavLink key={n.href} item={n} active={isActive(n.href)} count={countFor(n.href)} />
+            ))}
+          </div>
+          <div className="label mb-2 mt-8 px-3 !text-[10px]">More</div>
+          <div className="space-y-1">
+            {MORE.map((n) => (
+              <NavLink key={n.href} item={n} active={isActive(n.href)} small />
+            ))}
+          </div>
         </nav>
         <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3 text-[11.5px] leading-relaxed text-white/45">
           <ClipboardCheck className="mb-1.5 h-4 w-4 text-lime-400" />
@@ -110,5 +104,34 @@ export function AdminShell({ children }: { children: ReactNode }) {
         </main>
       </div>
     </div>
+  );
+}
+
+function NavLink({
+  item,
+  active,
+  count,
+  small,
+}: {
+  item: (typeof NAV)[number];
+  active: boolean;
+  count?: number;
+  small?: boolean;
+}) {
+  return (
+    <Link
+      href={item.href}
+      className={cn(
+        "flex items-center gap-3 rounded-xl px-3 transition",
+        small ? "py-2 text-[13px]" : "py-2.5 text-sm font-medium",
+        active ? "bg-lime-400/10 text-lime-300" : small ? "text-white/45 hover:bg-white/5 hover:text-white" : "text-white/65 hover:bg-white/5 hover:text-white",
+      )}
+    >
+      <item.icon className="h-4 w-4" />
+      {item.label}
+      {count ? (
+        <span className="ml-auto rounded-full bg-lime-400 px-2 py-0.5 font-mono text-[10px] font-bold text-ink-950">{count}</span>
+      ) : null}
+    </Link>
   );
 }

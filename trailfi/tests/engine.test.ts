@@ -122,26 +122,33 @@ test("daily estimate is proportional, capped, and zero below the goal", () => {
   assert.equal(shared.amount, "5.000000");
 });
 
-import { tierReward, type RewardTiers } from "../src/lib/rewards/engine.ts";
+import { tierReward, validateTiers, type RewardTiers } from "../src/lib/rewards/engine.ts";
 
-const tiers: RewardTiers = { tierMin: 1000, tierAvg: 4, tierThreshold: 7000, tierMax: 6 };
+const tiers: RewardTiers = { tierMin: 0, tierAvg: 3.7, tierThreshold: 7000, tierMax: 5, tierCap: 10000 };
 
-test("tiered rewards: nothing below the minimum", () => {
+test("rates: grow in a straight line up to $3.70 at 7,000 steps", () => {
   assert.equal(tierReward(0, tiers), 0);
-  assert.equal(tierReward(999, tiers), 0);
+  assert.equal(tierReward(3500, tiers), 1.85);
+  assert.equal(tierReward(7000, tiers), 3.7);
+  for (let s = 0; s < 7000; s += 250) assert.ok(tierReward(s + 250, tiers) >= tierReward(s, tiers));
 });
 
-test("tiered rewards: 1k–7k steps average about the configured amount", () => {
-  assert.equal(tierReward(1000, tiers), 3.4);
-  assert.equal(tierReward(4000, tiers), 4);
-  const samples = Array.from({ length: 61 }, (_, i) => tierReward(1000 + i * 100, tiers));
-  const avg = samples.reduce((a, b) => a + b, 0) / samples.length;
-  assert.ok(Math.abs(avg - 4) < 0.05, `average ${avg}`);
+test("rates: $3.70 to $5 between 7,000 and 10,000 steps, then $5", () => {
+  assert.equal(tierReward(8500, tiers), 4.35);
+  assert.equal(tierReward(10000, tiers), 5);
+  assert.equal(tierReward(25000, tiers), 5);
+  assert.equal(tierReward(Number.NaN, tiers), 0);
 });
 
-test("tiered rewards: a bit more from the threshold, capped at the maximum", () => {
-  assert.equal(tierReward(7000, tiers), 4.6);
-  assert.ok(tierReward(10000, tiers) > 4.6 && tierReward(10000, tiers) < 6);
-  assert.equal(tierReward(15000, tiers), 6);
-  assert.equal(tierReward(40000, tiers), 6);
+test("rates: a minimum step count can be set", () => {
+  const t = { ...tiers, tierMin: 1000 };
+  assert.equal(tierReward(1000, t), 0);
+  assert.equal(tierReward(4000, t), 1.85);
+  assert.equal(tierReward(7000, t), 3.7);
+});
+
+test("rates: invalid configurations are rejected", () => {
+  assert.equal(validateTiers(tiers).length, 0);
+  assert.ok(validateTiers({ ...tiers, tierCap: 6000 }).length > 0);
+  assert.ok(validateTiers({ ...tiers, tierMax: 2 }).length > 0);
 });

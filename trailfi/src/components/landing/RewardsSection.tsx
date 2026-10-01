@@ -7,6 +7,7 @@ import { ProgressRing } from "@/components/ui/ProgressRing";
 import { fmtAmount, fmtSteps } from "@/lib/format";
 import { Reveal, SectionHeading } from "./Reveal";
 import { usePublicStats } from "./usePublicStats";
+import { TokenIcon } from "@/components/ui/TokenIcon";
 
 // Where the money comes from: a fee on every $STEPIT trade.
 const FLOW = [
@@ -101,7 +102,7 @@ export function RewardsSection() {
               <div className="mt-8 flex flex-col items-start justify-between gap-4 rounded-2xl border border-white/10 bg-black/25 p-4 sm:flex-row sm:items-center">
                 <p className="flex items-center gap-2 text-[13px] text-white/60">
                   <Users className="h-4 w-4 shrink-0 text-lime-400" />
-                  Daily goal: {fmtSteps(data?.dailyGoal ?? 10_000)} steps. Paid in {token}.
+                  Daily goal: {fmtSteps(data?.dailyGoal ?? 10_000)} steps. Paid in <TokenIcon symbol={token} /> {token}.
                 </p>
                 <ButtonLink href="/steps" size="sm" icon={<Upload className="h-4 w-4" />}>
                   Upload your steps

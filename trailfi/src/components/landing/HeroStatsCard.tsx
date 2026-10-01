@@ -8,6 +8,7 @@ import { useCountUp } from "@/hooks/useCountUp";
 import { useUtcMidnightCountdown } from "@/hooks/useCountdown";
 import { fmtAmount, fmtSteps } from "@/lib/format";
 import { usePublicStats } from "./usePublicStats";
+import { TokenIcon } from "@/components/ui/TokenIcon";
 
 /** Live community card in the hero. Every number comes from the database. */
 export function HeroStatsCard() {
@@ -99,7 +100,9 @@ export function HeroStatsCard() {
             <div className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.07] p-4">
               <div className="label !text-[10px] !text-lime-300/80">Paid to walkers</div>
               <div className="mt-1.5 font-display text-2xl font-bold text-lime-300 tabular">${fmtAmount(paid)}</div>
-              <div className="mt-0.5 text-[10.5px] text-white/45">{token} · all time</div>
+              <div className="mt-1 flex items-center gap-1.5 text-[10.5px] text-white/45">
+                <TokenIcon symbol={token} className="h-3.5 w-3.5" /> {token} · all time
+              </div>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
               <div className="label !text-[10px]">Walking today</div>

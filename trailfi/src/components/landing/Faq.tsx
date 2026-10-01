@@ -17,7 +17,7 @@ const QUESTIONS = [
   },
   {
     q: "Do I need to buy $STEPIT to earn?",
-    a: "No. Connecting a wallet and walking are free. You only need a wallet address to receive rewards.",
+    a: "No. Walking is free and you don't need $STEPIT. To join, your wallet just needs some USDG (the dollar on Robinhood Chain): it keeps out bots and it is the same token your rewards are paid in.",
   },
   {
     q: "How are my steps verified?",

@@ -20,6 +20,7 @@ async function participantsFor(periodStart: string, periodEnd: string): Promise<
     `select s.user_id, s.day::text as day, max(s.steps) as steps
        from step_entries s join users u on u.id = s.user_id
       where s.verification = 'verified' and u.status = 'active' and s.day between $1::date and $2::date
+        and not exists (select 1 from rewards r where r.step_entry_id = s.id)
       group by s.user_id, s.day`,
     [periodStart, periodEnd],
   );

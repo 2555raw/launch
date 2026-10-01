@@ -206,33 +206,42 @@ export function estimateDailyReward(input: {
  *   steps ≥ threshold           → avg × 1.15 … max, reached 8,000 steps above the threshold
  */
 export interface RewardTiers {
+  /** Steps a day needs before it earns anything. */
   tierMin: number;
+  /** What a day earns at exactly tierThreshold steps. */
   tierAvg: number;
   tierThreshold: number;
+  /** What a day earns from tierCap steps on (the most a day can earn). */
   tierMax: number;
+  tierCap: number;
 }
 
-export const BONUS_RAMP_STEPS = 8_000;
-
+/**
+ * What one day of verified steps earns:
+ *   tierMin … tierThreshold → rises in a straight line from 0 to tierAvg
+ *   tierThreshold … tierCap → rises from tierAvg to tierMax
+ *   tierCap and above        → tierMax
+ */
 export function tierReward(steps: number, t: RewardTiers): number {
-  if (!Number.isFinite(steps) || steps < t.tierMin) return 0;
+  if (!Number.isFinite(steps) || steps <= t.tierMin) return 0;
   let amount: number;
-  if (steps < t.tierThreshold) {
-    const span = Math.max(1, t.tierThreshold - t.tierMin);
-    amount = t.tierAvg * (0.85 + (0.3 * (steps - t.tierMin)) / span);
+  if (steps <= t.tierThreshold) {
+    amount = (t.tierAvg * (steps - t.tierMin)) / Math.max(1, t.tierThreshold - t.tierMin);
+  } else if (steps < t.tierCap) {
+    amount = t.tierAvg + ((t.tierMax - t.tierAvg) * (steps - t.tierThreshold)) / Math.max(1, t.tierCap - t.tierThreshold);
   } else {
-    const start = t.tierAvg * 1.15;
-    amount = start + (Math.max(start, t.tierMax) - start) * Math.min(1, (steps - t.tierThreshold) / BONUS_RAMP_STEPS);
+    amount = t.tierMax;
   }
   return Math.round(amount * 100) / 100;
 }
 
 export function validateTiers(t: RewardTiers): string[] {
   const errors: string[] = [];
-  if (!(t.tierMin >= 0)) errors.push("tierMin must be ≥ 0");
-  if (!(t.tierThreshold > t.tierMin)) errors.push("tierThreshold must be above tierMin");
-  if (!(t.tierAvg >= 0)) errors.push("tierAvg must be ≥ 0");
-  if (!(t.tierMax >= t.tierAvg)) errors.push("tierMax must be at least tierAvg");
+  if (!(t.tierMin >= 0)) errors.push("the minimum steps must be 0 or more");
+  if (!(t.tierThreshold > t.tierMin)) errors.push("the first step count must be above the minimum");
+  if (!(t.tierCap > t.tierThreshold)) errors.push("the top step count must be above the first one");
+  if (!(t.tierAvg >= 0)) errors.push("the first amount must be 0 or more");
+  if (!(t.tierMax >= t.tierAvg)) errors.push("the top amount must be at least the first amount");
   return errors;
 }
 

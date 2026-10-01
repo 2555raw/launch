@@ -14,6 +14,7 @@ export interface Store {
   getLaunch(id: string): Promise<Launch | undefined>;
   insertLaunch(launch: Launch): Promise<void>;
   updateLaunch(id: string, patch: Partial<Launch>): Promise<Launch | undefined>;
+  deleteLaunch(id: string): Promise<boolean>;
   listAgents(): Promise<Agent[]>;
   findAgentByHash(hash: string): Promise<Agent | undefined>;
   insertAgent(agent: Agent): Promise<void>;
@@ -77,6 +78,13 @@ class JsonFileStore implements Store {
       const l = db.launches.find((x) => x.id === id);
       if (l) Object.assign(l, patch);
       return l ? { ...l } : undefined;
+    });
+  }
+  deleteLaunch(id: string) {
+    return this.write((db) => {
+      const before = db.launches.length;
+      db.launches = db.launches.filter((x) => x.id !== id);
+      return db.launches.length < before;
     });
   }
   async listAgents() {

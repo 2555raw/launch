@@ -1,16 +1,9 @@
-import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
+import { authorized } from "@/lib/server/admin";
 import { problem, readJson } from "@/lib/server/http";
 import { restoreLaunch } from "@/lib/server/launches";
 
 export const dynamic = "force-dynamic";
-
-function authorized(req: Request) {
-  const token = process.env.ADMIN_TOKEN;
-  const given = /^Bearer\s+(\S+)$/i.exec(req.headers.get("authorization") ?? "")?.[1];
-  if (!token || !given || given.length !== token.length) return false;
-  return timingSafeEqual(Buffer.from(given), Buffer.from(token));
-}
 
 /**
  * Put back a launch that is live on-chain but missing from the ledger (for

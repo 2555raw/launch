@@ -101,7 +101,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
               <span>
                 <strong className="font-semibold">Payout token not set for this network.</strong> The token address in Settings is not a
-                contract on the payout network, so payouts are blocked. Open Settings and enter the token contract (for example USDC or
+                contract on the payout network, so payouts are blocked. Open Settings and enter the token contract (for example USDG or
                 $STEPIT on Robinhood Chain).
               </span>
             </Link>

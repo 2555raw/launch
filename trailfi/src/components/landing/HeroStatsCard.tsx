@@ -19,7 +19,7 @@ export function HeroStatsCard() {
   const goalShare = today.walkers ? today.goalMet / today.walkers : 0;
   const series = data?.series ?? [];
   const peak = Math.max(1, ...series.map((d) => d.steps));
-  const token = data?.tokenSymbol ?? "USDC";
+  const token = data?.tokenSymbol ?? "USDG";
 
   return (
     <div className="relative w-full max-w-[400px]">

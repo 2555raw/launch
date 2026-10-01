@@ -19,7 +19,7 @@ export function RewardsSection() {
   const { data } = usePublicStats();
   const today = data?.today ?? { walkers: 0, steps: 0, goalMet: 0 };
   const goalShare = today.walkers ? today.goalMet / today.walkers : 0;
-  const token = data?.tokenSymbol ?? "USDC";
+  const token = data?.tokenSymbol ?? "USDG";
 
   return (
     <section id="rewards" className="relative scroll-mt-24 overflow-hidden py-28 sm:py-36">

@@ -1,4 +1,4 @@
-import { arbitrum, base, baseSepolia, mainnet, optimism, polygon, sepolia } from "viem/chains";
+import { arbitrum, base, baseSepolia, mainnet, optimism, polygon, robinhood, sepolia } from "viem/chains";
 
 export interface PayoutToken {
   symbol: string;
@@ -8,6 +8,8 @@ export interface PayoutToken {
 
 /** Well-known stablecoins per chain, offered as presets in the admin settings. */
 export const KNOWN_TOKENS: Record<number, PayoutToken[]> = {
+  // Robinhood Chain's dollar is USDG (Paxos Global Dollar); USDC bridged in arrives as USDG.
+  [robinhood.id]: [{ symbol: "USDG", address: "0x5fc5360d0400a0fd4f2af552add042d716f1d168", decimals: 6 }],
   [mainnet.id]: [
     { symbol: "USDC", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", decimals: 6 },
     { symbol: "USDT", address: "0xdac17f958d2ee523a2206206994597c13d831ec7", decimals: 6 },

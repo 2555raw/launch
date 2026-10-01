@@ -49,7 +49,7 @@ export function UsersView() {
   const [search, setSearch] = useState("");
   const status = (params.get("status") as (typeof FILTERS)[number]) ?? "all";
   const { data: meta } = useAdminMeta();
-  const token = meta?.settings.payoutTokenSymbol ?? "USDC";
+  const token = meta?.settings.payoutTokenSymbol ?? "USDG";
   const [payout, setPayout] = useState<Payout | null>(null);
   const prepare = usePreparePayout(setPayout);
 

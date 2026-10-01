@@ -31,9 +31,6 @@ const config: Config = {
         },
         neon: "#5dff9d",
         mist: "#a7b5ad",
-        // Footer engraving: paper and ink.
-        paper: "#f2ead3",
-        engrave: "#0e2c1f",
       },
       fontFamily: {
         display: ['"Space Grotesk Variable"', "ui-sans-serif", "system-ui", "sans-serif"],

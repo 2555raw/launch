@@ -11,8 +11,8 @@ import random
 from pathlib import Path
 
 W, H = 1600, 520
-INK = "#0e2c1f"  # matches the footer background, so the sky reads as the page
-PAPER = "#f2ead3"
+INK = "#c4fb6d"  # lime lines, as in the rest of the site
+PAPER = "#060807"  # the page background: land, hills and highlights are cut out of it
 rng = random.Random(11)
 
 

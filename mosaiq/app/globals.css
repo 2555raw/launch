@@ -6,11 +6,11 @@
  * "on" state: primary buttons, selected pills, focus, glows and the logo.
  */
 @theme {
-  --color-ink: #1c1d21;
-  --color-ink-2: #202126;
-  --color-surface: #25262b;
-  --color-surface-2: #2b2c32;
-  --color-surface-3: #33353b;
+  --color-ink: #141518;
+  --color-ink-2: #18191d;
+  --color-surface: #1d1e22;
+  --color-surface-2: #222327;
+  --color-surface-3: #2a2b30;
   --color-line: rgb(255 255 255 / 0.08);
   --color-line-strong: rgb(255 255 255 / 0.14);
   --color-bone: #f2f3f5;
@@ -200,7 +200,7 @@
   position: relative;
   overflow: hidden;
   border-radius: 9999px;
-  background: radial-gradient(120% 160% at 0% 0%, #34363d 0%, #25262b 55%, #1c1d21 100%);
+  background: radial-gradient(120% 160% at 0% 0%, #2c2e34 0%, #1d1e22 55%, #141518 100%);
 }
 .ca-shine > .ca-inner::after {
   content: "";

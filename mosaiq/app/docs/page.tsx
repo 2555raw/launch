@@ -33,7 +33,7 @@ export default function DocsPage() {
       </aside>
       <article className="order-1 min-w-0 lg:order-2">
         <div className="card p-4 sm:p-6">
-        <header className="relative overflow-hidden rounded-2xl border border-line bg-[linear-gradient(135deg,#2c2e34,#1f2024)] p-7 sm:p-10">
+        <header className="relative overflow-hidden rounded-2xl border border-line bg-[linear-gradient(135deg,#24262b,#17181b)] p-7 sm:p-10">
           <div aria-hidden="true" className="absolute -right-20 -top-20 size-64 rounded-full bg-accent/10 blur-3xl" />
           <p className="label relative">The guide</p>
           <h1 className="display relative mt-3 text-[clamp(2.25rem,5vw,3.5rem)] font-semibold leading-none">How {site.name} works</h1>

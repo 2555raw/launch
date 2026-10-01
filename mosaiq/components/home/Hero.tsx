@@ -193,7 +193,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
                       </span>
                       <span className="font-mono text-[11px] text-fog">{String(i + 1).padStart(2, "0")}</span>
                     </span>
-                    <span className="mx-auto mt-6 grid size-[104px] place-items-center rounded-full border-[3px] border-white/10 bg-[radial-gradient(circle_at_35%_30%,#3a3c43,#1c1d21)] shadow-[inset_0_2px_10px_rgb(0_0_0/0.7),0_0_0_1px_rgb(255_255_255/0.06),0_10px_24px_-12px_rgb(59_130_246/0.45)] sm:size-[116px]">
+                    <span className="mx-auto mt-6 grid size-[104px] place-items-center rounded-full border-[3px] border-white/10 bg-[radial-gradient(circle_at_35%_30%,#32343a,#141518)] shadow-[inset_0_2px_10px_rgb(0_0_0/0.7),0_0_0_1px_rgb(255_255_255/0.06),0_10px_24px_-12px_rgb(59_130_246/0.45)] sm:size-[116px]">
                       <PadGlyph pad={p.id} size="xl" className="!size-[72px] !rounded-full sm:!size-[84px]" />
                     </span>
                     <span className="mt-auto text-center">

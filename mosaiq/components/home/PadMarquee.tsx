@@ -23,7 +23,7 @@ export function PadMarquee() {
               >
                 <span className="relative">
                   <PadGlyph pad={p.id} size="lg" className="!rounded-xl" />
-                  <ChainDot chain={p.chain} className="absolute -bottom-1 -right-1 size-4 ring-2 ring-[#25262b]" />
+                  <ChainDot chain={p.chain} className="absolute -bottom-1 -right-1 size-4 ring-2 ring-[#1d1e22]" />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center justify-between gap-2 text-[11px] text-fog">

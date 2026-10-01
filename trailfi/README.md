@@ -67,12 +67,12 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
-Sin `DATABASE_URL`, la app arranca una base de datos Postgres embebida (PGlite) en `.data/pglite` y aplica las migraciones sola. Con una wallet de navegador (MetaMask, Rabby, Coinbase…) ya puedes conectarte; para WalletConnect / móviles añade `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` (gratis en [cloud.reown.com](https://cloud.reown.com)).
+Sin `DATABASE_URL`, la app arranca una base de datos Postgres embebida (PGlite) en `.data/pglite` y aplica las migraciones sola. Con una wallet de navegador (Phantom, MetaMask, Coinbase, Rabby) ya puedes conectarte en Robinhood Chain; para WalletConnect / móviles añade `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` (gratis en [cloud.reown.com](https://cloud.reown.com)).
 
 Recorrido completo de la demo:
 
 1. Conecta una wallet y firma el mensaje de verificación → te registras y ves `/dashboard`.
-2. Pulsa **Log today's steps** (entrada manual de demo: queda *unverified*).
+2. Ve a **Upload steps** (`/steps`): elige el día, escribe los pasos y adjunta una captura de tu app de salud. Queda *unverified* hasta que el admin revise la captura en `/admin/steps`. La página muestra lo estimado por día y la media diaria de los últimos 7 días (solo importes, nunca las tarifas).
 3. Con la wallet de `ADMIN_WALLETS`, entra en `/admin/steps` y verifica la entrada.
 4. En `/admin/rewards` elige un día ya cerrado, los fees elegibles, **Preview** → **Create**, y aprueba las recompensas.
 5. En `/admin/users` pulsa **Pay** → revisa destino, cantidad, token, red y gas → confirma y **Sign & send** (o, en modo demo, *simulate*).
@@ -126,7 +126,7 @@ Nada se ejecuta automáticamente. Para pagos masivos se puede sustituir el paso 
 
 | Fuente | Estado | Verificación inicial |
 | --- | --- | --- |
-| Entrada manual (navegador) | Demo | `unverified`: nunca se paga sin revisión del admin |
+| Subida desde el navegador con captura | Activa | `unverified`: nunca se paga hasta que el admin revisa la captura |
 | Apple Health (HealthKit) | Vía app compañera iOS | `verified` si no hay alertas |
 | Google Health Connect | Vía app compañera Android | `verified` si no hay alertas |
 | APIs cloud (Fitbit, Garmin, Oura…) | Planificado (mismo contrato) | `verified` si no hay alertas |
@@ -152,9 +152,9 @@ Validaciones aplicadas a todas las fuentes (`src/lib/steps/validation.ts`):
 
 ## Despliegue en producción
 
-1. Crea un proyecto en **Supabase** y copia la cadena de conexión *Transaction pooler* (puerto 6543) en `DATABASE_URL`. Aplica el esquema con `npm run db:migrate` (o pega `supabase/migrations/0001_init.sql` en el SQL editor).
+1. Crea un proyecto en **Supabase** y copia la cadena de conexión *Transaction pooler* (puerto 6543) en `DATABASE_URL`. Aplica el esquema con `npm run db:migrate` (o pega los ficheros de `supabase/migrations/` en orden en el SQL editor).
 2. Configura `SESSION_SECRET` (`openssl rand -base64 48`), `ADMIN_WALLETS`, `PAYOUT_WALLETS`, `RPC_URL` de un proveedor dedicado, `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` y `STEP_INGEST_SECRET`.
-3. Elige la red real (`NEXT_PUBLIC_CHAIN_ID=8453` para Base) y el token en `/admin/settings`.
+3. Elige la red (`NEXT_PUBLIC_CHAIN_ID=4663` para Robinhood Chain, la red por defecto) y el contrato del token de pago en `/admin/settings`.
 4. Pon `NEXT_PUBLIC_DEMO_MODE=false`: desactiva los pagos simulados.
 5. Despliega en Vercel, Railway o cualquier host Node 20+ (`npm run build && npm start`). En plataformas serverless, usa siempre `DATABASE_URL` (PGlite necesita disco persistente).
 

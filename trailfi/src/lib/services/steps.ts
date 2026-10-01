@@ -15,11 +15,12 @@ export interface StepEntry {
   flags: string[];
   reviewedBy: string | null;
   reviewNote: string | null;
+  hasProof: boolean;
   createdAt: string;
 }
 
 const ENTRY_COLUMNS = `id, day::text as day, steps, source, verification, flags, reviewed_by as "reviewedBy",
-  review_note as "reviewNote", created_at as "createdAt"`;
+  review_note as "reviewNote", proof_image is not null as "hasProof", created_at as "createdAt"`;
 
 async function recentSteps(userId: string, excludeDay: string): Promise<number[]> {
   const rows = await query<{ steps: number }>(
@@ -37,6 +38,7 @@ async function insertEntry(opts: {
   steps: number;
   source: StepSource;
   externalId?: string;
+  proof?: string;
 }): Promise<StepEntry> {
   const check = checkStepSubmission({
     day: opts.day,
@@ -53,11 +55,11 @@ async function insertEntry(opts: {
     .digest("hex");
 
   const row = await one<StepEntry>(
-    `insert into step_entries (user_id, day, steps, source, verification, flags, external_id, payload_hash)
-     values ($1, $2::date, $3, $4, $5, $6, $7, $8)
+    `insert into step_entries (user_id, day, steps, source, verification, flags, external_id, payload_hash, proof_image)
+     values ($1, $2::date, $3, $4, $5, $6, $7, $8, $9)
      on conflict do nothing
      returning ${ENTRY_COLUMNS}`,
-    [opts.userId, opts.day, opts.steps, opts.source, verification, check.flags, opts.externalId ?? null, payloadHash],
+    [opts.userId, opts.day, opts.steps, opts.source, verification, check.flags, opts.externalId ?? null, payloadHash, opts.proof ?? null],
   );
   if (!row) {
     throw new HttpError(
@@ -71,15 +73,29 @@ async function insertEntry(opts: {
   return row;
 }
 
+/** Compressed screenshots stay well under this; it bounds what a single entry can store. */
+export const PROOF_MAX_CHARS = 1_600_000;
+
 export const manualStepsSchema = z.object({
   day: z.string(),
   steps: z.number().int(),
+  proof: z
+    .string({ error: "Attach a screenshot of your health app showing the date and your steps." })
+    .max(PROOF_MAX_CHARS, "Screenshot is too large. Try a smaller image.")
+    .regex(/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+={0,2}$/, "Attach a screenshot of your health app (JPG, PNG or WebP)."),
 });
 
-/** Browser submission. Always stored as unverified (or flagged) — never payable as-is. */
+/** Browser upload with a screenshot. Always stored as unverified (or flagged) — never payable until reviewed. */
 export async function submitManualSteps(userId: string, input: unknown) {
-  const { day, steps } = manualStepsSchema.parse(input);
-  return insertEntry({ userId, day, steps, source: "manual_demo" });
+  const { day, steps, proof } = manualStepsSchema.parse(input);
+  return insertEntry({ userId, day, steps, source: "manual_demo", proof });
+}
+
+/** The screenshot attached to an entry, for the admin review. */
+export async function getStepProof(entryId: string): Promise<string | null> {
+  const row = await one<{ proof: string | null }>("select proof_image as proof from step_entries where id = $1", [entryId]);
+  if (!row) throw new HttpError(404, "Step entry not found.", "not_found");
+  return row.proof;
 }
 
 export const ingestSchema = z.object({

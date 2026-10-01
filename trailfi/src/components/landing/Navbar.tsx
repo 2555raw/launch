@@ -15,6 +15,7 @@ const LINKS = [
   { href: "/#rewards", label: "Rewards" },
   { href: "/#faq", label: "FAQ" },
   { href: "/#leaderboard", label: "Payouts" },
+  { href: "/steps", label: "Upload steps" },
   { href: "/dashboard", label: "Dashboard" },
 ];
 
@@ -44,7 +45,7 @@ export function Navbar() {
         <Logo />
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Main">
           {LINKS.map((l) => {
-            const active = l.href === "/dashboard" ? pathname.startsWith("/dashboard") : false;
+            const active = l.href.startsWith("/#") ? false : pathname.startsWith(l.href);
             return (
               <Link
                 key={l.href}

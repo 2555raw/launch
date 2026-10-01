@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import {
   Activity,
   CheckCircle2,
-  Clock3,
   Copy,
   ExternalLink,
   Footprints,
@@ -21,7 +20,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useSession } from "@/components/providers/SessionProvider";
 import { Badge, DemoBadge, StatusBadge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { ProgressRing } from "@/components/ui/ProgressRing";
@@ -70,7 +69,7 @@ interface MeResponse {
 }
 
 const SOURCE_LABEL: Record<string, string> = {
-  manual_demo: "Manual (demo)",
+  manual_demo: "Uploaded",
   apple_health: "Apple Health",
   health_connect: "Health Connect",
   fitness_api: "Fitness API",
@@ -86,7 +85,6 @@ function celebrate() {
 export function DashboardView() {
   const { user } = useSession();
   const [activityOpen, setActivityOpen] = useState(false);
-  const [logOpen, setLogOpen] = useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["me"],
@@ -216,11 +214,11 @@ export function DashboardView() {
               )}
             </div>
             <div className="mt-6 grid gap-2">
-              <Button variant="primary" onClick={() => setLogOpen(true)} icon={<PlusCircle className="h-4 w-4" />}>
-                {todayEntry ? "Log another day" : "Log today's steps"}
-              </Button>
+              <ButtonLink href="/steps" variant="primary" icon={<PlusCircle className="h-4 w-4" />}>
+                {todayEntry ? "Upload another day" : "Upload today's steps"}
+              </ButtonLink>
               <p className="text-center text-[11.5px] text-white/40">
-                Health app sync arrives with the mobile companion app. Manual entries are demo-only and unverified.
+                Uploads include a screenshot from your health app and count once the team reviews them.
               </p>
             </div>
           </Card>
@@ -394,7 +392,6 @@ export function DashboardView() {
       </Card>
 
       <ActivityModal open={activityOpen} onClose={() => setActivityOpen(false)} entries={data.steps} />
-      <LogStepsModal open={logOpen} onClose={() => setLogOpen(false)} today={today.today} goal={today.goal} />
     </div>
   );
 }
@@ -508,73 +505,6 @@ function ActivityModal({ open, onClose, entries }: { open: boolean; onClose: () 
           ))}
         </ul>
       )}
-    </Modal>
-  );
-}
-
-function LogStepsModal({ open, onClose, today, goal }: { open: boolean; onClose: () => void; today: string; goal: number }) {
-  const qc = useQueryClient();
-  const [day, setDay] = useState(today);
-  const [steps, setSteps] = useState("");
-  useEffect(() => setDay(today), [today]);
-
-  const mutation = useMutation({
-    mutationFn: () => api<{ entry: StepEntry }>("/api/steps", { method: "POST", json: { day, steps: Number(steps) } }),
-    onSuccess: async ({ entry }) => {
-      await qc.invalidateQueries({ queryKey: ["me"] });
-      onClose();
-      setSteps("");
-      if (entry.verification === "flagged") {
-        toast.warning("Steps saved and flagged for review", { description: entry.flags.join(", ").replaceAll("_", " ") });
-      } else {
-        toast.success("Steps saved", { description: "Stored as unverified until reviewed." });
-      }
-      if (entry.day === today && entry.steps >= goal) celebrate();
-    },
-    onError: (err: Error) => toast.error(err.message),
-  });
-
-  const n = Number(steps);
-  const valid = steps !== "" && Number.isInteger(n) && n >= 0 && n <= 100_000;
-
-  return (
-    <Modal open={open} onClose={onClose} title="Log steps" subtitle="Manual entry for the demo.">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (valid) mutation.mutate();
-        }}
-        className="space-y-4"
-      >
-        <div className="flex gap-2.5 rounded-2xl border border-amber-400/25 bg-amber-400/[0.07] p-3.5 text-[12.5px] leading-relaxed text-amber-100/80">
-          <Clock3 className="mt-0.5 h-4 w-4 shrink-0" />
-          Browser entries are never verified automatically. They count for real payouts only after an admin reviews them.
-          Entries can&apos;t be edited afterwards.
-        </div>
-        <label className="block">
-          <span className="label mb-2 block">Date</span>
-          <input type="date" className="input" value={day} max={today} onChange={(e) => setDay(e.target.value)} required />
-        </label>
-        <label className="block">
-          <span className="label mb-2 block">Steps</span>
-          <input
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={100000}
-            step={1}
-            className="input font-mono text-lg"
-            placeholder="10482"
-            value={steps}
-            onChange={(e) => setSteps(e.target.value)}
-            required
-            autoFocus
-          />
-        </label>
-        <Button type="submit" className="w-full" loading={mutation.isPending} disabled={!valid}>
-          Save steps
-        </Button>
-      </form>
     </Modal>
   );
 }

@@ -1,11 +1,13 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, ImageIcon, XCircle } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { toast } from "sonner";
 import { DemoBadge, StatusBadge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
+import { Modal } from "@/components/ui/Modal";
 import { EmptyState, Skeleton } from "@/components/ui/Skeleton";
 import { api } from "@/lib/fetcher";
 import { fmtDate, fmtDateTime, fmtSteps, shortAddress } from "@/lib/format";
@@ -21,11 +23,13 @@ interface Entry {
   source: string;
   verification: string;
   flags: string[];
+  hasProof: boolean;
   createdAt: string;
 }
 
 export function StepsReviewView() {
   const qc = useQueryClient();
+  const [proofOf, setProofOf] = useState<Entry | null>(null);
   const { data, isLoading } = useQuery({ queryKey: ["admin", "steps"], queryFn: () => api<{ entries: Entry[] }>("/api/admin/steps") });
   const review = useMutation({
     mutationFn: (v: { id: string; decision: "verified" | "rejected"; note?: string }) =>
@@ -42,7 +46,7 @@ export function StepsReviewView() {
       <PageHeader
         label="Step review"
         title="Verification queue"
-        description="Browser-submitted and flagged entries are never paid until reviewed here. Verify only activity you can substantiate (e.g. a screenshot or export from the user's health app)."
+        description="Uploaded and flagged entries are never paid until reviewed here. Open the screenshot and verify only when its date and step count match."
       />
       <Card className="overflow-hidden">
         <div className="overflow-x-auto">
@@ -52,7 +56,7 @@ export function StepsReviewView() {
                 <th className="table-head">User</th>
                 <th className="table-head">Day</th>
                 <th className="table-head">Steps</th>
-                <th className="table-head">Source</th>
+                <th className="table-head">Screenshot</th>
                 <th className="table-head">Flags</th>
                 <th className="table-head">Status</th>
                 <th className="table-head text-right">Decision</th>
@@ -78,7 +82,20 @@ export function StepsReviewView() {
                     <div className="text-[11px] text-white/35">sent {fmtDateTime(e.createdAt)}</div>
                   </td>
                   <td className="table-cell font-mono">{fmtSteps(e.steps)}</td>
-                  <td className="table-cell">{e.source === "manual_demo" ? <DemoBadge>manual</DemoBadge> : e.source.replace("_", " ")}</td>
+                  <td className="table-cell">
+                    {e.hasProof ? (
+                      <button
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-white/15 px-2.5 text-[12.5px] text-white/80 hover:border-lime-400/40 hover:text-lime-300"
+                        onClick={() => setProofOf(e)}
+                      >
+                        <ImageIcon className="h-4 w-4" /> View
+                      </button>
+                    ) : e.source === "manual_demo" ? (
+                      <DemoBadge>none</DemoBadge>
+                    ) : (
+                      <span className="text-[12.5px] text-white/50">{e.source.replace("_", " ")}</span>
+                    )}
+                  </td>
                   <td className="table-cell text-[12px] text-amber-200/80">{e.flags.length ? e.flags.join(", ").replaceAll("_", " ") : "—"}</td>
                   <td className="table-cell">
                     <StatusBadge status={e.verification} />
@@ -113,6 +130,62 @@ export function StepsReviewView() {
           </div>
         )}
       </Card>
+      <ProofModal
+        entry={proofOf}
+        onClose={() => setProofOf(null)}
+        onDecide={(decision) => {
+          if (!proofOf) return;
+          if (decision === "verified") review.mutate({ id: proofOf.id, decision, note: "Screenshot checked" });
+          else {
+            const note = window.prompt("Reason for rejecting this entry?");
+            if (note === null) return;
+            review.mutate({ id: proofOf.id, decision, note });
+          }
+          setProofOf(null);
+        }}
+      />
     </div>
+  );
+}
+
+function ProofModal({ entry, onClose, onDecide }: { entry: Entry | null; onClose: () => void; onDecide: (d: "verified" | "rejected") => void }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ["admin", "steps", "proof", entry?.id],
+    queryFn: () => api<{ proof: string | null }>(`/api/admin/steps/${entry!.id}`),
+    enabled: Boolean(entry),
+    staleTime: Infinity,
+  });
+  return (
+    <Modal
+      open={Boolean(entry)}
+      onClose={onClose}
+      title="Screenshot"
+      subtitle={entry ? `#${entry.userShortId} · ${fmtDate(entry.day, { weekday: "short", month: "short", day: "numeric" })} · ${fmtSteps(entry.steps)} steps claimed` : undefined}
+    >
+      <div className="grid max-h-[60vh] place-items-center overflow-auto rounded-2xl border border-white/10 bg-black/40">
+        {isLoading || !data ? (
+          <Skeleton className="h-80 w-full" />
+        ) : data.proof ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={data.proof} alt="Uploaded health app screenshot" className="max-h-[60vh] w-auto" />
+        ) : (
+          <p className="p-8 text-sm text-white/50">No screenshot attached.</p>
+        )}
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-2">
+        <button
+          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-emerald-400/30 text-sm text-emerald-300 hover:bg-emerald-400/10"
+          onClick={() => onDecide("verified")}
+        >
+          <CheckCircle2 className="h-4 w-4" /> Matches · verify
+        </button>
+        <button
+          className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-red-400/30 text-sm text-red-300 hover:bg-red-500/10"
+          onClick={() => onDecide("rejected")}
+        >
+          <XCircle className="h-4 w-4" /> Reject
+        </button>
+      </div>
+    </Modal>
   );
 }

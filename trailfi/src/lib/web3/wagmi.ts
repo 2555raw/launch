@@ -5,22 +5,16 @@ import {
   coinbaseWallet,
   injectedWallet,
   metaMaskWallet,
+  phantomWallet,
   rabbyWallet,
   rainbowWallet,
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { createConfig, http, type Config } from "wagmi";
-import type { Chain } from "viem";
-import { PAYOUT_CHAIN_ID, SUPPORTED_CHAINS } from "./chains";
+import { getPayoutChain } from "./chains";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "";
 export const walletConnectEnabled = projectId.length > 0;
-
-function chainList(): [Chain, ...Chain[]] {
-  const payout = SUPPORTED_CHAINS[PAYOUT_CHAIN_ID];
-  const rest = Object.values(SUPPORTED_CHAINS).filter((c) => c.id !== PAYOUT_CHAIN_ID);
-  return [payout, ...rest];
-}
 
 export function makeWagmiConfig(): Config {
   // WalletConnect-based wallets (mobile QR, Rainbow…) need a Reown/WalletConnect project id.
@@ -28,18 +22,19 @@ export function makeWagmiConfig(): Config {
   const connectors = connectorsForWallets(
     walletConnectEnabled
       ? [
-          { groupName: "Popular", wallets: [metaMaskWallet, walletConnectWallet, coinbaseWallet, rainbowWallet] },
-          { groupName: "More", wallets: [rabbyWallet, injectedWallet] },
+          { groupName: "Popular", wallets: [phantomWallet, metaMaskWallet, coinbaseWallet, rabbyWallet] },
+          { groupName: "More", wallets: [walletConnectWallet, rainbowWallet, injectedWallet] },
         ]
-      : [{ groupName: "Browser wallets", wallets: [metaMaskWallet, rabbyWallet, coinbaseWallet, injectedWallet] }],
+      : [{ groupName: "Browser wallets", wallets: [phantomWallet, metaMaskWallet, coinbaseWallet, rabbyWallet, injectedWallet] }],
     { appName: "Stepit", projectId: projectId || "trailfi-local-no-walletconnect" },
   );
 
-  const chains = chainList();
+  // Every wallet connects on the one network Stepit runs on (Robinhood Chain by default).
+  const chain = getPayoutChain();
   return createConfig({
-    chains,
+    chains: [chain],
     connectors,
-    transports: Object.fromEntries(chains.map((c) => [c.id, http()])),
+    transports: { [chain.id]: http() },
     ssr: true,
   });
 }

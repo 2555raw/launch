@@ -25,7 +25,7 @@ const QUESTIONS = [
   },
   {
     q: "Which wallet do I need?",
-    a: "Any EVM wallet works: MetaMask, Rabby, Coinbase Wallet or any WalletConnect wallet. Rewards are sent in USDC on Base.",
+    a: "Phantom, MetaMask, Coinbase Wallet or Rabby. Stepit runs on Robinhood Chain, an Ethereum layer 2, and rewards are sent to your wallet there.",
   },
   {
     q: "When do I get paid?",

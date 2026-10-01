@@ -1,6 +1,8 @@
-import { arbitrum, base, baseSepolia, mainnet, optimism, polygon, sepolia, type Chain } from "viem/chains";
+import { arbitrum, base, baseSepolia, mainnet, optimism, polygon, robinhood, robinhoodTestnet, sepolia, type Chain } from "viem/chains";
 
 export const SUPPORTED_CHAINS: Record<number, Chain> = {
+  [robinhood.id]: robinhood,
+  [robinhoodTestnet.id]: robinhoodTestnet,
   [mainnet.id]: mainnet,
   [base.id]: base,
   [arbitrum.id]: arbitrum,
@@ -10,8 +12,8 @@ export const SUPPORTED_CHAINS: Record<number, Chain> = {
   [baseSepolia.id]: baseSepolia,
 };
 
-/** The single network Stepit pays rewards on. Base Sepolia (testnet) unless configured otherwise. */
-export const PAYOUT_CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || baseSepolia.id);
+/** The single network Stepit runs on: Robinhood Chain unless configured otherwise. */
+export const PAYOUT_CHAIN_ID = Number(process.env.NEXT_PUBLIC_CHAIN_ID || robinhood.id);
 
 export function getPayoutChain(): Chain {
   const chain = SUPPORTED_CHAINS[PAYOUT_CHAIN_ID];

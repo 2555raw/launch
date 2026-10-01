@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, animate, motion, useInView, useMotionTemplate, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, animate, motion, useInView, useMotionTemplate, useMotionValue, useReducedMotion } from "framer-motion";
 import { Check, Coins, Footprints, MousePointerClick, Plus, RotateCcw, Send, ShieldCheck, Wallet } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
@@ -88,14 +88,10 @@ export function HowItWorks() {
 }
 
 function StepCard({ step: s }: { step: (typeof STEPS)[number] }) {
-  // Soft lime spotlight and a slight 3D tilt that follow the cursor.
+  // Soft lime spotlight that follows the cursor; the card itself stays still.
   const mx = useMotionValue(-400);
   const my = useMotionValue(-400);
   const spotlight = useMotionTemplate`radial-gradient(340px circle at ${mx}px ${my}px, rgba(196,251,109,0.10), transparent 70%)`;
-  const px = useMotionValue(0.5);
-  const py = useMotionValue(0.5);
-  const rotateY = useSpring(useTransform(px, [0, 1], [-6, 6]), { stiffness: 180, damping: 18 });
-  const rotateX = useSpring(useTransform(py, [0, 1], [5, -5]), { stiffness: 180, damping: 18 });
 
   return (
     <motion.div
@@ -103,17 +99,11 @@ function StepCard({ step: s }: { step: (typeof STEPS)[number] }) {
         const r = e.currentTarget.getBoundingClientRect();
         mx.set(e.clientX - r.left);
         my.set(e.clientY - r.top);
-        px.set((e.clientX - r.left) / r.width);
-        py.set((e.clientY - r.top) / r.height);
       }}
       onMouseLeave={() => {
         mx.set(-400);
         my.set(-400);
-        px.set(0.5);
-        py.set(0.5);
       }}
-      whileHover={{ y: -6 }}
-      style={{ rotateX, rotateY, transformPerspective: 1000 }}
       className="group relative h-full rounded-3xl bg-gradient-to-b from-white/[0.14] via-white/[0.05] to-white/[0.02] p-px transition-colors duration-500 hover:from-lime-400/50 hover:via-lime-400/10"
     >
       <div className="relative flex h-full flex-col overflow-hidden rounded-[23px] bg-ink-900/95 p-6 sm:p-7">
@@ -122,7 +112,7 @@ function StepCard({ step: s }: { step: (typeof STEPS)[number] }) {
         <s.Visual />
 
         <div className="relative mt-7 flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl border border-lime-400/25 bg-forest-800/80 text-lime-300 shadow-[0_0_24px_-6px_rgba(178,240,71,0.6)] transition duration-500 group-hover:rotate-[-6deg] group-hover:scale-110">
+          <div className="grid h-10 w-10 place-items-center rounded-xl border border-lime-400/25 bg-forest-800/80 text-lime-300 shadow-[0_0_24px_-6px_rgba(178,240,71,0.6)] transition duration-500 ">
             <s.icon className="h-[18px] w-[18px]" />
           </div>
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-lime-400">

@@ -3,9 +3,9 @@ import { z } from "zod";
 import { HttpError } from "@/lib/api";
 import { audit } from "@/lib/audit";
 import { one, query, tx } from "@/lib/db";
-import { computeDistribution, estimateDailyReward, userWeight, type Participant } from "@/lib/rewards/engine";
+import { computeTierDistribution, tierReward, type Participant } from "@/lib/rewards/engine";
 import { daysBetween, utcToday } from "@/lib/steps/validation";
-import { getSettings, toRewardConfig } from "./settings";
+import { getSettings, toRewardConfig, toTiers } from "./settings";
 
 export const distributionSchema = z.object({
   periodStart: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -52,7 +52,7 @@ export async function previewDistribution(input: unknown) {
     [periodStart, periodEnd],
   );
   const participants = await participantsFor(periodStart, periodEnd);
-  const result = computeDistribution({ eligibleFees, config: toRewardConfig(settings), participants });
+  const result = computeTierDistribution({ tiers: toTiers(settings), participants });
   const wallets = await query<{ id: string; wallet_address: string }>(
     "select id, wallet_address from users where id = any($1::uuid[])",
     [result.allocations.map((a) => a.userId)],
@@ -182,19 +182,13 @@ export async function rewardSummary(userId: string) {
 /** Today's projection for one user: an estimate from current settings, never a guarantee. */
 export async function estimateToday(userId: string) {
   const settings = await getSettings();
-  const config = toRewardConfig(settings);
   const today = utcToday();
-  const rows = await query<{ user_id: string; steps: number }>(
-    `select user_id, max(steps) as steps from step_entries
-      where day = $1::date and verification in ('verified', 'unverified') group by user_id`,
-    [today],
+  const row = await one<{ steps: number }>(
+    `select max(steps) as steps from step_entries
+      where user_id = $1 and day = $2::date and verification in ('verified', 'unverified')`,
+    [userId, today],
   );
-  let mySteps = 0;
-  let otherWeight = 0;
-  for (const r of rows) {
-    if (r.user_id === userId) mySteps = Number(r.steps);
-    else otherWeight += userWeight([{ day: today, steps: Number(r.steps) }], config).weight;
-  }
-  const estimate = estimateDailyReward({ steps: mySteps, estimatedDailyFees: settings.estimatedDailyFees, config, otherWeight });
-  return { today, steps: mySteps, goal: settings.dailyStepGoal, ...estimate, tokenSymbol: settings.payoutTokenSymbol };
+  const steps = Number(row?.steps ?? 0);
+  const amount = tierReward(steps, toTiers(settings));
+  return { today, steps, goal: settings.dailyStepGoal, amount: amount.toFixed(6), eligible: amount > 0, tokenSymbol: settings.payoutTokenSymbol };
 }

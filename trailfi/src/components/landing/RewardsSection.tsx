@@ -12,8 +12,7 @@ import { Reveal, SectionHeading } from "./Reveal";
 const FLOW = [
   { k: "$STEPIT trades today", v: "2,000 USDC", sub: "buys and sells on-chain" },
   { k: "Trading fee", v: "100 USDC", sub: "charged on every trade · 5%" },
-  { k: "Walkers' share", v: "× 30%", sub: "of the fees · 30%" },
-  { k: "Daily reward pool", v: "30 USDC", sub: "split by verified steps", accent: true },
+  { k: "Reward fund", v: "100 USDC", sub: "paid to walkers by verified steps", accent: true },
 ];
 
 export function RewardsSection() {
@@ -23,10 +22,9 @@ export function RewardsSection() {
       <div className="pointer-events-none absolute right-0 top-1/3 h-[520px] w-[520px] rounded-full bg-lime-400/[0.07] blur-[140px]" />
       <div className="container relative grid items-center gap-16 lg:grid-cols-2">
         <div>
-          <SectionHeading index="02" label="Rewards" title="Token fees," accent="shared with the people who move.">
-            Every buy and sell of the $STEPIT token pays a small trading fee. A share of those fees fills a daily reward
-            pool, and everyone who reaches the daily goal with verified activity gets a part proportional to their
-            valid steps, up to a per-user cap.
+          <SectionHeading index="02" label="Rewards" title="Token fees," accent="paid to the people who move.">
+            Every buy and sell of the $STEPIT token pays a small trading fee. Those fees fund the rewards paid to
+            everyone who walks with verified activity. The more you move, the more you earn.
           </SectionHeading>
 
           <Reveal delay={0.15} className="mt-10 space-y-3">
@@ -48,8 +46,7 @@ export function RewardsSection() {
             ))}
             <p className="flex gap-2 pt-2 text-[13px] leading-relaxed text-white/45">
               <Info className="mt-0.5 h-4 w-4 shrink-0" />
-              Illustrative figures. The fee rate, volume and walkers&apos; share are examples. Actual rewards depend on the
-              real trading fees and on total verified activity, are reviewed before payment, and are never guaranteed.
+              Illustrative figures. Rewards are reviewed before payment and are never guaranteed.
             </p>
           </Reveal>
         </div>
@@ -94,14 +91,14 @@ export function RewardsSection() {
 
               <div className="mt-8 rounded-2xl border border-white/10 bg-black/25 p-4">
                 <div className="flex items-center justify-between text-[12.5px]">
-                  <span className="text-white/55">Your share of today&apos;s pool</span>
-                  <span className="font-mono text-white/80 tabular">16.1%</span>
+                  <span className="text-white/55">Today&apos;s goal</span>
+                  <span className="font-mono text-white/80 tabular">105%</span>
                 </div>
                 <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-white/10">
                   <motion.div
                     className="h-full rounded-full bg-gradient-to-r from-lime-400 to-neon"
                     initial={{ width: 0 }}
-                    whileInView={{ width: "16.1%" }}
+                    whileInView={{ width: "100%" }}
                     viewport={{ once: true }}
                     transition={{ duration: 1.4, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
                   />

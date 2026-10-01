@@ -21,7 +21,7 @@ export interface Payout {
   tokenAddress: `0x${string}`;
   tokenDecimals: number;
   chainId: number;
-  status: "prepared" | "submitted" | "confirmed" | "failed" | "cancelled";
+  status: "requested" | "prepared" | "submitted" | "confirmed" | "failed" | "cancelled";
   simulated: boolean;
   txHash: string | null;
   fromAddress: string | null;
@@ -32,6 +32,8 @@ export interface Payout {
   submittedAt: string | null;
   confirmedAt: string | null;
   rewardCount: number;
+  steps: number;
+  requestedAt: string | null;
 }
 
 const COLUMNS = `p.id, p.user_id as "userId", u.short_id as "userShortId", p.wallet_address as "walletAddress",
@@ -39,7 +41,9 @@ const COLUMNS = `p.id, p.user_id as "userId", u.short_id as "userShortId", p.wal
   p.token_decimals as "tokenDecimals", p.chain_id as "chainId", p.status, p.simulated, p.tx_hash as "txHash",
   p.from_address as "fromAddress", p.gas_used as "gasUsed", p.error, p.prepared_by as "preparedBy",
   p.created_at as "createdAt", p.submitted_at as "submittedAt", p.confirmed_at as "confirmedAt",
-  (select count(*)::int from rewards r where r.payout_id = p.id) as "rewardCount"`;
+  (select count(*)::int from rewards r where r.payout_id = p.id) as "rewardCount",
+  (select coalesce(sum(r.valid_steps), 0)::int from rewards r where r.payout_id = p.id) as "steps",
+  p.requested_at as "requestedAt"`;
 
 function withUnits(p: Omit<Payout, "amountUnits">): Payout {
   return { ...p, amountUnits: parseUnits(p.amount, p.tokenDecimals).toString() };
@@ -74,6 +78,15 @@ export async function listPayouts(opts: { userId?: string; status?: string; limi
  * prepares: no funds move until an authorised wallet signs the transfer.
  */
 export async function preparePayout(userId: string, actor: string): Promise<Payout> {
+  return createPayout(userId, actor, "prepared");
+}
+
+/** A walker asks to be paid their approved rewards. The owner pays it from the admin console. */
+export async function requestPayout(userId: string, wallet: string): Promise<Payout> {
+  return createPayout(userId, wallet, "requested");
+}
+
+async function createPayout(userId: string, actor: string, status: "prepared" | "requested"): Promise<Payout> {
   const settings = await getSettings();
   const id = await tx(async (q) => {
     const [user] = await q.query<{ wallet_address: string; status: string }>(
@@ -84,7 +97,7 @@ export async function preparePayout(userId: string, actor: string): Promise<Payo
     if (user.status !== "active") throw new HttpError(409, "This user is suspended.", "suspended");
 
     const [open] = await q.query<{ id: string }>(
-      "select id from payouts where user_id = $1 and status in ('prepared', 'submitted') limit 1",
+      "select id from payouts where user_id = $1 and status in ('requested', 'prepared', 'submitted') limit 1",
       [userId],
     );
     if (open) throw new HttpError(409, "This user already has a payout in progress.", "payout_in_progress");
@@ -104,15 +117,15 @@ export async function preparePayout(userId: string, actor: string): Promise<Payo
       [rewards.map((r) => r.id)],
     );
     const [payout] = await q.query<{ id: string }>(
-      `insert into payouts (user_id, wallet_address, amount, token_symbol, token_address, token_decimals, chain_id, prepared_by)
-       values ($1, $2, $3, $4, $5, $6, $7, $8) returning id`,
-      [userId, user.wallet_address, total, settings.payoutTokenSymbol, settings.payoutTokenAddress, settings.payoutTokenDecimals, PAYOUT_CHAIN_ID, actor],
+      `insert into payouts (user_id, wallet_address, amount, token_symbol, token_address, token_decimals, chain_id, prepared_by, status, requested_at)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, case when $9 = 'requested' then now() end) returning id`,
+      [userId, user.wallet_address, total, settings.payoutTokenSymbol, settings.payoutTokenAddress, settings.payoutTokenDecimals, PAYOUT_CHAIN_ID, actor, status],
     );
     await q.query("update rewards set status = 'processing', payout_id = $2 where id = any($1::uuid[])", [
       rewards.map((r) => r.id),
       payout.id,
     ]);
-    await audit(actor, "payout.prepare", "payout", payout.id, { userId, amount: total, rewards: rewards.length }, q);
+    await audit(actor, status === "requested" ? "payout.requested" : "payout.prepare", "payout", payout.id, { userId, amount: total, rewards: rewards.length }, q);
     return payout.id;
   });
   return getPayout(id);
@@ -131,10 +144,10 @@ export async function markSubmitted(id: string, input: unknown, actor: string): 
   }
   const row = await one<{ id: string }>(
     `update payouts set status = 'submitted', tx_hash = $2, from_address = $3, submitted_at = now()
-      where id = $1 and status = 'prepared' returning id`,
+      where id = $1 and status in ('prepared', 'requested') returning id`,
     [id, txHash.toLowerCase(), from.toLowerCase()],
   );
-  if (!row) throw new HttpError(409, "Only a prepared payout can be submitted.", "bad_state");
+  if (!row) throw new HttpError(409, "Only a prepared or requested payout can be submitted.", "bad_state");
   await audit(actor, "payout.submitted", "payout", id, { txHash, from });
   return getPayout(id);
 }
@@ -210,10 +223,10 @@ export async function confirmOnChain(id: string, actor: string): Promise<{ payou
 export async function cancelPayout(id: string, actor: string): Promise<Payout> {
   await tx(async (q) => {
     const [row] = await q.query<{ id: string }>(
-      "update payouts set status = 'cancelled' where id = $1 and status in ('prepared', 'failed') returning id",
+      "update payouts set status = 'cancelled' where id = $1 and status in ('requested', 'prepared', 'failed') returning id",
       [id],
     );
-    if (!row) throw new HttpError(409, "Only prepared or failed payouts can be cancelled.", "bad_state");
+    if (!row) throw new HttpError(409, "Only requested, prepared or failed payouts can be cancelled.", "bad_state");
     await q.query("update rewards set status = 'approved', payout_id = null where payout_id = $1", [id]);
     await audit(actor, "payout.cancel", "payout", id, {}, q);
   });
@@ -226,12 +239,24 @@ export async function simulatePayout(id: string, actor: string): Promise<Payout>
   await tx(async (q) => {
     const [row] = await q.query<{ id: string }>(
       `update payouts set status = 'confirmed', simulated = true, confirmed_at = now(), submitted_at = now()
-        where id = $1 and status = 'prepared' returning id`,
+        where id = $1 and status in ('prepared', 'requested') returning id`,
       [id],
     );
-    if (!row) throw new HttpError(409, "Only a prepared payout can be simulated.", "bad_state");
+    if (!row) throw new HttpError(409, "Only a prepared or requested payout can be simulated.", "bad_state");
     await q.query("update rewards set status = 'paid' where payout_id = $1", [id]);
     await audit(actor, "payout.simulated", "payout", id, {}, q);
   });
   return getPayout(id);
+}
+
+/** Public feed: confirmed payouts with shortened wallets — never the full address. */
+export async function publicPayouts(limit = 12) {
+  const rows = await query<{ wallet: string; amount: string; token: string; steps: number; paidAt: string }>(
+    `select p.wallet_address as wallet, p.amount::text as amount, p.token_symbol as token,
+       (select coalesce(sum(r.valid_steps), 0)::int from rewards r where r.payout_id = p.id) as steps,
+       coalesce(p.confirmed_at, p.created_at) as "paidAt"
+     from payouts p where p.status = 'confirmed' order by coalesce(p.confirmed_at, p.created_at) desc limit $1`,
+    [limit],
+  );
+  return rows.map((r) => ({ wallet: `${r.wallet.slice(0, 6)}…${r.wallet.slice(-4)}`, amount: r.amount, token: r.token, steps: Number(r.steps), paidAt: r.paidAt }));
 }

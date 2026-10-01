@@ -197,3 +197,71 @@ export function estimateDailyReward(input: {
   if (share > capMicro) share = capMicro;
   return { amount: fromMicro(share), eligible: true, weight };
 }
+
+/**
+ * Tiered daily reward — the rates Stepit actually pays. Private: only the
+ * admin API returns the tier settings; walkers only see amounts.
+ *   steps < min                 → 0
+ *   min ≤ steps < threshold     → avg × 0.85 … avg × 1.15, rising with steps
+ *   steps ≥ threshold           → avg × 1.15 … max, reached 8,000 steps above the threshold
+ */
+export interface RewardTiers {
+  tierMin: number;
+  tierAvg: number;
+  tierThreshold: number;
+  tierMax: number;
+}
+
+export const BONUS_RAMP_STEPS = 8_000;
+
+export function tierReward(steps: number, t: RewardTiers): number {
+  if (!Number.isFinite(steps) || steps < t.tierMin) return 0;
+  let amount: number;
+  if (steps < t.tierThreshold) {
+    const span = Math.max(1, t.tierThreshold - t.tierMin);
+    amount = t.tierAvg * (0.85 + (0.3 * (steps - t.tierMin)) / span);
+  } else {
+    const start = t.tierAvg * 1.15;
+    amount = start + (Math.max(start, t.tierMax) - start) * Math.min(1, (steps - t.tierThreshold) / BONUS_RAMP_STEPS);
+  }
+  return Math.round(amount * 100) / 100;
+}
+
+export function validateTiers(t: RewardTiers): string[] {
+  const errors: string[] = [];
+  if (!(t.tierMin >= 0)) errors.push("tierMin must be ≥ 0");
+  if (!(t.tierThreshold > t.tierMin)) errors.push("tierThreshold must be above tierMin");
+  if (!(t.tierAvg >= 0)) errors.push("tierAvg must be ≥ 0");
+  if (!(t.tierMax >= t.tierAvg)) errors.push("tierMax must be at least tierAvg");
+  return errors;
+}
+
+/** A distribution under the tiered rates: each eligible day pays tierReward(steps). */
+export function computeTierDistribution(input: { tiers: RewardTiers; participants: Participant[] }): DistributionResult {
+  const allocations: Allocation[] = input.participants
+    .map((p) => {
+      let micro = 0n;
+      let validSteps = 0;
+      let eligibleDays = 0;
+      for (const d of p.days) {
+        const amount = tierReward(d.steps, input.tiers);
+        if (amount <= 0) continue;
+        micro += toMicro(amount);
+        validSteps += Math.floor(d.steps);
+        eligibleDays += 1;
+      }
+      return { userId: p.userId, eligibleDays, validSteps, weight: validSteps, amountMicro: micro, amount: fromMicro(micro), capped: false };
+    })
+    .filter((a) => a.amountMicro > 0n)
+    .sort((a, b) => (b.amountMicro > a.amountMicro ? 1 : b.amountMicro < a.amountMicro ? -1 : 0));
+  const total = allocations.reduce((s, a) => s + a.amountMicro, 0n);
+  return {
+    poolMicro: total,
+    pool: fromMicro(total),
+    totalAllocatedMicro: total,
+    totalAllocated: fromMicro(total),
+    unallocated: fromMicro(0n),
+    totalWeight: allocations.reduce((s, a) => s + a.weight, 0),
+    allocations,
+  };
+}

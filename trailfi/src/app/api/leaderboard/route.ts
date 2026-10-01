@@ -1,6 +1,7 @@
 import { json, route } from "@/lib/api";
-import { leaderboard } from "@/lib/services/stats";
+import { publicPayouts } from "@/lib/services/payouts";
 
 export const dynamic = "force-dynamic";
 
-export const GET = route(async () => json(await leaderboard()));
+/** Public list of recent payouts. Wallets are always shortened. */
+export const GET = route(async () => json({ payouts: await publicPayouts(12) }));

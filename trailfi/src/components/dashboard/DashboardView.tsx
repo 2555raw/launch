@@ -13,6 +13,7 @@ import {
   Hourglass,
   Info,
   PlusCircle,
+  Send,
   Sparkles,
   Wallet,
 } from "lucide-react";
@@ -48,9 +49,6 @@ interface MeResponse {
   user: { id: string; shortId: number; walletAddress: string; payoutConsentAt: string | null; createdAt: string };
   settings: {
     dailyStepGoal: number;
-    rewardPercent: number;
-    maxRewardPerUser: number;
-    distributionFrequency: string;
     payoutTokenSymbol: string;
   };
   today: { today: string; steps: number; goal: number; amount: string; eligible: boolean; tokenSymbol: string };
@@ -65,6 +63,7 @@ interface MeResponse {
     status: string;
     simulated: boolean;
     txHash: string | null;
+    steps: number;
     createdAt: string;
     confirmedAt: string | null;
   }>;
@@ -108,7 +107,7 @@ export function DashboardView() {
       /* storage unavailable: celebrate anyway */
     }
     celebrate();
-    toast.success("Daily goal complete!", { description: "You're eligible for today's reward pool once your steps are verified." });
+    toast.success("Daily goal complete!", { description: "Today's rewards count once your steps are verified." });
   }, [data, goalMet]);
 
   const chart = useMemo(() => {
@@ -182,6 +181,8 @@ export function DashboardView() {
           </Button>
         </div>
       </motion.div>
+
+      <RequestBanner summary={summary} token={token} openRequest={data.payouts.find((p) => p.status === "requested")} />
 
       <div className="grid gap-5 lg:grid-cols-3">
         {/* Today */}
@@ -338,15 +339,14 @@ export function DashboardView() {
           <CardHeader label="Current rules" title="How your rewards work" />
           <dl className="mt-5 space-y-3 text-sm">
             <Rule k="Daily goal" v={`${fmtSteps(settings.dailyStepGoal)} steps`} />
-            <Rule k="Fees shared with walkers" v={`${settings.rewardPercent}%`} />
-            <Rule k="Max per user / period" v={`${fmtAmount(settings.maxRewardPerUser)} ${token}`} />
-            <Rule k="Distribution" v={settings.distributionFrequency === "weekly" ? "Weekly" : "Daily"} />
+            <Rule k="Rewards" v="Grow with your verified steps" />
+            <Rule k="Payout" v="Request it once approved" />
             <Rule k="Payout token" v={`${token} on ${chain?.name ?? "—"}`} />
           </dl>
           <p className="mt-5 flex gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 text-[12px] leading-relaxed text-white/50">
             <Info className="mt-0.5 h-4 w-4 shrink-0" />
-            Only verified activity is rewarded. Rewards are reviewed before payment and depend on the fees actually
-            collected — they are never guaranteed.
+            Only verified activity is rewarded. The more you walk, the more you earn. Rewards are reviewed before
+            payment and are never guaranteed.
           </p>
         </Card>
       </div>
@@ -396,6 +396,69 @@ export function DashboardView() {
       <ActivityModal open={activityOpen} onClose={() => setActivityOpen(false)} entries={data.steps} />
       <LogStepsModal open={logOpen} onClose={() => setLogOpen(false)} today={today.today} goal={today.goal} />
     </div>
+  );
+}
+
+function RequestBanner({
+  summary,
+  token,
+  openRequest,
+}: {
+  summary: MeResponse["summary"];
+  token: string;
+  openRequest?: MeResponse["payouts"][number];
+}) {
+  const qc = useQueryClient();
+  const request = useMutation({
+    mutationFn: () => api<{ payout: { amount: string; steps: number } }>("/api/me/payout-request", { method: "POST" }),
+    onSuccess: async ({ payout }) => {
+      await qc.invalidateQueries({ queryKey: ["me"] });
+      toast.success("Payout requested", { description: `${fmtAmount(payout.amount)} ${token} · the team will send it to your wallet.` });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  if (openRequest) {
+    return (
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col justify-between gap-3 rounded-3xl border border-amber-400/25 bg-amber-400/[0.06] p-5 sm:flex-row sm:items-center sm:p-6">
+        <div className="flex items-center gap-4">
+          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-400/15 text-amber-200">
+            <Hourglass className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="label !text-amber-200/80">Payout requested</div>
+            <div className="mt-1 font-display text-xl font-bold tabular">
+              {fmtAmount(openRequest.amount)} <span className="text-base text-white/50">{openRequest.tokenSymbol}</span>
+            </div>
+            <div className="text-[12.5px] text-white/50">The team will send it to your wallet soon.</div>
+          </div>
+        </div>
+        <StatusBadge status="requested" />
+      </motion.div>
+    );
+  }
+  if (summary.approved <= 0) return null;
+  return (
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-3xl border border-lime-400/30 bg-lime-400/[0.07] p-5 sm:p-6">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-lime-400/20 blur-3xl" />
+      <div className="relative flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-4">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-lime-400 text-forest-950">
+            <Wallet className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="label !text-lime-300/80">Ready to request</div>
+            <div className="mt-1 font-display text-2xl font-bold text-lime-300 tabular">
+              {fmtAmount(summary.approved)} <span className="text-base text-white/50">{token}</span>
+            </div>
+            <div className="text-[12.5px] text-white/50">Approved rewards, paid to your connected wallet.</div>
+          </div>
+        </div>
+        <Button size="lg" loading={request.isPending} onClick={() => request.mutate()} icon={<Send className="h-4 w-4" />}>
+          Request payout
+        </Button>
+      </div>
+    </motion.div>
   );
 }
 

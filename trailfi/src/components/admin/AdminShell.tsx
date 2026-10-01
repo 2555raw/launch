@@ -1,6 +1,6 @@
 "use client";
 
-import { BarChart3, ClipboardCheck, Coins, Footprints, ScrollText, Send, Settings2, Users } from "lucide-react";
+import { BarChart3, ClipboardCheck, Coins, Footprints, Inbox, ScrollText, Send, Settings2, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -12,6 +12,7 @@ import { useAdminMeta } from "./hooks";
 
 const NAV = [
   { href: "/admin", label: "Overview", icon: BarChart3 },
+  { href: "/admin/requests", label: "Requests", icon: Inbox },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/steps", label: "Step review", icon: Footprints },
   { href: "/admin/rewards", label: "Rewards", icon: Coins },
@@ -45,6 +46,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
             >
               <n.icon className="h-4 w-4" />
               {n.label}
+              {n.href === "/admin/requests" && data && data.payouts.requested > 0 && (
+                <span className="ml-auto rounded-full bg-lime-400 px-2 py-0.5 font-mono text-[10px] font-bold text-forest-950">{data.payouts.requested}</span>
+              )}
               {n.href === "/admin/steps" && data && data.stepsAwaitingReview > 0 && (
                 <span className="ml-auto rounded-full bg-amber-400/15 px-2 py-0.5 font-mono text-[10px] text-amber-200">{data.stepsAwaitingReview}</span>
               )}

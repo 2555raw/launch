@@ -7,7 +7,7 @@ export interface AdminOverview {
   users: { users: number; suspended: number; newWeek: number };
   today: { active: number; steps: number; goalMet: number };
   rewards: { pending: number; approved: number; processing: number; paid: number; distributed: number };
-  payouts: { confirmed: number; inFlight: number; failed: number };
+  payouts: { confirmed: number; inFlight: number; failed: number; requested: number };
   series: Array<{ day: string; steps: number; users: number }>;
   stepsAwaitingReview: number;
   settings: {
@@ -21,6 +21,10 @@ export interface AdminOverview {
     payoutTokenDecimals: number;
     estimatedDailyFees: number;
     redistributeExcess: boolean;
+    tierMin: number;
+    tierAvg: number;
+    tierThreshold: number;
+    tierMax: number;
     updatedBy: string | null;
     updatedAt: string;
   };
@@ -56,7 +60,7 @@ export interface Payout {
   tokenAddress: `0x${string}`;
   tokenDecimals: number;
   chainId: number;
-  status: "prepared" | "submitted" | "confirmed" | "failed" | "cancelled";
+  status: "requested" | "prepared" | "submitted" | "confirmed" | "failed" | "cancelled";
   simulated: boolean;
   txHash: string | null;
   fromAddress: string | null;
@@ -67,4 +71,6 @@ export interface Payout {
   submittedAt: string | null;
   confirmedAt: string | null;
   rewardCount: number;
+  steps: number;
+  requestedAt: string | null;
 }

@@ -34,6 +34,7 @@ const STATUS_TONES: Record<string, Tone> = {
   active: "green",
   approved: "lime",
   pending: "amber",
+  requested: "amber",
   unverified: "neutral",
   prepared: "blue",
   submitted: "blue",

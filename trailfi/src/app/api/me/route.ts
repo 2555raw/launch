@@ -25,9 +25,6 @@ export const GET = route(async () => {
       user,
       settings: {
         dailyStepGoal: settings.dailyStepGoal,
-        rewardPercent: settings.rewardPercent,
-        maxRewardPerUser: settings.maxRewardPerUser,
-        distributionFrequency: settings.distributionFrequency,
         payoutTokenSymbol: settings.payoutTokenSymbol,
       },
       today,
@@ -42,6 +39,7 @@ export const GET = route(async () => {
         status: p.status,
         simulated: p.simulated,
         txHash: p.txHash,
+        steps: p.steps,
         createdAt: p.createdAt,
         confirmedAt: p.confirmedAt,
       })),

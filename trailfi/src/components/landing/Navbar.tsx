@@ -14,7 +14,7 @@ const LINKS = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#rewards", label: "Rewards" },
   { href: "/#faq", label: "FAQ" },
-  { href: "/#leaderboard", label: "Leaderboard" },
+  { href: "/#leaderboard", label: "Payouts" },
   { href: "/dashboard", label: "Dashboard" },
 ];
 

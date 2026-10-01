@@ -73,7 +73,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
   useEffect(() => {
     let cancelled = false;
     setGas(null);
-    if (!payout || !publicClient || payout.status !== "prepared") return;
+    if (!payout || !publicClient || !(payout.status === "prepared" || payout.status === "requested")) return;
     const from = (address ?? meta?.payoutWallets[0]) as `0x${string}` | undefined;
     if (!from) return;
     publicClient
@@ -175,7 +175,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
 
   const busy = phase !== "idle";
   const insufficient = balance !== undefined && balance < amountUnits;
-  const canSend = payout?.status === "prepared" && isConnected && authorised && onRightChain && confirmed && !busy && !insufficient;
+  const canSend = (payout?.status === "prepared" || payout?.status === "requested") && isConnected && authorised && onRightChain && confirmed && !busy && !insufficient;
   const txUrl = payout?.txHash ? explorerTxUrl(payout.chainId, payout.txHash) : null;
 
   return (
@@ -264,7 +264,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                 <Row k="Estimated gas">
                   <span className="inline-flex items-center gap-1.5">
                     <Fuel className="h-3.5 w-3.5 text-white/40" />
-                    {payout.status !== "prepared"
+                    {!(payout.status === "prepared" || payout.status === "requested")
                       ? payout.gasUsed
                         ? `${Number(payout.gasUsed).toLocaleString()} gas used`
                         : "—"
@@ -296,7 +296,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                 </div>
               )}
 
-              {payout.status === "prepared" && (
+              {(payout.status === "prepared" || payout.status === "requested") && (
                 <>
                   {/* Sender checks */}
                   <div className="space-y-2 rounded-2xl border border-white/10 bg-black/20 p-4 text-[13px]">
@@ -350,7 +350,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                       Sign &amp; send {fmtAmount(payout.amount)} {payout.tokenSymbol}
                     </Button>
                     <Button variant="ghost" disabled={busy} onClick={() => act("cancel")}>
-                      Cancel payout
+                      {payout.status === "requested" ? "Reject request" : "Cancel payout"}
                     </Button>
                   </div>
                   {meta?.demoMode && (

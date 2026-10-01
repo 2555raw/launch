@@ -29,23 +29,19 @@ export default function DocsPage() {
           </li>
         </ul>
       </Section>
-      <Section title="3. Reward distribution">
+      <Section title="3. Rewards">
         <p>
-          For each distribution period: <code>pool = eligible fees × reward %</code>. A day counts when your verified
-          steps reach the daily goal; each counted day adds <code>min(steps, goal × cap multiplier)</code> to your weight.
-          Your reward is <code>pool × your weight ÷ total weight</code>, limited by the per-user maximum. Anything cut by
-          the cap is shared again among the others (or stays in the treasury, depending on configuration).
-        </p>
-        <p>
-          Example: 100 USDC of eligible fees at 30% gives a 30 USDC pool. Two walkers with 10,000 and 20,000 verified
-          steps receive 10 and 20 USDC.
+          Every trade of the <strong>$STEPIT</strong> token pays a small fee, and those fees fund the rewards. Rewards grow
+          with your verified daily steps: the more you walk, the more you earn. Days with very little activity earn
+          nothing. Amounts are set by the Stepit team and can change over time.
         </p>
       </Section>
-      <Section title="4. Payouts">
+      <Section title="4. Requesting a payout">
         <p>
-          Rewards are reviewed and approved by an administrator. Approved rewards are bundled into a payout to your public
-          address, sent from an authorised Stepit wallet after explicit confirmation, and verified on-chain. You can see
-          the transaction hash in your dashboard.
+          When you have approved rewards, press <strong>Request payout</strong> in your dashboard. The team reviews the
+          request and sends the money to your public address from an authorised Stepit wallet, verified on-chain. Your
+          dashboard shows every payment with its transaction hash, and the public payouts list shows it with your
+          address shortened.
         </p>
       </Section>
     </InfoPage>

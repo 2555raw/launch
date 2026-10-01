@@ -137,14 +137,14 @@ export function RewardsView() {
               </label>
             </div>
             <label className="block">
-              <span className="label mb-2 block">Eligible fees ({settings?.payoutTokenSymbol ?? "USDC"})</span>
+              <span className="label mb-2 block">Token fees collected ({settings?.payoutTokenSymbol ?? "USDC"}, for the record)</span>
               <input type="number" min={0} step="0.01" className="input font-mono" value={fees} onChange={(e) => setFees(e.target.value)} />
             </label>
             {settings && (
               <div className="grid grid-cols-3 gap-2 text-center">
-                <Mini k="Share" v={`${settings.rewardPercent}%`} />
-                <Mini k="Pool" v={fmtAmount((Number(fees || 0) * settings.rewardPercent) / 100)} />
-                <Mini k="Cap / user" v={fmtAmount(settings.maxRewardPerUser)} />
+                <Mini k={`${fmtSteps(settings.tierMin)}–${fmtSteps(settings.tierThreshold)}`} v={`~${fmtAmount(settings.tierAvg)}`} />
+                <Mini k={`${fmtSteps(settings.tierThreshold)}+`} v={`≤ ${fmtAmount(settings.tierMax)}`} />
+                <Mini k="Fees (record)" v={fmtAmount(Number(fees || 0))} />
               </div>
             )}
             <div className="flex gap-2">
@@ -183,7 +183,7 @@ export function RewardsView() {
             ) : (
               <motion.div key="p" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
                 <div className="grid grid-cols-2 gap-2 px-6 sm:grid-cols-4">
-                  <Mini k="Pool" v={fmtAmount(preview.pool)} accent />
+                  <Mini k="Total to pay" v={fmtAmount(preview.pool)} accent />
                   <Mini k="Allocated" v={fmtAmount(preview.totalAllocated)} />
                   <Mini k="Unallocated" v={fmtAmount(preview.unallocated)} />
                   <Mini k="Walkers" v={String(preview.allocations.length)} />
@@ -374,8 +374,8 @@ export function RewardsView() {
               <thead className="border-y border-white/10 bg-white/[0.02]">
                 <tr>
                   <th className="table-head">Period</th>
-                  <th className="table-head">Eligible fees</th>
-                  <th className="table-head">Share</th>
+                  <th className="table-head">Token fees</th>
+                  <th className="table-head">Rates</th>
                   <th className="table-head">Pool</th>
                   <th className="table-head">Allocated</th>
                   <th className="table-head">Walkers</th>
@@ -390,7 +390,7 @@ export function RewardsView() {
                       {d.periodEnd !== d.periodStart && ` – ${fmtDate(d.periodEnd)}`}
                     </td>
                     <td className="table-cell font-mono">{fmtAmount(d.eligibleFees)}</td>
-                    <td className="table-cell">{d.rewardPercent}%</td>
+                    <td className="table-cell">tiers</td>
                     <td className="table-cell font-mono">{fmtAmount(d.pool)}</td>
                     <td className="table-cell font-mono text-lime-300">{fmtAmount(d.totalAllocated)}</td>
                     <td className="table-cell">{d.participants}</td>

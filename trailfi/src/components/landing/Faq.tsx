@@ -9,7 +9,7 @@ import { Reveal, SectionHeading } from "./Reveal";
 const QUESTIONS = [
   {
     q: "Where do the rewards come from?",
-    a: "From the trading fees of the $STEPIT token. Every buy and sell pays a small fee, and a configurable share of those fees goes into the daily reward pool. The pool is split among walkers by verified steps. Nothing is minted to pay rewards: no trading fees, no pool.",
+    a: "From the trading fees of the $STEPIT token. Every buy and sell pays a small fee, and those fees fund the rewards paid to walkers. Nothing is minted to pay rewards.",
   },
   {
     q: "Are rewards guaranteed?",
@@ -29,7 +29,7 @@ const QUESTIONS = [
   },
   {
     q: "When do I get paid?",
-    a: "Each daily period closes at 00:00 UTC. Rewards are reviewed and approved, then sent to your wallet. Every payment and its transaction hash appear in your dashboard.",
+    a: "Once your rewards are approved, press Request payout in your dashboard. The team reviews the request and sends the money to your wallet. Every payment and its transaction hash appear in your dashboard.",
   },
   {
     q: "Is it safe to connect my wallet?",

@@ -107,7 +107,7 @@ export function Hero() {
               transition={{ delay: 0.85, duration: 0.7 }}
               className="mt-7 max-w-xl text-[17px] leading-relaxed text-white/75 sm:text-lg"
             >
-              Turn your daily steps into crypto rewards. Explore the outdoors, stay active and earn a share of the $STEPIT
+              Turn your daily steps into crypto rewards. Explore the outdoors, stay active and get paid from the $STEPIT
               token&apos;s trading fees.
             </motion.p>
 

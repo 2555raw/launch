@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDateTime, shortAddress } from "@/lib/format";
-import { computeDistribution } from "@/lib/rewards/engine";
+import { tierReward } from "@/lib/rewards/engine";
 import { PAYOUT_CHAIN_ID, SUPPORTED_CHAINS } from "@/lib/web3/chains";
 import { KNOWN_TOKENS } from "@/lib/web3/tokens";
 import type { AdminOverview } from "./hooks";
@@ -50,23 +50,8 @@ export function SettingsView() {
   const preset = tokens.find((t) => t.address.toLowerCase() === form.payoutTokenAddress.toLowerCase());
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => (f ? { ...f, [k]: v } : f));
 
-  // Live example with the edited rules.
-  let example: { pool: string; a: string; b: string; c: string } | null = null;
-  try {
-    const r = computeDistribution({
-      eligibleFees: 100,
-      config: form,
-      participants: [
-        { userId: "a", days: [{ day: "d", steps: form.dailyStepGoal }] },
-        { userId: "b", days: [{ day: "d", steps: Math.round(form.dailyStepGoal * 1.5) }] },
-        { userId: "c", days: [{ day: "d", steps: form.dailyStepGoal * 5 }] },
-      ],
-    });
-    const get = (id: string) => r.allocations.find((x) => x.userId === id)?.amount ?? "0";
-    example = { pool: r.pool, a: get("a"), b: get("b"), c: get("c") };
-  } catch {
-    example = null;
-  }
+  // What a day earns under the edited rates.
+  const example = [500, 1000, 4000, 7000, 10000, 15000].map((n) => ({ steps: n, amount: tierReward(n, form) }));
 
   return (
     <div>
@@ -82,20 +67,22 @@ export function SettingsView() {
       />
       <div className="grid gap-5 xl:grid-cols-3">
         <Card className="space-y-6 p-6 xl:col-span-2">
-          <CardHeader label="Rewards" title="Fee share and goals" />
+          <CardHeader label="Rewards" title="Private reward rates" />
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Fees shared with walkers (%)" hint="Share of eligible fees that forms the reward pool.">
-              <input type="number" className="input font-mono" min={0} max={100} step={0.5} value={form.rewardPercent} onChange={(e) => set("rewardPercent", Number(e.target.value))} />
-              <input type="range" min={0} max={100} step={0.5} value={form.rewardPercent} onChange={(e) => set("rewardPercent", Number(e.target.value))} className="mt-3 w-full accent-lime-400" />
+            <Field label="Minimum steps to earn" hint="Below this, a day earns nothing.">
+              <input type="number" className="input font-mono" min={0} step={100} value={form.tierMin} onChange={(e) => set("tierMin", Number(e.target.value))} />
             </Field>
-            <Field label="Daily step goal" hint="A day counts only when verified steps reach this number.">
+            <Field label={`Average reward up to the threshold (${form.payoutTokenSymbol})`} hint="Days between the minimum and the threshold earn around this.">
+              <input type="number" className="input font-mono" min={0} step={0.1} value={form.tierAvg} onChange={(e) => set("tierAvg", Number(e.target.value))} />
+            </Field>
+            <Field label="Bonus threshold (steps)" hint="From here on, a day earns a bit more.">
+              <input type="number" className="input font-mono" min={1000} step={500} value={form.tierThreshold} onChange={(e) => set("tierThreshold", Number(e.target.value))} />
+            </Field>
+            <Field label={`Maximum reward per day (${form.payoutTokenSymbol})`} hint="Reached 8,000 steps above the threshold.">
+              <input type="number" className="input font-mono" min={0} step={0.1} value={form.tierMax} onChange={(e) => set("tierMax", Number(e.target.value))} />
+            </Field>
+            <Field label="Daily goal shown to walkers" hint="Only used for the progress ring.">
               <input type="number" className="input font-mono" min={1000} max={100000} step={500} value={form.dailyStepGoal} onChange={(e) => set("dailyStepGoal", Number(e.target.value))} />
-            </Field>
-            <Field label={`Max reward per user per period (${form.payoutTokenSymbol})`} hint="Hard cap on any single allocation.">
-              <input type="number" className="input font-mono" min={0} step={1} value={form.maxRewardPerUser} onChange={(e) => set("maxRewardPerUser", Number(e.target.value))} />
-            </Field>
-            <Field label="Step cap multiplier" hint="Steps above goal × multiplier add no extra weight.">
-              <input type="number" className="input font-mono" min={1} max={10} step={0.25} value={form.stepCapMultiplier} onChange={(e) => set("stepCapMultiplier", Number(e.target.value))} />
             </Field>
             <Field label="Distribution frequency" hint="Daily: one day per run. Weekly: up to seven days per run.">
               <div className="grid grid-cols-2 gap-2">
@@ -114,17 +101,10 @@ export function SettingsView() {
                 ))}
               </div>
             </Field>
-            <Field label={`Estimated daily fees (${form.payoutTokenSymbol})`} hint="Only used for the projections users see.">
-              <input type="number" className="input font-mono" min={0} step={1} value={form.estimatedDailyFees} onChange={(e) => set("estimatedDailyFees", Number(e.target.value))} />
-            </Field>
           </div>
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm">
-            <input type="checkbox" className="mt-0.5 h-4 w-4 accent-lime-400" checked={form.redistributeExcess} onChange={(e) => set("redistributeExcess", e.target.checked)} />
-            <span>
-              <span className="font-medium">Redistribute capped excess</span>
-              <span className="mt-0.5 block text-[12.5px] text-white/50">When a user hits the cap, share the rest among other walkers. If off, it stays in the treasury.</span>
-            </span>
-          </label>
+          <p className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.05] p-4 text-[12.5px] text-lime-100/80">
+            These rates are private. The public API and the walkers&apos; dashboard only ever show the amounts earned.
+          </p>
 
           <div className="hairline" />
           <CardHeader label="Payouts" title="Token" />
@@ -160,17 +140,12 @@ export function SettingsView() {
 
         <div className="space-y-5">
           <Card className="p-6">
-            <CardHeader label="Live example" title="100 in eligible fees" />
-            {example ? (
-              <dl className="mt-5 space-y-3 text-sm">
-                <Line k="Reward pool" v={`${fmtAmount(example.pool)} ${form.payoutTokenSymbol}`} accent />
-                <Line k={`Walker A · ${form.dailyStepGoal.toLocaleString()} steps`} v={fmtAmount(example.a)} />
-                <Line k={`Walker B · ${Math.round(form.dailyStepGoal * 1.5).toLocaleString()} steps`} v={fmtAmount(example.b)} />
-                <Line k={`Walker C · ${(form.dailyStepGoal * 5).toLocaleString()} steps`} v={fmtAmount(example.c)} />
-              </dl>
-            ) : (
-              <p className="mt-4 text-sm text-red-200">These values are out of range.</p>
-            )}
+            <CardHeader label="Live example" title="What a day earns" />
+            <dl className="mt-5 space-y-3 text-sm">
+              {example.map((x) => (
+                <Line key={x.steps} k={`${x.steps.toLocaleString()} steps`} v={`${fmtAmount(x.amount)} ${form.payoutTokenSymbol}`} accent={x.amount > 0} />
+              ))}
+            </dl>
           </Card>
           <Card className="p-6">
             <CardHeader label="Versions" title="Change history" action={<History className="h-4 w-4 text-white/40" />} />
@@ -180,7 +155,7 @@ export function SettingsView() {
               </li>
               {data.history.map((h) => (
                 <li key={h.id} className="rounded-xl border border-white/5 px-3 py-2 text-white/55">
-                  {fmtDateTime(h.createdAt)} · {shortAddress(h.changedBy)} replaced: {h.snapshot.rewardPercent}% · goal {h.snapshot.dailyStepGoal} · cap {h.snapshot.maxRewardPerUser}
+                  {fmtDateTime(h.createdAt)} · {shortAddress(h.changedBy)} replaced: ~{h.snapshot.tierAvg ?? "—"} avg · up to {h.snapshot.tierMax ?? "—"} · goal {h.snapshot.dailyStepGoal}
                 </li>
               ))}
             </ul>

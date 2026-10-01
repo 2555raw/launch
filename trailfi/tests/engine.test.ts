@@ -121,3 +121,27 @@ test("daily estimate is proportional, capped, and zero below the goal", () => {
   const shared = estimateDailyReward({ steps: 10_000, estimatedDailyFees: 100, config, otherWeight: 50_000 });
   assert.equal(shared.amount, "5.000000");
 });
+
+import { tierReward, type RewardTiers } from "../src/lib/rewards/engine.ts";
+
+const tiers: RewardTiers = { tierMin: 1000, tierAvg: 4, tierThreshold: 7000, tierMax: 6 };
+
+test("tiered rewards: nothing below the minimum", () => {
+  assert.equal(tierReward(0, tiers), 0);
+  assert.equal(tierReward(999, tiers), 0);
+});
+
+test("tiered rewards: 1k–7k steps average about the configured amount", () => {
+  assert.equal(tierReward(1000, tiers), 3.4);
+  assert.equal(tierReward(4000, tiers), 4);
+  const samples = Array.from({ length: 61 }, (_, i) => tierReward(1000 + i * 100, tiers));
+  const avg = samples.reduce((a, b) => a + b, 0) / samples.length;
+  assert.ok(Math.abs(avg - 4) < 0.05, `average ${avg}`);
+});
+
+test("tiered rewards: a bit more from the threshold, capped at the maximum", () => {
+  assert.equal(tierReward(7000, tiers), 4.6);
+  assert.ok(tierReward(10000, tiers) > 4.6 && tierReward(10000, tiers) < 6);
+  assert.equal(tierReward(15000, tiers), 6);
+  assert.equal(tierReward(40000, tiers), 6);
+});

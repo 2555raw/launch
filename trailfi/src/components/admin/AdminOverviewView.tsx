@@ -30,11 +30,14 @@ export function AdminOverviewView() {
       <PageHeader
         label="Overview"
         title="Platform statistics"
-        description={`Distribution: ${data.settings.rewardPercent}% of eligible fees · goal ${fmtSteps(data.settings.dailyStepGoal)} steps · ${data.settings.distributionFrequency} · paid in ${t}`}
+        description={`Private rates: ~${fmtAmount(data.settings.tierAvg)} ${t} for ${fmtSteps(data.settings.tierMin)}–${fmtSteps(data.settings.tierThreshold)} steps, up to ${fmtAmount(data.settings.tierMax)} above · paid in ${t}`}
       />
 
-      {(data.stepsAwaitingReview > 0 || data.payouts.failed > 0 || data.rewards.approved > 0) && (
+      {(data.stepsAwaitingReview > 0 || data.payouts.failed > 0 || data.rewards.approved > 0 || data.payouts.requested > 0) && (
         <div className="mb-6 grid gap-3 md:grid-cols-3">
+          {data.payouts.requested > 0 && (
+            <Alert href="/admin/requests" tone="lime" text={`${data.payouts.requested} payout request${data.payouts.requested === 1 ? "" : "s"} waiting for you`} />
+          )}
           {data.stepsAwaitingReview > 0 && (
             <Alert href="/admin/steps" tone="amber" text={`${data.stepsAwaitingReview} step ${data.stepsAwaitingReview === 1 ? "entry" : "entries"} awaiting review`} />
           )}

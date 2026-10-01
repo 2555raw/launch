@@ -3,7 +3,7 @@ import { z } from "zod";
 import { HttpError } from "@/lib/api";
 import { audit } from "@/lib/audit";
 import { one, tx } from "@/lib/db";
-import type { RewardConfig } from "@/lib/rewards/engine";
+import { validateTiers, type RewardConfig, type RewardTiers } from "@/lib/rewards/engine";
 
 export interface PlatformSettings {
   rewardPercent: number;
@@ -16,6 +16,10 @@ export interface PlatformSettings {
   payoutTokenDecimals: number;
   estimatedDailyFees: number;
   redistributeExcess: boolean;
+  tierMin: number;
+  tierAvg: number;
+  tierThreshold: number;
+  tierMax: number;
   updatedBy: string | null;
   updatedAt: string;
 }
@@ -25,6 +29,7 @@ const SELECT = `select reward_percent::float8 as "rewardPercent", daily_step_goa
   distribution_frequency as "distributionFrequency", payout_token_symbol as "payoutTokenSymbol",
   payout_token_address as "payoutTokenAddress", payout_token_decimals as "payoutTokenDecimals",
   estimated_daily_fees::float8 as "estimatedDailyFees", redistribute_excess as "redistributeExcess",
+  tier_min as "tierMin", tier_avg::float8 as "tierAvg", tier_threshold as "tierThreshold", tier_max::float8 as "tierMax",
   updated_by as "updatedBy", updated_at as "updatedAt" from platform_settings where id = 1`;
 
 export async function getSettings(): Promise<PlatformSettings> {
@@ -43,6 +48,10 @@ export function toRewardConfig(s: PlatformSettings): RewardConfig {
   };
 }
 
+export function toTiers(s: PlatformSettings): RewardTiers {
+  return { tierMin: s.tierMin, tierAvg: s.tierAvg, tierThreshold: s.tierThreshold, tierMax: s.tierMax };
+}
+
 export const settingsSchema = z.object({
   rewardPercent: z.number().min(0).max(100),
   dailyStepGoal: z.number().int().min(1000).max(100000),
@@ -54,11 +63,17 @@ export const settingsSchema = z.object({
   payoutTokenDecimals: z.number().int().min(0).max(36),
   estimatedDailyFees: z.number().min(0).max(1_000_000_000),
   redistributeExcess: z.boolean(),
+  tierMin: z.number().int().min(0).max(100000),
+  tierAvg: z.number().min(0).max(1_000_000),
+  tierThreshold: z.number().int().min(1).max(200000),
+  tierMax: z.number().min(0).max(1_000_000),
 });
 
 export async function updateSettings(input: unknown, actor: string): Promise<PlatformSettings> {
   const s = settingsSchema.parse(input);
-  const pending = await one<{ n: number }>("select count(*)::int as n from payouts where status in ('prepared','submitted')");
+  const tierErrors = validateTiers(s);
+  if (tierErrors.length) throw new HttpError(422, tierErrors.join("; "), "invalid_tiers");
+  const pending = await one<{ n: number }>("select count(*)::int as n from payouts where status in ('requested','prepared','submitted')");
   const current = await getSettings();
   const tokenChanged =
     current.payoutTokenAddress.toLowerCase() !== s.payoutTokenAddress.toLowerCase() ||
@@ -71,7 +86,8 @@ export async function updateSettings(input: unknown, actor: string): Promise<Pla
     await q.query(
       `update platform_settings set reward_percent = $1, daily_step_goal = $2, max_reward_per_user = $3,
         step_cap_multiplier = $4, distribution_frequency = $5, payout_token_symbol = $6, payout_token_address = $7,
-        payout_token_decimals = $8, estimated_daily_fees = $9, redistribute_excess = $10, updated_by = $11, updated_at = now()
+        payout_token_decimals = $8, estimated_daily_fees = $9, redistribute_excess = $10, updated_by = $11, updated_at = now(),
+        tier_min = $12, tier_avg = $13, tier_threshold = $14, tier_max = $15
        where id = 1`,
       [
         s.rewardPercent,
@@ -85,6 +101,10 @@ export async function updateSettings(input: unknown, actor: string): Promise<Pla
         s.estimatedDailyFees,
         s.redistributeExcess,
         actor,
+        s.tierMin,
+        s.tierAvg,
+        s.tierThreshold,
+        s.tierMax,
       ],
     );
     await audit(actor, "settings.update", "platform_settings", "1", { before: current, after: s }, q);

@@ -1,4 +1,4 @@
-# Bloom
+# Meadow
 
 A swap page for tokenized stocks on **Robinhood Chain** (chain ID 4663). Pick a
 stock, see a live quote, sign in your own wallet, and the trade settles through
@@ -66,7 +66,7 @@ Which pools are trusted:
 
 Addresses come from `@uniswap/sdk-core` and `@uniswap/universal-router-sdk`.
 The 2.1.x router expects `minHopPriceX36` in both the v3 swap input and the v4
-swap struct; Bloom passes an empty/zero value and relies on the final minimum.
+swap struct; Meadow passes an empty/zero value and relies on the final minimum.
 
 ## Token list
 
@@ -102,13 +102,13 @@ npm start           # http://localhost:8080
 
 Node 18+, no dependencies. `ethers` v6 is vendored in `vendor/`.
 
-On Railway, point a service at this folder (root directory `bloom-site`); it
+On Railway, point a service at this folder (root directory `meadow-site`); it
 starts with `npm start` and listens on `PORT`.
 
 ## Change the name
 
 The brand name appears in `index.html` (title, header, footer, copy),
-`assets/mark.svg` (the logo), and `BRAND` at the top of `app.js`.
+and `BRAND` at the top of `app.js`.
 
 ## Credits
 

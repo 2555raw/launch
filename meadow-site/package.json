@@ -1,8 +1,8 @@
 {
-  "name": "bloom-site",
+  "name": "meadow-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Bloom — swap tokenized stocks on Robinhood Chain through Uniswap v3.",
+  "description": "Meadow — swap tokenized stocks on Robinhood Chain through Uniswap v3 and v4.",
   "scripts": {
     "start": "node server.js",
     "tokens": "node scripts/build-tokens.js"

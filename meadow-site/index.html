@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bloom — Swap tokenized stocks on Robinhood Chain</title>
+<title>Meadow — Swap tokenized stocks on Robinhood Chain</title>
 <meta name="description" content="Swap ETH for tokenized stocks on Robinhood Chain, straight from your wallet, routed through live Uniswap liquidity.">
 <meta name="theme-color" content="#0b1024">
-<link rel="icon" type="image/svg+xml" href="assets/mark.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,9 +17,8 @@
 <div class="field" aria-hidden="true"></div>
 
 <header class="topbar">
-  <a class="brand" href="#top" aria-label="Bloom home">
-    <img src="assets/mark.svg" alt="" width="28" height="28">
-    <span>Bloom</span>
+  <a class="brand" href="#top" aria-label="Meadow home">
+    <span>Meadow</span>
   </a>
   <nav class="main-nav" aria-label="Sections">
     <a href="#swap">Swap</a>
@@ -164,11 +162,11 @@
     <div class="section-head reveal">
       <span class="eyebrow">How it works</span>
       <h2>Swap on Robinhood Chain.<br>Own a slice of the market.</h2>
-      <p>Bloom is a window onto Uniswap. It finds the best pool for your trade, shows you exactly what you'll get, and hands the transaction to your wallet.</p>
+      <p>Meadow is a window onto Uniswap. It finds the best pool for your trade, shows you exactly what you'll get, and hands the transaction to your wallet.</p>
     </div>
     <div class="steps">
       <div class="card step reveal"><span class="step-n">1</span><h3>Connect your wallet</h3><p>MetaMask, Rabby, Coinbase Wallet or any browser wallet. No sign-up. Your wallet is your account.</p></div>
-      <div class="card step reveal"><span class="step-n">2</span><h3>Pick a stock</h3><p>Choose from every tokenized stock with live liquidity. Bloom quotes the Uniswap v3 and v4 pools and routes through the best one.</p></div>
+      <div class="card step reveal"><span class="step-n">2</span><h3>Pick a stock</h3><p>Choose from every tokenized stock with live liquidity. Meadow quotes the Uniswap v3 and v4 pools and routes through the best one.</p></div>
       <div class="card step reveal"><span class="step-n">3</span><h3>Swap and hold</h3><p>Confirm in your wallet. The tokens land at your address in seconds, and you can swap back to ETH any time.</p></div>
     </div>
   </section>
@@ -176,15 +174,15 @@
   <section class="section" id="features">
     <div class="section-head reveal">
       <span class="eyebrow">Features</span>
-      <h2>Everything Bloom does</h2>
+      <h2>Everything Meadow does</h2>
     </div>
     <div class="features">
       <div class="card feat reveal"><span class="feat-ic">🔀</span><h3>Best-pool routing</h3><p>Every quote checks the deepest Uniswap v3 and v4 pools, direct or through ETH or USDG, and takes whichever pays you most.</p></div>
-      <div class="card feat reveal"><span class="feat-ic">🔐</span><h3>Non-custodial</h3><p>Bloom never holds your funds. Each swap is one transaction from your wallet through Uniswap's Universal Router, and the tokens land straight back in your wallet.</p></div>
+      <div class="card feat reveal"><span class="feat-ic">🔐</span><h3>Non-custodial</h3><p>Meadow never holds your funds. Each swap is one transaction from your wallet through Uniswap's Universal Router, and the tokens land straight back in your wallet.</p></div>
       <div class="card feat reveal"><span class="feat-ic">📈</span><h3>Live prices</h3><p>Every price on this page is read from the pools on Robinhood Chain. Nothing is hard-coded.</p></div>
       <div class="card feat reveal"><span class="feat-ic">🛡️</span><h3>Slippage protection</h3><p>You set the worst price you'll accept. If the market moves past it, the swap reverts and you keep your tokens.</p></div>
-      <div class="card feat reveal"><span class="feat-ic">✅</span><h3>Exact approvals</h3><p>When you sell, Bloom approves exactly the amount you're swapping and signs a Permit2 permit that expires in 30 minutes. Never an unlimited allowance.</p></div>
-      <div class="card feat reveal"><span class="feat-ic">🧾</span><h3>No platform fee</h3><p>You pay the pool's own liquidity fee and the network fee. Bloom adds nothing on top.</p></div>
+      <div class="card feat reveal"><span class="feat-ic">✅</span><h3>Exact approvals</h3><p>When you sell, Meadow approves exactly the amount you're swapping and signs a Permit2 permit that expires in 30 minutes. Never an unlimited allowance.</p></div>
+      <div class="card feat reveal"><span class="feat-ic">🧾</span><h3>No platform fee</h3><p>You pay the pool's own liquidity fee and the network fee. Meadow adds nothing on top.</p></div>
     </div>
     <div class="stats reveal">
       <div><b id="stat-stocks">—</b><span>tokenized stocks</span></div>
@@ -200,12 +198,12 @@
       <h2>Questions, answered</h2>
     </div>
     <div class="faq">
-      <div class="faq-item"><button class="faq-q" type="button">What is Bloom?<span>▾</span></button><div class="faq-a"><p>Bloom is a swap interface for tokenized stocks on Robinhood Chain. It reads prices from Uniswap v3 and v4 pools and sends your swap to Uniswap's official Universal Router, signed by your own wallet.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">What is Meadow?<span>▾</span></button><div class="faq-a"><p>Meadow is a swap interface for tokenized stocks on Robinhood Chain. It reads prices from Uniswap v3 and v4 pools and sends your swap to Uniswap's official Universal Router, signed by your own wallet.</p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">Which stocks can I swap?<span>▾</span></button><div class="faq-a"><p>Every tokenized stock that has live Uniswap liquidity against ETH or USDG on Robinhood Chain: Apple, NVIDIA, Tesla, Microsoft, Amazon, Alphabet, Meta and more. The list in Markets is the full set, and you can also swap one stock straight into another.</p></div></div>
-      <div class="faq-item"><button class="faq-q" type="button">What fees do I pay?<span>▾</span></button><div class="faq-a"><p>The pool's liquidity fee (shown before you swap, from 0.01% to 1% depending on the pool) and the Robinhood Chain network fee. Bloom charges no platform fee.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">What fees do I pay?<span>▾</span></button><div class="faq-a"><p>The pool's liquidity fee (shown before you swap, from 0.01% to 1% depending on the pool) and the Robinhood Chain network fee. Meadow charges no platform fee.</p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">Why does selling take more than one step?<span>▾</span></button><div class="faq-a"><p>Selling a token goes through Permit2, Uniswap's approval contract. First you approve exactly the amount you're selling, then you sign a free permit (no gas) that lets the router move that amount for the next 30 minutes, then you confirm the swap. Buying with ETH is a single transaction.</p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">Is holding a tokenized stock the same as holding the share?<span>▾</span></button><div class="faq-a"><p>No. Tokenized stocks track the price of the underlying security and are issued by third parties. Holding one is not holding the share. Not investment advice.</p></div></div>
-      <div class="faq-item"><button class="faq-q" type="button">Which network does Bloom run on?<span>▾</span></button><div class="faq-a"><p>Robinhood Chain (chain ID 4663). If your wallet isn't on it yet, Bloom will ask to add and switch to it when you connect.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Which network does Meadow run on?<span>▾</span></button><div class="faq-a"><p>Robinhood Chain (chain ID 4663). If your wallet isn't on it yet, Meadow will ask to add and switch to it when you connect.</p></div></div>
     </div>
   </section>
 
@@ -214,7 +212,7 @@
 <footer class="footer">
   <div class="foot-top">
     <div class="foot-brand">
-      <a class="brand" href="#top"><img src="assets/mark.svg" alt="" width="26" height="26"><span>Bloom</span></a>
+      <a class="brand" href="#top"><span>Meadow</span></a>
       <p>Swap on <b>Robinhood Chain</b> and grow a portfolio of <b>tokenized stocks</b>, one swap at a time.</p>
     </div>
     <div class="foot-col"><h4>Product</h4><a href="#swap">Swap</a><a href="#stocks">Stocks</a><a href="#features">Features</a></div>
@@ -224,7 +222,7 @@
     <p>Tokenized stocks track the price of the underlying security and are issued by third parties. Holding one is not holding the share. Not investment advice.</p>
     <p>Swaps settle through Uniswap v3 and v4 on Robinhood Chain. Liquidity and network fees apply.</p>
     <p class="credit">Background photo: “Cosmos flower field #2” by Takashi Hososhima, <a href="https://creativecommons.org/licenses/by-sa/2.0/" target="_blank" rel="noopener">CC BY-SA 2.0</a>, via <a href="https://commons.wikimedia.org/wiki/File:Cosmos_flower_field_-2_(8090495110).jpg" target="_blank" rel="noopener">Wikimedia Commons</a>. Company logos are trademarks of their owners.</p>
-    <p>© 2026 Bloom</p>
+    <p>© 2026 Meadow</p>
   </div>
 </footer>
 

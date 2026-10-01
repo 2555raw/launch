@@ -1,4 +1,4 @@
-/* Bloom — swap tokenized stocks on Robinhood Chain through Uniswap v3 and v4.
+/* Meadow — swap tokenized stocks on Robinhood Chain through Uniswap v3 and v4.
  *
  * Reads (prices, quotes, balances) go straight to the public Robinhood Chain RPC.
  * Writes go through the visitor's own wallet to Uniswap's Universal Router;
@@ -10,7 +10,7 @@
 (() => {
   'use strict';
 
-  const BRAND = 'Bloom';
+  const BRAND = 'Meadow';
   const CHAIN = {
     id: 4663,
     hex: '0x1237',
@@ -92,7 +92,7 @@
     slippage: 'auto'
   };
   try {
-    const saved = localStorage.getItem('bloom.slippage');
+    const saved = localStorage.getItem('meadow.slippage');
     if (saved) state.slippage = saved === 'auto' ? 'auto' : Number(saved);
   } catch { /* storage may be blocked */ }
 
@@ -381,7 +381,7 @@
     try {
       const accounts = await w.provider.request({ method: 'eth_requestAccounts' });
       attachWallet(w, accounts[0]);
-      try { localStorage.setItem('bloom.wallet', w.info.rdns || 'injected'); } catch { /* ignore */ }
+      try { localStorage.setItem('meadow.wallet', w.info.rdns || 'injected'); } catch { /* ignore */ }
       await ensureChain();
     } catch (e) {
       toast(humanError(e));
@@ -446,7 +446,7 @@
   /* reconnect silently to the wallet used last time, if it still has us authorised */
   setTimeout(async () => {
     let last = null;
-    try { last = localStorage.getItem('bloom.wallet'); } catch { /* ignore */ }
+    try { last = localStorage.getItem('meadow.wallet'); } catch { /* ignore */ }
     if (!last) return;
     const w = walletChoices().find((x) => (x.info.rdns || 'injected') === last);
     if (!w) return;
@@ -989,7 +989,7 @@
   }
   function setSlippage(v) {
     state.slippage = v;
-    try { localStorage.setItem('bloom.slippage', String(v)); } catch { /* ignore */ }
+    try { localStorage.setItem('meadow.slippage', String(v)); } catch { /* ignore */ }
     markSlip();
     render();
   }
@@ -1023,7 +1023,7 @@
   /* ?simulate exposes the router for scripted dry-runs against the live chain;
      it can only read and build calldata, never sign or send. */
   if (new URLSearchParams(location.search).has('simulate')) {
-    window.bloomSim = { tokens: TOKENS, bestQuote, quoteHop, edgePools, quoteDetails, buildPlan, addresses: { UNIVERSAL_ROUTER, PERMIT2, CHAIN_ID: CHAIN.id } };
+    window.meadowSim = { tokens: TOKENS, bestQuote, quoteHop, edgePools, quoteDetails, buildPlan, addresses: { UNIVERSAL_ROUTER, PERMIT2, CHAIN_ID: CHAIN.id } };
   }
 
   document.title = `${BRAND} — Swap tokenized stocks on ${CHAIN.name}`;

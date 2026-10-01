@@ -1,4 +1,4 @@
-/* Serves Bloom as a static site.
+/* Serves Meadow as a static site.
  *
  * Everything that moves money happens in the visitor's browser and wallet: quotes
  * are read from the Robinhood Chain RPC and swaps are signed by the wallet, so
@@ -52,4 +52,4 @@ http.createServer((req, res) => {
     });
     res.end(body);
   });
-}).listen(PORT, () => console.log(`Bloom on :${PORT}`));
+}).listen(PORT, () => console.log(`Meadow on :${PORT}`));

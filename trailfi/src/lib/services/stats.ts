@@ -94,6 +94,7 @@ export async function platformOverview() {
     one<{ n: number }>("select count(*)::int as n from step_entries where verification in ('flagged', 'unverified')"),
     getSettings(),
   ]);
+  const subscribers = await one<{ n: number }>("select count(*)::int as n from newsletter_subscribers");
   return {
     tokenReady: await payoutTokenReady(settings.payoutTokenAddress),
     users: totals,
@@ -102,6 +103,7 @@ export async function platformOverview() {
     payouts,
     series,
     stepsAwaitingReview: flagged?.n ?? 0,
+    newsletterSubscribers: subscribers?.n ?? 0,
     settings,
     payoutWallets: env.payoutWallets,
     demoMode: env.demoMode,

@@ -10,6 +10,7 @@ export interface AdminOverview {
   payouts: { confirmed: number; inFlight: number; failed: number; requested: number };
   series: Array<{ day: string; steps: number; users: number }>;
   stepsAwaitingReview: number;
+  newsletterSubscribers: number;
   settings: {
     rewardPercent: number;
     dailyStepGoal: number;

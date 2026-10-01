@@ -31,11 +31,15 @@ const config: Config = {
         },
         neon: "#5dff9d",
         mist: "#a7b5ad",
+        // Footer engraving: paper and ink.
+        paper: "#f2ead3",
+        engrave: "#0e2c1f",
       },
       fontFamily: {
         display: ['"Space Grotesk Variable"', "ui-sans-serif", "system-ui", "sans-serif"],
         sans: ['"Inter Variable"', "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "monospace"],
+        serif: ['"EB Garamond"', "ui-serif", "Georgia", "serif"],
       },
       boxShadow: {
         glass: "0 1px 0 0 rgba(255,255,255,0.06) inset, 0 20px 60px -20px rgba(0,0,0,0.6)",

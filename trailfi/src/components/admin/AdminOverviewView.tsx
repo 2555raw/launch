@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, ArrowRight, BadgeCheck, CircleDollarSign, Coins, Footprints, Hourglass, Send, Target, Users } from "lucide-react";
+import { AlertTriangle, ArrowRight, BadgeCheck, CircleDollarSign, Coins, Footprints, Hourglass, Mail, Send, Target, Users } from "lucide-react";
 import Link from "next/link";
 import { StatCard } from "@/components/dashboard/StatCard";
 import { StepsChart } from "@/components/dashboard/StepsChart";
@@ -31,6 +31,14 @@ export function AdminOverviewView() {
         label="Overview"
         title="Platform statistics"
         description={`Private rates: ~${fmtAmount(data.settings.tierAvg)} ${t} for ${fmtSteps(data.settings.tierMin)} to ${fmtSteps(data.settings.tierThreshold)} steps, up to ${fmtAmount(data.settings.tierMax)} above · paid in ${t}`}
+        action={
+          <a
+            href="/api/admin/newsletter"
+            className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[13px] text-white/75 transition hover:border-lime-400/40 hover:text-lime-300"
+          >
+            <Mail className="h-4 w-4" /> Newsletter · {data.newsletterSubscribers} · CSV
+          </a>
+        }
       />
 
       {(data.stepsAwaitingReview > 0 || data.payouts.failed > 0 || data.rewards.approved > 0 || data.payouts.requested > 0) && (

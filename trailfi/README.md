@@ -97,23 +97,22 @@ npm run build
 
 ## Sistema de recompensas
 
-Configurable en `/admin/settings` (con historial de versiones):
+Las recompensas siguen **tarifas privadas por tramos**, configurables en `/admin/settings`:
 
-| Parámetro | Por defecto | Efecto |
-| --- | --- | --- |
-| % de fees para recompensas | 30 % | `pool = fees elegibles × %` |
-| Objetivo diario | 10.000 pasos | Un día cuenta solo si los pasos verificados lo alcanzan |
-| Límite por usuario | 25 USDC | Tope por usuario y periodo |
-| Multiplicador de tope de pasos | 2× | Pasos por encima de `objetivo × 2` no suman peso |
-| Frecuencia | diaria | `daily`: 1 día por reparto; `weekly`: hasta 7 días |
-| Token de pago | USDC (Base Sepolia) | Presets por red o token personalizado |
-| Redistribuir excedente | sí | Lo recortado por el tope se reparte entre el resto (o queda en tesorería) |
+| Pasos verificados del día | Recompensa |
+| --- | --- |
+| Menos de 1.000 | 0 |
+| 1.000 – 7.000 | unos 4 USDC de media (de 3,40 a 4,60, sube con los pasos) |
+| Desde 7.000 | algo más: de 4,60 hasta 6 USDC (a los 15.000 pasos) |
 
-Ejemplo: 100 USDC de fees × 30 % = 30 USDC de pool. Dos usuarios con 10.000 y 20.000 pasos verificados reciben 10 y 20 USDC.
+Los cuatro valores (mínimo, media, umbral y máximo) se cambian en el panel. **Son privados**: solo la API de administración los devuelve; las páginas públicas y la API del usuario muestran únicamente importes. El cálculo se hace en el servidor (`tierReward` en `src/lib/rewards/engine.ts`, con tests).
 
-El motor (`src/lib/rewards/engine.ts`) trabaja en micro-unidades `bigint` y redondea siempre hacia abajo: la suma nunca supera el pool. Cada distribución guarda una instantánea de la configuración usada. Las estimaciones del dashboard se etiquetan siempre como *proyección, no garantizada*.
+Las recompensas se financian con las comisiones de trading del token $STEPIT. El reparto (`/admin/rewards`) calcula cada día cerrado, guarda las asignaciones como *pending* y el administrador las aprueba.
 
 ## Pagos
+
+**Solicitudes de pago.** Cuando un usuario tiene recompensas aprobadas, pulsa **Request payout** en su dashboard. La solicitud aparece en `/admin/requests` con la **wallet completa** (solo visible para administradores), los pasos y el importe; desde ahí se paga con el mismo flujo de abajo. Una vez confirmado, el pago aparece en la lista pública de la portada con la wallet recortada (`0x2bdb…ef76`).
+
 
 1. **Preparar**: el admin agrupa las recompensas aprobadas de un usuario en un pago (`prepared`). No se mueve nada.
 2. **Revisar**: el modal muestra dirección de destino, cantidad (y unidades base), token, red, gas estimado, estado y hash. El admin debe marcar una casilla de confirmación explícita.

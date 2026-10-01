@@ -37,9 +37,9 @@ const COLUMNS = [
 
 const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "hello@stepit.site";
 
-/** Only the profiles that are configured get an icon. */
+/** X always shows; the other profiles get an icon once their link is configured. */
 const SOCIALS = [
-  { label: "X", href: process.env.NEXT_PUBLIC_X_URL, icon: XIcon },
+  { label: "X", href: process.env.NEXT_PUBLIC_X_URL || "https://x.com", icon: XIcon },
   { label: "Telegram", href: process.env.NEXT_PUBLIC_TELEGRAM_URL, icon: TelegramIcon },
   { label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, icon: InstagramIcon },
   { label: "Discord", href: process.env.NEXT_PUBLIC_DISCORD_URL, icon: DiscordIcon },
@@ -62,22 +62,29 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="inline-flex items-center gap-3" aria-label="Stepit home">
               <LogoMark className="h-11 w-11" />
-              <span className="text-[40px] font-medium leading-none tracking-tight">Stepit</span>
+              <span className="text-[40px] font-normal leading-none tracking-tight">Stepit</span>
             </Link>
             <p className="mt-6 max-w-xs text-[19px] italic leading-snug text-paper/85">
               Every step counts. Walk the trail, earn from the token, keep what you make.
             </p>
-            <ul className="mt-7 space-y-3 text-[17px]">
+            <ul className="mt-7 space-y-3 text-[16.5px] text-paper/90">
               <li>
                 <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center gap-3 transition hover:text-lime-300">
-                  <Mail className="h-[18px] w-[18px] shrink-0" /> {CONTACT_EMAIL}
+                  <Mail className="h-[17px] w-[17px] shrink-0" strokeWidth={1.5} /> {CONTACT_EMAIL}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://robinhood.com/us/en/crypto/chain/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center gap-3 transition hover:text-lime-300"
+                >
+                  <Link2 className="h-[17px] w-[17px] shrink-0" strokeWidth={1.5} /> Built on Robinhood Chain
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <Link2 className="h-[18px] w-[18px] shrink-0" /> Built on Robinhood Chain
-              </li>
-              <li className="flex items-center gap-3">
-                <Globe2 className="h-[18px] w-[18px] shrink-0" /> Walk anywhere in the world
+                <Globe2 className="h-[17px] w-[17px] shrink-0" strokeWidth={1.5} /> Walk anywhere in the world
               </li>
             </ul>
             {SOCIALS.length > 0 && (
@@ -97,7 +104,7 @@ export function Footer() {
               <ul className="mt-6 space-y-3">
                 {c.links.map((l) => (
                   <li key={l.label}>
-                    <Link href={l.href} className="text-[18px] text-paper/90 transition hover:text-lime-300">
+                    <Link href={l.href} className="text-[17.5px] text-paper/90 transition hover:text-lime-300">
                       {l.label}
                     </Link>
                   </li>
@@ -115,7 +122,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col-reverse gap-4 text-[15px] italic sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative z-10 mt-14 flex flex-col-reverse gap-4 text-[15px] italic sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-md text-[13.5px] leading-snug text-paper/55">
             © {new Date().getFullYear()} Stepit. Rewards are variable, reviewed before payment and never guaranteed. Not
             financial advice.
@@ -137,7 +144,7 @@ export function Footer() {
       </div>
 
       {/* Engraved landscape: two hikers crossing below the range */}
-      <div className="pointer-events-none relative -mt-[6%] aspect-[1600/560] min-h-[280px] w-full">
+      <div className="pointer-events-none relative -mt-[9%] aspect-[1600/520] min-h-[260px] w-full">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/images/footer-trail.svg"
@@ -153,8 +160,8 @@ export function Footer() {
 function FooterHeading({ children }: { children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="text-[15px] font-medium uppercase tracking-[0.16em] sm:text-[17px]">{children}</h3>
-      <span className="mt-4 block h-px w-10 bg-paper/80" />
+      <h3 className="text-[15px] font-normal uppercase tracking-[0.18em] sm:text-[16.5px]">{children}</h3>
+      <span className="mt-4 block h-px w-10 bg-paper/70" />
     </div>
   );
 }
@@ -192,7 +199,7 @@ function NewsletterForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder={done ? "Thanks for subscribing" : "Enter your email"}
-        className="h-[52px] min-w-0 flex-1 border border-paper/80 bg-transparent px-5 text-[17px] italic text-paper placeholder:text-paper/60 focus:border-lime-300 focus:outline-none"
+        className="h-[52px] min-w-0 flex-1 border border-paper/70 bg-transparent px-5 text-[17px] italic text-paper placeholder:text-paper/60 focus:border-lime-300 focus:outline-none"
       />
       <button
         type="submit"
@@ -200,7 +207,7 @@ function NewsletterForm() {
         aria-label="Subscribe"
         className="grid h-[52px] w-[52px] shrink-0 place-items-center bg-paper text-engrave transition hover:bg-lime-300 disabled:opacity-60"
       >
-        <ArrowRight className="h-5 w-5" />
+        <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
       </button>
     </form>
   );

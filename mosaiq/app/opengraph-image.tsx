@@ -1,28 +1,25 @@
 import { ImageResponse } from "next/og";
+import { LOGO_PATHS, LOGO_TRANSFORM, LOGO_VIEWBOX } from "@/lib/logo-paths";
 import { site } from "@/lib/site";
 
 export const alt = `${site.name} · ${site.tagline}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const corner = "M0 0H26A26 26 0 0 1 0 26Z";
-const half = "M26 0A24 24 0 0 1 74 0Z";
-
 function Mark({ px }: { px: number }) {
   return (
-    <svg width={px} height={px} viewBox="-24 -24 148 148">
+    <svg width={px} height={px} viewBox={LOGO_VIEWBOX}>
       <defs>
         <linearGradient id="og-mark" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#2563EB" />
-          <stop offset="1" stopColor="#0EA5E9" />
+          <stop offset="0" stopColor="#60A5FA" />
+          <stop offset="1" stopColor="#2563EB" />
         </linearGradient>
       </defs>
-      {[0, 90, 180, 270].map((r) => (
-        <g key={r} transform={`rotate(${r} 50 50)`} fill="url(#og-mark)">
-          <path d={corner} />
-          <path d={half} />
-        </g>
-      ))}
+      <g transform={LOGO_TRANSFORM} fill="url(#og-mark)">
+        {LOGO_PATHS.map((d, i) => (
+          <path key={i} d={d} />
+        ))}
+      </g>
     </svg>
   );
 }

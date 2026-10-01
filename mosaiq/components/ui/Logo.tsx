@@ -1,40 +1,31 @@
 import { cn } from "@/lib/cn";
+import { LOGO_PATHS, LOGO_TRANSFORM, LOGO_VIEWBOX } from "@/lib/logo-paths";
 import { site } from "@/lib/site";
 
-/**
- * The Chooser mark: a square whose four sides each carry a half-disc and whose
- * corners are scooped out. Drawn on a 100-unit square; the half-discs reach
- * 24 units past each edge, hence the -24…124 view box.
- */
-
+/** The Chooser mark's paths, in its own coordinate space (see lib/logo-paths). */
 export function LogoShapes({ fill = "currentColor" }: { fill?: string }) {
-  const corner = "M0 0H26A26 26 0 0 1 0 26Z";
-  const half = "M26 0A24 24 0 0 1 74 0Z";
   return (
-    <g fill={fill}>
-      {[0, 90, 180, 270].map((r) => (
-        <g key={r} transform={`rotate(${r} 50 50)`}>
-          <path d={corner} />
-          <path d={half} />
-        </g>
+    <g transform={LOGO_TRANSFORM} fill={fill}>
+      {LOGO_PATHS.map((d, i) => (
+        <path key={i} d={d} />
       ))}
     </g>
   );
 }
 
-/** The mark in the brand gradient (blue to sky). Pass `mono` for a single colour (currentColor). */
+/** The mark in the brand gradient (light blue to blue). Pass `mono` for a single colour (currentColor). */
 export function LogoMark({ className, mono = false }: { className?: string; mono?: boolean }) {
   return (
-    <svg viewBox="-24 -24 148 148" aria-hidden="true" className={cn("size-7 shrink-0 text-bone", className)}>
+    <svg viewBox={LOGO_VIEWBOX} aria-hidden="true" className={cn("size-7 shrink-0 text-bone", className)}>
       {!mono && (
         <defs>
-          <linearGradient id="picker-mark" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#3b82f6" />
-            <stop offset="1" stopColor="#0ea5e9" />
+          <linearGradient id="chooser-mark" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor="#60a5fa" />
+            <stop offset="1" stopColor="#2563eb" />
           </linearGradient>
         </defs>
       )}
-      <LogoShapes fill={mono ? "currentColor" : "url(#picker-mark)"} />
+      <LogoShapes fill={mono ? "currentColor" : "url(#chooser-mark)"} />
     </svg>
   );
 }

@@ -9,7 +9,7 @@ import {
   type DisclaimerComponent,
 } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode, useEffect } from "react";
 import { Toaster, toast } from "sonner";
 import { createSiweMessage } from "viem/siwe";
 import { WagmiProvider } from "wagmi";
@@ -103,7 +103,18 @@ function AuthBridge({ children }: { children: ReactNode }) {
   );
 }
 
+/** Keeps the invite code from a ?ref= link for 30 days, so the first sign-in can credit the referrer. */
+function useReferralCapture() {
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get("ref")?.trim().toUpperCase();
+    if (!code || !/^[A-Z2-9]{7}$/.test(code) || document.cookie.includes("stepit_ref=")) return;
+    const secure = window.location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `stepit_ref=${code}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax${secure}`;
+  }, []);
+}
+
 export function Providers({ children }: { children: ReactNode }) {
+  useReferralCapture();
   const [config] = useState(makeWagmiConfig);
   const [queryClient] = useState(
     () => new QueryClient({ defaultOptions: { queries: { refetchOnWindowFocus: false, retry: 1 } } }),

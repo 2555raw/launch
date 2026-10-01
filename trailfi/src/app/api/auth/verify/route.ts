@@ -5,6 +5,8 @@ import { HttpError, clientIp, json, rateLimit, readJson, route } from "@/lib/api
 import { SIWE_STATEMENT } from "@/lib/auth/constants";
 import { consumeNonceCookie, createSession } from "@/lib/auth/session";
 import { assertHoldsPayoutToken } from "@/lib/services/gate";
+import { cookies } from "next/headers";
+import { linkReferral } from "@/lib/services/referrals";
 import { upsertOnLogin } from "@/lib/services/users";
 import { publicClient } from "@/lib/web3/server";
 import { SUPPORTED_CHAINS } from "@/lib/web3/chains";
@@ -46,6 +48,8 @@ export const POST = route(async (req) => {
   await assertHoldsPayoutToken(parsed.address);
 
   const user = await upsertOnLogin(parsed.address);
+  // A first sign-in through someone's invite link links the two walkers.
+  if (user.isNew) await linkReferral(user.id, (await cookies()).get("stepit_ref")?.value);
   if (user.status !== "active") throw new HttpError(403, "This account is suspended.", "suspended");
   await createSession({ userId: user.id, address: user.walletAddress, role: user.role });
   return json({ user: { id: user.id, walletAddress: user.walletAddress, role: user.role } });

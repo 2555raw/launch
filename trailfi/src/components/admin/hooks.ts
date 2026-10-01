@@ -28,6 +28,7 @@ export interface AdminOverview {
     tierMax: number;
     tierCap: number;
     ratePoints: [number, number][];
+    referralBonus: number;
     updatedBy: string | null;
     updatedAt: string;
   };

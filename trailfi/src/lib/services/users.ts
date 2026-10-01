@@ -24,16 +24,16 @@ const USER_COLUMNS = `id, short_id as "shortId", wallet_address as "walletAddres
   payout_consent_at as "payoutConsentAt", created_at as "createdAt", last_login_at as "lastLoginAt"`;
 
 /** Called after a verified sign-in. Registers the public address on first login. */
-export async function upsertOnLogin(address: string): Promise<UserRow> {
+export async function upsertOnLogin(address: string): Promise<UserRow & { isNew: boolean }> {
   const wallet = address.toLowerCase();
   const role = isAdminWallet(wallet) ? "admin" : "user";
-  const row = await one<UserRow>(
+  const row = await one<UserRow & { isNew: boolean }>(
     `insert into users (wallet_address, role, payout_consent_at, last_login_at)
      values ($1, $2, now(), now())
      on conflict (wallet_address) do update
        set last_login_at = now(), role = excluded.role,
            payout_consent_at = coalesce(users.payout_consent_at, now())
-     returning ${USER_COLUMNS}`,
+     returning ${USER_COLUMNS}, (xmax = 0) as "isNew"`,
     [wallet, role],
   );
   if (!row) throw new Error("user upsert failed");

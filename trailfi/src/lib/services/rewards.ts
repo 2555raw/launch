@@ -138,7 +138,7 @@ export async function listRewards(opts: { status?: string; userId?: string; limi
        r.period_start::text as "periodStart", r.period_end::text as "periodEnd", r.valid_steps as "validSteps",
        r.eligible_days as "eligibleDays", r.amount::float8 as amount, r.capped, r.token_symbol as "tokenSymbol",
        r.status, r.reviewed_by as "reviewedBy", r.rejection_reason as "rejectionReason", r.payout_id as "payoutId",
-       r.created_at as "createdAt"
+       r.kind, r.created_at as "createdAt"
      from rewards r join users u on u.id = r.user_id
      ${where.length ? "where " + where.join(" and ") : ""}
      order by r.created_at desc limit $${params.length}`,

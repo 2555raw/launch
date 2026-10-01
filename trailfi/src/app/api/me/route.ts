@@ -4,6 +4,7 @@ import { listPayouts } from "@/lib/services/payouts";
 import { estimateToday, listRewards, rewardSummary } from "@/lib/services/rewards";
 import { getSettings } from "@/lib/services/settings";
 import { listUserSteps } from "@/lib/services/steps";
+import { referralInfo } from "@/lib/services/referrals";
 import { getUser } from "@/lib/services/users";
 
 export const dynamic = "force-dynamic";
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
 /** Everything the private dashboard shows, for the signed-in wallet only. */
 export const GET = route(async () => {
   const me = await requireUser();
-  const [user, settings, today, summary, steps, rewards, payouts] = await Promise.all([
+  const [user, settings, today, summary, steps, rewards, payouts, referral] = await Promise.all([
     getUser(me.id),
     getSettings(),
     estimateToday(me.id),
@@ -19,6 +20,7 @@ export const GET = route(async () => {
     listUserSteps(me.id, 30),
     listRewards({ userId: me.id, status: "all", limit: 50 }),
     listPayouts({ userId: me.id, limit: 50 }),
+    referralInfo(me.id),
   ]);
   return json(
     serialize({
@@ -26,7 +28,9 @@ export const GET = route(async () => {
       settings: {
         dailyStepGoal: settings.dailyStepGoal,
         payoutTokenSymbol: settings.payoutTokenSymbol,
+        referralBonus: settings.referralBonus,
       },
+      referral,
       today,
       summary,
       steps,

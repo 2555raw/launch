@@ -15,6 +15,7 @@ import { cn } from "@/lib/cn";
 import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDate, fmtSteps } from "@/lib/format";
 import { TokenIcon } from "@/components/ui/TokenIcon";
+import { XLogo } from "@/components/ui/XLogo";
 
 interface Entry {
   id: string;
@@ -31,6 +32,7 @@ interface Entry {
 
 interface StepsResponse {
   steps: Entry[];
+  referralCode: string;
   summary: {
     daysLogged7: number;
     avgSteps7: number;
@@ -102,7 +104,7 @@ export function StepsUploadView() {
       </motion.div>
 
       <div className="grid gap-5 lg:grid-cols-3">
-        <UploadForm summary={summary} logged={steps} />
+        <UploadForm summary={summary} logged={steps} referralCode={data.referralCode} />
         <AverageCard summary={summary} />
       </div>
 
@@ -113,12 +115,12 @@ export function StepsUploadView() {
         <StatCard label="Verified · estimate" value={summary.verified} prefix="$" suffix={token} hint="Credited · request it from your dashboard" icon={CheckCircle2} delay={0.15} accent />
       </div>
 
-      <History steps={steps} token={token} />
+      <History steps={steps} token={token} referralCode={data.referralCode} />
     </div>
   );
 }
 
-function UploadForm({ summary, logged }: { summary: StepsResponse["summary"]; logged: Entry[] }) {
+function UploadForm({ summary, logged, referralCode }: { summary: StepsResponse["summary"]; logged: Entry[]; referralCode: string }) {
   const qc = useQueryClient();
   const fileInput = useRef<HTMLInputElement>(null);
   const days = useMemo(() => {
@@ -322,6 +324,7 @@ function UploadForm({ summary, logged }: { summary: StepsResponse["summary"]; lo
               </div>
               <div className="text-[11.5px] text-white/40">Pending review · estimate, not guaranteed</div>
             </div>
+            <ShareOnX entry={result} referralCode={referralCode} label="Share" />
             <button onClick={() => setResult(null)} className="rounded-lg p-1.5 text-white/40 hover:text-white" aria-label="Dismiss">
               <X className="h-4 w-4" />
             </button>
@@ -371,7 +374,31 @@ function AverageCard({ summary }: { summary: StepsResponse["summary"] }) {
   );
 }
 
-function History({ steps, token }: { steps: Entry[]; token: string }) {
+/** Opens an X post with the walker's share card; the link carries their referral code. */
+function ShareOnX({ entry, referralCode, label }: { entry: Entry; referralCode: string; label?: string }) {
+  const share = () => {
+    const url = `${window.location.origin}/share/${entry.id}?ref=${referralCode}`;
+    const text = `I walked ${fmtSteps(entry.steps)} steps on ${fmtDate(entry.day, { month: "short", day: "numeric" })} with Stepit. Walk, upload your steps and earn USDG 👟`;
+    window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, "_blank", "noopener,noreferrer");
+  };
+  return (
+    <button
+      type="button"
+      onClick={share}
+      title="Share on X"
+      aria-label={`Share your ${fmtSteps(entry.steps)} steps on X`}
+      className={cn(
+        "inline-flex shrink-0 items-center gap-1.5 rounded-lg text-white/45 transition hover:bg-lime-400/10 hover:text-lime-300",
+        label ? "border border-lime-400/30 px-3 py-2 text-[13px] text-lime-300" : "p-1.5",
+      )}
+    >
+      <XLogo className="h-3.5 w-3.5" />
+      {label}
+    </button>
+  );
+}
+
+function History({ steps, token, referralCode }: { steps: Entry[]; token: string; referralCode: string }) {
   const qc = useQueryClient();
   const remove = useMutation({
     mutationFn: (id: string) => api(`/api/steps/${id}`, { method: "DELETE" }),
@@ -401,7 +428,7 @@ function History({ steps, token }: { steps: Entry[]; token: string }) {
                 <th className="table-head">Screenshot</th>
                 <th className="table-head">Status</th>
                 <th className="table-head text-right">Estimated</th>
-                <th className="table-head w-12" aria-label="Actions" />
+                <th className="table-head w-20" aria-label="Actions" />
               </tr>
             </thead>
             <tbody>
@@ -422,7 +449,8 @@ function History({ steps, token }: { steps: Entry[]; token: string }) {
                       <TokenIcon symbol={token} className="h-3.5 w-3.5" /> {token}
                     </span>
                   </td>
-                  <td className="table-cell text-right">
+                  <td className="table-cell whitespace-nowrap text-right">
+                    {e.verification !== "rejected" && <ShareOnX entry={e} referralCode={referralCode} />}
                     {e.source === "manual_demo" && (e.verification === "unverified" || e.verification === "flagged") && (
                       <button
                         className="rounded-lg p-1.5 text-white/35 transition hover:bg-red-500/10 hover:text-red-300 disabled:opacity-40"

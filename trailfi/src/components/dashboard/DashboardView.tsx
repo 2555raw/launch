@@ -27,6 +27,8 @@ import { ProgressRing } from "@/components/ui/ProgressRing";
 import { EmptyState, Skeleton } from "@/components/ui/Skeleton";
 import { AddressAvatar } from "@/components/wallet/ConnectWallet";
 import { useCountUp } from "@/hooks/useCountUp";
+import { cn } from "@/lib/cn";
+import { XLogo } from "@/components/ui/XLogo";
 import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDate, fmtDateTime, fmtSteps, shortAddress } from "@/lib/format";
 import { PAYOUT_CHAIN_ID, SUPPORTED_CHAINS, explorerTxUrl } from "@/lib/web3/chains";
@@ -50,11 +52,13 @@ interface MeResponse {
   settings: {
     dailyStepGoal: number;
     payoutTokenSymbol: string;
+    referralBonus: number;
   };
   today: { today: string; steps: number; goal: number; amount: string; eligible: boolean; tokenSymbol: string };
   summary: { pending: number; approved: number; processing: number; paid: number; total: number };
   steps: StepEntry[];
-  rewards: Array<{ id: string; periodStart: string; periodEnd: string; amount: number; status: string; validSteps: number; tokenSymbol: string }>;
+  rewards: Array<{ id: string; kind: string; periodStart: string; periodEnd: string; amount: number; status: string; validSteps: number; tokenSymbol: string }>;
+  referral: { code: string; link: string; invited: number; rewarded: number; earned: number };
   payouts: Array<{
     id: string;
     amount: string;
@@ -353,6 +357,8 @@ export function DashboardView() {
         </Card>
       </div>
 
+      <InviteCard referral={data.referral} bonus={settings.referralBonus} token={token} />
+
       {/* Reward allocations */}
       <Card className="overflow-hidden">
         <div className="p-6 pb-4">
@@ -380,7 +386,7 @@ export function DashboardView() {
                       {fmtDate(r.periodStart)}
                       {r.periodEnd !== r.periodStart && ` to ${fmtDate(r.periodEnd)}`}
                     </td>
-                    <td className="table-cell font-mono">{fmtSteps(r.validSteps)}</td>
+                    <td className="table-cell font-mono">{r.kind === "referral" ? <span className="font-sans text-lime-300">Referral bonus</span> : fmtSteps(r.validSteps)}</td>
                     <td className="table-cell font-mono text-lime-300">
                       {fmtAmount(r.amount)}{" "}
                       <span className="inline-flex items-center gap-1 text-white/40">
@@ -519,5 +525,63 @@ function ActivityModal({ open, onClose, entries }: { open: boolean; onClose: () 
         </ul>
       )}
     </Modal>
+  );
+}
+
+function InviteCard({ referral, bonus, token }: { referral: MeResponse["referral"]; bonus: number; token: string }) {
+  const tweet = `I'm walking and earning ${token} with @Stepit 🥾 Upload your daily steps, get verified, get paid. Join me:`;
+  return (
+    <Card className="relative overflow-hidden p-6 sm:p-7">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-lime-400/15 blur-3xl" />
+      <div className="relative grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+        <div>
+          <CardHeader label="Invite friends" title={bonus > 0 ? `You both get $${fmtAmount(bonus)} ${token}` : "Bring your friends"} />
+          <p className="mt-2 max-w-md text-sm leading-relaxed text-white/55">
+            Share your link. When a friend joins through it and their first steps are verified, you both get the bonus.
+          </p>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+            <div className="flex min-w-0 flex-1 items-center rounded-xl border border-white/10 bg-black/30 px-3.5 font-mono text-[13px] text-white/80">
+              <span className="truncate py-3">{referral.link.replace(/^https?:\/\//, "")}</span>
+            </div>
+            <Button
+              variant="secondary"
+              icon={<Copy className="h-4 w-4" />}
+              onClick={() => {
+                void navigator.clipboard.writeText(referral.link);
+                toast.success("Invite link copied");
+              }}
+            >
+              Copy
+            </Button>
+            <Button
+              icon={<XLogo />}
+              onClick={() =>
+                window.open(
+                  `https://x.com/intent/post?text=${encodeURIComponent(tweet)}&url=${encodeURIComponent(referral.link)}`,
+                  "_blank",
+                  "noopener",
+                )
+              }
+            >
+              Share on X
+            </Button>
+          </div>
+        </div>
+        <dl className="grid grid-cols-3 gap-3">
+          <InviteStat k="Invited" v={String(referral.invited)} />
+          <InviteStat k="Verified" v={String(referral.rewarded)} />
+          <InviteStat k="Earned" v={`$${fmtAmount(referral.earned)}`} accent />
+        </dl>
+      </div>
+    </Card>
+  );
+}
+
+function InviteStat({ k, v, accent }: { k: string; v: string; accent?: boolean }) {
+  return (
+    <div className={cn("rounded-2xl border p-4 text-center", accent ? "border-lime-400/25 bg-lime-400/[0.06]" : "border-white/10 bg-white/[0.03]")}>
+      <dd className={cn("font-display text-2xl font-bold tabular", accent && "text-lime-300")}>{v}</dd>
+      <dt className="label mt-1 !text-[9.5px]">{k}</dt>
+    </div>
   );
 }

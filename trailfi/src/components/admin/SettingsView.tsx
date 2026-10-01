@@ -134,6 +134,12 @@ export function SettingsView() {
             <Field label="Daily goal shown to walkers" hint="Only used for the progress ring.">
               <input type="number" className="input font-mono" min={1000} max={100000} step={500} value={form.dailyStepGoal} onChange={(e) => set("dailyStepGoal", Number(e.target.value))} />
             </Field>
+            <Field
+              label={`Referral bonus, each (${form.payoutTokenSymbol})`}
+              hint="Paid to the walker and to the friend who invited them when the walker's first photo is verified. 0 turns it off."
+            >
+              <input type="number" className="input font-mono" min={0} step={0.25} value={form.referralBonus} onChange={(e) => set("referralBonus", Number(e.target.value))} />
+            </Field>
           </div>
           <p className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.05] p-4 text-[12.5px] text-lime-100/80">
             These rates are private. Walkers only see the amount each verified day earns. Verifying a photo credits that day

@@ -6,6 +6,7 @@ import { audit } from "@/lib/audit";
 import { one, query, tx } from "@/lib/db";
 import { tierReward } from "@/lib/rewards/engine";
 import { checkStepSubmission, initialVerification, utcToday, type StepSource } from "@/lib/steps/validation";
+import { creditReferralBonus } from "./referrals";
 import { getSettings, toTiers } from "./settings";
 
 export interface StepEntry {
@@ -196,6 +197,7 @@ export async function reviewStepEntry(entryId: string, input: unknown, actor: st
         );
         reward = amount;
       }
+      await creditReferralBonus(q, row.userId, row.day, settings.referralBonus, settings.payoutTokenSymbol, actor);
     }
     await audit(actor, `steps.${decision}`, "step_entry", entryId, { note, day: row.day, steps: row.steps, reward }, q);
     return { row, reward };
@@ -203,4 +205,13 @@ export async function reviewStepEntry(entryId: string, input: unknown, actor: st
   const { userId: _userId, ...entry } = row;
   void _userId;
   return { ...entry, reward };
+}
+
+/** What a public share link shows: the day and the step count, never the wallet. */
+export async function getShareEntry(entryId: string): Promise<{ day: string; steps: number } | null> {
+  if (!/^[0-9a-f-]{36}$/i.test(entryId)) return null;
+  return one<{ day: string; steps: number }>(
+    "select day::text as day, steps from step_entries where id = $1 and verification <> 'rejected'",
+    [entryId],
+  );
 }

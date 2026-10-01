@@ -230,6 +230,60 @@ export async function confirmOnChain(
   }
 }
 
+/** Admin: re-create a ledger entry for a token whose creation transaction checks out on-chain. */
+export async function restoreLaunch(input: Record<string, unknown>): Promise<Result<{ launch: Launch }>> {
+  try {
+    const { creator, signature, address, submittedAt, ...fields } = input;
+    const parsed = draftInputSchema.safeParse({ mode: "create", websiteMode: "hosted", ...fields });
+    if (!parsed.success) return { ok: false, status: 422, error: JSON.stringify(fieldErrors(parsed.error)) };
+    if (typeof creator !== "string" || typeof signature !== "string" || typeof address !== "string") {
+      return { ok: false, status: 422, error: "creator, signature and address are required." };
+    }
+    const d = parsed.data;
+    const adapter = onchainAdapter(d.pad);
+    if (!adapter) return { ok: false, status: 422, error: "That pad does not launch on-chain." };
+    if ((await store().listLaunches()).some((l) => l.address?.toLowerCase() === address.toLowerCase())) {
+      return { ok: false, status: 409, error: "That token is already on the ledger." };
+    }
+    const launch: Launch = {
+      id: newId("drf"),
+      mode: "create",
+      status: "draft",
+      name: d.name,
+      ticker: d.ticker,
+      description: d.description,
+      image: d.image,
+      chain: d.chain as Launch["chain"],
+      pad: d.pad,
+      pair: d.pair,
+      x: d.x,
+      website: d.website,
+      openingBuy: d.openingBuy,
+      marketCapUsd: null,
+      createdAt: new Date().toISOString(),
+      creator: adapter.wallet === "evm" ? creator.toLowerCase() : creator,
+      mint: adapter.wallet === "solana" ? address : undefined,
+    };
+    const result = await adapter.verify(launch, signature);
+    if (result.state !== "live" || result.token.toLowerCase() !== address.toLowerCase()) {
+      return { ok: false, status: 422, error: result.state === "failed" ? result.reason : "That transaction is not confirmed on-chain." };
+    }
+    const when = typeof submittedAt === "string" && !Number.isNaN(Date.parse(submittedAt)) ? submittedAt : launch.createdAt;
+    await store().insertLaunch({
+      ...launch,
+      status: "live",
+      address: result.token,
+      signature,
+      createdAt: when,
+      submittedAt: when,
+      marketCapUsd: await adapterFor(d.pad).marketCap({ ...launch, address: result.token }).catch(() => null),
+    });
+    return { ok: true, launch: (await store().getLaunch(launch.id))! };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
 let lastRefresh = 0;
 
 /** Refresh live market caps in the background, at most once a minute. */

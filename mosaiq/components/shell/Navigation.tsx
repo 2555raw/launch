@@ -73,7 +73,7 @@ export function Topbar() {
         <button
           type="button"
           onClick={openPalette}
-          className="group ml-auto flex h-10 items-center gap-3 rounded-full border border-line-strong bg-surface/60 px-3 text-sm text-mute transition hover:border-white/20 hover:text-fog sm:px-4 lg:mx-auto lg:w-full lg:max-w-xl"
+          className="group ml-auto flex h-10 items-center gap-3 rounded-full border border-line-strong bg-surface/60 px-3 text-sm text-mute transition hover:border-accent/40 hover:text-fog sm:px-4 lg:mx-auto lg:w-full lg:max-w-xl"
           aria-label="Search tokens, creators and pages"
         >
           <Search className="size-4" aria-hidden="true" />

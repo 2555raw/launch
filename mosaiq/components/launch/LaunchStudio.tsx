@@ -318,10 +318,10 @@ export function LaunchStudio({
               role="tab"
               aria-selected={form.mode === m}
               onClick={() => update("mode", m)}
-              className="relative rounded-lg px-6 py-2.5 text-sm font-medium capitalize text-fog transition-colors aria-selected:text-[#0a0d07]"
+              className="relative rounded-lg px-6 py-2.5 text-sm font-medium capitalize text-fog transition-colors aria-selected:text-white"
             >
               {form.mode === m && (
-                <motion.span layoutId="mode-pill" className="absolute inset-0 rounded-lg bg-[linear-gradient(180deg,#b6ff3b,#9be22b)] shadow-[0_6px_20px_-8px_rgb(182_255_59/0.8)]" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
+                <motion.span layoutId="mode-pill" className="absolute inset-0 rounded-lg bg-[linear-gradient(180deg,#3b82f6,#2563eb)] shadow-[0_6px_20px_-8px_rgb(37_99_235/0.45)]" transition={{ type: "spring", stiffness: 420, damping: 34 }} />
               )}
               <span className="relative">{m}</span>
             </button>
@@ -344,7 +344,7 @@ export function LaunchStudio({
                     onClick={() => selectChain(c.id)}
                     className={cn(
                       "flex h-12 items-center gap-2.5 rounded-xl border px-3 text-sm transition-colors",
-                      form.chain === c.id ? "border-accent bg-accent/10 text-bone shadow-[0_0_18px_-6px_rgb(182_255_59/0.8)]" : "border-line-strong text-fog hover:border-accent/50 hover:text-bone",
+                      form.chain === c.id ? "border-accent bg-accent/10 text-accent shadow-[0_0_18px_-6px_rgb(37_99_235/0.45)]" : "border-line-strong text-fog hover:border-accent/50 hover:text-bone",
                     )}
                   >
                     <ChainDot chain={c.id} className="size-6" />
@@ -365,7 +365,7 @@ export function LaunchStudio({
                     onClick={() => selectPad(p.id)}
                     className={cn(
                       "flex items-center gap-3 rounded-xl border p-2.5 text-left transition-colors",
-                      form.pad === p.id ? "border-accent bg-accent/10 shadow-[0_0_18px_-6px_rgb(182_255_59/0.8)]" : "border-line-strong hover:border-accent/50",
+                      form.pad === p.id ? "border-accent bg-accent/10 shadow-[0_0_18px_-6px_rgb(37_99_235/0.45)]" : "border-line-strong hover:border-accent/50",
                     )}
                   >
                     <PadGlyph pad={p.id} size="md" className="!rounded-lg" />
@@ -373,7 +373,7 @@ export function LaunchStudio({
                       <span className="block text-sm font-medium">{p.name}</span>
                       <span className="hidden truncate text-xs text-mute sm:block">{p.blurb}</span>
                     </span>
-                    <span aria-hidden="true" className={cn("mr-1 size-1.5 rounded-full", form.pad === p.id ? "bg-accent-2 shadow-[0_0_8px_1px_rgb(230_255_92/0.8)]" : "bg-transparent")} />
+                    <span aria-hidden="true" className={cn("mr-1 size-1.5 rounded-full", form.pad === p.id ? "bg-accent-2 shadow-[0_0_8px_1px_rgb(14_165_233/0.6)]" : "bg-transparent")} />
                   </button>
                 ))}
               </div>
@@ -893,7 +893,7 @@ function ImageDrop({
         }}
         className={cn(
           "flex cursor-pointer items-center gap-4 rounded-2xl border border-dashed p-4 transition-colors focus-within:border-accent/70",
-          over ? "border-accent bg-accent/5" : error ? "border-danger/60" : "border-line-strong hover:border-white/30 hover:bg-surface-2/40",
+          over ? "border-accent bg-accent/5" : error ? "border-danger/60" : "border-line-strong hover:border-accent/40 hover:bg-surface-2/40",
         )}
       >
         <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl bg-surface-3">

@@ -22,7 +22,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
   return (
     <div className="mx-auto max-w-6xl space-y-12 px-4 py-8 sm:px-6 sm:py-10">
       <section className="card relative overflow-hidden p-7 sm:p-10">
-        <div aria-hidden="true" className="absolute -right-24 -top-24 size-72 rounded-full bg-white/5 blur-3xl" />
+        <div aria-hidden="true" className="absolute -right-24 -top-24 size-72 rounded-full bg-accent/10 blur-3xl" />
         <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="label">The directory</p>

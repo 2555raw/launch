@@ -37,11 +37,11 @@ function TokenCa({ ca }: { ca: string | null }) {
     <button type="button" onClick={() => copy(ca, "ca")} aria-label={`Copy contract address ${ca}`} className="ca-shine group mx-auto mb-6 block w-full max-w-[460px] text-left">
       <span className="ca-inner flex items-center gap-3 py-2.5 pl-5 pr-2.5">
         <span className="metal shrink-0 font-mono text-[11px] font-semibold uppercase tracking-[0.22em]">
-          <span className="mr-2 inline-block size-1.5 -translate-y-px animate-pulse rounded-full bg-accent-2 align-middle shadow-[0_0_10px_2px_rgb(230_255_92/0.8)]" />
+          <span className="mr-2 inline-block size-1.5 -translate-y-px animate-pulse rounded-full bg-accent-2 align-middle shadow-[0_0_10px_2px_rgb(14_165_233/0.6)]" />
           CA
         </span>
         <span className="min-w-0 flex-1 truncate font-mono text-sm text-bone">{ca}</span>
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[linear-gradient(180deg,#b6ff3b,#9be22b)] px-3.5 py-1.5 text-xs font-semibold text-[#0a0d07] shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_4px_14px_-4px_rgb(182_255_59/0.8)] transition group-hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.3),0_6px_20px_-4px_rgb(230_255_92/0.8)]">
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-[linear-gradient(180deg,#3b82f6,#2563eb)] px-3.5 py-1.5 text-xs font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_4px_14px_-4px_rgb(37_99_235/0.6)] transition group-hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_6px_20px_-4px_rgb(14_165_233/0.6)]">
           {copied === "ca" ? <Check className="size-3.5" aria-hidden="true" /> : <Copy className="size-3.5" aria-hidden="true" />}
           {copied === "ca" ? "Copied" : "Copy"}
         </span>
@@ -76,7 +76,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
       <Spark className="right-5 top-5" />
       <Spark className="bottom-5 left-5" />
       <Spark className="bottom-5 right-5" />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40rem_24rem_at_75%_40%,rgb(182_255_59/0.14),transparent_70%)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(40rem_24rem_at_75%_40%,rgb(37_99_235/0.08),transparent_70%)]" />
 
       <div className="relative grid grid-cols-1 items-center gap-14 lg:grid-cols-[1.1fr_1fr]">
         <div>
@@ -117,7 +117,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
             chains. Here you fill a single form and launch it from your own wallet, or let your agent do it. Home is{" "}
             <Link
               href={`/launch?chain=${defaultPad.chain}&pad=${defaultPad.id}`}
-              className="inline-flex translate-y-[3px] items-center gap-1.5 rounded-full border border-line-strong bg-surface-2 py-0.5 pl-1 pr-2.5 text-sm text-bone transition hover:border-white/30"
+              className="inline-flex translate-y-[3px] items-center gap-1.5 rounded-full border border-line-strong bg-surface-2 py-0.5 pl-1 pr-2.5 text-sm text-bone transition hover:border-accent/40"
             >
               <PadGlyph pad={defaultPad.id} size="sm" className="!size-4 !rounded-full" /> {defaultPad.name}
             </Link>{" "}
@@ -171,7 +171,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
                     rotateY: d * -18,
                     scale: d === 0 ? 1 : 0.9,
                     opacity: visible ? 1 : 0,
-                    filter: d === 0 ? "brightness(1)" : "brightness(0.55)",
+                    filter: d === 0 ? "brightness(1) saturate(1)" : "brightness(0.97) saturate(0.7) blur(0.4px)",
                   }}
                   transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 170, damping: 24 }}
                   drag={d === 0 ? "x" : false}
@@ -185,7 +185,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
                     tabIndex={d === 0 ? 0 : -1}
                     onClick={() => d !== 0 && setIndex(i)}
                     aria-label={d === 0 ? `${p.name} on ${c.name}` : `Show ${p.name}`}
-                    className="flex size-full cursor-grab flex-col rounded-[22px] border border-white/15 bg-[linear-gradient(160deg,#222c1a_0%,#121810_45%,#080a07_100%)] p-4 text-left shadow-[0_30px_60px_-20px_rgb(0_0_0/0.9),inset_0_1px_0_rgb(255_255_255/0.08)] active:cursor-grabbing"
+                    className="flex size-full cursor-grab flex-col rounded-[22px] border border-line-strong bg-[linear-gradient(160deg,#ffffff_0%,#f3f6fc_60%,#e9eff9_100%)] p-4 text-left shadow-[0_30px_60px_-24px_rgb(15_23_42/0.35),inset_0_1px_0_rgb(255_255_255/0.9)] active:cursor-grabbing"
                   >
                     <span className="flex items-start justify-between">
                       <span className="inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-bone">
@@ -193,7 +193,7 @@ export function Hero({ counts, ca }: { counts: Record<string, number>; ca: strin
                       </span>
                       <span className="font-mono text-[11px] text-fog">{String(i + 1).padStart(2, "0")}</span>
                     </span>
-                    <span className="mx-auto mt-6 grid size-[104px] place-items-center rounded-full border-[3px] border-white/10 bg-[radial-gradient(circle_at_35%_30%,#232e1c,#070906)] shadow-[inset_0_2px_10px_rgb(0_0_0/0.8),0_0_0_1px_rgb(255_255_255/0.06)] sm:size-[116px]">
+                    <span className="mx-auto mt-6 grid size-[104px] place-items-center rounded-full border-[3px] border-white bg-[radial-gradient(circle_at_35%_30%,#ffffff,#e3e9f4)] shadow-[inset_0_2px_10px_rgb(15_23_42/0.12),0_0_0_1px_rgb(15_23_42/0.08),0_10px_24px_-12px_rgb(37_99_235/0.4)] sm:size-[116px]">
                       <PadGlyph pad={p.id} size="xl" className="!size-[72px] !rounded-full sm:!size-[84px]" />
                     </span>
                     <span className="mt-auto text-center">

@@ -13,8 +13,8 @@ function Mark({ px }: { px: number }) {
     <svg width={px} height={px} viewBox="-24 -24 148 148">
       <defs>
         <linearGradient id="og-mark" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#E6FF5C" />
-          <stop offset="1" stopColor="#8FE024" />
+          <stop offset="0" stopColor="#2563EB" />
+          <stop offset="1" stopColor="#0EA5E9" />
         </linearGradient>
       </defs>
       {[0, 90, 180, 270].map((r) => (
@@ -36,8 +36,8 @@ export default function OpengraphImage() {
           height: "100%",
           display: "flex",
           alignItems: "center",
-          background: "radial-gradient(700px 420px at 78% 50%, rgba(182,255,59,0.28), transparent 70%), radial-gradient(500px 300px at 10% 0%, rgba(230,255,92,0.10), transparent 70%), #070906",
-          color: "#F2F7EC",
+          background: "radial-gradient(700px 420px at 78% 50%, rgba(37,99,235,0.14), transparent 70%), radial-gradient(500px 300px at 10% 0%, rgba(14,165,233,0.10), transparent 70%), #F5F7FB",
+          color: "#0B1220",
           padding: 80,
           fontFamily: "sans-serif",
         }}
@@ -49,9 +49,9 @@ export default function OpengraphImage() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", marginTop: 44 }}>
             <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1 }}>Every pad.</div>
-            <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1, color: "#C8FF5A" }}>Your pick.</div>
+            <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1, color: "#2563EB" }}>Your pick.</div>
           </div>
-          <div style={{ fontSize: 26, color: "#A3AD99", marginTop: 44 }}>padpicker.xyz · People draft, agents launch</div>
+          <div style={{ fontSize: 26, color: "#475569", marginTop: 44 }}>padpicker.xyz · People draft, agents launch</div>
         </div>
         <Mark px={330} />
       </div>

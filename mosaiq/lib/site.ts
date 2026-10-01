@@ -11,7 +11,7 @@ export const site = {
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
   /** Set to null to hide every X link. */
   social: {
-    x: { handle: "@usePicker", url: "https://x.com/usePicker" } as { handle: string; url: string } | null,
+    x: null as { handle: string; url: string } | null,
   },
   keyPrefix: "pk_live_",
   /** The Picker token's contract address, shown in the home hero. Empty hides it; TOKEN_CA overrides it. */

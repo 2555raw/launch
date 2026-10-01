@@ -89,7 +89,7 @@ export function TopTokens({ launches }: { launches: PublicLaunch[] }) {
                           <button
                             type="button"
                             onClick={() => copy(l.address!, l.id)}
-                            className="flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-ink-2 px-4 py-3 text-left font-mono text-sm transition hover:border-white/25"
+                            className="flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-ink-2 px-4 py-3 text-left font-mono text-sm transition hover:border-accent/40"
                             aria-label={`Copy contract address of ${l.name}`}
                           >
                             <span className="min-w-0 break-all">{l.address}</span>

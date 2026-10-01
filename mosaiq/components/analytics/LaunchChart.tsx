@@ -199,7 +199,7 @@ function Segmented<T extends string>({
           type="button"
           aria-pressed={value === v}
           onClick={() => onChange(v)}
-          className={cn("rounded-full px-3 py-1 text-xs transition-colors", value === v ? "bg-accent text-[#0a0d07] shadow-[0_0_14px_-4px_rgb(182_255_59/0.9)]" : "text-fog hover:text-bone")}
+          className={cn("rounded-full px-3 py-1 text-xs transition-colors", value === v ? "bg-accent text-white shadow-[0_0_14px_-4px_rgb(37_99_235/0.5)]" : "text-fog hover:text-bone")}
         >
           {text}
         </button>

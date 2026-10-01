@@ -272,7 +272,7 @@ export function OnChainLaunch({
             <button
               type="button"
               onClick={() => copy(run.token, "mint")}
-              className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface-2 px-4 py-3 text-left font-mono text-sm transition hover:border-white/25"
+              className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl border border-line bg-surface-2 px-4 py-3 text-left font-mono text-sm transition hover:border-accent/40"
             >
               <span className="min-w-0 break-all">{run.token}</span>
               {copied === "mint" ? <Check className="size-4 shrink-0 text-mint" /> : <Copy className="size-4 shrink-0 text-fog" />}

@@ -57,7 +57,7 @@ export function DisclosureGate() {
           onEscapeKeyDown={(e) => e.preventDefault()}
           onPointerDownOutside={(e) => e.preventDefault()}
           onInteractOutside={(e) => e.preventDefault()}
-          className="fixed left-1/2 top-1/2 z-[91] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border border-line-strong bg-[#0c100a] p-6 shadow-2xl shadow-black/70 sm:p-8"
+          className="fixed left-1/2 top-1/2 z-[91] max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl border border-line-strong bg-[#ffffff] p-6 shadow-2xl shadow-black/70 sm:p-8"
         >
           <span className="grid size-11 place-items-center rounded-2xl bg-surface-3 text-bone">
             <ShieldAlert className="size-5" aria-hidden="true" />

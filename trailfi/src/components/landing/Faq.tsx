@@ -21,7 +21,7 @@ const QUESTIONS = [
   },
   {
     q: "How are my steps verified?",
-    a: "The Stepit mobile app reads your daily total from Apple Health or Google Health Connect and sends it signed. Manual entries are reviewed by the team before they count. Duplicates, future dates and implausible numbers are rejected.",
+    a: "You upload your daily total with a screenshot from your phone's health app, and the team checks that the date and the steps match before the day counts. Duplicates, future dates and implausible numbers are rejected.",
   },
   {
     q: "Which wallet do I need?",

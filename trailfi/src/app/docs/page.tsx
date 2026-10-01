@@ -16,12 +16,12 @@ export default function DocsPage() {
       <Section title="2. Step data and verification">
         <ul>
           <li>
-            <strong>Apple Health</strong> and <strong>Google Health Connect</strong> are read on your phone by the Stepit
-            companion app and sent to Stepit signed. These entries start as verified.
+            <strong>Upload your steps</strong> on the Upload steps page: pick the day, type your total and attach a
+            screenshot from your phone&apos;s health app showing the date and the steps.
           </li>
           <li>
-            <strong>Manual entries</strong> from the browser exist for demonstration. They are stored as unverified and
-            only become payable if an administrator reviews and verifies them.
+            Every upload starts as <strong>unverified</strong>. It only becomes payable after the team checks the
+            screenshot and verifies it. You can delete an upload and send it again while it is still waiting for review.
           </li>
           <li>
             One entry per day and source. Entries cannot be overwritten; future dates, stale dates and implausible values

@@ -1,4 +1,4 @@
-import { Smartphone } from "lucide-react";
+import { Coins, ShieldCheck, Upload } from "lucide-react";
 import Image from "next/image";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { ButtonLink } from "@/components/ui/Button";
@@ -31,29 +31,29 @@ export function CallToAction() {
                 Open dashboard
               </ButtonLink>
             </div>
-            <div className="mt-10">
-              <div className="label mb-3">Mobile app · Apple Health &amp; Health Connect sync</div>
-              <div className="flex flex-wrap gap-3">
-                {[
-                  ["Coming soon on the", "App Store"],
-                  ["Coming soon on", "Google Play"],
-                ].map(([sub, store]) => (
-                  <div
-                    key={store}
-                    className="flex items-center gap-3 rounded-2xl border border-white/15 bg-black/50 px-4 py-2.5 backdrop-blur-md transition hover:-translate-y-0.5 hover:border-lime-400/40"
-                  >
-                    <Smartphone className="h-5 w-5 text-white/80" />
-                    <span className="leading-tight">
-                      <span className="block text-[10px] uppercase tracking-[0.14em] text-white/50">{sub}</span>
-                      <span className="block text-[15px] font-semibold">{store}</span>
+            <ol className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
+              {[
+                { icon: Upload, title: "Upload your steps", sub: "A screenshot from your health app" },
+                { icon: ShieldCheck, title: "Get verified", sub: "The team checks every upload" },
+                { icon: Coins, title: "Get paid", sub: "In USDG on Robinhood Chain" },
+              ].map((s, i) => (
+                <li
+                  key={s.title}
+                  className="flex items-center gap-3 rounded-2xl border border-white/15 bg-black/50 px-4 py-3 backdrop-blur-md transition hover:-translate-y-0.5 hover:border-lime-400/40"
+                >
+                  <span className="relative grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-lime-400/15 text-lime-300">
+                    <s.icon className="h-4 w-4" />
+                    <span className="absolute -right-1.5 -top-1.5 grid h-4 w-4 place-items-center rounded-full bg-lime-400 font-mono text-[9px] font-bold text-ink-950">
+                      {i + 1}
                     </span>
-                    <span className="ml-2 rounded-full bg-lime-400/15 px-2 py-0.5 font-mono text-[9.5px] uppercase tracking-wider text-lime-300">
-                      Soon
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  </span>
+                  <span className="leading-tight">
+                    <span className="block text-[14px] font-semibold">{s.title}</span>
+                    <span className="block text-[11.5px] text-white/50">{s.sub}</span>
+                  </span>
+                </li>
+              ))}
+            </ol>
           </div>
         </div>
       </Reveal>

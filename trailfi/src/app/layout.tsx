@@ -6,6 +6,10 @@ import "./globals.css";
 import type { Metadata, Viewport } from "next";
 import { Providers } from "@/components/providers/Providers";
 
+// Render every page per request so a new deploy shows up on the next reload, instead of
+// prerendered HTML that browsers and proxies keep for a year. Hashed JS/CSS stay cached.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   title: { default: "Stepit · Walk. Explore. Earn.", template: "%s · Stepit" },

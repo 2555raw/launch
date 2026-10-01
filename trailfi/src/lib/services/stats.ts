@@ -28,7 +28,8 @@ export async function payoutTokenReady(address: `0x${string}`): Promise<boolean>
 /** Live numbers for the public landing page. Totals only: no wallets, no rates. */
 export async function publicStats() {
   const [walkers, today, series, paid, settings] = await Promise.all([
-    one<{ n: number }>("select count(*)::int as n from users where status = 'active'"),
+    // Admins run the platform; they are not counted as walkers.
+    one<{ n: number }>("select count(*)::int as n from users where status = 'active' and role <> 'admin'"),
     one<{ walkers: number; steps: number; goalMet: number }>(
       `with d as (select user_id, max(steps) as steps from step_entries
                    where day = current_date and verification <> 'rejected' group by user_id)

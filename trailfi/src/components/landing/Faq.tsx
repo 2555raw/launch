@@ -13,7 +13,7 @@ const QUESTIONS = [
   },
   {
     q: "Are rewards guaranteed?",
-    a: "No. They depend on how much the token generates in trading fees each day and on how many people walk. The dashboard shows estimates, and they are always labelled as such.",
+    a: "Yes, as long as you walk. Every day you upload your steps and the team verifies your screenshot earns a reward, and you can request it to your wallet whenever you like. The more you walk, the more you earn. Days with too few steps, or uploads that don't match the screenshot, don't earn.",
   },
   {
     q: "Do I need to buy $STEPIT to earn?",

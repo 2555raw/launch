@@ -36,8 +36,10 @@ export async function assertBalance(chainKey: string, owner: Address, value: big
   const c = evmChains[chainKey];
   const balance = await evmClient(chainKey).getBalance({ address: owner }).catch(() => null);
   if (balance === null || balance > value) return;
+  const { symbol } = c.nativeCurrency;
+  if (value === 0n) throw new LaunchError(`Your wallet needs a little ${symbol} on ${c.chainName} to pay the gas.`);
   const need = Number(value) / 10 ** c.nativeCurrency.decimals;
-  throw new LaunchError(`Your wallet needs more than ${need} ${c.nativeCurrency.symbol} on ${c.chainName} for this launch, plus gas.`);
+  throw new LaunchError(`Your wallet needs more than ${need} ${symbol} on ${c.chainName} for this launch, plus gas.`);
 }
 
 /** Turn a simulation revert into one readable line. */

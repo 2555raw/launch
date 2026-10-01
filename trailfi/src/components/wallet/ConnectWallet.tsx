@@ -30,7 +30,7 @@ export function ConnectWallet({ size = "md", className, label = "Connect Wallet"
   const [sheetOpen, setSheetOpen] = useState(false);
   return (
     <ConnectButton.Custom>
-      {({ account, chain, openConnectModal, openChainModal, mounted, authenticationStatus }) => {
+      {({ account, chain, openConnectModal, mounted, authenticationStatus }) => {
         const ready = mounted && authenticationStatus !== "loading";
         const connected = ready && account && chain && authenticationStatus === "authenticated";
 
@@ -54,13 +54,6 @@ export function ConnectWallet({ size = "md", className, label = "Connect Wallet"
               </Button>
               <MobileWalletSheet open={sheetOpen} onClose={() => setSheetOpen(false)} openConnectModal={openConnectModal} />
             </>
-          );
-        }
-        if (chain.unsupported) {
-          return (
-            <Button size={size} variant="danger" className={className} onClick={openChainModal}>
-              Wrong network
-            </Button>
           );
         }
         return <AccountMenu address={account.address} chainName={chain.name ?? "Network"} size={size} />;

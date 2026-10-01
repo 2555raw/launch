@@ -11,6 +11,8 @@ import {
   walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { createConfig, http, type Config } from "wagmi";
+import type { Chain } from "viem";
+import { arbitrum, base, mainnet, optimism, polygon } from "viem/chains";
 import { getPayoutChain } from "./chains";
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "";
@@ -29,12 +31,15 @@ export function makeWagmiConfig(): Config {
     { appName: "Stepit", projectId: projectId || "trailfi-local-no-walletconnect" },
   );
 
-  // Every wallet connects on the one network Stepit runs on (Robinhood Chain by default).
-  const chain = getPayoutChain();
+  // Walkers only sign a message, so any common network is fine for connecting. Robinhood Chain
+  // comes first: wallets are asked to switch to it, and payouts are always sent there.
+  const payout = getPayoutChain();
+  const others = [mainnet, base, arbitrum, optimism, polygon].filter((c) => c.id !== payout.id);
+  const chains: [Chain, ...Chain[]] = [payout, ...others];
   return createConfig({
-    chains: [chain],
+    chains,
     connectors,
-    transports: { [chain.id]: http() },
+    transports: Object.fromEntries(chains.map((c) => [c.id, http()])),
     ssr: true,
   });
 }

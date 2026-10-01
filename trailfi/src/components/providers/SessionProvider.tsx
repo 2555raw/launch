@@ -1,8 +1,9 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAccount } from "wagmi";
+import { useAccount, useSwitchChain } from "wagmi";
+import { PAYOUT_CHAIN_ID } from "@/lib/web3/chains";
 
 export interface SessionUser {
   id: string;
@@ -22,7 +23,8 @@ const SessionContext = createContext<SessionState | null>(null);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient();
-  const { address, status: accountStatus } = useAccount();
+  const { address, chainId, status: accountStatus } = useAccount();
+  const { switchChain } = useSwitchChain();
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["session"],
     queryFn: async (): Promise<SessionUser | null> => {
@@ -45,6 +47,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (mismatch) void signOut();
   }, [mismatch, signOut]);
+
+  // Once signed in, ask the wallet one time per visit to move to Robinhood Chain (adding it if
+  // needed). Wallets that can't, like Phantom, simply stay where they are: signing in works anywhere.
+  const askedChain = useRef(false);
+  useEffect(() => {
+    if (!data || mismatch || accountStatus !== "connected" || !chainId || chainId === PAYOUT_CHAIN_ID || askedChain.current) return;
+    askedChain.current = true;
+    try {
+      if (sessionStorage.getItem("stepit:chain-asked")) return;
+      sessionStorage.setItem("stepit:chain-asked", "1");
+    } catch {
+      /* storage unavailable: ask anyway */
+    }
+    switchChain({ chainId: PAYOUT_CHAIN_ID }, { onError: () => undefined });
+  }, [data, mismatch, accountStatus, chainId, switchChain]);
 
   const value = useMemo<SessionState>(() => {
     const connected = accountStatus === "connected";

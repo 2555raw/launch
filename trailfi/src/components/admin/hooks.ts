@@ -27,6 +27,7 @@ export interface AdminOverview {
     tierThreshold: number;
     tierMax: number;
     tierCap: number;
+    ratePoints: [number, number][];
     updatedBy: string | null;
     updatedAt: string;
   };

@@ -205,32 +205,50 @@ export function estimateDailyReward(input: {
  *   min ≤ steps < threshold     → avg × 0.85 … avg × 1.15, rising with steps
  *   steps ≥ threshold           → avg × 1.15 … max, reached 8,000 steps above the threshold
  */
+/** A rate milestone: a day with exactly `steps` steps pays `amount`. */
+export type RatePoint = [steps: number, amount: number];
+
 export interface RewardTiers {
   /** Steps a day needs before it earns anything. */
   tierMin: number;
-  /** What a day earns at exactly tierThreshold steps. */
+  /** Milestones in ascending step order. When set, they define the rates. */
+  points?: RatePoint[];
+  /** Older three-point form, used when no milestones are set. */
   tierAvg: number;
   tierThreshold: number;
-  /** What a day earns from tierCap steps on (the most a day can earn). */
   tierMax: number;
   tierCap: number;
 }
 
+export function ratePoints(t: RewardTiers): RatePoint[] {
+  if (t.points && t.points.length >= 2) return t.points;
+  return [
+    [t.tierMin, 0],
+    [t.tierThreshold, t.tierAvg],
+    [t.tierCap, t.tierMax],
+  ];
+}
+
 /**
- * What one day of verified steps earns:
- *   tierMin … tierThreshold → rises in a straight line from 0 to tierAvg
- *   tierThreshold … tierCap → rises from tierAvg to tierMax
- *   tierCap and above        → tierMax
+ * What one day of verified steps earns: the straight-line value between the
+ * two milestones around its step count, and the last milestone's amount from
+ * there on. Rounded to the cent.
  */
 export function tierReward(steps: number, t: RewardTiers): number {
   if (!Number.isFinite(steps) || steps <= t.tierMin) return 0;
-  let amount: number;
-  if (steps <= t.tierThreshold) {
-    amount = (t.tierAvg * (steps - t.tierMin)) / Math.max(1, t.tierThreshold - t.tierMin);
-  } else if (steps < t.tierCap) {
-    amount = t.tierAvg + ((t.tierMax - t.tierAvg) * (steps - t.tierThreshold)) / Math.max(1, t.tierCap - t.tierThreshold);
+  const pts = ratePoints(t);
+  let amount = pts[pts.length - 1][1];
+  if (steps < pts[0][0]) {
+    amount = 0;
   } else {
-    amount = t.tierMax;
+    for (let i = 1; i < pts.length; i++) {
+      const [s0, a0] = pts[i - 1];
+      const [s1, a1] = pts[i];
+      if (steps <= s1) {
+        amount = a0 + ((a1 - a0) * (steps - s0)) / Math.max(1, s1 - s0);
+        break;
+      }
+    }
   }
   return Math.round(amount * 100) / 100;
 }
@@ -238,11 +256,15 @@ export function tierReward(steps: number, t: RewardTiers): number {
 export function validateTiers(t: RewardTiers): string[] {
   const errors: string[] = [];
   if (!(t.tierMin >= 0)) errors.push("the minimum steps must be 0 or more");
-  if (!(t.tierThreshold > t.tierMin)) errors.push("the first step count must be above the minimum");
-  if (!(t.tierCap > t.tierThreshold)) errors.push("the top step count must be above the first one");
-  if (!(t.tierAvg >= 0)) errors.push("the first amount must be 0 or more");
-  if (!(t.tierMax >= t.tierAvg)) errors.push("the top amount must be at least the first amount");
-  return errors;
+  const pts = ratePoints(t);
+  if (pts.length < 2) errors.push("add at least two milestones");
+  for (let i = 0; i < pts.length; i++) {
+    const [s, a] = pts[i];
+    if (!(s >= 0) || !(a >= 0)) errors.push("steps and amounts must be 0 or more");
+    if (i > 0 && !(s > pts[i - 1][0])) errors.push("each milestone needs more steps than the one before");
+    if (i > 0 && !(a >= pts[i - 1][1])) errors.push("each milestone must pay at least as much as the one before");
+  }
+  return [...new Set(errors)];
 }
 
 /** A distribution under the tiered rates: each eligible day pays tierReward(steps). */

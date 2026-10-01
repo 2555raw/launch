@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { History, Save } from "lucide-react";
+import { History, Plus, Save, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
@@ -49,12 +49,15 @@ export function SettingsView() {
   const tokens = KNOWN_TOKENS[PAYOUT_CHAIN_ID] ?? [];
   const preset = tokens.find((t) => t.address.toLowerCase() === form.payoutTokenAddress.toLowerCase());
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => (f ? { ...f, [k]: v } : f));
+  const setPoint = (i: number, part: 0 | 1, value: number) =>
+    set(
+      "ratePoints",
+      form.ratePoints.map((p, j) => (j === i ? ((part === 0 ? [value, p[1]] : [p[0], value]) as [number, number]) : p)),
+    );
+  const tiers = { ...form, points: form.ratePoints };
 
   // What a day earns under the edited rates.
-  const example = [1000, 3500, form.tierThreshold, Math.round((form.tierThreshold + form.tierCap) / 2), form.tierCap, form.tierCap + 5000].map((n) => ({
-    steps: n,
-    amount: tierReward(n, form),
-  }));
+  const example = [1892, 3500, 5240, 7000, 8500, 10000, 15000].map((n) => ({ steps: n, amount: tierReward(n, tiers) }));
 
   return (
     <div>
@@ -71,19 +74,60 @@ export function SettingsView() {
       <div className="grid gap-5 xl:grid-cols-3">
         <Card className="space-y-6 p-6 xl:col-span-2">
           <CardHeader label="Rates" title="What a day of steps pays" />
+          <div>
+            <div className="grid grid-cols-[1fr_1fr_auto] gap-3 px-1 pb-2">
+              <span className="label !text-[10px]">Steps</span>
+              <span className="label !text-[10px]">Pays ({form.payoutTokenSymbol})</span>
+              <span className="w-9" />
+            </div>
+            <div className="space-y-2">
+              {form.ratePoints.map(([steps, amount], i) => (
+                <div key={i} className="grid grid-cols-[1fr_1fr_auto] items-center gap-3">
+                  <input
+                    type="number"
+                    className="input font-mono"
+                    min={0}
+                    step={100}
+                    value={steps}
+                    onChange={(e) => setPoint(i, 0, Number(e.target.value))}
+                    aria-label={`Milestone ${i + 1} steps`}
+                  />
+                  <input
+                    type="number"
+                    className="input font-mono"
+                    min={0}
+                    step={0.05}
+                    value={amount}
+                    onChange={(e) => setPoint(i, 1, Number(e.target.value))}
+                    aria-label={`Milestone ${i + 1} amount`}
+                  />
+                  <button
+                    type="button"
+                    className="grid h-9 w-9 place-items-center rounded-lg text-white/35 transition hover:bg-red-500/10 hover:text-red-300 disabled:opacity-30"
+                    disabled={form.ratePoints.length <= 2}
+                    onClick={() => set("ratePoints", form.ratePoints.filter((_, j) => j !== i))}
+                    aria-label="Remove milestone"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const last = form.ratePoints[form.ratePoints.length - 1] ?? [0, 0];
+                set("ratePoints", [...form.ratePoints, [last[0] + 2000, last[1]]]);
+              }}
+              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-[12.5px] text-white/70 transition hover:border-lime-400/40 hover:text-lime-300"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add milestone
+            </button>
+            <p className="mt-3 text-[12px] leading-relaxed text-white/45">
+              Between two milestones a day pays the proportional amount. From the last milestone on it pays the last amount.
+            </p>
+          </div>
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="First milestone (steps)" hint="Pay grows in a straight line from 0 up to here.">
-              <input type="number" className="input font-mono" min={1000} step={500} value={form.tierThreshold} onChange={(e) => set("tierThreshold", Number(e.target.value))} />
-            </Field>
-            <Field label={`Pays at the first milestone (${form.payoutTokenSymbol})`} hint="For example $3.70 at 7,000 steps.">
-              <input type="number" className="input font-mono" min={0} step={0.05} value={form.tierAvg} onChange={(e) => set("tierAvg", Number(e.target.value))} />
-            </Field>
-            <Field label="Top milestone (steps)" hint="From here on a day pays the top amount.">
-              <input type="number" className="input font-mono" min={1000} step={500} value={form.tierCap} onChange={(e) => set("tierCap", Number(e.target.value))} />
-            </Field>
-            <Field label={`Top amount per day (${form.payoutTokenSymbol})`} hint="The most a single day can pay, for example $5.">
-              <input type="number" className="input font-mono" min={0} step={0.05} value={form.tierMax} onChange={(e) => set("tierMax", Number(e.target.value))} />
-            </Field>
             <Field label="Minimum steps to earn" hint="Days at or below this pay nothing. 0 means every step counts.">
               <input type="number" className="input font-mono" min={0} step={100} value={form.tierMin} onChange={(e) => set("tierMin", Number(e.target.value))} />
             </Field>
@@ -145,7 +189,7 @@ export function SettingsView() {
               </li>
               {data.history.map((h) => (
                 <li key={h.id} className="rounded-xl border border-white/5 px-3 py-2 text-white/55">
-                  {fmtDateTime(h.createdAt)} · {shortAddress(h.changedBy)} replaced: {h.snapshot.tierAvg ?? "n/a"} at {h.snapshot.tierThreshold ?? "n/a"} steps · {h.snapshot.tierMax ?? "n/a"} top
+                  {fmtDateTime(h.createdAt)} · {shortAddress(h.changedBy)} replaced the rates · goal {h.snapshot.dailyStepGoal}
                 </li>
               ))}
             </ul>

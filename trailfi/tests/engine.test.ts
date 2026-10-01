@@ -152,3 +152,14 @@ test("rates: invalid configurations are rejected", () => {
   assert.ok(validateTiers({ ...tiers, tierCap: 6000 }).length > 0);
   assert.ok(validateTiers({ ...tiers, tierMax: 2 }).length > 0);
 });
+
+test("rates: milestones pay the proportional amount between them", () => {
+  const t: RewardTiers = { ...tiers, points: [[0, 0], [3500, 2.25], [7000, 3.7], [10000, 5]] };
+  assert.equal(tierReward(3500, t), 2.25);
+  assert.equal(tierReward(1750, t), 1.13);
+  assert.equal(tierReward(7000, t), 3.7);
+  assert.equal(tierReward(8500, t), 4.35);
+  assert.equal(tierReward(10000, t), 5);
+  assert.equal(tierReward(30000, t), 5);
+  assert.ok(validateTiers({ ...t, points: [[0, 0], [7000, 3.7], [5000, 4]] }).length > 0);
+});

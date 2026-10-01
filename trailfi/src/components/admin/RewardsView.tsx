@@ -142,8 +142,9 @@ export function RewardsView() {
             </label>
             {settings && (
               <div className="grid grid-cols-3 gap-2 text-center">
-                <Mini k={`${fmtSteps(settings.tierThreshold)} steps`} v={fmtAmount(settings.tierAvg)} />
-                <Mini k={`${fmtSteps(settings.tierCap)}+ steps`} v={fmtAmount(settings.tierMax)} />
+                                {settings.ratePoints.slice(1).map(([st, am]) => (
+                  <Mini key={st} k={`${fmtSteps(st)} steps`} v={fmtAmount(am)} />
+                ))}
                 <Mini k="Fees (record)" v={fmtAmount(Number(fees || 0))} />
               </div>
             )}

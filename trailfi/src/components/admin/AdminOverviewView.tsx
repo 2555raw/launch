@@ -26,10 +26,7 @@ export function AdminOverviewView() {
   }
   const t = data.settings.payoutTokenSymbol;
   const s = data.settings;
-  const rates = [s.tierThreshold / 2, s.tierThreshold, (s.tierThreshold + s.tierCap) / 2, s.tierCap].map((n) => ({
-    steps: Math.round(n),
-    amount: tierReward(Math.round(n), s),
-  }));
+  const rates = s.ratePoints.filter(([steps]) => steps > 0).map(([steps]) => ({ steps, amount: tierReward(steps, { ...s, points: s.ratePoints }) }));
 
   return (
     <div>

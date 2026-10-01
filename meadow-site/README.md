@@ -102,8 +102,10 @@ npm start           # http://localhost:8080
 
 Node 18+, no dependencies. `ethers` v6 is vendored in `vendor/`.
 
-On Railway, point a service at this folder (root directory `meadow-site`); it
-starts with `npm start` and listens on `PORT`.
+It's published to GitHub Pages by `.github/workflows/pages.yml` on every push
+to this branch that touches `meadow-site/`. Any static host works the same way;
+on Railway, point a service at this folder (root directory `meadow-site`), and
+it starts with `npm start` and listens on `PORT`.
 
 ## Change the name
 

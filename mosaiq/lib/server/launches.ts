@@ -294,8 +294,15 @@ function refreshMarketCaps(rows: Launch[]) {
     rows
       .filter((l) => l.status === "live" && l.address)
       .map(async (l) => {
-        const cap = await adapterFor(l.pad).marketCap(l).catch(() => null);
-        if (cap !== null && cap !== l.marketCapUsd) await store().updateLaunch(l.id, { marketCapUsd: cap });
+        const adapter = adapterFor(l.pad);
+        const [cap, curve] = await Promise.all([
+          adapter.marketCap(l).catch(() => null),
+          adapter.curve ? adapter.curve(l).catch(() => null) : Promise.resolve(null),
+        ]);
+        const patch: Partial<Launch> = {};
+        if (cap !== null && cap !== l.marketCapUsd) patch.marketCapUsd = cap;
+        if (curve && JSON.stringify(curve) !== JSON.stringify(l.curve)) patch.curve = curve;
+        if (Object.keys(patch).length) await store().updateLaunch(l.id, patch);
       }),
   );
 }

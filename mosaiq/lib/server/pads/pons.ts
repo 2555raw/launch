@@ -88,6 +88,9 @@ const factoryAbi = [
 ] as const;
 
 const curveAbi = [
+  { type: "function", name: "realQuoteReserve", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "graduationThreshold", stateMutability: "view", inputs: [], outputs: [{ type: "uint256" }] },
+  { type: "function", name: "graduated", stateMutability: "view", inputs: [], outputs: [{ type: "bool" }] },
   { type: "function", name: "getReserves", stateMutability: "view", inputs: [], outputs: [{ name: "quoteReserve", type: "uint256" }, { name: "tokenReserve", type: "uint256" }] },
 ] as const;
 
@@ -222,26 +225,49 @@ const curves = new Map<string, Address>();
  * (quote reserve / token reserve) times the supply, then the pair's USD price.
  * The curve address comes from the TokenLaunched log of the launch transaction.
  */
-export async function ponsMarketCap(launch: Launch): Promise<number | null> {
+/** The token's curve, from the TokenLaunched log of its launch transaction (cached). */
+async function curveOf(launch: Launch): Promise<Address | null> {
   const token = launch.address;
   if (!token || !launch.signature) return null;
+  const cached = curves.get(token.toLowerCase());
+  if (cached) return cached;
+  const receipt = await evmClient("robinhood").getTransactionReceipt({ hash: launch.signature as Hex }).catch(() => null);
+  const log = receipt?.logs.find((l) => l.topics[0] === TOKEN_LAUNCHED && `0x${l.topics[1]?.slice(26)}`.toLowerCase() === token.toLowerCase());
+  if (!log?.topics[2]) return null;
+  const curve = `0x${log.topics[2].slice(26)}` as Address;
+  curves.set(token.toLowerCase(), curve);
+  return curve;
+}
+
+async function pairDecimals(pair: Address): Promise<number> {
+  if (pair === zeroAddress) return 18;
+  const r = await evmClient("robinhood").readContract({ address: FACTORY, abi: factoryAbi, functionName: "pairTokenEconomics", args: [pair] });
+  return Number(r[2]);
+}
+
+/** Real liquidity raised on the curve so far against the amount that graduates it to a Uniswap pool. */
+export async function ponsCurve(launch: Launch): Promise<Launch["curve"] | null> {
+  const curve = await curveOf(launch);
+  const pair = PAIRS[launch.pair];
+  if (!curve || !pair) return null;
   const client = evmClient("robinhood");
-  let curve = curves.get(token.toLowerCase());
-  if (!curve) {
-    const receipt = await client.getTransactionReceipt({ hash: launch.signature as Hex }).catch(() => null);
-    const log = receipt?.logs.find((l) => l.topics[0] === TOKEN_LAUNCHED && `0x${l.topics[1]?.slice(26)}`.toLowerCase() === token.toLowerCase());
-    if (!log?.topics[2]) return null;
-    curve = `0x${log.topics[2].slice(26)}` as Address;
-    curves.set(token.toLowerCase(), curve);
-  }
+  const read = (functionName: "realQuoteReserve" | "graduationThreshold" | "graduated") => client.readContract({ address: curve, abi: curveAbi, functionName });
+  const [raised, target, graduated, decimals] = await Promise.all([read("realQuoteReserve"), read("graduationThreshold"), read("graduated"), pairDecimals(pair)]);
+  const unit = 10 ** decimals;
+  return { raised: Number(raised) / unit, target: Number(target) / unit, unit: launch.pair, graduated: Boolean(graduated) };
+}
+
+export async function ponsMarketCap(launch: Launch): Promise<number | null> {
+  const token = launch.address;
+  const curve = await curveOf(launch);
+  if (!token || !curve) return null;
+  const client = evmClient("robinhood");
   const pair = PAIRS[launch.pair];
   if (!pair) return null;
   const [reserves, supply, decimals, usd] = await Promise.all([
     client.readContract({ address: curve, abi: curveAbi, functionName: "getReserves" }),
     client.readContract({ address: token as Address, abi: erc20SupplyAbi, functionName: "totalSupply" }),
-    pair === zeroAddress
-      ? Promise.resolve(18)
-      : client.readContract({ address: FACTORY, abi: factoryAbi, functionName: "pairTokenEconomics", args: [pair] }).then((r) => Number(r[2])),
+    pairDecimals(pair),
     usdPrice(launch.pair),
   ]).catch(() => [null, null, null, null] as const);
   if (!reserves || !supply || decimals === null || usd === null || reserves[1] === 0n) return null;

@@ -13,6 +13,7 @@ import { LogoMark } from "@/components/ui/Logo";
 import { ChainDot, PadGlyph, TokenAvatar } from "@/components/ui/PadGlyph";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { CopyAddress } from "@/components/ui/CopyAddress";
+import { CurveBar } from "@/components/ui/CurveBar";
 import { TimeAgo } from "@/components/ui/TimeAgo";
 
 type Sort = "newest" | "oldest" | "marketcap";
@@ -264,6 +265,7 @@ function LaunchCard({ l }: { l: PublicLaunch }) {
           </dd>
         </div>
       </dl>
+      {l.curve && <CurveBar curve={l.curve} className="mt-4" />}
       <div className="mt-4 border-t border-line pt-4 text-xs">
         <p className="text-mute">CA</p>
         {l.address ? (

@@ -1,6 +1,6 @@
 import "server-only";
 import type { Launch } from "@/lib/types";
-import { ponsMarketCap } from "./pads/pons";
+import { ponsCurve, ponsMarketCap } from "./pads/pons";
 import { marketCapUsd } from "./pump";
 
 /**
@@ -19,6 +19,8 @@ export interface SubmitResult {
 export interface PadAdapter {
   submit(launch: Launch): Promise<SubmitResult>;
   marketCap(launch: Launch): Promise<number | null>;
+  /** Optional: how far the token's bonding curve is from graduating. */
+  curve?(launch: Launch): Promise<Launch["curve"] | null>;
 }
 
 const pending: PadAdapter = {
@@ -50,7 +52,7 @@ const dexscreener = (chain: "solana" | "bsc"): PadAdapter => ({
 });
 
 /** Pons on Robinhood Chain is not on Dexscreener: price it from its bonding curve. */
-const pons: PadAdapter = { submit: pending.submit, marketCap: ponsMarketCap };
+const pons: PadAdapter = { submit: pending.submit, marketCap: ponsMarketCap, curve: ponsCurve };
 
 const registry: Record<string, PadAdapter> = {
   pump,

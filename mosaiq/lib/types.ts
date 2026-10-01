@@ -24,6 +24,8 @@ export interface Launch {
   openingBuy?: string;
   address?: string;
   marketCapUsd: number | null;
+  /** Bonding-curve progress, for pads that report it: raised so far vs the graduation target, in the pair. */
+  curve?: { raised: number; target: number; unit: string; graduated: boolean };
   agentId?: string;
   agentName?: string;
   statusNote?: string;

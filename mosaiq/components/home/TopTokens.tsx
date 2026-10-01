@@ -13,6 +13,7 @@ import type { PublicLaunch } from "@/lib/types";
 import { ChainDot, TokenAvatar } from "@/components/ui/PadGlyph";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { useCopy } from "@/components/ui/useCopy";
+import { CurveBar } from "@/components/ui/CurveBar";
 
 export function TopTokens({ launches }: { launches: PublicLaunch[] }) {
   const [chain, setChain] = useState<string>("all");
@@ -81,6 +82,7 @@ export function TopTokens({ launches }: { launches: PublicLaunch[] }) {
                     className="overflow-hidden"
                   >
                     <div className="px-4 pb-4">
+                      {l.curve && <CurveBar curve={l.curve} className="mb-4" />}
                       {l.address ? (
                         <>
                           <p className="mb-2 text-xs text-mute">CA</p>

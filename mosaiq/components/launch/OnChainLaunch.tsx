@@ -8,6 +8,7 @@ import { cn } from "@/lib/cn";
 import { connectEvm, detectEvmWallets, ensureChain, evmMetaMaskLink, sendEvmTx, signEvmMessage, type Eip1193, type EvmWalletOption } from "@/lib/evm-wallet";
 import { evmChains, padTokenUrl, PUMP_CREATE_COST_SOL, shortAddress, txUrl, type WalletKind } from "@/lib/onchain";
 import { getChain, getPad } from "@/lib/pads";
+import { site } from "@/lib/site";
 import { connectWallet, detectWallets, phantomBrowseLink, walletErrorMessage, type WalletOption } from "@/lib/wallet";
 import { useApp } from "@/components/shell/AppProvider";
 import { PadGlyph } from "@/components/ui/PadGlyph";
@@ -257,7 +258,7 @@ export function OnChainLaunch({
   const running = run.state === "running";
   const stepIndex = run.state === "running" || run.state === "error" ? steps.findIndex((s) => s.id === run.step) : -1;
   const buy = Number(openingBuy) || 0;
-  const here = typeof window === "undefined" ? "https://downpour-production.up.railway.app/launch" : window.location.href;
+  const here = typeof window === "undefined" ? `${site.url}/launch` : window.location.href;
   const options = kind === "solana" ? solWallets : evmWallets;
 
   return (

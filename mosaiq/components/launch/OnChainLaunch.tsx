@@ -257,7 +257,7 @@ export function OnChainLaunch({
   const running = run.state === "running";
   const stepIndex = run.state === "running" || run.state === "error" ? steps.findIndex((s) => s.id === run.step) : -1;
   const buy = Number(openingBuy) || 0;
-  const here = typeof window === "undefined" ? "https://padpicker.xyz/launch" : window.location.href;
+  const here = typeof window === "undefined" ? "https://downpour-production.up.railway.app/launch" : window.location.href;
   const options = kind === "solana" ? solWallets : evmWallets;
 
   return (

@@ -4,17 +4,17 @@
  * read from this object.
  */
 export const site = {
-  name: "Picker",
+  name: "Chooser",
   tagline: "Every pad. Your pick.",
   description:
-    "Picker puts every token launchpad on Robinhood Chain, Solana, BNB Chain and Arc in one place. Pick your pad, draft the token, and your agent places the launch.",
+    "Chooser puts every token launchpad on Robinhood Chain, Solana, BNB Chain and Arc in one place. Pick your pad, draft the token, and launch it from your wallet or let your agent do it.",
   url: (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(/\/$/, ""),
   /** Set to null to hide every X link. */
   social: {
     x: null as { handle: string; url: string } | null,
   },
   keyPrefix: "pk_live_",
-  /** The Picker token's contract address, shown in the home hero. Empty hides it; TOKEN_CA overrides it. */
+  /** The Chooser token's contract address, shown in the home hero. Empty hides it; TOKEN_CA overrides it. */
   tokenCa: "",
 } as const;
 

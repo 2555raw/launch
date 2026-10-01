@@ -29,7 +29,7 @@ function offsetOf(i: number, active: number, n: number) {
   return d;
 }
 
-/** The Picker token's CA, copied on click. Hidden until the CA is set. */
+/** The Chooser token's CA, copied on click. Hidden until the CA is set. */
 function TokenCa({ ca }: { ca: string | null }) {
   const { copied, copy } = useCopy();
   if (!ca) return null;

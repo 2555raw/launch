@@ -25,7 +25,7 @@ const draftProps = {
   description: { type: "string", maxLength: 280 },
   image: { type: "string", description: "data:image/png|jpeg|webp|gif;base64,… up to ~300 KB, 512px is plenty. Required to launch on Pump.fun" },
   x: { type: "string", description: "https://x.com/… link" },
-  website: { type: "string", description: "Your own site; omit to use the Picker token page" },
+  website: { type: "string", description: "Your own site; omit to use the Chooser token page" },
   opening_buy: { type: "string", description: "Dev buy in the chain's native asset; omit for none" },
   address: { type: "string", description: "Only for mode=import" },
   mode: { type: "string", enum: ["create", "import"], default: "create" },

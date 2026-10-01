@@ -51,7 +51,7 @@ export default function OpengraphImage() {
             <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1 }}>Every pad.</div>
             <div style={{ fontSize: 96, fontWeight: 700, letterSpacing: -4, lineHeight: 1, color: "#2563EB" }}>Your pick.</div>
           </div>
-          <div style={{ fontSize: 26, color: "#475569", marginTop: 44 }}>padpicker.xyz · People draft, agents launch</div>
+          <div style={{ fontSize: 26, color: "#475569", marginTop: 44 }}>One form for every launchpad · Launch from your wallet</div>
         </div>
         <Mark px={330} />
       </div>

@@ -2,7 +2,7 @@ import { cn } from "@/lib/cn";
 import { site } from "@/lib/site";
 
 /**
- * The Picker mark: a square whose four sides each carry a half-disc and whose
+ * The Chooser mark: a square whose four sides each carry a half-disc and whose
  * corners are scooped out. Drawn on a 100-unit square; the half-discs reach
  * 24 units past each edge, hence the -24…124 view box.
  */

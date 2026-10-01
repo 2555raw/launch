@@ -30,16 +30,7 @@ export function Footer() {
           </nav>
         </div>
         <div className="hairline my-10" />
-        <div className="flex flex-col justify-between gap-4 text-xs text-white/35 sm:flex-row">
-          <p>© {new Date().getFullYear()} Stepit. Rewards are variable, subject to review, and not guaranteed. Not financial advice.</p>
-          <p>
-            Photography via{" "}
-            <a href="https://unsplash.com/license" className="underline decoration-white/20 underline-offset-2 hover:text-white/60" target="_blank" rel="noreferrer">
-              Unsplash
-            </a>
-            .
-          </p>
-        </div>
+        <p className="text-xs text-white/35">© {new Date().getFullYear()} Stepit. Rewards are variable, subject to review, and not guaranteed. Not financial advice.</p>
       </div>
     </footer>
   );

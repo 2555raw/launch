@@ -36,7 +36,7 @@ export default function OpengraphImage() {
           height: "100%",
           display: "flex",
           alignItems: "center",
-          background: "radial-gradient(700px 420px at 78% 50%, rgba(37,99,235,0.14), transparent 70%), radial-gradient(500px 300px at 10% 0%, rgba(14,165,233,0.10), transparent 70%), #DFE6F1",
+          background: "radial-gradient(700px 420px at 78% 50%, rgba(37,99,235,0.14), transparent 70%), radial-gradient(500px 300px at 10% 0%, rgba(14,165,233,0.10), transparent 70%), #EBECEE",
           color: "#0B1220",
           padding: 80,
           fontFamily: "sans-serif",

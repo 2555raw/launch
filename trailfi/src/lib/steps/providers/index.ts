@@ -32,7 +32,7 @@ export const STEP_PROVIDERS: Record<StepSource, StepProvider> = {
     source: "fitness_api",
     label: "Fitness cloud API",
     status: "planned",
-    description: "Server-side OAuth connector for wearables clouds (Fitbit, Garmin, Oura). Same ingest contract.",
+    description: "Server side OAuth connector for wearables clouds (Fitbit, Garmin, Oura). Same ingest contract.",
     trusted: true,
   },
 };

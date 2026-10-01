@@ -4,7 +4,7 @@ export const metadata = { title: "Terms of Service" };
 
 export default function TermsPage() {
   return (
-    <InfoPage label="Legal" title="Terms of Service" intro="Template terms for the pre-launch version of Stepit. Have them reviewed by counsel before launch.">
+    <InfoPage label="Legal" title="Terms of Service" intro="Template terms for the prelaunch version of Stepit. Have them reviewed by counsel before launch.">
       <Section title="Eligibility and accounts">
         <p>You must be of legal age in your jurisdiction. Your account is identified by the public address of your wallet; you are responsible for securing that wallet.</p>
       </Section>

@@ -21,7 +21,7 @@ export function AuditView() {
   const { data, isLoading } = useQuery({ queryKey: ["admin", "audit"], queryFn: () => api<{ entries: Entry[] }>("/api/admin/audit") });
   return (
     <div>
-      <PageHeader label="Audit log" title="Every sensitive action" description="Sign-ins, reviews, distributions, settings changes and payouts, with the wallet that performed them." />
+      <PageHeader label="Audit log" title="Every sensitive action" description="Logins, reviews, distributions, settings changes and payouts, with the wallet that performed them." />
       <Card className="overflow-hidden">
         {isLoading && <Skeleton className="m-6 h-40" />}
         {data && data.entries.length === 0 && (

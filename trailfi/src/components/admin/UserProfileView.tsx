@@ -105,8 +105,8 @@ export function UserProfileView({ id }: { id: string }) {
                 </a>
               </div>
               <div className="mt-1 text-[12px] text-white/40">
-                Joined {fmtDate(user.createdAt, { month: "short", day: "numeric", year: "numeric" })} · last sign-in{" "}
-                {user.lastLoginAt ? fmtDateTime(user.lastLoginAt) : "—"} · payout consent {user.payoutConsentAt ? "given" : "missing"}
+                Joined {fmtDate(user.createdAt, { month: "short", day: "numeric", year: "numeric" })} · last login{" "}
+                {user.lastLoginAt ? fmtDateTime(user.lastLoginAt) : "never"} · payout consent {user.payoutConsentAt ? "given" : "missing"}
               </div>
             </div>
           </div>
@@ -196,7 +196,7 @@ export function UserProfileView({ id }: { id: string }) {
                             </button>
                           </div>
                         ) : (
-                          <div className="text-right text-[11px] text-white/35">{s.reviewedBy ? `by ${shortAddress(s.reviewedBy)}` : "—"}</div>
+                          <div className="text-right text-[11px] text-white/35">{s.reviewedBy ? `by ${shortAddress(s.reviewedBy)}` : ""}</div>
                         )}
                       </td>
                     </tr>
@@ -222,7 +222,7 @@ export function UserProfileView({ id }: { id: string }) {
                   <tbody>
                     {data.rewards.map((r) => (
                       <tr key={r.id} className="border-t border-white/5">
-                        <td className="table-cell">{fmtDate(r.periodStart)}{r.periodEnd !== r.periodStart && ` – ${fmtDate(r.periodEnd)}`}</td>
+                        <td className="table-cell">{fmtDate(r.periodStart)}{r.periodEnd !== r.periodStart && ` to ${fmtDate(r.periodEnd)}`}</td>
                         <td className="table-cell font-mono text-white/60">{fmtSteps(r.validSteps)} steps</td>
                         <td className="table-cell font-mono text-lime-300">{fmtAmount(r.amount)}</td>
                         <td className="table-cell text-right">
@@ -264,7 +264,7 @@ export function UserProfileView({ id }: { id: string }) {
                               {shortAddress(p.txHash, 6, 4)}
                             </a>
                           ) : (
-                            "—"
+                            "None"
                           )}
                         </td>
                       </tr>

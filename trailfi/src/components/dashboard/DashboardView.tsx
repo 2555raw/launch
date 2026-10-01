@@ -204,7 +204,7 @@ export function DashboardView() {
                   animate={{ scale: 1, opacity: 1 }}
                   className="inline-flex items-center gap-2 rounded-full border border-lime-400/30 bg-lime-400/10 px-4 py-1.5 text-sm font-medium text-lime-300"
                 >
-                  <CheckCircle2 className="h-4 w-4" /> Goal complete — {Math.round(progress * 100)}%
+                  <CheckCircle2 className="h-4 w-4" /> Goal complete · {Math.round(progress * 100)}%
                 </motion.div>
               ) : (
                 <p className="text-sm text-white/55">
@@ -320,7 +320,7 @@ export function DashboardView() {
                               {shortAddress(p.txHash, 8, 6)} <ExternalLink className="h-3 w-3" />
                             </a>
                           ) : (
-                            <span className="text-white/30">—</span>
+                            <span className="text-white/30">None</span>
                           )}
                         </td>
                       </tr>
@@ -339,7 +339,7 @@ export function DashboardView() {
             <Rule k="Daily goal" v={`${fmtSteps(settings.dailyStepGoal)} steps`} />
             <Rule k="Rewards" v="Grow with your verified steps" />
             <Rule k="Payout" v="Request it once approved" />
-            <Rule k="Payout token" v={`${token} on ${chain?.name ?? "—"}`} />
+            <Rule k="Payout token" v={`${token} on ${chain?.name ?? ""}`} />
           </dl>
           <p className="mt-5 flex gap-2 rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 text-[12px] leading-relaxed text-white/50">
             <Info className="mt-0.5 h-4 w-4 shrink-0" />
@@ -374,7 +374,7 @@ export function DashboardView() {
                   <tr key={r.id} className="border-b border-white/5 last:border-0">
                     <td className="table-cell">
                       {fmtDate(r.periodStart)}
-                      {r.periodEnd !== r.periodStart && ` – ${fmtDate(r.periodEnd)}`}
+                      {r.periodEnd !== r.periodStart && ` to ${fmtDate(r.periodEnd)}`}
                     </td>
                     <td className="table-cell font-mono">{fmtSteps(r.validSteps)}</td>
                     <td className="table-cell font-mono text-lime-300">

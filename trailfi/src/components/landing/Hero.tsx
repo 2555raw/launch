@@ -16,7 +16,7 @@ const LINES = [
 
 function HeroBackground() {
   // Art direction: a landscape crop for wide screens, a portrait crop centred on the hikers for phones.
-  const common = { alt: "Two hikers walking a rocky trail towards snow-capped peaks", sizes: "100vw", quality: 80, priority: true };
+  const common = { alt: "Two hikers walking a rocky trail towards snowcapped peaks", sizes: "100vw", quality: 80, priority: true };
   const {
     props: { srcSet: desktop },
   } = getImageProps({ ...common, src: "/images/hero-trail.jpg", width: 2560, height: 1708 });
@@ -79,7 +79,7 @@ export function Hero() {
               className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-black/30 py-1.5 pl-2 pr-4 backdrop-blur-md"
             >
               <span className="whitespace-nowrap rounded-full bg-lime-400 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-forest-950">
-                Walk-to-earn
+                Walk to earn
               </span>
               <span className="text-[13px] text-white/75">
                 Funded by <span className="font-mono text-lime-300">$STEPIT</span> trading fees

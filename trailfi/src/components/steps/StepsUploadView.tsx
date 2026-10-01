@@ -339,7 +339,7 @@ function AverageCard({ summary }: { summary: StepsResponse["summary"] }) {
       <CardHeader label="Your average" title="Daily earnings" action={<TrendingUp className="h-5 w-5 text-lime-400" />} />
       <div className="relative mt-8">
         <div className="font-display text-6xl font-bold tracking-tight text-lime-300 tabular">
-          {has ? `$${fmtAmount(summary.avgDaily7)}` : "—"}
+          {has ? `$${fmtAmount(summary.avgDaily7)}` : "$0.00"}
         </div>
         <div className="mt-2 text-sm text-white/50">{has ? `${summary.tokenSymbol} per day · last 7 days` : "Upload your first day to see it"}</div>
       </div>
@@ -352,11 +352,11 @@ function AverageCard({ summary }: { summary: StepsResponse["summary"] }) {
       <dl className="relative mt-8 space-y-3 border-t border-white/10 pt-5 text-sm">
         <div className="flex justify-between">
           <dt className="text-white/50">Average steps</dt>
-          <dd className="font-mono">{has ? fmtSteps(summary.avgSteps7) : "—"}</dd>
+          <dd className="font-mono">{has ? fmtSteps(summary.avgSteps7) : "0"}</dd>
         </div>
         <div className="flex justify-between">
           <dt className="text-white/50">Estimated month</dt>
-          <dd className="font-mono text-lime-300">{has ? `$${fmtAmount(summary.avgDaily7 * 30)}` : "—"}</dd>
+          <dd className="font-mono text-lime-300">{has ? `$${fmtAmount(summary.avgDaily7 * 30)}` : "$0.00"}</dd>
         </div>
       </dl>
       <p className="relative mt-auto flex gap-2 pt-6 text-[11.5px] leading-relaxed text-white/40">
@@ -397,7 +397,7 @@ function History({ steps, token }: { steps: Entry[]; token: string }) {
                     {e.reviewNote && e.verification === "rejected" && <div className="text-[11px] text-red-300/70">{e.reviewNote}</div>}
                   </td>
                   <td className="table-cell font-mono">{fmtSteps(e.steps)}</td>
-                  <td className="table-cell text-[12.5px] text-white/55">{e.hasProof ? "Attached" : e.source === "manual_demo" ? "—" : "Health app"}</td>
+                  <td className="table-cell text-[12.5px] text-white/55">{e.hasProof ? "Attached" : e.source === "manual_demo" ? "None" : "Health app"}</td>
                   <td className="table-cell">
                     <StatusBadge status={e.verification === "flagged" ? "unverified" : e.verification} />
                   </td>

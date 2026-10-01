@@ -7,8 +7,8 @@ export default function DocsPage() {
     <InfoPage label="Documentation" title="How Stepit works" intro="The rules behind rewards, verification and payouts.">
       <Section title="1. Connecting a wallet">
         <p>
-          Stepit uses <strong>Sign-In With Ethereum</strong> (EIP-4361). After you connect MetaMask, WalletConnect or
-          another wallet, you sign a plain-text message. It is not a transaction: it costs no gas and gives no one
+          Stepit uses <strong>Sign In With Ethereum</strong> (EIP 4361). After you connect Phantom, MetaMask, Coinbase, Rabby or
+          another wallet, you sign a plain text message. It is not a transaction: it costs no gas and gives no one
           permission to move your funds. It only proves that you control the address.
         </p>
         <p>Stepit never asks for, and never stores, seed phrases, private keys or wallet credentials.</p>
@@ -39,7 +39,7 @@ export default function DocsPage() {
       <Section title="4. Requesting a payout">
         <p>
           When you have approved rewards, press <strong>Request payout</strong> in your dashboard. The team reviews the
-          request and sends the money to your public address from an authorised Stepit wallet, verified on-chain. Your
+          request and sends the money to your public address from an authorised Stepit wallet, verified onchain. Your
           dashboard shows every payment with its transaction hash, and the public payouts list shows it with your
           address shortened.
         </p>

@@ -142,7 +142,7 @@ export function RewardsView() {
             </label>
             {settings && (
               <div className="grid grid-cols-3 gap-2 text-center">
-                <Mini k={`${fmtSteps(settings.tierMin)}–${fmtSteps(settings.tierThreshold)}`} v={`~${fmtAmount(settings.tierAvg)}`} />
+                <Mini k={`${fmtSteps(settings.tierMin)} to ${fmtSteps(settings.tierThreshold)}`} v={`~${fmtAmount(settings.tierAvg)}`} />
                 <Mini k={`${fmtSteps(settings.tierThreshold)}+`} v={`≤ ${fmtAmount(settings.tierMax)}`} />
                 <Mini k="Fees (record)" v={fmtAmount(Number(fees || 0))} />
               </div>
@@ -322,7 +322,7 @@ export function RewardsView() {
                   </td>
                   <td className="table-cell">
                     {fmtDate(r.periodStart)}
-                    {r.periodEnd !== r.periodStart && ` – ${fmtDate(r.periodEnd)}`}
+                    {r.periodEnd !== r.periodStart && ` to ${fmtDate(r.periodEnd)}`}
                   </td>
                   <td className="table-cell font-mono">{fmtSteps(r.validSteps)}</td>
                   <td className="table-cell font-mono text-lime-300">
@@ -387,7 +387,7 @@ export function RewardsView() {
                   <tr key={d.id} className="border-b border-white/5 last:border-0">
                     <td className="table-cell">
                       {fmtDate(d.periodStart)}
-                      {d.periodEnd !== d.periodStart && ` – ${fmtDate(d.periodEnd)}`}
+                      {d.periodEnd !== d.periodStart && ` to ${fmtDate(d.periodEnd)}`}
                     </td>
                     <td className="table-cell font-mono">{fmtAmount(d.eligibleFees)}</td>
                     <td className="table-cell">tiers</td>

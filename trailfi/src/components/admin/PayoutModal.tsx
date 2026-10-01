@@ -25,8 +25,8 @@ const PHASE_LABEL: Record<Phase, string> = {
   idle: "",
   signing: "Waiting for your signature in the wallet…",
   submitting: "Recording the transaction…",
-  mining: "Waiting for on-chain confirmation…",
-  verifying: "Verifying the transfer on-chain…",
+  mining: "Waiting for onchain confirmation…",
+  verifying: "Verifying the transfer onchain…",
 };
 
 /**
@@ -118,7 +118,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
       if (body.payout.status === "confirmed") {
         setSuccess(true);
         confetti({ particleCount: 90, spread: 70, origin: { y: 0.45 }, colors: ["#c4fb6d", "#5dff9d", "#ffffff"] });
-        toast.success("Payment confirmed on-chain", { description: `${fmtAmount(body.payout.amount)} ${body.payout.tokenSymbol} sent.` });
+        toast.success("Payment confirmed onchain", { description: `${fmtAmount(body.payout.amount)} ${body.payout.tokenSymbol} sent.` });
       } else {
         toast.error("Payout failed verification", { description: body.payout.error });
       }
@@ -164,7 +164,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
       await refresh(next);
       if (action === "simulate") {
         setSuccess(true);
-        toast.success("Marked as paid (simulation)", { description: "No on-chain transfer was made." });
+        toast.success("Marked as paid (simulation)", { description: "No onchain transfer was made." });
       } else {
         toast("Payout cancelled", { description: "Its rewards are back to approved." });
       }
@@ -184,7 +184,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
       onClose={onClose}
       dismissable={!busy}
       title={success ? undefined : "Review payout"}
-      subtitle={success ? undefined : "Double-check every field. On-chain transfers cannot be reversed."}
+      subtitle={success ? undefined : "Check every field twice. Onchain transfers cannot be reversed."}
       className="sm:max-w-xl"
     >
       {payout && (
@@ -267,7 +267,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                     {!(payout.status === "prepared" || payout.status === "requested")
                       ? payout.gasUsed
                         ? `${Number(payout.gasUsed).toLocaleString()} gas used`
-                        : "—"
+                        : "Not recorded"
                       : gas === null
                         ? "Estimating…"
                         : gas === "error"
@@ -320,7 +320,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                         {balance !== undefined && (
                           <Check2
                             ok={!insufficient}
-                            text={`Balance ${fmtAmount(formatUnits(balance, payout.tokenDecimals))} ${payout.tokenSymbol}${insufficient ? " — insufficient" : ""}`}
+                            text={`Balance ${fmtAmount(formatUnits(balance, payout.tokenDecimals))} ${payout.tokenSymbol}${insufficient ? " · insufficient" : ""}`}
                           />
                         )}
                       </>
@@ -376,7 +376,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                         .finally(() => setPhase("idle"))
                     }
                   >
-                    Verify on-chain confirmation
+                    Verify onchain confirmation
                   </Button>
                 </div>
               )}

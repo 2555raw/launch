@@ -29,7 +29,7 @@ export function PayoutsView() {
       <PageHeader
         label="Payouts"
         title="Transaction history"
-        description="Every payout, from preparation to on-chain confirmation. Open one to send it, verify it or cancel it."
+        description="Every payout, from preparation to onchain confirmation. Open one to send it, verify it or cancel it."
         action={
           <div className="no-scrollbar flex gap-1 overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.03] p-1">
             {TABS.map((t) => (
@@ -90,7 +90,7 @@ export function PayoutsView() {
                           {shortAddress(p.txHash, 8, 6)} <ExternalLink className="h-3 w-3" />
                         </a>
                       ) : (
-                        <span className="text-white/30">—</span>
+                        <span className="text-white/30">None</span>
                       )}
                     </td>
                     <td className="table-cell font-mono text-[12px] text-white/45">{shortAddress(p.preparedBy)}</td>

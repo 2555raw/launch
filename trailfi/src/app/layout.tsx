@@ -8,11 +8,11 @@ import { Providers } from "@/components/providers/Providers";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
-  title: { default: "Stepit — Walk. Explore. Earn.", template: "%s · Stepit" },
+  title: { default: "Stepit · Walk. Explore. Earn.", template: "%s · Stepit" },
   description:
     "Stepit turns your daily steps into crypto rewards. Explore the outdoors, stay active and earn a share of platform fees.",
   openGraph: {
-    title: "Stepit — Walk. Explore. Earn.",
+    title: "Stepit · Walk. Explore. Earn.",
     description: "Your steps. Your rewards. Your adventure.",
     images: [{ url: "/images/hero-trail.jpg", width: 2560, height: 1708 }],
     type: "website",

@@ -46,7 +46,7 @@ export function assertSameOrigin(req: Request) {
   const origin = req.headers.get("origin");
   if (!origin) return; // same-origin fetches from older browsers, or server-to-server (signed separately)
   const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
-  if (!host || new URL(origin).host !== host) throw new HttpError(403, "Cross-origin request blocked.", "bad_origin");
+  if (!host || new URL(origin).host !== host) throw new HttpError(403, "Cross origin request blocked.", "bad_origin");
 }
 
 export async function readJson(req: Request): Promise<unknown> {

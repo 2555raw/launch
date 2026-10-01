@@ -155,7 +155,7 @@ export function SettingsView() {
               </li>
               {data.history.map((h) => (
                 <li key={h.id} className="rounded-xl border border-white/5 px-3 py-2 text-white/55">
-                  {fmtDateTime(h.createdAt)} · {shortAddress(h.changedBy)} replaced: ~{h.snapshot.tierAvg ?? "—"} avg · up to {h.snapshot.tierMax ?? "—"} · goal {h.snapshot.dailyStepGoal}
+                  {fmtDateTime(h.createdAt)} · {shortAddress(h.changedBy)} replaced: ~{h.snapshot.tierAvg ?? "n/a"} avg · up to {h.snapshot.tierMax ?? "n/a"} · goal {h.snapshot.dailyStepGoal}
                 </li>
               ))}
             </ul>

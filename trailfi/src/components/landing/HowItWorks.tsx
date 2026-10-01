@@ -31,7 +31,7 @@ const STEPS = [
     title: "Earn rewards",
     body: "Paid from the $STEPIT trading fees. Request a payout and it lands in your wallet after review.",
     icon: Coins,
-    tags: ["Stablecoin", "On-chain"],
+    tags: ["Stablecoin", "Onchain"],
     Visual: PayoutVisual,
   },
 ];
@@ -47,7 +47,7 @@ export function HowItWorks() {
 
       <div className="container relative">
         <SectionHeading index="01" label="How it works" title="From trailhead to payout" accent="in three steps.">
-          No lock-ups, no staking, nothing to buy. Walk, sync your activity, and collect your share.
+          No lockups, no staking, nothing to buy. Walk, sync your activity, and collect your share.
         </SectionHeading>
 
         {/* Progress rail: fills from the first stage to the last as it scrolls into view. */}
@@ -115,7 +115,7 @@ function StepCard({ step: s }: { step: (typeof STEPS)[number] }) {
             <s.icon className="h-[18px] w-[18px]" />
           </div>
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-lime-400">
-            {s.n} — {s.stage}
+            {s.n} · {s.stage}
           </span>
         </div>
         <h3 className="relative mt-4 font-display text-2xl font-semibold tracking-tight">{s.title}</h3>
@@ -161,10 +161,10 @@ function useStages(max: number, every: number) {
 }
 
 const WALLETS = [
-  { name: "Phantom", short: "P", color: "#ab9ff2" },
-  { name: "MetaMask", short: "M", color: "#f6851b" },
-  { name: "Coinbase", short: "C", color: "#0052ff" },
-  { name: "Rabby", short: "R", color: "#7084ff" },
+  { name: "Phantom", logo: "/wallets/phantom.svg", glow: "#ab9ff2" },
+  { name: "MetaMask", logo: "/wallets/metamask.svg", glow: "#f6851b" },
+  { name: "Coinbase", logo: "/wallets/coinbase.svg", glow: "#0052ff" },
+  { name: "Rabby", logo: "/wallets/rabby.svg", glow: "#7084ff" },
 ];
 
 function WalletVisual() {
@@ -178,15 +178,11 @@ function WalletVisual() {
               key={w.name}
               className={cn(
                 "flex flex-col items-center gap-1.5 rounded-xl border px-1 py-2 transition duration-500",
-                stage >= 1 && i === 1 ? "border-lime-400/50 bg-lime-400/[0.08]" : "border-white/[0.06] bg-white/[0.02]",
+                stage >= 1 && i === 0 ? "border-lime-400/50 bg-lime-400/[0.08]" : "border-white/[0.06] bg-white/[0.02]",
               )}
             >
-              <span
-                className="grid h-6 w-6 place-items-center rounded-lg font-display text-[11px] font-bold text-white"
-                style={{ background: w.color, boxShadow: `0 0 14px -2px ${w.color}` }}
-              >
-                {w.short}
-              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={w.logo} alt="" className="h-7 w-7 rounded-lg" style={{ boxShadow: `0 0 14px -4px ${w.glow}` }} />
               <span className="text-[9.5px] text-white/55">{w.name}</span>
             </div>
           ))}

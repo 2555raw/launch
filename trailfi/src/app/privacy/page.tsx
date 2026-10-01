@@ -10,7 +10,7 @@ export default function PrivacyPage() {
           <li>Your public wallet address, to identify you and send rewards.</li>
           <li>Daily step counts, their source and verification status.</li>
           <li>Reward and payout records, including public transaction hashes.</li>
-          <li>A security audit log of sign-ins and administrative actions.</li>
+          <li>A security audit log of logins and administrative actions.</li>
         </ul>
       </Section>
       <Section title="What we never store">
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
         <p>Blockchain transactions are public by nature. The leaderboard shows shortened wallet addresses only.</p>
       </Section>
       <Section title="Your rights">
-        <p>You can request export or deletion of your off-chain data via the contact page. On-chain records cannot be deleted by anyone.</p>
+        <p>You can request export or deletion of your offchain data via the contact page. Onchain records cannot be deleted by anyone.</p>
       </Section>
     </InfoPage>
   );

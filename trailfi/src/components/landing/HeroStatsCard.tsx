@@ -41,7 +41,7 @@ export function HeroStatsCard() {
         className="glass-strong absolute -bottom-5 -right-2 z-10 hidden items-center gap-2 rounded-2xl px-3 py-2 sm:flex lg:-right-6"
       >
         <Flame className="h-4 w-4 text-orange-300" />
-        <span className="text-[12px] font-medium text-white/85">6-day streak</span>
+        <span className="text-[12px] font-medium text-white/85">6 day streak</span>
       </motion.div>
 
       <div className="animate-float">

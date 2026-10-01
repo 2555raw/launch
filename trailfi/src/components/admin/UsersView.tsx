@@ -162,7 +162,7 @@ export function UsersView() {
         </div>
         {data && data.users.length === 0 && (
           <div className="p-6">
-            <EmptyState title="No users match">Users appear here after their first wallet sign-in.</EmptyState>
+            <EmptyState title="No users match">Users appear here after their first wallet login.</EmptyState>
           </div>
         )}
       </Card>

@@ -10,7 +10,7 @@ import { Reveal, SectionHeading } from "./Reveal";
 
 // Where the money comes from: a fee on every $STEPIT trade. Figures are illustrative.
 const FLOW = [
-  { k: "$STEPIT trades today", v: "2,000 USDC", sub: "buys and sells on-chain" },
+  { k: "$STEPIT trades today", v: "2,000 USDC", sub: "buys and sells onchain" },
   { k: "Trading fee", v: "100 USDC", sub: "charged on every trade · 5%" },
   { k: "Reward fund", v: "100 USDC", sub: "paid to walkers by verified steps", accent: true },
 ];

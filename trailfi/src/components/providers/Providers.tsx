@@ -21,7 +21,7 @@ import { SessionProvider, useSession } from "./SessionProvider";
 const Disclaimer: DisclaimerComponent = ({ Text }) => (
   <Text>
     Stepit only reads your <strong>public address</strong>, which is used to identify you and to send your rewards.
-    You will sign a free message to verify ownership — no transaction, no gas, no token approvals. We will never ask
+    You will sign a free message to verify ownership. No transaction, no gas, no token approvals. We will never ask
     for your seed phrase or private key.
   </Text>
 );
@@ -45,7 +45,7 @@ function AuthBridge({ children }: { children: ReactNode }) {
       createAuthenticationAdapter({
         getNonce: async () => {
           const res = await fetch("/api/auth/nonce", { cache: "no-store" });
-          if (!res.ok) throw new Error("Could not start sign-in");
+          if (!res.ok) throw new Error("Could not start login");
           return (await res.json()).nonce as string;
         },
         createMessage: ({ nonce, address, chainId }) =>

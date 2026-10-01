@@ -30,7 +30,7 @@ export function AdminOverviewView() {
       <PageHeader
         label="Overview"
         title="Platform statistics"
-        description={`Private rates: ~${fmtAmount(data.settings.tierAvg)} ${t} for ${fmtSteps(data.settings.tierMin)}–${fmtSteps(data.settings.tierThreshold)} steps, up to ${fmtAmount(data.settings.tierMax)} above · paid in ${t}`}
+        description={`Private rates: ~${fmtAmount(data.settings.tierAvg)} ${t} for ${fmtSteps(data.settings.tierMin)} to ${fmtSteps(data.settings.tierThreshold)} steps, up to ${fmtAmount(data.settings.tierMax)} above · paid in ${t}`}
       />
 
       {(data.stepsAwaitingReview > 0 || data.payouts.failed > 0 || data.rewards.approved > 0 || data.payouts.requested > 0) && (
@@ -51,7 +51,7 @@ export function AdminOverviewView() {
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard label="Registered users" value={data.users.users} decimals={0} hint={`+${data.users.newWeek} this week · ${data.users.suspended} suspended`} icon={Users} />
         <StatCard label="Active today" value={data.today.active} decimals={0} hint={`${data.today.goalMet} reached the goal`} icon={Target} delay={0.05} />
-        <StatCard label="Steps today" value={data.today.steps} decimals={0} hint="All non-rejected entries" icon={Footprints} delay={0.1} />
+        <StatCard label="Steps today" value={data.today.steps} decimals={0} hint="All entries not rejected" icon={Footprints} delay={0.1} />
         <StatCard label="Total distributed" value={data.rewards.distributed} prefix="$" suffix={t} hint="Allocated, excluding rejected" icon={Coins} accent delay={0.15} />
         <StatCard label="Pending review" value={data.rewards.pending} prefix="$" suffix={t} hint="Rewards awaiting approval" icon={Hourglass} delay={0.2} />
         <StatCard label="Approved, unpaid" value={data.rewards.approved} prefix="$" suffix={t} hint="Ready to prepare payouts" icon={BadgeCheck} delay={0.25} />
@@ -83,7 +83,7 @@ export function AdminOverviewView() {
                 <div>
                   <div className="text-sm font-medium">
                     {fmtDate(d.periodStart)}
-                    {d.periodEnd !== d.periodStart && ` – ${fmtDate(d.periodEnd)}`}
+                    {d.periodEnd !== d.periodStart && ` to ${fmtDate(d.periodEnd)}`}
                   </div>
                   <div className="text-[11.5px] text-white/45">
                     {d.participants} walkers · fees {fmtAmount(d.eligibleFees)} · by {shortAddress(d.createdBy)}

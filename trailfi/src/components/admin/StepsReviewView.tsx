@@ -96,7 +96,7 @@ export function StepsReviewView() {
                       <span className="text-[12.5px] text-white/50">{e.source.replace("_", " ")}</span>
                     )}
                   </td>
-                  <td className="table-cell text-[12px] text-amber-200/80">{e.flags.length ? e.flags.join(", ").replaceAll("_", " ") : "—"}</td>
+                  <td className="table-cell text-[12px] text-amber-200/80">{e.flags.length ? e.flags.join(", ").replaceAll("_", " ") : "None"}</td>
                   <td className="table-cell">
                     <StatusBadge status={e.verification} />
                   </td>

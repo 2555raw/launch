@@ -34,7 +34,7 @@ const SELECT = `select reward_percent::float8 as "rewardPercent", daily_step_goa
 
 export async function getSettings(): Promise<PlatformSettings> {
   const row = await one<PlatformSettings>(SELECT);
-  if (!row) throw new Error("platform_settings row missing — run the migrations");
+  if (!row) throw new Error("platform_settings row missing: run the migrations");
   return row;
 }
 

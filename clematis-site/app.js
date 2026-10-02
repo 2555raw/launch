@@ -1499,7 +1499,7 @@
   function shareUrl(from, to, inNum) {
     const tag = (t) => (t.native || t.symbol === 'USDG' ? t.symbol : '$' + t.symbol);
     const site = (document.querySelector('meta[property="og:url"]') || {}).content || location.origin + '/';
-    const text = `Just swapped ${fmtAmount(inNum)} ${tag(from)} for ${tag(to)} on ${BRAND}, on-chain on Robinhood Chain.`;
+    const text = `Just swapped ${fmtAmount(inNum)} ${tag(from)} for ${tag(to)} on @useClematis, on-chain on Robinhood Chain.`;
     return 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(site);
   }
 

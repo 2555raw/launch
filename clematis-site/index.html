@@ -50,12 +50,13 @@
       <div class="side-row"><span>Address</span><a id="side-addr" target="_blank" rel="noopener">—</a></div>
       <div class="side-row"><span>ETH</span><b id="side-eth">—</b></div>
       <div class="side-row"><span>Stocks held</span><b id="side-held">—</b></div>
+      <button type="button" class="side-get-eth" data-get-eth>+ Get ETH</button>
     </div>
   </div>
 
   <div class="side-card">
     <div class="side-label">Market</div>
-    <div class="side-row"><span>ETH</span><b id="side-ethusd">—</b></div>
+    <div class="side-row"><span>ETH</span><b class="sk" id="side-ethusd"></b></div>
     <div class="side-row"><span>Stocks listed</span><b id="side-count">—</b></div>
     <div class="side-row"><span>Network</span><b class="side-net"><i id="side-dot"></i>Chain 4663</b></div>
     <div class="side-row"><span>Block</span><b id="side-block">—</b></div>
@@ -178,6 +179,7 @@
       <div class="swap-alert" id="swap-alert" hidden></div>
 
       <button type="button" class="btn btn-primary btn-block" id="swap-btn">Connect wallet</button>
+      <button type="button" class="get-eth-hint" id="get-eth-hint" data-get-eth hidden>No ETH on Robinhood Chain yet? <b>Get ETH →</b></button>
       <p class="fine">Quotes come straight from Uniswap v3 and v4 pools on Robinhood Chain. Network fees apply.</p>
     </div>
 
@@ -190,7 +192,7 @@
       <button type="button" class="more-btn" id="more-stocks">All stocks (<span id="stock-count">0</span>)</button>
       <div class="eth-price">
         <span>ETH price</span>
-        <b id="eth-price">—</b>
+        <b class="sk" id="eth-price"></b>
       </div>
       <ul class="side-notes">
         <li>Your wallet signs every trade</li>
@@ -314,6 +316,8 @@
       <div class="faq-item"><button class="faq-q" type="button">What fees do I pay?<span>▾</span></button><div class="faq-a"><p>The pool's liquidity fee (shown before you swap, from 0.01% to 1% depending on the pool) and the Robinhood Chain network fee. Clematis charges no platform fee.</p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">Why does selling take more than one step?<span>▾</span></button><div class="faq-a"><p>Selling a token goes through Permit2, Uniswap's approval contract. First you approve exactly the amount you're selling, then you sign a free permit (no gas) that lets the router move that amount for the next 30 minutes, then you confirm the swap. Buying with ETH is a single transaction.</p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">Is holding a tokenized stock the same as holding the share?<span>▾</span></button><div class="faq-a"><p>No. Tokenized stocks track the price of the underlying security and are issued by third parties. Holding one is not holding the share. Not investment advice.</p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">How do I get ETH on Robinhood Chain?<span>▾</span></button><div class="faq-a"><p>Bridge it from Ethereum or another network. The official Arbitrum bridge takes about 10 minutes from Ethereum; Across and Stargate are faster from other networks. <button type="button" class="link-btn" data-get-eth>See the bridges →</button></p></div></div>
+      <div class="faq-item"><button class="faq-q" type="button">Who can use Clematis?<span>▾</span></button><div class="faq-a"><p>Tokenized stocks are not offered to U.S. persons and are restricted in some other countries, including Canada, the UK, Switzerland and the UAE, and anywhere under sanctions. Check your local rules before you swap. <a href="terms.html">Terms &amp; risks</a></p></div></div>
       <div class="faq-item"><button class="faq-q" type="button">Which network does Clematis run on?<span>▾</span></button><div class="faq-a"><p>Robinhood Chain (chain ID 4663). If your wallet isn't on it yet, Clematis will ask to add and switch to it when you connect.</p></div></div>
     </div>
   </section>
@@ -328,12 +332,13 @@
       <a class="social-btn social-lg" href="https://x.com/" target="_blank" rel="noopener" aria-label="Clematis on X (Twitter)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow on X</span></a>
     </div>
     <div class="foot-col"><h4>Product</h4><a href="#swap">Swap</a><a href="#stocks">Stocks</a><a href="#features">Features</a></div>
-    <div class="foot-col"><h4>Learn</h4><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noopener">Robinhood Chain explorer</a></div>
+    <div class="foot-col"><h4>Learn</h4><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noopener">Robinhood Chain explorer</a><a href="terms.html">Terms &amp; risks</a></div>
   </div>
   <div class="foot-legal">
     <p>Tokenized stocks track the price of the underlying security and are issued by third parties. Holding one is not holding the share. Not investment advice.</p>
     <p>Swaps settle through Uniswap v3 and v4 on Robinhood Chain. Liquidity and network fees apply.</p>
     <p>Company logos are trademarks of their owners.</p>
+    <p>Tokenized stocks are not offered to U.S. persons and are restricted in some other countries. <a href="terms.html">Terms &amp; risks</a></p>
     <p>© 2026 Clematis</p>
   </div>
 </footer>
@@ -352,6 +357,21 @@
   <div class="modal-card modal-sm">
     <div class="modal-head"><h3 id="wallet-modal-title">Connect wallet</h3><button type="button" class="icon-btn" data-close aria-label="Close">✕</button></div>
     <div class="wallet-list" id="wallet-list"></div>
+    <p class="wallet-legal">By connecting, you confirm you are not a U.S. person and accept the <a href="terms.html" target="_blank" rel="noopener">terms &amp; risks</a>. Tokenized stocks are not offered in the U.S. and are restricted in some other countries.</p>
+  </div>
+</div>
+
+<!-- Get ETH: bridges from Robinhood's own list (docs.robinhood.com/chain/bridging) -->
+<div class="modal" id="eth-modal" role="dialog" aria-modal="true" aria-labelledby="eth-modal-title" hidden>
+  <div class="modal-card modal-sm">
+    <div class="modal-head"><h3 id="eth-modal-title">Get ETH on Robinhood Chain</h3><button type="button" class="icon-btn" data-close aria-label="Close">✕</button></div>
+    <p class="wallet-empty">Swaps are paid in ETH on Robinhood Chain. Move some over from another network with one of the bridges Robinhood lists:</p>
+    <div class="wallet-list">
+      <a class="wallet-row" href="https://portal.arbitrum.io/bridge?destinationChain=robinhood-chain&amp;sourceChain=ethereum" target="_blank" rel="noopener"><img src="bridges/arbitrum.svg" alt="" width="32" height="32"><span class="wallet-name">Arbitrum Bridge<small>Official bridge · from Ethereum · about 10 min</small></span><span class="wallet-tag">↗</span></a>
+      <a class="wallet-row" href="https://across.to/?to=robinhood" target="_blank" rel="noopener"><img src="bridges/across.svg" alt="" width="32" height="32"><span class="wallet-name">Across<small>From Ethereum, Base, Arbitrum and more · fast</small></span><span class="wallet-tag">↗</span></a>
+      <a class="wallet-row" href="https://stargate.finance" target="_blank" rel="noopener"><img src="bridges/stargate.svg" alt="" width="32" height="32"><span class="wallet-name">Stargate<small>From many networks</small></span><span class="wallet-tag">↗</span></a>
+    </div>
+    <p class="wallet-legal">Bridges are run by third parties. Check you are on the right network and address before sending.</p>
   </div>
 </div>
 
@@ -415,6 +435,7 @@
       <h4>Swap complete</h4>
       <p id="tx-done-desc"></p>
       <a class="tx-link" id="tx-done-link" target="_blank" rel="noopener">View on explorer ↗</a>
+      <a class="btn btn-ghost btn-block share-x" id="tx-share" target="_blank" rel="noopener" hidden><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Share on X</a>
       <button type="button" class="btn btn-primary btn-block" data-close>Done</button>
     </div>
     <div id="tx-fail" hidden>

@@ -12,6 +12,7 @@
  * Runs inside server.js, refreshes every few minutes, and is served as
  * /api/stats. Node 18+, no dependencies. */
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 
 const RPC = process.env.RPC_URL || 'https://rpc.mainnet.chain.robinhood.com';
@@ -194,9 +195,23 @@ async function buildStats(tokensFile) {
   return { updatedAt: new Date().toISOString(), block: head, ethUsd: ethNow, tokens: out };
 }
 
-/* keep one copy fresh in memory; callers get whatever is current */
+/* keep one copy fresh in memory; callers get whatever is current. Each good run
+   is also written to disk, so a restarted server can answer straight away with
+   the last copy (if it's recent) while it builds a new one. On Railway,
+   STATS_CACHE points at the service's volume so the copy survives redeploys. */
+const CACHE = process.env.STATS_CACHE || path.join(os.tmpdir(), 'clematis-stats.json');
+const CACHE_MAX_AGE = 30 * 60 * 1000;
+
+function readCache() {
+  try {
+    const data = JSON.parse(fs.readFileSync(CACHE, 'utf8'));
+    if (data && data.tokens && Date.now() - Date.parse(data.updatedAt) < CACHE_MAX_AGE) return data;
+  } catch { /* no cache yet */ }
+  return null;
+}
+
 function startStats(tokensFile, everyMs = 10 * 60 * 1000) {
-  const state = { data: null, error: null, running: false };
+  const state = { data: readCache(), error: null, running: false };
   const run = async () => {
     if (state.running) return;
     state.running = true;
@@ -204,6 +219,7 @@ function startStats(tokensFile, everyMs = 10 * 60 * 1000) {
     try {
       state.data = await buildStats(tokensFile);
       state.error = null;
+      fs.writeFile(CACHE, JSON.stringify(state.data), () => {});
       console.log(`stats: ${Object.keys(state.data.tokens).length} stocks in ${((Date.now() - t0) / 1000).toFixed(0)}s`);
     } catch (e) {
       state.error = e.message;

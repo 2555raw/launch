@@ -904,12 +904,16 @@
       $('tx-title').textContent = 'Done';
       $('tx-done-desc').textContent = `You swapped ${fmtAmount(d.inNum)} ${from.symbol} for about ${fmtAmount(d.outNum)} ${to.symbol}.`;
       $('tx-done-link').href = `${CHAIN.explorer}/tx/${hash}`;
+      const share = $('tx-share');
+      share.href = shareUrl(from, to, d.inNum);
+      share.hidden = false;
       $('pay-amt').value = '';
       requestQuote(0);
     } catch (e) {
       if (hash && !e.reverted) {
         /* sent, but we stopped waiting: it may still land, so don't call it failed */
         showTxStep('done');
+        $('tx-share').hidden = true;
         $('tx-title').textContent = 'Submitted';
         $('tx-done-desc').textContent = 'Your swap was sent but hasn’t confirmed yet. It may still go through — check the explorer before trying again.';
         $('tx-done-link').href = `${CHAIN.explorer}/tx/${hash}`;
@@ -1018,6 +1022,11 @@
     btn.textContent = label;
     btn.disabled = disabled;
 
+    /* nudge toward a bridge when the wallet has (almost) no ETH here */
+    const ethBal = state.balances.get('ETH');
+    $('get-eth-hint').hidden = !(state.account && state.chainOk && ethBal !== undefined &&
+      (ethBal < ethers.parseEther('0.0005') || (pay.native && payBal !== null && amountIn > payBal)));
+
     renderSide();
 
     const nav = $('nav-connect');
@@ -1055,14 +1064,27 @@
     }
   }
 
+  /* Writes a USD price into a node. Until there is one the node stays empty and
+     shows a loading bar; when it changes, it flashes green or red. */
+  function paintPrice(n, u) {
+    if (u === null || !isFinite(u)) { n.textContent = ''; return; }
+    const text = fmtUsd(u);
+    const prev = Number(n.dataset.v);
+    if (n.dataset.v && text !== n.textContent && u !== prev) {
+      n.classList.remove('flash-up', 'flash-down');
+      void n.offsetWidth; // restart the animation
+      n.classList.add(u > prev ? 'flash-up' : 'flash-down');
+    }
+    n.dataset.v = u;
+    n.textContent = text;
+  }
   function renderPrices() {
-    const ethUsd = state.ethUsd;
-    $('eth-price').textContent = ethUsd ? fmtUsd(ethUsd) : '—';
-    $('side-ethusd').textContent = ethUsd ? fmtUsd(ethUsd) : '—';
+    const ethUsd = state.ethUsd || null;
+    paintPrice($('eth-price'), ethUsd);
+    paintPrice($('side-ethusd'), ethUsd);
     document.querySelectorAll('[data-price]').forEach((n) => {
       const t = bySymbol(n.dataset.price);
-      const u = t ? priceUsd(t) : null;
-      n.textContent = u !== null ? fmtUsd(u) : '—';
+      paintPrice(n, t ? priceUsd(t) : null);
     });
     render();
   }
@@ -1075,7 +1097,7 @@
       const b = el('button', 'pick');
       b.type = 'button';
       b.dataset.sym = t.symbol;
-      const px = el('span', 'px', '—'); px.dataset.price = t.symbol;
+      const px = el('span', 'px'); px.dataset.price = t.symbol;
       b.append(logoImg(t), el('b', null, t.symbol), el('small', null, t.name), px);
       b.addEventListener('click', () => selectToken('recv', t));
       return b;
@@ -1243,10 +1265,10 @@
       const text = el('span', 'mkt-text');
       text.append(el('b', null, t.symbol), el('small', null, t.name));
       asset.append(starButton(t), logoImg(t), text);
-      const px = el('span', 'mt-num', '—');
+      const px = el('span', 'mt-num');
       px.dataset.price = t.symbol;
-      const chg = el('span', 'mt-num ' + (st ? chgClass(st.change24h) : 'chg'), st ? fmtPct(st.change24h) : '—');
-      const vol = el('span', 'mt-num mt-vol', st ? fmtCompactUsd(st.volume24h) : '—');
+      const chg = el('span', 'mt-num ' + (st ? chgClass(st.change24h) : 'chg sk'), st ? fmtPct(st.change24h) : '');
+      const vol = el('span', 'mt-num mt-vol' + (st ? '' : ' sk'), st ? fmtCompactUsd(st.volume24h) : '');
       const spark = el('span', 'mt-spark');
       if (st && st.spark) spark.append(sparkline(st.spark, 96, 30, st.change24h));
       const act = el('span', 'mt-act');
@@ -1278,7 +1300,7 @@
         const text = el('span', 'mkt-text');
         text.append(el('b', null, t.symbol), el('small', null, t.name));
         const right = el('span', 'mover-val');
-        const px = el('span', 'mover-px', '—'); px.dataset.price = t.symbol;
+        const px = el('span', 'mover-px'); px.dataset.price = t.symbol;
         right.append(px, value(st));
         b.append(logoImg(t), text, right);
         b.addEventListener('click', () => openAsset(t));
@@ -1458,7 +1480,7 @@
     const items = () => picks.map((t) => {
       const b = el('button', 'tape-item');
       b.type = 'button';
-      const px = el('span', null, '—');
+      const px = el('span');
       px.dataset.price = t.symbol;
       b.append(logoImg(t), el('b', null, t.symbol), px);
       b.addEventListener('click', () => {
@@ -1471,6 +1493,14 @@
     const second = items();
     second.forEach((n) => { n.tabIndex = -1; n.setAttribute('aria-hidden', 'true'); });
     $('tape-track').replaceChildren(...items(), ...second);
+  }
+
+  /* A ready-made post for X after a swap. Stocks get a cashtag. */
+  function shareUrl(from, to, inNum) {
+    const tag = (t) => (t.native || t.symbol === 'USDG' ? t.symbol : '$' + t.symbol);
+    const site = (document.querySelector('meta[property="og:url"]') || {}).content || location.origin + '/';
+    const text = `Just swapped ${fmtAmount(inNum)} ${tag(from)} for ${tag(to)} on ${BRAND}, on-chain on Robinhood Chain.`;
+    return 'https://x.com/intent/post?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(site);
   }
 
   /* ---------------- floating hero assets ---------------- */
@@ -1767,6 +1797,9 @@
   $('rv-confirm').addEventListener('click', executeSwap);
 
   $('side-connect').addEventListener('click', () => openWalletModal());
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-get-eth]')) openModal('eth-modal');
+  });
   $('nav-connect').addEventListener('click', async () => {
     if (!state.account) { openWalletModal(); return; }
     if (!state.chainOk) { try { await ensureChain(); } catch (e) { toast(humanError(e)); } return; }

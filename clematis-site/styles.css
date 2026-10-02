@@ -876,6 +876,16 @@ img { display: block; }
 .wallet-qr-logo { position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; transform: translate(-50%, -50%); border-radius: 12px; border: 4px solid #fff; background: #fff; }
 .wallet-qr-text { text-align: center; }
 .wallet-back { justify-self: center; }
+.wallet-name small { display: block; margin-top: 2px; font-size: 12px; font-weight: 500; color: var(--muted); }
+.wallet-legal { margin: 0; font-size: 11.5px; line-height: 1.5; color: var(--muted-2); }
+.wallet-legal a { color: var(--blue-light); }
+.get-eth-hint { display: block; width: 100%; margin-top: 10px; padding: 0; border: 0; background: none; color: var(--muted); font: inherit; font-size: 13.5px; text-align: center; cursor: pointer; }
+.get-eth-hint b { color: var(--blue-light); }
+.get-eth-hint:hover b { text-decoration: underline; }
+.side-get-eth { justify-self: start; padding: 0; border: 0; background: none; color: var(--blue-light); font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.side-get-eth:hover { text-decoration: underline; }
+.link-btn { padding: 0; border: 0; background: none; color: var(--blue-light); font: inherit; font-weight: 600; cursor: pointer; }
+.share-x { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .wallet-empty { color: var(--muted); font-size: 14px; margin: 0; }
 .wallet-empty a { color: var(--blue-light); }
 
@@ -913,6 +923,27 @@ img { display: block; }
   font-size: 14px;
 }
 
+/* loading bars, shown while a value hasn't arrived yet */
+[data-price]:empty, .sk:empty {
+  display: inline-block;
+  min-width: 52px;
+  height: .85em;
+  border-radius: 6px;
+  vertical-align: middle;
+  background: linear-gradient(90deg, rgba(96, 165, 250, .07) 25%, rgba(96, 165, 250, .2) 50%, rgba(96, 165, 250, .07) 75%);
+  background-size: 200% 100%;
+  animation: sk 1.3s linear infinite;
+}
+@keyframes sk { from { background-position: 150% 0; } to { background-position: -50% 0; } }
+.no-stats .sk:empty { min-width: 0; height: auto; background: none; animation: none; }
+.no-stats .sk:empty::before { content: '—'; }
+
+/* a price that just moved */
+.flash-up { animation: flash-up 1.4s ease-out; }
+.flash-down { animation: flash-down 1.4s ease-out; }
+@keyframes flash-up { 0%, 25% { color: #34d399; text-shadow: 0 0 14px rgba(52, 211, 153, .55); } }
+@keyframes flash-down { 0%, 25% { color: #f87171; text-shadow: 0 0 14px rgba(248, 113, 113, .55); } }
+
 /* reveal on scroll */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
 .reveal.in { opacity: 1; transform: none; }
@@ -921,6 +952,8 @@ img { display: block; }
   .tape { overflow-x: auto; }
   .tape-track { animation: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
+  [data-price]:empty, .sk:empty { animation: none; }
+  .flash-up, .flash-down { animation-duration: .01s; }
   .fa-float { animation: none; }
   .q-live i, .spinner { animation-duration: 3s; }
 }

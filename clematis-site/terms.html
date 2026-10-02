@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clematis</title>
+<meta name="description" content="Terms of use and risks of swapping tokenized stocks on Robinhood Chain with Clematis.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .terms { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
+  .terms-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 40px; }
+  .terms-top .back { color: var(--muted); text-decoration: none; font-weight: 600; font-size: 14px; }
+  .terms-top .back:hover { color: var(--ink); }
+  .terms h1 { margin: 0 0 8px; font-size: clamp(32px, 5vw, 44px); letter-spacing: -0.03em; }
+  .terms .updated { margin: 0 0 32px; color: var(--muted-2); font-size: 14px; }
+  .terms .callout { margin: 0 0 36px; padding: 16px 18px; border-radius: 14px; background: rgba(59, 130, 246, .08); border: 1px solid rgba(96, 165, 250, .25); color: var(--ink); }
+  .terms h2 { margin: 36px 0 10px; font-size: 20px; letter-spacing: -0.01em; }
+  .terms p, .terms li { color: #c9d3ea; font-size: 15.5px; line-height: 1.65; }
+  .terms ul { padding-left: 20px; }
+  .terms p a, .terms li a { color: var(--blue-light); }
+  .terms-top .brand { color: var(--ink); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="backdrop" aria-hidden="true"></div>
+<main class="terms">
+  <div class="terms-top">
+    <a class="brand" href="./"><img src="assets/logo-mark.svg" alt="" width="28" height="28"><span>Clematis</span></a>
+    <a class="back" href="./">← Back to the app</a>
+  </div>
+
+  <h1>Terms &amp; risks</h1>
+  <p class="updated">Last updated: October 2026</p>
+
+  <p class="callout"><b>Tokenized stocks are not offered to U.S. persons.</b> They are also restricted in other countries, including Canada, the United Kingdom, Switzerland and the United Arab Emirates, and anywhere under sanctions. Do not use Clematis to trade them if you are in, or a resident or citizen of, one of those places.</p>
+
+  <h2>What Clematis is</h2>
+  <p>Clematis is a website that helps you build swaps on Robinhood Chain. It reads prices from public Uniswap v3 and v4 pools and prepares a transaction that you review and sign in your own wallet. The swap itself runs through Uniswap's Universal Router.</p>
+  <p>Clematis never holds your funds or keys, can't move tokens on your behalf, and can't cancel, reverse or refund a transaction once it is on-chain. It doesn't issue, own or control any token, pool or smart contract shown on the site.</p>
+
+  <h2>What a tokenized stock is</h2>
+  <p>The stock tokens on Robinhood Chain are issued by a third party, not by Clematis and not by the companies they track. They give economic exposure to a share's price. Holding one is not holding the share: you get no voting rights and no legal claim on the company. Check the issuer's own documents for the exact terms of each token.</p>
+
+  <h2>Who can use it</h2>
+  <ul>
+    <li>You must be old enough to enter a binding agreement where you live.</li>
+    <li>You must not be a U.S. person or a resident of a country where these tokens are restricted, and you must not be on any sanctions list.</li>
+    <li>You are responsible for following the laws that apply to you, including tax.</li>
+  </ul>
+
+  <h2>Risks</h2>
+  <ul>
+    <li><b>Price.</b> Token prices move with the market and with on-chain trading. You can lose some or all of what you put in.</li>
+    <li><b>Liquidity.</b> Some pools are small. A large swap can move the price a lot (price impact), and a quote can change before your swap confirms. Your slippage setting caps how much less you'll accept; if the price moves past it, the swap fails instead.</li>
+    <li><b>Tracking.</b> A token's on-chain price can differ from the share price on a stock exchange, especially when that exchange is closed.</li>
+    <li><b>Smart contracts and networks.</b> Tokens, pools, routers, bridges and Robinhood Chain itself are software and can have bugs, be paused, or fail.</li>
+    <li><b>Your wallet.</b> Anyone with your keys or seed phrase controls your funds. Transactions sent to the wrong address can't be recovered.</li>
+    <li><b>Bridges.</b> Bridges listed on Clematis are run by third parties. Use them at your own risk.</li>
+  </ul>
+
+  <h2>Fees</h2>
+  <p>Clematis charges no platform fee. Each swap pays the pool's liquidity fee, shown before you confirm, and the Robinhood Chain network fee.</p>
+
+  <h2>No advice</h2>
+  <p>Nothing on Clematis is investment, legal or tax advice, or an offer or recommendation to buy or sell anything. Prices and 24-hour data are read from public on-chain data and may be late or wrong.</p>
+
+  <h2>No warranty</h2>
+  <p>Clematis is provided "as is", without warranties of any kind. To the extent the law allows, Clematis and its contributors are not liable for any loss arising from your use of the site, including losses from price moves, failed or delayed transactions, third-party contracts or bridges, or the site being unavailable.</p>
+
+  <h2>Changes</h2>
+  <p>These terms may change. The date at the top shows the latest version. Using the site after a change means you accept the new terms.</p>
+</main>
+</body>
+</html>

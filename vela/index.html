@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en" data-theme="default">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vela — Launchpad</title>
+  <meta name="description" content="Vela is a launchpad: create tokens on pump.fun, Ethereum, Base and BNB Chain from your own wallet, and follow their P&L in one place.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-2 -2 11 11' shape-rendering='crispEdges'%3E%3Crect x='-2' y='-2' width='11' height='11' rx='2' fill='%230b0c0f'/%3E%3Cpath fill='%23ffffff' d='M3 0h1v7H3zM0 1h1v2H0zM1 2h1v1H1zM2 3h1v1H2zM1 4h1v1H1zM0 4h1v2H0zM6 1h1v2H6zM5 2h1v1H5zM4 3h1v1H4zM5 4h1v1H5zM6 4h1v2H6z'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <script>
+    /* Apply the saved look before first paint, so a light theme never flashes dark. */
+    (function () {
+      try {
+        var p = JSON.parse(localStorage.getItem('vela-look') || '{}'), d = document.documentElement;
+        ['theme', 'radius', 'font', 'density', 'side', 'statusbar', 'charts'].forEach(function (k) { if (p[k]) d.setAttribute('data-' + k, p[k]); });
+        if (p.primary) d.style.setProperty('--user-primary', p.primary);
+      } catch (e) { /* storage blocked: defaults apply */ }
+    })();
+  </script>
+</head>
+<body>
+<div class="app" id="app">
+
+  <!-- ================= sidebar ================= -->
+  <aside class="side" id="side">
+    <div class="side-head">
+      <a class="brand" href="#dashboard" data-view="dashboard">
+        <svg class="brand-mark" viewBox="0 0 7 7" aria-hidden="true">
+          <path fill="currentColor" d="M3 0h1v7H3zM0 1h1v2H0zM1 2h1v1H1zM2 3h1v1H2zM1 4h1v1H1zM0 4h1v2H0zM6 1h1v2H6zM5 2h1v1H5zM4 3h1v1H4zM5 4h1v1H5zM6 4h1v2H6z"/>
+        </svg>
+        <span class="brand-name">Vela</span><span class="brand-ver">v1.0</span>
+      </a>
+      <button class="icon-btn" id="collapse" type="button" aria-label="Collapse sidebar" title="Collapse sidebar"><i data-i="panel"></i></button>
+    </div>
+
+    <div class="side-search">
+      <label class="search">
+        <i data-i="search"></i>
+        <input id="search" type="search" placeholder="Search" autocomplete="off" spellcheck="false" aria-label="Search launches">
+        <kbd>⌘K</kbd>
+      </label>
+      <div class="pop-wrap">
+        <button class="icon-btn" id="filterBtn" type="button" aria-label="Filter launches" title="Filter"><i data-i="filter"></i></button>
+        <div class="pop" id="filterPop" hidden>
+          <div class="pop-label">Show</div>
+          <button type="button" data-status="live">Live</button>
+          <button type="button" data-status="all">All launches</button>
+          <button type="button" data-status="archived">Archived</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="launches" id="launchList" aria-label="Launches"></div>
+
+    <nav class="features" aria-label="Features">
+      <button class="features-head" id="featuresToggle" type="button" aria-expanded="true">
+        <span>Features</span><i data-i="chevron"></i>
+      </button>
+      <div class="features-list" id="featuresList">
+        <a href="#wallets" data-view="wallets"><i data-i="wallet"></i><span>My Wallets</span></a>
+        <a href="#sites" data-view="sites"><i data-i="store"></i><span>Launch Sites</span><em class="tag tag-new">NEW</em></a>
+        <a href="#tracker" data-view="tracker"><i data-i="target"></i><span>Tracker</span></a>
+        <a href="#archived" data-view="archived"><i data-i="archive"></i><span>Archived</span><em class="tag" id="archivedCount">0</em></a>
+        <a href="#dashboard" data-view="dashboard"><i data-i="grid"></i><span>Dashboard</span></a>
+      </div>
+    </nav>
+
+    <div class="side-foot">
+      <div class="pop-wrap funder-wrap">
+        <button class="funder" id="funderBtn" type="button" aria-haspopup="true">
+          <i data-i="wallet"></i>
+          <span class="funder-name" id="funderName">Connect Wallet</span>
+          <span class="funder-bal" id="funderBal"></span>
+          <i data-i="chevron"></i>
+        </button>
+        <div class="pop pop-up" id="funderPop" hidden></div>
+      </div>
+      <div class="side-actions">
+        <button class="btn btn-ghost" id="importBtn" type="button"><i data-i="download"></i><span>Import</span></button>
+        <button class="btn btn-primary" id="createBtn" type="button"><i data-i="rocket"></i><span>Create Launch</span></button>
+      </div>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <!-- ================= main ================= -->
+  <main class="main" id="main">
+    <header class="topbar">
+      <button class="icon-btn burger" id="burger" type="button" aria-label="Open menu"><i data-i="menu"></i></button>
+      <div class="seg" id="rangeSeg" role="tablist" aria-label="Time range">
+        <button type="button" data-range="all">All-Time</button>
+        <button type="button" data-range="1y">1 Year</button>
+        <button type="button" data-range="1m">1 Month</button>
+        <button type="button" data-range="7d">7 Days</button>
+        <button type="button" data-range="1d">1 Day</button>
+      </div>
+      <div class="seg seg-chains" id="chainSeg" aria-label="Chain"></div>
+    </header>
+
+    <!-- ---------- dashboard ---------- -->
+    <section class="view" data-view="dashboard">
+      <div class="kpis">
+        <div class="card kpi">
+          <div class="kpi-top"><span class="label">Total P&amp;L</span><i data-i="calendar" class="muted-ico"></i></div>
+          <div class="kpi-val" id="kpiPnl">$0</div>
+          <div class="kpi-sub" id="kpiPnlSub">&nbsp;</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-top"><span class="label">Total Launches</span></div>
+          <div class="kpi-val" id="kpiLaunches">0</div>
+          <div class="kpi-sub" id="kpiLaunchesSub">&nbsp;</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-top"><span class="label">Dev Holdings</span></div>
+          <div class="kpi-val" id="kpiHold">$0</div>
+          <div class="kpi-sub" id="kpiHoldSub">&nbsp;</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-top"><span class="label">Wallet Balance</span></div>
+          <div class="kpi-val" id="kpiBal">$0</div>
+          <div class="kpi-sub" id="kpiBalSub">&nbsp;</div>
+        </div>
+      </div>
+
+      <div class="charts">
+        <div class="card chart-card">
+          <div class="chart-head">
+            <span class="label">Cumulative P&amp;L</span>
+            <div class="chart-modes" data-chart="cum">
+              <button type="button" data-mode="area" aria-label="Area chart" title="Area"><i data-i="line"></i></button>
+              <button type="button" data-mode="bar" aria-label="Bar chart" title="Bars"><i data-i="bars"></i></button>
+              <button type="button" data-mode="donut" aria-label="By chain" title="By chain"><i data-i="pie"></i></button>
+            </div>
+          </div>
+          <div class="chart" id="chartCum"></div>
+        </div>
+        <div class="card chart-card">
+          <div class="chart-head">
+            <span class="label" id="dailyTitle">Daily P&amp;L</span>
+            <div class="chart-modes" data-chart="daily">
+              <button type="button" data-mode="area" aria-label="Line chart" title="Line"><i data-i="line"></i></button>
+              <button type="button" data-mode="bar" aria-label="Bar chart" title="Bars"><i data-i="bars"></i></button>
+              <button type="button" data-mode="donut" aria-label="By chain" title="By chain"><i data-i="pie"></i></button>
+            </div>
+          </div>
+          <div class="chart" id="chartDaily"></div>
+        </div>
+      </div>
+
+      <div class="divider"><span>Launches</span></div>
+
+      <div class="lower">
+        <div class="card list-card">
+          <div class="card-head"><span class="label">Recent Launches</span><a class="link-btn" href="#tracker" data-view="tracker">Open tracker</a></div>
+          <span class="mono dim" id="recentMeta">0 LIVE</span>
+          <div class="rows" id="recentList"></div>
+        </div>
+        <div class="card list-card">
+          <div class="card-head"><span class="label">Launch Sites</span><a class="link-btn" href="#sites" data-view="sites">Details</a></div>
+          <span class="mono dim" id="sitesMeta">4/6 SITES LIVE</span>
+          <div class="rows" id="sitesList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- wallets ---------- -->
+    <section class="view" data-view="wallets" hidden>
+      <div class="view-head">
+        <div><h1>My Wallets</h1><p class="dim">Vela never holds keys. Every launch and sale is signed in your own wallet.</p></div>
+        <button class="btn btn-ghost" id="refreshBtn" type="button"><i data-i="history"></i><span>Refresh</span></button>
+      </div>
+      <div class="wallet-cards" id="walletCards"></div>
+    </section>
+
+    <!-- ---------- launch sites ---------- -->
+    <section class="view" data-view="sites" hidden>
+      <div class="view-head">
+        <div><h1>Launch Sites</h1><p class="dim">Where Vela can create a token for you, and how.</p></div>
+      </div>
+      <div class="market" id="siteCards"></div>
+    </section>
+
+    <!-- ---------- tracker ---------- -->
+    <section class="view" data-view="tracker" hidden>
+      <div class="view-head">
+        <div><h1>Tracker</h1><p class="dim">Your live launches and any token you follow. Market data from DexScreener.</p></div>
+        <form class="inline-form" id="trackForm">
+          <input id="trackInput" placeholder="Paste a token address" autocomplete="off" spellcheck="false" aria-label="Token address">
+          <button class="btn btn-ghost" type="submit"><i data-i="plus"></i><span>Track</span></button>
+        </form>
+      </div>
+      <div class="card table-card"><table class="table" id="trackTable"></table></div>
+    </section>
+
+    <!-- ---------- archived ---------- -->
+    <section class="view" data-view="archived" hidden>
+      <div class="view-head">
+        <div><h1>Archived</h1><p class="dim">Launches you have put away. They still count in your P&amp;L.</p></div>
+      </div>
+      <div class="card table-card"><table class="table" id="archTable"></table></div>
+    </section>
+  </main>
+
+  <!-- ================= status bar ================= -->
+  <footer class="statusbar">
+    <div class="sb-left">
+      <span class="live-dot" id="apiDot"></span>
+      <span class="sb-ok" id="apiStatus">Connecting…</span>
+    </div>
+    <div class="sb-prices" id="prices"></div>
+    <div class="sb-right">
+      <button class="sb-link" id="docsBtn" type="button"><i data-i="book"></i><span>Documentation</span></button>
+      <button class="sb-link" id="activityBtn" type="button"><i data-i="history"></i><span>Activity</span></button>
+      <button class="sb-link sb-settings" id="settingsBtn" type="button"><span>Settings</span><i data-i="gear"></i></button>
+    </div>
+  </footer>
+</div>
+
+<!-- ================= modal ================= -->
+<div class="modal" id="modal" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle"></h2>
+      <button class="icon-btn" type="button" data-close aria-label="Close"><i data-i="close"></i></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="erc20.js"></script>
+<script src="chain.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

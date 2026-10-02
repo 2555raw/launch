@@ -181,7 +181,7 @@
   const launchPump = async (opts, step) => {
     const web3 = await lib('solana');
     const sol = await connectSol();
-    step('Uploading image and metadata to IPFS');
+    step('Uploading image and metadata');
     const { uri, image } = await postJson('/api/ipfs', {
       name: opts.name, symbol: opts.symbol, description: opts.description, image: opts.image,
       twitter: opts.twitter, telegram: opts.telegram, website: opts.website
@@ -277,7 +277,7 @@
     const acct = await connectEvm();
     let logo = '';
     if (opts.image) {
-      step('Uploading the logo to IPFS');
+      step('Uploading the logo');
       const { image } = await postJson('/api/ipfs', { name: opts.name, symbol: opts.symbol, image: opts.image, imageOnly: true });
       logo = image.replace('https://ipfs.io/ipfs/', 'ipfs://');
     }

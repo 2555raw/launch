@@ -98,7 +98,7 @@
   /* Slot order of the validated chart palette: rh, base, sol, bnb. */
   const CHAINS = {
     rh:   { name: 'Robinhood', unit: 'ETH', short: 'RH',   color: 'var(--c-rh)',   logo: 'img/robinhood.png' },
-    base: { name: 'Base',      unit: 'ETH', short: 'BASE', color: 'var(--c-base)', logo: 'img/base.png' },
+    base: { name: 'Base',      unit: 'ETH', short: 'BASE', color: 'var(--c-base)', logo: 'img/base.svg' },
     sol:  { name: 'Solana',    unit: 'SOL', short: 'SOL',  color: 'var(--c-sol)',  logo: 'img/sol.png' },
     bnb:  { name: 'BNB Chain', unit: 'BNB', short: 'BNB',  color: 'var(--c-bnb)',  logo: 'img/bnb.png' }
   };
@@ -114,7 +114,7 @@
     { id: 'pons', name: 'Pons', chain: 'rh', live: true, logo: 'img/pons.png', kind: 'Bonding curve', curve: true,
       how: 'The main launchpad on Robinhood Chain. 1B supply on a bonding curve that graduates to a Uniswap v4 pool with locked liquidity. AnyChain calls Pons’ own contracts from your wallet, with an optional first buy in the same transaction.',
       needs: 'An EVM wallet with ETH on Robinhood Chain: 0.0005 ETH Pons fee + your first buy + gas. AnyChain adds the network if it is missing.' },
-    { id: 'base', name: 'Base', chain: 'base', live: true, logo: 'img/base.png', kind: 'ERC-20 deploy',
+    { id: 'base', name: 'Base', chain: 'base', live: true, logo: 'img/base.svg', kind: 'ERC-20 deploy',
       how: 'A fixed-supply ERC-20 on Base, deployed from your wallet: no owner, no mint, no tax. Gas is a few cents. Add liquidity on Uniswap or Aerodrome.',
       needs: 'An EVM wallet with ETH on Base for gas.' },
     { id: 'bnb', name: 'BNB Chain', chain: 'bnb', live: true, logo: 'img/bnb.png', kind: 'ERC-20 deploy',
@@ -571,7 +571,7 @@
         <h3>${esc(s.name)} ${s.live ? '<span class="badge badge-live">Live</span>' : '<span class="badge badge-arch">Unavailable</span>'}</h3>
         <p>${esc(s.live ? s.how : s.why)}</p>
         ${s.live ? `<p style="flex:0">${esc(s.needs)}</p>` : ''}
-        ${s.id === 'pump' && live.health && !live.health.pinata ? '<p class="note warn" style="flex:0">This server has no PINATA_JWT, so pump.fun launches are off until it is set.</p>' : ''}
+        ${s.id === 'pump' && live.health && !live.health.uploads ? '<p class="note warn" style="flex:0">This server has no PINATA_JWT, so pump.fun launches are off until it is set.</p>' : ''}
         <div class="offer-foot">
           ${chainChip(s.chain)}
           ${s.live ? `<button class="btn btn-primary" type="button" data-create="${s.id}">Launch</button>` : ''}
@@ -663,7 +663,8 @@
         <div class="hot-row"><span>24h change</span><b class="${t.change24h < 0 ? 'neg' : 'pos'}">${t.change24h > 0 ? '+' : ''}${Number(t.change24h).toFixed(1)}%</b></div>
         <div class="hot-row"><span>Liquidity</span><b>${compact(t.liquidity)}</b></div>
       </a>`).join('')
-      : `<div class="ld-empty">${hotAt ? 'Nothing trending on this chain right now.' : 'Trending data is unavailable right now.'}</div>`;
+      : hot.length ? '<div class="ld-empty">Nothing trending on this chain right now.</div>'
+        : Array.from({ length: 5 }, () => '<div class="hot-skel"></div>').join('');
   };
 
   const loadHot = async () => {
@@ -672,10 +673,11 @@
     try {
       const r = await fetch('/api/trending');
       if (!r.ok) throw new Error();
-      hot = await r.json();
-      hotAt = Date.now();
+      const list = await r.json();
+      if (list.length) { hot = list; hotAt = Date.now(); }
     } catch (_) { /* keep what we had */ }
     renderHot();
+    if (!hot.length && !$('#landing').hidden) setTimeout(loadHot, 5000);   // DexScreener hiccup: try again
   };
 
   const syncLandingWallet = () => {
@@ -910,10 +912,10 @@
         const bal = live.balances[s.chain];
         const note = $('#siteNote', form);
         note.className = 'note';
-        if (s.id === 'pump' && live.health && !live.health.pinata) {
+        if (s.id === 'pump' && live.health && !live.health.uploads) {
           note.className = 'note warn';
           note.textContent = 'This server has no PINATA_JWT set, so the token image and metadata can’t be uploaded. pump.fun launches are off until it is.';
-        } else if (s.id === 'pons' && live.health && !live.health.pinata) {
+        } else if (s.id === 'pons' && live.health && !live.health.uploads) {
           note.textContent = 'Logo uploads need PINATA_JWT on the server, so this launch goes out without a logo. Everything else works.';
         } else if (!w) {
           note.innerHTML = `${esc(s.needs)} You’ll be asked to connect when you press Launch.`;
@@ -961,7 +963,7 @@
           if (!(buy >= 0) || buy > 1000) { fieldErr(form, 'buy', 'Enter 0 – 1000 SOL'); ok = false; }
           const links = ['twitter', 'telegram', 'website'];
           links.forEach((k) => { const v = form[k].value.trim(); if (v && !/^https?:\/\//i.test(v)) { fieldErr(form, k, 'Start with https://'); ok = false; } });
-          if (live.health && !live.health.pinata) ok = false;
+          if (live.health && !live.health.uploads) ok = false;
           Object.assign(opts, {
             description: form.desc.value.trim(), image: imageData, devBuy: buy,
             twitter: form.twitter.value.trim(), telegram: form.telegram.value.trim(), website: form.website.value.trim(),
@@ -974,7 +976,7 @@
           const buy = parseFloat(form.buy.value || '0');
           if (!(buy >= 0) || buy > 100) { fieldErr(form, 'buy', 'Enter 0 – 100 ETH'); ok = false; }
           ['twitter', 'telegram', 'website'].forEach((k) => { const v = form[k].value.trim(); if (v && !/^https?:\/\//i.test(v)) { fieldErr(form, k, 'Start with https://'); ok = false; } });
-          if (imageData && live.health && !live.health.pinata) { toast('Logo upload is off on this server — remove the logo or set PINATA_JWT', true); ok = false; }
+          if (imageData && live.health && !live.health.uploads) { toast('Logo upload is off on this server — remove the logo or set PINATA_JWT', true); ok = false; }
           Object.assign(opts, {
             description: form.desc.value.trim(), image: imageData, devBuy: buy, creatorTaxBps: +form.tax.value,
             twitter: form.twitter.value.trim(), telegram: form.telegram.value.trim(), website: form.website.value.trim(),
@@ -1448,10 +1450,14 @@
     up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>',
     down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 7 6 6 4-4 8 8"/><path d="M15 17h6v-6"/></svg>'
   };
-  const TICKERS = [['sol', 'Solana'], ['bnb', 'BNB'], ['eth', 'Ethereum'], ['arc', 'AI Rig Complex (ARC)']];
+  const TICKERS = [['sol', 'Solana'], ['bnb', 'BNB'], ['eth', 'Ethereum'], ['base', 'Base']];
   const renderPrices = () => {
     $('#prices').innerHTML = TICKERS.map(([k, name]) => {
       const p = live.prices[k];
+      if (k === 'base') {
+        if (!p?.txUsd) return '';
+        return `<span class="coin" title="Base has no token of its own: this is what a transfer costs right now (${p.gwei.toFixed(4)} gwei, paid in ETH)">${logoImg('img/base.svg')}<b>$${p.txUsd < 0.01 ? p.txUsd.toFixed(4) : p.txUsd.toFixed(3)}</b><span class="sb-unit">/tx</span></span>`;
+      }
       if (!p?.usd) return '';
       const ch = p.change || 0;
       const up = ch >= 0;

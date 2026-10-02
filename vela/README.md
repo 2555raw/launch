@@ -28,7 +28,9 @@ No dependencies; Node 18 or newer.
 
 | Variable | Needed for | Default |
 | --- | --- | --- |
-| `PINATA_JWT` | pump.fun launches (token image and metadata go to IPFS). Free key at pinata.cloud → API Keys → JWT | none — pump.fun is switched off without it |
+| `PINATA_JWT` | optional: token images and metadata go to IPFS. Free key at pinata.cloud → API Keys → JWT | none — files are then stored on the server (the Railway volume) and served from `/media` |
+| `DATA_DIR` | where self-hosted media is kept | the Railway volume mount, else `./data` |
+| `PUBLIC_URL` | base URL written into self-hosted metadata | `https://$RAILWAY_PUBLIC_DOMAIN` |
 | `SOLANA_RPC_URL` | Solana balances, sending transactions | `https://api.mainnet-beta.solana.com` (heavily rate-limited — use Helius, QuickNode, Triton…) |
 | `PORT` | | `8080` |
 
@@ -47,7 +49,7 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   the running sum of those events. A token DexScreener hasn't indexed yet counts at its cost only.
 - **Sell**: pump.fun tokens can be sold 25 / 50 / 100 % from the launch's panel (PumpPortal, `pool:
   auto`, so it still works after migration). What the sale returned is measured from the wallet.
-- **Prices** (status bar): SOL, ETH, BNB and ARC (AI Rig Complex) from CoinGecko, cached 30 s. **Tracker**: DexScreener, cached 15 s.
+- **Status bar**: SOL, BNB and ETH prices from CoinGecko, and what a transfer costs on Base right now (gas price × 21k gas × ETH), cached 30 s. **Tracker**: DexScreener, cached 15 s.
 - **Import**: add a token launched elsewhere so its P&L is tracked; give its cost if you know it.
 
 Clearing the browser's site data forgets the launch list (the tokens stay on-chain; import them again).
@@ -73,9 +75,10 @@ server.js           static files + /api (below)
 | Route | Does |
 | --- | --- |
 | `GET /api/health` | which features are configured |
-| `GET /api/prices` | SOL / ETH / BNB in USD |
+| `GET /api/prices` | SOL / ETH / BNB / ARC in USD, and Base's cost per transfer (Base has no token; gas is paid in ETH) |
 | `POST /api/sol-rpc` | Solana JSON-RPC, only the methods the page uses |
-| `POST /api/ipfs` | image (data URL, ≤ 4 MB) + metadata to Pinata, returns the metadata URI |
+| `POST /api/ipfs` | image (data URL, ≤ 4 MB) + metadata: IPFS via Pinata, else stored on the server; 20 uploads / hour / IP, 400 MB cap |
+| `GET /media/<sha256>.<ext>` | self-hosted token images and metadata (content-addressed, immutable) |
 | `POST /api/pump/create` | unsigned pump.fun create transaction from PumpPortal |
 | `POST /api/pump/sell` | unsigned sell transaction (a % of the wallet's tokens) |
 | `GET /api/token/:addrs` | DexScreener market data, up to 30 addresses |

@@ -7,7 +7,8 @@
  *   GET  /api/health          what is configured (Pinata, RPC)
  *   GET  /api/prices          SOL / ETH / BNB / ARC (AI Rig Complex) in USD (CoinGecko, cached 30 s)
  *   POST /api/sol-rpc         Solana JSON-RPC, forwarded to SOLANA_RPC_URL, read + send only
- *   POST /api/ipfs            uploads the token image (and, for pump.fun, its metadata) to IPFS through Pinata
+ *   POST /api/ipfs            stores the token image (and, for pump.fun, its metadata): IPFS via Pinata, else /media
+ *   GET  /media/<sha256>.<ext>  self-hosted token images and metadata
  *   POST /api/pump/create     asks PumpPortal for an unsigned pump.fun create tx
  *   POST /api/pump/sell       asks PumpPortal for an unsigned sell tx (a % of the wallet's tokens)
  *   GET  /api/token/:addrs    market data from DexScreener (cached 15 s)
@@ -18,16 +19,23 @@
  * Environment:
  *   PORT            default 8080
  *   SOLANA_RPC_URL  default https://api.mainnet-beta.solana.com (rate-limited: use your own)
- *   PINATA_JWT      required for pump.fun launches and for Pons logos (they go to IPFS)
+ *   PINATA_JWT      optional: token images and metadata go to IPFS through Pinata. Without it they
+ *                   are stored on this server (DATA_DIR / the Railway volume) and served from /media
+ *   DATA_DIR        where self-hosted media lives; defaults to the Railway volume, else ./data
+ *   PUBLIC_URL      base URL written into self-hosted metadata; defaults to the Railway domain
  */
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = __dirname;
 const PORT = process.env.PORT || 8080;
 const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
 const PINATA_JWT = process.env.PINATA_JWT || '';
+const MEDIA_DIR = path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATA_DIR || path.join(ROOT, 'data'), 'anychain-media');
+const MEDIA_CAP = 400 * 1024 * 1024;   // stop accepting uploads before the volume fills
+const MEDIA_TYPES = { png: 'image/png', jpg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', json: 'application/json; charset=utf-8' };
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -89,6 +97,7 @@ const cached = async (key, ttl, fn) => {
   const hit = cache.get(key);
   if (hit && Date.now() - hit.t < ttl) return hit.v;
   const v = await fn();
+  if (Array.isArray(v) && !v.length) return v;   // never pin an empty answer for the whole TTL
   cache.set(key, { t: Date.now(), v });
   if (cache.size > 500) cache.delete(cache.keys().next().value);
   return v;
@@ -119,21 +128,63 @@ const pinataUpload = async (blob, filename) => {
   return `https://ipfs.io/ipfs/${cid}`;
 };
 
+/* Without Pinata, files are content-addressed on disk and served from /media. */
+const publicBase = (req) => process.env.PUBLIC_URL?.replace(/\/$/, '')
+  || (process.env.RAILWAY_PUBLIC_DOMAIN && `https://${process.env.RAILWAY_PUBLIC_DOMAIN}`)
+  || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers['x-forwarded-host'] || req.headers.host}`;
+
+const dirSize = () => {
+  try { return fs.readdirSync(MEDIA_DIR).reduce((a, f) => a + fs.statSync(path.join(MEDIA_DIR, f)).size, 0); } catch (_) { return 0; }
+};
+const storeLocal = (req, bytes, ext) => {
+  fs.mkdirSync(MEDIA_DIR, { recursive: true });
+  if (dirSize() + bytes.length > MEDIA_CAP) throw Object.assign(new Error('Media storage is full'), { status: 507 });
+  const name = `${crypto.createHash('sha256').update(bytes).digest('hex')}.${ext}`;
+  const file = path.join(MEDIA_DIR, name);
+  if (!fs.existsSync(file)) fs.writeFileSync(file, bytes);
+  return `${publicBase(req)}/media/${name}`;
+};
+const store = async (req, bytes, ext) => (PINATA_JWT
+  ? pinataUpload(new Blob([bytes], { type: MEDIA_TYPES[ext] }), ext === 'json' ? 'metadata.json' : `image.${ext}`)
+  : storeLocal(req, bytes, ext));
+
+/* A few uploads per address per hour is plenty for launching. */
+const uploads = new Map();
+const allowUpload = (req) => {
+  const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+  const now = Date.now();
+  const recent = (uploads.get(ip) || []).filter((t) => now - t < 3600e3);
+  if (recent.length >= 20) return false;
+  recent.push(now);
+  uploads.set(ip, recent);
+  if (uploads.size > 5000) uploads.delete(uploads.keys().next().value);
+  return true;
+};
+
 const api = {
   'GET /api/health': async (req, res) => send(res, 200, {
     ok: true,
     pinata: !!PINATA_JWT,
+    uploads: true,
     customRpc: !!process.env.SOLANA_RPC_URL
   }),
 
   'GET /api/prices': async (req, res) => {
+    const baseGas = await cached('base-gas', 30000, async () => {
+      const j = await fetchJson('https://base-rpc.publicnode.com', { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_gasPrice', params: [] }) });
+      return Number(BigInt(j.result)) / 1e9;   // gwei
+    }).catch(() => null);
     const data = await cached('prices', 30000, () => fetchJson(
       'https://api.coingecko.com/api/v3/simple/price?ids=solana,ethereum,binancecoin,ai-rig-complex&vs_currencies=usd&include_24hr_change=true'));
     send(res, 200, {
       sol: { usd: data.solana?.usd, change: data.solana?.usd_24h_change },
       eth: { usd: data.ethereum?.usd, change: data.ethereum?.usd_24h_change },
       bnb: { usd: data.binancecoin?.usd, change: data.binancecoin?.usd_24h_change },
-      arc: { usd: data['ai-rig-complex']?.usd, change: data['ai-rig-complex']?.usd_24h_change }
+      arc: { usd: data['ai-rig-complex']?.usd, change: data['ai-rig-complex']?.usd_24h_change },
+      /* Base has no token of its own: its "price" is what a plain transfer costs (21k gas, paid in ETH) */
+      base: baseGas == null || !data.ethereum?.usd ? null
+        : { gwei: baseGas, txUsd: baseGas * 1e-9 * 21000 * data.ethereum.usd }
     });
   },
 
@@ -149,7 +200,7 @@ const api = {
   },
 
   'POST /api/ipfs': async (req, res) => {
-    if (!PINATA_JWT) return fail(res, 503, 'IPFS uploads are not configured: set PINATA_JWT on the server');
+    if (!allowUpload(req)) return fail(res, 429, 'Too many uploads from this address, try again later');
     const b = await readJson(req, 6 * 1024 * 1024);
     const name = clean(b.name, 32);
     const symbol = clean(b.symbol, 10);
@@ -159,14 +210,14 @@ const api = {
     const bytes = Buffer.from(m[3], 'base64');
     if (bytes.length > 4 * 1024 * 1024) return fail(res, 413, 'Image must be 4 MB or less');
 
-    const image = await pinataUpload(new Blob([bytes], { type: m[1] }), `${symbol}.${m[2] === 'jpeg' ? 'jpg' : m[2]}`);
+    const image = await store(req, bytes, m[2] === 'jpeg' ? 'jpg' : m[2]);
     if (b.imageOnly) return send(res, 200, { image });   // Pons takes a logo URI, not a metadata file
     const meta = { name, symbol, description: clean(b.description, 1000), image, showName: true, createdOn: 'AnyChain' };
     for (const k of ['twitter', 'telegram', 'website']) {
       const v = clean(b[k], 200);
       if (v && /^https?:\/\//i.test(v)) meta[k] = v;
     }
-    const uri = await pinataUpload(new Blob([JSON.stringify(meta)], { type: 'application/json' }), 'metadata.json');
+    const uri = await store(req, Buffer.from(JSON.stringify(meta)), 'json');
     send(res, 200, { uri, image });
   },
 
@@ -177,7 +228,7 @@ const api = {
     const amount = Number(b.amount);
     if (!(amount >= 0 && amount <= 1000)) return fail(res, 400, 'Dev buy must be between 0 and 1000 SOL');
     const uri = clean(b.uri, 300);
-    if (!/^https:\/\//.test(uri)) return fail(res, 400, 'Metadata URI missing');
+    if (!/^https?:\/\//.test(uri)) return fail(res, 400, 'Metadata URI missing');
 
     const r = await fetch('https://pumpportal.fun/api/trade-local', {
       method: 'POST',
@@ -309,6 +360,16 @@ http.createServer(async (req, res) => {
     } catch (e) {
       if (!res.headersSent) fail(res, e.status || 500, e.message || 'Server error');
     }
+    return;
+  }
+
+  const media = /^\/media\/([a-f0-9]{64}\.(png|jpg|gif|webp|json))$/.exec(rel);
+  if (media) {
+    fs.readFile(path.join(MEDIA_DIR, media[1]), (err, body) => {
+      if (err) { res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' }).end('Not found'); return; }
+      res.writeHead(200, { 'content-type': MEDIA_TYPES[media[2]], 'cache-control': 'public, max-age=31536000, immutable', 'access-control-allow-origin': '*' });
+      res.end(body);
+    });
     return;
   }
 

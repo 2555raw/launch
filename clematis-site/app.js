@@ -185,6 +185,14 @@
 
   /* ---------------- prices ---------------- */
 
+  async function marketEthUsd() {
+    try {
+      const res = await fetch('https://api.coinbase.com/v2/prices/ETH-USD/spot', { cache: 'no-store' });
+      const v = Number((await res.json()).data.amount);
+      return v > 0 ? v : null;
+    } catch { return null; }
+  }
+
   /* Spot prices come from slot0 of each token's deepest pool per base, read in
      one multicall. Everything is expressed in ETH; ETH/USD is the USDG price. */
   async function refreshPrices() {
@@ -227,7 +235,11 @@
       depth.set(r.token.symbol + '|' + r.base.symbol, baseRaw / 10 ** r.base.decimals);
     });
     const usdgInEth = USDG ? inBase.get('USDG|ETH') : null;
-    if (usdgInEth) { state.ethPer.set('USDG', usdgInEth); state.ethUsd = 1 / usdgInEth; }
+    if (usdgInEth) state.ethPer.set('USDG', usdgInEth);
+    /* ETH/USD is the market price (Coinbase spot), so it matches what any
+       exchange shows; the on-chain USDG pool price is the fallback */
+    const market = await marketEthUsd();
+    state.ethUsd = market || (usdgInEth ? 1 / usdgInEth : state.ethUsd);
     for (const t of STOCKS) {
       const viaEth = inBase.get(t.symbol + '|ETH');
       const viaUsd = inBase.get(t.symbol + '|USDG') && usdgInEth ? inBase.get(t.symbol + '|USDG') * usdgInEth : null;

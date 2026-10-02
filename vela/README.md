@@ -48,8 +48,10 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
 - **P&L** = dev tokens held × DexScreener price + what you sold − what the launch cost. It is
   refreshed every minute while AnyChain is open; each change is stored as an event, and the charts are
   the running sum of those events. A token DexScreener hasn't indexed yet counts at its cost only.
-- **Sell**: pump.fun tokens can be sold 25 / 50 / 100 % from the launch's panel (PumpPortal, `pool:
-  auto`, so it still works after migration). What the sale returned is measured from the wallet.
+- **Buy / Sell** any token from its launch panel or from the Tracker (*Trade*): Solana through Jupiter
+  (every DEX and the pump.fun curve; PumpPortal as fallback), Robinhood Chain / Base / BNB Chain through
+  the KyberSwap aggregator (Pons curves included), with slippage protection and the ERC-20 approval when
+  selling. Cost of buys and proceeds of sells are measured from the wallet and booked on the launch.
 - **Status bar**: SOL, BNB and ETH prices from CoinGecko, and what a transfer costs on Base right now (gas price × 21k gas × ETH), cached 30 s. **Tracker**: DexScreener, cached 15 s.
 - **P&L calendar** (calendar icon on *Total P&L*): daily P&L and launches per day, monthly and yearly views,
   positive streaks, and *Save as image* for a PNG of the month.
@@ -93,6 +95,9 @@ server.js           static files + /api (below)
 | `GET /media/<sha256>.<ext>` | self-hosted token images and metadata (content-addressed, immutable) |
 | `POST /api/pump/create` | unsigned pump.fun create transaction from PumpPortal |
 | `POST /api/pump/sell` | unsigned sell transaction (a % of the wallet's tokens) |
+| `POST /api/sol/swap` | Solana buy/sell transaction from Jupiter |
+| `POST /api/sol/trade` | the same from PumpPortal (fallback) |
+| `GET /api/evm/quote`, `POST /api/evm/build` | best route and calldata from KyberSwap on Robinhood Chain, Base, BNB Chain |
 | `POST /api/auth/nonce`, `POST /api/auth/verify` | wallet sign-in (one-time message, signature check, session token) |
 | `GET /api/account`, `PUT /api/account` | the signed-in wallet's synced data |
 | `GET /api/token/:addrs` | DexScreener market data, up to 30 addresses |

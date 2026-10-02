@@ -706,7 +706,7 @@
           <td class="num">${l.liquidity ? compact(l.liquidity) : '—'}</td>
           <td class="num">${l.own ? pnlCell(pnlOf(l)) : '<span class="dim">—</span>'}</td>
           <td class="act">${l.own ? `<button type="button" data-launch="${l.id}">View</button>`
-            : `<a href="${C.dexscreener(l.chain, l.addr)}" target="_blank" rel="noopener"><button type="button">Chart</button></a><button type="button" data-untrack="${l.id}">Remove</button>`}</td>
+            : `<button type="button" data-trade-open="${l.id}">Trade</button><button type="button" data-untrack="${l.id}">Remove</button>`}</td>
         </tr>`).join('')}</tbody>` : '<tbody><tr><td class="table-empty">Nothing here yet. Launch a token or paste an address above to follow one.</td></tr></tbody>';
   };
 
@@ -1220,11 +1220,104 @@
     });
   };
 
+  /* ---------- trading ---------- */
+
+  const QUICK = { sol: ['0.1', '0.5', '1'], rh: ['0.005', '0.01', '0.05'], base: ['0.005', '0.01', '0.05'], bnb: ['0.01', '0.05', '0.1'] };
+
+  const tradePanel = (t) => `
+      <div class="trade">
+        <div class="trade-head">
+          <div class="seg"><button type="button" data-tside="buy" class="is-on">Buy</button><button type="button" data-tside="sell">Sell</button></div>
+          <span class="dim" style="font-size:12px">${t.chain === 'sol' ? 'Best pool via PumpPortal' : 'Best route via KyberSwap'} · slippage <input class="trade-slip" name="tslip" inputmode="decimal" value="10">%</span>
+        </div>
+        <div data-pane="buy" class="trade-row">
+          <label class="trade-amt"><input name="tamt" inputmode="decimal" placeholder="0.0"><span>${CHAINS[t.chain].unit}</span></label>
+          ${QUICK[t.chain].map((q) => `<button class="btn btn-ghost" type="button" data-quick="${q}">${q}</button>`).join('')}
+          <button class="btn btn-primary" type="button" data-trade="buy">Buy ${esc(t.ticker || '')}</button>
+        </div>
+        <div data-pane="sell" class="trade-row" hidden>
+          <span class="dim" style="font-size:13px">Sell from your wallet</span>
+          <button class="btn btn-ghost" type="button" data-trade="sell" data-pct="25">25%</button>
+          <button class="btn btn-ghost" type="button" data-trade="sell" data-pct="50">50%</button>
+          <button class="btn btn-danger" type="button" data-trade="sell" data-pct="100">100%</button>
+        </div>
+        <ul class="steps" data-trade-steps></ul>
+      </div>`;
+
+  /* t: { chain, addr, ticker }. launch: the AnyChain launch to book costs and proceeds on, if any. */
+  const mountTrade = (body, t, launch) => {
+    const box = $('.trade', body);
+    if (!box) return;
+    box.addEventListener('click', async (e) => {
+      const side = e.target.closest("[data-tside]");
+      if (side) {
+        $$("[data-tside]", box).forEach((b) => b.classList.toggle('is-on', b === side));
+        $$('[data-pane]', box).forEach((p) => { p.hidden = p.dataset.pane !== side.dataset.tside; });
+        return;
+      }
+      const quick = e.target.closest('[data-quick]');
+      if (quick) { box.querySelector('[name="tamt"]').value = quick.dataset.quick; return; }
+      const btn = e.target.closest('[data-trade]');
+      if (!btn || busy) return;
+      const buy = btn.dataset.trade === 'buy';
+      const value = buy ? parseFloat(box.querySelector('[name="tamt"]').value) : +btn.dataset.pct;
+      if (buy && !(value > 0)) { toast(`Enter an amount in ${CHAINS[t.chain].unit}`, true); return; }
+      const slippage = Math.min(50, Math.max(0.5, parseFloat(box.querySelector('[name="tslip"]').value) || 10));
+      const fam = t.chain === 'sol' ? 'sol' : 'evm';
+      if (!state[fam] && !(await connect(fam))) return;
+      const owner = state[fam].address;
+      /* balances only book the trade's cost/proceeds: never let a slow RPC hold up the trade */
+      const balance = () => Promise.race([
+        (t.chain === 'sol' ? C.solBalance(owner) : C.evmBalance(t.chain, owner)).catch(() => null),
+        new Promise((r) => setTimeout(() => r(null), 6000))
+      ]);
+
+      busy = true;
+      $$('button, input', box).forEach((x) => { x.disabled = true; });
+      const list = box.querySelector('[data-trade-steps]');
+      list.innerHTML = '';
+      const st = stepper(list);
+      try {
+        const before = await balance();
+        const sig = t.chain === 'sol'
+          ? await C.tradeSol(t.addr, buy ? 'buy' : 'sell', value, { slippage }, st.step)
+          : await C.tradeEvm(t.chain, t.addr, buy ? 'buy' : 'sell', value, { slippage }, st.step);
+        const after = await balance();
+        st.done();
+        list.insertAdjacentHTML('beforeend', `<li class="is-done"><a class="link-btn" href="${C.explorerTx(t.chain, sig)}" target="_blank" rel="noopener">View transaction</a></li>`);
+        const deltaUsd = before != null && after != null ? (after - before) * usdOf(t.chain) : null;
+        if (launch && deltaUsd != null) {
+          if (buy) launch.costUsd = Math.round(((launch.costUsd || 0) - deltaUsd) * 100) / 100;   // spent native → more cost
+          else launch.realizedUsd = Math.round(((launch.realizedUsd || 0) + Math.max(0, deltaUsd)) * 100) / 100;
+          if (!launch.owner) launch.owner = owner;
+        }
+        log(`${buy ? 'Bought' : `Sold ${value}% of`} ${t.ticker || short(t.addr)}${buy ? ` for ${value} ${CHAINS[t.chain].unit}` : deltaUsd != null ? ` for ${money(Math.max(0, deltaUsd))}` : ''}`);
+        save();
+        toast(buy ? `Bought ${t.ticker || 'token'}` : `Sold ${value}% of ${t.ticker || 'token'}`);
+        refresh();
+      } catch (err) {
+        st.fail(err.message || 'Trade failed');
+        if (err.signature) list.insertAdjacentHTML('beforeend', `<li><a class="link-btn" href="${C.explorerTx(t.chain, err.signature)}" target="_blank" rel="noopener">Open the transaction</a></li>`);
+      } finally {
+        busy = false;
+        $$('button, input', box).forEach((x) => { x.disabled = false; });
+      }
+    });
+  };
+
+  const openTrade = (t) => {
+    openModal(`Trade ${t.ticker || short(t.addr)}`, `
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">${avatar(t)}
+        <div><b>${esc(t.ticker || '?')}</b> <span class="dim">${esc(t.name || '')}</span>
+        <div class="mono dim" style="letter-spacing:0">${short(t.addr)} · ${CHAINS[t.chain].name}${t.priceUsd ? ` · ${price(t.priceUsd)}` : ''}</div></div></div>
+      ${t.priceUsd ? `<div class="chart-embed"><iframe src="${C.dexEmbed(t.chain, t.addr, document.documentElement.dataset.theme?.startsWith('light'))}" title="Price chart" loading="lazy" referrerpolicy="no-referrer"></iframe></div>` : ''}
+      ${tradePanel(t)}`, (body) => mountTrade(body, t, null), 'launch');
+  };
+
   const openLaunch = (id) => {
     const l = state.launches.find((x) => x.id === id);
     if (!l) return;
     const p = pnlOf(l);
-    const canSell = l.site === 'pump' && state.sol && l.owner === state.sol.address && l.holdings > 0;
     openModal(l.name, `
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">${avatar(l)}
         <div><b>${esc(l.ticker)}</b> <span class="badge ${l.archived ? 'badge-arch' : 'badge-live'}">${l.archived ? 'Archived' : 'Live'}</span>
@@ -1251,11 +1344,7 @@
       ${l.priceUsd
         ? `<div class="chart-embed"><iframe src="${C.dexEmbed(l.chain, l.addr, document.documentElement.dataset.theme?.startsWith('light'))}" title="${esc(l.ticker)} price chart" loading="lazy" referrerpolicy="no-referrer"></iframe></div>`
         : '<p class="note" style="margin:0 0 14px">The price chart shows here once DexScreener lists the token, usually a few minutes after its first trades.</p>'}
-      ${canSell ? `<div class="sell"><span>Sell dev tokens</span>
-        <button class="btn btn-ghost" type="button" data-sell="25">25%</button>
-        <button class="btn btn-ghost" type="button" data-sell="50">50%</button>
-        <button class="btn btn-danger" type="button" data-sell="100">100%</button></div>` : ''}
-      <ul class="steps" id="sellSteps" style="margin-bottom:12px"></ul>
+      ${tradePanel(l)}
       <div class="form-foot">
         <button class="btn btn-ghost" type="button" id="copyAddr">${icon('copy')}<span>Copy address</span></button>
         ${l.archived
@@ -1273,30 +1362,7 @@
         state.removed = (state.removed || []).concat(l.addr.toLowerCase()).slice(-2000);
         log(`Removed ${l.ticker} from AnyChain`); save(); closeModal(); renderAll();
       });
-      $$('[data-sell]', body).forEach((b) => b.addEventListener('click', async () => {
-        if (busy) return;
-        const pct = +b.dataset.sell;
-        busy = true;
-        $$('[data-sell]', body).forEach((x) => { x.disabled = true; });
-        const st = stepper($('#sellSteps', body));
-        try {
-          const before = await C.solBalance(state.sol.address);
-          await C.sellPump(l.addr, pct, st.step);
-          const after = await C.solBalance(state.sol.address);
-          const got = Math.max(0, after - before) * usdOf('sol');
-          l.realizedUsd = Math.round(((l.realizedUsd || 0) + got) * 100) / 100;
-          st.done();
-          log(`Sold ${pct}% of ${l.ticker} for ${money(got)}`);
-          save();
-          busy = false;
-          toast(`Sold ${pct}% of ${l.ticker}`);
-          await refresh();
-        } catch (err) {
-          busy = false;
-          st.fail(err.message || 'Sale failed');
-          $$('[data-sell]', body).forEach((x) => { x.disabled = false; });
-        }
-      }));
+      mountTrade(body, l, l);
     }, 'launch');
   };
 
@@ -1726,6 +1792,11 @@
     if (el('[data-unarchive]')) {
       const l = state.launches.find((x) => x.id === el('[data-unarchive]').dataset.unarchive);
       if (l) { l.archived = false; log(`Restored ${l.ticker}`); save(); if (!modal.hidden) closeModal(); renderAll(); toast(`${l.ticker} restored`); }
+      return;
+    }
+    if (el('[data-trade-open]')) {
+      const t = state.tracked.find((x) => x.id === el('[data-trade-open]').dataset.tradeOpen);
+      if (t) openTrade(t);
       return;
     }
     if (el('[data-untrack]')) {

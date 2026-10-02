@@ -15,6 +15,10 @@
  *   PUT  /api/account         saves them (so they follow the wallet across devices)
  *   POST /api/pump/create     asks PumpPortal for an unsigned pump.fun create tx
  *   POST /api/pump/sell       asks PumpPortal for an unsigned sell tx (a % of the wallet's tokens)
+ *   POST /api/sol/swap        unsigned buy (SOL amount) or sell (% of tokens) for any Solana token (Jupiter)
+ *   POST /api/sol/trade       the same through PumpPortal, used when Jupiter has no route
+ *   GET  /api/evm/quote       best swap route on Robinhood Chain, Base or BNB Chain (KyberSwap aggregator)
+ *   POST /api/evm/build       calldata for that route, for the user's wallet to send
  *   GET  /api/token/:addrs    market data from DexScreener (cached 15 s)
  *   GET  /api/trending        tokens trending on DexScreener on Solana, Robinhood Chain, Base, BNB (cached 60 s)
  *
@@ -71,6 +75,7 @@ const RPC_METHODS = new Set([
 /* PumpPortal's local (self-signed) API creates on pump.fun only; bonk.fun creation
    there goes through its custodial Lightning wallet, which AnyChain does not use. */
 const POOLS = new Set(['pump']);
+const KYBER = { rh: 'robinhood', base: 'base', bnb: 'bsc' };
 const B58 = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const EVM = /^0x[0-9a-fA-F]{40}$/;
 
@@ -430,6 +435,101 @@ const api = {
       }).sort((a, b) => b.volume24h - a.volume24h);
     });
     send(res, 200, list);
+  },
+
+  /* Any Solana token through Jupiter, which routes across every Solana DEX and
+     the pump.fun curve. Sells are a % of the wallet's balance, read here. */
+  'POST /api/sol/swap': async (req, res) => {
+    const b = await readJson(req);
+    if (!B58.test(b.publicKey || '') || !B58.test(b.mint || '')) return fail(res, 400, 'Invalid wallet or token address');
+    const SOL = 'So11111111111111111111111111111111111111112';
+    const buy = b.action === 'buy';
+    let amount;
+    if (buy) {
+      const sol = Number(b.amount);
+      if (!(sol > 0 && sol <= 1000)) return fail(res, 400, 'Buy amount must be between 0 and 1000 SOL');
+      amount = BigInt(Math.round(sol * 1e9));
+    } else {
+      const pct = Math.round(Number(b.percent));
+      if (!(pct >= 1 && pct <= 100)) return fail(res, 400, 'Percent must be 1–100');
+      const r = await fetch(SOLANA_RPC_URL, { method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getParsedTokenAccountsByOwner', params: [b.publicKey, { mint: b.mint }, { encoding: 'jsonParsed' }] }),
+        signal: AbortSignal.timeout(15000) }).then((x) => x.json());
+      const raw = (r.result?.value || []).reduce((a, acc) => a + BigInt(acc.account?.data?.parsed?.info?.tokenAmount?.amount || '0'), 0n);
+      amount = raw * BigInt(pct) / 100n;
+      if (amount === 0n) return fail(res, 400, 'This wallet holds none of this token');
+    }
+    const slippageBps = Math.min(5000, Math.max(10, Math.round((Number(b.slippage) || 10) * 100)));
+    const quote = await fetchJson(`https://lite-api.jup.ag/swap/v1/quote?inputMint=${buy ? SOL : b.mint}&outputMint=${buy ? b.mint : SOL}&amount=${amount}&slippageBps=${slippageBps}`)
+      .catch(() => null);
+    if (!quote?.outAmount) return fail(res, 404, 'No Jupiter route');
+    const swap = await fetchJson('https://lite-api.jup.ag/swap/v1/swap', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ quoteResponse: quote, userPublicKey: b.publicKey, dynamicComputeUnitLimit: true, prioritizationFeeLamports: 'auto' })
+    });
+    if (!swap?.swapTransaction) return fail(res, 502, 'Jupiter could not build the swap');
+    send(res, 200, { tx: swap.swapTransaction });
+  },
+
+  'POST /api/sol/trade': async (req, res) => {
+    const b = await readJson(req);
+    if (!B58.test(b.publicKey || '') || !B58.test(b.mint || '')) return fail(res, 400, 'Invalid wallet or token address');
+    const buy = b.action === 'buy';
+    let amount;
+    if (buy) {
+      amount = Number(b.amount);
+      if (!(amount > 0 && amount <= 1000)) return fail(res, 400, 'Buy amount must be between 0 and 1000 SOL');
+    } else {
+      const pct = Math.round(Number(b.percent));
+      if (!(pct >= 1 && pct <= 100)) return fail(res, 400, 'Percent must be 1–100');
+      amount = `${pct}%`;
+    }
+    const r = await fetch('https://pumpportal.fun/api/trade-local', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        publicKey: b.publicKey, action: buy ? 'buy' : 'sell', mint: b.mint,
+        denominatedInSol: buy ? 'true' : 'false', amount,
+        slippage: Math.min(50, Math.max(1, Number(b.slippage) || 10)),
+        priorityFee: Math.min(0.01, Math.max(0, Number(b.priorityFee) || 0.0005)),
+        pool: 'auto'
+      }),
+      signal: AbortSignal.timeout(20000)
+    });
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (r.status !== 200) return fail(res, 502, `PumpPortal: ${buf.toString('utf8').slice(0, 300) || r.statusText}`);
+    send(res, 200, buf, 'application/octet-stream');
+  },
+
+  /* EVM swaps go through the KyberSwap aggregator, which routes across the DEXs
+     of each chain, Pons bonding curves included on Robinhood Chain. */
+  'GET /api/evm/quote': async (req, res) => {
+    const q = new URL(req.url, 'http://x').searchParams;
+    const chain = KYBER[q.get('chain')];
+    const tokenIn = (q.get('tokenIn') || '').toLowerCase();
+    const tokenOut = (q.get('tokenOut') || '').toLowerCase();
+    const amountIn = q.get('amountIn') || '';
+    if (!chain || !EVM.test(tokenIn) || !EVM.test(tokenOut) || !/^[1-9]\d{0,40}$/.test(amountIn)) return fail(res, 400, 'Bad quote request');
+    const j = await fetchJson(`https://aggregator-api.kyberswap.com/${chain}/api/v1/routes?tokenIn=${tokenIn}&tokenOut=${tokenOut}&amountIn=${amountIn}`,
+      { headers: { 'x-client-id': 'anychain' } });
+    if (j.code !== 0 || !j.data?.routeSummary) return fail(res, 404, 'No route for this token yet');
+    send(res, 200, { routeSummary: j.data.routeSummary, routerAddress: j.data.routerAddress });
+  },
+
+  'POST /api/evm/build': async (req, res) => {
+    const b = await readJson(req, 256 * 1024);
+    const chain = KYBER[b.chain];
+    if (!chain || !EVM.test(b.sender || '') || !b.routeSummary) return fail(res, 400, 'Bad build request');
+    const j = await fetchJson(`https://aggregator-api.kyberswap.com/${chain}/api/v1/route/build`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-client-id': 'anychain' },
+      body: JSON.stringify({
+        routeSummary: b.routeSummary, sender: b.sender, recipient: b.sender, source: 'anychain',
+        slippageTolerance: Math.min(5000, Math.max(10, Math.round(Number(b.slippageBps) || 1000)))
+      })
+    });
+    if (j.code !== 0 || !j.data?.data) return fail(res, 502, j.message || 'Could not build the swap');
+    send(res, 200, { to: j.data.routerAddress, data: j.data.data, amountIn: j.data.amountIn, amountOut: j.data.amountOut });
   },
 
   'GET /api/token': async (req, res, rest) => {

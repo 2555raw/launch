@@ -333,6 +333,84 @@
     (await postJson('/api/ipfs', { name, symbol, image, imageOnly: true })).image;
   const ponsPage = (addr) => `https://www.ponsfamily.com/launchpad/${addr}`;
 
+  /* ---------- trading ---------- */
+
+  /* Any Solana token: Jupiter routes across every DEX; PumpPortal is the fallback. */
+  const tradeSol = async (mintAddr, side, value, opts, step) => {
+    const web3 = await lib('solana');
+    const sol = await connectSol();
+    step(side === 'buy' ? 'Finding the best route' : 'Building the sale');
+    const body = {
+      publicKey: sol.address, mint: mintAddr, action: side,
+      ...(side === 'buy' ? { amount: value } : { percent: value }),
+      slippage: opts.slippage, priorityFee: opts.priorityFee
+    };
+    /* Jupiter first (every DEX); PumpPortal for anything Jupiter can't route yet */
+    let bytes;
+    try {
+      const { tx } = await postJson('/api/sol/swap', body);
+      bytes = Uint8Array.from(atob(tx), (ch) => ch.charCodeAt(0));
+    } catch (e) {
+      if (/holds none/.test(e.message)) throw e;
+      bytes = new Uint8Array(await postJson('/api/sol/trade', body));
+    }
+    const tx = web3.VersionedTransaction.deserialize(bytes);
+    step('Approve in your wallet');
+    return sendAndConfirm(await walletSign(tx), step);
+  };
+
+  const NATIVE = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+  const ERC20_ABI = [
+    'function balanceOf(address) view returns (uint256)',
+    'function decimals() view returns (uint8)',
+    'function allowance(address owner, address spender) view returns (uint256)',
+    'function approve(address spender, uint256 value) returns (bool)'
+  ];
+
+  /* Robinhood Chain, Base, BNB: route from the aggregator, sent by the user's wallet.
+     Buy: value = native amount (ETH/BNB). Sell: value = % of the wallet's tokens. */
+  const tradeEvm = async (chain, token, side, value, opts, step) => {
+    const ethers = await lib('ethers');
+    const acct = await connectEvm();
+    step(`Switching wallet to ${EVM[chain].name}`);
+    await switchChain(chain);
+    const provider = new ethers.BrowserProvider(evmProvider());
+    const signer = await provider.getSigner();
+    const erc20 = new ethers.Contract(token, ERC20_ABI, signer);
+    let amountIn;
+    if (side === 'buy') amountIn = ethers.parseEther(String(value));
+    else {
+      const bal = await erc20.balanceOf(acct.address);
+      amountIn = bal * BigInt(Math.round(value)) / 100n;
+      if (amountIn === 0n) throw new Error('This wallet holds none of this token');
+    }
+    step('Finding the best route');
+    const qs = new URLSearchParams({ chain, tokenIn: side === 'buy' ? NATIVE : token.toLowerCase(), tokenOut: side === 'buy' ? token.toLowerCase() : NATIVE, amountIn: amountIn.toString() });
+    const quote = await api(`/api/evm/quote?${qs}`);
+    const built = await postJson('/api/evm/build', { chain, routeSummary: quote.routeSummary, sender: acct.address, slippageBps: Math.round((opts.slippage || 10) * 100) });
+    try {
+      if (side === 'sell') {
+        const allowed = await erc20.allowance(acct.address, built.to);
+        if (allowed < amountIn) {
+          step('Approve the token for the swap router');
+          const ap = await erc20.approve(built.to, amountIn);
+          await ap.wait(1);
+        }
+      }
+      step('Approve the swap in your wallet');
+      const tx = await signer.sendTransaction({ to: built.to, data: built.data, value: side === 'buy' ? amountIn : 0n });
+      step('Waiting for confirmation');
+      const rcpt = await tx.wait(1);
+      if (!rcpt || rcpt.status !== 1) throw Object.assign(new Error('Swap reverted'), { signature: tx.hash });
+      return tx.hash;
+    } catch (e) {
+      if (e?.signature) throw e;
+      if (e?.code === 'ACTION_REJECTED') throw new Error('Rejected in the wallet');
+      if (e?.code === 'INSUFFICIENT_FUNDS' || /insufficient funds/i.test(e?.message || '')) throw new Error(`Not enough ${EVM[chain].unit} for this trade and gas`);
+      throw new Error(e?.shortMessage || e?.message || 'Swap failed');
+    }
+  };
+
   /* ---------- sign in with a wallet ---------- */
 
   const authed = async (method, token, body) => {
@@ -380,7 +458,7 @@
     hasSol: () => !!solProvider(), hasEvm: () => !!evmProvider(),
     solBalance, solTokenBalance, evmBalance, evmTokenBalance,
     launchPump, sellPump, launchEvm, launchPons, ponsPage, uploadImage,
-    signIn, getAccount, putAccount,
+    signIn, getAccount, putAccount, tradeSol, tradeEvm,
     explorerTx, explorerToken, dexscreener, dexEmbed
   };
 })();

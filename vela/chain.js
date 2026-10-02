@@ -17,7 +17,7 @@
   /* EVM chains Vela deploys to. Reads go to public RPCs, so balances on all three
      show without switching the wallet's network. */
   const EVM = {
-    eth:  { id: 1,    hex: '0x1',    name: 'Ethereum',  unit: 'ETH', rpc: 'https://ethereum-rpc.publicnode.com', explorer: 'https://etherscan.io' },
+    rh:   { id: 4663, hex: '0x1237', name: 'Robinhood Chain', unit: 'ETH', rpc: 'https://rpc.mainnet.chain.robinhood.com', explorer: 'https://robinhoodchain.blockscout.com' },
     base: { id: 8453, hex: '0x2105', name: 'Base',      unit: 'ETH', rpc: 'https://base-rpc.publicnode.com',     explorer: 'https://basescan.org' },
     bnb:  { id: 56,   hex: '0x38',   name: 'BNB Chain', unit: 'BNB', rpc: 'https://bsc-rpc.publicnode.com',      explorer: 'https://bscscan.com' }
   };
@@ -257,7 +257,7 @@
 
   const explorerTx = (chain, sig) => (chain === 'sol' ? `https://solscan.io/tx/${sig}` : `${EVM[chain].explorer}/tx/${sig}`);
   const explorerToken = (chain, addr) => (chain === 'sol' ? `https://solscan.io/token/${addr}` : `${EVM[chain].explorer}/token/${addr}`);
-  const dexscreener = (chain, addr) => `https://dexscreener.com/${{ sol: 'solana', eth: 'ethereum', base: 'base', bnb: 'bsc' }[chain]}/${addr}`;
+  const dexscreener = (chain, addr) => `https://dexscreener.com/${{ sol: 'solana', rh: 'robinhood', base: 'base', bnb: 'bsc' }[chain]}/${addr}`;
 
   window.VelaChain = {
     EVM, health, prices, market,

@@ -17,7 +17,7 @@
   --accent: #34e3a8;  --accent-fill: #34e3a8; --neg: #f2646f;
   --theme-primary: #6e6cf6;
   /* chain identity — validated 4-slot set for dark surfaces */
-  --c-eth: #3987e5; --c-base: #d95926; --c-sol: #199e70; --c-bnb: #c98500;
+  --c-rh: #3987e5; --c-base: #d95926; --c-sol: #199e70; --c-bnb: #c98500;
   --shadow: rgba(0, 0, 0, .5);
 }
 [data-theme="dark"] {
@@ -53,7 +53,7 @@
   --ink: #12141a; --prose: #3b404c; --muted: #646a79; --dim: #8b909c;
   --accent: #0b7a5a; --accent-fill: #12a37a; --neg: #cc2f40;
   --theme-primary: #4f5ef7;
-  --c-eth: #2a78d6; --c-base: #eb6834; --c-sol: #1baf7a; --c-bnb: #eda100;
+  --c-rh: #2a78d6; --c-base: #eb6834; --c-sol: #1baf7a; --c-bnb: #eda100;
   --shadow: rgba(20, 24, 40, .14);
 }
 [data-theme="light-blue"] {
@@ -432,6 +432,8 @@ kbd {
 .sb-ok b { font-weight: 600; }
 .sb-prices { display: flex; gap: 18px; font-family: var(--mono); font-size: 12px; white-space: nowrap; }
 .sb-prices span { display: inline-flex; align-items: center; gap: 6px; }
+.sb-prices .sb-sym { font-weight: 600; color: var(--muted); }
+.sb-prices .up, .sb-prices .down { font-size: 11px; }
 .sb-prices .up { color: var(--accent); }
 .sb-prices .down { color: var(--neg); }
 .sb-right { display: flex; align-items: center; gap: 4px; }

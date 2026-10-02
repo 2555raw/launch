@@ -5,7 +5,7 @@ Launch tokens from your own wallet and follow their P&L in one dashboard.
 | Site | Chain | How Vela launches |
 | --- | --- | --- |
 | **pump.fun** | Solana | Image + metadata to IPFS (Pinata), create transaction from PumpPortal's local API, signed by your wallet and a fresh mint key |
-| **Ethereum** | Ethereum | Deploys `contracts/VelaToken.sol` from your wallet |
+| **Robinhood** | Robinhood Chain (Ethereum L2, chain 4663) | Deploys `contracts/VelaToken.sol` from your wallet; Vela adds the network to the wallet if it is missing |
 | **Base** | Base | Same contract |
 | **BNB Chain** | BNB Chain | Same contract |
 | bonk.fun | Solana | Not offered: PumpPortal only creates bonk.fun tokens from its custodial Lightning wallet, and Vela only launches from your own wallet |
@@ -36,7 +36,7 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
 ## What is real
 
 - **Wallets**: connected through the browser extension; balances read on-chain (Solana through the
-  server's RPC, Ethereum / Base / BNB through public publicnode.com RPCs).
+  server's RPC, Robinhood Chain through its public RPC, Base / BNB through publicnode.com).
 - **Launches**: real transactions. Each one is recorded in this browser (localStorage) with its
   address, transaction, what it cost (the wallet's balance before minus after, in USD at launch) and
   the wallet that owns the dev tokens.
@@ -45,7 +45,7 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   the running sum of those events. A token DexScreener hasn't indexed yet counts at its cost only.
 - **Sell**: pump.fun tokens can be sold 25 / 50 / 100 % from the launch's panel (PumpPortal, `pool:
   auto`, so it still works after migration). What the sale returned is measured from the wallet.
-- **Prices** (status bar): CoinGecko, cached 30 s. **Tracker**: DexScreener, cached 15 s.
+- **Prices** (status bar): SOL, ETH, BNB and ARC (AI Rig Complex) from CoinGecko, cached 30 s. **Tracker**: DexScreener, cached 15 s.
 - **Import**: add a token launched elsewhere so its P&L is tracked; give its cost if you know it.
 
 Clearing the browser's site data forgets the launch list (the tokens stay on-chain; import them again).

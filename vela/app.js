@@ -94,25 +94,25 @@
 
   /* ---------- chains & sites ---------- */
 
-  /* Slot order of the validated chart palette: eth, base, sol, bnb. */
+  /* Slot order of the validated chart palette: rh, base, sol, bnb. */
   const CHAINS = {
-    eth:  { name: 'Ethereum',  unit: 'ETH', short: 'ETH',  color: 'var(--c-eth)' },
+    rh:   { name: 'Robinhood', unit: 'ETH', short: 'RH',   color: 'var(--c-rh)' },
     base: { name: 'Base',      unit: 'ETH', short: 'BASE', color: 'var(--c-base)' },
     sol:  { name: 'Solana',    unit: 'SOL', short: 'SOL',  color: 'var(--c-sol)' },
     bnb:  { name: 'BNB Chain', unit: 'BNB', short: 'BNB',  color: 'var(--c-bnb)' }
   };
   const CHAIN_IDS = Object.keys(CHAINS);
-  const EVM_IDS = ['eth', 'base', 'bnb'];
+  const EVM_IDS = ['rh', 'base', 'bnb'];
   const isEvm = (c) => EVM_IDS.includes(c);
-  const DEX_CHAIN = { solana: 'sol', ethereum: 'eth', base: 'base', bsc: 'bnb' };
+  const DEX_CHAIN = { solana: 'sol', robinhood: 'rh', base: 'base', bsc: 'bnb' };
 
   const SITES = [
     { id: 'pump', name: 'pump.fun', chain: 'sol', live: true,
       how: 'Bonding-curve launch on Solana. The image and metadata go to IPFS, PumpPortal builds the create transaction and your wallet signs it.',
       needs: 'A Solana wallet with SOL for the dev buy plus about 0.03 SOL in fees.' },
-    { id: 'eth', name: 'Ethereum', chain: 'eth', live: true,
-      how: 'Deploys a fixed-supply ERC-20 from your wallet: no owner, no mint, no tax. Add liquidity on Uniswap to make it tradable.',
-      needs: 'An EVM wallet with ETH for gas.' },
+    { id: 'rh', name: 'Robinhood', chain: 'rh', live: true,
+      how: 'Robinhood Chain, the Ethereum L2 by Robinhood. Deploys a fixed-supply ERC-20 from your wallet: no owner, no mint, no tax. Add liquidity on a Robinhood Chain DEX to make it tradable.',
+      needs: 'An EVM wallet with ETH on Robinhood Chain for gas. Vela adds the network to your wallet if it is missing.' },
     { id: 'base', name: 'Base', chain: 'base', live: true,
       how: 'The same fixed-supply ERC-20, on Base. Gas is a few cents. Add liquidity on Uniswap or Aerodrome.',
       needs: 'An EVM wallet with ETH on Base for gas.' },
@@ -225,7 +225,7 @@
       $('#funderBal').innerHTML = live.balances.sol != null ? `${num(live.balances.sol)} <span class="dim">SOL</span>` : '';
     } else if (e) {
       $('#funderName').textContent = e.name;
-      $('#funderBal').innerHTML = live.balances.eth != null ? `${num(live.balances.eth)} <span class="dim">ETH</span>` : '';
+      $('#funderBal').innerHTML = live.balances.base != null ? `${num(live.balances.base)} <span class="dim">ETH</span>` : '';
     } else {
       $('#funderName').textContent = 'Connect Wallet';
       $('#funderBal').textContent = '';
@@ -233,7 +233,7 @@
     const sec = (fam, w, label, has) => `
       <div class="pop-label">${label}</div>
       ${w
-        ? `<button type="button" data-copy="${esc(w.address)}"><span class="chain-dot" style="background:${fam === 'sol' ? CHAINS.sol.color : CHAINS.eth.color}"></span>${esc(w.name)} · ${short(w.address)}</button>
+        ? `<button type="button" data-copy="${esc(w.address)}"><span class="chain-dot" style="background:${fam === 'sol' ? CHAINS.sol.color : CHAINS.rh.color}"></span>${esc(w.name)} · ${short(w.address)}</button>
            <button type="button" data-disconnect="${fam}">Disconnect</button>`
         : `<button type="button" data-connect="${fam}">${has ? `Connect ${label} wallet` : `Install a ${label} wallet`}</button>`}`;
     $('#funderPop').innerHTML = sec('sol', s, 'Solana', C.hasSol()) + sec('evm', e, 'EVM', C.hasEvm());
@@ -256,7 +256,7 @@
   const bucketsFor = (range, events) => {
     const now = Date.now();
     const out = [];
-    const push = (t0, t1, label, tipLabel) => out.push({ t0, t1, label, tipLabel, v: 0, byChain: { eth: 0, base: 0, sol: 0, bnb: 0 } });
+    const push = (t0, t1, label, tipLabel) => out.push({ t0, t1, label, tipLabel, v: 0, byChain: { rh: 0, base: 0, sol: 0, bnb: 0 } });
 
     if (range === 'all' || range === '1y') {
       /* all-time starts a month before the first event, so the line has a zero to rise from */
@@ -493,7 +493,7 @@
     $('#kpiBal').textContent = money(walletUsd());
     const parts = [];
     if (state.sol && live.balances.sol != null) parts.push(`${num(live.balances.sol)} SOL`);
-    if (state.evm) EVM_IDS.forEach((c) => { if (live.balances[c] > 0) parts.push(`${num(live.balances[c], 4)} ${CHAINS[c].unit}${c === 'base' ? ' (Base)' : ''}`); });
+    if (state.evm) EVM_IDS.forEach((c) => { if (live.balances[c] > 0) parts.push(`${num(live.balances[c], 4)} ${CHAINS[c].unit} (${CHAINS[c].short})`); });
     $('#kpiBalSub').textContent = state.sol || state.evm ? (parts.join(' · ') || 'no funds yet') : 'connect a wallet';
 
     const unit = PERIOD[ui.range];
@@ -501,7 +501,7 @@
 
     let run = 0;
     const cum = buckets.map((b) => (run += b.v));
-    const byChain = { eth: 0, base: 0, sol: 0, bnb: 0 };
+    const byChain = { rh: 0, base: 0, sol: 0, bnb: 0 };
     buckets.forEach((b) => CHAIN_IDS.forEach((c) => { byChain[c] += b.byChain[c]; }));
 
     if (ui.cumMode === 'donut') drawDonut($('#chartCum'), byChain, 'Total P&L');
@@ -538,7 +538,7 @@
   const renderWallets = () => {
     const card = (fam) => {
       const w = state[fam];
-      const title = fam === 'sol' ? 'Solana' : 'EVM · Ethereum, Base, BNB Chain';
+      const title = fam === 'sol' ? 'Solana' : 'EVM · Robinhood, Base, BNB Chain';
       if (!w) {
         const has = fam === 'sol' ? C.hasSol() : C.hasEvm();
         return `
@@ -958,6 +958,7 @@
           $('#createFoot', form).innerHTML = `
             <a class="btn btn-ghost" href="${C.explorerTx(chain, res.signature)}" target="_blank" rel="noopener">Transaction</a>
             ${site.id === 'pump' ? `<a class="btn btn-ghost" href="https://pump.fun/coin/${res.address}" target="_blank" rel="noopener">pump.fun page</a>`
+              : chain === 'rh' ? `<a class="btn btn-ghost" href="${C.explorerToken(chain, res.address)}" target="_blank" rel="noopener">View token</a>`
               : `<a class="btn btn-ghost" href="${chain === 'bnb' ? 'https://pancakeswap.finance' : 'https://app.uniswap.org'}" target="_blank" rel="noopener">Add liquidity</a>`}
             <button class="btn btn-primary" type="button" data-close>Done</button>`;
           refresh();
@@ -1097,8 +1098,8 @@
   const openDocs = () => {
     openModal('How Vela works', `
       <div class="form" style="font-size:13.5px;color:var(--prose)">
-        <p style="margin:0"><b>1. Connect.</b> Phantom or Solflare for Solana, MetaMask or Rabby for Ethereum, Base and BNB Chain. Vela never sees your keys; your wallet signs every transaction.</p>
-        <p style="margin:0"><b>2. Create Launch.</b> On <b>pump.fun</b> the image and metadata go to IPFS, the create transaction is built by PumpPortal, and your wallet signs it together with a fresh mint key. On <b>Ethereum, Base or BNB Chain</b> Vela deploys a plain fixed-supply ERC-20 from your wallet; add liquidity on a DEX to make it tradable.</p>
+        <p style="margin:0"><b>1. Connect.</b> Phantom or Solflare for Solana, MetaMask or Rabby for Robinhood Chain, Base and BNB Chain. Vela never sees your keys; your wallet signs every transaction.</p>
+        <p style="margin:0"><b>2. Create Launch.</b> On <b>pump.fun</b> the image and metadata go to IPFS, the create transaction is built by PumpPortal, and your wallet signs it together with a fresh mint key. On <b>Robinhood Chain, Base or BNB Chain</b> Vela deploys a plain fixed-supply ERC-20 from your wallet; add liquidity on a DEX to make it tradable.</p>
         <p style="margin:0"><b>3. Track.</b> P&amp;L = your dev tokens × the DexScreener price + what you sold − what the launch cost you (dev buy and fees, measured from your wallet balance). It refreshes every minute while Vela is open.</p>
         <p style="margin:0"><b>Where data lives.</b> Your launch list is stored in this browser. Clearing site data forgets it, though the tokens stay on-chain and can be imported again.</p>
         <p class="note" style="margin:0">Launching a token costs real money and is irreversible. Check the name, ticker and amount before you sign.</p>
@@ -1325,7 +1326,7 @@
   $('#trackForm').addEventListener('submit', (e) => {
     e.preventDefault();
     const addr = $('#trackInput').value.trim();
-    const chain = /^0x[0-9a-fA-F]{40}$/.test(addr) ? (isEvm(ui.chain) ? ui.chain : 'eth')
+    const chain = /^0x[0-9a-fA-F]{40}$/.test(addr) ? (isEvm(ui.chain) ? ui.chain : 'base')
       : /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(addr) ? 'sol' : null;
     if (!chain) { toast('That doesn’t look like a token address', true); return; }
     if (state.tracked.concat(state.launches).some((x) => x.addr.toLowerCase() === addr.toLowerCase())) { toast('Already tracking that token'); return; }
@@ -1358,14 +1359,16 @@
 
   /* ---------- status bar ---------- */
 
+  const TICKERS = [['sol', 'SOL', 'Solana'], ['eth', 'ETH', 'Ethereum'], ['bnb', 'BNB', 'BNB'], ['arc', 'ARC', 'AI Rig Complex']];
   const renderPrices = () => {
-    $('#prices').innerHTML = [['sol', 'sol'], ['bnb', 'bnb'], ['eth', 'eth']].map(([k, c]) => {
+    $('#prices').innerHTML = TICKERS.map(([k, sym, name]) => {
       const p = live.prices[k];
       if (!p?.usd) return '';
-      const up = (p.change || 0) >= 0;
-      return `<span title="${CHAINS[c].name} · ${up ? '+' : ''}${(p.change || 0).toFixed(2)}% 24h"><span class="chain-dot" style="background:${CHAINS[c].color}"></span>
-        $${p.usd.toLocaleString('en-US', { maximumFractionDigits: p.usd < 1000 ? 2 : 0 })}
-        <span class="${up ? 'up' : 'down'}">${up ? '↗' : '↘'}</span></span>`;
+      const ch = p.change || 0;
+      const up = ch >= 0;
+      return `<span title="${name} · ${up ? '+' : ''}${ch.toFixed(2)}% in 24h"><b class="sb-sym">${sym}</b>
+        ${p.usd >= 1000 ? usd(p.usd) : price(p.usd)}
+        <span class="${up ? 'up' : 'down'}">${up ? '▲' : '▼'} ${Math.abs(ch).toFixed(1)}%</span></span>`;
     }).join('');
   };
 

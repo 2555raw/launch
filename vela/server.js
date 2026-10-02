@@ -5,7 +5,7 @@
  * browser can't do safely or can't do at all:
  *
  *   GET  /api/health          what is configured (Pinata, RPC)
- *   GET  /api/prices          SOL / ETH / BNB in USD (CoinGecko, cached 30 s)
+ *   GET  /api/prices          SOL / ETH / BNB / ARC (AI Rig Complex) in USD (CoinGecko, cached 30 s)
  *   POST /api/sol-rpc         Solana JSON-RPC, forwarded to SOLANA_RPC_URL, read + send only
  *   POST /api/ipfs            uploads the token image and metadata to IPFS through Pinata
  *   POST /api/pump/create     asks PumpPortal for an unsigned pump.fun create tx
@@ -127,11 +127,12 @@ const api = {
 
   'GET /api/prices': async (req, res) => {
     const data = await cached('prices', 30000, () => fetchJson(
-      'https://api.coingecko.com/api/v3/simple/price?ids=solana,ethereum,binancecoin&vs_currencies=usd&include_24hr_change=true'));
+      'https://api.coingecko.com/api/v3/simple/price?ids=solana,ethereum,binancecoin,ai-rig-complex&vs_currencies=usd&include_24hr_change=true'));
     send(res, 200, {
       sol: { usd: data.solana?.usd, change: data.solana?.usd_24h_change },
       eth: { usd: data.ethereum?.usd, change: data.ethereum?.usd_24h_change },
-      bnb: { usd: data.binancecoin?.usd, change: data.binancecoin?.usd_24h_change }
+      bnb: { usd: data.binancecoin?.usd, change: data.binancecoin?.usd_24h_change },
+      arc: { usd: data['ai-rig-complex']?.usd, change: data['ai-rig-complex']?.usd_24h_change }
     });
   },
 

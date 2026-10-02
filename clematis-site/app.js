@@ -1,4 +1,4 @@
-/* Meadow — swap tokenized stocks on Robinhood Chain through Uniswap v3 and v4.
+/* Clematis — swap tokenized stocks on Robinhood Chain through Uniswap v3 and v4.
  *
  * Reads (prices, quotes, balances) go straight to the public Robinhood Chain RPC.
  * Writes go through the visitor's own wallet to Uniswap's Universal Router;
@@ -10,7 +10,7 @@
 (() => {
   'use strict';
 
-  const BRAND = 'Meadow';
+  const BRAND = 'Clematis';
   const CHAIN = {
     id: 4663,
     hex: '0x1237',
@@ -55,13 +55,21 @@
 
   const ETH = { symbol: 'ETH', name: 'Ether', sub: 'Robinhood Chain (native)', address: null, decimals: 18, native: true, pools: [] };
   const cleanName = (n) => n.replace(/\s*[•·|-]\s*Robinhood Token\s*$/i, '').trim();
+  /* a few on-chain names carry share-class boilerplate; show what people call them */
+  const NAMES = {
+    NET: 'Cloudflare', SKHY: 'SK hynix', SPCX: 'SpaceX', XOM: 'ExxonMobil', GOOGL: 'Alphabet',
+    VTI: 'Vanguard Total Stock Market ETF', TTWO: 'Take-Two Interactive', LMT: 'Lockheed Martin',
+    PWR: 'Quanta Services', NU: 'Nu Holdings', RKLB: 'Rocket Lab', F: 'Ford', FLY: 'Firefly Aerospace',
+    GLXY: 'Galaxy Digital', MSTR: 'Strategy', WYFI: 'WhiteFiber', DJT: 'Trump Media & Technology',
+    BB: 'BlackBerry', ASML: 'ASML Holding', SGOV: 'iShares 0-3 Month Treasury ETF', EWY: 'iShares MSCI South Korea ETF'
+  };
 
   const listed = (window.CHAIN_TOKENS || []).map((t) => {
     const stock = /robinhood token/i.test(t.name);
     return {
       symbol: t.symbol,
-      name: stock ? cleanName(t.name) : t.name,
-      sub: stock ? cleanName(t.name) : 'Global Dollar · stablecoin',
+      name: NAMES[t.symbol] || (stock ? cleanName(t.name) : t.name),
+      sub: NAMES[t.symbol] || (stock ? cleanName(t.name) : 'Global Dollar · stablecoin'),
       address: ethers.getAddress(t.address),
       decimals: t.decimals,
       stock,
@@ -92,7 +100,7 @@
     slippage: 'auto'
   };
   try {
-    const saved = localStorage.getItem('meadow.slippage');
+    const saved = localStorage.getItem('clematis.slippage');
     if (saved) state.slippage = saved === 'auto' ? 'auto' : Number(saved);
   } catch { /* storage may be blocked */ }
 
@@ -353,15 +361,33 @@
     box.replaceChildren();
     const list = walletChoices();
     if (!list.length) {
-      const p = el('p', 'wallet-empty');
-      p.append('No browser wallet found. Install ');
-      const a = el('a', null, 'MetaMask');
-      a.href = 'https://metamask.io/download/'; a.target = '_blank'; a.rel = 'noopener';
-      p.append(a, ' or ');
-      const b = el('a', null, 'Rabby');
-      b.href = 'https://rabby.io/'; b.target = '_blank'; b.rel = 'noopener';
-      p.append(b, ', then reload this page. On a phone, open this page inside your wallet app’s browser.');
+      /* No wallet in this browser. On a phone that's normal: the wallet apps have
+         their own browser, and these links open this page inside them. */
+      const here = location.href.split('#')[0];
+      const apps = [
+        ['Open in MetaMask', 'https://metamask.app.link/dapp/' + here.replace(/^https?:\/\//, '')],
+        ['Open in Coinbase Wallet', 'https://go.cb-w.com/dapp?cb_url=' + encodeURIComponent(here)],
+        ['Open in Trust Wallet', 'https://link.trustwallet.com/open_url?coin_id=60&url=' + encodeURIComponent(here)]
+      ];
+      const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const p = el('p', 'wallet-empty', mobile
+        ? 'Open this page inside your wallet app to connect:'
+        : 'No browser wallet found. Install MetaMask or Rabby, then reload this page — or open it in a wallet app on your phone:');
       box.append(p);
+      for (const [label, href] of apps) {
+        const a = el('a', 'wallet-row', label);
+        a.href = href; a.target = '_blank'; a.rel = 'noopener';
+        box.append(a);
+      }
+      if (!mobile) {
+        const links = el('p', 'wallet-empty');
+        const mm = el('a', null, 'Get MetaMask');
+        mm.href = 'https://metamask.io/download/'; mm.target = '_blank'; mm.rel = 'noopener';
+        const rb = el('a', null, 'Get Rabby');
+        rb.href = 'https://rabby.io/'; rb.target = '_blank'; rb.rel = 'noopener';
+        links.append(mm, ' · ', rb);
+        box.append(links);
+      }
     }
     for (const w of list) {
       const row = el('button', 'wallet-row');
@@ -381,7 +407,7 @@
     try {
       const accounts = await w.provider.request({ method: 'eth_requestAccounts' });
       attachWallet(w, accounts[0]);
-      try { localStorage.setItem('meadow.wallet', w.info.rdns || 'injected'); } catch { /* ignore */ }
+      try { localStorage.setItem('clematis.wallet', w.info.rdns || 'injected'); } catch { /* ignore */ }
       await ensureChain();
     } catch (e) {
       toast(humanError(e));
@@ -446,7 +472,7 @@
   /* reconnect silently to the wallet used last time, if it still has us authorised */
   setTimeout(async () => {
     let last = null;
-    try { last = localStorage.getItem('meadow.wallet'); } catch { /* ignore */ }
+    try { last = localStorage.getItem('clematis.wallet'); } catch { /* ignore */ }
     if (!last) return;
     const w = walletChoices().find((x) => (x.info.rdns || 'injected') === last);
     if (!w) return;
@@ -779,6 +805,8 @@
     btn.textContent = label;
     btn.disabled = disabled;
 
+    renderSide();
+
     const nav = $('nav-connect');
     nav.textContent = state.account ? (state.chainOk ? shortAddr(state.account) : 'Wrong network') : 'Connect wallet';
 
@@ -790,9 +818,34 @@
     setLogo(img, token);
   }
 
+  function renderSide() {
+    const on = !!state.account;
+    $('side-wallet-off').hidden = on;
+    $('side-wallet-on').hidden = !on;
+    if (!on) return;
+    const a = $('side-addr');
+    a.textContent = shortAddr(state.account);
+    a.href = `${CHAIN.explorer}/address/${state.account}`;
+    const eth = state.balances.get('ETH');
+    $('side-eth').textContent = eth === undefined ? '…' : fmtAmount(toNum(eth, 18));
+    const held = STOCKS.filter((t) => (state.balances.get(t.symbol) ?? 0n) > 0n).length;
+    $('side-held').textContent = state.balances.size ? String(held) : '…';
+  }
+
+  async function refreshBlock() {
+    try {
+      const n = await read.getBlockNumber();
+      $('side-block').textContent = '#' + n.toLocaleString('en-US');
+      $('side-dot').classList.add('live');
+    } catch {
+      $('side-dot').classList.remove('live');
+    }
+  }
+
   function renderPrices() {
     const ethUsd = state.ethUsd;
     $('eth-price').textContent = ethUsd ? fmtUsd(ethUsd) : '—';
+    $('side-ethusd').textContent = ethUsd ? fmtUsd(ethUsd) : '—';
     document.querySelectorAll('[data-price]').forEach((n) => {
       const t = bySymbol(n.dataset.price);
       const u = t ? priceUsd(t) : null;
@@ -817,28 +870,115 @@
     $('stock-count').textContent = STOCKS.length;
   }
 
-  function buildMarket() {
-    const grid = $('market-grid');
-    const q = $('market-search').value.trim().toLowerCase();
-    const items = STOCKS.filter((t) => !q || t.symbol.toLowerCase().includes(q) || t.name.toLowerCase().includes(q));
-    if (!items.length) { grid.replaceChildren(el('p', 'market-empty', 'No stock matches that search.')); return; }
-    grid.replaceChildren(...items.map((t) => {
-      const b = el('button', 'mkt');
+  /* The market list is split into four sectors; anything not named below lands
+     in the last one, so a newly listed stock still shows up. */
+  const SECTORS = [
+    { id: 'tech', label: 'Tech & Software', symbols: 'AAPL ADBE AMZN APP BB CRM CTSH DDOG FIG GOOGL IBM META MSFT NET NFLX ORCL PLTR RBLX RDDT SHOP SNAP SNOW TTD TTWO WDAY ZM' },
+    { id: 'chips', label: 'Chips & AI', symbols: 'AMD APLD ASML AVGO CRWV DELL INTC IREN LITE MRVL MU NBIS NVDA ON PENG POET QCOM QUBT SKHY SNDK TSM WULF WYFI' },
+    { id: 'etf', label: 'ETFs & Commodities', symbols: 'EWY GLD INDA QQQ SGOV SLV SOXX SPY USO VTI' },
+    { id: 'more', label: 'Consumer, Energy & More', symbols: '' }
+  ];
+  const sectorOf = (t) => (SECTORS.find((s) => s.symbols.split(' ').includes(t.symbol)) || SECTORS[3]).id;
+  const ROWS_FOLDED = 10;
+  const market = { sector: 'tech', expanded: false };
+
+  function poolLabel(t) {
+    const p = t.pools[0];
+    return p ? `Uniswap v${p.v} · ${feePct(p.fee)}` : '—';
+  }
+
+  function buildMarketTabs() {
+    const tabs = $('market-tabs');
+    tabs.replaceChildren(...SECTORS.map((sec) => {
+      const n = STOCKS.filter((t) => sectorOf(t) === sec.id).length;
+      const b = el('button', 'tab');
       b.type = 'button';
+      b.setAttribute('role', 'tab');
+      b.dataset.sector = sec.id;
+      b.append(el('span', null, sec.label), el('small', null, String(n)));
+      b.addEventListener('click', () => {
+        market.sector = sec.id;
+        market.expanded = false;
+        $('market-search').value = '';
+        buildMarket();
+      });
+      return b;
+    }));
+  }
+
+  function buildMarket() {
+    const q = $('market-search').value.trim().toLowerCase();
+    /* a search looks across every sector */
+    const all = q
+      ? STOCKS.filter((t) => t.symbol.toLowerCase().includes(q) || t.name.toLowerCase().includes(q))
+      : STOCKS.filter((t) => sectorOf(t) === market.sector);
+    document.querySelectorAll('#market-tabs .tab').forEach((b) => {
+      const on = !q && b.dataset.sector === market.sector;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    const rows = $('market-rows');
+    const more = $('market-more');
+    if (!all.length) {
+      rows.replaceChildren(el('p', 'market-empty', 'No stock matches that search.'));
+      more.hidden = true;
+      return;
+    }
+    const shown = q || market.expanded ? all : all.slice(0, ROWS_FOLDED);
+    rows.replaceChildren(...shown.map((t) => {
+      const row = el('div', 'mt-row');
+      row.setAttribute('role', 'row');
+      const asset = el('span', 'mt-asset');
       const text = el('span', 'mkt-text');
       text.append(el('b', null, t.symbol), el('small', null, t.name));
-      const px = el('span', 'mkt-px');
-      const val = el('span', null, '—'); val.dataset.price = t.symbol;
-      px.append(val, el('small', null, 'Trade →'));
-      b.append(logoImg(t), text, px);
+      asset.append(logoImg(t), text);
+      const px = el('span', 'mt-num', '—');
+      px.dataset.price = t.symbol;
+      const pool = el('span', 'mt-pool', poolLabel(t));
+      const act = el('span', 'mt-act');
+      const btn = el('button', 'trade-btn', 'Trade');
+      btn.type = 'button';
+      btn.setAttribute('aria-label', `Trade ${t.symbol}`);
+      btn.addEventListener('click', () => {
+        if (state.pay === t) state.pay = ETH;
+        selectToken('recv', t);
+        $('swap').scrollIntoView({ behavior: 'smooth' });
+      });
+      act.append(btn);
+      row.append(asset, px, pool, act);
+      return row;
+    }));
+    more.hidden = !!q || all.length <= ROWS_FOLDED;
+    more.textContent = market.expanded ? 'Show less' : `Show all ${all.length}`;
+    renderPrices();
+  }
+  $('market-more').addEventListener('click', () => {
+    market.expanded = !market.expanded;
+    buildMarket();
+    if (!market.expanded) $('stocks').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  /* Scrolling strip of live prices under the hero. The list is laid out twice so
+     the loop has no seam. */
+  function buildTape() {
+    const picks = [...FEATURED, 'SPY', 'QQQ', 'PLTR', 'AMD', 'NFLX', 'TSM', 'MSTR', 'SPCX', 'GLD']
+      .map(bySymbol).filter(Boolean);
+    const items = () => picks.map((t) => {
+      const b = el('button', 'tape-item');
+      b.type = 'button';
+      const px = el('span', null, '—');
+      px.dataset.price = t.symbol;
+      b.append(logoImg(t), el('b', null, t.symbol), px);
       b.addEventListener('click', () => {
         if (state.pay === t) state.pay = ETH;
         selectToken('recv', t);
         $('swap').scrollIntoView({ behavior: 'smooth' });
       });
       return b;
-    }));
-    renderPrices();
+    });
+    const second = items();
+    second.forEach((n) => { n.tabIndex = -1; n.setAttribute('aria-hidden', 'true'); });
+    $('tape-track').replaceChildren(...items(), ...second);
   }
 
   /* ---------------- token picker ---------------- */
@@ -968,6 +1108,7 @@
   });
   $('rv-confirm').addEventListener('click', executeSwap);
 
+  $('side-connect').addEventListener('click', () => openWalletModal());
   $('nav-connect').addEventListener('click', async () => {
     if (!state.account) { openWalletModal(); return; }
     if (!state.chainOk) { try { await ensureChain(); } catch (e) { toast(humanError(e)); } return; }
@@ -989,7 +1130,7 @@
   }
   function setSlippage(v) {
     state.slippage = v;
-    try { localStorage.setItem('meadow.slippage', String(v)); } catch { /* ignore */ }
+    try { localStorage.setItem('clematis.slippage', String(v)); } catch { /* ignore */ }
     markSlip();
     render();
   }
@@ -1012,24 +1153,29 @@
     if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
   }), { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach((n) => io.observe(n));
-  const navLinks = [...document.querySelectorAll('.main-nav a')];
+  const navLinks = [...document.querySelectorAll('.main-nav a, .side-nav a')];
   const navIo = new IntersectionObserver((entries) => entries.forEach((e) => {
     if (e.isIntersecting) navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
   }), { rootMargin: '-45% 0px -50% 0px' });
-  ['swap', 'stocks', 'how', 'faq'].forEach((id) => $(id) && navIo.observe($(id)));
+  ['swap', 'stocks', 'how', 'features', 'faq'].forEach((id) => $(id) && navIo.observe($(id)));
 
   /* ---------------- start ---------------- */
 
   /* ?simulate exposes the router for scripted dry-runs against the live chain;
      it can only read and build calldata, never sign or send. */
   if (new URLSearchParams(location.search).has('simulate')) {
-    window.meadowSim = { tokens: TOKENS, bestQuote, quoteHop, edgePools, quoteDetails, buildPlan, addresses: { UNIVERSAL_ROUTER, PERMIT2, CHAIN_ID: CHAIN.id } };
+    window.clematisSim = { tokens: TOKENS, bestQuote, quoteHop, edgePools, quoteDetails, buildPlan, addresses: { UNIVERSAL_ROUTER, PERMIT2, CHAIN_ID: CHAIN.id } };
   }
 
   document.title = `${BRAND} — Swap tokenized stocks on ${CHAIN.name}`;
   $('stat-stocks').textContent = STOCKS.length;
+  $('side-count').textContent = STOCKS.length;
+  refreshBlock();
+  setInterval(() => { if (!document.hidden) refreshBlock(); }, 12000);
   $('stat-pools').textContent = listed.reduce((n, t) => n + t.pools.length, 0);
   buildPicks();
+  buildTape();
+  buildMarketTabs();
   buildMarket();
   render();
   requestQuote(0);

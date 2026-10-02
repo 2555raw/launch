@@ -1,8 +1,8 @@
 {
-  "name": "meadow-site",
+  "name": "clematis-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Meadow — swap tokenized stocks on Robinhood Chain through Uniswap v3 and v4.",
+  "description": "Clematis — swap tokenized stocks on Robinhood Chain through Uniswap v3 and v4.",
   "scripts": {
     "start": "node server.js",
     "tokens": "node scripts/build-tokens.js"

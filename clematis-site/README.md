@@ -1,10 +1,12 @@
-# Meadow
+# Clematis
 
 A swap page for tokenized stocks on **Robinhood Chain** (chain ID 4663). Pick a
 stock, see a live quote, sign in your own wallet, and the trade settles through
 Uniswap v3 and v4 in one transaction.
 
-The look follows a night-blue interface over a real cosmos field in bloom.
+The look is a night-blue trading interface: a fine market grid on deep navy,
+a live price tape under the hero, a sidebar with wallet and network status on
+wide screens, and the stock list split into four sectors.
 
 ## What is real
 
@@ -66,7 +68,7 @@ Which pools are trusted:
 
 Addresses come from `@uniswap/sdk-core` and `@uniswap/universal-router-sdk`.
 The 2.1.x router expects `minHopPriceX36` in both the v3 swap input and the v4
-swap struct; Meadow passes an empty/zero value and relies on the final minimum.
+swap struct; Clematis passes an empty/zero value and relies on the final minimum.
 
 ## Token list
 
@@ -102,10 +104,8 @@ npm start           # http://localhost:8080
 
 Node 18+, no dependencies. `ethers` v6 is vendored in `vendor/`.
 
-It's published to GitHub Pages by `.github/workflows/pages.yml` on every push
-to this branch that touches `meadow-site/`. Any static host works the same way;
-on Railway, point a service at this folder (root directory `meadow-site`), and
-it starts with `npm start` and listens on `PORT`.
+It runs on Railway: a service with root directory `clematis-site`, started
+with `npm start`, listening on `PORT`. Any static host works the same way.
 
 ## Change the name
 
@@ -114,10 +114,7 @@ and `BRAND` at the top of `app.js`.
 
 ## Credits
 
-Background photo: “Cosmos flower field #2” by Takashi Hososhima,
-[CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/), via
-[Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Cosmos_flower_field_-2_(8090495110).jpg),
-resized. Company logos are trademarks of their owners. ethers.js is MIT
+Company logos are trademarks of their owners. ethers.js is MIT
 (`vendor/ethers-LICENSE.md`).
 
 Tokenized stocks track the price of the underlying security and are issued by

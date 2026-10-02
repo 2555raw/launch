@@ -443,10 +443,41 @@
   window.dispatchEvent(new Event('eip6963:requestProvider'));
 
   const WC_ICON = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#3b99fc"/><path d="M9.6 12.1c3.5-3.4 9.2-3.4 12.8 0l.4.4c.2.2.2.4 0 .6l-1.5 1.4c-.1.1-.2.1-.3 0l-.6-.6c-2.5-2.4-6.4-2.4-8.9 0l-.6.6c-.1.1-.2.1-.3 0L9.1 13c-.2-.2-.2-.4 0-.6zm15.8 2.9l1.3 1.3c.2.2.2.4 0 .6l-5.9 5.8c-.2.2-.4.2-.6 0l-4.2-4.1h-.2l-4.2 4.1c-.2.2-.4.2-.6 0l-5.9-5.8c-.2-.2-.2-.4 0-.6L6.4 15c.2-.2.4-.2.6 0l4.2 4.1h.2l4.2-4.1c.2-.2.4-.2.6 0l4.2 4.1h.2l4.2-4.1c.2-.2.4-.2.6 0z" fill="#fff"/></svg>');
+  /* Wallets we know by name: our own copy of each logo (some wallets announce
+     none, or one this page can't show), where to get it, and, for phone apps, a
+     link that opens this page inside the app's own browser. */
+  const KNOWN_WALLETS = [
+    { id: 'metamask', name: 'MetaMask', rdns: ['io.metamask', 'io.metamask.flask'], get: 'https://metamask.io/download/',
+      app: (u) => 'https://metamask.app.link/dapp/' + u.replace(/^https?:\/\//, '') },
+    { id: 'phantom', name: 'Phantom', rdns: ['app.phantom'], get: 'https://phantom.com/download',
+      app: (u) => 'https://phantom.app/ul/browse/' + encodeURIComponent(u) + '?ref=' + encodeURIComponent(location.origin) },
+    { id: 'coinbase', name: 'Coinbase Wallet', rdns: ['com.coinbase.wallet'], get: 'https://www.coinbase.com/wallet/downloads',
+      app: (u) => 'https://go.cb-w.com/dapp?cb_url=' + encodeURIComponent(u) },
+    { id: 'trust', name: 'Trust Wallet', rdns: ['com.trustwallet.app'], get: 'https://trustwallet.com/download',
+      app: (u) => 'https://link.trustwallet.com/open_url?coin_id=60&url=' + encodeURIComponent(u) },
+    { id: 'okx', name: 'OKX Wallet', rdns: ['com.okex.wallet'], get: 'https://www.okx.com/web3',
+      app: (u) => 'https://www.okx.com/download?deeplink=' + encodeURIComponent('okx://wallet/dapp/url?dappUrl=' + encodeURIComponent(u)) },
+    { id: 'rabby', name: 'Rabby', rdns: ['io.rabby'], get: 'https://rabby.io/' },
+    { id: 'rainbow', name: 'Rainbow', rdns: ['me.rainbow'], get: 'https://rainbow.me/download' }
+  ];
+  const knownWallet = (rdns) => KNOWN_WALLETS.find((k) => k.rdns.includes(rdns));
+  const walletLogo = (k) => 'wallets/' + k.id + '.svg';
+  function walletIcon(info) {
+    const k = knownWallet(info.rdns);
+    if (k) return walletLogo(k);
+    return /^data:image\//.test(info.icon || '') ? info.icon : letterAvatar(info.name || '?');
+  }
+
   function walletChoices() {
     const list = [...wallets.values()];
-    if (!list.length && window.ethereum) list.push({ info: { name: 'Browser wallet', rdns: 'injected', icon: '' }, provider: window.ethereum });
-    if (WALLETCONNECT_PROJECT_ID) list.push({ info: { name: 'WalletConnect · phone wallets', rdns: 'walletconnect', icon: WC_ICON }, provider: null, lazy: true });
+    if (!list.length && window.ethereum) {
+      /* an older wallet that doesn't announce itself: name it from its flags */
+      const e = window.ethereum;
+      const k = e.isPhantom ? KNOWN_WALLETS[1] : e.isCoinbaseWallet ? KNOWN_WALLETS[2] : e.isTrust || e.isTrustWallet ? KNOWN_WALLETS[3]
+        : e.isOkxWallet ? KNOWN_WALLETS[4] : e.isRabby ? KNOWN_WALLETS[5] : e.isRainbow ? KNOWN_WALLETS[6] : e.isMetaMask ? KNOWN_WALLETS[0] : null;
+      list.push({ info: { name: k ? k.name : 'Browser wallet', rdns: 'injected', icon: k ? walletLogo(k) : '' }, provider: e });
+    }
+    if (WALLETCONNECT_PROJECT_ID) list.push({ info: { name: 'WalletConnect', rdns: 'walletconnect', icon: WC_ICON }, provider: null, lazy: true });
     return list;
   }
 
@@ -473,49 +504,97 @@
     return wcProvider;
   }
 
-  function openWalletModal() {
+  function walletRow(tag, icon, name, note, noteCls) {
+    const row = el(tag, 'wallet-row');
+    if (tag === 'button') row.type = 'button';
+    const img = el('img');
+    img.src = icon; img.alt = ''; img.width = img.height = 32;
+    row.append(img, el('span', 'wallet-name', name));
+    if (note) row.append(el('span', 'wallet-tag' + (noteCls ? ' ' + noteCls : ''), note));
+    return row;
+  }
+  function walletChip(tag, k) {
+    const chip = el(tag, 'wallet-chip');
+    if (tag === 'button') chip.type = 'button';
+    const img = el('img');
+    img.src = walletLogo(k); img.alt = ''; img.width = img.height = 28;
+    chip.append(img, el('span', null, k.name));
+    return chip;
+  }
+
+  const isPhone = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const pageUrl = () => location.href.split('#')[0].split('?')[0];
+
+  function renderWalletList() {
     const box = $('wallet-list');
     box.replaceChildren();
-    const list = walletChoices();
-    if (!list.length) {
-      /* No wallet in this browser. On a phone that's normal: the wallet apps have
-         their own browser, and these links open this page inside them. */
-      const here = location.href.split('#')[0];
-      const apps = [
-        ['Open in MetaMask', 'https://metamask.app.link/dapp/' + here.replace(/^https?:\/\//, '')],
-        ['Open in Coinbase Wallet', 'https://go.cb-w.com/dapp?cb_url=' + encodeURIComponent(here)],
-        ['Open in Trust Wallet', 'https://link.trustwallet.com/open_url?coin_id=60&url=' + encodeURIComponent(here)]
-      ];
-      const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      const p = el('p', 'wallet-empty', mobile
-        ? 'Open this page inside your wallet app to connect:'
-        : 'No browser wallet found. Install MetaMask or Rabby, then reload this page — or open it in a wallet app on your phone:');
-      box.append(p);
-      for (const [label, href] of apps) {
-        const a = el('a', 'wallet-row', label);
-        a.href = href; a.target = '_blank'; a.rel = 'noopener';
-        box.append(a);
-      }
-      if (!mobile) {
-        const links = el('p', 'wallet-empty');
-        const mm = el('a', null, 'Get MetaMask');
-        mm.href = 'https://metamask.io/download/'; mm.target = '_blank'; mm.rel = 'noopener';
-        const rb = el('a', null, 'Get Rabby');
-        rb.href = 'https://rabby.io/'; rb.target = '_blank'; rb.rel = 'noopener';
-        links.append(mm, ' · ', rb);
-        box.append(links);
-      }
-    }
-    for (const w of list) {
-      const row = el('button', 'wallet-row');
-      row.type = 'button';
-      if (w.info.icon && /^data:image\//.test(w.info.icon)) {
-        const img = el('img'); img.src = w.info.icon; img.alt = ''; row.append(img);
-      }
-      row.append(el('span', null, w.info.name));
+    const phone = isPhone();
+    const found = walletChoices();
+    const have = new Set(found.map((w) => (knownWallet(w.info.rdns) || {}).id));
+    for (const w of found) {
+      const row = walletRow('button', walletIcon(w.info), w.info.name, w.lazy ? 'QR' : 'Detected', w.lazy ? '' : 'ok');
       row.addEventListener('click', () => connect(w));
       box.append(row);
     }
+    /* Phone wallet apps. On a phone the link opens this page inside the app; on
+       a computer it shows as a QR code to scan with the phone's camera. */
+    const apps = KNOWN_WALLETS.filter((k) => k.app);
+    box.append(el('div', 'wallet-sec', phone ? 'Open in your wallet app' : 'Phone wallets · scan to open'));
+    const grid = el('div', 'wallet-grid');
+    for (const k of apps) {
+      if (phone) {
+        const a = walletChip('a', k);
+        a.href = k.app(pageUrl()); a.rel = 'noopener';
+        grid.append(a);
+      } else {
+        const b = walletChip('button', k);
+        b.addEventListener('click', () => showWalletQr(k));
+        grid.append(b);
+      }
+    }
+    box.append(grid);
+    if (!phone) {
+      const missing = KNOWN_WALLETS.filter((k) => !have.has(k.id));
+      if (missing.length) {
+        box.append(el('div', 'wallet-sec', found.length ? 'More browser wallets' : 'Get a browser wallet'));
+        const g = el('div', 'wallet-grid');
+        for (const k of missing) {
+          const a = walletChip('a', k);
+          a.href = k.get; a.target = '_blank'; a.rel = 'noopener';
+          g.append(a);
+        }
+        box.append(g);
+      }
+    }
+  }
+
+  async function showWalletQr(k) {
+    const box = $('wallet-list');
+    box.replaceChildren(el('p', 'wallet-empty', 'Loading…'));
+    try {
+      if (!window.qrcode) await loadScript('vendor/qrcode.min.js');
+    } catch (e) {
+      box.replaceChildren(el('p', 'wallet-empty', 'Could not load the QR code. Open this page on your phone instead.'));
+      return;
+    }
+    const q = window.qrcode(0, 'H');
+    q.addData(k.app(pageUrl()));
+    q.make();
+    const wrap = el('div', 'wallet-qr');
+    wrap.innerHTML = q.createSvgTag({ cellSize: 4, margin: 2, scalable: true });
+    const logo = el('img', 'wallet-qr-logo');
+    logo.src = walletLogo(k); logo.alt = '';
+    wrap.append(logo);
+    const back = el('button', 'btn btn-ghost btn-sm wallet-back', '← All wallets');
+    back.type = 'button';
+    back.addEventListener('click', renderWalletList);
+    box.replaceChildren(wrap,
+      el('p', 'wallet-empty wallet-qr-text', `Scan with your phone's camera to open ${BRAND} in ${k.name}, then tap Connect wallet there.`),
+      back);
+  }
+
+  function openWalletModal() {
+    renderWalletList();
     openModal('wallet-modal');
   }
 
@@ -1394,6 +1473,164 @@
     $('tape-track').replaceChildren(...items(), ...second);
   }
 
+  /* ---------------- floating hero assets ---------------- */
+
+  /* Spots around the headline, as % of the hero box, with a size factor. The
+     centre column stays clear for the text. */
+  const ORBIT_WIDE = [
+    [6, 16, 1.1], [19, 7, .8], [14, 34, 1.2], [4, 54, .85], [23, 56, .95], [9, 80, 1], [25, 88, .75], [34, 7, .7],
+    [94, 16, 1.1], [81, 7, .8], [86, 34, 1.2], [96, 54, .85], [77, 56, .95], [91, 80, 1], [75, 88, .75], [66, 7, .7],
+    /* extra spots, used when the hero is wide enough */
+    [3, 32, .7], [26, 24, .68], [16, 67, .8], [29, 74, .62], [3, 93, .72],
+    [97, 32, .7], [74, 24, .68], [84, 67, .8], [71, 74, .62], [97, 93, .72]
+  ];
+  const ORBIT_NARROW = [[9, 6, .8], [30, 5, .65], [70, 5, .65], [91, 6, .8], [6, 95, .7], [94, 95, .7]];
+  const ORBIT_TOKENS = [...FEATURED, 'NFLX', 'PLTR', 'AMD', 'SPY', 'QQQ', 'TSM', 'MSTR', 'SPCX', 'GLD', 'RBLX',
+    'INTC', 'SHOP', 'BABA', 'LLY', 'RDDT', 'RKLB', 'GME', 'COST', 'CRCL', 'HIMS', 'SNAP', 'MU', 'BA', 'NU'];
+  const orbitMode = (w) => (w < 760 ? 'narrow' : w < 1100 ? 'mid' : 'wide');
+
+  function buildOrbit() {
+    const hero = $('hero'), layer = $('orbit');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let mode = null;
+    const items = [];
+
+    const place = (animate) => {
+      mode = orbitMode(hero.clientWidth);
+      const slots = mode === 'narrow' ? ORBIT_NARROW : mode === 'mid' ? ORBIT_WIDE.slice(0, 16) : ORBIT_WIDE;
+      const base = mode === 'narrow' ? 40 : 60;
+      const picks = ORBIT_TOKENS.map(bySymbol).filter(Boolean).slice(0, slots.length);
+      const box = hero.getBoundingClientRect();
+      const title = hero.querySelector('h1').getBoundingClientRect();
+      const cx = title.left + title.width / 2 - box.left, cy = title.top + title.height / 2 - box.top;
+      items.length = 0;
+      layer.replaceChildren(...picks.map((t, i) => {
+        const [px, py, k] = slots[i];
+        const size = Math.round(base * k);
+        const node = el('div', 'fa');
+        node.style.left = px + '%';
+        node.style.top = py + '%';
+        node.style.setProperty('--s', size + 'px');
+        node.style.setProperty('--o', (0.7 + 0.3 * Math.min(1, k)).toFixed(2));
+        const burst = el('div', 'fa-burst');
+        const float = el('div', 'fa-float');
+        const rnd = (a, b) => a + Math.random() * (b - a);
+        float.style.setProperty('--fd', rnd(5, 8.5).toFixed(2) + 's');
+        float.style.setProperty('--fdel', (-rnd(0, 8)).toFixed(2) + 's');
+        float.style.setProperty('--fx', rnd(-8, 8).toFixed(1) + 'px');
+        float.style.setProperty('--fy', rnd(-16, -8).toFixed(1) + 'px');
+        float.style.setProperty('--r0', rnd(-6, -1).toFixed(1) + 'deg');
+        float.style.setProperty('--r1', rnd(1, 6).toFixed(1) + 'deg');
+        const img = logoImg(t);
+        img.loading = 'eager';
+        img.width = img.height = size;
+        img.draggable = false;
+        float.append(img);
+        burst.append(float);
+        node.append(burst);
+        node.title = t.symbol;
+        const item = { t, node, x: 0, y: 0, vx: 0, vy: 0, raf: 0 };
+        items.push(item);
+        drag(item);
+        if (animate && !reduce) {
+          const dx = cx - (px / 100) * box.width, dy = cy - (py / 100) * box.height;
+          burst.animate([
+            { transform: `translate(${dx}px, ${dy}px) scale(.15)`, opacity: 0 },
+            { opacity: 1, offset: 0.3 },
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 }
+          ], { duration: 1300, delay: 250 + i * 45, easing: 'cubic-bezier(.2, 1.25, .35, 1)', fill: 'backwards' });
+        }
+        return node;
+      }));
+    };
+
+    /* keep a tile's centre inside the hero */
+    const bounds = (item) => {
+      const W = hero.clientWidth, H = hero.clientHeight;
+      const r = item.node.offsetWidth / 2;
+      const ox = item.node.offsetLeft, oy = item.node.offsetTop;
+      return { minX: r - ox, maxX: W - r - ox, minY: r - oy, maxY: H - r - oy };
+    };
+    const apply = (item) => {
+      item.node.style.setProperty('--mx', item.x.toFixed(1) + 'px');
+      item.node.style.setProperty('--my', item.y.toFixed(1) + 'px');
+    };
+    const clamp = (item) => {
+      const b = bounds(item);
+      item.x = Math.min(b.maxX, Math.max(b.minX, item.x));
+      item.y = Math.min(b.maxY, Math.max(b.minY, item.y));
+      apply(item);
+    };
+
+    /* a thrown tile glides, slows down and bounces off the hero's edges */
+    const glide = (item) => {
+      let last = performance.now();
+      const step = (now) => {
+        const dt = Math.min(32, now - last);
+        last = now;
+        item.x += item.vx * dt;
+        item.y += item.vy * dt;
+        const b = bounds(item);
+        if (item.x < b.minX || item.x > b.maxX) { item.x = Math.min(b.maxX, Math.max(b.minX, item.x)); item.vx *= -0.6; }
+        if (item.y < b.minY || item.y > b.maxY) { item.y = Math.min(b.maxY, Math.max(b.minY, item.y)); item.vy *= -0.6; }
+        const f = Math.pow(0.94, dt / 16);
+        item.vx *= f; item.vy *= f;
+        apply(item);
+        item.raf = Math.hypot(item.vx, item.vy) > 0.01 ? requestAnimationFrame(step) : 0;
+      };
+      item.raf = requestAnimationFrame(step);
+    };
+
+    function drag(item) {
+      const { node } = item;
+      let start = null;
+      node.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        cancelAnimationFrame(item.raf);
+        node.setPointerCapture(e.pointerId);
+        node.classList.add('grab');
+        start = { px: e.clientX, py: e.clientY, x: item.x, y: item.y, t: performance.now(), moved: 0, samples: [] };
+        e.preventDefault();
+      });
+      node.addEventListener('pointermove', (e) => {
+        if (!start) return;
+        const dx = e.clientX - start.px, dy = e.clientY - start.py;
+        start.moved = Math.max(start.moved, Math.hypot(dx, dy));
+        item.x = start.x + dx;
+        item.y = start.y + dy;
+        clamp(item);
+        const now = performance.now();
+        start.samples.push({ x: e.clientX, y: e.clientY, t: now });
+        while (start.samples.length > 2 && now - start.samples[0].t > 90) start.samples.shift();
+      });
+      const end = (e) => {
+        if (!start) return;
+        node.classList.remove('grab');
+        const s = start.samples, quick = performance.now() - start.t < 400;
+        if (start.moved < 6 && quick && e.type === 'pointerup') openAsset(item.t);
+        else if (s.length >= 2) {
+          const a = s[0], b = s[s.length - 1], dt = Math.max(1, b.t - a.t);
+          item.vx = Math.max(-3, Math.min(3, (b.x - a.x) / dt));
+          item.vy = Math.max(-3, Math.min(3, (b.y - a.y) / dt));
+          if (performance.now() - b.t < 80) glide(item);
+        }
+        start = null;
+      };
+      node.addEventListener('pointerup', end);
+      node.addEventListener('pointercancel', end);
+    }
+
+    place(true);
+    let resizeTimer = 0;
+    addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (orbitMode(hero.clientWidth) !== mode) place(false);
+        else items.forEach(clamp);
+      }, 120);
+    });
+  }
+
   /* ---------------- token picker ---------------- */
 
   let pickerSide = 'pay';
@@ -1596,6 +1833,7 @@
   $('stat-pools').textContent = listed.reduce((n, t) => n + t.pools.length, 0);
   buildPicks();
   buildTape();
+  buildOrbit();
   buildMarketTabs();
   buildMarket();
   buildMovers();

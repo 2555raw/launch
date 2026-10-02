@@ -108,7 +108,7 @@ Only the page's own files are served; `server.js`, `contracts/` and `scripts/` a
 ## Brand
 
 Monochrome: pure black and white, big tight headlines (800, -3 to -5 % tracking), the pixel asterisk
-mark in white, and a faint grid. Colour is reserved for P&L (green / red) and the chains' own logos.
+mark in white, and a night sky: a light from above, faint stars and a planet's horizon under the headline. Colour is reserved for P&L (green / red) and the chains' own logos.
 `brand/` holds the X profile picture, the headers and the GIF.
 
 ## Customize

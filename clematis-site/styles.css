@@ -304,6 +304,24 @@ img { display: block; }
 .lede { margin: 18px auto 0; max-width: 520px; color: #d4dcf2; font-size: clamp(15px, 1.6vw, 18px); text-shadow: 0 2px 16px rgba(5, 7, 15, .6); }
 .hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 26px; }
 .trust { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; padding: 0; margin: 28px 0 0; font-weight: 600; font-size: 15px; }
+.ca-pill {
+  display: inline-flex; align-items: center; gap: 8px; max-width: 100%;
+  margin-top: 22px; padding: 6px 6px 6px 8px;
+  border-radius: var(--r-pill);
+  background: rgba(11, 16, 36, .7); border: 1px solid rgba(96, 165, 250, .25);
+  backdrop-filter: blur(8px);
+}
+.ca-tag { padding: 4px 10px; border-radius: var(--r-pill); background: var(--blue); color: #fff; font-size: 12.5px; font-weight: 800; letter-spacing: .02em; }
+.ca-addr { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13.5px; color: #c9d3ea; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ca-short { display: none; }
+.ca-btn { display: inline-grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%; border: 0; background: rgba(96, 165, 250, .12); color: var(--blue-light); cursor: pointer; text-decoration: none; }
+.ca-btn:hover { background: rgba(96, 165, 250, .25); color: #fff; }
+@media (max-width: 640px) { .ca-full { display: none; } .ca-short { display: inline; } }
+.side-ca-btn { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--border); background: rgba(11, 16, 36, .6); color: var(--ink); cursor: pointer; }
+.side-ca-btn:hover { border-color: var(--blue); }
+.side-ca-btn code { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+.side-ca-btn svg { color: var(--blue-light); flex: none; }
+.foot-legal code { font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .95em; word-break: break-all; }
 .trust li { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: var(--r-pill); background: rgba(11, 16, 36, .55); backdrop-filter: blur(8px); }
 
 /* ---------- cards ---------- */

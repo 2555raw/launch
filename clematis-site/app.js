@@ -1799,7 +1799,18 @@
   $('side-connect').addEventListener('click', () => openWalletModal());
   document.addEventListener('click', (e) => {
     if (e.target.closest('[data-get-eth]')) openModal('eth-modal');
+    if (e.target.closest('[data-copy-ca]')) copyCa();
   });
+  /* $CLEMATIS token contract on Robinhood Chain */
+  const CLEMATIS_CA = '0xc7b12a126d7aeda94f61d33e9bd100cfd5458a6c';
+  async function copyCa() {
+    try {
+      await navigator.clipboard.writeText(CLEMATIS_CA);
+      toast('Contract address copied');
+    } catch {
+      window.prompt('Copy the $CLEMATIS contract address:', CLEMATIS_CA);
+    }
+  }
   $('nav-connect').addEventListener('click', async () => {
     if (!state.account) { openWalletModal(); return; }
     if (!state.chainOk) { try { await ensureChain(); } catch (e) { toast(humanError(e)); } return; }

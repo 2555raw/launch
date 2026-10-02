@@ -56,13 +56,13 @@ export function ConnectWallet({ size = "md", className, label = "Connect Wallet"
             </>
           );
         }
-        return <AccountMenu address={account.address} chainName={chain.name ?? "Network"} size={size} />;
+        return <AccountMenu address={account.address} chainName={chain.name ?? "Network"} size={size} className={className} />;
       }}
     </ConnectButton.Custom>
   );
 }
 
-function AccountMenu({ address, chainName, size }: { address: string; chainName: string; size: "sm" | "md" | "lg" }) {
+function AccountMenu({ address, chainName, size, className }: { address: string; chainName: string; size: "sm" | "md" | "lg"; className?: string }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { disconnect } = useDisconnect();
@@ -84,6 +84,7 @@ function AccountMenu({ address, chainName, size }: { address: string; chainName:
         className={cn(
           "glass flex items-center gap-2.5 rounded-2xl pl-2.5 pr-3 font-mono text-[13px] transition hover:border-lime-400/40",
           size === "sm" ? "h-9" : size === "lg" ? "h-14" : "h-11",
+          className,
         )}
         aria-expanded={open}
       >

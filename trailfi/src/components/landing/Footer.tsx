@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { LogoMark } from "@/components/Logo";
 import { api } from "@/lib/fetcher";
+import { X_URL } from "@/lib/social";
 
 const COLUMNS = [
   {
@@ -39,7 +40,7 @@ const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "helloStepIT@outl
 
 /** X always shows; the other profiles get an icon once their link is configured. */
 const SOCIALS = [
-  { label: "X", href: process.env.NEXT_PUBLIC_X_URL || "https://x.com", icon: XIcon },
+  { label: "X", href: X_URL, icon: XIcon },
   { label: "Telegram", href: process.env.NEXT_PUBLIC_TELEGRAM_URL, icon: TelegramIcon },
   { label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, icon: InstagramIcon },
   { label: "Discord", href: process.env.NEXT_PUBLIC_DISCORD_URL, icon: DiscordIcon },

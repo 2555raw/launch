@@ -16,6 +16,7 @@ import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDate, fmtSteps } from "@/lib/format";
 import { TokenIcon } from "@/components/ui/TokenIcon";
 import { XLogo } from "@/components/ui/XLogo";
+import { xIntent } from "@/lib/social";
 
 interface Entry {
   id: string;
@@ -379,7 +380,7 @@ function ShareOnX({ entry, referralCode, label }: { entry: Entry; referralCode: 
   const share = () => {
     const url = `${window.location.origin}/share/${entry.id}?ref=${referralCode}`;
     const text = `I walked ${fmtSteps(entry.steps)} steps on ${fmtDate(entry.day, { month: "short", day: "numeric" })} with Stepit. Walk, upload your steps and earn USDG 👟`;
-    window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, "_blank", "noopener,noreferrer");
+    window.open(xIntent(text, url), "_blank", "noopener,noreferrer");
   };
   return (
     <button

@@ -29,6 +29,7 @@ import { AddressAvatar } from "@/components/wallet/ConnectWallet";
 import { useCountUp } from "@/hooks/useCountUp";
 import { cn } from "@/lib/cn";
 import { XLogo } from "@/components/ui/XLogo";
+import { xIntent } from "@/lib/social";
 import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDate, fmtDateTime, fmtSteps, shortAddress } from "@/lib/format";
 import { PAYOUT_CHAIN_ID, SUPPORTED_CHAINS, explorerTxUrl } from "@/lib/web3/chains";
@@ -557,7 +558,7 @@ function InviteCard({ referral, bonus, token }: { referral: MeResponse["referral
               icon={<XLogo />}
               onClick={() =>
                 window.open(
-                  `https://x.com/intent/post?text=${encodeURIComponent(tweet)}&url=${encodeURIComponent(referral.link)}`,
+                  xIntent(tweet, referral.link),
                   "_blank",
                   "noopener",
                 )

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AppShell } from "@/components/AppShell";
+import { PublicShell } from "@/components/PublicShell";
 import { ButtonLink } from "@/components/ui/Button";
 import { getShareEntry } from "@/lib/services/steps";
 
@@ -23,7 +23,7 @@ export default async function SharePage({ params }: Props) {
   const entry = await getShareEntry((await params).id);
   if (!entry) notFound();
   return (
-    <AppShell>
+    <PublicShell>
       <div className="mx-auto max-w-2xl py-10 text-center">
         <div className="label !text-lime-300">Walked on Stepit</div>
         <div className="mt-6 font-display text-[88px] font-bold leading-none tracking-tight text-lime-300 tabular sm:text-[120px]">
@@ -42,6 +42,6 @@ export default async function SharePage({ params }: Props) {
           </ButtonLink>
         </div>
       </div>
-    </AppShell>
+    </PublicShell>
   );
 }

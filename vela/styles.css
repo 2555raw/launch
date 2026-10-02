@@ -951,9 +951,42 @@ img.logo { width: 16px; height: 16px; border-radius: 50%; flex: none; object-fit
 /* ---------- legal ---------- */
 
 .legal { font-size: 13.5px; line-height: 1.55; color: var(--prose); }
-.legal h3 { margin: 16px 0 4px; font-size: 14px; color: var(--ink); }
-.legal p { margin: 0 0 8px; }
-.legal-list { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 8px; }
+.legal-hero { display: flex; gap: 14px; align-items: flex-start; padding: 16px; border-radius: 14px; background: var(--card-hi); border: 1px solid var(--line); }
+.legal-hero b { display: block; font-size: 15px; color: var(--ink); }
+.legal-hero p { margin: 3px 0 0; color: var(--muted); }
+.legal-ico { flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; background: var(--surface); color: var(--ink); font-weight: 800; font-size: 17px; }
+.legal-hero.is-warn { border-color: color-mix(in srgb, var(--neg) 35%, var(--line)); background: color-mix(in srgb, var(--neg) 7%, var(--card-hi)); }
+.legal-hero.is-warn .legal-ico { background: color-mix(in srgb, var(--neg) 18%, transparent); color: var(--neg); }
+.legal-items { list-style: none; counter-reset: li; margin: 6px 0 0; padding: 0; }
+.legal-items li { counter-increment: li; display: grid; grid-template-columns: 30px 1fr; column-gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.legal-items li:last-child { border-bottom: 0; }
+.legal-items li::before { content: counter(li, decimal-leading-zero); grid-row: span 2; padding-top: 2px; font-family: var(--mono); font-size: 11.5px; color: var(--dim); }
+.legal-items b { font-size: 14px; color: var(--ink); }
+.legal-items p { margin: 3px 0 0; color: var(--muted); }
+.legal-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+
+/* launch wizard */
+.wz-bar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.wz-bar li { display: flex; align-items: center; gap: 8px; padding-top: 10px; border-top: 2px solid var(--line-hi); font-size: 12.5px; color: var(--dim); transition: color .2s, border-color .2s; }
+.wz-bar li b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; background: var(--surface); color: var(--muted); }
+.wz-bar li.is-on { border-color: var(--primary); color: var(--ink); }
+.wz-bar li.is-on b { background: var(--primary); color: var(--on-primary, #fff); }
+.wz-bar li.is-done { border-color: color-mix(in srgb, var(--primary) 45%, var(--line-hi)); color: var(--prose); cursor: pointer; }
+.wz-bar li.is-done b { background: var(--surface); color: var(--ink); }
+.wz-step { display: grid; gap: 14px; animation: wz-in .22s ease; }
+.wz-step[hidden] { display: none; }
+@keyframes wz-in { from { opacity: 0; transform: translateY(6px); } }
+.wz-lead { margin: 2px 0 0; font-size: 18px; font-weight: 700; letter-spacing: -.01em; color: var(--ink); }
+.site-pick-lg { grid-template-columns: 1fr; gap: 8px; }
+.site-pick-lg button { padding: 14px 16px; gap: 14px; transition: border-color .15s, background .15s, transform .15s; }
+.site-pick-lg button:hover { border-color: var(--line-hi); transform: translateX(2px); }
+.site-pick-lg .site-txt b { font-size: 15px; }
+.site-pick-lg .site-txt > span { font-size: 12.5px; }
+.wz-arrow { margin-left: auto; font-style: normal; color: var(--dim); transition: color .15s, transform .15s; }
+.site-pick-lg button:hover .wz-arrow, .site-pick-lg button.is-on .wz-arrow { color: var(--ink); transform: translateX(3px); }
+.wz-site { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--card-hi); border: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.wz-site b { color: var(--ink); }
+.wz-site .link-btn { margin-left: auto; }
 .ld-legal { margin-top: 8px; }
 .ld-legal a { color: var(--prose); text-decoration: underline; }
 .check a { color: var(--primary-text); text-decoration: underline; }

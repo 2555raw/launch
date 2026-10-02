@@ -956,17 +956,27 @@
     r.readAsDataURL(file);
   });
 
-  const openCreate = (siteId = 'pump') => {
+  /* the launch form is a three-step wizard: launchpad → coin → settings. Opened for a given launchpad, it starts at step 2. */
+  const openCreate = (siteId) => {
     let site = SITES.find((s) => s.id === siteId && s.live) || SITES[0];
     let imageData = null;
+    let step = 1;
 
     openModal('Create Launch', `
-      <form class="form" id="createForm" novalidate>
-        <div class="field"><span>Launch on</span>
-          <div class="site-pick">${SITES.filter((s) => s.live).map((s) => `
-            <button type="button" data-site="${s.id}">${logoImg(s.logo, 'site-logo')}<span class="site-txt"><b>${esc(s.name)}</b><span>${s.chain === 'sol' ? 'Solana' : CHAINS[s.chain].name}</span></span></button>`).join('')}
+      <form class="form wz" id="createForm" novalidate>
+        <ol class="wz-bar">
+          <li data-go="1"><b>1</b><span>Launchpad</span></li>
+          <li data-go="2"><b>2</b><span>Your coin</span></li>
+          <li data-go="3"><b>3</b><span>Launch</span></li>
+        </ol>
+        <section class="wz-step" data-step="1">
+          <p class="wz-lead">Where do you want to launch?</p>
+          <div class="site-pick site-pick-lg">${SITES.filter((s) => s.live).map((s) => `
+            <button type="button" data-site="${s.id}">${logoImg(s.logo, 'site-logo lg')}<span class="site-txt"><b>${esc(s.name)}</b><span>${s.chain === 'sol' ? 'Solana' : CHAINS[s.chain].name} · ${esc(s.kind)}</span></span><i class="wz-arrow" aria-hidden="true">→</i></button>`).join('')}
           </div>
-        </div>
+        </section>
+        <section class="wz-step" data-step="2" hidden>
+        <div class="wz-site" id="wzSite"></div>
         <div class="row2">
           <label class="field"><span>Token name</span><input name="name" maxlength="32" placeholder="e.g. Nebula" required></label>
           <label class="field"><span>Ticker</span><input name="ticker" maxlength="10" placeholder="NEB" required style="text-transform:uppercase"></label>
@@ -979,6 +989,12 @@
                 <span id="thumbTxt">Choose an image · PNG, JPG, GIF or WEBP, up to 4 MB</span>
                 <input type="file" name="image" accept="image/png,image/jpeg,image/gif,image/webp"></label>
             </div>
+          </div>
+        </div>
+        </section>
+        <section class="wz-step" data-step="3" hidden>
+        <div>
+          <div class="form">
             <div data-for="erc20">
               <label class="field"><span>Total supply</span><input name="supply" inputmode="numeric" value="1000000000"></label>
             </div>
@@ -1004,9 +1020,11 @@
         <div class="note" id="siteNote"></div>
         ${state.acceptedTerms ? '' : `<label class="check check-card"><input type="checkbox" name="accept"><span class="check-box" aria-hidden="true"></span><span class="check-txt">I’ve read the <a href="#" data-legal="terms">Terms</a> and the <a href="#" data-legal="risk">Risk disclosure</a>.<small>Launches are irreversible and can lose money.</small></span></label>`}
         <ul class="steps" id="steps"></ul>
+        </section>
         <div class="form-foot" id="createFoot">
-          <button class="btn btn-ghost" type="button" data-close>Cancel</button>
-          <button class="btn btn-primary" type="submit" id="launchBtn">${icon('rocket')}<span>Launch</span></button>
+          <button class="btn btn-ghost" type="button" id="wzBack" data-close>Cancel</button>
+          <button class="btn btn-primary" type="button" id="wzNext">Continue</button>
+          <button class="btn btn-primary" type="submit" id="launchBtn" hidden>${icon('rocket')}<span>Launch</span></button>
         </div>
       </form>`, (body) => {
       const form = $('#createForm', body);
@@ -1014,6 +1032,7 @@
       const setSite = (s) => {
         site = s;
         $$('[data-site]', form).forEach((b) => b.classList.toggle('is-on', b.dataset.site === s.id));
+        $('#wzSite', form).innerHTML = `${logoImg(s.logo, 'site-logo')}<span>Launching on <b>${esc(s.name)}</b> · ${s.chain === 'sol' ? 'Solana' : CHAINS[s.chain].name}</span><button type="button" class="link-btn" data-go="1">Change</button>`;
         $$('[data-for="curve"]', form).forEach((x) => { x.hidden = !s.curve; });
         $$('[data-for="erc20"]', form).forEach((x) => { x.hidden = !!s.curve; });
         $('#advLabel', form).textContent = s.curve ? 'Socials and transaction settings' : 'Socials';
@@ -1041,9 +1060,39 @@
       };
       setSite(site);
 
+      const goStep = (n) => {
+        step = n;
+        $$('.wz-step', form).forEach((x) => { x.hidden = +x.dataset.step !== n; });
+        $$('.wz-bar li', form).forEach((li) => { li.classList.toggle('is-on', +li.dataset.go === n); li.classList.toggle('is-done', +li.dataset.go < n); });
+        const back = $('#wzBack', form);
+        back.textContent = n === 1 ? 'Cancel' : 'Back';
+        back.toggleAttribute('data-close', n === 1);
+        $('#wzNext', form).hidden = n !== 2;
+        $('#launchBtn', form).hidden = n !== 3;
+        $('#modalBody').scrollTop = 0;
+        const first = $(`.wz-step[data-step="${n}"] ${n === 1 ? '.is-on' : 'input:not([type=file]):not([type=checkbox])'}`, form);
+        first?.focus({ preventScroll: true });
+      };
+      // step 2 → 3 needs a name, a ticker and, for pump.fun, an image
+      const checkCoin = () => {
+        $$('.err', form).forEach((x) => x.remove());
+        let ok = true;
+        if (!form.name.value.trim()) { fieldErr(form, 'name', 'Give the token a name'); ok = false; }
+        if (!form.ticker.value.trim().replace(/[^a-z0-9]/gi, '')) { fieldErr(form, 'ticker', 'Letters and numbers only'); ok = false; }
+        if (site.id === 'pump' && !imageData) { fieldErr(form, 'image', 'pump.fun needs an image'); ok = false; }
+        return ok;
+      };
+      goStep(siteId ? 2 : 1);
+      if (!siteId) $$('.site-pick-lg .is-on', form).forEach((b) => b.classList.remove('is-on'));
+
       form.addEventListener('click', (e) => {
+        if (busy) return;
         const b = e.target.closest('[data-site]');
-        if (b && !busy) setSite(SITES.find((s) => s.id === b.dataset.site));
+        if (b) { setSite(SITES.find((s) => s.id === b.dataset.site)); setTimeout(() => goStep(2), 140); return; }
+        const g = e.target.closest('[data-go]');
+        if (g && +g.dataset.go < step) { goStep(+g.dataset.go); return; }
+        if (e.target.closest('#wzBack') && step > 1) { goStep(step - 1); return; }
+        if (e.target.closest('#wzNext') && checkCoin()) goStep(3);
       });
       form.name.addEventListener('input', () => {
         if (!form.ticker.dataset.touched) form.ticker.value = form.name.value.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase();
@@ -1065,6 +1114,8 @@
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         if (busy) return;
+        if (step === 1) return;
+        if (step === 2) { if (checkCoin()) goStep(3); return; }
         $$('.err', form).forEach((x) => x.remove());
         const name = form.name.value.trim();
         const ticker = form.ticker.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
@@ -1115,7 +1166,11 @@
             twitter: form.twitter.value.trim(), telegram: form.telegram.value.trim(), website: form.website.value.trim()
           });
         }
-        if (!ok) return;
+        if (!ok) {
+          const where = form.querySelector('.err')?.closest('.wz-step');
+          if (where) goStep(+where.dataset.step);
+          return;
+        }
 
         const fam = site.chain === 'sol' ? 'sol' : 'evm';
         if (!state[fam] && !(await connect(fam))) return;
@@ -1533,37 +1588,36 @@
 
   /* ---------- legal ---------- */
 
+  const legalFoot = (cta) => `<div class="legal-foot"><span>Last updated October 2026</span><button class="btn btn-primary" type="button" data-close>${cta}</button></div>`;
   const LEGAL = {
     terms: ['Terms of Use', `
-      <p><b>Last updated:</b> October 2026</p>
-      <h3>1. What AnyChain is</h3>
-      <p>AnyChain is a non-custodial interface. It prepares blockchain transactions — creating tokens on pump.fun, Pons, Base and BNB Chain, buying and selling them — that <b>you</b> review and sign in your own wallet. AnyChain never holds your keys, your funds or your tokens, and cannot move them.</p>
-      <h3>2. Third-party services</h3>
-      <p>Launches and trades run on third-party protocols and services (pump.fun, PumpPortal, Pons, Uniswap-style pools, DexScreener, CoinGecko, RPC providers, IPFS/Pinata). AnyChain does not control them, is not affiliated with them, and is not responsible for their availability, fees, behaviour or changes.</p>
-      <h3>3. Your responsibilities</h3>
-      <p>You are solely responsible for every transaction you sign, for the tokens you create (their name, image, description and links), and for complying with the laws that apply to you — including securities, tax and consumer-protection rules. You must not use AnyChain to impersonate anyone, infringe rights, mislead buyers, manipulate markets, or launch tokens that are illegal where you or your buyers are.</p>
-      <h3>4. No advice</h3>
-      <p>Nothing on AnyChain — prices, P&amp;L, trending lists or any other content — is financial, investment, legal or tax advice, or a recommendation to buy or sell anything.</p>
-      <h3>5. No warranty</h3>
-      <p>AnyChain is provided “as is” and “as available”, without warranties of any kind. Data may be delayed, incomplete or wrong. Smart contracts and software can have bugs.</p>
-      <h3>6. Limitation of liability</h3>
-      <p>To the maximum extent permitted by law, AnyChain and its operators are not liable for any loss — including lost funds, lost tokens, failed or mistaken transactions, or lost profits — arising from your use of the site.</p>
-      <h3>7. Data</h3>
-      <p>Your launch history is stored in your browser and, if you sign in with your wallet, on AnyChain’s server under your wallet address. Images you upload for a token become public.</p>
-      <h3>8. Changes</h3>
-      <p>These terms may change; continuing to use AnyChain means you accept the current version.</p>`],
+      <div class="legal-hero"><span class="legal-ico" aria-hidden="true">§</span><div><b>The short version</b>
+        <p>AnyChain prepares transactions, your wallet signs them, and you are responsible for what you sign.</p></div></div>
+      <ol class="legal-items">
+        <li><b>What AnyChain is</b><p>AnyChain is a non-custodial interface. It prepares blockchain transactions — creating tokens on pump.fun, Pons, Base and BNB Chain, buying and selling them — that <b>you</b> review and sign in your own wallet. AnyChain never holds your keys, your funds or your tokens, and cannot move them.</p></li>
+        <li><b>Third-party services</b><p>Launches and trades run on third-party protocols and services (pump.fun, PumpPortal, Pons, Uniswap-style pools, DexScreener, CoinGecko, RPC providers, IPFS/Pinata). AnyChain does not control them, is not affiliated with them, and is not responsible for their availability, fees, behaviour or changes.</p></li>
+        <li><b>Your responsibilities</b><p>You are solely responsible for every transaction you sign, for the tokens you create (their name, image, description and links), and for complying with the laws that apply to you — including securities, tax and consumer-protection rules. You must not use AnyChain to impersonate anyone, infringe rights, mislead buyers, manipulate markets, or launch tokens that are illegal where you or your buyers are.</p></li>
+        <li><b>No advice</b><p>Nothing on AnyChain — prices, P&amp;L, trending lists or any other content — is financial, investment, legal or tax advice, or a recommendation to buy or sell anything.</p></li>
+        <li><b>No warranty</b><p>AnyChain is provided “as is” and “as available”, without warranties of any kind. Data may be delayed, incomplete or wrong. Smart contracts and software can have bugs.</p></li>
+        <li><b>Limitation of liability</b><p>To the maximum extent permitted by law, AnyChain and its operators are not liable for any loss — including lost funds, lost tokens, failed or mistaken transactions, or lost profits — arising from your use of the site.</p></li>
+        <li><b>Data</b><p>Your launch history is stored in your browser and, if you sign in with your wallet, on AnyChain’s server under your wallet address. Images you upload for a token become public.</p></li>
+        <li><b>Changes</b><p>These terms may change; continuing to use AnyChain means you accept the current version.</p></li>
+      </ol>
+      ${legalFoot('Got it')}`],
     risk: ['Risk Disclosure', `
-      <p>Read this before launching or trading.</p>
-      <ul class="legal-list">
-        <li><b>You can lose everything you put in.</b> Most newly launched tokens go to zero. Treat any amount you spend as money you can afford to lose.</li>
-        <li><b>Transactions are final.</b> Blockchain transactions cannot be reversed, cancelled or refunded — check the network, amount and token before you sign.</li>
-        <li><b>Extreme volatility.</b> Prices on bonding curves and thin pools can move 90%+ in minutes. Slippage can give you far less than quoted.</li>
-        <li><b>Smart-contract risk.</b> The launchpad contracts, pools and AnyChain’s own code may contain bugs or be changed by their operators.</li>
-        <li><b>Scams and impersonation.</b> Anyone can create a token with any name and logo. A token on a trending list is not endorsed or verified by AnyChain.</li>
-        <li><b>Third-party failures.</b> Wallets, RPCs, launchpads and data providers can fail, lag or show wrong data, including the P&amp;L shown here.</li>
-        <li><b>Regulation and tax.</b> Creating or promoting tokens may be regulated where you live; trades may be taxable. You are responsible for compliance.</li>
-        <li><b>Keys.</b> Never share your seed phrase. AnyChain will never ask for it.</li>
-      </ul>`]
+      <div class="legal-hero is-warn"><span class="legal-ico" aria-hidden="true">!</span><div><b>High-risk activity</b>
+        <p>Launching and trading new tokens can lose you everything you put in. Read this before you launch or trade.</p></div></div>
+      <ol class="legal-items">
+        <li><b>You can lose everything you put in</b><p>Most newly launched tokens go to zero. Treat any amount you spend as money you can afford to lose.</p></li>
+        <li><b>Transactions are final</b><p>Blockchain transactions cannot be reversed, cancelled or refunded — check the network, amount and token before you sign.</p></li>
+        <li><b>Extreme volatility</b><p>Prices on bonding curves and thin pools can move 90%+ in minutes. Slippage can give you far less than quoted.</p></li>
+        <li><b>Smart-contract risk</b><p>The launchpad contracts, pools and AnyChain’s own code may contain bugs or be changed by their operators.</p></li>
+        <li><b>Scams and impersonation</b><p>Anyone can create a token with any name and logo. A token on a trending list is not endorsed or verified by AnyChain.</p></li>
+        <li><b>Third-party failures</b><p>Wallets, RPCs, launchpads and data providers can fail, lag or show wrong data, including the P&amp;L shown here.</p></li>
+        <li><b>Regulation and tax</b><p>Creating or promoting tokens may be regulated where you live; trades may be taxable. You are responsible for compliance.</p></li>
+        <li><b>Keys</b><p>Never share your seed phrase. AnyChain will never ask for it.</p></li>
+      </ol>
+      ${legalFoot('I understand')}`]
   };
   const openLegal = (kind) => {
     const [title, html] = LEGAL[kind];

@@ -1,4 +1,4 @@
-/* Vela — static files plus the small API the launchpad needs.
+/* AnyChain — static files plus the small API the launchpad needs.
  *
  * The browser does everything that needs a signature (the user's wallet signs every
  * transaction; this server never sees a private key). The server only does what a
@@ -53,7 +53,7 @@ const RPC_METHODS = new Set([
 ]);
 
 /* PumpPortal's local (self-signed) API creates on pump.fun only; bonk.fun creation
-   there goes through its custodial Lightning wallet, which Vela does not use. */
+   there goes through its custodial Lightning wallet, which AnyChain does not use. */
 const POOLS = new Set(['pump']);
 const B58 = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const EVM = /^0x[0-9a-fA-F]{40}$/;
@@ -161,7 +161,7 @@ const api = {
 
     const image = await pinataUpload(new Blob([bytes], { type: m[1] }), `${symbol}.${m[2] === 'jpeg' ? 'jpg' : m[2]}`);
     if (b.imageOnly) return send(res, 200, { image });   // Pons takes a logo URI, not a metadata file
-    const meta = { name, symbol, description: clean(b.description, 1000), image, showName: true, createdOn: 'Vela' };
+    const meta = { name, symbol, description: clean(b.description, 1000), image, showName: true, createdOn: 'AnyChain' };
     for (const k of ['twitter', 'telegram', 'website']) {
       const v = clean(b[k], 200);
       if (v && /^https?:\/\//i.test(v)) meta[k] = v;
@@ -226,7 +226,7 @@ const api = {
   },
 
   /* Tokens trending on DexScreener (top boosts + latest profiles) on the chains
-     Vela launches to, with live market data, busiest first. */
+     AnyChain launches to, with live market data, busiest first. */
   'GET /api/trending': async (req, res) => {
     const CHAINS = { solana: 'sol', robinhood: 'rh', base: 'base', bsc: 'bnb' };
     const list = await cached('trending', 60000, async () => {
@@ -326,4 +326,4 @@ http.createServer(async (req, res) => {
     res.writeHead(200, headers);
     res.end(body);
   });
-}).listen(PORT, () => console.log(`Vela on http://localhost:${PORT}`));
+}).listen(PORT, () => console.log(`AnyChain on http://localhost:${PORT}`));

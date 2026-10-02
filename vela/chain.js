@@ -1,7 +1,7 @@
-/* Vela — wallets and chains.
+/* AnyChain — wallets and chains.
    Everything that touches a wallet or a chain lives here, behind window.VelaChain.
    The user's wallet signs every transaction; nothing here ever sees a private key.
-   The only key Vela makes is the throwaway mint keypair for a new pump.fun token,
+   The only key AnyChain makes is the throwaway mint keypair for a new pump.fun token,
    which co-signs its own creation and is then discarded. */
 
 (() => {
@@ -14,7 +14,7 @@
   };
   const GLOBALS = { solana: 'solanaWeb3', ethers: 'ethers' };
 
-  /* EVM chains Vela deploys to. Reads go to public RPCs, so balances on all three
+  /* EVM chains AnyChain deploys to. Reads go to public RPCs, so balances on all three
      show without switching the wallet's network. */
   const EVM = {
     rh:   { id: 4663, hex: '0x1237', name: 'Robinhood Chain', unit: 'ETH', rpc: 'https://rpc.mainnet.chain.robinhood.com', explorer: 'https://robinhoodchain.blockscout.com' },
@@ -41,7 +41,7 @@
 
   const api = async (path, opts = {}) => {
     let r;
-    try { r = await fetch(path, opts); } catch (_) { throw new Error('Vela server unreachable'); }
+    try { r = await fetch(path, opts); } catch (_) { throw new Error('AnyChain server unreachable'); }
     const type = r.headers.get('content-type') || '';
     if (!r.ok) {
       let msg = `${r.status} ${r.statusText}`;

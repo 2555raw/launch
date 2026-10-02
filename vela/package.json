@@ -1,8 +1,8 @@
 {
-  "name": "vela",
+  "name": "anychain",
   "version": "1.0.0",
   "private": true,
-  "description": "Vela — launch tokens on pump.fun, Ethereum, Base and BNB Chain from your own wallet, and track their P&L.",
+  "description": "AnyChain — launch tokens on pump.fun, Ethereum, Base and BNB Chain from your own wallet, and track their P&L.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

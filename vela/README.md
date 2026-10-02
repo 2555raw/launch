@@ -1,16 +1,16 @@
-# Vela — launchpad
+# AnyChain — launchpad
 
 Launch tokens from your own wallet and follow their P&L in one dashboard.
 
-| Launchpad | Chain | How Vela launches |
+| Launchpad | Chain | How AnyChain launches |
 | --- | --- | --- |
 | **pump.fun** | Solana | Image + metadata to IPFS (Pinata), create transaction from PumpPortal's local API, signed by your wallet and a fresh mint key |
 | **Pons** | Robinhood Chain (chain 4663) | Calls Pons' own contracts from your wallet: `PonsV2LaunchFactory.launchToken` (0.0005 ETH fee, read from the contract) or `PonsV2LaunchAndBuy.launchAndBuy` when you add a first buy, with slippage protection from a simulated quote. Optional logo goes to IPFS. Creator fee 0–10 % |
 | **Base** | Base | Deploys `contracts/VelaToken.sol` from your wallet |
 | **BNB Chain** | BNB Chain | Same contract |
 
-Vela never holds a key. The wallet (Phantom / Solflare / Backpack for Solana, MetaMask / Rabby / any
-injected wallet for EVM) signs every launch and every sale. The one key Vela generates is the mint
+AnyChain never holds a key. The wallet (Phantom / Solflare / Backpack for Solana, MetaMask / Rabby / any
+injected wallet for EVM) signs every launch and every sale. The one key AnyChain generates is the mint
 keypair of a new pump.fun token: it co-signs its own creation and is then thrown away.
 
 The site opens on a landing page (hero with the launchpad logos, **Launch a coin**, and *Hot right now*:
@@ -33,7 +33,7 @@ No dependencies; Node 18 or newer.
 | `PORT` | | `8080` |
 
 Opening `index.html` straight from disk shows the interface but nothing works: the status bar reads
-"Vela server offline". Launches need the server.
+"AnyChain server offline". Launches need the server.
 
 ## What is real
 
@@ -43,7 +43,7 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   address, transaction, what it cost (the wallet's balance before minus after, in USD at launch) and
   the wallet that owns the dev tokens.
 - **P&L** = dev tokens held × DexScreener price + what you sold − what the launch cost. It is
-  refreshed every minute while Vela is open; each change is stored as an event, and the charts are
+  refreshed every minute while AnyChain is open; each change is stored as an event, and the charts are
   the running sum of those events. A token DexScreener hasn't indexed yet counts at its cost only.
 - **Sell**: pump.fun tokens can be sold 25 / 50 / 100 % from the launch's panel (PumpPortal, `pool:
   auto`, so it still works after migration). What the sale returned is measured from the wallet.

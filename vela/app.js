@@ -1,4 +1,4 @@
-/* Vela — launchpad dashboard.
+/* AnyChain — launchpad dashboard.
    Everything on screen is real: launches you made (or imported) from your own
    wallet, balances read from the chains, prices from CoinGecko and market data
    from DexScreener. Your launch history is kept in this browser (localStorage);
@@ -112,8 +112,8 @@
       how: 'The main launchpad on Solana. Bonding-curve launch: the image and metadata go to IPFS, PumpPortal builds the create transaction and your wallet signs it.',
       needs: 'A Solana wallet with SOL for the dev buy plus about 0.03 SOL in fees.' },
     { id: 'pons', name: 'Pons', chain: 'rh', live: true, logo: 'img/pons.png', kind: 'Bonding curve', curve: true,
-      how: 'The main launchpad on Robinhood Chain. 1B supply on a bonding curve that graduates to a Uniswap v4 pool with locked liquidity. Vela calls Pons’ own contracts from your wallet, with an optional first buy in the same transaction.',
-      needs: 'An EVM wallet with ETH on Robinhood Chain: 0.0005 ETH Pons fee + your first buy + gas. Vela adds the network if it is missing.' },
+      how: 'The main launchpad on Robinhood Chain. 1B supply on a bonding curve that graduates to a Uniswap v4 pool with locked liquidity. AnyChain calls Pons’ own contracts from your wallet, with an optional first buy in the same transaction.',
+      needs: 'An EVM wallet with ETH on Robinhood Chain: 0.0005 ETH Pons fee + your first buy + gas. AnyChain adds the network if it is missing.' },
     { id: 'base', name: 'Base', chain: 'base', live: true, logo: 'img/base.png', kind: 'ERC-20 deploy',
       how: 'A fixed-supply ERC-20 on Base, deployed from your wallet: no owner, no mint, no tax. Gas is a few cents. Add liquidity on Uniswap or Aerodrome.',
       needs: 'An EVM wallet with ETH on Base for gas.' },
@@ -1047,7 +1047,7 @@
   const openImport = () => {
     openModal('Import Token', `
       <form class="form" id="importForm" novalidate>
-        <p class="dim" style="margin:0;font-size:13px">Add a token you launched somewhere else, so Vela tracks its P&amp;L.</p>
+        <p class="dim" style="margin:0;font-size:13px">Add a token you launched somewhere else, so AnyChain tracks its P&amp;L.</p>
         <label class="field"><span>Chain</span><select name="chain">${CHAIN_IDS.map((c) => `<option value="${c}" ${c === 'sol' ? 'selected' : ''}>${CHAINS[c].name}</option>`).join('')}</select></label>
         <label class="field"><span>Token address</span><input name="addr" placeholder="Mint / contract address" spellcheck="false" autocomplete="off"></label>
         <div class="row2">
@@ -1122,7 +1122,7 @@
       <div class="form-foot">
         <button class="btn btn-ghost" type="button" id="copyAddr">${icon('copy')}<span>Copy address</span></button>
         ${l.archived
-          ? `<button class="btn btn-danger" type="button" id="removeLaunch">Remove from Vela</button><button class="btn btn-ghost" type="button" data-unarchive="${l.id}">Restore</button>`
+          ? `<button class="btn btn-danger" type="button" id="removeLaunch">Remove from AnyChain</button><button class="btn btn-ghost" type="button" data-unarchive="${l.id}">Restore</button>`
           : `<button class="btn btn-ghost" type="button" id="archiveLaunch">${icon('archive')}<span>Archive</span></button>`}
       </div>`, (body) => {
       $('#copyAddr', body).addEventListener('click', () => copy(l.addr, 'Address'));
@@ -1133,7 +1133,7 @@
       rm?.addEventListener('click', () => {
         if (!rm.dataset.armed) { rm.dataset.armed = '1'; rm.textContent = 'Click again to remove'; return; }
         state.launches = state.launches.filter((x) => x.id !== l.id);
-        log(`Removed ${l.ticker} from Vela`); save(); closeModal(); renderAll();
+        log(`Removed ${l.ticker} from AnyChain`); save(); closeModal(); renderAll();
       });
       $$('[data-sell]', body).forEach((b) => b.addEventListener('click', async () => {
         if (busy) return;
@@ -1169,11 +1169,11 @@
   };
 
   const openDocs = () => {
-    openModal('How Vela works', `
+    openModal('How AnyChain works', `
       <div class="form" style="font-size:13.5px;color:var(--prose)">
-        <p style="margin:0"><b>1. Connect.</b> Phantom or Solflare for Solana, MetaMask or Rabby for Robinhood Chain, Base and BNB Chain. Vela never sees your keys; your wallet signs every transaction.</p>
-        <p style="margin:0"><b>2. Create Launch.</b> On <b>pump.fun</b> the image and metadata go to IPFS, the create transaction is built by PumpPortal, and your wallet signs it together with a fresh mint key. On <b>Pons</b> (Robinhood Chain) Vela calls Pons’ launch contracts from your wallet, with an optional first buy. On <b>Base or BNB Chain</b> Vela deploys a plain fixed-supply ERC-20 from your wallet; add liquidity on a DEX to make it tradable.</p>
-        <p style="margin:0"><b>3. Track.</b> P&amp;L = your dev tokens × the DexScreener price + what you sold − what the launch cost you (dev buy and fees, measured from your wallet balance). It refreshes every minute while Vela is open.</p>
+        <p style="margin:0"><b>1. Connect.</b> Phantom or Solflare for Solana, MetaMask or Rabby for Robinhood Chain, Base and BNB Chain. AnyChain never sees your keys; your wallet signs every transaction.</p>
+        <p style="margin:0"><b>2. Create Launch.</b> On <b>pump.fun</b> the image and metadata go to IPFS, the create transaction is built by PumpPortal, and your wallet signs it together with a fresh mint key. On <b>Pons</b> (Robinhood Chain) AnyChain calls Pons’ launch contracts from your wallet, with an optional first buy. On <b>Base or BNB Chain</b> AnyChain deploys a plain fixed-supply ERC-20 from your wallet; add liquidity on a DEX to make it tradable.</p>
+        <p style="margin:0"><b>3. Track.</b> P&amp;L = your dev tokens × the DexScreener price + what you sold − what the launch cost you (dev buy and fees, measured from your wallet balance). It refreshes every minute while AnyChain is open.</p>
         <p style="margin:0"><b>Where data lives.</b> Your launch list is stored in this browser. Clearing site data forgets it, though the tokens stay on-chain and can be imported again.</p>
         <p class="note" style="margin:0">Launching a token costs real money and is irreversible. Check the name, ticker and amount before you sign.</p>
       </div>`);
@@ -1285,10 +1285,10 @@
       });
       $('#primaryReset', body).addEventListener('click', () => { look.primary = null; applyLook(); syncPrimary(); });
       $('#lookExport', body).addEventListener('click', () => {
-        const blob = new Blob([JSON.stringify({ vela: 'look', version: 1, ...look }, null, 2)], { type: 'application/json' });
+        const blob = new Blob([JSON.stringify({ anychain: 'look', version: 1, ...look }, null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'vela-theme.json';
+        a.download = 'anychain-theme.json';
         a.click();
         setTimeout(() => URL.revokeObjectURL(a.href), 1000);
       });
@@ -1307,7 +1307,7 @@
           closeModal();
           openCustomize();
           toast('Theme imported');
-        } catch (_) { toast('That file is not a Vela theme', true); }
+        } catch (_) { toast('That file is not a AnyChain theme', true); }
       });
     }, true);
   };
@@ -1472,7 +1472,7 @@
       live.health = null;
       $('#apiDot').className = 'live-dot off';
       $('#apiStatus').className = 'sb-ok off';
-      $('#apiStatus').textContent = 'Vela server offline — run `node server.js`';
+      $('#apiStatus').textContent = 'AnyChain server offline — run `node server.js`';
     }
   };
 

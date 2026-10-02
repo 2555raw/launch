@@ -12,7 +12,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
-  title: { default: "Stepit · Walk. Explore. Earn.", template: "%s · Stepit" },
+  // Browser tabs only ever show the site name; link previews keep their own titles below.
+  title: { default: "Stepit", template: "Stepit" },
   description:
     "Stepit turns your daily steps into crypto rewards. Explore the outdoors, stay active and earn a share of platform fees.",
   openGraph: {

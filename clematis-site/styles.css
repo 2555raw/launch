@@ -264,20 +264,6 @@ img { display: block; }
   text-shadow: 0 6px 40px rgba(5, 7, 15, 0.45);
 }
 .hero .line { display: block; }
-.hero-tile {
-  display: inline-grid;
-  place-items: center;
-  width: clamp(52px, 7vw, 84px);
-  height: clamp(52px, 7vw, 84px);
-  vertical-align: middle;
-  margin-left: 12px;
-  border-radius: 20px;
-  background: linear-gradient(160deg, #eef3ff, #c9d4f2);
-  color: var(--blue-deep);
-  box-shadow: 0 10px 40px -6px rgba(96, 165, 250, 0.7);
-  transform: rotate(-4deg) translateY(-8%);
-}
-.hero-tile svg { width: 46%; height: 46%; }
 .lede { margin: 22px auto 0; max-width: 560px; color: #d4dcf2; font-size: clamp(17px, 2vw, 20px); text-shadow: 0 2px 16px rgba(5, 7, 15, .6); }
 .hero-ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 32px; }
 .trust { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 24px; padding: 0; margin: 28px 0 0; font-weight: 600; font-size: 15px; }
@@ -916,7 +902,6 @@ img { display: block; }
   .tok-select { padding-right: 8px; gap: 8px; }
   .tok-text small { display: none; }
   .pick-grid { grid-template-columns: 1fr 1fr; }
-  .hero-tile { display: none; }
   .settings-pop { width: min(300px, calc(100vw - 48px)); }
   .top-actions { gap: 8px; }
   .top-actions .social-btn { width: 36px; height: 36px; }

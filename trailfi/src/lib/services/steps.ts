@@ -5,6 +5,7 @@ import { HttpError } from "@/lib/api";
 import { audit } from "@/lib/audit";
 import { one, query, tx } from "@/lib/db";
 import { tierReward } from "@/lib/rewards/engine";
+import { changedShare, photoFingerprint, SAME_PHOTO_MAX_CHANGED } from "@/lib/steps/photoFingerprint";
 import { checkStepSubmission, initialVerification, utcToday, type StepSource } from "@/lib/steps/validation";
 import { creditReferralBonus } from "./referrals";
 import { getSettings, toTiers } from "./settings";
@@ -52,17 +53,26 @@ async function insertEntry(opts: {
   });
   if (!check.ok) throw new HttpError(422, check.error, "invalid_steps");
 
+  // A screenshot already used for another upload (any day, any wallet) goes to review flagged.
+  const fingerprint = opts.proof ? await photoFingerprint(opts.proof) : null;
+  const match = fingerprint ? await findPhotoMatch(fingerprint.sha, fingerprint.thumb) : null;
+  if (match) check.flags.push(match.exact ? "duplicate_photo" : "similar_photo");
+
   const verification = initialVerification(opts.source, check.flags);
   const payloadHash = createHash("sha256")
     .update(`${opts.userId}|${opts.day}|${opts.steps}|${opts.source}|${opts.externalId ?? ""}`)
     .digest("hex");
 
   const row = await one<StepEntry>(
-    `insert into step_entries (user_id, day, steps, source, verification, flags, external_id, payload_hash, proof_image)
-     values ($1, $2::date, $3, $4, $5, $6, $7, $8, $9)
+    `insert into step_entries (user_id, day, steps, source, verification, flags, external_id, payload_hash, proof_image,
+                               proof_sha, proof_thumb, proof_match)
+     values ($1, $2::date, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
      on conflict do nothing
      returning ${ENTRY_COLUMNS}`,
-    [opts.userId, opts.day, opts.steps, opts.source, verification, check.flags, opts.externalId ?? null, payloadHash, opts.proof ?? null],
+    [
+      opts.userId, opts.day, opts.steps, opts.source, verification, check.flags, opts.externalId ?? null, payloadHash,
+      opts.proof ?? null, fingerprint?.sha ?? null, fingerprint?.thumb ?? null, match?.id ?? null,
+    ],
   );
   if (!row) {
     throw new HttpError(
@@ -74,6 +84,31 @@ async function insertEntry(opts: {
     );
   }
   return row;
+}
+
+/**
+ * An earlier upload with the same screenshot, if any: first an exact file
+ * match over all time, then a near-identical thumbnail among recent uploads
+ * (screenshots reused for another day are what this is meant to catch).
+ */
+async function findPhotoMatch(sha: string, thumb: Buffer | null): Promise<{ id: string; exact: boolean } | null> {
+  const exact = await one<{ id: string }>(
+    "select id from step_entries where proof_sha = $1 order by created_at desc limit 1",
+    [sha],
+  );
+  if (exact) return { id: exact.id, exact: true };
+  if (!thumb) return null;
+  const recent = await query<{ id: string; thumb: Uint8Array }>(
+    `select id, proof_thumb as thumb from step_entries
+      where proof_thumb is not null and created_at > now() - interval '120 days'
+      order by created_at desc limit 5000`,
+  );
+  let best: { id: string; share: number } | null = null;
+  for (const r of recent) {
+    const share = changedShare(thumb, r.thumb);
+    if (share <= SAME_PHOTO_MAX_CHANGED && (!best || share < best.share)) best = { id: r.id, share };
+  }
+  return best ? { id: best.id, exact: false } : null;
 }
 
 /** Compressed screenshots stay well under this; it bounds what a single entry can store. */

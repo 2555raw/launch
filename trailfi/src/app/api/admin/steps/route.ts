@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 /**
  * Review queue: unverified and flagged entries, newest first. Each one carries
  * what verifying it would pay under the current rates, plus whether it would
- * also release the referral bonus.
+ * also release the referral bonus, and the earlier upload its photo matches.
  */
 export const GET = route(async () => {
   await requireAdmin();
@@ -18,8 +18,14 @@ export const GET = route(async () => {
       `select s.id, s.user_id as "userId", u.short_id as "userShortId", u.wallet_address as "walletAddress",
          s.day::text as day, s.steps, s.source, s.verification, s.flags, s.proof_image is not null as "hasProof",
          s.created_at as "createdAt",
-         (u.referred_by is not null and u.referral_rewarded_at is null) as "firstReferred"
+         (u.referred_by is not null and u.referral_rewarded_at is null) as "firstReferred",
+         case when m.id is null then null else json_build_object(
+           'id', m.id, 'day', m.day::text, 'steps', m.steps, 'verification', m.verification,
+           'userShortId', mu.short_id, 'sameWalker', m.user_id = s.user_id, 'exact', m.proof_sha = s.proof_sha
+         ) end as "photoMatch"
        from step_entries s join users u on u.id = s.user_id
+       left join step_entries m on m.id = s.proof_match
+       left join users mu on mu.id = m.user_id
        where s.verification in ('unverified', 'flagged')
        order by s.day desc, s.created_at desc limit 200`,
     ),

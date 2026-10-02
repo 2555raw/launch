@@ -1,7 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CheckCircle2, Expand, ImageOff, XCircle } from "lucide-react";
+import { CheckCircle2, Copy, Expand, ImageOff, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -30,6 +30,18 @@ interface Entry {
   payout: number;
   /** Referral bonus released for the walker and their inviter, 0 if none. */
   referralBonus: number;
+  /** An earlier upload with the same (or near-identical) screenshot. */
+  photoMatch: PhotoMatch | null;
+}
+
+interface PhotoMatch {
+  id: string;
+  day: string;
+  steps: number;
+  verification: string;
+  userShortId: number;
+  sameWalker: boolean;
+  exact: boolean;
 }
 
 const proofUrl = (id: string) => `/api/admin/steps/${id}/proof`;
@@ -109,7 +121,8 @@ export function StepsReviewView() {
                 </div>
                 {e.verification === "flagged" && <Badge tone="amber">flagged</Badge>}
               </div>
-              {e.flags.length > 0 && <div className="mt-2 text-[12px] text-amber-200/80">{e.flags.join(", ").replaceAll("_", " ")}</div>}
+              {otherFlags(e).length > 0 && <div className="mt-2 text-[12px] text-amber-200/80">{otherFlags(e).join(", ").replaceAll("_", " ")}</div>}
+              {e.photoMatch && <PhotoMatchWarning match={e.photoMatch} onCompare={() => setZoom(e)} />}
               <PayoutEstimate entry={e} token={data.tokenSymbol} />
               <Link href={`/admin/users/${e.userId}`} className="mt-3 text-[12.5px] text-white/50 hover:text-lime-300">
                 Walker #{e.userShortId} · <span className="font-mono">{shortAddress(e.walletAddress)}</span> · sent {fmtDateTime(e.createdAt)}
@@ -143,10 +156,22 @@ export function StepsReviewView() {
       >
         {zoom && (
           <>
-            <div className="grid max-h-[65vh] place-items-center overflow-auto rounded-2xl border border-white/10 bg-black/40">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={proofUrl(zoom.id)} alt="Uploaded health app screenshot" className="max-h-[65vh] w-auto" />
-            </div>
+            {zoom.photoMatch ? (
+              <div className="grid gap-3 sm:grid-cols-2">
+                <ProofPane id={zoom.id} caption={`This upload · ${fmtSteps(zoom.steps)} steps · ${fmtDate(zoom.day, { month: "short", day: "numeric" })}`} />
+                <ProofPane
+                  id={zoom.photoMatch.id}
+                  caption={`Earlier · walker #${zoom.photoMatch.userShortId} · ${fmtSteps(zoom.photoMatch.steps)} steps · ${fmtDate(zoom.photoMatch.day, { month: "short", day: "numeric" })} · ${zoom.photoMatch.verification}`}
+                  warn
+                />
+              </div>
+            ) : (
+              <div className="grid max-h-[65vh] place-items-center overflow-auto rounded-2xl border border-white/10 bg-black/40">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={proofUrl(zoom.id)} alt="Uploaded health app screenshot" className="max-h-[65vh] w-auto" />
+              </div>
+            )}
+            {zoom.photoMatch && <PhotoMatchWarning match={zoom.photoMatch} />}
             {data && <PayoutEstimate entry={zoom} token={data.tokenSymbol} />}
             <div className="mt-4 grid grid-cols-2 gap-2">
               <button
@@ -193,5 +218,42 @@ function PayoutEstimate({ entry, token }: { entry: Entry; token: string }) {
         </div>
       )}
     </div>
+  );
+}
+
+const PHOTO_FLAGS = new Set(["duplicate_photo", "similar_photo"]);
+const otherFlags = (e: Entry) => e.flags.filter((f) => !PHOTO_FLAGS.has(f));
+
+/** Red notice when the screenshot was already used for another upload. */
+function PhotoMatchWarning({ match, onCompare }: { match: PhotoMatch; onCompare?: () => void }) {
+  const when = fmtDate(match.day, { weekday: "short", month: "short", day: "numeric" });
+  return (
+    <div className="mt-3 rounded-2xl border border-red-400/30 bg-red-500/[0.08] px-4 py-3 text-[12.5px] leading-relaxed text-red-100/90">
+      <div className="flex items-center gap-2 font-semibold text-red-300">
+        <Copy className="h-4 w-4" /> {match.exact ? "Same photo used before" : "Looks like a photo used before"}
+      </div>
+      <div className="mt-1 text-red-100/70">
+        {match.sameWalker ? "This walker" : `Walker #${match.userShortId}`} uploaded it for {when} ({fmtSteps(match.steps)} steps, {match.verification}).
+      </div>
+      {onCompare && (
+        <button type="button" onClick={onCompare} className="mt-2 font-medium text-red-200 underline underline-offset-2 hover:text-white">
+          Compare both photos
+        </button>
+      )}
+    </div>
+  );
+}
+
+function ProofPane({ id, caption, warn }: { id: string; caption: string; warn?: boolean }) {
+  return (
+    <figure className={cn("overflow-hidden rounded-2xl border bg-black/40", warn ? "border-red-400/30" : "border-white/10")}>
+      <div className="grid max-h-[55vh] place-items-center overflow-auto">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={proofUrl(id)} alt={caption} className="max-h-[55vh] w-auto" />
+      </div>
+      <figcaption className={cn("border-t px-3 py-2 text-[11.5px]", warn ? "border-red-400/20 text-red-200/80" : "border-white/10 text-white/55")}>
+        {caption}
+      </figcaption>
+    </figure>
   );
 }

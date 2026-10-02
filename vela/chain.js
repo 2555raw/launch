@@ -328,6 +328,9 @@
     const gasNative = Number(rcpt.gasUsed * (rcpt.gasPrice ?? tx.gasPrice ?? 0n)) / 1e18;
     return { address: ethers.getAddress(mint.address), signature: tx.hash, owner: acct.address, gasNative, spentNative: Number(fee + buy) / 1e18, image: opts.image ? logo.replace('ipfs://', 'https://ipfs.io/ipfs/') : null };
   };
+  /* Stores an image (IPFS through Pinata when the server has it, else on the server) and returns its URL. */
+  const uploadImage = async (name, symbol, image) =>
+    (await postJson('/api/ipfs', { name, symbol, image, imageOnly: true })).image;
   const ponsPage = (addr) => `https://www.ponsfamily.com/launchpad/${addr}`;
 
   /* ---------- links ---------- */
@@ -341,7 +344,7 @@
     connectSol, disconnectSol, connectEvm, disconnectEvm, onAccountsChanged,
     hasSol: () => !!solProvider(), hasEvm: () => !!evmProvider(),
     solBalance, solTokenBalance, evmBalance, evmTokenBalance,
-    launchPump, sellPump, launchEvm, launchPons, ponsPage,
+    launchPump, sellPump, launchEvm, launchPons, ponsPage, uploadImage,
     explorerTx, explorerToken, dexscreener
   };
 })();

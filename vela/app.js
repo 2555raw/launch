@@ -788,7 +788,8 @@
     lastFocus = document.activeElement;
     $('#modalTitle').textContent = title;
     $('#modalBody').innerHTML = body;
-    $('.modal-box', modal).classList.toggle('wide', wide);
+    $('.modal-box', modal).classList.toggle('wide', wide === true);
+    $('.modal-box', modal).classList.toggle('cal-box', wide === 'cal');
     paintIcons($('#modalBody'));
     modal.hidden = false;
     onMount?.($('#modalBody'));
@@ -857,7 +858,7 @@
           <label class="field"><span>Token name</span><input name="name" maxlength="32" placeholder="e.g. Nebula" required></label>
           <label class="field"><span>Ticker</span><input name="ticker" maxlength="10" placeholder="NEB" required style="text-transform:uppercase"></label>
         </div>
-        <div data-for="curve">
+        <div>
           <div class="form">
             <label class="field"><span>Description</span><textarea name="desc" maxlength="1000" placeholder="What is this token about?"></textarea></label>
             <div class="field"><span id="imageLabel">Image</span>
@@ -865,27 +866,27 @@
                 <span id="thumbTxt">Choose an image · PNG, JPG, GIF or WEBP, up to 4 MB</span>
                 <input type="file" name="image" accept="image/png,image/jpeg,image/gif,image/webp"></label>
             </div>
-            <div class="row2" id="buyRow">
+            <div data-for="erc20">
+              <label class="field"><span>Total supply</span><input name="supply" inputmode="numeric" value="1000000000"></label>
+            </div>
+            <div class="row2" id="buyRow" data-for="curve">
               <label class="field"><span id="buyLabel">Dev buy (SOL)</span><input name="buy" inputmode="decimal" value="0.1"></label>
               <label class="field" data-for="pons"><span>Creator fee on trades</span><select name="tax">
                 <option value="0">0%</option><option value="100" selected>1%</option><option value="200">2%</option><option value="500">5%</option><option value="1000">10%</option>
               </select></label>
             </div>
-            <details class="adv"><summary>Socials and transaction settings</summary>
+            <details class="adv"><summary id="advLabel">Socials and transaction settings</summary>
               <div class="form">
                 <label class="field"><span>X / Twitter</span><input name="twitter" placeholder="https://x.com/…"></label>
                 <label class="field"><span>Telegram</span><input name="telegram" placeholder="https://t.me/…"></label>
                 <label class="field"><span>Website</span><input name="website" placeholder="https://…"></label>
-                <div class="row2">
+                <div class="row2" data-for="curve">
                   <label class="field"><span>Slippage %</span><input name="slippage" inputmode="decimal" value="10"></label>
                   <label class="field" data-for="pump"><span>Priority fee (SOL)</span><input name="prio" inputmode="decimal" value="0.0005"></label>
                 </div>
               </div>
             </details>
           </div>
-        </div>
-        <div data-for="erc20">
-          <label class="field"><span>Total supply</span><input name="supply" inputmode="numeric" value="1000000000"></label>
         </div>
         <div class="note" id="siteNote"></div>
         <ul class="steps" id="steps"></ul>
@@ -899,13 +900,14 @@
       const setSite = (s) => {
         site = s;
         $$('[data-site]', form).forEach((b) => b.classList.toggle('is-on', b.dataset.site === s.id));
-        $('[data-for="curve"]', form).hidden = !s.curve;
-        $('[data-for="erc20"]', form).hidden = !!s.curve;
+        $$('[data-for="curve"]', form).forEach((x) => { x.hidden = !s.curve; });
+        $$('[data-for="erc20"]', form).forEach((x) => { x.hidden = !!s.curve; });
+        $('#advLabel', form).textContent = s.curve ? 'Socials and transaction settings' : 'Socials';
         $$('[data-for="pump"]', form).forEach((x) => { x.hidden = s.id !== 'pump'; });
         $$('[data-for="pons"]', form).forEach((x) => { x.hidden = s.id !== 'pons'; });
         $('#buyRow', form).classList.toggle('row2', s.id === 'pons');
         $('#buyLabel', form).textContent = s.id === 'pons' ? 'First buy (ETH, optional)' : 'Dev buy (SOL)';
-        $('#imageLabel', form).textContent = s.id === 'pons' ? 'Logo (optional)' : 'Image';
+        $('#imageLabel', form).textContent = s.id === 'pump' ? 'Image' : s.id === 'pons' ? 'Logo (optional)' : 'Logo (optional) · shown in AnyChain; explorers and DEXs take their own logo submissions';
         if (s.id === 'pons' && form.buy.value === '0.1') form.buy.value = '0';
         if (s.id === 'pump' && form.buy.value === '0') form.buy.value = '0.1';
         const w = s.chain === 'sol' ? state.sol : state.evm;
@@ -988,7 +990,11 @@
         } else {
           const supply = form.supply.value.replace(/[_,\s]/g, '');
           if (!/^[1-9]\d{0,14}$/.test(supply)) { fieldErr(form, 'supply', 'Whole number between 1 and 999 trillion'); ok = false; }
-          opts.supply = supply;
+          ['twitter', 'telegram', 'website'].forEach((k) => { const v = form[k].value.trim(); if (v && !/^https?:\/\//i.test(v)) { fieldErr(form, k, 'Start with https://'); ok = false; } });
+          Object.assign(opts, {
+            supply, description: form.desc.value.trim(), image: imageData,
+            twitter: form.twitter.value.trim(), telegram: form.telegram.value.trim(), website: form.website.value.trim()
+          });
         }
         if (!ok) return;
 
@@ -1012,13 +1018,18 @@
             res = await C.launchPons(opts, st.step);
             costUsd = (res.gasNative + res.spentNative) * usdOf(chain);
           } else {
+            /* an ERC-20 has no on-chain logo: it is kept with the launch and shown in AnyChain */
+            let logo = null;
+            if (opts.image) { st.step('Uploading the logo'); logo = await C.uploadImage(name, ticker, opts.image); }
             res = await C.launchEvm(chain, opts, st.step);
+            res.image = logo;
             costUsd = res.gasNative * usdOf(chain);
           }
           st.done();
           const l = {
             id: uid(), site: site.id, chain, addr: res.address, name, ticker, image: res.image || null,
             created: Date.now(), archived: false, owner: res.owner, tx: res.signature,
+            desc: opts.description || '', links: { twitter: opts.twitter || '', telegram: opts.telegram || '', website: opts.website || '' },
             costUsd: Math.round(costUsd * 100) / 100, realizedUsd: 0, holdings: null, priceUsd: null,
             events: costUsd ? [{ t: Date.now(), v: -Math.round(costUsd * 100) / 100 }] : [], lastPnl: -Math.round(costUsd * 100) / 100
           };
@@ -1099,6 +1110,7 @@
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">${avatar(l)}
         <div><b>${esc(l.ticker)}</b> <span class="badge ${l.archived ? 'badge-arch' : 'badge-live'}">${l.archived ? 'Archived' : 'Live'}</span>
         <div class="mono dim" style="letter-spacing:0">${short(l.addr)} · ${esc(siteName(l.site))}</div></div></div>
+      ${l.desc ? `<p class="dim" style="margin:0 0 14px;font-size:13px">${esc(l.desc)}</p>` : ''}
       <div class="stats">
         <div class="stat"><span>Chain</span><b>${CHAINS[l.chain].name}</b></div>
         <div class="stat"><span>Launched</span><b>${dateLong(l.created)}</b></div>
@@ -1115,6 +1127,7 @@
         ${l.site === 'pump' ? `<a href="https://pump.fun/coin/${esc(l.addr)}" target="_blank" rel="noopener">pump.fun</a>` : ''}
         ${l.site === 'pons' ? `<a href="${C.ponsPage(l.addr)}" target="_blank" rel="noopener">Pons</a>` : ''}
         ${l.tx ? `<a href="${C.explorerTx(l.chain, l.tx)}" target="_blank" rel="noopener">Launch tx</a>` : ''}
+        ${Object.entries(l.links || {}).filter(([, u]) => /^https?:\/\//i.test(u)).map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${{ twitter: 'X', telegram: 'Telegram', website: 'Website' }[k]}</a>`).join('')}
       </div>
       ${canSell ? `<div class="sell"><span>Sell dev tokens</span>
         <button class="btn btn-ghost" type="button" data-sell="25">25%</button>
@@ -1162,6 +1175,165 @@
         }
       }));
     });
+  };
+
+  /* ---------- P&L calendar ---------- */
+
+  const cal = { mode: 'month', y: new Date().getFullYear(), m: new Date().getMonth(), weekStart: 1 };
+  try { cal.weekStart = +(localStorage.getItem('anychain-week') ?? 1); } catch (_) { /* default Monday */ }
+  const dayKey = (t) => { const d = new Date(t); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
+
+  /* P&L and launch count per local day, for the chains in view */
+  const dailyStats = () => {
+    const pnl = new Map();
+    const launches = new Map();
+    state.launches.filter(inChain).forEach((l) => {
+      (l.events || []).forEach((e) => { const k = dayKey(e.t); pnl.set(k, (pnl.get(k) || 0) + e.v); });
+      const k = dayKey(l.created);
+      launches.set(k, (launches.get(k) || 0) + 1);
+    });
+    return { pnl, launches };
+  };
+
+  const streaks = (pnl, y, m) => {
+    let current = 0;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const d = new Date(today);
+    if (!((pnl.get(dayKey(d)) || 0) > 0)) d.setDate(d.getDate() - 1);   // today may not have traded yet
+    while ((pnl.get(dayKey(d)) || 0) > 0) { current++; d.setDate(d.getDate() - 1); }
+    let best = 0;
+    let run = 0;
+    const days = new Date(y, m + 1, 0).getDate();
+    for (let i = 1; i <= days; i++) {
+      if ((pnl.get(dayKey(new Date(y, m, i))) || 0) > 0) { run++; best = Math.max(best, run); } else run = 0;
+    }
+    return { current, best };
+  };
+
+  const money0 = (v) => (Math.abs(v) < 0.005 ? '$0' : signed(v, Math.abs(v) < 100 ? 2 : 0));
+  const cellClass = (v) => (v > 0.004 ? 'is-pos' : v < -0.004 ? 'is-neg' : '');
+
+  const renderCalendar = (body) => {
+    const { pnl, launches } = dailyStats();
+    const now = new Date();
+    let total = 0;
+    let grid = '';
+    let title;
+    if (cal.mode === 'month') {
+      title = `${MONTHS[cal.m]} ${cal.y}`;
+      const names = cal.weekStart === 1 ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      const lead = (new Date(cal.y, cal.m, 1).getDay() - cal.weekStart + 7) % 7;
+      const days = new Date(cal.y, cal.m + 1, 0).getDate();
+      grid = names.map((n) => `<div class="cal-head">${n}</div>`).join('') + '<div class="cal-blank"></div>'.repeat(lead);
+      for (let i = 1; i <= days; i++) {
+        const k = dayKey(new Date(cal.y, cal.m, i));
+        const v = pnl.get(k) || 0;
+        const n = launches.get(k) || 0;
+        const future = new Date(cal.y, cal.m, i) > now;
+        total += v;
+        grid += `<div class="cal-day ${cellClass(v)} ${future ? 'is-future' : ''}">
+          <span class="cal-num">${i}</span><b>${money0(v)}</b>${n ? `<span class="cal-n">${n} Launch${n === 1 ? '' : 'es'}</span>` : ''}</div>`;
+      }
+    } else {
+      title = String(cal.y);
+      for (let m = 0; m < 12; m++) {
+        let v = 0;
+        let n = 0;
+        const days = new Date(cal.y, m + 1, 0).getDate();
+        for (let i = 1; i <= days; i++) { const k = dayKey(new Date(cal.y, m, i)); v += pnl.get(k) || 0; n += launches.get(k) || 0; }
+        total += v;
+        grid += `<button type="button" class="cal-day cal-month ${cellClass(v)}" data-cal-month="${m}">
+          <span class="cal-num">${MONTHS[m]}</span><b>${money0(v)}</b>${n ? `<span class="cal-n">${n} Launch${n === 1 ? '' : 'es'}</span>` : ''}</button>`;
+      }
+    }
+    const st = streaks(pnl, cal.y, cal.m);
+    body.innerHTML = `
+      <div class="cal-bar">
+        <div class="seg"><button type="button" data-cal-mode="month" class="${cal.mode === 'month' ? 'is-on' : ''}">Monthly</button><button type="button" data-cal-mode="year" class="${cal.mode === 'year' ? 'is-on' : ''}">Yearly</button></div>
+        <div class="cal-nav"><button type="button" data-cal-step="-1" aria-label="Previous">‹</button><span>${title}</span><button type="button" data-cal-step="1" aria-label="Next">›</button></div>
+        <div class="cal-tools">
+          <span class="cal-total ${cellClass(total)}">${money0(total)}</span>
+          <button type="button" class="icon-btn" id="calExport" title="Save as image" aria-label="Save as image">${icon('upload')}</button>
+          <button type="button" class="icon-btn" id="calWeek" title="Week starts on ${cal.weekStart === 1 ? 'Sunday' : 'Monday'} instead" aria-label="Change first day of the week">${icon('gear')}</button>
+        </div>
+      </div>
+      <div class="cal-grid ${cal.mode === 'year' ? 'is-year' : ''}">${grid}</div>
+      <div class="cal-foot">
+        <span class="cal-pill">Current Positive Streak: <b>${st.current} day${st.current === 1 ? '' : 's'}</b></span>
+        ${cal.mode === 'month' ? `<span class="cal-pill">Best Positive Streak in ${MONTHS[cal.m]}: <b>${st.best} day${st.best === 1 ? '' : 's'}</b></span>` : ''}
+        <span class="cal-brand"><svg viewBox="0 0 7 7" aria-hidden="true"><path fill="currentColor" d="M3 0h1v7H3zM0 1h1v2H0zM1 2h1v1H1zM2 3h1v1H2zM1 4h1v1H1zM0 4h1v2H0zM6 1h1v2H6zM5 2h1v1H5zM4 3h1v1H4zM5 4h1v1H5zM6 4h1v2H6z"/></svg>AnyChain</span>
+      </div>`;
+  };
+
+  /* Draws the month as a PNG the user can post. */
+  const exportCalendar = () => {
+    const { pnl, launches } = dailyStats();
+    const css = getComputedStyle(document.documentElement);
+    const col = (n) => css.getPropertyValue(n).trim();
+    const cell = 128; const gap = 8; const top = 120; const W = 80 + 7 * cell + 6 * gap;
+    const lead = (new Date(cal.y, cal.m, 1).getDay() - cal.weekStart + 7) % 7;
+    const days = new Date(cal.y, cal.m + 1, 0).getDate();
+    const rows = Math.ceil((lead + days) / 7);
+    const H = top + 30 + rows * (cell * 0.72 + gap) + 70;
+    const cv = document.createElement('canvas');
+    cv.width = W * 2; cv.height = H * 2;
+    const g = cv.getContext('2d');
+    g.scale(2, 2);
+    g.fillStyle = col('--card'); g.fillRect(0, 0, W, H);
+    g.fillStyle = col('--ink'); g.font = '700 26px Inter, sans-serif'; g.fillText(`P&L · ${MONTHS[cal.m]} ${cal.y}`, 40, 56);
+    let total = 0;
+    for (let i = 1; i <= days; i++) total += pnl.get(dayKey(new Date(cal.y, cal.m, i))) || 0;
+    g.font = '700 22px Inter, sans-serif'; g.textAlign = 'right';
+    g.fillStyle = total < -0.004 ? col('--neg') : col('--accent-fill'); g.fillText(money0(total), W - 40, 56);
+    const names = cal.weekStart === 1 ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    g.textAlign = 'center'; g.font = '500 13px Inter, sans-serif'; g.fillStyle = col('--muted');
+    names.forEach((n, i) => g.fillText(n, 40 + i * (cell + gap) + cell / 2, top));
+    for (let i = 1; i <= days; i++) {
+      const idx = lead + i - 1;
+      const x = 40 + (idx % 7) * (cell + gap);
+      const y = top + 18 + Math.floor(idx / 7) * (cell * 0.72 + gap);
+      const k = dayKey(new Date(cal.y, cal.m, i));
+      const v = pnl.get(k) || 0;
+      const n = launches.get(k) || 0;
+      g.fillStyle = v > 0.004 ? 'rgba(52,227,168,.14)' : v < -0.004 ? 'rgba(242,100,111,.14)' : col('--surface');
+      g.beginPath(); g.roundRect(x, y, cell, cell * 0.72, 8); g.fill();
+      g.textAlign = 'left'; g.font = '500 12px Inter, sans-serif'; g.fillStyle = col('--muted'); g.fillText(String(i), x + 10, y + 20);
+      g.textAlign = 'center'; g.font = '700 16px Inter, sans-serif';
+      g.fillStyle = v > 0.004 ? col('--accent-fill') : v < -0.004 ? col('--neg') : col('--muted');
+      g.fillText(money0(v), x + cell / 2, y + cell * 0.42);
+      if (n) { g.font = '500 11px Inter, sans-serif'; g.fillText(`${n} Launch${n === 1 ? '' : 'es'}`, x + cell / 2, y + cell * 0.62); }
+    }
+    g.textAlign = 'right'; g.font = '700 16px Inter, sans-serif'; g.fillStyle = col('--ink'); g.fillText('AnyChain', W - 40, H - 28);
+    const a = document.createElement('a');
+    a.href = cv.toDataURL('image/png');
+    a.download = `anychain-pnl-${cal.y}-${String(cal.m + 1).padStart(2, '0')}.png`;
+    a.click();
+  };
+
+  const openCalendar = () => {
+    const now = new Date();
+    Object.assign(cal, { mode: 'month', y: now.getFullYear(), m: now.getMonth() });
+    openModal('P&L Calendar', '<div id="calBody"></div>', (body) => {
+      const el = $('#calBody', body);
+      renderCalendar(el);
+      el.addEventListener('click', (e) => {
+        const t = e.target;
+        const mode = t.closest('[data-cal-mode]');
+        const step = t.closest('[data-cal-step]');
+        const month = t.closest('[data-cal-month]');
+        if (mode) cal.mode = mode.dataset.calMode;
+        else if (step) {
+          if (cal.mode === 'year') cal.y += +step.dataset.calStep;
+          else { const d = new Date(cal.y, cal.m + +step.dataset.calStep, 1); cal.y = d.getFullYear(); cal.m = d.getMonth(); }
+        } else if (month) { cal.mode = 'month'; cal.m = +month.dataset.calMonth; }
+        else if (t.closest('#calWeek')) {
+          cal.weekStart = cal.weekStart === 1 ? 0 : 1;
+          try { localStorage.setItem('anychain-week', String(cal.weekStart)); } catch (_) { /* storage blocked */ }
+        } else if (t.closest('#calExport')) { exportCalendar(); return; }
+        else return;
+        renderCalendar(el);
+      });
+    }, 'cal');
   };
 
   const openActivity = () => {
@@ -1366,6 +1538,7 @@
       renderHot();
       return;
     }
+    if (el('#calBtn')) { openCalendar(); return; }
     if (el('#filterBtn')) { togglePop($('#filterPop')); return; }
     if (el('[data-status]')) { ui.status = el('[data-status]').dataset.status; saveUi(); syncFilter(); renderLaunchList(); closePops(); return; }
     if (el('#funderBtn')) { togglePop($('#funderPop')); return; }

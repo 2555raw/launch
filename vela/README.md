@@ -50,6 +50,10 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
 - **Sell**: pump.fun tokens can be sold 25 / 50 / 100 % from the launch's panel (PumpPortal, `pool:
   auto`, so it still works after migration). What the sale returned is measured from the wallet.
 - **Status bar**: SOL, BNB and ETH prices from CoinGecko, and what a transfer costs on Base right now (gas price × 21k gas × ETH), cached 30 s. **Tracker**: DexScreener, cached 15 s.
+- **P&L calendar** (calendar icon on *Total P&L*): daily P&L and launches per day, monthly and yearly views,
+  positive streaks, and *Save as image* for a PNG of the month.
+- **Base / BNB Chain logos**: an ERC-20 has no on-chain logo, so the one you pick is stored with the launch
+  and shown in AnyChain; explorers and DEXs take their own logo submissions.
 - **Import**: add a token launched elsewhere so its P&L is tracked; give its cost if you know it.
 
 Clearing the browser's site data forgets the launch list (the tokens stay on-chain; import them again).

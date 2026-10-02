@@ -105,6 +105,12 @@ server.js           static files + /api (below)
 
 Only the page's own files are served; `server.js`, `contracts/` and `scripts/` are not.
 
+## Brand
+
+Monochrome: pure black and white, big tight headlines (800, -3 to -5 % tracking), the pixel asterisk
+mark in white, and a faint grid. Colour is reserved for P&L (green / red) and the chains' own logos.
+`brand/` holds the X profile picture, the headers and the GIF.
+
 ## Customize
 
 Settings (status bar) opens **Customize**: nine themes — Default, Dark, Legacy, Emerald, Midnight,

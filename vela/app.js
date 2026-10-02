@@ -1584,7 +1584,7 @@
   /* ---------- customize (theme / style / layout) ---------- */
 
   const THEMES = [
-    { id: 'default', name: 'Default', bg: '#0b0c0f', pane: '#121317', ink: '#eceef2', primary: '#6e6cf6' },
+    { id: 'default', name: 'Default', bg: '#000000', pane: '#0c0c0d', ink: '#f5f5f7', primary: '#ffffff' },
     { id: 'dark', name: 'Dark', bg: '#09090b', pane: '#111113', ink: '#f2f2f3', primary: '#4f6ef7' },
     { id: 'legacy', name: 'Legacy', bg: '#101218', pane: '#161922', ink: '#e9ecf5', primary: '#98abff' },
     { id: 'emerald', name: 'Emerald', bg: '#0a0d0c', pane: '#111614', ink: '#ebf2ee', primary: '#3ccf7a' },
@@ -1592,7 +1592,7 @@
     { id: 'light', name: 'Light', bg: '#f6f7f9', pane: '#ffffff', ink: '#12141a', primary: '#4f5ef7' },
     { id: 'light-blue', name: 'Light Blue', bg: '#eef4fd', pane: '#ffffff', ink: '#0f1a2e', primary: '#3b82f6' },
     { id: 'light-rose', name: 'Light Rose', bg: '#fcf1f4', pane: '#ffffff', ink: '#2a1219', primary: '#e0508a' },
-    { id: 'custom', name: 'Custom', bg: '#0b0c0f', pane: '#121317', ink: '#eceef2', primary: null }
+    { id: 'custom', name: 'Custom', bg: '#000000', pane: '#0c0c0d', ink: '#f5f5f7', primary: null }
   ];
   const LOOK_DEFAULT = { theme: 'default', primary: null, radius: 'default', font: 'inter', density: 'comfortable', side: 'left', statusbar: 'on', charts: 'side' };
   let look = Object.assign({}, LOOK_DEFAULT, read(LOOK_KEY, {}));
@@ -1606,7 +1606,7 @@
     write(LOOK_KEY, { ...look, theme: look.theme });
     if (view === 'dashboard') renderDashboard();
   };
-  const themePrimary = () => (THEMES.find((t) => t.id === look.theme)?.primary) || '#6e6cf6';
+  const themePrimary = () => (THEMES.find((t) => t.id === look.theme)?.primary) || '#ffffff';
   const HEX = /^#?[0-9a-f]{6}$/i;
 
   const openCustomize = () => {

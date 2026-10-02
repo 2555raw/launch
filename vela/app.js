@@ -1000,6 +1000,7 @@
             </div>
             <div class="row2" id="buyRow" data-for="curve">
               <label class="field"><span id="buyLabel">Dev buy (SOL)</span><input name="buy" inputmode="decimal" value="0.1"></label>
+              <p class="fee-line" data-for="pump" id="feeLine"></p>
               <label class="field" data-for="pons"><span>Creator fee on trades</span><select name="tax">
                 <option value="0">0%</option><option value="100" selected>1%</option><option value="200">2%</option><option value="500">5%</option><option value="1000">10%</option>
               </select></label>
@@ -1098,6 +1099,12 @@
         if (!form.ticker.dataset.touched) form.ticker.value = form.name.value.replace(/[^a-z0-9]/gi, '').slice(0, 6).toUpperCase();
       });
       form.ticker.addEventListener('input', () => { form.ticker.dataset.touched = '1'; });
+      const showFee = () => {
+        const buy = parseFloat(form.buy.value) || 0, fee = C.feeOf(buy);
+        $('#feeLine', form).innerHTML = `AnyChain fee <b>${C.FEE.bps / 100}%</b> of the dev buy${fee ? ` · <b>${+fee.toFixed(6)} SOL</b>` : ' · nothing without a dev buy'}`;
+      };
+      form.buy.addEventListener('input', showFee);
+      showFee();
       form.image.addEventListener('change', async () => {
         const f = form.image.files[0];
         if (!f) return;
@@ -1141,8 +1148,9 @@
             twitter: form.twitter.value.trim(), telegram: form.telegram.value.trim(), website: form.website.value.trim(),
             slippage: parseFloat(form.slippage.value) || 10, priorityFee: parseFloat(form.prio.value) || 0.0005
           });
-          if (ok && state.sol && live.balances.sol != null && live.balances.sol < buy + 0.03) {
-            fieldErr(form, 'buy', `Not enough SOL: ${num(live.balances.sol)} in the wallet, needs about ${num(buy + 0.03)}`); ok = false;
+          const need = buy + C.feeOf(buy) + 0.03;
+          if (ok && state.sol && live.balances.sol != null && live.balances.sol < need) {
+            fieldErr(form, 'buy', `Not enough SOL: ${num(live.balances.sol)} in the wallet, needs about ${num(need)}`); ok = false;
           }
         } else if (site.id === 'pons') {
           const buy = parseFloat(form.buy.value || '0');
@@ -1596,6 +1604,7 @@
       <ol class="legal-items">
         <li><b>What AnyChain is</b><p>AnyChain is a non-custodial interface. It prepares blockchain transactions — creating tokens on pump.fun, Pons, Base and BNB Chain, buying and selling them — that <b>you</b> review and sign in your own wallet. AnyChain never holds your keys, your funds or your tokens, and cannot move them.</p></li>
         <li><b>Third-party services</b><p>Launches and trades run on third-party protocols and services (pump.fun, PumpPortal, Pons, Uniswap-style pools, DexScreener, CoinGecko, RPC providers, IPFS/Pinata). AnyChain does not control them, is not affiliated with them, and is not responsible for their availability, fees, behaviour or changes.</p></li>
+        <li><b>AnyChain fee</b><p>On pump.fun launches AnyChain charges 1% of your dev buy, paid in SOL to AnyChain’s wallet inside the same launch transaction, so your wallet shows it before you sign. Launchpad, creator and network fees are separate and go to their own recipients.</p></li>
         <li><b>Your responsibilities</b><p>You are solely responsible for every transaction you sign, for the tokens you create (their name, image, description and links), and for complying with the laws that apply to you — including securities, tax and consumer-protection rules. You must not use AnyChain to impersonate anyone, infringe rights, mislead buyers, manipulate markets, or launch tokens that are illegal where you or your buyers are.</p></li>
         <li><b>No advice</b><p>Nothing on AnyChain — prices, P&amp;L, trending lists or any other content — is financial, investment, legal or tax advice, or a recommendation to buy or sell anything.</p></li>
         <li><b>No warranty</b><p>AnyChain is provided “as is” and “as available”, without warranties of any kind. Data may be delayed, incomplete or wrong. Smart contracts and software can have bugs.</p></li>

@@ -207,6 +207,26 @@
     }
   };
 
+  /* AnyChain's fee: 1 % of the first buy, paid in the same transaction to AnyChain's wallet.
+     EVM wallet still to come; until it is set, EVM launches carry no fee. */
+  const FEE = { bps: 100, sol: '74XKGyh9X9f2nfXGjE2PGJSoajUUZWtx4T3FyYtdBEMF', evm: '' };
+  const feeOf = (amount) => (Number(amount) > 0 ? Number(amount) * FEE.bps / 10000 : 0);
+
+  /* Add the fee transfer to a versioned transaction built elsewhere (PumpPortal): decompile it
+     with its lookup tables, append a SystemProgram transfer, recompile with the same blockhash. */
+  const addSolFee = async (web3, tx, payer, amountSol) => {
+    const lamports = Math.round(feeOf(amountSol) * 1e9);
+    if (!FEE.sol || lamports <= 0) return tx;
+    const luts = await Promise.all(tx.message.addressTableLookups.map(async (l) => {
+      const info = await solRpc('getAccountInfo', [l.accountKey.toBase58(), { encoding: 'base64' }]);
+      const data = Uint8Array.from(atob(info.value.data[0]), (ch) => ch.charCodeAt(0));
+      return new web3.AddressLookupTableAccount({ key: l.accountKey, state: web3.AddressLookupTableAccount.deserialize(data) });
+    }));
+    const msg = web3.TransactionMessage.decompile(tx.message, { addressLookupTableAccounts: luts });
+    msg.instructions.push(web3.SystemProgram.transfer({ fromPubkey: new web3.PublicKey(payer), toPubkey: new web3.PublicKey(FEE.sol), lamports }));
+    return new web3.VersionedTransaction(msg.compileToV0Message(luts));
+  };
+
   /* Create a pump.fun token: metadata to IPFS, unsigned tx from PumpPortal, the
      wallet signs as payer, the fresh mint keypair signs as the token account. */
   const launchPump = async (opts, step) => {
@@ -223,7 +243,7 @@
       publicKey: sol.address, mint: mint.publicKey.toBase58(), pool: 'pump',
       name: opts.name, symbol: opts.symbol, uri, amount: opts.devBuy, slippage: opts.slippage, priorityFee: opts.priorityFee
     });
-    const tx = web3.VersionedTransaction.deserialize(new Uint8Array(bytes));
+    const tx = await addSolFee(web3, web3.VersionedTransaction.deserialize(new Uint8Array(bytes)), sol.address, opts.devBuy);
     step('Checking the transaction');
     await preflight(tx);
     step('Approve the launch in your wallet');
@@ -492,7 +512,7 @@
     hasSol: () => !!solProvider(), hasEvm: () => !!evmProvider(),
     solBalance, solTokenBalance, evmBalance, evmTokenBalance,
     launchPump, sellPump, launchEvm, launchPons, ponsPage, uploadImage,
-    signIn, getAccount, putAccount, tradeSol, tradeEvm,
+    signIn, getAccount, putAccount, tradeSol, tradeEvm, FEE, feeOf,
     explorerTx, explorerToken, dexscreener, dexEmbed
   };
 })();

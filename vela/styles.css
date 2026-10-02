@@ -966,6 +966,8 @@ img.logo { width: 16px; height: 16px; border-radius: 50%; flex: none; object-fit
 .legal-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--dim); }
 
 /* launch wizard */
+.fee-line { grid-column: 1 / -1; margin: -2px 0 0; font-size: 12.5px; color: var(--muted); }
+.fee-line b { color: var(--ink); font-weight: 600; }
 .wz-bar { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
 .wz-bar li { display: flex; align-items: center; gap: 8px; padding-top: 10px; border-top: 2px solid var(--line-hi); font-size: 12.5px; color: var(--dim); transition: color .2s, border-color .2s; }
 .wz-bar li b { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; background: var(--surface); color: var(--muted); }

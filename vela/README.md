@@ -51,6 +51,9 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
 - **P&L** = dev tokens held × DexScreener price + what you sold − what the launch cost. It is
   refreshed every minute while AnyChain is open; each change is stored as an event, and the charts are
   the running sum of those events. A token DexScreener hasn't indexed yet counts at its cost only.
+- **AnyChain fee**: 1% of the dev buy on pump.fun launches, added as a SOL transfer to AnyChain's wallet
+  (`FEE` in `chain.js`) inside the launch transaction, so the wallet shows it before signing. It is shown
+  under the dev buy in the form and in the Terms. EVM launches carry no fee until `FEE.evm` is set.
 - **Wallet safety checks**: every Solana transaction is simulated on AnyChain's RPC before the wallet
   is asked to sign, so one that would fail (not enough SOL, slippage) stops with a clear message instead
   of reaching Phantom, whose simulation shows "This dApp could be malicious" for failing transactions.

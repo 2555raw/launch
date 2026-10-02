@@ -726,13 +726,64 @@
         </tr>`).join('')}</tbody>` : '<tbody><tr><td class="table-empty">No archived launches.</td></tr></tbody>';
   };
 
+  /* ---------- tokens launched from AnyChain, by everyone ---------- */
+
+  let pub = { at: 0, total: 0, list: [] };
+  const pubLink = (l) => (l.site === 'pump' ? `https://pump.fun/coin/${l.address}` : l.site === 'pons' ? C.ponsPage(l.address) : l.market?.url || C.dexscreener(l.chain, l.address));
+  const loadLaunched = async (force) => {
+    if (!force && Date.now() - pub.at < 30000) return;
+    try {
+      const j = await C.publicLaunches();
+      pub = { at: Date.now(), total: j.total, list: j.launches || [] };
+    } catch (_) { return; }
+    $('#launchedCount').textContent = pub.total;
+    renderLandingLaunched();
+    if (view === 'launched') renderLaunched();
+  };
+
+  const renderLaunched = () => {
+    const rows = pub.list.filter((l) => ui.chain === 'all' || l.chain === ui.chain);
+    $('#pubTable').innerHTML = rows.length ? `
+      <thead><tr><th>Token</th><th>Chain</th><th>Launchpad</th><th>Launched</th><th class="num">Market cap</th><th class="num">24h</th><th class="num">Liquidity</th><th>Creator</th><th></th></tr></thead>
+      <tbody>${rows.map((l) => { const m = l.market || {}; return `
+        <tr>
+          <td><span class="who">${avatar({ name: l.name, ticker: l.symbol, image: l.image, chain: l.chain })}<span><b>${esc(l.symbol)}</b><br><span class="addr">${esc(l.name)}</span></span></span></td>
+          <td>${chainChip(l.chain)}</td>
+          <td>${esc(siteName(l.site))}</td>
+          <td class="dim">${age(l.created)}</td>
+          <td class="num">${m.marketCap ? compact(m.marketCap) : '—'}</td>
+          <td class="num ${m.change24h == null ? 'dim' : m.change24h < 0 ? 'neg' : 'pos'}">${m.change24h == null ? '—' : `${m.change24h > 0 ? '+' : ''}${Number(m.change24h).toFixed(1)}%`}</td>
+          <td class="num">${m.liquidity ? compact(m.liquidity) : '—'}</td>
+          <td><a class="addr" href="${l.chain === 'sol' ? `https://solscan.io/account/${l.creator}` : `${C.EVM[l.chain].explorer}/address/${l.creator}`}" target="_blank" rel="noopener">${short(l.creator)}</a></td>
+          <td class="act"><a href="${esc(pubLink(l))}" target="_blank" rel="noopener">Open</a><button type="button" data-pub-track="${esc(l.address)}" data-chain="${l.chain}">Track</button></td>
+        </tr>`; }).join('')}</tbody>`
+      : `<tbody><tr><td class="table-empty">${pub.at ? 'No tokens launched from AnyChain yet. Yours can be the first.' : 'Loading…'}</td></tr></tbody>`;
+  };
+
+  const renderLandingLaunched = () => {
+    const list = pub.list.slice(0, 10);
+    $('#pubCountLine').textContent = pub.total ? `${pub.total} coin${pub.total === 1 ? '' : 's'} made here.` : 'Every coin made here.';
+    $('#pubCards').innerHTML = list.length ? list.map((l) => { const m = l.market || {}; return `
+      <a class="hot-card" href="${esc(pubLink(l))}" target="_blank" rel="noopener">
+        <div class="hot-top">
+          <span class="hot-ico">${l.image ? `<img src="${esc(l.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : `<span>${esc(l.symbol.slice(0, 1))}</span>`}
+            <img class="hot-chain" src="${CHAINS[l.chain].logo}" alt="${CHAINS[l.chain].name}" title="${CHAINS[l.chain].name}"></span>
+          <span class="hot-name"><b>${esc(l.name)}</b><span>${esc(l.symbol)} · ${esc(siteName(l.site))}</span></span>
+        </div>
+        <div class="hot-row"><span>Market cap</span><b>${m.marketCap ? compact(m.marketCap) : '—'}</b></div>
+        <div class="hot-row"><span>24h change</span><b class="${m.change24h < 0 ? 'neg' : 'pos'}">${m.change24h == null ? '—' : `${m.change24h > 0 ? '+' : ''}${Number(m.change24h).toFixed(1)}%`}</b></div>
+        <div class="hot-row"><span>Launched</span><b>${age(l.created)}</b></div>
+      </a>`; }).join('')
+      : `<div class="ld-empty">${pub.at ? 'No coins launched here yet. <a class="link-btn" href="#dashboard">Be the first →</a>' : 'Loading…'}</div>`;
+  };
+
   /* ---------- views & routing ---------- */
 
-  const VIEWS = ['dashboard', 'wallets', 'sites', 'tracker', 'archived'];
+  const VIEWS = ['dashboard', 'wallets', 'sites', 'tracker', 'launched', 'archived'];
   let view = 'dashboard';
 
   const renderView = () => {
-    ({ dashboard: renderDashboard, wallets: renderWallets, sites: renderSites, tracker: renderTracker, archived: renderArchived })[view]();
+    ({ dashboard: renderDashboard, wallets: renderWallets, sites: renderSites, tracker: renderTracker, launched: renderLaunched, archived: renderArchived })[view]();
   };
   const renderAll = () => { renderLaunchList(); renderFunder(); syncLandingWallet(); renderView(); };
 
@@ -740,7 +791,7 @@
     if (name === 'legal-terms' || name === 'legal-risk') { go('home'); openLegal(name.slice(6)); return; }
     const home = !name || name === 'home';
     $('#landing').hidden = !home;
-    if (home) { hideTip(); loadHot(); return; }
+    if (home) { hideTip(); loadHot(); loadLaunched(); return; }
     view = VIEWS.includes(name) ? name : 'dashboard';
     $$('.view').forEach((v) => { v.hidden = v.dataset.view !== view; });
     $$('.features-list a').forEach((a) => a.classList.toggle('is-on', a.dataset.view === view));
@@ -750,6 +801,7 @@
     $('#scrim').hidden = true;
     hideTip();
     renderView();
+    if (view === 'launched') loadLaunched(true);
     $('#main').scrollTop = 0;
   };
   addEventListener('hashchange', () => go(location.hash.slice(1)));
@@ -1216,6 +1268,7 @@
             events: costUsd ? [{ t: Date.now(), v: -Math.round(costUsd * 100) / 100 }] : [], lastPnl: -Math.round(costUsd * 100) / 100
           };
           state.launches.push(l);
+          C.reportLaunch({ site: site.id, address: res.address, tx: res.signature, name, symbol: ticker, image: res.image || null }).then(() => loadLaunched(true));
           log(`Launched ${ticker} on ${site.name}`);
           save();
           busy = false;
@@ -1888,6 +1941,17 @@
   $('#activityBtn').addEventListener('click', openActivity);
   $('#docsBtn').addEventListener('click', openDocs);
   $('#settingsBtn').addEventListener('click', openCustomize);
+
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-pub-track]');
+    if (!b) return;
+    const addr = b.dataset.pubTrack, chain = b.dataset.chain;
+    if (state.tracked.concat(state.launches).some((x) => x.addr.toLowerCase() === addr.toLowerCase())) { toast('Already tracking that token'); return; }
+    const l = pub.list.find((x) => x.address === addr);
+    state.tracked.push({ id: uid(), addr, chain, created: Date.now(), name: l?.name || null, ticker: l?.symbol || null });
+    save(); toast(`Tracking ${l?.symbol || short(addr)}`);
+    refresh();
+  });
 
   $('#trackForm').addEventListener('submit', (e) => {
     e.preventDefault();

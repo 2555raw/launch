@@ -506,13 +506,17 @@
     `https://dexscreener.com/${DEX_IDS[chain]}/${addr}?embed=1&loadChartSettings=0&trades=0&tabs=0&info=0&chartLeftToolbar=0&chartDefaultOnMobile=1&chartTheme=${light ? 'light' : 'dark'}&theme=${light ? 'light' : 'dark'}&chartStyle=1&chartType=usd&interval=15`;
   const dexscreener = (chain, addr) => `https://dexscreener.com/${{ sol: 'solana', rh: 'robinhood', base: 'base', bnb: 'bsc' }[chain]}/${addr}`;
 
+  /* the public list of tokens launched from AnyChain; the server verifies each one on-chain */
+  const reportLaunch = (l) => postJson('/api/launches', l).catch(() => null);
+  const publicLaunches = () => api('/api/launches');
+
   window.VelaChain = {
     EVM, health, prices, market,
     connectSol, disconnectSol, connectEvm, disconnectEvm, onAccountsChanged,
     hasSol: () => !!solProvider(), hasEvm: () => !!evmProvider(),
     solBalance, solTokenBalance, evmBalance, evmTokenBalance,
     launchPump, sellPump, launchEvm, launchPons, ponsPage, uploadImage,
-    signIn, getAccount, putAccount, tradeSol, tradeEvm, FEE, feeOf,
+    signIn, getAccount, putAccount, tradeSol, tradeEvm, FEE, feeOf, reportLaunch, publicLaunches,
     explorerTx, explorerToken, dexscreener, dexEmbed
   };
 })();

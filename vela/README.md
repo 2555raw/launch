@@ -75,6 +75,10 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
 - **Installable**: web app manifest, icons and a service worker (offline shell) — "Add to Home Screen".
 - **Terms and Risk disclosure**, linked from the landing and the status bar; accepting them is required
   before the first launch.
+- **Launched here** (sidebar, and *Launched on AnyChain* on the landing page): every token launched from
+  AnyChain by anyone, verified on-chain, with market cap, 24h change, liquidity, creator and a Track button.
+  Kept in `DATA_DIR/anychain-launches.json`; launches made before the list existed are added from the
+  synced accounts at start-up.
 - **Import**: add a token launched elsewhere so its P&L is tracked; give its cost if you know it.
 
 Clearing the browser's site data forgets the launch list (the tokens stay on-chain; import them again).
@@ -112,6 +116,8 @@ server.js           static files + /api (below)
 | `POST /api/auth/nonce`, `POST /api/auth/verify` | wallet sign-in (one-time message, signature check, session token) |
 | `GET /api/account`, `PUT /api/account` | the signed-in wallet's synced data |
 | `GET /api/token/:addrs` | DexScreener market data, up to 30 addresses |
+| `POST /api/launches` | report a launch made in AnyChain; the server reads the transaction on-chain and lists the token only if that transaction created it (pump.fun Create, Pons mint from the factory/router, or the ERC-20 deployment) |
+| `GET /api/launches` | every token launched from AnyChain, newest first, with DexScreener market data |
 | `GET /api/trending` | trending tokens (DexScreener boosts + profiles) on the four chains, cached 60 s |
 
 Only the page's own files are served; `server.js`, `contracts/` and `scripts/` are not.

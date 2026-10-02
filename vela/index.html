@@ -82,6 +82,7 @@
         <a href="#wallets" data-view="wallets"><i data-i="wallet"></i><span>My Wallets</span></a>
         <a href="#sites" data-view="sites"><i data-i="store"></i><span>Launch Sites</span><em class="tag tag-new">NEW</em></a>
         <a href="#tracker" data-view="tracker"><i data-i="target"></i><span>Tracker</span></a>
+        <a href="#launched" data-view="launched"><i data-i="rocket"></i><span>Launched here</span><em class="tag" id="launchedCount">0</em></a>
         <a href="#archived" data-view="archived"><i data-i="archive"></i><span>Archived</span><em class="tag" id="archivedCount">0</em></a>
         <a href="#dashboard" data-view="dashboard"><i data-i="grid"></i><span>Dashboard</span></a>
       </div>
@@ -214,6 +215,14 @@
       <div class="card table-card"><table class="table" id="trackTable"></table></div>
     </section>
 
+    <!-- ---------- launched from AnyChain ---------- -->
+    <section class="view" data-view="launched" hidden>
+      <div class="view-head">
+        <div><h1>Launched here</h1><p class="dim">Every token launched from AnyChain, by anyone. Each one is checked on-chain before it is listed. Market data from DexScreener.</p></div>
+      </div>
+      <div class="card table-card"><table class="table" id="pubTable"></table></div>
+    </section>
+
     <!-- ---------- archived ---------- -->
     <section class="view" data-view="archived" hidden>
       <div class="view-head">
@@ -310,6 +319,13 @@
     <div class="ld-cards" id="hotCards"></div>
     <p class="ld-foot">Trending on DexScreener · live market data · not investment advice</p>
   </div>
+
+    <section class="ld-sec" id="launched-here">
+      <p class="ld-kicker">Launched on AnyChain</p>
+      <h2 class="ld-h2">Fresh from the launchpad.<br><span id="pubCountLine">Every coin made here.</span></h2>
+      <div class="ld-cards" id="pubCards"></div>
+      <p class="ld-foot"><a class="link-btn" href="#launched">See every launch →</a></p>
+    </section>
 
     <section class="ld-sec" id="how">
       <p class="ld-kicker">How it works</p>

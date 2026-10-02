@@ -9,6 +9,8 @@
  *   POST /api/sol-rpc         Solana JSON-RPC, forwarded to SOLANA_RPC_URL, read + send only
  *   POST /api/ipfs            stores the token image (and, for pump.fun, its metadata): IPFS via Pinata, else /media
  *   GET  /media/<sha256>.<ext>  self-hosted token images and metadata
+ *   POST /api/launches        report a launch; verified on-chain, then listed
+ *   GET  /api/launches        every token launched from AnyChain, with market data
  *   POST /api/auth/nonce      a one-time message for the wallet to sign
  *   POST /api/auth/verify     checks the signature, returns a 30-day session token
  *   GET  /api/account         the signed-in wallet's launches, tracked tokens and activity
@@ -172,6 +174,81 @@ const allowUpload = (req) => {
   uploads.set(ip, recent);
   if (uploads.size > 5000) uploads.delete(uploads.keys().next().value);
   return true;
+};
+
+/* ---------- tokens launched from AnyChain ----------
+   After a launch the page reports it. The server checks the transaction on-chain — it succeeded,
+   and it created that token — before listing it, so the list can't be filled with made-up tokens. */
+const LAUNCHES_FILE = path.join(DATA_DIR, 'anychain-launches.json');
+let registry = [];
+try { registry = JSON.parse(fs.readFileSync(LAUNCHES_FILE, 'utf8')); } catch (_) { /* first run */ }
+const saveRegistry = () => {
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(LAUNCHES_FILE + '.tmp', JSON.stringify(registry));
+    fs.renameSync(LAUNCHES_FILE + '.tmp', LAUNCHES_FILE);
+  } catch (e) { console.error('could not save launches:', e.message); }
+};
+const EVM_RPC = { rh: 'https://rpc.mainnet.chain.robinhood.com', base: 'https://base-rpc.publicnode.com', bnb: 'https://bsc-rpc.publicnode.com' };
+const PONS = ['0x7ed598bcef8bd9edd8c97a195c6d13f40801ec7e', '0xe33e9e479df8802cb0866d5d05258bec4cf62948'];
+const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const SITE_CHAIN = { pump: 'sol', pons: 'rh', base: 'base', bnb: 'bnb' };
+const rpcCall = async (url, method, params) => {
+  const j = await fetchJson(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
+  return j?.result;
+};
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/* returns the creator's address when the transaction really created the token, else null */
+const verifyLaunch = async ({ site, address, tx }) => {
+  for (let i = 0; i < 4; i++) {   // a just-confirmed transaction can take a few seconds to be readable
+    if (i) await sleep(2500);
+    if (site === 'pump') {
+      const t = await rpcCall(SOLANA_RPC_URL, 'getTransaction', [tx, { encoding: 'json', maxSupportedTransactionVersion: 0, commitment: 'confirmed' }]).catch(() => null);
+      if (!t) continue;
+      if (t.meta?.err) return null;
+      const keys = [...(t.transaction?.message?.accountKeys || []), ...(t.meta?.loadedAddresses?.writable || []), ...(t.meta?.loadedAddresses?.readonly || [])];
+      // a create, not a buy of an existing token: pump.fun logs Create/CreateV2 and the mint is new
+      const created = (t.meta?.logMessages || []).some((m) => /Instruction: Create(V2)?$/.test(m));
+      const minted = (t.meta?.postTokenBalances || []).some((b) => b.mint === address) && !(t.meta?.preTokenBalances || []).some((b) => b.mint === address);
+      return created && minted && keys.includes(address) ? keys[0] : null;
+    }
+    const r = await rpcCall(EVM_RPC[SITE_CHAIN[site]], 'eth_getTransactionReceipt', [tx]).catch(() => null);
+    if (!r) continue;
+    if (r.status !== '0x1') return null;
+    const a = address.toLowerCase();
+    // Pons: the factory/router call that minted the token (a Transfer from the zero address), not a later trade
+    const ZERO = '0x' + '0'.repeat(64);
+    const ok = site === 'pons'
+      ? PONS.includes(String(r.to).toLowerCase()) && (r.logs || []).some((l) => String(l.address).toLowerCase() === a && l.topics?.[0] === TRANSFER_TOPIC && l.topics?.[1] === ZERO)
+      : String(r.contractAddress).toLowerCase() === a;
+    return ok ? r.from : null;
+  }
+  return null;
+};
+
+/* Launches made before the public list existed live in the synced accounts: verify them and add
+   them once, at start-up, in the background. Imported tokens (site 'import') are not AnyChain launches. */
+const backfillLaunches = async () => {
+  let files = [];
+  try { files = fs.readdirSync(ACCOUNTS_DIR).filter((f) => f.endsWith('.json')); } catch (_) { return; }
+  let added = 0;
+  for (const f of files) {
+    let data;
+    try { data = JSON.parse(fs.readFileSync(path.join(ACCOUNTS_DIR, f), 'utf8')); } catch (_) { continue; }
+    for (const l of data.launches || []) {
+      const chain = SITE_CHAIN[l.site];
+      if (!chain || !l.addr || !l.tx) continue;
+      if (registry.some((r) => r.chain === chain && r.address.toLowerCase() === String(l.addr).toLowerCase())) continue;
+      const creator = await verifyLaunch({ site: l.site, address: String(l.addr), tx: String(l.tx) }).catch(() => null);
+      if (!creator) continue;
+      const image = clean(l.image, 300);
+      registry.push({ chain, site: l.site, address: String(l.addr), tx: String(l.tx), creator,
+        name: clean(l.name, 32), symbol: clean(l.ticker, 10).toUpperCase(), image: /^https:\/\//.test(image) ? image : null, created: Number(l.created) || Date.now() });
+      added++;
+    }
+  }
+  if (added) { registry.sort((a, b) => a.created - b.created); saveRegistry(); console.log(`launch list: added ${added} earlier launches`); }
 };
 
 /* ---------- accounts: sign in with a wallet ----------
@@ -532,6 +609,50 @@ const api = {
     send(res, 200, { to: j.data.routerAddress, data: j.data.data, amountIn: j.data.amountIn, amountOut: j.data.amountOut });
   },
 
+  'POST /api/launches': async (req, res) => {
+    if (!allowUpload(req)) return fail(res, 429, 'Too many requests from this address, try again later');
+    const b = await readJson(req);
+    const site = String(b.site || '');
+    const chain = SITE_CHAIN[site];
+    const address = String(b.address || '');
+    const tx = String(b.tx || '');
+    if (!chain) return fail(res, 400, 'Unknown launchpad');
+    if (chain === 'sol' ? !(B58.test(address) && /^[1-9A-HJ-NP-Za-km-z]{64,90}$/.test(tx)) : !(EVM.test(address) && /^0x[0-9a-fA-F]{64}$/.test(tx))) return fail(res, 400, 'Bad address or transaction');
+    const key = `${chain}:${address.toLowerCase()}`;
+    const known = registry.find((l) => `${l.chain}:${l.address.toLowerCase()}` === key);
+    if (known) return send(res, 200, known);
+    const creator = await verifyLaunch({ site, address, tx });
+    if (!creator) return fail(res, 422, 'That transaction did not create this token');
+    const image = clean(b.image, 300);
+    const entry = {
+      chain, site, address, tx, creator,
+      name: clean(b.name, 32) || address.slice(0, 6), symbol: clean(b.symbol, 10).toUpperCase() || '?',
+      image: /^https:\/\//.test(image) ? image : null,
+      created: Date.now()
+    };
+    registry.push(entry);
+    saveRegistry();
+    send(res, 201, entry);
+  },
+
+  /* newest first, with DexScreener market data (30 addresses per request, cached) */
+  'GET /api/launches': async (req, res) => {
+    const list = registry.slice(-300).reverse();
+    const market = {};
+    for (let i = 0; i < list.length; i += 30) {
+      const addrs = list.slice(i, i + 30).map((l) => l.address);
+      const data = await cached(`tok:${addrs.join(',')}`, 30000, () =>
+        fetchJson(`https://api.dexscreener.com/latest/dex/tokens/${addrs.join(',')}`)).catch(() => null);
+      for (const p of data?.pairs || []) {
+        const k = p.baseToken?.address?.toLowerCase();
+        const liq = p.liquidity?.usd || 0;
+        if (!k || (market[k] && market[k].liquidity >= liq)) continue;
+        market[k] = { priceUsd: Number(p.priceUsd) || 0, marketCap: p.marketCap || p.fdv || 0, change24h: p.priceChange?.h24 ?? 0, volume24h: p.volume?.h24 || 0, liquidity: liq, url: p.url };
+      }
+    }
+    send(res, 200, { total: registry.length, launches: list.map((l) => ({ ...l, market: market[l.address.toLowerCase()] || null })) });
+  },
+
   'GET /api/token': async (req, res, rest) => {
     const addrs = [...new Set(decodeURIComponent(rest).split(',').map((s) => s.trim()).filter((s) => B58.test(s) || EVM.test(s)))].slice(0, 30);
     if (!addrs.length) return fail(res, 400, 'No valid addresses');
@@ -604,4 +725,4 @@ http.createServer(async (req, res) => {
     res.writeHead(200, headers);
     res.end(body);
   });
-}).listen(PORT, () => console.log(`AnyChain on http://localhost:${PORT}`));
+}).listen(PORT, () => { console.log(`AnyChain on http://localhost:${PORT}`); backfillLaunches(); });

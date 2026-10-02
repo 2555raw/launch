@@ -15,8 +15,9 @@ keypair of a new pump.fun token: it co-signs its own creation and is then thrown
 
 The site opens on a landing page: hero with the launchpad logos and **Launch a coin**; trending tokens
 from DexScreener on Solana, Robinhood Chain, Base and BNB Chain with live market data; *How it works*;
-one card per launchpad (each button opens the launch form with that launchpad picked); what the
-dashboard does after a launch; a closing call to action and the footer.
+one card per launchpad; what the
+dashboard does after a launch; a closing call to action and the footer. Every launch button on the landing page opens the app; the
+launch form itself opens from **Create Launch** inside it, as a three-step wizard (launchpad → coin → launch).
 The app lives at `#dashboard`.
 
 ## Run it

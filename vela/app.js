@@ -1807,10 +1807,10 @@
       if (location.hash.slice(1) === v) go(v); else location.hash = v;
       return;
     }
+    // the landing's launch buttons only enter the app; the launch form opens from Create Launch inside it
     if (el('[data-launch-coin]')) {
       e.preventDefault();
       if (location.hash.slice(1) !== 'dashboard') location.hash = 'dashboard';
-      openCreate(el('[data-launch-coin]').dataset.site);
       return;
     }
     if (el('#ldConnect')) { togglePop($('#ldConnectPop')); return; }

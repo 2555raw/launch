@@ -13,8 +13,10 @@ AnyChain never holds a key. The wallet (Phantom / Solflare / Backpack for Solana
 injected wallet for EVM) signs every launch and every sale. The one key AnyChain generates is the mint
 keypair of a new pump.fun token: it co-signs its own creation and is then thrown away.
 
-The site opens on a landing page (hero with the launchpad logos, **Launch a coin**, and *Hot right now*:
-tokens trending on DexScreener on Solana, Robinhood Chain, Base and BNB Chain, with live market data).
+The site opens on a landing page: hero with the launchpad logos and **Launch a coin**; trending tokens
+from DexScreener on Solana, Robinhood Chain, Base and BNB Chain with live market data; *How it works*;
+one card per launchpad (each button opens the launch form with that launchpad picked); what the
+dashboard does after a launch; a closing call to action and the footer.
 The app lives at `#dashboard`.
 
 ## Run it

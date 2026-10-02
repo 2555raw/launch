@@ -1754,8 +1754,9 @@
       return;
     }
     if (el('[data-launch-coin]')) {
+      e.preventDefault();
       if (location.hash.slice(1) !== 'dashboard') location.hash = 'dashboard';
-      openCreate();
+      openCreate(el('[data-launch-coin]').dataset.site);
       return;
     }
     if (el('#ldConnect')) { togglePop($('#ldConnectPop')); return; }

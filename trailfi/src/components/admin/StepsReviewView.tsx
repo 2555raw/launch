@@ -10,7 +10,8 @@ import { Modal } from "@/components/ui/Modal";
 import { EmptyState, Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/fetcher";
-import { fmtDate, fmtDateTime, fmtSteps, shortAddress } from "@/lib/format";
+import { TokenIcon } from "@/components/ui/TokenIcon";
+import { fmtAmount, fmtDate, fmtDateTime, fmtSteps, shortAddress } from "@/lib/format";
 import { PageHeader } from "./PageHeader";
 
 interface Entry {
@@ -25,6 +26,10 @@ interface Entry {
   flags: string[];
   hasProof: boolean;
   createdAt: string;
+  /** What verifying this upload pays under the current rates. */
+  payout: number;
+  /** Referral bonus released for the walker and their inviter, 0 if none. */
+  referralBonus: number;
 }
 
 const proofUrl = (id: string) => `/api/admin/steps/${id}/proof`;
@@ -32,7 +37,7 @@ const proofUrl = (id: string) => `/api/admin/steps/${id}/proof`;
 export function StepsReviewView() {
   const qc = useQueryClient();
   const [zoom, setZoom] = useState<Entry | null>(null);
-  const { data, isLoading } = useQuery({ queryKey: ["admin", "steps"], queryFn: () => api<{ entries: Entry[] }>("/api/admin/steps") });
+  const { data, isLoading } = useQuery({ queryKey: ["admin", "steps"], queryFn: () => api<{ entries: Entry[]; tokenSymbol: string }>("/api/admin/steps") });
   const review = useMutation({
     mutationFn: (v: { id: string; decision: "verified" | "rejected"; note?: string }) =>
       api(`/api/admin/steps/${v.id}`, { method: "PATCH", json: { decision: v.decision, note: v.note } }),
@@ -105,6 +110,7 @@ export function StepsReviewView() {
                 {e.verification === "flagged" && <Badge tone="amber">flagged</Badge>}
               </div>
               {e.flags.length > 0 && <div className="mt-2 text-[12px] text-amber-200/80">{e.flags.join(", ").replaceAll("_", " ")}</div>}
+              <PayoutEstimate entry={e} token={data.tokenSymbol} />
               <Link href={`/admin/users/${e.userId}`} className="mt-3 text-[12.5px] text-white/50 hover:text-lime-300">
                 Walker #{e.userShortId} · <span className="font-mono">{shortAddress(e.walletAddress)}</span> · sent {fmtDateTime(e.createdAt)}
               </Link>
@@ -141,6 +147,7 @@ export function StepsReviewView() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={proofUrl(zoom.id)} alt="Uploaded health app screenshot" className="max-h-[65vh] w-auto" />
             </div>
+            {data && <PayoutEstimate entry={zoom} token={data.tokenSymbol} />}
             <div className="mt-4 grid grid-cols-2 gap-2">
               <button
                 className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-emerald-400/30 text-sm text-emerald-300 hover:bg-emerald-400/10"
@@ -164,6 +171,27 @@ export function StepsReviewView() {
           </>
         )}
       </Modal>
+    </div>
+  );
+}
+
+/** What you would send for this upload if the photo matches. */
+function PayoutEstimate({ entry, token }: { entry: Entry; token: string }) {
+  return (
+    <div className="mt-4 rounded-2xl border border-lime-400/20 bg-lime-400/[0.06] px-4 py-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-[12.5px] text-white/60">If it matches, pay</span>
+        <span className="flex items-center gap-1.5 font-display text-xl font-bold text-lime-300 tabular">
+          <TokenIcon symbol={token} className="h-4 w-4" /> ${fmtAmount(entry.payout)}
+        </span>
+      </div>
+      {entry.payout === 0 && <div className="mt-1 text-[11.5px] text-white/40">Below the minimum to earn.</div>}
+      {entry.referralBonus > 0 && (
+        <div className="mt-1.5 text-[11.5px] leading-relaxed text-white/50">
+          First verified upload of an invited walker: also ${fmtAmount(entry.referralBonus)} to them and ${fmtAmount(entry.referralBonus)} to
+          their inviter.
+        </div>
+      )}
     </div>
   );
 }

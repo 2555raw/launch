@@ -57,7 +57,7 @@ export function SettingsView() {
   const tiers = { ...form, points: form.ratePoints };
 
   // What a day earns under the edited rates.
-  const example = [1892, 3500, 5240, 7000, 8500, 10000, 15000].map((n) => ({ steps: n, amount: tierReward(n, tiers) }));
+  const example = [791, 1500, 3000, 4500, 6000, 8000, 10000, 15000].map((n) => ({ steps: n, amount: tierReward(n, tiers) }));
 
   return (
     <div>

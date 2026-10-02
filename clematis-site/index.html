@@ -3,13 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Clematis — Swap tokenized stocks on Robinhood Chain</title>
+<title>Clematis</title>
 <meta name="description" content="Swap ETH for tokenized stocks on Robinhood Chain, straight from your wallet, routed through live Uniswap liquidity.">
 <meta name="theme-color" content="#0b1024">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Clematis">
+<meta property="og:title" content="Clematis">
+<meta property="og:description" content="Swap ETH for tokenized stocks on Robinhood Chain at live Uniswap prices, straight from your wallet.">
+<meta property="og:url" content="https://clematis.up.railway.app/">
+<meta property="og:image" content="https://clematis.up.railway.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Clematis">
+<meta name="twitter:description" content="Swap ETH for tokenized stocks on Robinhood Chain at live Uniswap prices.">
+<meta name="twitter:image" content="https://clematis.up.railway.app/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" href="data:,">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -22,6 +35,7 @@
   <nav class="side-nav" aria-label="Sections">
     <a href="#swap" data-sec="swap"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/></svg><span>Swap</span></a>
     <a href="#stocks" data-sec="stocks"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 6-6"/></svg><span>Markets</span></a>
+    <a href="#portfolio" data-sec="portfolio"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M3 13h18"/></svg><span>Portfolio</span></a>
     <a href="#how" data-sec="how"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg><span>How it works</span></a>
     <a href="#features" data-sec="features"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span>Features</span></a>
     <a href="#faq" data-sec="faq"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6V14"/><path d="M12 17h.01"/></svg><span>FAQ</span></a>
@@ -49,7 +63,7 @@
   </div>
 
   <div class="side-links">
-    <a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg><span>Block explorer</span></a>
+    <a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"/></svg><span>Robinhood Chain</span></a>
     <a href="https://x.com/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow on X</span></a>
   </div>
 </aside>
@@ -146,7 +160,7 @@
           <span class="tok-bal">Balance: <b id="recv-bal">0.0000</b></span>
         </div>
         <div class="tok-mid">
-          <input class="amt-input" id="recv-amt" readonly placeholder="0" aria-label="Estimated amount to receive">
+          <input class="amt-input" id="recv-amt" inputmode="decimal" autocomplete="off" placeholder="0" aria-label="Amount to receive">
           <button type="button" class="tok-select" id="recv-select" data-side="recv">
             <img id="recv-logo" alt="" width="32" height="32">
             <span class="tok-text"><b id="recv-sym">AAPL</b><small id="recv-sub">Apple</small></span>
@@ -192,7 +206,12 @@
     <div class="section-head reveal">
       <span class="eyebrow">Markets</span>
       <h2>Every stock with live liquidity.</h2>
-      <p>Each token below has live Uniswap liquidity on Robinhood Chain. Prices are read from the pools as the page loads, and refresh every 30 seconds.</p>
+      <p>Each stock below has live Uniswap liquidity on Robinhood Chain. Prices come straight from the pools; the 24h figures are rebuilt from every swap made on-chain in the last day. Tap a stock for its chart.</p>
+    </div>
+    <div class="movers" id="movers">
+      <div class="mover-card"><div class="mover-head"><span class="side-label">Top gainers · 24h</span></div><div class="mover-list" id="mv-up"><p class="mover-wait">Loading 24h data…</p></div></div>
+      <div class="mover-card"><div class="mover-head"><span class="side-label">Top losers · 24h</span></div><div class="mover-list" id="mv-down"><p class="mover-wait">Loading 24h data…</p></div></div>
+      <div class="mover-card"><div class="mover-head"><span class="side-label">Most traded · 24h</span></div><div class="mover-list" id="mv-vol"><p class="mover-wait">Loading 24h data…</p></div></div>
     </div>
     <div class="market reveal">
       <div class="market-bar">
@@ -206,12 +225,50 @@
         <div class="mt-head" role="row">
           <span role="columnheader">Asset</span>
           <span role="columnheader" class="mt-num">Price</span>
-          <span role="columnheader" class="mt-pool">Deepest pool</span>
+          <span role="columnheader" class="mt-num">24h</span>
+          <span role="columnheader" class="mt-num mt-vol">Volume 24h</span>
+          <span role="columnheader" class="mt-spark">Last 24h</span>
           <span role="columnheader" class="mt-act"><span class="sr-only">Trade</span></span>
         </div>
         <div id="market-rows" role="rowgroup"></div>
       </div>
       <button type="button" class="more-rows" id="market-more" hidden></button>
+    </div>
+  </section>
+
+  <section class="section" id="portfolio">
+    <div class="section-head reveal">
+      <span class="eyebrow">Portfolio</span>
+      <h2>Your stocks, at today's prices.</h2>
+      <p>Read straight from your wallet on Robinhood Chain. Nothing is stored on a server.</p>
+    </div>
+    <div class="pf reveal">
+      <div class="pf-off" id="pf-off">
+        <p>Connect your wallet to see what you hold and what it's worth.</p>
+        <button type="button" class="btn btn-primary" id="pf-connect">Connect wallet</button>
+      </div>
+      <div class="pf-on" id="pf-on" hidden>
+        <div class="pf-summary">
+          <div><span class="side-label">Total value</span><b id="pf-total">—</b></div>
+          <div><span class="side-label">In stocks</span><b id="pf-stocks">—</b></div>
+          <div><span class="side-label">ETH &amp; USDG</span><b id="pf-cash">—</b></div>
+          <div><span class="side-label">Positions</span><b id="pf-count">—</b></div>
+        </div>
+        <div class="market-table pf-table">
+          <div class="mt-head pf-row" role="row">
+            <span role="columnheader">Asset</span>
+            <span role="columnheader" class="mt-num">Balance</span>
+            <span role="columnheader" class="mt-num">Price</span>
+            <span role="columnheader" class="mt-num">Value</span>
+            <span role="columnheader" class="mt-num mt-vol">24h</span>
+          </div>
+          <div id="pf-rows"></div>
+        </div>
+      </div>
+      <div class="pf-history">
+        <div class="pf-history-head"><h3>Recent swaps</h3><span class="muted-note">Saved in this browser</span></div>
+        <div id="pf-history"><p class="market-empty">Swaps you make here will show up in this list.</p></div>
+      </div>
     </div>
   </section>
 
@@ -274,7 +331,7 @@
       <a class="social-btn social-lg" href="https://x.com/" target="_blank" rel="noopener" aria-label="Clematis on X (Twitter)"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>Follow on X</span></a>
     </div>
     <div class="foot-col"><h4>Product</h4><a href="#swap">Swap</a><a href="#stocks">Stocks</a><a href="#features">Features</a></div>
-    <div class="foot-col"><h4>Learn</h4><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noopener">Block explorer</a></div>
+    <div class="foot-col"><h4>Learn</h4><a href="#how">How it works</a><a href="#faq">FAQ</a><a href="https://robinhoodchain.blockscout.com" target="_blank" rel="noopener">Robinhood Chain explorer</a></div>
   </div>
   <div class="foot-legal">
     <p>Tokenized stocks track the price of the underlying security and are issued by third parties. Holding one is not holding the share. Not investment advice.</p>
@@ -298,6 +355,39 @@
   <div class="modal-card modal-sm">
     <div class="modal-head"><h3 id="wallet-modal-title">Connect wallet</h3><button type="button" class="icon-btn" data-close aria-label="Close">✕</button></div>
     <div class="wallet-list" id="wallet-list"></div>
+  </div>
+</div>
+
+<!-- Stock detail -->
+<div class="modal" id="asset-modal" role="dialog" aria-modal="true" aria-labelledby="as-sym" hidden>
+  <div class="modal-card asset-card">
+    <div class="modal-head">
+      <div class="as-title"><img id="as-logo" alt="" width="40" height="40"><div><h3 id="as-sym">—</h3><small id="as-name"></small></div></div>
+      <div class="as-head-actions">
+        <button type="button" class="icon-btn star-btn" id="as-star" aria-label="Add to watchlist" aria-pressed="false">☆</button>
+        <button type="button" class="icon-btn" data-close aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="as-price"><b id="as-price">—</b><span id="as-change" class="chg">—</span></div>
+    <div class="as-chart" id="as-chart"></div>
+    <div class="as-stats">
+      <div><span>24h high</span><b id="as-high">—</b></div>
+      <div><span>24h low</span><b id="as-low">—</b></div>
+      <div><span>24h volume</span><b id="as-vol">—</b></div>
+      <div><span>24h trades</span><b id="as-trades">—</b></div>
+      <div><span>Deepest pool</span><b id="as-pool">—</b></div>
+      <div><span>You hold</span><b id="as-hold">—</b></div>
+    </div>
+    <div class="as-contract">
+      <span>Contract</span>
+      <code id="as-addr">—</code>
+      <button type="button" class="copy-btn" id="as-copy">Copy</button>
+      <a id="as-explorer" target="_blank" rel="noopener">Explorer ↗</a>
+    </div>
+    <div class="as-actions">
+      <button type="button" class="btn btn-primary" id="as-buy">Buy</button>
+      <button type="button" class="btn btn-ghost" id="as-sell">Sell</button>
+    </div>
   </div>
 </div>
 

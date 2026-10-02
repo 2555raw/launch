@@ -70,6 +70,32 @@ Addresses come from `@uniswap/sdk-core` and `@uniswap/universal-router-sdk`.
 The 2.1.x router expects `minHopPriceX36` in both the v3 swap input and the v4
 swap struct; Clematis passes an empty/zero value and relies on the final minimum.
 
+## Market data and pages
+
+- **24h stats** come from `market-stats.js`, which runs inside `server.js`. Every
+  10 minutes it reads the last day of Swap events from each listed pool and
+  serves `/api/stats`: an hourly USD price line per stock (from its most-traded
+  pool), the 24h change, high, low, trade count, and volume in USD across all
+  its pools. ETH/USD comes from the USDG/WETH pools. The first build takes a few
+  minutes after boot; until then the page shows "—" in those columns. On a host
+  without the Node server the page simply goes without them.
+- **Markets**: top gainers, losers and most traded; four sector tabs plus a
+  watchlist (starred stocks, kept in the browser); each row has price, 24h
+  change, volume and a sparkline. Tapping a stock opens its detail: 24h chart,
+  high/low/volume/trades, deepest pool, your balance, contract address, Buy and
+  Sell.
+- **Portfolio**: what the connected wallet holds, valued at pool prices, with
+  each position's share and 24h change, plus the swaps made from this browser.
+- **You receive**: typing an amount there asks the quoters for the input that
+  buys it (exact-output quotes), fills in "You pay", and the swap still runs as
+  exact input.
+- **WalletConnect**: set `WALLETCONNECT_PROJECT_ID` at the top of `app.js` (a
+  free project at cloud.reown.com) and phone wallets can connect by QR code.
+  The bundle (`vendor/walletconnect.min.js`, see its NOTICE) only loads when
+  someone picks it. Without an ID, a phone with no wallet gets links to open the
+  page inside MetaMask, Coinbase Wallet or Trust Wallet instead.
+- **Sharing**: `og.png` is the link preview, `favicon.svg` the tab icon.
+
 ## Token list
 
 `tokens.js` is generated:

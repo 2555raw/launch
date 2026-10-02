@@ -32,14 +32,23 @@
   const PERMIT_SECONDS = 30 * 60;
   const ETH_GAS_RESERVE = 0.0005;
   const POOLS_PER_HOP = 3; // quote the deepest few pools on each hop
+  /* WalletConnect project ID from cloud.reown.com. Empty hides the option;
+     with one set, phone wallets can connect by QR code or deep link. */
+  const WALLETCONNECT_PROJECT_ID = '';
 
   const { ethers } = window;
   const coder = ethers.AbiCoder.defaultAbiCoder();
   const read = new ethers.JsonRpcProvider(CHAIN.rpc, CHAIN.id, { staticNetwork: true, batchMaxCount: 50 });
 
   const POOL_KEY = '(address currency0,address currency1,uint24 fee,int24 tickSpacing,address hooks)';
-  const quoterV3 = new ethers.Contract(QUOTER_V3, ['function quoteExactInput(bytes path, uint256 amountIn) returns (uint256 amountOut, uint160[] sqrtPriceX96AfterList, uint32[] initializedTicksCrossedList, uint256 gasEstimate)'], read);
-  const quoterV4 = new ethers.Contract(QUOTER_V4, [`function quoteExactInputSingle((${POOL_KEY} poolKey, bool zeroForOne, uint128 exactAmount, bytes hookData) params) returns (uint256 amountOut, uint256 gasEstimate)`], read);
+  const quoterV3 = new ethers.Contract(QUOTER_V3, [
+    'function quoteExactInput(bytes path, uint256 amountIn) returns (uint256 amountOut, uint160[] sqrtPriceX96AfterList, uint32[] initializedTicksCrossedList, uint256 gasEstimate)',
+    'function quoteExactOutput(bytes path, uint256 amountOut) returns (uint256 amountIn, uint160[] sqrtPriceX96AfterList, uint32[] initializedTicksCrossedList, uint256 gasEstimate)'
+  ], read);
+  const quoterV4 = new ethers.Contract(QUOTER_V4, [
+    `function quoteExactInputSingle((${POOL_KEY} poolKey, bool zeroForOne, uint128 exactAmount, bytes hookData) params) returns (uint256 amountOut, uint256 gasEstimate)`,
+    `function quoteExactOutputSingle((${POOL_KEY} poolKey, bool zeroForOne, uint128 exactAmount, bytes hookData) params) returns (uint256 amountIn, uint256 gasEstimate)`
+  ], read);
   const mc3 = new ethers.Contract(MULTICALL3, ['function aggregate3((address target, bool allowFailure, bytes callData)[] calls) payable returns ((bool success, bytes returnData)[])'], read);
   const erc20Iface = new ethers.Interface([
     'function balanceOf(address) view returns (uint256)',
@@ -285,6 +294,77 @@
     return { from, to, amountIn, amountOut: hops.at(-1).amountOut, hops };
   }
 
+  /* The other way round: how much `from` it takes to get `amountOut` of `to`. */
+  async function quoteHopOut(pool, from, to, amountOut) {
+    if (pool.v === 3) {
+      const path = ethers.solidityPacked(['address', 'uint24', 'address'], [v3Addr(to), pool.fee, v3Addr(from)]); // exact-out paths run backwards
+      return (await quoterV3.quoteExactOutput.staticCall(path, amountOut))[0];
+    }
+    const zeroForOne = v4Addr(from).toLowerCase() === pool.key.currency0.toLowerCase();
+    return (await quoterV4.quoteExactOutputSingle.staticCall({ poolKey: pool.key, zeroForOne, exactAmount: amountOut, hookData: '0x' }))[0];
+  }
+  async function bestHopOut(a, b, amountOut) {
+    const pools = edgePools(a, b).slice(0, POOLS_PER_HOP);
+    const ins = await Promise.allSettled(pools.map((p) => quoteHopOut(p, a, b, amountOut)));
+    let best = null;
+    for (const o of ins) if (o.status === 'fulfilled' && o.value > 0n && (best === null || o.value < best)) best = o.value;
+    return best;
+  }
+  async function bestQuoteOut(from, to, amountOut) {
+    if (from === to) throw new Error('Pick two different tokens');
+    const tries = [bestHopOut(from, to, amountOut)];
+    for (const base of BASES) {
+      if (base === from || base === to || !edgePools(from, base).length || !edgePools(base, to).length) continue;
+      tries.push((async () => {
+        const mid = await bestHopOut(base, to, amountOut);
+        return mid ? bestHopOut(from, base, mid) : null;
+      })());
+    }
+    const ins = (await Promise.allSettled(tries)).filter((r) => r.status === 'fulfilled' && r.value).map((r) => r.value);
+    if (!ins.length) throw new Error('Not enough liquidity for this amount');
+    return ins.reduce((a, b) => (b < a ? b : a));
+  }
+
+  /* Typing in "You receive" asks for the input that buys that much, fills it in
+     as "You pay", and quotes it the normal way. The swap itself is still exact
+     input, so what you pay is exactly what you see, and the minimum received is
+     protected by slippage like any other swap. */
+  let outTimer = null;
+  function requestQuoteOut(delay = 400) {
+    clearTimeout(outTimer);
+    clearTimeout(quoteTimer);
+    const id = ++state.quoteId;
+    const amountOut = parseAmount($('recv-amt').value, state.recv.decimals);
+    state.quote = null;
+    state.quoteError = null;
+    if (!amountOut) { state.quoting = false; $('pay-amt').value = ''; render(); return; }
+    state.quoting = true;
+    render();
+    outTimer = setTimeout(async () => {
+      try {
+        const need = await bestQuoteOut(state.pay, state.recv, amountOut);
+        if (id !== state.quoteId) return;
+        /* a hair over, so rounding never leaves it short of what was asked */
+        const padded = need + need / 10000n + 1n;
+        $('pay-amt').value = trimUnits(padded, state.pay.decimals);
+        const q = await bestQuote(state.pay, state.recv, padded);
+        if (id !== state.quoteId) return;
+        state.quote = q;
+      } catch (e) {
+        if (id !== state.quoteId) return;
+        state.quoteError = e.shortMessage || e.message || 'Quote failed';
+      }
+      state.quoting = false;
+      render();
+    }, delay);
+  }
+  function trimUnits(big, decimals) {
+    const s = ethers.formatUnits(big, decimals);
+    const [w, f = ''] = s.split('.');
+    const keep = f.slice(0, 8).replace(/0+$/, '');
+    return keep ? `${w}.${keep}` : w;
+  }
+
   function parseAmount(str, decimals) {
     const v = (str || '').trim();
     if (!v || !/^\d*\.?\d*$/.test(v) || v === '.') return null;
@@ -350,10 +430,35 @@
   });
   window.dispatchEvent(new Event('eip6963:requestProvider'));
 
+  const WC_ICON = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#3b99fc"/><path d="M9.6 12.1c3.5-3.4 9.2-3.4 12.8 0l.4.4c.2.2.2.4 0 .6l-1.5 1.4c-.1.1-.2.1-.3 0l-.6-.6c-2.5-2.4-6.4-2.4-8.9 0l-.6.6c-.1.1-.2.1-.3 0L9.1 13c-.2-.2-.2-.4 0-.6zm15.8 2.9l1.3 1.3c.2.2.2.4 0 .6l-5.9 5.8c-.2.2-.4.2-.6 0l-4.2-4.1h-.2l-4.2 4.1c-.2.2-.4.2-.6 0l-5.9-5.8c-.2-.2-.2-.4 0-.6L6.4 15c.2-.2.4-.2.6 0l4.2 4.1h.2l4.2-4.1c.2-.2.4-.2.6 0l4.2 4.1h.2l4.2-4.1c.2-.2.4-.2.6 0z" fill="#fff"/></svg>');
   function walletChoices() {
     const list = [...wallets.values()];
     if (!list.length && window.ethereum) list.push({ info: { name: 'Browser wallet', rdns: 'injected', icon: '' }, provider: window.ethereum });
+    if (WALLETCONNECT_PROJECT_ID) list.push({ info: { name: 'WalletConnect · phone wallets', rdns: 'walletconnect', icon: WC_ICON }, provider: null, lazy: true });
     return list;
+  }
+
+  /* WalletConnect's code is large, so it only loads when someone picks it */
+  let wcProvider = null;
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('Could not load ' + src));
+      document.head.append(s);
+    });
+  }
+  async function walletConnectProvider() {
+    if (wcProvider) return wcProvider;
+    if (!window.WalletConnectEthereumProvider) await loadScript('vendor/walletconnect.min.js');
+    wcProvider = await window.WalletConnectEthereumProvider.init({
+      projectId: WALLETCONNECT_PROJECT_ID,
+      chains: [CHAIN.id],
+      showQrModal: true,
+      rpcMap: { [CHAIN.id]: CHAIN.rpc },
+      metadata: { name: BRAND, description: 'Swap tokenized stocks on Robinhood Chain', url: location.origin, icons: [] }
+    });
+    wcProvider.on('disconnect', () => onAccounts([]));
+    return wcProvider;
   }
 
   function openWalletModal() {
@@ -405,6 +510,11 @@
   async function connect(w) {
     closeModal('wallet-modal');
     try {
+      if (w.lazy) {
+        const provider = await walletConnectProvider();
+        if (!provider.session) await provider.connect();
+        w = { info: w.info, provider };
+      }
       const accounts = await w.provider.request({ method: 'eth_requestAccounts' });
       attachWallet(w, accounts[0]);
       try { localStorage.setItem('clematis.wallet', w.info.rdns || 'injected'); } catch { /* ignore */ }
@@ -474,8 +584,15 @@
     let last = null;
     try { last = localStorage.getItem('clematis.wallet'); } catch { /* ignore */ }
     if (!last) return;
-    const w = walletChoices().find((x) => (x.info.rdns || 'injected') === last);
+    let w = walletChoices().find((x) => (x.info.rdns || 'injected') === last);
     if (!w) return;
+    if (w.lazy) {
+      try {
+        const provider = await walletConnectProvider();
+        if (!provider.session) return;
+        w = { info: w.info, provider };
+      } catch { return; }
+    }
     try {
       const accs = await w.provider.request({ method: 'eth_accounts' });
       if (accs && accs[0]) attachWallet(w, accs[0]);
@@ -483,7 +600,7 @@
   }, 400);
 
   async function refreshBalances() {
-    if (!state.account) { render(); return; }
+    if (!state.account) { render(); renderPortfolio(); return; }
     const acct = state.account;
     try {
       const [eth, results] = await Promise.all([
@@ -500,6 +617,8 @@
       console.warn('balance refresh failed', e);
     }
     render();
+    renderPortfolio();
+    if (assetOpen) renderAsset();
   }
   const balanceOf = (t) => state.balances.get(t.symbol) ?? null;
 
@@ -684,10 +803,12 @@
       progress('Confirm in your wallet', `${from.native ? '' : 'Last step — '}swap ${fmtAmount(d.inNum)} ${from.symbol} for at least ${fmtAmount(toNum(minOut, to.decimals))} ${to.symbol}.`);
       const sent = await send(signer, tx);
       hash = sent.hash;
+      saveSwap({ time: Date.now(), hash, from: from.symbol, to: to.symbol, inAmount: fmtAmount(d.inNum), outAmount: fmtAmount(d.outNum), status: 'submitted' });
       progress('Swap submitted', `Waiting for ${CHAIN.name} to confirm it…`);
       const rc = await read.waitForTransaction(hash, 1, 180000);
       if (!rc || rc.status !== 1) throw Object.assign(new Error('The swap reverted on-chain, most likely because the price moved past your slippage limit. Your tokens were not swapped.'), { reverted: true });
 
+      saveSwap({ time: Date.now(), hash, from: from.symbol, to: to.symbol, inAmount: fmtAmount(d.inNum), outAmount: fmtAmount(d.outNum), status: 'confirmed' });
       showTxStep('done');
       $('tx-title').textContent = 'Done';
       $('tx-done-desc').textContent = `You swapped ${fmtAmount(d.inNum)} ${from.symbol} for about ${fmtAmount(d.outNum)} ${to.symbol}.`;
@@ -760,8 +881,9 @@
     const recvInput = $('recv-amt');
     recvInput.classList.toggle('loading', state.quoting);
     const d = quote ? quoteDetails(quote) : null;
-    if (d) recvInput.value = fmtAmount(d.outNum).replace(/,/g, '');
-    else if (!state.quoting) recvInput.value = '';
+    const typingOut = document.activeElement === recvInput;
+    if (d && !typingOut) recvInput.value = fmtAmount(d.outNum).replace(/,/g, '');
+    else if (!d && !state.quoting && !typingOut) recvInput.value = '';
     const uOut = priceUsd(recv);
     $('recv-usd').textContent = d && uOut !== null ? fmtUsd(d.outNum * uOut) : (uOut !== null ? fmtUsd(0) : '—');
 
@@ -870,8 +992,84 @@
     $('stock-count').textContent = STOCKS.length;
   }
 
+  /* ---------------- 24h stats ---------------- */
+
+  /* The server rebuilds 24h prices and volume from on-chain swaps (see
+     market-stats.js). On a static host there is no /api/stats, and the page
+     simply goes without the 24h columns. */
+  state.stats = null;
+  async function refreshStats() {
+    try {
+      const res = await fetch('api/stats', { cache: 'no-store' });
+      if (res.status === 503) { setTimeout(refreshStats, 30000); return; }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      if (data && data.tokens) state.stats = data;
+    } catch {
+      document.body.classList.add('no-stats');
+    }
+    renderStats();
+  }
+  const statOf = (t) => (state.stats && state.stats.tokens[t.symbol]) || null;
+  function fmtPct(x) {
+    if (x === null || x === undefined || !isFinite(x)) return '—';
+    const v = x * 100;
+    return (v > 0 ? '+' : '') + v.toFixed(Math.abs(v) < 10 ? 2 : 1) + '%';
+  }
+  function fmtCompactUsd(x) {
+    if (x === null || x === undefined || !isFinite(x)) return '—';
+    if (x >= 1e9) return '$' + (x / 1e9).toFixed(2) + 'B';
+    if (x >= 1e6) return '$' + (x / 1e6).toFixed(2) + 'M';
+    if (x >= 1e3) return '$' + (x / 1e3).toFixed(1) + 'K';
+    return '$' + x.toFixed(0);
+  }
+  const chgClass = (x) => (x > 0.00005 ? 'chg up' : x < -0.00005 ? 'chg down' : 'chg');
+
+  /* a small line chart: hourly points, coloured by direction */
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  function sparkline(values, w, h, change) {
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    svg.setAttribute('width', w);
+    svg.setAttribute('height', h);
+    svg.setAttribute('aria-hidden', 'true');
+    svg.classList.add('spark', change > 0.00005 ? 'up' : change < -0.00005 ? 'down' : 'flat');
+    const pts = (values || []).filter((v) => v != null && isFinite(v));
+    if (pts.length < 2) return svg;
+    const lo = Math.min(...pts), hi = Math.max(...pts);
+    const span = hi - lo || hi * 0.001 || 1;
+    const xy = pts.map((v, i) => [(i / (pts.length - 1)) * w, h - 2 - ((v - lo) / span) * (h - 4)]);
+    const line = document.createElementNS(SVG_NS, 'polyline');
+    line.setAttribute('points', xy.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' '));
+    svg.append(line);
+    return svg;
+  }
+
+  /* ---------------- watchlist ---------------- */
+
+  const watch = new Set();
+  try { JSON.parse(localStorage.getItem('clematis.watchlist') || '[]').forEach((s) => watch.add(s)); } catch { /* storage may be blocked */ }
+  function toggleWatch(t) {
+    if (watch.has(t.symbol)) watch.delete(t.symbol); else watch.add(t.symbol);
+    try { localStorage.setItem('clematis.watchlist', JSON.stringify([...watch])); } catch { /* ignore */ }
+    buildMarketTabs();
+    buildMarket();
+    if (assetOpen === t) renderAsset();
+  }
+  function starButton(t) {
+    const b = el('button', 'star-btn' + (watch.has(t.symbol) ? ' on' : ''), watch.has(t.symbol) ? '★' : '☆');
+    b.type = 'button';
+    b.setAttribute('aria-label', (watch.has(t.symbol) ? 'Remove ' : 'Add ') + t.symbol + (watch.has(t.symbol) ? ' from' : ' to') + ' watchlist');
+    b.setAttribute('aria-pressed', String(watch.has(t.symbol)));
+    b.addEventListener('click', (e) => { e.stopPropagation(); toggleWatch(t); });
+    return b;
+  }
+
+  /* ---------------- markets ---------------- */
+
   /* The market list is split into four sectors; anything not named below lands
-     in the last one, so a newly listed stock still shows up. */
+     in the last one, so a newly listed stock still shows up. The watchlist is a
+     fifth tab of the stocks you starred. */
   const SECTORS = [
     { id: 'tech', label: 'Tech & Software', symbols: 'AAPL ADBE AMZN APP BB CRM CTSH DDOG FIG GOOGL IBM META MSFT NET NFLX ORCL PLTR RBLX RDDT SHOP SNAP SNOW TTD TTWO WDAY ZM' },
     { id: 'chips', label: 'Chips & AI', symbols: 'AMD APLD ASML AVGO CRWV DELL INTC IREN LITE MRVL MU NBIS NVDA ON PENG POET QCOM QUBT SKHY SNDK TSM WULF WYFI' },
@@ -889,13 +1087,14 @@
 
   function buildMarketTabs() {
     const tabs = $('market-tabs');
-    tabs.replaceChildren(...SECTORS.map((sec) => {
-      const n = STOCKS.filter((t) => sectorOf(t) === sec.id).length;
-      const b = el('button', 'tab');
+    const all = [...SECTORS.map((sec) => ({ id: sec.id, label: sec.label, n: STOCKS.filter((t) => sectorOf(t) === sec.id).length })),
+      { id: 'watch', label: '★ Watchlist', n: STOCKS.filter((t) => watch.has(t.symbol)).length }];
+    tabs.replaceChildren(...all.map((sec) => {
+      const b = el('button', 'tab' + (sec.id === 'watch' ? ' tab-watch' : ''));
       b.type = 'button';
       b.setAttribute('role', 'tab');
       b.dataset.sector = sec.id;
-      b.append(el('span', null, sec.label), el('small', null, String(n)));
+      b.append(el('span', null, sec.label), el('small', null, String(sec.n)));
       b.addEventListener('click', () => {
         market.sector = sec.id;
         market.expanded = false;
@@ -906,12 +1105,28 @@
     }));
   }
 
+  function tradeButton(t, label = 'Trade') {
+    const btn = el('button', 'trade-btn', label);
+    btn.type = 'button';
+    btn.setAttribute('aria-label', `Trade ${t.symbol}`);
+    btn.addEventListener('click', (e) => { e.stopPropagation(); goTrade(t, 'buy'); });
+    return btn;
+  }
+  function goTrade(t, side) {
+    if (side === 'sell') { state.pay = t; state.recv = ETH; requestQuote(0); }
+    else { if (state.pay === t) state.pay = ETH; selectToken('recv', t); }
+    closeModal('asset-modal');
+    $('swap').scrollIntoView({ behavior: 'smooth' });
+  }
+
   function buildMarket() {
     const q = $('market-search').value.trim().toLowerCase();
     /* a search looks across every sector */
     const all = q
       ? STOCKS.filter((t) => t.symbol.toLowerCase().includes(q) || t.name.toLowerCase().includes(q))
-      : STOCKS.filter((t) => sectorOf(t) === market.sector);
+      : market.sector === 'watch'
+        ? STOCKS.filter((t) => watch.has(t.symbol))
+        : STOCKS.filter((t) => sectorOf(t) === market.sector);
     document.querySelectorAll('#market-tabs .tab').forEach((b) => {
       const on = !q && b.dataset.sector === market.sector;
       b.classList.toggle('on', on);
@@ -920,32 +1135,34 @@
     const rows = $('market-rows');
     const more = $('market-more');
     if (!all.length) {
-      rows.replaceChildren(el('p', 'market-empty', 'No stock matches that search.'));
+      rows.replaceChildren(el('p', 'market-empty', market.sector === 'watch' && !q
+        ? 'Your watchlist is empty. Tap the ☆ next to any stock to keep it here.'
+        : 'No stock matches that search.'));
       more.hidden = true;
       return;
     }
     const shown = q || market.expanded ? all : all.slice(0, ROWS_FOLDED);
     rows.replaceChildren(...shown.map((t) => {
+      const st = statOf(t);
       const row = el('div', 'mt-row');
       row.setAttribute('role', 'row');
+      row.tabIndex = 0;
+      row.setAttribute('aria-label', `${t.symbol}, ${t.name}: open chart and details`);
       const asset = el('span', 'mt-asset');
       const text = el('span', 'mkt-text');
       text.append(el('b', null, t.symbol), el('small', null, t.name));
-      asset.append(logoImg(t), text);
+      asset.append(starButton(t), logoImg(t), text);
       const px = el('span', 'mt-num', '—');
       px.dataset.price = t.symbol;
-      const pool = el('span', 'mt-pool', poolLabel(t));
+      const chg = el('span', 'mt-num ' + (st ? chgClass(st.change24h) : 'chg'), st ? fmtPct(st.change24h) : '—');
+      const vol = el('span', 'mt-num mt-vol', st ? fmtCompactUsd(st.volume24h) : '—');
+      const spark = el('span', 'mt-spark');
+      if (st && st.spark) spark.append(sparkline(st.spark, 96, 30, st.change24h));
       const act = el('span', 'mt-act');
-      const btn = el('button', 'trade-btn', 'Trade');
-      btn.type = 'button';
-      btn.setAttribute('aria-label', `Trade ${t.symbol}`);
-      btn.addEventListener('click', () => {
-        if (state.pay === t) state.pay = ETH;
-        selectToken('recv', t);
-        $('swap').scrollIntoView({ behavior: 'smooth' });
-      });
-      act.append(btn);
-      row.append(asset, px, pool, act);
+      act.append(tradeButton(t));
+      row.append(asset, px, chg, vol, spark, act);
+      row.addEventListener('click', () => openAsset(t));
+      row.addEventListener('keydown', (e) => { if (e.key === 'Enter') openAsset(t); });
       return row;
     }));
     more.hidden = !!q || all.length <= ROWS_FOLDED;
@@ -957,6 +1174,190 @@
     buildMarket();
     if (!market.expanded) $('stocks').scrollIntoView({ behavior: 'smooth' });
   });
+
+  /* top gainers, losers and most traded, from the 24h stats */
+  function buildMovers() {
+    const rows = STOCKS.map((t) => ({ t, st: statOf(t) })).filter((r) => r.st && r.st.trades24h > 0);
+    const fill = (id, list, value) => {
+      const box = $(id);
+      if (!list.length) { box.replaceChildren(el('p', 'mover-wait', state.stats ? 'No trades in the last 24h.' : 'Loading 24h data…')); return; }
+      box.replaceChildren(...list.map(({ t, st }) => {
+        const b = el('button', 'mover');
+        b.type = 'button';
+        const text = el('span', 'mkt-text');
+        text.append(el('b', null, t.symbol), el('small', null, t.name));
+        const right = el('span', 'mover-val');
+        const px = el('span', 'mover-px', '—'); px.dataset.price = t.symbol;
+        right.append(px, value(st));
+        b.append(logoImg(t), text, right);
+        b.addEventListener('click', () => openAsset(t));
+        return b;
+      }));
+    };
+    const byChange = rows.slice().sort((a, b) => b.st.change24h - a.st.change24h);
+    fill('mv-up', byChange.filter((r) => r.st.change24h > 0).slice(0, 4), (st) => el('span', chgClass(st.change24h), fmtPct(st.change24h)));
+    fill('mv-down', byChange.filter((r) => r.st.change24h < 0).reverse().slice(0, 4), (st) => el('span', chgClass(st.change24h), fmtPct(st.change24h)));
+    fill('mv-vol', rows.slice().sort((a, b) => b.st.volume24h - a.st.volume24h).slice(0, 4), (st) => el('span', 'chg', fmtCompactUsd(st.volume24h)));
+  }
+
+  function renderStats() {
+    buildMovers();
+    buildMarket();
+    renderPortfolio();
+    if (assetOpen) renderAsset();
+  }
+
+  /* ---------------- stock detail ---------------- */
+
+  let assetOpen = null;
+  function openAsset(t) {
+    assetOpen = t;
+    renderAsset();
+    openModal('asset-modal');
+  }
+  function renderAsset() {
+    const t = assetOpen;
+    if (!t) return;
+    const st = statOf(t);
+    setLogo($('as-logo'), t);
+    $('as-sym').textContent = t.symbol;
+    $('as-name').textContent = t.name;
+    const star = $('as-star');
+    star.textContent = watch.has(t.symbol) ? '★' : '☆';
+    star.classList.toggle('on', watch.has(t.symbol));
+    star.setAttribute('aria-pressed', String(watch.has(t.symbol)));
+    const u = priceUsd(t);
+    $('as-price').textContent = u !== null ? fmtUsd(u) : '—';
+    const chg = $('as-change');
+    chg.textContent = st ? fmtPct(st.change24h) + ' today' : '24h data loading…';
+    chg.className = st ? chgClass(st.change24h) : 'chg';
+    $('as-high').textContent = st && st.high24h ? fmtUsd(st.high24h) : '—';
+    $('as-low').textContent = st && st.low24h ? fmtUsd(st.low24h) : '—';
+    $('as-vol').textContent = st ? fmtCompactUsd(st.volume24h) : '—';
+    $('as-trades').textContent = st ? st.trades24h.toLocaleString('en-US') : '—';
+    $('as-pool').textContent = poolLabel(t);
+    const bal = balanceOf(t);
+    $('as-hold').textContent = !state.account ? 'Connect wallet' : bal === null ? '…' : `${fmtAmount(toNum(bal, t.decimals))} ${t.symbol}`;
+    $('as-addr').textContent = shortAddr(t.address);
+    $('as-addr').title = t.address;
+    $('as-explorer').href = `${CHAIN.explorer}/token/${t.address}`;
+    $('as-sell').disabled = !(bal && bal > 0n);
+    drawChart($('as-chart'), st);
+  }
+  /* the 24h chart: area under the hourly line, with the range on the left and
+     the time along the bottom */
+  function drawChart(box, st) {
+    box.replaceChildren();
+    const pts = st && st.spark ? st.spark.filter((v) => v != null) : [];
+    if (pts.length < 2) { box.append(el('p', 'mover-wait', state.stats ? 'No trades in the last 24h.' : 'Loading 24h chart…')); return; }
+    const W = 560, H = 200, L = 58, R = 8, T = 10, B = 26;
+    const lo = Math.min(...pts), hi = Math.max(...pts), span = hi - lo || hi * 0.001 || 1;
+    const x = (i) => L + (i / (pts.length - 1)) * (W - L - R);
+    const y = (v) => T + (1 - (v - lo) / span) * (H - T - B);
+    const svg = document.createElementNS(SVG_NS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('role', 'img');
+    svg.setAttribute('aria-label', `${assetOpen ? assetOpen.symbol : ''} price over the last 24 hours, from ${fmtUsd(pts[0])} to ${fmtUsd(pts[pts.length - 1])}`);
+    svg.classList.add('chart', st.change24h > 0.00005 ? 'up' : st.change24h < -0.00005 ? 'down' : 'flat');
+    const mk = (tag, attrs, text) => { const n = document.createElementNS(SVG_NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (text) n.textContent = text; svg.append(n); return n; };
+    for (const v of [hi, (hi + lo) / 2, lo]) {
+      mk('line', { x1: L, x2: W - R, y1: y(v), y2: y(v), class: 'grid' });
+      mk('text', { x: L - 8, y: y(v) + 4, 'text-anchor': 'end', class: 'axis' }, fmtUsd(v));
+    }
+    [['24h ago', 0, 'start'], ['12h', (pts.length - 1) / 2, 'middle'], ['now', pts.length - 1, 'end']].forEach(([label, i, anchor]) => mk('text', { x: x(i), y: H - 6, 'text-anchor': anchor, class: 'axis' }, label));
+    const line = pts.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+    mk('polygon', { points: `${x(0)},${H - B} ${line} ${x(pts.length - 1)},${H - B}`, class: 'area' });
+    mk('polyline', { points: line, class: 'line' });
+    mk('circle', { cx: x(pts.length - 1), cy: y(pts[pts.length - 1]), r: 4, class: 'dot' });
+    box.append(svg);
+  }
+  $('as-star').addEventListener('click', () => assetOpen && toggleWatch(assetOpen));
+  $('as-buy').addEventListener('click', () => assetOpen && goTrade(assetOpen, 'buy'));
+  $('as-sell').addEventListener('click', () => assetOpen && goTrade(assetOpen, 'sell'));
+  $('as-copy').addEventListener('click', async () => {
+    if (!assetOpen) return;
+    try { await navigator.clipboard.writeText(assetOpen.address); toast('Contract address copied'); }
+    catch { toast(assetOpen.address); }
+  });
+
+  /* ---------------- portfolio & history ---------------- */
+
+  const historyKey = () => 'clematis.history.' + (state.account || '').toLowerCase();
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(historyKey()) || '[]'); } catch { return []; }
+  }
+  function saveSwap(entry) {
+    if (!state.account) return;
+    const list = loadHistory().filter((h) => h.hash !== entry.hash);
+    list.unshift(entry);
+    try { localStorage.setItem(historyKey(), JSON.stringify(list.slice(0, 30))); } catch { /* ignore */ }
+    renderPortfolio();
+  }
+
+  function renderPortfolio() {
+    const on = !!state.account;
+    $('pf-off').hidden = on;
+    $('pf-on').hidden = !on;
+    // history
+    const hist = on ? loadHistory() : [];
+    const hbox = $('pf-history');
+    if (!hist.length) hbox.replaceChildren(el('p', 'market-empty', on ? 'Swaps you make here will show up in this list.' : 'Connect your wallet to see the swaps you made here.'));
+    else hbox.replaceChildren(...hist.map((h) => {
+      const row = el('a', 'hist-row');
+      row.href = `${CHAIN.explorer}/tx/${h.hash}`;
+      row.target = '_blank';
+      row.rel = 'noopener';
+      const when = new Date(h.time);
+      const left = el('span', 'hist-main');
+      left.append(el('b', null, `${h.inAmount} ${h.from} → ${h.outAmount} ${h.to}`), el('small', null, when.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })));
+      row.append(left, el('span', 'hist-status ' + (h.status === 'confirmed' ? 'ok' : 'pending'), h.status === 'confirmed' ? 'Confirmed' : 'Submitted'), el('span', 'hist-link', 'View ↗'));
+      return row;
+    }));
+    if (!on) return;
+    const held = [ETH, ...(USDG ? [USDG] : []), ...STOCKS]
+      .map((t) => {
+        const bal = balanceOf(t);
+        const amount = bal ? toNum(bal, t.decimals) : 0;
+        const px = priceUsd(t);
+        return { t, amount, px, value: px !== null ? amount * px : null };
+      })
+      .filter((r) => r.amount > 0);
+    const stockRows = held.filter((r) => r.t.stock).sort((a, b) => (b.value || 0) - (a.value || 0));
+    const cash = held.filter((r) => !r.t.stock);
+    const sum = (rows) => rows.reduce((n, r) => n + (r.value || 0), 0);
+    const total = sum(held);
+    $('pf-total').textContent = state.balances.size ? fmtUsd(total) : '…';
+    $('pf-stocks').textContent = state.balances.size ? fmtUsd(sum(stockRows)) : '…';
+    $('pf-cash').textContent = state.balances.size ? fmtUsd(sum(cash)) : '…';
+    $('pf-count').textContent = state.balances.size ? String(stockRows.length) : '…';
+    const rows = $('pf-rows');
+    const list = [...stockRows, ...cash];
+    if (!list.length) {
+      rows.replaceChildren(el('p', 'market-empty', state.balances.size ? 'No stocks in this wallet yet. Pick one in Markets or swap above.' : 'Reading your balances…'));
+      return;
+    }
+    rows.replaceChildren(...list.map((r) => {
+      const st = r.t.stock ? statOf(r.t) : null;
+      const row = el('div', 'mt-row pf-row');
+      const asset = el('span', 'mt-asset');
+      const text = el('span', 'mkt-text');
+      text.append(el('b', null, r.t.symbol), el('small', null, r.t.name));
+      asset.append(logoImg(r.t), text);
+      const share = total > 0 && r.value ? r.value / total : 0;
+      const bar = el('span', 'pf-share');
+      const fillBar = el('i'); fillBar.style.width = (share * 100).toFixed(1) + '%';
+      bar.append(fillBar);
+      text.append(bar);
+      row.append(asset,
+        el('span', 'mt-num', fmtAmount(r.amount)),
+        el('span', 'mt-num', r.px !== null ? fmtUsd(r.px) : '—'),
+        el('span', 'mt-num', r.value !== null ? fmtUsd(r.value) : '—'),
+        el('span', 'mt-num mt-vol ' + (st ? chgClass(st.change24h) : 'chg'), st ? fmtPct(st.change24h) : '—'));
+      if (r.t.stock) { row.tabIndex = 0; row.addEventListener('click', () => openAsset(r.t)); }
+      return row;
+    }));
+  }
+  $('pf-connect').addEventListener('click', () => openWalletModal());
 
   /* Scrolling strip of live prices under the hero. The list is laid out twice so
      the loop has no seam. */
@@ -1037,6 +1438,7 @@
   }
   function closeModal(id) {
     $(id).hidden = true;
+    if (id === 'asset-modal') assetOpen = null;
     if (lastFocus && lastFocus.focus) lastFocus.focus();
   }
   document.querySelectorAll('.modal').forEach((m) => {
@@ -1071,6 +1473,13 @@
     if (i !== -1) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '');
     e.target.value = v;
     requestQuote();
+  });
+  $('recv-amt').addEventListener('input', (e) => {
+    let v = e.target.value.replace(',', '.').replace(/[^0-9.]/g, '');
+    const i = v.indexOf('.');
+    if (i !== -1) v = v.slice(0, i + 1) + v.slice(i + 1).replace(/\./g, '');
+    e.target.value = v;
+    requestQuoteOut();
   });
   $('pay-select').addEventListener('click', () => openPicker('pay'));
   $('recv-select').addEventListener('click', () => openPicker('recv'));
@@ -1157,7 +1566,7 @@
   const navIo = new IntersectionObserver((entries) => entries.forEach((e) => {
     if (e.isIntersecting) navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
   }), { rootMargin: '-45% 0px -50% 0px' });
-  ['swap', 'stocks', 'how', 'features', 'faq'].forEach((id) => $(id) && navIo.observe($(id)));
+  ['swap', 'stocks', 'portfolio', 'how', 'features', 'faq'].forEach((id) => $(id) && navIo.observe($(id)));
 
   /* ---------------- start ---------------- */
 
@@ -1167,7 +1576,7 @@
     window.clematisSim = { tokens: TOKENS, bestQuote, quoteHop, edgePools, quoteDetails, buildPlan, addresses: { UNIVERSAL_ROUTER, PERMIT2, CHAIN_ID: CHAIN.id } };
   }
 
-  document.title = `${BRAND} — Swap tokenized stocks on ${CHAIN.name}`;
+  document.title = BRAND;
   $('stat-stocks').textContent = STOCKS.length;
   $('side-count').textContent = STOCKS.length;
   refreshBlock();
@@ -1177,6 +1586,10 @@
   buildTape();
   buildMarketTabs();
   buildMarket();
+  buildMovers();
+  renderPortfolio();
+  refreshStats();
+  setInterval(() => { if (!document.hidden) refreshStats(); }, 5 * 60 * 1000);
   render();
   requestQuote(0);
   refreshPrices();

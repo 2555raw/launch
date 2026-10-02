@@ -153,11 +153,20 @@
 
   const b64 = (bytes) => { let s = ''; bytes.forEach((b) => { s += String.fromCharCode(b); }); return btoa(s); };
 
-  const sendAndConfirm = async (tx, step) => {
-    step('Sending transaction');
-    /* 'processed': PumpPortal's blockhash is seconds old, and a 'confirmed' preflight
-       rejects it as unknown (BlockhashNotFound) on most RPC nodes. */
-    const sig = await solRpc('sendTransaction', [b64(tx.serialize()), { encoding: 'base64', preflightCommitment: 'processed', maxRetries: 5 }]);
+  /* Phantom warns "This dApp could be malicious" when it can't simulate a transaction or the
+     simulation fails. Every transaction is simulated here first (no signatures needed), so one
+     that would fail — not enough SOL, slippage — never reaches the wallet. */
+  const preflight = async (tx) => {
+    const r = await solRpc('simulateTransaction', [b64(tx.serialize()), { encoding: 'base64', sigVerify: false, replaceRecentBlockhash: true, commitment: 'processed' }]);
+    const v = r?.value;
+    if (!v?.err) return;
+    const text = `${JSON.stringify(v.err)} ${(v.logs || []).join(' ')}`;
+    if (/insufficient (funds|lamports)|prior credit|AccountNotFound|"Custom":1\b/i.test(text)) throw new Error('Not enough SOL in the wallet for this transaction');
+    if (/slippage|TooMuchSolRequired|TooLittleSolReceived|0x1771|0x1772/i.test(text)) throw new Error('Price moved past your slippage — raise slippage and retry');
+    throw new Error(`This transaction would fail on-chain (${JSON.stringify(v.err).slice(0, 120)}), so it was not sent to your wallet`);
+  };
+
+  const confirm = async (sig, step) => {
     step('Waiting for confirmation');
     const until = Date.now() + 90000;
     while (Date.now() < until) {
@@ -167,6 +176,28 @@
       if (st && (st.confirmationStatus === 'confirmed' || st.confirmationStatus === 'finalized')) return sig;
     }
     throw Object.assign(new Error('Not confirmed after 90 s — check the explorer before retrying'), { signature: sig });
+  };
+
+  const sendAndConfirm = async (tx, step) => {
+    step('Sending transaction');
+    /* 'processed': PumpPortal's blockhash is seconds old, and a 'confirmed' preflight
+       rejects it as unknown (BlockhashNotFound) on most RPC nodes. */
+    const sig = await solRpc('sendTransaction', [b64(tx.serialize()), { encoding: 'base64', preflightCommitment: 'processed', maxRetries: 5 }]);
+    return confirm(sig, step);
+  };
+
+  /* A transaction only the wallet signs goes through signAndSendTransaction, as Phantom asks:
+     the wallet simulates, signs and sends it itself. Wallets without it sign, and we send. */
+  const walletSend = async (tx, step) => {
+    const p = solProvider();
+    if (typeof p?.signAndSendTransaction !== 'function') return sendAndConfirm(await walletSign(tx), step);
+    let sig;
+    try {
+      ({ signature: sig } = await p.signAndSendTransaction(tx, { preflightCommitment: 'processed', maxRetries: 5 }));
+    } catch (e) {
+      throw new Error(e?.code === 4001 ? 'Rejected in the wallet' : (e?.message || 'Wallet could not send the transaction'));
+    }
+    return confirm(sig, step);
   };
 
   const walletSign = async (tx) => {
@@ -193,9 +224,11 @@
       name: opts.name, symbol: opts.symbol, uri, amount: opts.devBuy, slippage: opts.slippage, priorityFee: opts.priorityFee
     });
     const tx = web3.VersionedTransaction.deserialize(new Uint8Array(bytes));
+    step('Checking the transaction');
+    await preflight(tx);
     step('Approve the launch in your wallet');
     const signed = await walletSign(tx);
-    signed.sign([mint]);   // after the wallet, so the mint signs exactly what will be sent
+    signed.sign([mint]);   // after the wallet, as Phantom asks for multi-signer transactions
     const signature = await sendAndConfirm(signed, step);
     return { address: mint.publicKey.toBase58(), signature, owner: sol.address, image };
   };
@@ -206,9 +239,9 @@
     step('Building the sell transaction');
     const bytes = await postJson('/api/pump/sell', { publicKey: sol.address, mint: mintAddr, percent });
     const tx = web3.VersionedTransaction.deserialize(new Uint8Array(bytes));
+    await preflight(tx);
     step('Approve the sale in your wallet');
-    const signed = await walletSign(tx);
-    return sendAndConfirm(signed, step);
+    return walletSend(tx, step);
   };
 
   /* ---------- EVM deploy ---------- */
@@ -355,8 +388,9 @@
       bytes = new Uint8Array(await postJson('/api/sol/trade', body));
     }
     const tx = web3.VersionedTransaction.deserialize(bytes);
+    await preflight(tx);
     step('Approve in your wallet');
-    return sendAndConfirm(await walletSign(tx), step);
+    return walletSend(tx, step);
   };
 
   const NATIVE = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';

@@ -714,25 +714,20 @@ img.logo { width: 16px; height: 16px; border-radius: 50%; flex: none; object-fit
 .ld-pads span { display: inline-flex; align-items: center; gap: 7px; }
 .ld-pads img { width: 18px; height: 18px; border-radius: 50%; }
 
-/* floating logo orbs */
+/* floating logos */
 .ld-orbs { position: absolute; top: 0; bottom: 0; left: -70px; right: -70px; pointer-events: none; }
 .orb {
   position: absolute; left: var(--x); top: var(--y);
-  width: 74px; height: 74px; margin: -37px 0 0 -37px; border-radius: 50%;
-  display: grid; place-items: center;
-  background: radial-gradient(circle at 32% 28%, #ffffff, #e9edf3 55%, #cfd6e0);
-  box-shadow:
-    0 0 0 5px color-mix(in srgb, var(--ring) 85%, #fff),
-    0 0 0 6px color-mix(in srgb, var(--ring) 60%, #000),
-    0 18px 30px rgba(0, 0, 0, .35),
-    inset 0 -6px 12px rgba(0, 0, 0, .12);
+  width: 96px; height: 96px; margin: -48px 0 0 -48px; object-fit: contain;
+  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, .35));
   animation: orb-float 7s ease-in-out infinite;
   animation-delay: var(--d);
 }
-.orb img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+[data-theme^="light"] .orb { filter: drop-shadow(0 14px 18px rgba(20, 24, 40, .18)); }
+[data-theme^="light"] .orb-arc { filter: invert(1) drop-shadow(0 14px 18px rgba(20, 24, 40, .18)); }
 @keyframes orb-float {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
-  50% { transform: translate3d(0, -14px, 0) rotate(4deg); }
+  50% { transform: translate3d(0, -16px, 0) rotate(5deg); }
 }
 
 /* hot right now */
@@ -772,8 +767,7 @@ img.logo { width: 16px; height: 16px; border-radius: 50%; flex: none; object-fit
 @media (max-width: 1100px) {
   .ld-cards { grid-template-columns: repeat(3, 1fr); }
   .ld-links { display: none; }
-  .orb { width: 58px; height: 58px; margin: -29px 0 0 -29px; }
-  .orb img { width: 34px; height: 34px; }
+  .orb { width: 72px; height: 72px; margin: -36px 0 0 -36px; }
 }
 @media (max-width: 680px) {
   .ld-nav { padding: 16px; gap: 10px; }
@@ -783,8 +777,6 @@ img.logo { width: 16px; height: 16px; border-radius: 50%; flex: none; object-fit
   .ld-hot { padding: 10px 16px 40px; }
   .ld-hero { padding-top: 4vh; }
   .ld-orbs { position: static; display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin: 0 auto 30px; max-width: 300px; }
-  .orb { position: relative; left: auto; top: auto; margin: 0; width: 46px; height: 46px;
-    box-shadow: 0 0 0 3px var(--ring), 0 10px 18px rgba(0, 0, 0, .3); }
-  .orb img { width: 28px; height: 28px; }
+  .orb { position: relative; left: auto; top: auto; margin: 0; width: 46px; height: 46px; }
 }
 @media (prefers-reduced-motion: reduce) { .orb { animation: none; } }

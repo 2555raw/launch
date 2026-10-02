@@ -64,6 +64,7 @@ contracts/VelaToken.sol   fixed-supply ERC-20: all minted to the deployer, no ow
 scripts/compile.js  rebuilds erc20.js: npm i --no-save solc@0.8.24 && node scripts/compile.js
 vendor/             @solana/web3.js 1.99.0 and ethers 6.17.0 browser builds, unmodified from npm
 img/                launchpad and coin logos (pump.fun, Pons, Robinhood, Base, BNB, SOL, ETH, ARC), 64 px, from CoinGecko
+img/hero/           the large transparent logos floating on the landing page (official SVGs where they exist)
 server.js           static files + /api (below)
 ```
 

@@ -313,7 +313,7 @@ http.createServer(async (req, res) => {
   }
 
   if (rel === '/') rel = '/index.html';
-  if (!PUBLIC.has(rel) && !/^\/img\/[a-z]+\.png$/.test(rel)) {
+  if (!PUBLIC.has(rel) && !/^\/img\/(hero\/)?[a-z]+\.(png|svg)$/.test(rel)) {
     res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('404 — nothing here');
     return;

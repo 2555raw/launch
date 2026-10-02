@@ -1357,12 +1357,6 @@
       return;
     }
     if (el('#ldConnect')) { togglePop($('#ldConnectPop')); return; }
-    if (el('#ldTheme')) {
-      look.theme = THEMES.find((t) => t.id === look.theme && t.id.startsWith('light')) ? 'default' : 'light';
-      look.primary = null;
-      applyLook();
-      return;
-    }
     if (el('[data-scroll-hot]')) { e.preventDefault(); $('#hot').scrollIntoView({ behavior: 'smooth' }); return; }
     if (el('[data-hot]')) {
       hotChain = el('[data-hot]').dataset.hot;

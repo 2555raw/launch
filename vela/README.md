@@ -2,18 +2,20 @@
 
 Launch tokens from your own wallet and follow their P&L in one dashboard.
 
-| Site | Chain | How Vela launches |
+| Launchpad | Chain | How Vela launches |
 | --- | --- | --- |
 | **pump.fun** | Solana | Image + metadata to IPFS (Pinata), create transaction from PumpPortal's local API, signed by your wallet and a fresh mint key |
-| **Robinhood** | Robinhood Chain (Ethereum L2, chain 4663) | Deploys `contracts/VelaToken.sol` from your wallet; Vela adds the network to the wallet if it is missing |
-| **Base** | Base | Same contract |
+| **Pons** | Robinhood Chain (chain 4663) | Calls Pons' own contracts from your wallet: `PonsV2LaunchFactory.launchToken` (0.0005 ETH fee, read from the contract) or `PonsV2LaunchAndBuy.launchAndBuy` when you add a first buy, with slippage protection from a simulated quote. Optional logo goes to IPFS. Creator fee 0–10 % |
+| **Base** | Base | Deploys `contracts/VelaToken.sol` from your wallet |
 | **BNB Chain** | BNB Chain | Same contract |
-| bonk.fun | Solana | Not offered: PumpPortal only creates bonk.fun tokens from its custodial Lightning wallet, and Vela only launches from your own wallet |
-| four.meme | BNB Chain | Not offered: no public creation API |
 
 Vela never holds a key. The wallet (Phantom / Solflare / Backpack for Solana, MetaMask / Rabby / any
 injected wallet for EVM) signs every launch and every sale. The one key Vela generates is the mint
 keypair of a new pump.fun token: it co-signs its own creation and is then thrown away.
+
+The site opens on a landing page (hero with the launchpad logos, **Launch a coin**, and *Hot right now*:
+tokens trending on DexScreener on Solana, Robinhood Chain, Base and BNB Chain, with live market data).
+The app lives at `#dashboard`.
 
 ## Run it
 
@@ -61,7 +63,7 @@ erc20.js            compiled VelaToken (ABI + bytecode)
 contracts/VelaToken.sol   fixed-supply ERC-20: all minted to the deployer, no owner, no mint, no tax
 scripts/compile.js  rebuilds erc20.js: npm i --no-save solc@0.8.24 && node scripts/compile.js
 vendor/             @solana/web3.js 1.99.0 and ethers 6.17.0 browser builds, unmodified from npm
-img/                site and coin logos (pump.fun, Robinhood, Base, BNB, SOL, ETH, ARC), 64 px, from CoinGecko
+img/                launchpad and coin logos (pump.fun, Pons, Robinhood, Base, BNB, SOL, ETH, ARC), 64 px, from CoinGecko
 server.js           static files + /api (below)
 ```
 
@@ -76,6 +78,7 @@ server.js           static files + /api (below)
 | `POST /api/pump/create` | unsigned pump.fun create transaction from PumpPortal |
 | `POST /api/pump/sell` | unsigned sell transaction (a % of the wallet's tokens) |
 | `GET /api/token/:addrs` | DexScreener market data, up to 30 addresses |
+| `GET /api/trending` | trending tokens (DexScreener boosts + profiles) on the four chains, cached 60 s |
 
 Only the page's own files are served; `server.js`, `contracts/` and `scripts/` are not.
 
@@ -97,6 +100,9 @@ separately stepped for dark and light surfaces, always shown with their names.
 - pump.fun: the PumpPortal create transaction for a funded mainnet wallet **simulates successfully**
   (CreateV2 and the dev buy); through the UI with a test wallet the flow reaches mainnet and is
   rejected only for having no SOL.
+- Pons: both paths (launch, and launch + first buy) driven through the UI with a wallet that forwards to
+  Robinhood Chain mainnet; the exact transaction the wallet would sign **executes successfully** in an
+  `eth_call` simulation (it is not broadcast).
 - Not tested with real funds. Make your first launch a small one.
 
 ## Before you share it

@@ -40,7 +40,8 @@
     close: '<path d="M6 6l12 12M18 6 6 18"/>',
     copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
     image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
-    reset: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>'
+    reset: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/>',
+    contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>'
   };
   const icon = (name) =>
     `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
@@ -107,22 +108,18 @@
   const DEX_CHAIN = { solana: 'sol', robinhood: 'rh', base: 'base', bsc: 'bnb' };
 
   const SITES = [
-    { id: 'pump', name: 'pump.fun', chain: 'sol', live: true, logo: 'img/pump.png',
-      how: 'Bonding-curve launch on Solana. The image and metadata go to IPFS, PumpPortal builds the create transaction and your wallet signs it.',
+    { id: 'pump', name: 'pump.fun', chain: 'sol', live: true, logo: 'img/pump.png', kind: 'Bonding curve', curve: true,
+      how: 'The main launchpad on Solana. Bonding-curve launch: the image and metadata go to IPFS, PumpPortal builds the create transaction and your wallet signs it.',
       needs: 'A Solana wallet with SOL for the dev buy plus about 0.03 SOL in fees.' },
-    { id: 'rh', name: 'Robinhood', chain: 'rh', live: true, logo: 'img/robinhood.png',
-      how: 'Robinhood Chain, the Ethereum L2 by Robinhood. Deploys a fixed-supply ERC-20 from your wallet: no owner, no mint, no tax. Add liquidity on a Robinhood Chain DEX to make it tradable.',
-      needs: 'An EVM wallet with ETH on Robinhood Chain for gas. Vela adds the network to your wallet if it is missing.' },
-    { id: 'base', name: 'Base', chain: 'base', live: true, logo: 'img/base.png',
-      how: 'The same fixed-supply ERC-20, on Base. Gas is a few cents. Add liquidity on Uniswap or Aerodrome.',
+    { id: 'pons', name: 'Pons', chain: 'rh', live: true, logo: 'img/pons.png', kind: 'Bonding curve', curve: true,
+      how: 'The main launchpad on Robinhood Chain. 1B supply on a bonding curve that graduates to a Uniswap v4 pool with locked liquidity. Vela calls Pons’ own contracts from your wallet, with an optional first buy in the same transaction.',
+      needs: 'An EVM wallet with ETH on Robinhood Chain: 0.0005 ETH Pons fee + your first buy + gas. Vela adds the network if it is missing.' },
+    { id: 'base', name: 'Base', chain: 'base', live: true, logo: 'img/base.png', kind: 'ERC-20 deploy',
+      how: 'A fixed-supply ERC-20 on Base, deployed from your wallet: no owner, no mint, no tax. Gas is a few cents. Add liquidity on Uniswap or Aerodrome.',
       needs: 'An EVM wallet with ETH on Base for gas.' },
-    { id: 'bnb', name: 'BNB Chain', chain: 'bnb', live: true, logo: 'img/bnb.png',
-      how: 'The same fixed-supply ERC-20, on BNB Chain. Add liquidity on PancakeSwap to make it tradable.',
-      needs: 'An EVM wallet with BNB for gas.' },
-    { id: 'bonk', name: 'bonk.fun', chain: 'sol', live: false,
-      why: 'Its API only creates tokens from a custodial PumpPortal wallet. Vela only launches from your own wallet, so it is left out.' },
-    { id: 'fourmeme', name: 'four.meme', chain: 'bnb', live: false,
-      why: 'four.meme has no public creation API yet. Use BNB Chain above for a plain BEP-20.' }
+    { id: 'bnb', name: 'BNB Chain', chain: 'bnb', live: true, logo: 'img/bnb.png', kind: 'ERC-20 deploy',
+      how: 'The same fixed-supply ERC-20 on BNB Chain. Add liquidity on PancakeSwap to make it tradable.',
+      needs: 'An EVM wallet with BNB for gas.' }
   ];
   const siteName = (id) => (SITES.find((s) => s.id === id) || { name: 'Imported' }).name;
 
@@ -527,8 +524,8 @@
     const liveSites = SITES.filter((s) => s.live).length;
     $('#sitesMeta').textContent = `${liveSites}/${SITES.length} SITES LIVE`;
     $('#sitesList').innerHTML = SITES.map((s) => `
-      <button class="row site-row" type="button" ${s.live ? `data-create="${s.id}"` : `data-soon="${s.id}"`} title="${esc(s.live ? `Launch on ${s.name}` : s.why)}">
-        <span class="row-main row-logo">${s.logo ? logoImg(s.logo, 'site-logo') : `<span class="site-logo site-initial">${esc(s.name.slice(0, 1).toUpperCase())}</span>`}<span><b>${esc(s.name)}</b><span>${s.live ? (s.id === 'pump' ? 'Bonding curve' : 'ERC-20 deploy') : 'Not available'}</span></span></span>
+      <button class="row site-row" type="button" data-create="${s.id}" title="Launch on ${esc(s.name)}">
+        <span class="row-main row-logo">${s.logo ? logoImg(s.logo, 'site-logo') : `<span class="site-logo site-initial">${esc(s.name.slice(0, 1).toUpperCase())}</span>`}<span><b>${esc(s.name)}</b><span>${esc(s.kind)}</span></span></span>
         ${chainChip(s.chain)}
         <span class="state ${s.live ? '' : 'off'}"></span>
       </button>`).join('');
@@ -626,9 +623,12 @@
   const renderView = () => {
     ({ dashboard: renderDashboard, wallets: renderWallets, sites: renderSites, tracker: renderTracker, archived: renderArchived })[view]();
   };
-  const renderAll = () => { renderLaunchList(); renderFunder(); renderView(); };
+  const renderAll = () => { renderLaunchList(); renderFunder(); syncLandingWallet(); renderView(); };
 
   const go = (name) => {
+    const home = !name || name === 'home';
+    $('#landing').hidden = !home;
+    if (home) { hideTip(); loadHot(); return; }
     view = VIEWS.includes(name) ? name : 'dashboard';
     $$('.view').forEach((v) => { v.hidden = v.dataset.view !== view; });
     $$('.features-list a').forEach((a) => a.classList.toggle('is-on', a.dataset.view === view));
@@ -641,6 +641,47 @@
     $('#main').scrollTop = 0;
   };
   addEventListener('hashchange', () => go(location.hash.slice(1)));
+
+  /* ---------- landing ---------- */
+
+  let hot = [];
+  let hotChain = 'all';
+  let hotAt = 0;
+
+  const renderHot = () => {
+    const list = hot.filter((t) => hotChain === 'all' || t.chain === hotChain).slice(0, 10);
+    $('#hotCards').innerHTML = list.length ? list.map((t, i) => `
+      <a class="hot-card" href="${esc(t.url)}" target="_blank" rel="noopener">
+        <div class="hot-top">
+          <span class="hot-ico">${t.icon ? `<img src="${esc(t.icon)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : `<span>${esc((t.symbol || '?').slice(0, 1))}</span>`}
+            <img class="hot-chain" src="${CHAINS[t.chain].logo}" alt="${CHAINS[t.chain].name}" title="${CHAINS[t.chain].name}"></span>
+          <span class="hot-name"><b>${esc(t.name || t.symbol)}</b><span>${esc(t.symbol)} · ${CHAINS[t.chain].name}</span></span>
+          <span class="hot-rank">#${i + 1}</span>
+        </div>
+        <div class="hot-row"><span>Market cap</span><b>${compact(t.marketCap)}</b></div>
+        <div class="hot-row"><span>24h volume</span><b>${compact(t.volume24h)}</b></div>
+        <div class="hot-row"><span>24h change</span><b class="${t.change24h < 0 ? 'neg' : 'pos'}">${t.change24h > 0 ? '+' : ''}${Number(t.change24h).toFixed(1)}%</b></div>
+        <div class="hot-row"><span>Liquidity</span><b>${compact(t.liquidity)}</b></div>
+      </a>`).join('')
+      : `<div class="ld-empty">${hotAt ? 'Nothing trending on this chain right now.' : 'Trending data is unavailable right now.'}</div>`;
+  };
+
+  const loadHot = async () => {
+    if (Date.now() - hotAt < 60000 && hot.length) { renderHot(); return; }
+    if (!hot.length) $('#hotCards').innerHTML = Array.from({ length: 5 }, () => '<div class="hot-skel"></div>').join('');
+    try {
+      const r = await fetch('/api/trending');
+      if (!r.ok) throw new Error();
+      hot = await r.json();
+      hotAt = Date.now();
+    } catch (_) { /* keep what we had */ }
+    renderHot();
+  };
+
+  const syncLandingWallet = () => {
+    const w = state.sol || state.evm;
+    $('#ldConnect').textContent = w ? `${w.name} · ${short(w.address)}` : 'Connect wallet';
+  };
 
   /* ---------- data refresh ---------- */
 
@@ -807,22 +848,27 @@
       <form class="form" id="createForm" novalidate>
         <div class="field"><span>Launch on</span>
           <div class="site-pick">${SITES.filter((s) => s.live).map((s) => `
-            <button type="button" data-site="${s.id}">${logoImg(s.logo, 'site-logo')}<span class="site-txt"><b>${esc(s.name)}</b><span>${s.id === 'pump' ? 'Solana' : CHAINS[s.chain].name}</span></span></button>`).join('')}
+            <button type="button" data-site="${s.id}">${logoImg(s.logo, 'site-logo')}<span class="site-txt"><b>${esc(s.name)}</b><span>${s.chain === 'sol' ? 'Solana' : CHAINS[s.chain].name}</span></span></button>`).join('')}
           </div>
         </div>
         <div class="row2">
           <label class="field"><span>Token name</span><input name="name" maxlength="32" placeholder="e.g. Nebula" required></label>
           <label class="field"><span>Ticker</span><input name="ticker" maxlength="10" placeholder="NEB" required style="text-transform:uppercase"></label>
         </div>
-        <div data-for="pump">
+        <div data-for="curve">
           <div class="form">
             <label class="field"><span>Description</span><textarea name="desc" maxlength="1000" placeholder="What is this token about?"></textarea></label>
-            <div class="field"><span>Image</span>
+            <div class="field"><span id="imageLabel">Image</span>
               <label class="image-pick"><span class="thumb" id="thumb">${icon('image').replace('<svg', '<svg width="18" height="18"')}</span>
                 <span id="thumbTxt">Choose an image · PNG, JPG, GIF or WEBP, up to 4 MB</span>
                 <input type="file" name="image" accept="image/png,image/jpeg,image/gif,image/webp"></label>
             </div>
-            <label class="field"><span>Dev buy (SOL)</span><input name="buy" inputmode="decimal" value="0.1"></label>
+            <div class="row2" id="buyRow">
+              <label class="field"><span id="buyLabel">Dev buy (SOL)</span><input name="buy" inputmode="decimal" value="0.1"></label>
+              <label class="field" data-for="pons"><span>Creator fee on trades</span><select name="tax">
+                <option value="0">0%</option><option value="100" selected>1%</option><option value="200">2%</option><option value="500">5%</option><option value="1000">10%</option>
+              </select></label>
+            </div>
             <details class="adv"><summary>Socials and transaction settings</summary>
               <div class="form">
                 <label class="field"><span>X / Twitter</span><input name="twitter" placeholder="https://x.com/…"></label>
@@ -830,13 +876,13 @@
                 <label class="field"><span>Website</span><input name="website" placeholder="https://…"></label>
                 <div class="row2">
                   <label class="field"><span>Slippage %</span><input name="slippage" inputmode="decimal" value="10"></label>
-                  <label class="field"><span>Priority fee (SOL)</span><input name="prio" inputmode="decimal" value="0.0005"></label>
+                  <label class="field" data-for="pump"><span>Priority fee (SOL)</span><input name="prio" inputmode="decimal" value="0.0005"></label>
                 </div>
               </div>
             </details>
           </div>
         </div>
-        <div data-for="evm">
+        <div data-for="erc20">
           <label class="field"><span>Total supply</span><input name="supply" inputmode="numeric" value="1000000000"></label>
         </div>
         <div class="note" id="siteNote"></div>
@@ -851,8 +897,15 @@
       const setSite = (s) => {
         site = s;
         $$('[data-site]', form).forEach((b) => b.classList.toggle('is-on', b.dataset.site === s.id));
-        $('[data-for="pump"]', form).hidden = s.id !== 'pump';
-        $('[data-for="evm"]', form).hidden = s.id === 'pump';
+        $('[data-for="curve"]', form).hidden = !s.curve;
+        $('[data-for="erc20"]', form).hidden = !!s.curve;
+        $$('[data-for="pump"]', form).forEach((x) => { x.hidden = s.id !== 'pump'; });
+        $$('[data-for="pons"]', form).forEach((x) => { x.hidden = s.id !== 'pons'; });
+        $('#buyRow', form).classList.toggle('row2', s.id === 'pons');
+        $('#buyLabel', form).textContent = s.id === 'pons' ? 'First buy (ETH, optional)' : 'Dev buy (SOL)';
+        $('#imageLabel', form).textContent = s.id === 'pons' ? 'Logo (optional)' : 'Image';
+        if (s.id === 'pons' && form.buy.value === '0.1') form.buy.value = '0';
+        if (s.id === 'pump' && form.buy.value === '0') form.buy.value = '0.1';
         const w = s.chain === 'sol' ? state.sol : state.evm;
         const bal = live.balances[s.chain];
         const note = $('#siteNote', form);
@@ -860,6 +913,8 @@
         if (s.id === 'pump' && live.health && !live.health.pinata) {
           note.className = 'note warn';
           note.textContent = 'This server has no PINATA_JWT set, so the token image and metadata can’t be uploaded. pump.fun launches are off until it is.';
+        } else if (s.id === 'pons' && live.health && !live.health.pinata) {
+          note.textContent = 'Logo uploads need PINATA_JWT on the server, so this launch goes out without a logo. Everything else works.';
         } else if (!w) {
           note.innerHTML = `${esc(s.needs)} You’ll be asked to connect when you press Launch.`;
         } else {
@@ -915,6 +970,19 @@
           if (ok && state.sol && live.balances.sol != null && live.balances.sol < buy + 0.03) {
             fieldErr(form, 'buy', `Not enough SOL: ${num(live.balances.sol)} in the wallet, needs about ${num(buy + 0.03)}`); ok = false;
           }
+        } else if (site.id === 'pons') {
+          const buy = parseFloat(form.buy.value || '0');
+          if (!(buy >= 0) || buy > 100) { fieldErr(form, 'buy', 'Enter 0 – 100 ETH'); ok = false; }
+          ['twitter', 'telegram', 'website'].forEach((k) => { const v = form[k].value.trim(); if (v && !/^https?:\/\//i.test(v)) { fieldErr(form, k, 'Start with https://'); ok = false; } });
+          if (imageData && live.health && !live.health.pinata) { toast('Logo upload is off on this server — remove the logo or set PINATA_JWT', true); ok = false; }
+          Object.assign(opts, {
+            description: form.desc.value.trim(), image: imageData, devBuy: buy, creatorTaxBps: +form.tax.value,
+            twitter: form.twitter.value.trim(), telegram: form.telegram.value.trim(), website: form.website.value.trim(),
+            slippage: parseFloat(form.slippage.value) || 10
+          });
+          if (ok && state.evm && live.balances.rh != null && live.balances.rh < buy + 0.0008) {
+            fieldErr(form, 'buy', `Not enough ETH on Robinhood Chain: ${num(live.balances.rh, 4)} in the wallet, needs about ${num(buy + 0.0008, 4)}`); ok = false;
+          }
         } else {
           const supply = form.supply.value.replace(/[_,\s]/g, '');
           if (!/^[1-9]\d{0,14}$/.test(supply)) { fieldErr(form, 'supply', 'Whole number between 1 and 999 trillion'); ok = false; }
@@ -938,6 +1006,9 @@
             res = await C.launchPump(opts, st.step);
             const after = await C.solBalance(res.owner).catch(() => null);
             costUsd = (before != null && after != null && before > after ? before - after : opts.devBuy) * usdOf('sol');
+          } else if (site.id === 'pons') {
+            res = await C.launchPons(opts, st.step);
+            costUsd = (res.gasNative + res.spentNative) * usdOf(chain);
           } else {
             res = await C.launchEvm(chain, opts, st.step);
             costUsd = res.gasNative * usdOf(chain);
@@ -959,7 +1030,7 @@
           $('#createFoot', form).innerHTML = `
             <a class="btn btn-ghost" href="${C.explorerTx(chain, res.signature)}" target="_blank" rel="noopener">Transaction</a>
             ${site.id === 'pump' ? `<a class="btn btn-ghost" href="https://pump.fun/coin/${res.address}" target="_blank" rel="noopener">pump.fun page</a>`
-              : chain === 'rh' ? `<a class="btn btn-ghost" href="${C.explorerToken(chain, res.address)}" target="_blank" rel="noopener">View token</a>`
+              : site.id === 'pons' ? `<a class="btn btn-ghost" href="${C.ponsPage(res.address)}" target="_blank" rel="noopener">Pons page</a>`
               : `<a class="btn btn-ghost" href="${chain === 'bnb' ? 'https://pancakeswap.finance' : 'https://app.uniswap.org'}" target="_blank" rel="noopener">Add liquidity</a>`}
             <button class="btn btn-primary" type="button" data-close>Done</button>`;
           refresh();
@@ -1040,6 +1111,7 @@
         <a href="${C.explorerToken(l.chain, l.addr)}" target="_blank" rel="noopener">Explorer</a>
         <a href="${C.dexscreener(l.chain, l.addr)}" target="_blank" rel="noopener">DexScreener</a>
         ${l.site === 'pump' ? `<a href="https://pump.fun/coin/${esc(l.addr)}" target="_blank" rel="noopener">pump.fun</a>` : ''}
+        ${l.site === 'pons' ? `<a href="${C.ponsPage(l.addr)}" target="_blank" rel="noopener">Pons</a>` : ''}
         ${l.tx ? `<a href="${C.explorerTx(l.chain, l.tx)}" target="_blank" rel="noopener">Launch tx</a>` : ''}
       </div>
       ${canSell ? `<div class="sell"><span>Sell dev tokens</span>
@@ -1100,7 +1172,7 @@
     openModal('How Vela works', `
       <div class="form" style="font-size:13.5px;color:var(--prose)">
         <p style="margin:0"><b>1. Connect.</b> Phantom or Solflare for Solana, MetaMask or Rabby for Robinhood Chain, Base and BNB Chain. Vela never sees your keys; your wallet signs every transaction.</p>
-        <p style="margin:0"><b>2. Create Launch.</b> On <b>pump.fun</b> the image and metadata go to IPFS, the create transaction is built by PumpPortal, and your wallet signs it together with a fresh mint key. On <b>Robinhood Chain, Base or BNB Chain</b> Vela deploys a plain fixed-supply ERC-20 from your wallet; add liquidity on a DEX to make it tradable.</p>
+        <p style="margin:0"><b>2. Create Launch.</b> On <b>pump.fun</b> the image and metadata go to IPFS, the create transaction is built by PumpPortal, and your wallet signs it together with a fresh mint key. On <b>Pons</b> (Robinhood Chain) Vela calls Pons’ launch contracts from your wallet, with an optional first buy. On <b>Base or BNB Chain</b> Vela deploys a plain fixed-supply ERC-20 from your wallet; add liquidity on a DEX to make it tradable.</p>
         <p style="margin:0"><b>3. Track.</b> P&amp;L = your dev tokens × the DexScreener price + what you sold − what the launch cost you (dev buy and fees, measured from your wallet balance). It refreshes every minute while Vela is open.</p>
         <p style="margin:0"><b>Where data lives.</b> Your launch list is stored in this browser. Clearing site data forgets it, though the tokens stay on-chain and can be imported again.</p>
         <p class="note" style="margin:0">Launching a token costs real money and is irreversible. Check the name, ticker and amount before you sign.</p>
@@ -1273,11 +1345,29 @@
     }
     if (el('[data-launch]')) { openLaunch(el('[data-launch]').dataset.launch); return; }
     if (el('[data-create]')) { if (!modal.hidden) closeModal(); openCreate(el('[data-create]').dataset.create); return; }
-    if (el('[data-soon]')) { toast(SITES.find((s) => s.id === el('[data-soon]').dataset.soon).why); return; }
     if (el('a[data-view]')) {
       e.preventDefault();
       const v = el('a[data-view]').dataset.view;
       if (location.hash.slice(1) === v) go(v); else location.hash = v;
+      return;
+    }
+    if (el('[data-launch-coin]')) {
+      if (location.hash.slice(1) !== 'dashboard') location.hash = 'dashboard';
+      openCreate();
+      return;
+    }
+    if (el('#ldConnect')) { togglePop($('#ldConnectPop')); return; }
+    if (el('#ldTheme')) {
+      look.theme = THEMES.find((t) => t.id === look.theme && t.id.startsWith('light')) ? 'default' : 'light';
+      look.primary = null;
+      applyLook();
+      return;
+    }
+    if (el('[data-scroll-hot]')) { e.preventDefault(); $('#hot').scrollIntoView({ behavior: 'smooth' }); return; }
+    if (el('[data-hot]')) {
+      hotChain = el('[data-hot]').dataset.hot;
+      $$('#hotChips button').forEach((b) => b.classList.toggle('is-on', b.dataset.hot === hotChain));
+      renderHot();
       return;
     }
     if (el('#filterBtn')) { togglePop($('#filterPop')); return; }

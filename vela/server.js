@@ -7,17 +7,18 @@
  *   GET  /api/health          what is configured (Pinata, RPC)
  *   GET  /api/prices          SOL / ETH / BNB / ARC (AI Rig Complex) in USD (CoinGecko, cached 30 s)
  *   POST /api/sol-rpc         Solana JSON-RPC, forwarded to SOLANA_RPC_URL, read + send only
- *   POST /api/ipfs            uploads the token image and metadata to IPFS through Pinata
+ *   POST /api/ipfs            uploads the token image (and, for pump.fun, its metadata) to IPFS through Pinata
  *   POST /api/pump/create     asks PumpPortal for an unsigned pump.fun create tx
  *   POST /api/pump/sell       asks PumpPortal for an unsigned sell tx (a % of the wallet's tokens)
  *   GET  /api/token/:addrs    market data from DexScreener (cached 15 s)
+ *   GET  /api/trending        tokens trending on DexScreener on Solana, Robinhood Chain, Base, BNB (cached 60 s)
  *
  * No dependencies; needs Node 18+ for fetch, FormData and Blob.
  *
  * Environment:
  *   PORT            default 8080
  *   SOLANA_RPC_URL  default https://api.mainnet-beta.solana.com (rate-limited: use your own)
- *   PINATA_JWT      required to create Solana tokens (image + metadata go to IPFS)
+ *   PINATA_JWT      required for pump.fun launches and for Pons logos (they go to IPFS)
  */
 const http = require('http');
 const fs = require('fs');
@@ -159,6 +160,7 @@ const api = {
     if (bytes.length > 4 * 1024 * 1024) return fail(res, 413, 'Image must be 4 MB or less');
 
     const image = await pinataUpload(new Blob([bytes], { type: m[1] }), `${symbol}.${m[2] === 'jpeg' ? 'jpg' : m[2]}`);
+    if (b.imageOnly) return send(res, 200, { image });   // Pons takes a logo URI, not a metadata file
     const meta = { name, symbol, description: clean(b.description, 1000), image, showName: true, createdOn: 'Vela' };
     for (const k of ['twitter', 'telegram', 'website']) {
       const v = clean(b[k], 200);
@@ -221,6 +223,46 @@ const api = {
     const buf = Buffer.from(await r.arrayBuffer());
     if (r.status !== 200) return fail(res, 502, `PumpPortal: ${buf.toString('utf8').slice(0, 300) || r.statusText}`);
     send(res, 200, buf, 'application/octet-stream');
+  },
+
+  /* Tokens trending on DexScreener (top boosts + latest profiles) on the chains
+     Vela launches to, with live market data, busiest first. */
+  'GET /api/trending': async (req, res) => {
+    const CHAINS = { solana: 'sol', robinhood: 'rh', base: 'base', bsc: 'bnb' };
+    const list = await cached('trending', 60000, async () => {
+      const [boosts, profiles] = await Promise.all([
+        fetchJson('https://api.dexscreener.com/token-boosts/top/v1').catch(() => []),
+        fetchJson('https://api.dexscreener.com/token-profiles/latest/v1').catch(() => [])
+      ]);
+      const seen = new Map();
+      for (const t of [...(boosts || []), ...(profiles || [])]) {
+        if (!CHAINS[t.chainId] || !t.tokenAddress || seen.has(t.tokenAddress)) continue;
+        const icon = !t.icon ? null : /^https:\/\//.test(t.icon) ? t.icon
+          : `https://cdn.dexscreener.com/cms/images/${encodeURIComponent(t.icon)}?width=64&height=64&fit=crop&quality=95&format=auto`;
+        seen.set(t.tokenAddress, { address: t.tokenAddress, chain: CHAINS[t.chainId], icon, url: t.url });
+      }
+      const tokens = [...seen.values()].slice(0, 30);
+      if (!tokens.length) return [];
+      const data = await fetchJson(`https://api.dexscreener.com/latest/dex/tokens/${tokens.map((t) => t.address).join(',')}`);
+      const best = {};
+      for (const p of data?.pairs || []) {
+        const a = p.baseToken?.address;
+        const t = tokens.find((x) => x.address.toLowerCase() === a?.toLowerCase());
+        if (!t || CHAINS[p.chainId] !== t.chain) continue;
+        if (best[t.address] && (best[t.address].liquidity?.usd || 0) >= (p.liquidity?.usd || 0)) continue;
+        best[t.address] = p;
+      }
+      return tokens.filter((t) => best[t.address]).map((t) => {
+        const p = best[t.address];
+        return {
+          ...t, name: p.baseToken.name, symbol: p.baseToken.symbol, dex: p.dexId,
+          priceUsd: Number(p.priceUsd) || 0, marketCap: p.marketCap || p.fdv || 0,
+          volume24h: p.volume?.h24 || 0, change24h: p.priceChange?.h24 ?? 0, liquidity: p.liquidity?.usd || 0,
+          icon: t.icon || p.info?.imageUrl || null
+        };
+      }).sort((a, b) => b.volume24h - a.volume24h);
+    });
+    send(res, 200, list);
   },
 
   'GET /api/token': async (req, res, rest) => {

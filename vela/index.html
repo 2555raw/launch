@@ -27,7 +27,7 @@
   <!-- ================= sidebar ================= -->
   <aside class="side" id="side">
     <div class="side-head">
-      <a class="brand" href="#dashboard" data-view="dashboard">
+      <a class="brand" href="#home">
         <svg class="brand-mark" viewBox="0 0 7 7" aria-hidden="true">
           <path fill="currentColor" d="M3 0h1v7H3zM0 1h1v2H0zM1 2h1v1H1zM2 3h1v1H2zM1 4h1v1H1zM0 4h1v2H0zM6 1h1v2H6zM5 2h1v1H5zM4 3h1v1H4zM5 4h1v1H5zM6 4h1v2H6z"/>
         </svg>
@@ -218,6 +218,76 @@
     </div>
   </footer>
 </div>
+
+<!-- ================= landing ================= -->
+<section class="landing" id="landing" hidden aria-label="Vela">
+  <div class="ld-sky" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <header class="ld-nav">
+    <a class="brand ld-brand" href="#home">
+      <svg class="brand-mark" viewBox="0 0 7 7" aria-hidden="true"><path fill="currentColor" d="M3 0h1v7H3zM0 1h1v2H0zM1 2h1v1H1zM2 3h1v1H2zM1 4h1v1H1zM0 4h1v2H0zM6 1h1v2H6zM5 2h1v1H5zM4 3h1v1H4zM5 4h1v1H5zM6 4h1v2H6z"/></svg>
+      <span class="brand-name">Vela</span>
+    </a>
+    <nav class="ld-links">
+      <a href="#dashboard">Dashboard</a>
+      <a href="#sites">Launchpads</a>
+      <a href="#tracker">Tracker</a>
+      <a href="#hot" data-scroll-hot>Trending</a>
+    </nav>
+    <div class="ld-actions">
+      <button class="ld-icon" type="button" id="ldTheme" aria-label="Switch light / dark" title="Light / dark"><i data-i="contrast"></i></button>
+      <div class="pop-wrap">
+        <button class="ld-btn ld-btn-soft" type="button" id="ldConnect">Connect wallet</button>
+        <div class="pop" id="ldConnectPop" hidden>
+          <div class="pop-label">Connect</div>
+          <button type="button" data-connect="sol"><img class="logo" src="img/sol.png" alt="">Solana wallet</button>
+          <button type="button" data-connect="evm"><img class="logo" src="img/eth.png" alt="">EVM wallet</button>
+        </div>
+      </div>
+      <button class="ld-btn ld-btn-dark" type="button" data-launch-coin>Launch a coin</button>
+    </div>
+  </header>
+
+  <div class="ld-hero">
+    <div class="ld-orbs" aria-hidden="true">
+      <span class="orb" style="--x:6%;--y:8%;--d:0s;--ring:#8f9a9a"><img src="img/pons.png" alt=""></span>
+      <span class="orb" style="--x:2%;--y:30%;--d:-1.5s;--ring:#c7f04a"><img src="img/robinhood.png" alt=""></span>
+      <span class="orb" style="--x:7%;--y:52%;--d:-3s;--ring:#7f5af0"><img src="img/sol.png" alt=""></span>
+      <span class="orb" style="--x:1%;--y:74%;--d:-4.5s;--ring:#2151f5"><img src="img/base.png" alt=""></span>
+      <span class="orb" style="--x:93%;--y:8%;--d:-.8s;--ring:#5fd39a"><img src="img/pump.png" alt=""></span>
+      <span class="orb" style="--x:97%;--y:30%;--d:-2.3s;--ring:#f3ba2f"><img src="img/bnb.png" alt=""></span>
+      <span class="orb" style="--x:92%;--y:52%;--d:-3.8s;--ring:#9aa0a6"><img src="img/arc.png" alt=""></span>
+      <span class="orb" style="--x:98%;--y:74%;--d:-5.2s;--ring:#8c93c8"><img src="img/eth.png" alt=""></span>
+    </div>
+    <h1 class="ld-title">Launch anywhere.<br><span>Track everything.</span></h1>
+    <p class="ld-sub">Create a coin on pump.fun, Pons, Base or BNB Chain straight from your own wallet, then follow every launch’s P&amp;L, holdings and market in one dashboard.</p>
+    <button class="ld-cta" type="button" data-launch-coin>
+      <svg viewBox="0 0 7 7" aria-hidden="true"><path fill="currentColor" d="M3 0h1v7H3zM0 1h1v2H0zM1 2h1v1H1zM2 3h1v1H2zM1 4h1v1H1zM0 4h1v2H0zM6 1h1v2H6zM5 2h1v1H5zM4 3h1v1H4zM5 4h1v1H5zM6 4h1v2H6z"/></svg>
+      Launch a coin
+    </button>
+    <div class="ld-pads">
+      <span><img src="img/pump.png" alt="">pump.fun</span>
+      <span><img src="img/pons.png" alt="">Pons</span>
+      <span><img src="img/base.png" alt="">Base</span>
+      <span><img src="img/bnb.png" alt="">BNB Chain</span>
+    </div>
+  </div>
+
+  <div class="ld-hot" id="hot">
+    <div class="ld-hot-head">
+      <h2>Hot right now</h2>
+      <div class="ld-chips" id="hotChips">
+        <button type="button" data-hot="all" class="is-on">All</button>
+        <button type="button" data-hot="sol"><img src="img/sol.png" alt="">Solana</button>
+        <button type="button" data-hot="rh"><img src="img/robinhood.png" alt="">Robinhood</button>
+        <button type="button" data-hot="base"><img src="img/base.png" alt="">Base</button>
+        <button type="button" data-hot="bnb"><img src="img/bnb.png" alt="">BNB</button>
+      </div>
+    </div>
+    <div class="ld-cards" id="hotCards"></div>
+    <p class="ld-foot">Trending on DexScreener · live market data · not investment advice</p>
+  </div>
+</section>
 
 <!-- ================= modal ================= -->
 <div class="modal" id="modal" hidden>

@@ -253,6 +253,83 @@
     return { address: await contract.getAddress(), signature: tx.hash, owner: acct.address, gasNative };
   };
 
+  /* ---------- Pons (Robinhood Chain) ----------
+     Pons' own contracts, called from the user's wallet: the factory for a plain
+     launch, the router to launch and make the first buy in one transaction.
+     Signatures were matched against Pons' on-chain selectors and simulated on
+     Robinhood Chain mainnet. */
+
+  const PONS = {
+    factory: '0x7ed598bcef8bd9edd8c97a195c6d13f40801ec7e',
+    router: '0xe33e9e479df8802cb0866d5d05258bec4cf62948'
+  };
+  const PONS_PARAMS = '(string name,string symbol,string logo,string description,(string twitter,string telegram,string discord,string website,string farcaster) socials,address creatorFeeRecipient,uint16 creatorTaxBps,bool buybackEnabled,bytes32 expectedEconomics,bytes32 salt)';
+  const PONS_ABI = [
+    'function launchFee() view returns (uint256)',
+    'function maxCreatorTaxBps() view returns (uint256)',
+    `function launchToken(${PONS_PARAMS} params, uint256 launchConfigId, address pairToken) payable returns (address token, address curve)`,
+    `function launchAndBuy(${PONS_PARAMS} params, uint256 launchConfigId, address pairToken, uint256 amountIn, uint256 minTokensOut, address recipient, address[] snipeTaxExemptions) payable returns (address token, address curve, uint256 tokensOut)`
+  ];
+  const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+
+  const launchPons = async (opts, step) => {
+    const ethers = await lib('ethers');
+    const acct = await connectEvm();
+    let logo = '';
+    if (opts.image) {
+      step('Uploading the logo to IPFS');
+      const { image } = await postJson('/api/ipfs', { name: opts.name, symbol: opts.symbol, image: opts.image, imageOnly: true });
+      logo = image.replace('https://ipfs.io/ipfs/', 'ipfs://');
+    }
+    step('Switching wallet to Robinhood Chain');
+    await switchChain('rh');
+    const provider = new ethers.BrowserProvider(evmProvider());
+    const signer = await provider.getSigner();
+    const factory = new ethers.Contract(PONS.factory, PONS_ABI, signer);
+    const router = new ethers.Contract(PONS.router, PONS_ABI, signer);
+    const [fee, maxTax] = await Promise.all([factory.launchFee(), factory.maxCreatorTaxBps()]);
+    const taxBps = Math.min(Number(maxTax), Math.max(0, Math.round(opts.creatorTaxBps || 0)));
+    const params = {
+      name: opts.name, symbol: opts.symbol, logo, description: opts.description || '',
+      socials: { twitter: opts.twitter || '', telegram: opts.telegram || '', discord: '', website: opts.website || '', farcaster: '' },
+      creatorFeeRecipient: acct.address, creatorTaxBps: taxBps, buybackEnabled: false,
+      expectedEconomics: ethers.ZeroHash, salt: ethers.hexlify(ethers.randomBytes(32))
+    };
+    const buy = ethers.parseEther(String(opts.devBuy || 0));
+    let tx;
+    let predicted;
+    try {
+      if (buy > 0n) {
+        step('Quoting the first buy');
+        const [token, , quoted] = await router.launchAndBuy.staticCall(params, 0, ethers.ZeroAddress, buy, 0, acct.address, [], { value: fee + buy });
+        predicted = token;
+        const minOut = quoted * BigInt(100 - Math.min(50, Math.max(1, Math.round(opts.slippage || 10)))) / 100n;
+        step('Approve the launch in your wallet');
+        tx = await router.launchAndBuy(params, 0, ethers.ZeroAddress, buy, minOut, acct.address, [], { value: fee + buy });
+      } else {
+        [predicted] = await factory.launchToken.staticCall(params, 0, ethers.ZeroAddress, { value: fee });
+        step('Approve the launch in your wallet');
+        tx = await factory.launchToken(params, 0, ethers.ZeroAddress, { value: fee });
+      }
+    } catch (e) {
+      if (e?.code === 'ACTION_REJECTED') throw new Error('Rejected in the wallet');
+      if (e?.code === 'INSUFFICIENT_FUNDS' || /insufficient funds/i.test(e?.message || '')) throw new Error('Not enough ETH on Robinhood Chain for this launch');
+      throw new Error(e?.shortMessage || e?.message || 'Pons launch failed');
+    }
+    step('Waiting for confirmation');
+    const rcpt = await tx.wait(1);
+    if (!rcpt || rcpt.status !== 1) throw Object.assign(new Error('Launch reverted'), { signature: tx.hash });
+    /* the token the simulation predicted, confirmed by its mint in the receipt;
+       failing that, whichever contract minted from the zero address */
+    const zero = ethers.zeroPadValue(ethers.ZeroAddress, 32);
+    const mints = rcpt.logs.filter((l) => l.topics[0] === TRANSFER && l.topics[1] === zero);
+    const mint = mints.find((l) => predicted && l.address.toLowerCase() === predicted.toLowerCase()) || mints[0];
+    if (!mint) throw Object.assign(new Error('Launched, but the token address was not found in the receipt — check the transaction'), { signature: tx.hash });
+    const gasNative = Number(rcpt.gasUsed * (rcpt.gasPrice ?? tx.gasPrice ?? 0n)) / 1e18;
+    return { address: ethers.getAddress(mint.address), signature: tx.hash, owner: acct.address, gasNative, spentNative: Number(fee + buy) / 1e18, image: opts.image ? logo.replace('ipfs://', 'https://ipfs.io/ipfs/') : null };
+  };
+  const ponsPage = (addr) => `https://www.ponsfamily.com/launchpad/${addr}`;
+
   /* ---------- links ---------- */
 
   const explorerTx = (chain, sig) => (chain === 'sol' ? `https://solscan.io/tx/${sig}` : `${EVM[chain].explorer}/tx/${sig}`);
@@ -264,7 +341,7 @@
     connectSol, disconnectSol, connectEvm, disconnectEvm, onAccountsChanged,
     hasSol: () => !!solProvider(), hasEvm: () => !!evmProvider(),
     solBalance, solTokenBalance, evmBalance, evmTokenBalance,
-    launchPump, sellPump, launchEvm,
+    launchPump, sellPump, launchEvm, launchPons, ponsPage,
     explorerTx, explorerToken, dexscreener
   };
 })();

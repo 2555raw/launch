@@ -1002,7 +1002,7 @@
           </div>
         </div>
         <div class="note" id="siteNote"></div>
-        ${state.acceptedTerms ? '' : `<label class="check"><input type="checkbox" name="accept"> I’ve read the <a href="#" data-legal="terms">Terms</a> and the <a href="#" data-legal="risk">Risk disclosure</a>, and I understand launches are irreversible and can lose money.</label>`}
+        ${state.acceptedTerms ? '' : `<label class="check check-card"><input type="checkbox" name="accept"><span class="check-box" aria-hidden="true"></span><span class="check-txt">I’ve read the <a href="#" data-legal="terms">Terms</a> and the <a href="#" data-legal="risk">Risk disclosure</a>.<small>Launches are irreversible and can lose money.</small></span></label>`}
         <ul class="steps" id="steps"></ul>
         <div class="form-foot" id="createFoot">
           <button class="btn btn-ghost" type="button" data-close>Cancel</button>
@@ -1073,7 +1073,7 @@
         if (!ticker) { fieldErr(form, 'ticker', 'Letters and numbers only'); ok = false; }
 
         if (!state.acceptedTerms) {
-          if (!form.accept?.checked) { toast('Please accept the Terms and Risk disclosure first', true); return; }
+          if (!form.accept?.checked) { const c = form.querySelector('.check-card'); c.classList.remove('is-err'); void c.offsetWidth; c.classList.add('is-err'); toast('Please accept the Terms and Risk disclosure first', true); return; }
           state.acceptedTerms = Date.now();
           save();
         }

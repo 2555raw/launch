@@ -96,10 +96,10 @@
 
   /* Slot order of the validated chart palette: rh, base, sol, bnb. */
   const CHAINS = {
-    rh:   { name: 'Robinhood', unit: 'ETH', short: 'RH',   color: 'var(--c-rh)' },
-    base: { name: 'Base',      unit: 'ETH', short: 'BASE', color: 'var(--c-base)' },
-    sol:  { name: 'Solana',    unit: 'SOL', short: 'SOL',  color: 'var(--c-sol)' },
-    bnb:  { name: 'BNB Chain', unit: 'BNB', short: 'BNB',  color: 'var(--c-bnb)' }
+    rh:   { name: 'Robinhood', unit: 'ETH', short: 'RH',   color: 'var(--c-rh)',   logo: 'img/robinhood.png' },
+    base: { name: 'Base',      unit: 'ETH', short: 'BASE', color: 'var(--c-base)', logo: 'img/base.png' },
+    sol:  { name: 'Solana',    unit: 'SOL', short: 'SOL',  color: 'var(--c-sol)',  logo: 'img/sol.png' },
+    bnb:  { name: 'BNB Chain', unit: 'BNB', short: 'BNB',  color: 'var(--c-bnb)',  logo: 'img/bnb.png' }
   };
   const CHAIN_IDS = Object.keys(CHAINS);
   const EVM_IDS = ['rh', 'base', 'bnb'];
@@ -107,16 +107,16 @@
   const DEX_CHAIN = { solana: 'sol', robinhood: 'rh', base: 'base', bsc: 'bnb' };
 
   const SITES = [
-    { id: 'pump', name: 'pump.fun', chain: 'sol', live: true,
+    { id: 'pump', name: 'pump.fun', chain: 'sol', live: true, logo: 'img/pump.png',
       how: 'Bonding-curve launch on Solana. The image and metadata go to IPFS, PumpPortal builds the create transaction and your wallet signs it.',
       needs: 'A Solana wallet with SOL for the dev buy plus about 0.03 SOL in fees.' },
-    { id: 'rh', name: 'Robinhood', chain: 'rh', live: true,
+    { id: 'rh', name: 'Robinhood', chain: 'rh', live: true, logo: 'img/robinhood.png',
       how: 'Robinhood Chain, the Ethereum L2 by Robinhood. Deploys a fixed-supply ERC-20 from your wallet: no owner, no mint, no tax. Add liquidity on a Robinhood Chain DEX to make it tradable.',
       needs: 'An EVM wallet with ETH on Robinhood Chain for gas. Vela adds the network to your wallet if it is missing.' },
-    { id: 'base', name: 'Base', chain: 'base', live: true,
+    { id: 'base', name: 'Base', chain: 'base', live: true, logo: 'img/base.png',
       how: 'The same fixed-supply ERC-20, on Base. Gas is a few cents. Add liquidity on Uniswap or Aerodrome.',
       needs: 'An EVM wallet with ETH on Base for gas.' },
-    { id: 'bnb', name: 'BNB Chain', chain: 'bnb', live: true,
+    { id: 'bnb', name: 'BNB Chain', chain: 'bnb', live: true, logo: 'img/bnb.png',
       how: 'The same fixed-supply ERC-20, on BNB Chain. Add liquidity on PancakeSwap to make it tradable.',
       needs: 'An EVM wallet with BNB for gas.' },
     { id: 'bonk', name: 'bonk.fun', chain: 'sol', live: false,
@@ -194,7 +194,8 @@
     return `<span class="avatar" style="${l.image ? '' : `background:hsl(${h} 62% 68%)`}">${inner}` +
       `<span class="chain-pip" style="background:${CHAINS[l.chain].color}" title="${CHAINS[l.chain].name}"></span></span>`;
   };
-  const chainChip = (c) => `<span class="chain-chip"><span class="chain-dot" style="background:${CHAINS[c].color}"></span>${CHAINS[c].name}</span>`;
+  const logoImg = (src, cls = 'logo') => `<img class="${cls}" src="${src}" alt="" width="16" height="16">`;
+  const chainChip = (c) => `<span class="chain-chip">${logoImg(CHAINS[c].logo)}${CHAINS[c].name}</span>`;
   const pnlCell = (v) => `<span class="${v < -0.004 ? 'neg' : 'pos'}">${signed(v, Math.abs(v) < 100 ? 2 : 0)}</span>`;
 
   /* ---------- sidebar ---------- */
@@ -527,7 +528,7 @@
     $('#sitesMeta').textContent = `${liveSites}/${SITES.length} SITES LIVE`;
     $('#sitesList').innerHTML = SITES.map((s) => `
       <button class="row site-row" type="button" ${s.live ? `data-create="${s.id}"` : `data-soon="${s.id}"`} title="${esc(s.live ? `Launch on ${s.name}` : s.why)}">
-        <span class="row-main"><b>${esc(s.name)}</b><span>${s.live ? (s.id === 'pump' ? 'Bonding curve' : 'ERC-20 deploy') : 'Not available'}</span></span>
+        <span class="row-main row-logo">${s.logo ? logoImg(s.logo, 'site-logo') : `<span class="site-logo site-initial">${esc(s.name.slice(0, 1).toUpperCase())}</span>`}<span><b>${esc(s.name)}</b><span>${s.live ? (s.id === 'pump' ? 'Bonding curve' : 'ERC-20 deploy') : 'Not available'}</span></span></span>
         ${chainChip(s.chain)}
         <span class="state ${s.live ? '' : 'off'}"></span>
       </button>`).join('');
@@ -569,7 +570,7 @@
   const renderSites = () => {
     $('#siteCards').innerHTML = SITES.map((s) => `
       <div class="card offer ${s.live ? '' : 'is-soon'}">
-        <span class="offer-ico">${esc(s.name.slice(0, 2).toUpperCase())}</span>
+        <span class="offer-ico">${s.logo ? logoImg(s.logo, 'site-logo lg') : esc(s.name.slice(0, 2).toUpperCase())}</span>
         <h3>${esc(s.name)} ${s.live ? '<span class="badge badge-live">Live</span>' : '<span class="badge badge-arch">Unavailable</span>'}</h3>
         <p>${esc(s.live ? s.how : s.why)}</p>
         ${s.live ? `<p style="flex:0">${esc(s.needs)}</p>` : ''}
@@ -806,7 +807,7 @@
       <form class="form" id="createForm" novalidate>
         <div class="field"><span>Launch on</span>
           <div class="site-pick">${SITES.filter((s) => s.live).map((s) => `
-            <button type="button" data-site="${s.id}"><b>${esc(s.name)}</b><span><span class="chain-dot" style="background:${CHAINS[s.chain].color}"></span>${CHAINS[s.chain].short}</span></button>`).join('')}
+            <button type="button" data-site="${s.id}">${logoImg(s.logo, 'site-logo')}<span class="site-txt"><b>${esc(s.name)}</b><span>${s.id === 'pump' ? 'Solana' : CHAINS[s.chain].name}</span></span></button>`).join('')}
           </div>
         </div>
         <div class="row2">
@@ -1247,7 +1248,7 @@
 
   const buildChainSeg = () => {
     $('#chainSeg').innerHTML = '<button type="button" data-chain="all">All</button>' + CHAIN_IDS.map((c) =>
-      `<button type="button" data-chain="${c}" title="${CHAINS[c].name}"><span class="chain-dot" style="background:${CHAINS[c].color}"></span>${CHAINS[c].short}</button>`).join('');
+      `<button type="button" data-chain="${c}" title="${CHAINS[c].name}">${logoImg(CHAINS[c].logo)}${CHAINS[c].short}</button>`).join('');
   };
   const syncSegs = () => {
     $$('#rangeSeg button').forEach((b) => b.classList.toggle('is-on', b.dataset.range === ui.range));
@@ -1359,16 +1360,19 @@
 
   /* ---------- status bar ---------- */
 
-  const TICKERS = [['sol', 'SOL', 'Solana'], ['eth', 'ETH', 'Ethereum'], ['bnb', 'BNB', 'BNB'], ['arc', 'ARC', 'AI Rig Complex']];
+  const TREND = {
+    up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>',
+    down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 7 6 6 4-4 8 8"/><path d="M15 17h6v-6"/></svg>'
+  };
+  const TICKERS = [['sol', 'Solana'], ['bnb', 'BNB'], ['eth', 'Ethereum'], ['arc', 'AI Rig Complex (ARC)']];
   const renderPrices = () => {
-    $('#prices').innerHTML = TICKERS.map(([k, sym, name]) => {
+    $('#prices').innerHTML = TICKERS.map(([k, name]) => {
       const p = live.prices[k];
       if (!p?.usd) return '';
       const ch = p.change || 0;
       const up = ch >= 0;
-      return `<span title="${name} · ${up ? '+' : ''}${ch.toFixed(2)}% in 24h"><b class="sb-sym">${sym}</b>
-        ${p.usd >= 1000 ? usd(p.usd) : price(p.usd)}
-        <span class="${up ? 'up' : 'down'}">${up ? '▲' : '▼'} ${Math.abs(ch).toFixed(1)}%</span></span>`;
+      const val = p.usd >= 1 ? usd(p.usd) : price(p.usd);
+      return `<span class="coin" title="${name} · ${up ? '+' : ''}${ch.toFixed(2)}% in 24h">${logoImg(`img/${k}.png`)}<b>${val}</b><i class="${up ? 'up' : 'down'}">${TREND[up ? 'up' : 'down']}</i></span>`;
     }).join('');
   };
 

@@ -61,6 +61,7 @@ erc20.js            compiled VelaToken (ABI + bytecode)
 contracts/VelaToken.sol   fixed-supply ERC-20: all minted to the deployer, no owner, no mint, no tax
 scripts/compile.js  rebuilds erc20.js: npm i --no-save solc@0.8.24 && node scripts/compile.js
 vendor/             @solana/web3.js 1.99.0 and ethers 6.17.0 browser builds, unmodified from npm
+img/                site and coin logos (pump.fun, Robinhood, Base, BNB, SOL, ETH, ARC), 64 px, from CoinGecko
 server.js           static files + /api (below)
 ```
 

@@ -271,15 +271,16 @@ http.createServer(async (req, res) => {
   }
 
   if (rel === '/') rel = '/index.html';
-  if (!PUBLIC.has(rel)) {
+  if (!PUBLIC.has(rel) && !/^\/img\/[a-z]+\.png$/.test(rel)) {
     res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('404 — nothing here');
     return;
   }
   fs.readFile(path.join(ROOT, rel), (err, body) => {
-    if (err) { res.writeHead(500).end('Read error'); return; }
+    if (err) { res.writeHead(err.code === 'ENOENT' ? 404 : 500).end(err.code === 'ENOENT' ? 'Not found' : 'Read error'); return; }
     const headers = { 'content-type': TYPES[path.extname(rel)] || 'application/octet-stream' };
     if (rel.startsWith('/vendor/')) headers['cache-control'] = 'public, max-age=31536000, immutable';
+    else if (rel.startsWith('/img/')) headers['cache-control'] = 'public, max-age=86400';
     res.writeHead(200, headers);
     res.end(body);
   });

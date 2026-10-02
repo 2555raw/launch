@@ -133,7 +133,8 @@
   const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) { /* storage blocked */ } };
 
   const state = Object.assign({ launches: [], tracked: [], activity: [], sol: null, evm: null }, read(STORE_KEY, {}));
-  const save = () => write(STORE_KEY, state);
+  let onSave = null;   // set by cloud sync
+  const save = () => { write(STORE_KEY, state); onSave?.(); };
 
   const ui = Object.assign({ range: 'all', chain: 'all', status: 'live', cumMode: 'area', dailyMode: 'bar', collapsed: false }, read(UI_KEY, {}));
   const saveUi = () => write(UI_KEY, ui);
@@ -215,6 +216,115 @@
     $('#archivedCount').textContent = state.launches.filter((l) => l.archived).length;
   };
 
+  /* ---------- cloud sync: sign in with a wallet ----------
+     The wallet signs a one-time message; the server returns a session token.
+     Launches, tracked tokens and activity then follow the wallet to any device. */
+
+  const SESSION_KEY = 'anychain-session';
+  let session = read(SESSION_KEY, null);
+  if (session && !(session.exp > Date.now())) session = null;
+  let syncTimer = null;
+  let syncState = 'idle';   // idle | syncing | synced | error
+
+  const sessionLabel = () => {
+    if (!session) return '';
+    const [kind, addr] = session.account.split(':');
+    return `${kind === 'sol' ? 'Solana' : 'EVM'} · ${short(addr)}`;
+  };
+
+  const mergeAccount = (remote) => {
+    const removed = new Set([...(state.removed || []), ...(remote.removed || [])]);
+    const byAddr = new Map();
+    for (const l of [...(remote.launches || []), ...state.launches]) {
+      const k = String(l.addr || '').toLowerCase();
+      if (!k || removed.has(k)) continue;
+      const prev = byAddr.get(k);
+      if (!prev || (l.events || []).length > (prev.events || []).length) byAddr.set(k, l);
+    }
+    const tracked = new Map();
+    for (const t of [...(remote.tracked || []), ...state.tracked]) tracked.set(String(t.addr).toLowerCase(), t);
+    const seen = new Set();
+    const activity = [...(remote.activity || []), ...state.activity]
+      .filter((a) => { const k = `${a.t}|${a.text}`; if (seen.has(k)) return false; seen.add(k); return true; })
+      .sort((a, b) => b.t - a.t).slice(0, 60);
+    state.launches = [...byAddr.values()];
+    state.tracked = [...tracked.values()];
+    state.activity = activity;
+    state.removed = [...removed].slice(-2000);
+  };
+
+  const pushAccount = async () => {
+    if (!session) return;
+    syncState = 'syncing';
+    try {
+      await C.putAccount(session.token, { launches: state.launches, tracked: state.tracked, activity: state.activity, removed: state.removed || [] });
+      syncState = 'synced';
+    } catch (e) {
+      syncState = 'error';
+      if (e.status === 401) { session = null; write(SESSION_KEY, null); toast('Sync session expired — sign in again', true); }
+    }
+    renderFunder();
+  };
+  onSave = () => {
+    if (!session) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(pushAccount, 1500);
+  };
+
+  const pullAccount = async () => {
+    if (!session) return;
+    try {
+      mergeAccount(await C.getAccount(session.token));
+      write(STORE_KEY, state);
+      renderAll();
+      await pushAccount();
+      refresh();
+    } catch (e) {
+      if (e.status === 401) { session = null; write(SESSION_KEY, null); renderAll(); }
+    }
+  };
+
+  const signIn = async (kind) => {
+    const fam = kind || (state.sol ? 'sol' : 'evm');
+    if (!state[fam] && !(await connect(fam))) return;
+    try {
+      closePops();
+      toast('Sign the message in your wallet — it is free and moves no funds');
+      session = await C.signIn(fam, state[fam].address);
+      write(SESSION_KEY, session);
+      log(`Signed in to sync as ${sessionLabel()}`);
+      await pullAccount();
+      toast(`Synced as ${sessionLabel()}`);
+    } catch (e) {
+      toast(e.message || 'Sign-in failed', true);
+    }
+  };
+  const signOut = () => {
+    session = null;
+    write(SESSION_KEY, null);
+    closePops();
+    renderAll();
+    toast('Signed out — launches stay on this device');
+  };
+
+  const syncSection = () => `
+      <div class="pop-label">Sync</div>
+      ${session
+        ? `<button type="button" disabled>${syncState === 'error' ? 'Sync failed — will retry' : 'Synced'} · ${esc(sessionLabel())}</button>
+           <button type="button" data-signout>Sign out</button>`
+        : `<button type="button" data-signin="${state.sol ? 'sol' : 'evm'}" ${state.sol || state.evm ? '' : 'disabled'}>Sign in to sync across devices</button>`}`;
+
+  const syncCard = () => `
+        <div class="card wallet-card">
+          <h3>${icon('history').replace('<svg', '<svg width="16" height="16"')}Cloud sync ${session ? '<span class="badge badge-live">On</span>' : ''}</h3>
+          <p class="dim" style="margin:0;font-size:13px">${session
+            ? `Your launches, tracked tokens and activity are saved to <b>${esc(sessionLabel())}</b> and appear on any device where you sign in with that wallet.`
+            : 'Sign a free message with your wallet to keep your launches when you switch browser or device. Nothing is moved and no keys leave your wallet.'}</p>
+          <div class="wallet-actions">${session
+            ? '<button class="btn btn-ghost" type="button" data-signout>Sign out</button>'
+            : `${state.sol ? '<button class="btn btn-primary" type="button" data-signin="sol">Sign in with Solana</button>' : ''}${state.evm ? '<button class="btn btn-primary" type="button" data-signin="evm">Sign in with EVM</button>' : ''}${!state.sol && !state.evm ? '<span class="dim" style="font-size:13px">Connect a wallet first.</span>' : ''}`}</div>
+        </div>`;
+
   const renderFunder = () => {
     const s = state.sol;
     const e = state.evm;
@@ -234,7 +344,7 @@
         ? `<button type="button" data-copy="${esc(w.address)}"><span class="chain-dot" style="background:${fam === 'sol' ? CHAINS.sol.color : CHAINS.rh.color}"></span>${esc(w.name)} · ${short(w.address)}</button>
            <button type="button" data-disconnect="${fam}">Disconnect</button>`
         : `<button type="button" data-connect="${fam}">${has ? `Connect ${label} wallet` : `Install a ${label} wallet`}</button>`}`;
-    $('#funderPop').innerHTML = sec('sol', s, 'Solana', C.hasSol()) + sec('evm', e, 'EVM', C.hasEvm());
+    $('#funderPop').innerHTML = sec('sol', s, 'Solana', C.hasSol()) + sec('evm', e, 'EVM', C.hasEvm()) + syncSection();
   };
 
   /* ---------- range bucketing ---------- */
@@ -561,7 +671,7 @@
           </div>
         </div>`;
     };
-    $('#walletCards').innerHTML = card('sol') + card('evm');
+    $('#walletCards').innerHTML = card('sol') + card('evm') + syncCard();
   };
 
   const renderSites = () => {
@@ -626,6 +736,7 @@
   const renderAll = () => { renderLaunchList(); renderFunder(); syncLandingWallet(); renderView(); };
 
   const go = (name) => {
+    if (name === 'legal-terms' || name === 'legal-risk') { go('home'); openLegal(name.slice(6)); return; }
     const home = !name || name === 'home';
     $('#landing').hidden = !home;
     if (home) { hideTip(); loadHot(); return; }
@@ -790,6 +901,7 @@
     $('#modalBody').innerHTML = body;
     $('.modal-box', modal).classList.toggle('wide', wide === true);
     $('.modal-box', modal).classList.toggle('cal-box', wide === 'cal');
+    $('.modal-box', modal).classList.toggle('launch-box', wide === 'launch');
     paintIcons($('#modalBody'));
     modal.hidden = false;
     onMount?.($('#modalBody'));
@@ -889,6 +1001,7 @@
           </div>
         </div>
         <div class="note" id="siteNote"></div>
+        ${state.acceptedTerms ? '' : `<label class="check"><input type="checkbox" name="accept"> I’ve read the <a href="#" data-legal="terms">Terms</a> and the <a href="#" data-legal="risk">Risk disclosure</a>, and I understand launches are irreversible and can lose money.</label>`}
         <ul class="steps" id="steps"></ul>
         <div class="form-foot" id="createFoot">
           <button class="btn btn-ghost" type="button" data-close>Cancel</button>
@@ -958,6 +1071,11 @@
         if (!name) { fieldErr(form, 'name', 'Give the token a name'); ok = false; }
         if (!ticker) { fieldErr(form, 'ticker', 'Letters and numbers only'); ok = false; }
 
+        if (!state.acceptedTerms) {
+          if (!form.accept?.checked) { toast('Please accept the Terms and Risk disclosure first', true); return; }
+          state.acceptedTerms = Date.now();
+          save();
+        }
         const opts = { name, symbol: ticker };
         if (site.id === 'pump') {
           const buy = parseFloat(form.buy.value);
@@ -1129,6 +1247,9 @@
         ${l.tx ? `<a href="${C.explorerTx(l.chain, l.tx)}" target="_blank" rel="noopener">Launch tx</a>` : ''}
         ${Object.entries(l.links || {}).filter(([, u]) => /^https?:\/\//i.test(u)).map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${{ twitter: 'X', telegram: 'Telegram', website: 'Website' }[k]}</a>`).join('')}
       </div>
+      ${l.priceUsd
+        ? `<div class="chart-embed"><iframe src="${C.dexEmbed(l.chain, l.addr, document.documentElement.dataset.theme?.startsWith('light'))}" title="${esc(l.ticker)} price chart" loading="lazy" referrerpolicy="no-referrer"></iframe></div>`
+        : '<p class="note" style="margin:0 0 14px">The price chart shows here once DexScreener lists the token, usually a few minutes after its first trades.</p>'}
       ${canSell ? `<div class="sell"><span>Sell dev tokens</span>
         <button class="btn btn-ghost" type="button" data-sell="25">25%</button>
         <button class="btn btn-ghost" type="button" data-sell="50">50%</button>
@@ -1148,6 +1269,7 @@
       rm?.addEventListener('click', () => {
         if (!rm.dataset.armed) { rm.dataset.armed = '1'; rm.textContent = 'Click again to remove'; return; }
         state.launches = state.launches.filter((x) => x.id !== l.id);
+        state.removed = (state.removed || []).concat(l.addr.toLowerCase()).slice(-2000);
         log(`Removed ${l.ticker} from AnyChain`); save(); closeModal(); renderAll();
       });
       $$('[data-sell]', body).forEach((b) => b.addEventListener('click', async () => {
@@ -1174,7 +1296,7 @@
           $$('[data-sell]', body).forEach((x) => { x.disabled = false; });
         }
       }));
-    });
+    }, 'launch');
   };
 
   /* ---------- P&L calendar ---------- */
@@ -1340,6 +1462,45 @@
     openModal('Activity', state.activity.length
       ? `<ul class="activity">${state.activity.slice(0, 40).map((a) => `<li><span>${esc(a.text)}</span><time>${ago(a.t)}</time></li>`).join('')}</ul>`
       : '<p class="dim">Nothing yet. Connect a wallet or create a launch.</p>');
+  };
+
+  /* ---------- legal ---------- */
+
+  const LEGAL = {
+    terms: ['Terms of Use', `
+      <p><b>Last updated:</b> October 2026</p>
+      <h3>1. What AnyChain is</h3>
+      <p>AnyChain is a non-custodial interface. It prepares blockchain transactions — creating tokens on pump.fun, Pons, Base and BNB Chain, buying and selling them — that <b>you</b> review and sign in your own wallet. AnyChain never holds your keys, your funds or your tokens, and cannot move them.</p>
+      <h3>2. Third-party services</h3>
+      <p>Launches and trades run on third-party protocols and services (pump.fun, PumpPortal, Pons, Uniswap-style pools, DexScreener, CoinGecko, RPC providers, IPFS/Pinata). AnyChain does not control them, is not affiliated with them, and is not responsible for their availability, fees, behaviour or changes.</p>
+      <h3>3. Your responsibilities</h3>
+      <p>You are solely responsible for every transaction you sign, for the tokens you create (their name, image, description and links), and for complying with the laws that apply to you — including securities, tax and consumer-protection rules. You must not use AnyChain to impersonate anyone, infringe rights, mislead buyers, manipulate markets, or launch tokens that are illegal where you or your buyers are.</p>
+      <h3>4. No advice</h3>
+      <p>Nothing on AnyChain — prices, P&amp;L, trending lists or any other content — is financial, investment, legal or tax advice, or a recommendation to buy or sell anything.</p>
+      <h3>5. No warranty</h3>
+      <p>AnyChain is provided “as is” and “as available”, without warranties of any kind. Data may be delayed, incomplete or wrong. Smart contracts and software can have bugs.</p>
+      <h3>6. Limitation of liability</h3>
+      <p>To the maximum extent permitted by law, AnyChain and its operators are not liable for any loss — including lost funds, lost tokens, failed or mistaken transactions, or lost profits — arising from your use of the site.</p>
+      <h3>7. Data</h3>
+      <p>Your launch history is stored in your browser and, if you sign in with your wallet, on AnyChain’s server under your wallet address. Images you upload for a token become public.</p>
+      <h3>8. Changes</h3>
+      <p>These terms may change; continuing to use AnyChain means you accept the current version.</p>`],
+    risk: ['Risk Disclosure', `
+      <p>Read this before launching or trading.</p>
+      <ul class="legal-list">
+        <li><b>You can lose everything you put in.</b> Most newly launched tokens go to zero. Treat any amount you spend as money you can afford to lose.</li>
+        <li><b>Transactions are final.</b> Blockchain transactions cannot be reversed, cancelled or refunded — check the network, amount and token before you sign.</li>
+        <li><b>Extreme volatility.</b> Prices on bonding curves and thin pools can move 90%+ in minutes. Slippage can give you far less than quoted.</li>
+        <li><b>Smart-contract risk.</b> The launchpad contracts, pools and AnyChain’s own code may contain bugs or be changed by their operators.</li>
+        <li><b>Scams and impersonation.</b> Anyone can create a token with any name and logo. A token on a trending list is not endorsed or verified by AnyChain.</li>
+        <li><b>Third-party failures.</b> Wallets, RPCs, launchpads and data providers can fail, lag or show wrong data, including the P&amp;L shown here.</li>
+        <li><b>Regulation and tax.</b> Creating or promoting tokens may be regulated where you live; trades may be taxable. You are responsible for compliance.</li>
+        <li><b>Keys.</b> Never share your seed phrase. AnyChain will never ask for it.</li>
+      </ul>`]
+  };
+  const openLegal = (kind) => {
+    const [title, html] = LEGAL[kind];
+    openModal(title, `<div class="legal">${html}</div>`, null, 'launch');
   };
 
   const openDocs = () => {
@@ -1539,6 +1700,13 @@
       return;
     }
     if (el('#calBtn')) { openCalendar(); return; }
+    if (el('[data-legal]')) {
+      e.preventDefault();
+      /* opened from inside the Create Launch form: keep the form, show the text in a new tab-like modal after it */
+      if (!modal.hidden && $('#createForm')) { window.open(`#legal-${el('[data-legal]').dataset.legal}`, '_blank', 'noopener'); return; }
+      openLegal(el('[data-legal]').dataset.legal);
+      return;
+    }
     if (el('#filterBtn')) { togglePop($('#filterPop')); return; }
     if (el('[data-status]')) { ui.status = el('[data-status]').dataset.status; saveUi(); syncFilter(); renderLaunchList(); closePops(); return; }
     if (el('#funderBtn')) { togglePop($('#funderPop')); return; }
@@ -1551,6 +1719,8 @@
       connect(fam); return;
     }
     if (el('[data-disconnect]')) { disconnect(el('[data-disconnect]').dataset.disconnect); return; }
+    if (el('[data-signin]')) { signIn(el('[data-signin]').dataset.signin); return; }
+    if (el('[data-signout]')) { signOut(); return; }
     if (el('[data-copy]')) { copy(el('[data-copy]').dataset.copy, 'Address'); return; }
     if (el('[data-unarchive]')) {
       const l = state.launches.find((x) => x.id === el('[data-unarchive]').dataset.unarchive);
@@ -1682,7 +1852,11 @@
   go(location.hash.slice(1));
 
   ping().then(() => { if (view === 'sites') renderSites(); });
-  restoreWallets().finally(refresh);
+  restoreWallets().finally(() => { refresh(); pullAccount(); });
+  /* installable app: the service worker caches the shell so AnyChain opens offline */
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('/sw.js').catch(() => { /* not fatal */ });
+  }
   setInterval(ping, 20000);
   setInterval(() => { if (!document.hidden && !busy) refresh(); }, 60000);
 })();

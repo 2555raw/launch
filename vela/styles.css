@@ -826,3 +826,20 @@ img.logo { width: 16px; height: 16px; border-radius: 50%; flex: none; object-fit
   .cal-grid.is-year { grid-template-columns: repeat(3, 1fr); }
   .cal-brand { display: none; }
 }
+
+/* ---------- launch panel chart ---------- */
+
+.modal-box.launch-box { width: min(680px, 100%); }
+.chart-embed { position: relative; height: 340px; margin: 0 0 14px; border-radius: var(--r-sm); overflow: hidden; border: 1px solid var(--line); background: var(--card-hi); }
+.chart-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+@media (max-width: 680px) { .chart-embed { height: 280px; } }
+
+/* ---------- legal ---------- */
+
+.legal { font-size: 13.5px; line-height: 1.55; color: var(--prose); }
+.legal h3 { margin: 16px 0 4px; font-size: 14px; color: var(--ink); }
+.legal p { margin: 0 0 8px; }
+.legal-list { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 8px; }
+.ld-legal { margin-top: 8px; }
+.ld-legal a { color: var(--prose); text-decoration: underline; }
+.check a { color: var(--primary-text); text-decoration: underline; }

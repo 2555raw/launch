@@ -9,6 +9,10 @@
  *   POST /api/sol-rpc         Solana JSON-RPC, forwarded to SOLANA_RPC_URL, read + send only
  *   POST /api/ipfs            stores the token image (and, for pump.fun, its metadata): IPFS via Pinata, else /media
  *   GET  /media/<sha256>.<ext>  self-hosted token images and metadata
+ *   POST /api/auth/nonce      a one-time message for the wallet to sign
+ *   POST /api/auth/verify     checks the signature, returns a 30-day session token
+ *   GET  /api/account         the signed-in wallet's launches, tracked tokens and activity
+ *   PUT  /api/account         saves them (so they follow the wallet across devices)
  *   POST /api/pump/create     asks PumpPortal for an unsigned pump.fun create tx
  *   POST /api/pump/sell       asks PumpPortal for an unsigned sell tx (a % of the wallet's tokens)
  *   GET  /api/token/:addrs    market data from DexScreener (cached 15 s)
@@ -33,7 +37,9 @@ const ROOT = __dirname;
 const PORT = process.env.PORT || 8080;
 const SOLANA_RPC_URL = process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com';
 const PINATA_JWT = process.env.PINATA_JWT || '';
-const MEDIA_DIR = path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATA_DIR || path.join(ROOT, 'data'), 'anychain-media');
+const DATA_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATA_DIR || path.join(ROOT, 'data');
+const ACCOUNTS_DIR = path.join(DATA_DIR, 'anychain-accounts');
+const MEDIA_DIR = path.join(DATA_DIR, 'anychain-media');
 const MEDIA_CAP = 400 * 1024 * 1024;   // stop accepting uploads before the volume fills
 const MEDIA_TYPES = { png: 'image/png', jpg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', json: 'application/json; charset=utf-8' };
 
@@ -45,11 +51,13 @@ const TYPES = {
   '.svg': 'image/svg+xml',
   '.png': 'image/png',
   '.ico': 'image/x-icon',
-  '.txt': 'text/plain; charset=utf-8'
+  '.txt': 'text/plain; charset=utf-8',
+  '.webmanifest': 'application/manifest+json'
 };
 
 /* Only these files are served; the server source, contracts and scripts are not. */
-const PUBLIC = new Set(['/index.html', '/styles.css', '/app.js', '/chain.js', '/erc20.js',
+const PUBLIC = new Set(['/index.html', '/styles.css', '/app.js', '/chain.js', '/erc20.js', '/sw.js', '/manifest.webmanifest',
+  '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-32.png',
   '/vendor/solana-web3-1.99.0.min.js', '/vendor/ethers-6.17.0.min.js']);
 
 /* Solana RPC methods the page uses. Anything else is refused, so the endpoint
@@ -161,7 +169,115 @@ const allowUpload = (req) => {
   return true;
 };
 
+/* ---------- accounts: sign in with a wallet ----------
+   The wallet signs a one-time message; the server checks the signature
+   (ed25519 for Solana, secp256k1 for EVM) and hands back a session token
+   signed with a server secret. No password, no email, no keys. */
+
+let ethersLib = null;
+const ethersNode = () => ethersLib || (ethersLib = require('./vendor/ethers-6.17.0.min.js'));
+
+const B58_ALPHABET = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const b58decode = (s) => {
+  let n = 0n;
+  for (const ch of s) {
+    const i = B58_ALPHABET.indexOf(ch);
+    if (i < 0) throw new Error('bad base58');
+    n = n * 58n + BigInt(i);
+  }
+  const hex = n.toString(16);
+  const body = Buffer.from(hex.length % 2 ? '0' + hex : hex, 'hex');
+  const lead = s.match(/^1*/)[0].length;
+  return Buffer.concat([Buffer.alloc(lead), n === 0n ? Buffer.alloc(0) : body]);
+};
+
+const sessionSecret = (() => {
+  if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+  const file = path.join(DATA_DIR, 'anychain-session.key');
+  try { return fs.readFileSync(file, 'utf8').trim(); } catch (_) { /* first run */ }
+  const key = crypto.randomBytes(32).toString('hex');
+  try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(file, key, { mode: 0o600 }); } catch (_) { /* memory only */ }
+  return key;
+})();
+
+const nonces = new Map();   // account -> { message, exp }
+const accountId = (kind, address) => (kind === 'evm' ? `evm:${address.toLowerCase()}` : `sol:${address}`);
+const signToken = (account, exp) => {
+  const body = Buffer.from(JSON.stringify({ a: account, e: exp })).toString('base64url');
+  return `${body}.${crypto.createHmac('sha256', sessionSecret).update(body).digest('base64url')}`;
+};
+const readToken = (req) => {
+  const m = /^Bearer (.+)\.(.+)$/.exec(req.headers.authorization || '');
+  if (!m) return null;
+  const want = crypto.createHmac('sha256', sessionSecret).update(m[1]).digest();
+  const got = Buffer.from(m[2], 'base64url');
+  if (got.length !== want.length || !crypto.timingSafeEqual(got, want)) return null;
+  try {
+    const { a, e } = JSON.parse(Buffer.from(m[1], 'base64url').toString());
+    return e > Date.now() ? a : null;
+  } catch (_) { return null; }
+};
+const accountFile = (account) => path.join(ACCOUNTS_DIR, `${crypto.createHash('sha256').update(account).digest('hex')}.json`);
+
 const api = {
+  'POST /api/auth/nonce': async (req, res) => {
+    const b = await readJson(req);
+    const kind = b.kind === 'evm' ? 'evm' : 'sol';
+    if (!(kind === 'evm' ? EVM : B58).test(b.address || '')) return fail(res, 400, 'Invalid address');
+    const account = accountId(kind, b.address);
+    const message = `AnyChain sign-in\n\nWallet: ${b.address}\nNonce: ${crypto.randomBytes(16).toString('hex')}\nIssued: ${new Date().toISOString()}\n\nSigning proves you own this wallet so your launches sync across devices. It is free and does not move any funds.`;
+    nonces.set(account, { message, exp: Date.now() + 5 * 60e3 });
+    if (nonces.size > 10000) nonces.delete(nonces.keys().next().value);
+    send(res, 200, { message });
+  },
+
+  'POST /api/auth/verify': async (req, res) => {
+    const b = await readJson(req);
+    const kind = b.kind === 'evm' ? 'evm' : 'sol';
+    if (!(kind === 'evm' ? EVM : B58).test(b.address || '')) return fail(res, 400, 'Invalid address');
+    const account = accountId(kind, b.address);
+    const pending = nonces.get(account);
+    if (!pending || pending.exp < Date.now()) return fail(res, 400, 'Sign-in expired, try again');
+    nonces.delete(account);
+    let ok = false;
+    try {
+      if (kind === 'sol') {
+        const pub = b58decode(b.address);
+        const key = crypto.createPublicKey({ key: { kty: 'OKP', crv: 'Ed25519', x: pub.toString('base64url') }, format: 'jwk' });
+        ok = pub.length === 32 && crypto.verify(null, Buffer.from(pending.message), key, Buffer.from(String(b.signature), 'base64'));
+      } else {
+        ok = ethersNode().verifyMessage(pending.message, String(b.signature)).toLowerCase() === b.address.toLowerCase();
+      }
+    } catch (_) { ok = false; }
+    if (!ok) return fail(res, 401, 'Signature does not match this wallet');
+    const exp = Date.now() + 30 * 24 * 3600e3;
+    send(res, 200, { token: signToken(account, exp), account, exp });
+  },
+
+  'GET /api/account': async (req, res) => {
+    const account = readToken(req);
+    if (!account) return fail(res, 401, 'Not signed in');
+    try { send(res, 200, JSON.parse(fs.readFileSync(accountFile(account), 'utf8'))); } catch (_) { send(res, 200, { launches: [], tracked: [], activity: [], removed: [] }); }
+  },
+
+  'PUT /api/account': async (req, res) => {
+    const account = readToken(req);
+    if (!account) return fail(res, 401, 'Not signed in');
+    const b = await readJson(req, 2 * 1024 * 1024);
+    const data = {
+      launches: Array.isArray(b.launches) ? b.launches.slice(0, 1000) : [],
+      tracked: Array.isArray(b.tracked) ? b.tracked.slice(0, 500) : [],
+      activity: Array.isArray(b.activity) ? b.activity.slice(0, 100) : [],
+      removed: Array.isArray(b.removed) ? b.removed.slice(-2000).map(String) : [],
+      updatedAt: Date.now()
+    };
+    fs.mkdirSync(ACCOUNTS_DIR, { recursive: true });
+    const file = accountFile(account);
+    fs.writeFileSync(`${file}.tmp`, JSON.stringify(data));
+    fs.renameSync(`${file}.tmp`, file);
+    send(res, 200, { ok: true, updatedAt: data.updatedAt });
+  },
+
   'GET /api/health': async (req, res) => send(res, 200, {
     ok: true,
     pinata: !!PINATA_JWT,
@@ -382,7 +498,8 @@ http.createServer(async (req, res) => {
   fs.readFile(path.join(ROOT, rel), (err, body) => {
     if (err) { res.writeHead(err.code === 'ENOENT' ? 404 : 500).end(err.code === 'ENOENT' ? 'Not found' : 'Read error'); return; }
     const headers = { 'content-type': TYPES[path.extname(rel)] || 'application/octet-stream' };
-    if (rel.startsWith('/vendor/')) headers['cache-control'] = 'public, max-age=31536000, immutable';
+    if (rel === '/sw.js' || rel === '/index.html') headers['cache-control'] = 'no-cache';   // updates reach installed apps
+    else if (rel.startsWith('/vendor/')) headers['cache-control'] = 'public, max-age=31536000, immutable';
     else if (rel.startsWith('/img/')) headers['cache-control'] = 'public, max-age=86400';
     res.writeHead(200, headers);
     res.end(body);

@@ -32,6 +32,7 @@ No dependencies; Node 18 or newer.
 | `DATA_DIR` | where self-hosted media is kept | the Railway volume mount, else `./data` |
 | `PUBLIC_URL` | base URL written into self-hosted metadata | `https://$RAILWAY_PUBLIC_DOMAIN` |
 | `SOLANA_RPC_URL` | Solana balances, sending transactions | `https://api.mainnet-beta.solana.com` (heavily rate-limited — use Helius, QuickNode, Triton…) |
+| `SESSION_SECRET` | signs sync sessions | generated once and kept on the volume |
 | `PORT` | | `8080` |
 
 Opening `index.html` straight from disk shows the interface but nothing works: the status bar reads
@@ -54,6 +55,13 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   positive streaks, and *Save as image* for a PNG of the month.
 - **Base / BNB Chain logos**: an ERC-20 has no on-chain logo, so the one you pick is stored with the launch
   and shown in AnyChain; explorers and DEXs take their own logo submissions.
+- **Price chart** in each launch's panel (DexScreener embed) once the token has a market.
+- **Sign in with your wallet** (My Wallets or the wallet menu): the wallet signs a free one-time message,
+  the server checks it (ed25519 / secp256k1) and returns a 30-day session; launches, tracked tokens and
+  activity are then stored per wallet on the server volume and merged on every device you sign in on.
+- **Installable**: web app manifest, icons and a service worker (offline shell) — "Add to Home Screen".
+- **Terms and Risk disclosure**, linked from the landing and the status bar; accepting them is required
+  before the first launch.
 - **Import**: add a token launched elsewhere so its P&L is tracked; give its cost if you know it.
 
 Clearing the browser's site data forgets the launch list (the tokens stay on-chain; import them again).
@@ -85,6 +93,8 @@ server.js           static files + /api (below)
 | `GET /media/<sha256>.<ext>` | self-hosted token images and metadata (content-addressed, immutable) |
 | `POST /api/pump/create` | unsigned pump.fun create transaction from PumpPortal |
 | `POST /api/pump/sell` | unsigned sell transaction (a % of the wallet's tokens) |
+| `POST /api/auth/nonce`, `POST /api/auth/verify` | wallet sign-in (one-time message, signature check, session token) |
+| `GET /api/account`, `PUT /api/account` | the signed-in wallet's synced data |
 | `GET /api/token/:addrs` | DexScreener market data, up to 30 addresses |
 | `GET /api/trending` | trending tokens (DexScreener boosts + profiles) on the four chains, cached 60 s |
 

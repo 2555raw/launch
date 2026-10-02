@@ -333,10 +333,45 @@
     (await postJson('/api/ipfs', { name, symbol, image, imageOnly: true })).image;
   const ponsPage = (addr) => `https://www.ponsfamily.com/launchpad/${addr}`;
 
+  /* ---------- sign in with a wallet ---------- */
+
+  const authed = async (method, token, body) => {
+    const r = await fetch('/api/account', {
+      method, headers: { authorization: `Bearer ${token}`, ...(body ? { 'content-type': 'application/json' } : {}) },
+      body: body ? JSON.stringify(body) : undefined
+    }).catch(() => { throw new Error('AnyChain server unreachable'); });
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw Object.assign(new Error(j.error || `HTTP ${r.status}`), { status: r.status });
+    return j;
+  };
+  const getAccount = (token) => authed('GET', token);
+  const putAccount = (token, data) => authed('PUT', token, data);
+
+  const signIn = async (kind, address) => {
+    const { message } = await postJson('/api/auth/nonce', { kind, address });
+    let signature;
+    try {
+      if (kind === 'sol') {
+        const res = await solProvider().signMessage(new TextEncoder().encode(message), 'utf8');
+        const bytes = res?.signature || res;
+        signature = b64(new Uint8Array(bytes));
+      } else {
+        const hex = '0x' + [...new TextEncoder().encode(message)].map((x) => x.toString(16).padStart(2, '0')).join('');
+        signature = await evmProvider().request({ method: 'personal_sign', params: [hex, address] });
+      }
+    } catch (e) {
+      throw new Error(e?.code === 4001 ? 'Signature rejected in the wallet' : (e?.message || 'Wallet could not sign'));
+    }
+    return postJson('/api/auth/verify', { kind, address, signature });
+  };
+
   /* ---------- links ---------- */
 
   const explorerTx = (chain, sig) => (chain === 'sol' ? `https://solscan.io/tx/${sig}` : `${EVM[chain].explorer}/tx/${sig}`);
   const explorerToken = (chain, addr) => (chain === 'sol' ? `https://solscan.io/token/${addr}` : `${EVM[chain].explorer}/token/${addr}`);
+  const DEX_IDS = { sol: 'solana', rh: 'robinhood', base: 'base', bnb: 'bsc' };
+  const dexEmbed = (chain, addr, light) =>
+    `https://dexscreener.com/${DEX_IDS[chain]}/${addr}?embed=1&loadChartSettings=0&trades=0&tabs=0&info=0&chartLeftToolbar=0&chartDefaultOnMobile=1&chartTheme=${light ? 'light' : 'dark'}&theme=${light ? 'light' : 'dark'}&chartStyle=1&chartType=usd&interval=15`;
   const dexscreener = (chain, addr) => `https://dexscreener.com/${{ sol: 'solana', rh: 'robinhood', base: 'base', bnb: 'bsc' }[chain]}/${addr}`;
 
   window.VelaChain = {
@@ -345,6 +380,7 @@
     hasSol: () => !!solProvider(), hasEvm: () => !!evmProvider(),
     solBalance, solTokenBalance, evmBalance, evmTokenBalance,
     launchPump, sellPump, launchEvm, launchPons, ponsPage, uploadImage,
-    explorerTx, explorerToken, dexscreener
+    signIn, getAccount, putAccount,
+    explorerTx, explorerToken, dexscreener, dexEmbed
   };
 })();

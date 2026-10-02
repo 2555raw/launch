@@ -1,7 +1,7 @@
 {
   "name": "AnyChain",
   "short_name": "AnyChain",
-  "description": "Launch coins on pump.fun, Pons, Base and BNB Chain from your own wallet, and track every launch.",
+  "description": "Launch your coin on Solana, Robinhood Chain, Base and BNB Chain from one site and your own wallet.",
   "start_url": "/#dashboard",
   "scope": "/",
   "display": "standalone",

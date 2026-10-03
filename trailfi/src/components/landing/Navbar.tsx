@@ -14,6 +14,7 @@ import { X_URL } from "@/lib/social";
 const SECTIONS = [
   { id: "how-it-works", label: "How it works" },
   { id: "rewards", label: "Rewards" },
+  { id: "ranking", label: "Ranking" },
   { id: "leaderboard", label: "Payouts" },
   { id: "faq", label: "FAQ" },
 ];

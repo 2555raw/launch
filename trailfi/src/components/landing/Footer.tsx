@@ -14,6 +14,7 @@ const COLUMNS = [
     links: [
       { href: "/#how-it-works", label: "How it works" },
       { href: "/#rewards", label: "Rewards" },
+      { href: "/#ranking", label: "Ranking" },
       { href: "/#leaderboard", label: "Payouts" },
       { href: "/#faq", label: "FAQ" },
     ],

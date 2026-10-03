@@ -42,7 +42,7 @@ export function Leaderboard() {
     <section id="leaderboard" className="relative scroll-mt-24 py-28 sm:py-36">
       <div className="container">
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <SectionHeading index="03" label="Payouts" title="Steps, turned into pay.">
+          <SectionHeading index="04" label="Payouts" title="Steps, turned into pay.">
             Every time a walker is paid, the payout shows up here.
           </SectionHeading>
           <Reveal className="flex items-center gap-2 lg:pb-3">

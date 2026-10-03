@@ -6,6 +6,7 @@ import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Leaderboard } from "@/components/landing/Leaderboard";
 import { Navbar } from "@/components/landing/Navbar";
 import { RewardsSection } from "@/components/landing/RewardsSection";
+import { WeeklyRanking } from "@/components/landing/WeeklyRanking";
 
 export default function HomePage() {
   return (
@@ -15,6 +16,7 @@ export default function HomePage() {
         <Hero />
         <HowItWorks />
         <RewardsSection />
+        <WeeklyRanking />
         <Leaderboard />
         <Faq />
         <CallToAction />

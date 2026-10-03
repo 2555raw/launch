@@ -42,7 +42,7 @@ export function Faq() {
   return (
     <section id="faq" className="relative scroll-mt-24 py-28 sm:py-36">
       <div className="container grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
-        <SectionHeading index="04" label="FAQ" title="Questions from" accent="the trail.">
+        <SectionHeading index="05" label="FAQ" title="Questions from" accent="the trail.">
           Rewards, verification and wallets, answered plainly.
         </SectionHeading>
         <Reveal delay={0.1} className="glass rounded-3xl px-6 sm:px-8">

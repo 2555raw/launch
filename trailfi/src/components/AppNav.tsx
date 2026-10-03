@@ -18,6 +18,7 @@ const ADMIN = { href: "/admin", label: "Admin panel", icon: ShieldCheck };
 const SITE = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/#rewards", label: "Rewards" },
+  { href: "/#ranking", label: "Ranking" },
   { href: "/#leaderboard", label: "Payouts" },
   { href: "/#faq", label: "FAQ" },
 ];

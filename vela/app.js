@@ -796,7 +796,8 @@
 
   const renderLandingLaunched = () => {
     const list = pub.list.slice(0, 10);
-    $('#pubCountLine').textContent = pub.total ? `${pub.total} coin${pub.total === 1 ? '' : 's'} made here.` : 'Every coin made here.';
+    // a small count reads as a weakness: the number only shows, in the kicker, once it is worth showing
+    $('#pubKicker').textContent = pub.total >= 50 ? `${pub.total.toLocaleString('en-US')} coins launched on AnyChain` : 'Launched on AnyChain';
     $('#pubCards').innerHTML = list.length ? list.map((l) => { const m = l.market || {}; return `
       <a class="hot-card" href="${esc(pubLink(l))}" target="_blank" rel="noopener">
         <div class="hot-top">

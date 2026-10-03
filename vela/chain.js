@@ -480,10 +480,19 @@
   const putAccount = (token, data) => authed('PUT', token, data);
 
   const signIn = async (kind, address) => {
-    const { message } = await postJson('/api/auth/nonce', { kind, address });
-    let signature;
+    const { message, nonce } = await postJson('/api/auth/nonce', { kind, address });
+    let signature, signedMessage;
     try {
-      if (kind === 'sol') {
+      if (kind === 'sol' && typeof solProvider()?.signIn === 'function') {
+        /* Sign In With Solana: the wallet shows "Sign in to <this site>" and binds the message to our domain */
+        const out = await solProvider().signIn({
+          domain: location.host, address, uri: location.origin, version: '1', chainId: 'mainnet', nonce,
+          issuedAt: new Date().toISOString(),
+          statement: 'Sign in to AnyChain to sync your launches across devices. Free, and it does not move any funds.'
+        });
+        signedMessage = b64(new Uint8Array(out.signedMessage));
+        signature = b64(new Uint8Array(out.signature));
+      } else if (kind === 'sol') {
         const res = await solProvider().signMessage(new TextEncoder().encode(message), 'utf8');
         const bytes = res?.signature || res;
         signature = b64(new Uint8Array(bytes));
@@ -494,7 +503,7 @@
     } catch (e) {
       throw new Error(e?.code === 4001 ? 'Signature rejected in the wallet' : (e?.message || 'Wallet could not sign'));
     }
-    return postJson('/api/auth/verify', { kind, address, signature });
+    return postJson('/api/auth/verify', { kind, address, signature, signedMessage });
   };
 
   /* ---------- links ---------- */

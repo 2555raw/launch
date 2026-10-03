@@ -69,7 +69,9 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
 - **Base / BNB Chain logos**: an ERC-20 has no on-chain logo, so the one you pick is stored with the launch
   and shown in AnyChain; explorers and DEXs take their own logo submissions.
 - **Price chart** in each launch's panel (DexScreener embed) once the token has a market.
-- **Sign in with your wallet** (My Wallets or the wallet menu): the wallet signs a free one-time message,
+- **Sign in with your wallet** (My Wallets or the wallet menu): Solana wallets that support it use Sign In
+  With Solana (the wallet shows "Sign in to anychain.website"; the server checks the domain, wallet and nonce);
+  others sign a free one-time message,
   the server checks it (ed25519 / secp256k1) and returns a 30-day session; launches, tracked tokens and
   activity are then stored per wallet on the server volume and merged on every device you sign in on.
 - **Installable**: web app manifest, icons and a service worker (offline shell) — "Add to Home Screen".

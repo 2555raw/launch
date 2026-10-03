@@ -307,10 +307,11 @@ const api = {
     const kind = b.kind === 'evm' ? 'evm' : 'sol';
     if (!(kind === 'evm' ? EVM : B58).test(b.address || '')) return fail(res, 400, 'Invalid address');
     const account = accountId(kind, b.address);
-    const message = `AnyChain sign-in\n\nWallet: ${b.address}\nNonce: ${crypto.randomBytes(16).toString('hex')}\nIssued: ${new Date().toISOString()}\n\nSigning proves you own this wallet so your launches sync across devices. It is free and does not move any funds.`;
-    nonces.set(account, { message, exp: Date.now() + 5 * 60e3 });
+    const nonce = crypto.randomBytes(16).toString('hex');
+    const message = `AnyChain sign-in\n\nWallet: ${b.address}\nNonce: ${nonce}\nIssued: ${new Date().toISOString()}\n\nSigning proves you own this wallet so your launches sync across devices. It is free and does not move any funds.`;
+    nonces.set(account, { message, nonce, exp: Date.now() + 5 * 60e3 });
     if (nonces.size > 10000) nonces.delete(nonces.keys().next().value);
-    send(res, 200, { message });
+    send(res, 200, { message, nonce });
   },
 
   'POST /api/auth/verify': async (req, res) => {
@@ -326,7 +327,16 @@ const api = {
       if (kind === 'sol') {
         const pub = b58decode(b.address);
         const key = crypto.createPublicKey({ key: { kty: 'OKP', crv: 'Ed25519', x: pub.toString('base64url') }, format: 'jwk' });
-        ok = pub.length === 32 && crypto.verify(null, Buffer.from(pending.message), key, Buffer.from(String(b.signature), 'base64'));
+        let signed = Buffer.from(pending.message);
+        if (b.signedMessage) {
+          /* Sign In With Solana: the wallet wrote the message; it must name this site, this wallet and our nonce */
+          signed = Buffer.from(String(b.signedMessage), 'base64');
+          const text = signed.toString('utf8');
+          const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').split(',')[0].trim();
+          const lines = text.split('\n');
+          if (lines[0] !== `${host} wants you to sign in with your Solana account:` || lines[1] !== b.address || !lines.includes(`Nonce: ${pending.nonce}`)) throw new Error('bad SIWS message');
+        }
+        ok = pub.length === 32 && crypto.verify(null, signed, key, Buffer.from(String(b.signature), 'base64'));
       } else {
         ok = ethersNode().verifyMessage(pending.message, String(b.signature)).toLowerCase() === b.address.toLowerCase();
       }

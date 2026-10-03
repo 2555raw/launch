@@ -1664,6 +1664,13 @@
       rim.addColorStop(0.5, 'rgba(235,240,255,.95)'); rim.addColorStop(0.56, 'rgba(110,140,255,.35)'); rim.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = rim; g.fillRect(0, 0, w, h);
       g.beginPath(); g.arc(cx, cy, R * 0.995, 0, Math.PI * 2); g.fillStyle = '#05060a'; g.fill();
+      // a bright, glowing rim like light catching the edge of the planet
+      g.save(); g.lineCap = 'round';
+      [[60, 14, 'rgba(110,140,255,.45)'], [24, 6, 'rgba(200,215,255,.8)'], [6, 2.5, 'rgba(255,255,255,.95)']].forEach(([blur, lw, c]) => {
+        g.shadowColor = c; g.shadowBlur = blur * (w / 1280); g.strokeStyle = c; g.lineWidth = lw * (w / 1280);
+        g.beginPath(); g.arc(cx, cy, R * 0.995, Math.PI * 1.08, Math.PI * 1.62); g.stroke();
+      });
+      g.restore();
       const haze = g.createRadialGradient(w * 0.8, h * 0.5, 0, w * 0.8, h * 0.5, h);
       haze.addColorStop(0, 'rgba(90,110,255,.16)'); haze.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = haze; g.fillRect(0, 0, w, h);
@@ -1703,42 +1710,65 @@
     if (d.icon) { g.save(); g.beginPath(); g.arc(x + 26, y, 26, 0, Math.PI * 2); g.clip(); g.drawImage(d.icon, x, y - 26, 52, 52); g.restore(); x += 66; }
     g.fillStyle = '#fff'; g.font = '700 40px Inter, sans-serif'; g.fillText(d.title, x, y);
     const v = d.pnl * k, pct = d.pct == null ? null : d.pct * k;
-    const big = d.hide ? (pct == null ? (up ? 'In profit' : 'In loss') : `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`) : signed(v, Math.abs(d.pnl) < 100 ? 2 : 0);
+    const pctTxt = (x) => `${x >= 0 ? '+' : ''}${Math.abs(x) >= 1000 ? Math.round(x).toLocaleString('en-US') : x.toFixed(1)}%`;
+    const big = d.hide ? (pct == null ? (up ? 'In profit' : 'In loss') : pctTxt(pct)) : signed(v, Math.abs(d.pnl) < 100 ? 2 : 0);
     g.font = '800 84px Inter, sans-serif';
     const bw = g.measureText(big).width + 48;
     g.fillStyle = tintBg; g.beginPath(); g.roundRect(60, 316, bw, 112, 14); g.fill();
     g.fillStyle = tint; g.fillText(big, 84, 374);
-    if (!d.hide && pct != null) {
-      const small = `${pct >= 0 ? '+' : ''}${Math.abs(pct) >= 1000 ? Math.round(pct).toLocaleString('en-US') : pct.toFixed(1)}%`;
-      g.font = '700 34px Inter, sans-serif';
-      const sw = g.measureText(small).width + 36;
-      g.fillStyle = tintBg; g.beginPath(); g.roundRect(60, 446, sw, 58, 10); g.fill();
-      g.fillStyle = tint; g.fillText(small, 78, 476);
+    // small pills: the amount in the chain's coin, and the %
+    const pills = [];
+    if (!d.hide && d.showNative && d.native != null) {
+      const n = d.native * k, an = Math.abs(d.native);
+      pills.push({ icon: d.coinImg, text: `${n >= 0 ? '+' : '-'}${Math.abs(n).toFixed(an < 1 ? 3 : an < 100 ? 2 : 0)} ${d.unit}` });
     }
-    g.textAlign = 'right'; g.fillStyle = '#fff'; g.font = '800 38px Inter, sans-serif'; g.fillText(d.corner, 1216, 648);
-    g.textAlign = 'left'; g.fillStyle = 'rgba(255,255,255,.65)'; g.font = '600 20px Inter, sans-serif'; g.fillText('anychain.website', 64, 650);
+    if (!d.hide && d.showPct && pct != null) pills.push({ text: pctTxt(pct) });
+    let px = 60;
+    g.font = '700 32px Inter, sans-serif';
+    pills.forEach((pl) => {
+      const tw = g.measureText(pl.text).width, iw = pl.icon ? 34 : 0, w2 = tw + iw + 36;
+      g.fillStyle = tintBg; g.beginPath(); g.roundRect(px, 446, w2, 58, 10); g.fill();
+      if (pl.icon) { g.save(); g.beginPath(); g.arc(px + 18 + 13, 475, 13, 0, Math.PI * 2); g.clip(); g.drawImage(pl.icon, px + 18, 462, 26, 26); g.restore(); }
+      g.fillStyle = tint; g.fillText(pl.text, px + 18 + iw, 476);
+      px += w2 + 12;
+    });
+    g.textAlign = 'right'; g.fillStyle = '#fff'; g.font = '800 38px Inter, sans-serif';
+    if (d.kind === 'launch' || d.showLaunches) g.fillText(d.corner, 1216, 648);
+    g.textAlign = 'left'; g.fillStyle = 'rgba(255,255,255,.7)'; g.font = '600 22px Inter, sans-serif';
+    g.fillText(d.user ? `@${d.user.replace(/^@/, '')}` : 'anychain.website', 64, 650);
     g.restore();
   };
 
   const shareData = (kind, id) => {
+    const d = shareBase(kind, id);
+    if (!d) return null;
+    // the amount in the chain's own coin: the coin of the launch, or the one most launches use
+    const fams = d.chains.map((c) => (c === 'sol' ? 'sol' : c === 'bnb' ? 'bnb' : 'eth'));
+    const count = (c) => fams.filter((z) => z === c).length;
+    const fam = fams.length ? fams.reduce((best, c) => (count(c) > count(best) ? c : best), fams[0]) : 'sol';
+    const price = usdOf(fam === 'eth' ? 'base' : fam);
+    return { ...d, kind, unit: fam.toUpperCase(), coin: `img/${fam}.png`, native: price ? d.pnl / price : null };
+  };
+  const shareBase = (kind, id) => {
     const pctOf = (p, cost) => (cost > 0 ? p / cost * 100 : null);
     if (kind === 'launch') {
       const l = state.launches.find((x) => x.id === id);
       if (!l) return null;
       const p = pnlOf(l);
-      return { title: `$${l.ticker}`, pnl: p, pct: pctOf(p, l.costUsd || 0), corner: `${siteName(l.site)} · ${CHAINS[l.chain].name}`, image: l.image, file: l.ticker };
+      return { title: `$${l.ticker}`, pnl: p, pct: pctOf(p, l.costUsd || 0), corner: `${siteName(l.site)} · ${CHAINS[l.chain].name}`, image: l.image, file: l.ticker, chains: [l.chain] };
     }
     if (kind === 'month') {
       const { pnl, launches } = dailyStats();
       let p = 0, n = 0;
       const days = new Date(cal.y, cal.m + 1, 0).getDate();
       for (let i = 1; i <= days; i++) { const key = dayKey(new Date(cal.y, cal.m, i)); p += pnl.get(key) || 0; n += launches.get(key) || 0; }
-      const cost = state.launches.filter(inChain).filter((l) => { const d = new Date(l.created); return d.getFullYear() === cal.y && d.getMonth() === cal.m; }).reduce((a, l) => a + (l.costUsd || 0), 0);
-      return { title: `${MONTHS_FULL[cal.m]} ${cal.y}`, pnl: p, pct: pctOf(p, cost), corner: `${n} Launch${n === 1 ? '' : 'es'}`, file: `${cal.y}-${String(cal.m + 1).padStart(2, '0')}` };
+      const inMonth = state.launches.filter(inChain).filter((l) => { const d = new Date(l.created); return d.getFullYear() === cal.y && d.getMonth() === cal.m; });
+      const cost = inMonth.reduce((a, l) => a + (l.costUsd || 0), 0);
+      return { title: `${MONTHS_FULL[cal.m]} ${cal.y}`, pnl: p, pct: pctOf(p, cost), corner: `${n} Launch${n === 1 ? '' : 'es'}`, file: `${cal.y}-${String(cal.m + 1).padStart(2, '0')}`, chains: inMonth.map((l) => l.chain) };
     }
     const ls = state.launches.filter(inChain);
     const p = ls.reduce((a, l) => a + pnlOf(l), 0), cost = ls.reduce((a, l) => a + (l.costUsd || 0), 0);
-    return { title: 'All-time P&L', pnl: p, pct: pctOf(p, cost), corner: `${ls.length} Launch${ls.length === 1 ? '' : 'es'}`, file: 'total' };
+    return { title: 'All-time P&L', pnl: p, pct: pctOf(p, cost), corner: `${ls.length} Launch${ls.length === 1 ? '' : 'es'}`, file: 'total', chains: ls.map((l) => l.chain) };
   };
 
   // MP4 (H.264) first: it is what X accepts; WebM where the browser can't record MP4
@@ -1749,30 +1779,49 @@
     const d = shareData(kind, id);
     if (!d) return;
     d.icon = await loadImg(d.image);
+    d.coinImg = await loadImg(d.coin);
     await document.fonts.load('800 40px Inter').catch(() => {});
+    let prefs = { showLaunches: true, showNative: true, showPct: true, hide: false, user: '' };
+    try { prefs = { ...prefs, ...JSON.parse(localStorage.getItem('anychain-share') || '{}') }; } catch (_) { /* storage blocked */ }
     const st = { mode: 'image', bg: 'horizon', userImg: null, video: null, music: null, recording: false };
+    const opts = () => ({ ...d, ...prefs });
     openModal('Share your P&L', `
       <div class="studio">
         <div class="studio-prev"><canvas id="stCanvas" width="${SW}" height="${SH}"></canvas></div>
-        <div class="studio-bar">
-          <div class="seg" id="stModes"><button type="button" data-st-mode="image" class="is-on">${icon('image')}<span>Image</span></button><button type="button" data-st-mode="video">${icon('line')}<span>Video</span></button></div>
-          <label class="check"><input type="checkbox" id="stHide"> Hide amounts</label>
+        <div class="studio-panel">
+          <div class="studio-head"><div class="seg seg-pill" id="stModes"><button type="button" data-st-mode="image" class="is-on">${icon('image')}<span>Image</span></button><button type="button" data-st-mode="video">${icon('line')}<span>Video</span></button></div></div>
+          <div class="studio-bgs" id="stBgs">
+            ${Object.keys(SHARE_BGS).map((k, i) => `<button type="button" class="studio-bg${i ? '' : ' is-on'}" data-st-bg="${k}" aria-label="${k} background"><canvas width="192" height="108"></canvas></button>`).join('')}
+            <label class="studio-bg studio-up" title="Your own photo or video — it stays in your browser">${icon('image')}<span>Upload background</span><input type="file" id="stFile" accept="image/*,video/*" hidden></label>
+          </div>
+          <div class="studio-music" id="stMusicRow" hidden>
+            <label class="btn btn-ghost btn-sm">${icon('upload')}<span>Add music</span><input type="file" id="stMusic" accept="audio/*" hidden></label>
+            <span class="dim" id="stMusicTxt"></span>
+          </div>
         </div>
-        <div class="studio-bgs" id="stBgs">
-          ${Object.keys(SHARE_BGS).map((k, i) => `<button type="button" class="studio-bg${i ? '' : ' is-on'}" data-st-bg="${k}"><canvas width="192" height="108"></canvas></button>`).join('')}
-          <label class="studio-bg studio-up" title="Your own photo or video — it stays in your browser">${icon('upload')}<span>Your photo or video</span><input type="file" id="stFile" accept="image/*,video/*" hidden></label>
-        </div>
-        <div class="studio-music" id="stMusicRow" hidden>
-          <label class="btn btn-ghost">${icon('upload')}<span>Add music</span><input type="file" id="stMusic" accept="audio/*" hidden></label>
-          <span class="dim" id="stMusicTxt">No music — add a song, or upload a video to use its sound</span>
+        <div class="studio-panel">
+          <div class="studio-head">
+            <button class="btn btn-ghost btn-sm" type="button" id="stSettingsBtn">${icon('gear')}<span>Settings</span></button>
+            <span class="studio-actions">
+              <button class="btn btn-ghost btn-sm" type="button" id="stSave">${icon('download')}<span>Download</span></button>
+              <button class="btn btn-ghost btn-sm" type="button" id="stCopy">${icon('copy')}<span>Copy</span></button>
+              <button class="btn btn-primary btn-sm" type="button" id="stX">${icon('x')}<span>Share</span></button>
+            </span>
+          </div>
+          <div class="studio-settings" id="stSettings" hidden>
+            <label class="check"><input type="checkbox" data-pref="showLaunches" ${prefs.showLaunches ? 'checked' : ''}> Show launches</label>
+            <label class="check"><input type="checkbox" data-pref="showNative" ${prefs.showNative ? 'checked' : ''}> Show ${d.unit}</label>
+            <label class="check"><input type="checkbox" data-pref="showPct" ${prefs.showPct ? 'checked' : ''}> Show %</label>
+            <label class="check"><input type="checkbox" data-pref="hide" ${prefs.hide ? 'checked' : ''}> Hide $ amounts</label>
+            <label class="field studio-user"><span>Username</span><input id="stUser" placeholder="Enter username" maxlength="24" value="${esc(prefs.user)}"></label>
+          </div>
         </div>
         <p class="studio-status dim" id="stStatus"></p>
-        <div class="form-foot">
-          <button class="btn btn-ghost" type="button" id="stCopy">${icon('copy')}<span>Copy</span></button>
-          <button class="btn btn-ghost" type="button" id="stSave">${icon('download')}<span>Download</span></button>
-          <button class="btn btn-primary" type="button" id="stX">${icon('x')}<span>Share on X</span></button>
-        </div>
       </div>`, (body) => {
+      const savePrefs = () => { try { localStorage.setItem('anychain-share', JSON.stringify(prefs)); } catch (_) { /* storage blocked */ } };
+      $('#stSettingsBtn', body).addEventListener('click', () => { const sp = $('#stSettings', body); sp.hidden = !sp.hidden; $('#stSettingsBtn', body).classList.toggle('is-on', !sp.hidden); });
+      $$('[data-pref]', body).forEach((c) => c.addEventListener('change', () => { prefs[c.dataset.pref] = c.checked; savePrefs(); }));
+      $('#stUser', body).addEventListener('input', (e) => { prefs.user = e.target.value.trim().replace(/[^\w.@-]/g, ''); savePrefs(); });
       const cv = $('#stCanvas', body), g = cv.getContext('2d');
       // thumbnails of our backgrounds
       $$('[data-st-bg]', body).forEach((b) => { const c = $('canvas', b), tg = c.getContext('2d'); SHARE_BGS[b.dataset.stBg](tg, 192, 108, 0); });
@@ -1787,7 +1836,7 @@
         if (!st.recording) {
           const t = (performance.now() - t0) / 1000;
           paintBg(g, SW, SH, st.mode === 'video' ? t : 0);
-          drawShareCard(g, SW, SH, { ...d, hide: $('#stHide', body).checked }, st.mode === 'video' ? Math.min(1, (t % 6) / 1.2) : 1);
+          drawShareCard(g, SW, SH, opts(), st.mode === 'video' ? Math.min(1, (t % 6) / 1.2) : 1);
         }
         requestAnimationFrame(loop);
       };
@@ -1803,7 +1852,6 @@
           st.mode = m.dataset.stMode;
           $$('#stModes button', body).forEach((x) => x.classList.toggle('is-on', x === m));
           $('#stMusicRow', body).hidden = st.mode !== 'video';
-          $('#stCopy', body).hidden = st.mode === 'video';
           musicTxt();
           return;
         }
@@ -1838,7 +1886,7 @@
       const still = () => {
         const c = document.createElement('canvas'); c.width = SW * 2; c.height = SH * 2;
         const cg = c.getContext('2d'); cg.scale(2, 2);
-        paintBg(cg, SW, SH, 0); drawShareCard(cg, SW, SH, { ...d, hide: $('#stHide', body).checked }, 1);
+        paintBg(cg, SW, SH, 0); drawShareCard(cg, SW, SH, opts(), 1);
         return c;
       };
       const pngBlob = () => new Promise((r) => still().toBlob(r, 'image/png'));
@@ -1871,7 +1919,7 @@
         const frame = () => {
           const t = (performance.now() - start) / 1000;
           paintBg(g, SW, SH, t);
-          drawShareCard(g, SW, SH, { ...d, hide: $('#stHide', body).checked }, Math.min(1, t / 1.2));
+          drawShareCard(g, SW, SH, opts(), Math.min(1, t / 1.2));
           status(`Recording… ${Math.min(dur, t).toFixed(1)} / ${dur.toFixed(0)} s`);
           if (t < dur) requestAnimationFrame(frame); else rec.stop();
         };

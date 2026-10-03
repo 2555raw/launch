@@ -1001,24 +1001,39 @@ img.logo { width: 16px; height: 16px; border-radius: 50%; flex: none; object-fit
 .legal-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--dim); }
 
 /* P&L share studio */
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; gap: 6px; }
+.btn-sm svg { width: 15px; height: 15px; }
 .kpi-btns { display: inline-flex; gap: 2px; }
-.studio { display: grid; gap: 12px; }
-.studio-prev { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: #000; }
+.studio { display: grid; gap: 10px; }
+.studio-prev { border-radius: 16px; overflow: hidden; border: 1px solid var(--line); background: #000; }
 .studio-prev canvas { display: block; width: 100%; height: auto; }
-.studio-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.studio-bar .seg button { display: inline-flex; align-items: center; gap: 6px; }
-.studio-bar .seg button svg { width: 14px; height: 14px; }
-.studio-bgs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.studio-bg { position: relative; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; border: 2px solid transparent; background: var(--surface); padding: 0; cursor: pointer; }
+.studio-panel { border: 1px solid var(--line); border-radius: 14px; background: var(--card); overflow: hidden; }
+.studio-head { display: flex; align-items: center; gap: 8px; padding: 10px 12px; }
+.studio-panel > * + * { border-top: 1px solid var(--line); }
+.studio-actions { margin-left: auto; display: inline-flex; gap: 6px; }
+.seg-pill { border-radius: 999px; padding: 3px; }
+.seg-pill button { border-radius: 999px; height: 28px; padding: 0 12px; }
+.seg-pill button svg { width: 14px; height: 14px; }
+.studio-bgs { display: flex; gap: 10px; padding: 12px; }
+.studio-bg { position: relative; flex: 0 0 auto; width: 112px; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; border: 1.5px solid var(--line-hi); background: var(--surface); padding: 0; cursor: pointer; transition: border-color .15s; }
+.studio-bg:hover { border-color: var(--muted); }
 .studio-bg canvas { display: block; width: 100%; height: 100%; }
-.studio-bg.is-on { border-color: var(--primary); }
-.studio-up { display: grid; place-items: center; align-content: center; gap: 6px; border: 1px dashed var(--line-hi); color: var(--muted); font-size: 11.5px; text-align: center; padding: 6px; }
-.studio-up.is-on { border-style: solid; color: var(--ink); }
-.studio-up svg { width: 18px; height: 18px; }
-.studio-music { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 13px; }
+.studio-bg.is-on { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+.studio-up { margin-left: auto; width: 112px; display: grid; place-items: center; align-content: center; gap: 4px; border-style: solid; color: var(--muted); font-size: 10.5px; text-align: center; padding: 4px; background: var(--card-hi); }
+.studio-up.is-on { color: var(--ink); }
+.studio-up svg { width: 16px; height: 16px; }
+.studio-music { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px; font-size: 12.5px; }
 .studio-music label { cursor: pointer; }
+.studio-settings { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 20px; padding: 14px 14px 16px; }
+.studio-settings .check { font-size: 14px; color: var(--ink); }
+.studio-user { grid-column: 1 / -1; }
+#stSettingsBtn.is-on { background: var(--surface); }
 .studio-status { min-height: 1em; margin: 0; font-size: 12.5px; }
-@media (max-width: 560px) { .studio-bgs { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) {
+  .studio-bgs { flex-wrap: wrap; } .studio-bg { width: calc(50% - 5px); } .studio-up { margin-left: 0; width: calc(50% - 5px); }
+  .studio-head { flex-wrap: wrap; } .studio-actions { margin-left: 0; }
+  .studio-settings { grid-template-columns: 1fr; }
+}
 
 /* launch wizard */
 .fee-line { grid-column: 1 / -1; margin: -2px 0 0; font-size: 12.5px; color: var(--muted); }

@@ -727,6 +727,24 @@
         </tr>`).join('')}</tbody>` : '<tbody><tr><td class="table-empty">No archived launches.</td></tr></tbody>';
   };
 
+  /* ---------- landing: the launch form in "How it works" types a few coin names ---------- */
+  (() => {
+    const coins = [['Nebula', 'NEB'], ['Pepe Coin', 'PEPE'], ['Moonshot', 'MOON'], ['Doge Rocket', 'DOGER'], ['Orbit', 'ORB'], ['La Passion', 'LAPASS']];
+    const nameEl = $('#artName'), tickEl = $('#artTick');
+    if (!nameEl || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let i = 0, n = coins[0][0].length, typing = false;
+    const tick = () => {
+      let wait = typing ? 85 : 40;
+      if (typing) { n++; if (n >= coins[i][0].length) { typing = false; wait = 1600; } }
+      else { n--; if (n <= 0) { n = 0; i = (i + 1) % coins.length; typing = true; wait = 350; } }
+      const [name, sym] = coins[i];
+      nameEl.textContent = name.slice(0, n);
+      tickEl.textContent = sym.slice(0, Math.ceil(sym.length * n / name.length));   // the ticker fills in alongside
+      setTimeout(tick, $('#landing').hidden ? 1000 : wait);
+    };
+    setTimeout(tick, 1800);
+  })();
+
   /* ---------- tokens launched from AnyChain, by everyone ---------- */
 
   let pub = { at: 0, total: 0, list: [] };

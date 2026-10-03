@@ -1029,6 +1029,16 @@ img.logo { width: 16px; height: 16px; border-radius: 50%; flex: none; object-fit
 .studio-user { grid-column: 1 / -1; }
 #stSettingsBtn.is-on { background: var(--surface); }
 .studio-status { min-height: 1em; margin: 0; font-size: 12.5px; }
+.studio-prev { position: relative; }
+.studio-rec { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.12); }
+.studio-rec span { display: block; height: 100%; width: 0; background: #f2646f; transition: width .2s linear; }
+.studio.is-recording .studio-panel { opacity: .5; pointer-events: none; }
+.is-recording .studio-panel { opacity: .5; pointer-events: none; }
+.studio-result { display: flex; align-items: center; gap: 14px; padding: 12px; border: 1px solid color-mix(in srgb, var(--accent-fill) 45%, var(--line)); border-radius: 14px; background: color-mix(in srgb, var(--accent-fill) 7%, var(--card)); flex-wrap: wrap; }
+.studio-result video { width: 128px; aspect-ratio: 16 / 9; border-radius: 8px; background: #000; object-fit: cover; }
+.studio-result b { display: block; font-size: 14px; }
+.studio-result span.dim { font-size: 12px; }
+.studio-result .studio-actions { margin-left: auto; }
 @media (max-width: 560px) {
   .studio-bgs { flex-wrap: wrap; } .studio-bg { width: calc(50% - 5px); } .studio-up { margin-left: 0; width: calc(50% - 5px); }
   .studio-head { flex-wrap: wrap; } .studio-actions { margin-left: 0; }

@@ -1787,7 +1787,15 @@
     const opts = () => ({ ...d, ...prefs });
     openModal('Share your P&L', `
       <div class="studio">
-        <div class="studio-prev"><canvas id="stCanvas" width="${SW}" height="${SH}"></canvas></div>
+        <div class="studio-prev"><canvas id="stCanvas" width="${SW}" height="${SH}"></canvas><div class="studio-rec" id="stRec" hidden><span></span></div></div>
+        <div class="studio-result" id="stResult" hidden>
+          <video id="stResVideo" muted playsinline loop></video>
+          <div><b>Your video is ready</b><span class="dim" id="stResInfo"></span></div>
+          <span class="studio-actions">
+            <a class="btn btn-primary btn-sm" id="stResSave" download>${icon('download')}<span>Save video</span></a>
+            <button class="btn btn-ghost btn-sm" type="button" id="stResX">${icon('x')}<span>Post on X</span></button>
+          </span>
+        </div>
         <div class="studio-panel">
           <div class="studio-head"><div class="seg seg-pill" id="stModes"><button type="button" data-st-mode="image" class="is-on">${icon('image')}<span>Image</span></button><button type="button" data-st-mode="video">${icon('line')}<span>Video</span></button></div></div>
           <div class="studio-bgs" id="stBgs">
@@ -1913,40 +1921,58 @@
         const rec = new MediaRecorder(new MediaStream(tracks), { mimeType: type, videoBitsPerSecond: 8e6 });
         const chunks = [];
         rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
-        rec.onstop = () => { st.recording = false; if (st.music) st.music.pause(); if (st.video) st.video.muted = true; resolve(new Blob(chunks, { type: type.split(';')[0] })); };
-        st.recording = true;
+        const lock = (on) => { body.classList.toggle('is-recording', on); $('#stRec', body).hidden = !on; };
+        rec.onstop = () => { st.recording = false; lock(false); status(''); if (st.music) st.music.pause(); if (st.video) st.video.muted = true; resolve(new Blob(chunks, { type: type.split(';')[0] })); };
+        st.recording = true; lock(true);
         const start = performance.now();
         const frame = () => {
+          if (!st.recording) return;
           const t = (performance.now() - start) / 1000;
           paintBg(g, SW, SH, t);
           drawShareCard(g, SW, SH, opts(), Math.min(1, t / 1.2));
-          status(`Recording… ${Math.min(dur, t).toFixed(1)} / ${dur.toFixed(0)} s`);
-          if (t < dur) requestAnimationFrame(frame); else rec.stop();
+          $('#stRec span', body).style.width = `${Math.min(100, t / dur * 100)}%`;
+          status(`Recording ${Math.min(dur, t).toFixed(1)} / ${dur.toFixed(0)} s — keep this tab open`);
+          requestAnimationFrame(frame);
         };
         rec.start(250); frame();
+        setTimeout(() => { if (rec.state === 'recording') rec.stop(); }, dur * 1000);
       });
 
-      const download = async () => {
-        if (st.mode === 'image') { saveFile(await pngBlob(), `anychain-pnl-${d.file}.png`); return true; }
+      const postText = () => {
+        const pct = d.pct == null || !prefs.showPct ? '' : `${d.pct >= 0 ? '+' : ''}${d.pct.toFixed(0)}% `;
+        return kind === 'launch' ? `${pct}on ${d.title} 🚀 launched with @HeyAnyChain\n\nanychain.website`
+          : `${d.title}: ${pct}${d.corner.toLowerCase()} with @HeyAnyChain\n\nanychain.website`;
+      };
+      const openX = () => window.open(`https://x.com/intent/post?text=${encodeURIComponent(postText())}`, '_blank', 'noopener');
+      const makeVideo = async () => {
+        if (st.recording) return;
+        $('#stResult', body).hidden = true;
         try {
           const blob = await record();
-          saveFile(blob, `anychain-pnl-${d.file}.${blob.type.includes('mp4') ? 'mp4' : 'webm'}`);
-          status('Video saved'); return true;
-        } catch (err) { st.recording = false; status(''); toast(err.message, true); return false; }
+          const url = URL.createObjectURL(blob), ext = blob.type.includes('mp4') ? 'mp4' : 'webm';
+          const v = $('#stResVideo', body); v.src = url; v.play().catch(() => {});
+          Object.assign($('#stResSave', body), { href: url, download: `anychain-pnl-${d.file}.${ext}` });
+          $('#stResInfo', body).textContent = ` ${ext.toUpperCase()} · ${(blob.size / 1e6).toFixed(1)} MB${ext === 'webm' ? ' · X needs MP4: record in Chrome, Edge or Safari' : ''}`;
+          $('#stResult', body).hidden = false;
+          $('#stResult', body).scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        } catch (err) { st.recording = false; body.classList.remove('is-recording'); $('#stRec', body).hidden = true; status(''); toast(err.message, true); }
       };
-      $('#stSave', body).addEventListener('click', () => { if (!st.recording) download(); });
+      $('#stResX', body).addEventListener('click', openX);
+      $('#stSave', body).addEventListener('click', async () => {
+        if (st.mode === 'image') saveFile(await pngBlob(), `anychain-pnl-${d.file}.png`);
+        else makeVideo();
+      });
       $('#stCopy', body).addEventListener('click', async () => {
         try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': await pngBlob() })]); toast('Image copied — paste it in your post'); }
         catch (_) { toast('Your browser can’t copy images — use Download', true); }
       });
       $('#stX', body).addEventListener('click', async () => {
         if (st.recording) return;
-        if (st.mode === 'image') { try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': await pngBlob() })]); toast('Image copied — paste it into the post'); } catch (_) { await download(); } }
-        else if (!(await download())) return;
-        const pct = d.pct == null ? '' : `${d.pct >= 0 ? '+' : ''}${d.pct.toFixed(0)}% `;
-        const text = kind === 'launch' ? `${pct}on ${d.title} 🚀 launched with @HeyAnyChain\n\nanychain.website`
-          : `${d.title}: ${pct}${d.corner.toLowerCase()} with @HeyAnyChain\n\nanychain.website`;
-        window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+        if (st.mode === 'video') { makeVideo(); return; }   // the result shows "Post on X"
+        const w = window.open('about:blank', '_blank');   // open now, while the click still counts
+        try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': await pngBlob() })]); toast('Image copied — paste it into the post'); }
+        catch (_) { saveFile(await pngBlob(), `anychain-pnl-${d.file}.png`); toast('Image saved — attach it to the post'); }
+        if (w) w.location.href = `https://x.com/intent/post?text=${encodeURIComponent(postText())}`; else openX();
       });
     }, 'launch');
   };

@@ -127,8 +127,7 @@ export function Footer() {
 
         <div className="relative z-10 mt-14 flex flex-col-reverse gap-4 text-[13.5px] sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-md text-xs leading-relaxed text-white/40">
-            © {new Date().getFullYear()} Stepit. Rewards are variable, reviewed before payment and never guaranteed. Not
-            financial advice.
+            © {new Date().getFullYear()} Stepit.
           </p>
           <nav className="flex items-center gap-4 text-white/85" aria-label="Legal">
             <Link href="/privacy" className="transition hover:text-lime-300">

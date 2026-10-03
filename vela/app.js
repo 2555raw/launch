@@ -1413,7 +1413,7 @@
         const before = await balance();
         const sig = t.chain === 'sol'
           ? await C.tradeSol(t.addr, buy ? 'buy' : 'sell', value, { slippage }, st.step)
-          : await C.tradeEvm(t.chain, t.addr, buy ? 'buy' : 'sell', value, { slippage }, st.step);
+          : await C.tradeEvm(t.chain, t.addr, buy ? 'buy' : 'sell', value, { slippage, launchTx: t.site === 'pons' ? t.tx : null }, st.step);
         const after = await balance();
         st.done();
         list.insertAdjacentHTML('beforeend', `<li class="is-done"><a class="link-btn" href="${C.explorerTx(t.chain, sig)}" target="_blank" rel="noopener">View transaction</a></li>`);

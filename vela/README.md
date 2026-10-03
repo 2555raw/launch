@@ -61,8 +61,9 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   is signed by the wallet first and by the mint key after, as Phantom asks for multi-signer transactions.
 - **Buy / Sell** any token from its launch panel or from the Tracker (*Trade*): Solana through Jupiter
   (every DEX and the pump.fun curve; PumpPortal as fallback), Robinhood Chain / Base / BNB Chain through
-  the KyberSwap aggregator (Pons curves included), with slippage protection and the ERC-20 approval when
-  selling. Cost of buys and proceeds of sells are measured from the wallet and booked on the launch.
+  the KyberSwap aggregator, with slippage protection and the ERC-20 approval when selling. A Pons token
+  the aggregator hasn't indexed yet (a fresh launch) trades straight on its bonding curve: the curve is
+  found from the launch transaction, `buy`/`sell` are quoted with a static call and sent with a minimum out. Cost of buys and proceeds of sells are measured from the wallet and booked on the launch.
 - **Status bar**: SOL, BNB and ETH prices from CoinGecko, and what a transfer costs on Base right now (gas price × 21k gas × ETH), cached 30 s. **Tracker**: DexScreener, cached 15 s.
 - **P&L calendar** (calendar icon on *Total P&L*): daily P&L and launches per day, monthly and yearly views,
   positive streaks, and *Save as image* for a PNG of the month.

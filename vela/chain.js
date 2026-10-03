@@ -421,6 +421,68 @@
     'function approve(address spender, uint256 value) returns (bool)'
   ];
 
+  /* ---------- Pons bonding curve (Robinhood Chain) ----------
+     Each Pons token trades on its own curve contract until it graduates. A token fresh off the
+     launchpad isn't on the aggregator yet, so its trades go straight to the curve. */
+  const PONS_CURVE_ABI = [
+    'function token() view returns (address)', 'function graduated() view returns (bool)',
+    'function buy(uint256 amountIn, uint256 minOut, address to) payable returns (uint256)',
+    'function sell(uint256 amountIn, uint256 minOut, address to) returns (uint256)'
+  ];
+  const PONS_ADDRS = ['0x7ed598bcef8bd9edd8c97a195c6d13f40801ec7e', '0xe33e9e479df8802cb0866d5d05258bec4cf62948'];
+  const TRANSFER_TOPIC = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+  const ZERO_TOPIC = '0x' + '0'.repeat(64);
+  const ponsCurves = {};
+  /* the curve shows up in the token's launch transaction: it is the log emitter whose token() is this token */
+  const findPonsCurve = async (token, launchTx) => {
+    const key = token.toLowerCase();
+    if (ponsCurves[key]) return ponsCurves[key];
+    let tx = launchTx;
+    if (!tx) {   // not our launch: find the token's mint (Transfer from 0x0), newest blocks first
+      const head = parseInt(await evmRpc('rh', 'eth_blockNumber', []), 16);
+      for (let to = head, i = 0; !tx && i < 40 && to > 0; i++, to -= 50000) {
+        const logs = await evmRpc('rh', 'eth_getLogs', [{ address: token, topics: [TRANSFER_TOPIC, ZERO_TOPIC], fromBlock: '0x' + Math.max(0, to - 50000).toString(16), toBlock: '0x' + to.toString(16) }]).catch(() => []);
+        if (logs?.length) tx = logs[0].transactionHash;
+      }
+    }
+    if (!tx) return null;
+    const rc = await evmRpc('rh', 'eth_getTransactionReceipt', [tx]);
+    const cands = [...new Set((rc?.logs || []).map((l) => l.address.toLowerCase()))].filter((a) => a !== key && !PONS_ADDRS.includes(a));
+    for (const a of cands) {
+      const r = await evmRpc('rh', 'eth_call', [{ to: a, data: '0xfc0c546a' }, 'latest']).catch(() => null);   // token()
+      if (r && r.length >= 66 && '0x' + r.slice(-40) === key) return (ponsCurves[key] = a);
+    }
+    return null;
+  };
+
+  const tradePonsCurve = async (ethers, signer, acct, token, side, amountIn, opts, step) => {
+    step('Trading on the Pons bonding curve');
+    const curveAddr = await findPonsCurve(token, opts.launchTx);
+    if (!curveAddr) throw new Error('No route for this token yet — try again in a few minutes');
+    const curve = new ethers.Contract(curveAddr, PONS_CURVE_ABI, signer);
+    if (await curve.graduated().catch(() => false)) throw new Error('This token has left the Pons curve; its pool can be traded once the aggregator lists it');
+    if (side === 'sell') {
+      const erc20 = new ethers.Contract(token, ERC20_ABI, signer);
+      if ((await erc20.allowance(acct.address, curveAddr)) < amountIn) {
+        step('Approve the token for the Pons curve');
+        await (await erc20.approve(curveAddr, amountIn)).wait(1);
+      }
+    }
+    // the curve returns what it would pay: that sets the slippage floor
+    const quoted = side === 'buy'
+      ? await curve.buy.staticCall(amountIn, 0n, acct.address, { value: amountIn })
+      : await curve.sell.staticCall(amountIn, 0n, acct.address);
+    const minOut = quoted * (10000n - BigInt(Math.round((opts.slippage || 10) * 100))) / 10000n;
+    step(side === 'buy' ? 'Approve the buy in your wallet' : 'Approve the sale in your wallet');
+    const tx = side === 'buy'
+      ? await curve.buy(amountIn, minOut, acct.address, { value: amountIn })
+      : await curve.sell(amountIn, minOut, acct.address);
+    step('Waiting for confirmation');
+    const rcpt = await tx.wait(1);
+    if (!rcpt || rcpt.status !== 1) throw Object.assign(new Error('Trade reverted'), { signature: tx.hash });
+    return tx.hash;
+  };
+
   /* Robinhood Chain, Base, BNB: route from the aggregator, sent by the user's wallet.
      Buy: value = native amount (ETH/BNB). Sell: value = % of the wallet's tokens. */
   const tradeEvm = async (chain, token, side, value, opts, step) => {
@@ -440,9 +502,15 @@
     }
     step('Finding the best route');
     const qs = new URLSearchParams({ chain, tokenIn: side === 'buy' ? NATIVE : token.toLowerCase(), tokenOut: side === 'buy' ? token.toLowerCase() : NATIVE, amountIn: amountIn.toString() });
-    const quote = await api(`/api/evm/quote?${qs}`);
-    const built = await postJson('/api/evm/build', { chain, routeSummary: quote.routeSummary, sender: acct.address, slippageBps: Math.round((opts.slippage || 10) * 100) });
+    let built = null;
     try {
+      const quote = await api(`/api/evm/quote?${qs}`);
+      built = await postJson('/api/evm/build', { chain, routeSummary: quote.routeSummary, sender: acct.address, slippageBps: Math.round((opts.slippage || 10) * 100) });
+    } catch (e) {
+      if (chain !== 'rh') throw e;   // on Robinhood Chain a fresh Pons token trades on its curve instead
+    }
+    try {
+      if (!built) return await tradePonsCurve(ethers, signer, acct, token, side, amountIn, opts, step);
       if (side === 'sell') {
         const allowed = await erc20.allowance(acct.address, built.to);
         if (allowed < amountIn) {

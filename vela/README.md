@@ -69,9 +69,10 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   and positive streaks.
 - **Share your P&L** (share icon on *Total P&L*, *Share P&L* on each launch, the export button in the
   calendar): a 1280×720 card with the month, the token or the all-time total, the P&L and the % over one of
-  three backgrounds or the user's own photo or video. *Image* saves a 2× PNG or copies it; *Video* records
-  the animated card with the background video's sound or a song the user adds (MP4 where the browser can
-  record it, else WebM). Uploads stay in the browser. *Share on X* copies or saves the card and opens a
+  three backgrounds or the user's own photo or video. *Image* saves a 2× PNG or copies it; *Video* renders
+  the animated card frame by frame with WebCodecs into an MP4 (H.264 + AAC; VP9/Opus where the browser has
+  no H.264 encoder), with the background video's sound or a song the user adds — 30 fps however slow the
+  computer is. Browsers without WebCodecs fall back to recording the canvas live. Uploads stay in the browser. *Share on X* copies or saves the card and opens a
   prefilled post. *Hide amounts* shows only the %.
 - **Base / BNB Chain logos**: an ERC-20 has no on-chain logo, so the one you pick is stored with the launch
   and shown in AnyChain; explorers and DEXs take their own logo submissions.
@@ -103,7 +104,7 @@ chain.js            window.VelaChain — wallets, RPC reads, pump.fun and EVM la
 erc20.js            compiled VelaToken (ABI + bytecode)
 contracts/VelaToken.sol   fixed-supply ERC-20: all minted to the deployer, no owner, no mint, no tax
 scripts/compile.js  rebuilds erc20.js: npm i --no-save solc@0.8.24 && node scripts/compile.js
-vendor/             @solana/web3.js 1.99.0 and ethers 6.17.0 browser builds, unmodified from npm
+vendor/             @solana/web3.js 1.99.0, ethers 6.17.0 and mp4-muxer 5.2.1 browser builds, unmodified from npm
 img/                launchpad and coin logos (pump.fun, Pons, Robinhood, Base, BNB, SOL, ETH, ARC), 64 px, from CoinGecko
 img/hero/           the large transparent logos floating on the landing page (official SVGs where they exist)
 server.js           static files + /api (below)

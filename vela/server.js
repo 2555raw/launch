@@ -64,7 +64,7 @@ const TYPES = {
 /* Only these files are served; the server source, contracts and scripts are not. */
 const PUBLIC = new Set(['/index.html', '/styles.css', '/app.js', '/chain.js', '/erc20.js', '/sw.js', '/manifest.webmanifest',
   '/icons/icon-192.png', '/icons/icon-512.png', '/icons/apple-touch-icon.png', '/icons/favicon-32.png', '/icons/og.png',
-  '/vendor/solana-web3-1.99.0.min.js', '/vendor/ethers-6.17.0.min.js']);
+  '/vendor/solana-web3-1.99.0.min.js', '/vendor/ethers-6.17.0.min.js', '/vendor/mp4-muxer-5.2.1.js']);
 
 /* Solana RPC methods the page uses. Anything else is refused, so the endpoint
    can't be borrowed as a general-purpose RPC. */

@@ -1658,6 +1658,9 @@
   const SHARE_BGS = {
     horizon: (g, w, h, t) => {
       g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
+      g.save();
+      const z = 1 + 0.018 * t;   // a slow push-in keeps the frame alive
+      g.translate(w * 0.8, h * 0.62); g.scale(z, z); g.translate(-w * 0.8, -h * 0.62);
       const cx = w * 0.98, cy = h * 2.05, R = h * 1.72;
       const rim = g.createRadialGradient(cx, cy, R * 0.94, cx, cy, R * 1.06);
       rim.addColorStop(0, 'rgba(0,0,0,0)'); rim.addColorStop(0.47, `rgba(120,150,255,${0.55 + 0.1 * Math.sin(t * 1.3)})`);
@@ -1674,12 +1677,22 @@
       const haze = g.createRadialGradient(w * 0.8, h * 0.5, 0, w * 0.8, h * 0.5, h);
       haze.addColorStop(0, 'rgba(90,110,255,.16)'); haze.addColorStop(1, 'rgba(0,0,0,0)');
       g.fillStyle = haze; g.fillRect(0, 0, w, h);
-      for (let i = 0; i < 70; i++) { const x = (i * 197.3) % w, y = (i * 113.7) % (h * 0.7); g.fillStyle = `rgba(255,255,255,${0.15 + 0.35 * Math.abs(Math.sin(i + t))})`; g.fillRect(x, y, 1.5, 1.5); }
+      // a highlight sweeping along the rim
+      const a = Math.PI * (1.1 + 0.5 * ((t * 0.16) % 1));
+      const hx = cx + Math.cos(a) * R, hy = cy + Math.sin(a) * R;
+      const hl = g.createRadialGradient(hx, hy, 0, hx, hy, h * 0.22);
+      hl.addColorStop(0, 'rgba(255,255,255,.55)'); hl.addColorStop(0.4, 'rgba(150,175,255,.18)'); hl.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = hl; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 70; i++) {
+        const x = ((i * 197.3) - t * (4 + (i % 5) * 3) % w + w) % w, y = (i * 113.7) % (h * 0.7);
+        g.fillStyle = `rgba(255,255,255,${0.15 + 0.35 * Math.abs(Math.sin(i + t * 1.7))})`; g.fillRect(x, y, 1.5, 1.5);
+      }
+      g.restore();
     },
     aurora: (g, w, h, t) => {
       g.fillStyle = '#04030a'; g.fillRect(0, 0, w, h);
       [['rgba(52,227,168,.55)', 0.75, 0.3, 0.5], ['rgba(122,60,255,.55)', 0.55, 0.75, 0.45], ['rgba(40,140,255,.45)', 0.95, 0.85, 0.4]].forEach(([c, x, y, r], i) => {
-        const px = w * (x + 0.06 * Math.sin(t * 0.7 + i * 2)), py = h * (y + 0.06 * Math.cos(t * 0.6 + i));
+        const px = w * (x + 0.14 * Math.sin(t * 0.9 + i * 2)), py = h * (y + 0.12 * Math.cos(t * 0.75 + i));
         const gr = g.createRadialGradient(px, py, 0, px, py, h * r * 1.4);
         gr.addColorStop(0, c); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
       });
@@ -1690,7 +1703,7 @@
       gr.addColorStop(0, 'rgba(52,227,168,.28)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
       const u = h / 14, s = 8 * u;
       for (let r = -1; r < 3; r++) for (let c = 0; c < 5; c++) {
-        const x = w * 0.42 + c * s * 1.05 - ((t * 18) % (s * 1.05)), y = r * s * 1.05 + (c % 2) * s * 0.5;
+        const x = w * 0.42 + c * s * 1.05 - ((t * 40) % (s * 1.05)), y = r * s * 1.05 + (c % 2) * s * 0.5;
         drawMark(g, x, y, u, `rgba(255,255,255,${0.05 + 0.05 * ((r + c) % 3)})`);
       }
       drawMark(g, w * 0.66, h * 0.22, h / 13, 'rgba(255,255,255,.92)');
@@ -1698,7 +1711,7 @@
   };
 
   /* the card itself, over whatever background; k (0–1) counts the figures up in a video */
-  const drawShareCard = (g, w, h, d, k = 1) => {
+  const drawShareCard = (g, w, h, d, k = 1, t = null) => {
     const up = d.pnl >= 0, tint = up ? '#34e3a8' : '#f2646f', tintBg = up ? 'rgba(52,227,168,.18)' : 'rgba(242,100,111,.18)';
     const shade = g.createLinearGradient(0, 0, w * 0.7, 0);
     shade.addColorStop(0, 'rgba(0,0,0,.72)'); shade.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = shade; g.fillRect(0, 0, w, h);
@@ -1716,6 +1729,13 @@
     const bw = g.measureText(big).width + 48;
     g.fillStyle = tintBg; g.beginPath(); g.roundRect(60, 316, bw, 112, 14); g.fill();
     g.fillStyle = tint; g.fillText(big, 84, 374);
+    if (t != null && t > 1.2) {   // a light sweep across the pill, every 2.5 s
+      const ph = ((t - 1.2) % 2.5) / 2.5, sx = 60 - 200 + ph * (bw + 400);
+      g.save(); g.beginPath(); g.roundRect(60, 316, bw, 112, 14); g.clip();
+      const sh = g.createLinearGradient(sx, 0, sx + 160, 0);
+      sh.addColorStop(0, 'rgba(255,255,255,0)'); sh.addColorStop(0.5, 'rgba(255,255,255,.22)'); sh.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = sh; g.fillRect(60, 316, bw, 112); g.restore();
+    }
     // small pills: the amount in the chain's coin, and the %
     const pills = [];
     if (!d.hide && d.showNative && d.native != null) {
@@ -1843,8 +1863,8 @@
         if (!cv.isConnected) { st.video?.pause(); st.music?.pause(); return; }
         if (!st.recording) {
           const t = (performance.now() - t0) / 1000;
-          paintBg(g, SW, SH, st.mode === 'video' ? t : 0);
-          drawShareCard(g, SW, SH, opts(), st.mode === 'video' ? Math.min(1, (t % 6) / 1.2) : 1);
+          paintBg(g, SW, SH, st.mode === 'video' ? t % 7 : 0);
+          drawShareCard(g, SW, SH, opts(), st.mode === 'video' ? Math.min(1, (t % 7) / 1.2) : 1, st.mode === 'video' ? t % 7 : null);
         }
         requestAnimationFrame(loop);
       };
@@ -1870,12 +1890,12 @@
         const f = e.target.files[0];
         if (!f) return;
         const url = URL.createObjectURL(f);
-        st.video?.pause(); st.video = null; st.userImg = null;
+        st.video?.pause(); st.video = null; st.userImg = null; st.videoFile = null;
         if (f.type.startsWith('video/')) {
           const v = document.createElement('video');
           Object.assign(v, { src: url, loop: true, muted: true, playsInline: true, crossOrigin: 'anonymous' });
           v.play().catch(() => {});
-          st.video = v;
+          st.video = v; st.videoFile = f;
           if (st.mode === 'image') $('[data-st-mode="video"]', body).click();
         } else {
           const im = new Image(); im.src = url; st.userImg = im;
@@ -1887,7 +1907,7 @@
       $('#stMusic', body).addEventListener('change', (e) => {
         const f = e.target.files[0];
         if (!f) return;
-        const a = new Audio(URL.createObjectURL(f)); a.dataset.name = f.name; st.music = a; musicTxt();
+        const a = new Audio(URL.createObjectURL(f)); a.dataset.name = f.name; st.music = a; st.musicFile = f; musicTxt();
       });
 
       /* the still: 2× for a crisp image */
@@ -1929,7 +1949,7 @@
           if (!st.recording) return;
           const t = (performance.now() - start) / 1000;
           paintBg(g, SW, SH, t);
-          drawShareCard(g, SW, SH, opts(), Math.min(1, t / 1.2));
+          drawShareCard(g, SW, SH, opts(), Math.min(1, t / 1.2), t);
           $('#stRec span', body).style.width = `${Math.min(100, t / dur * 100)}%`;
           status(`Recording ${Math.min(dur, t).toFixed(1)} / ${dur.toFixed(0)} s — keep this tab open`);
           requestAnimationFrame(frame);
@@ -1944,11 +1964,109 @@
           : `${d.title}: ${pct}${d.corner.toLowerCase()} with @HeyAnyChain\n\nanychain.website`;
       };
       const openX = () => window.open(`https://x.com/intent/post?text=${encodeURIComponent(postText())}`, '_blank', 'noopener');
+      const loadMuxer = () => window.Mp4Muxer ? Promise.resolve() : new Promise((res, rej) => {
+        const sc = document.createElement('script'); sc.src = 'vendor/mp4-muxer-5.2.1.js'; sc.onload = res; sc.onerror = () => rej(new Error('Could not load the video encoder')); document.head.appendChild(sc);
+      });
+      const resample = async (buf, sr) => {
+        const oc = new OfflineAudioContext(buf.numberOfChannels, Math.ceil(buf.duration * sr), sr);
+        const src = oc.createBufferSource(); src.buffer = buf; src.connect(oc.destination); src.start();
+        return oc.startRendering();
+      };
+      const canRender = () => typeof VideoEncoder === 'function' && typeof VideoFrame === 'function';
+      const seekTo = (v, t) => new Promise((res) => {
+        if (Math.abs(v.currentTime - t) < 0.001 && v.readyState >= 2) return res();
+        const done = () => { v.removeEventListener('seeked', done); res(); };
+        v.addEventListener('seeked', done); v.currentTime = t; setTimeout(done, 1500);
+      });
+      const render = async () => {
+        await loadMuxer();
+        const fps = 30;
+        const v = st.bg === 'user' ? st.video : null;
+        if (v) { v.pause(); if (!(v.duration > 0)) await new Promise((r) => { v.onloadedmetadata = r; setTimeout(r, 3000); }); }
+        const dur = v ? Math.min(Math.max(v.duration || 7, 2), 15) : 7;
+        const frames = Math.round(dur * fps);
+        // sound: the added song, else the background video's own track
+        let audio = null;
+        const sndFile = st.musicFile || (v ? st.videoFile : null);
+        if (sndFile && typeof AudioEncoder === 'function') {
+          try {
+            const ac = new OfflineAudioContext(2, 48000, 48000);
+            const buf = await ac.decodeAudioData(await sndFile.arrayBuffer());
+            for (const [codec, mux] of [['mp4a.40.2', 'aac'], ['opus', 'opus']]) {   // AAC for X; Opus where AAC can't be encoded
+              const sr = mux === 'opus' ? 48000 : buf.sampleRate;
+              const cfg = { codec, sampleRate: sr, numberOfChannels: Math.min(2, buf.numberOfChannels), bitrate: 160000 };
+              if ((await AudioEncoder.isConfigSupported(cfg).catch(() => ({}))).supported) { audio = { buf: sr === buf.sampleRate ? buf : await resample(buf, sr), cfg, mux }; break; }
+            }
+          } catch (_) { audio = null; }
+        }
+        // H.264 is what X takes; VP9 (still smooth, still MP4) where the browser has no H.264 encoder
+        let vcfg = null, vmux = 'avc';
+        for (const [codec, mux] of [['avc1.640028', 'avc'], ['avc1.4d0028', 'avc'], ['avc1.42001f', 'avc'], ['vp09.00.31.08', 'vp9']]) {
+          const c = { codec, width: SW, height: SH, bitrate: 8e6, framerate: fps };
+          if ((await VideoEncoder.isConfigSupported(c).catch(() => ({}))).supported) { vcfg = c; vmux = mux; break; }
+        }
+        if (!vcfg) throw new Error('no-h264');
+        const muxer = new Mp4Muxer.Muxer({
+          target: new Mp4Muxer.ArrayBufferTarget(), fastStart: 'in-memory',
+          video: { codec: vmux, width: SW, height: SH, frameRate: fps },
+          ...(audio ? { audio: { codec: audio.mux, sampleRate: audio.cfg.sampleRate, numberOfChannels: audio.cfg.numberOfChannels } } : {})
+        });
+        let fail = null;
+        const venc = new VideoEncoder({ output: (c, m) => muxer.addVideoChunk(c, m), error: (e) => { fail = e; } });
+        venc.configure(vcfg);
+        const off = document.createElement('canvas'); off.width = SW; off.height = SH;
+        const og = off.getContext('2d');
+        st.recording = true; body.classList.add('is-recording'); $('#stRec', body).hidden = false;
+        try {
+          for (let i = 0; i < frames; i++) {
+            if (fail) throw fail;
+            const t = i / fps;
+            if (v) await seekTo(v, Math.min(t, (v.duration || dur) - 0.04));
+            paintBg(og, SW, SH, t);
+            drawShareCard(og, SW, SH, opts(), Math.min(1, t / 1.2), t);
+            if (i % 3 === 0) g.drawImage(off, 0, 0);   // the preview follows the render
+            const vf = new VideoFrame(off, { timestamp: Math.round(i * 1e6 / fps), duration: Math.round(1e6 / fps) });
+            venc.encode(vf, { keyFrame: i % (fps * 2) === 0 }); vf.close();
+            while (venc.encodeQueueSize > 8) await new Promise((r) => setTimeout(r, 4));
+            if (i % 5 === 0) {
+              $('#stRec span', body).style.width = `${(i / frames * 100).toFixed(1)}%`;
+              status(`Rendering ${Math.round(i / frames * 100)}%`);
+              await new Promise((r) => setTimeout(r, 0));
+            }
+          }
+          await venc.flush(); venc.close();
+          if (audio) {
+            const { buf, cfg } = audio, ch = cfg.numberOfChannels, sr = buf.sampleRate, total = Math.min(buf.length, Math.round(dur * sr));
+            const aenc = new AudioEncoder({ output: (c, m) => muxer.addAudioChunk(c, m), error: (e) => { fail = e; } });
+            aenc.configure(cfg);
+            const fadeFrom = total - Math.round(0.8 * sr), step = 4096;
+            for (let off2 = 0; off2 < total; off2 += step) {
+              const n = Math.min(step, total - off2), data = new Float32Array(n * ch);
+              for (let c = 0; c < ch; c++) {
+                const src = buf.getChannelData(c);
+                for (let j = 0; j < n; j++) { const at = off2 + j; data[c * n + j] = src[at] * (at > fadeFrom ? Math.max(0, (total - at) / (total - fadeFrom)) : 1); }
+              }
+              const ad = new AudioData({ format: 'f32-planar', sampleRate: sr, numberOfFrames: n, numberOfChannels: ch, timestamp: Math.round(off2 / sr * 1e6), data });
+              aenc.encode(ad); ad.close();
+            }
+            await aenc.flush(); aenc.close();
+            if (fail) throw fail;
+          }
+          muxer.finalize();
+          return new Blob([muxer.target.buffer], { type: 'video/mp4' });
+        } finally {
+          st.recording = false; body.classList.remove('is-recording'); $('#stRec', body).hidden = true; status('');
+          if (v) { v.muted = true; v.play().catch(() => {}); }
+        }
+      };
+
       const makeVideo = async () => {
         if (st.recording) return;
         $('#stResult', body).hidden = true;
         try {
-          const blob = await record();
+          let blob = null;
+          if (canRender()) blob = await render().catch((e) => { if (e.message !== 'no-h264') throw e; return null; });
+          if (!blob) blob = await record();
           const url = URL.createObjectURL(blob), ext = blob.type.includes('mp4') ? 'mp4' : 'webm';
           const v = $('#stResVideo', body); v.src = url; v.play().catch(() => {});
           Object.assign($('#stResSave', body), { href: url, download: `anychain-pnl-${d.file}.${ext}` });

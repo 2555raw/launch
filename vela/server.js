@@ -199,10 +199,11 @@ const rpcCall = async (url, method, params) => {
 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-/* returns the creator's address when the transaction really created the token, else null */
+/* the creator's address when the transaction really created the token, null when it didn't,
+   undefined when the transaction couldn't be read (RPC busy, not indexed yet) */
 const verifyLaunch = async ({ site, address, tx }) => {
-  for (let i = 0; i < 4; i++) {   // a just-confirmed transaction can take a few seconds to be readable
-    if (i) await sleep(2500);
+  for (let i = 0; i < 6; i++) {   // a just-confirmed transaction (or a busy public RPC) can take a few seconds
+    if (i) await sleep(1500 * i);
     if (site === 'pump') {
       const t = await rpcCall(SOLANA_RPC_URL, 'getTransaction', [tx, { encoding: 'json', maxSupportedTransactionVersion: 0, commitment: 'confirmed' }]).catch(() => null);
       if (!t) continue;
@@ -224,7 +225,7 @@ const verifyLaunch = async ({ site, address, tx }) => {
       : String(r.contractAddress).toLowerCase() === a;
     return ok ? r.from : null;
   }
-  return null;
+  return undefined;
 };
 
 /* Launches made before the public list existed live in the synced accounts: verify them and add
@@ -632,6 +633,7 @@ const api = {
     const known = registry.find((l) => `${l.chain}:${l.address.toLowerCase()}` === key);
     if (known) return send(res, 200, known);
     const creator = await verifyLaunch({ site, address, tx });
+    if (creator === undefined) return fail(res, 503, 'Could not read the transaction yet, try again in a minute');
     if (!creator) return fail(res, 422, 'That transaction did not create this token');
     const image = clean(b.image, 300);
     const entry = {

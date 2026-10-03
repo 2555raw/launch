@@ -738,7 +738,22 @@
     } catch (_) { return; }
     $('#launchedCount').textContent = pub.total;
     renderLandingLaunched();
+    reportMissing();
     if (view === 'launched') renderLaunched();
+  };
+
+  /* launches made in this browser that the public list doesn't have yet — made before the list existed,
+     or the report was lost — are sent now; the server still verifies each one on-chain */
+  const reportMissing = () => {
+    const known = new Set(pub.list.map((x) => `${x.chain}:${x.address.toLowerCase()}`));
+    const todo = state.launches.filter((l) => l.tx && l.addr && ['pump', 'pons', 'base', 'bnb'].includes(l.site)
+      && !l.listing && !known.has(`${l.chain}:${String(l.addr).toLowerCase()}`));
+    if (!todo.length) return;
+    Promise.all(todo.map(async (l) => {
+      const r = await C.reportLaunch({ site: l.site, address: l.addr, tx: l.tx, name: l.name, symbol: l.ticker, image: l.image || null });
+      if (r !== 'retry') l.listing = r;   // network or RPC trouble: try again next time
+      return r;
+    })).then((rs) => { save(); if (rs.includes('listed')) loadLaunched(true); });
   };
 
   const renderLaunched = () => {
@@ -1268,7 +1283,8 @@
             events: costUsd ? [{ t: Date.now(), v: -Math.round(costUsd * 100) / 100 }] : [], lastPnl: -Math.round(costUsd * 100) / 100
           };
           state.launches.push(l);
-          C.reportLaunch({ site: site.id, address: res.address, tx: res.signature, name, symbol: ticker, image: res.image || null }).then(() => loadLaunched(true));
+          C.reportLaunch({ site: site.id, address: res.address, tx: res.signature, name, symbol: ticker, image: res.image || null })
+            .then((r) => { if (r !== 'retry') { l.listing = r; save(); } loadLaunched(true); });
           log(`Launched ${ticker} on ${site.name}`);
           save();
           busy = false;

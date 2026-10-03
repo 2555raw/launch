@@ -79,8 +79,9 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   before the first launch.
 - **Launched here** (sidebar, and *Launched on AnyChain* on the landing page): every token launched from
   AnyChain by anyone, verified on-chain, with market cap, 24h change, liquidity, creator and a Track button.
-  Kept in `DATA_DIR/anychain-launches.json`; launches made before the list existed are added from the
-  synced accounts at start-up.
+  Kept in `DATA_DIR/anychain-launches.json`. Launches made before the list existed, or whose report was
+  lost, are sent again when their creator opens AnyChain (and from synced accounts at start-up); the
+  server still verifies each one, and answers 503 rather than rejecting when it can't read the chain yet.
 - **Import**: add a token launched elsewhere so its P&L is tracked; give its cost if you know it.
 
 Clearing the browser's site data forgets the launch list (the tokens stay on-chain; import them again).

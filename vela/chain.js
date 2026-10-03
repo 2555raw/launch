@@ -516,7 +516,9 @@
   const dexscreener = (chain, addr) => `https://dexscreener.com/${{ sol: 'solana', rh: 'robinhood', base: 'base', bnb: 'bsc' }[chain]}/${addr}`;
 
   /* the public list of tokens launched from AnyChain; the server verifies each one on-chain */
-  const reportLaunch = (l) => postJson('/api/launches', l).catch(() => null);
+  /* resolves to 'listed', 'rejected' (the server read the chain and it isn't a launch) or 'retry' */
+  const reportLaunch = (l) => postJson('/api/launches', l).then(() => 'listed',
+    (e) => (/did not create|Bad address|Unknown launchpad/.test(e.message) ? 'rejected' : 'retry'));
   const publicLaunches = () => api('/api/launches');
 
   window.VelaChain = {

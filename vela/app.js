@@ -26,6 +26,7 @@
     archive: '<rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8"/><path d="M10 12h4"/>',
     grid: '<rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/>',
     download: '<path d="M12 4v11"/><path d="m8 11 4 4 4-4"/><path d="M5 20h14"/>',
+    share: '<path d="M4 13v6a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-6"/><path d="m16 7-4-4-4 4"/><path d="M12 3v12"/>',
     upload: '<path d="M12 20V9"/><path d="m8 13 4-4 4 4"/><path d="M5 4h14"/>',
     rocket: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
     menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
@@ -1478,6 +1479,7 @@
         : '<p class="note" style="margin:0 0 14px">The price chart shows here once DexScreener lists the token, usually a few minutes after its first trades.</p>'}
       ${tradePanel(l)}
       <div class="form-foot">
+        <button class="btn btn-ghost" type="button" data-pnl-share="${l.id}">${icon('share')}<span>Share P&amp;L</span></button>
         <button class="btn btn-ghost" type="button" id="copyAddr">${icon('copy')}<span>Copy address</span></button>
         ${l.archived
           ? `<button class="btn btn-danger" type="button" id="removeLaunch">Remove from AnyChain</button><button class="btn btn-ghost" type="button" data-unarchive="${l.id}">Restore</button>`
@@ -1631,6 +1633,276 @@
     a.click();
   };
 
+  /* ---------- P&L share studio ----------
+     A card for a month (from the calendar), a launch, or the all-time total, in AnyChain's look over a
+     background: one of ours, or the user's own photo or video. Saved as an image, or recorded as a
+     video with the background video's sound or a song the user adds. Uploads never leave the browser. */
+  const MARK = [[3, 0, 1, 7], [0, 1, 1, 2], [1, 2, 1, 1], [2, 3, 1, 1], [1, 4, 1, 1], [0, 4, 1, 2], [6, 1, 1, 2], [5, 2, 1, 1], [4, 3, 1, 1], [5, 4, 1, 1], [6, 4, 1, 2]];
+  const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const SW = 1280, SH = 720;
+  const loadImg = (src) => new Promise((res) => {
+    if (!src) return res(null);
+    const im = new Image(); im.crossOrigin = 'anonymous'; im.referrerPolicy = 'no-referrer';
+    im.onload = () => res(im); im.onerror = () => res(null); im.src = src;
+    setTimeout(() => res(null), 5000);
+  });
+  const drawMark = (g, x, y, u, fill) => { g.fillStyle = fill; MARK.forEach(([a, b, w, h]) => g.fillRect(x + a * u, y + b * u, w * u, h * u)); };
+  const cover = (g, src, w, h) => {
+    const iw = src.videoWidth || src.naturalWidth || src.width, ih = src.videoHeight || src.naturalHeight || src.height;
+    if (!iw || !ih) return;
+    const k = Math.max(w / iw, h / ih);
+    g.drawImage(src, (w - iw * k) / 2, (h - ih * k) / 2, iw * k, ih * k);
+  };
+
+  /* our backgrounds, drawn (and gently animated) on the canvas — t in seconds */
+  const SHARE_BGS = {
+    horizon: (g, w, h, t) => {
+      g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
+      const cx = w * 0.98, cy = h * 2.05, R = h * 1.72;
+      const rim = g.createRadialGradient(cx, cy, R * 0.94, cx, cy, R * 1.06);
+      rim.addColorStop(0, 'rgba(0,0,0,0)'); rim.addColorStop(0.47, `rgba(120,150,255,${0.55 + 0.1 * Math.sin(t * 1.3)})`);
+      rim.addColorStop(0.5, 'rgba(235,240,255,.95)'); rim.addColorStop(0.56, 'rgba(110,140,255,.35)'); rim.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = rim; g.fillRect(0, 0, w, h);
+      g.beginPath(); g.arc(cx, cy, R * 0.995, 0, Math.PI * 2); g.fillStyle = '#05060a'; g.fill();
+      const haze = g.createRadialGradient(w * 0.8, h * 0.5, 0, w * 0.8, h * 0.5, h);
+      haze.addColorStop(0, 'rgba(90,110,255,.16)'); haze.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = haze; g.fillRect(0, 0, w, h);
+      for (let i = 0; i < 70; i++) { const x = (i * 197.3) % w, y = (i * 113.7) % (h * 0.7); g.fillStyle = `rgba(255,255,255,${0.15 + 0.35 * Math.abs(Math.sin(i + t))})`; g.fillRect(x, y, 1.5, 1.5); }
+    },
+    aurora: (g, w, h, t) => {
+      g.fillStyle = '#04030a'; g.fillRect(0, 0, w, h);
+      [['rgba(52,227,168,.55)', 0.75, 0.3, 0.5], ['rgba(122,60,255,.55)', 0.55, 0.75, 0.45], ['rgba(40,140,255,.45)', 0.95, 0.85, 0.4]].forEach(([c, x, y, r], i) => {
+        const px = w * (x + 0.06 * Math.sin(t * 0.7 + i * 2)), py = h * (y + 0.06 * Math.cos(t * 0.6 + i));
+        const gr = g.createRadialGradient(px, py, 0, px, py, h * r * 1.4);
+        gr.addColorStop(0, c); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+      });
+    },
+    pixel: (g, w, h, t) => {
+      g.fillStyle = '#000'; g.fillRect(0, 0, w, h);
+      const gr = g.createRadialGradient(w * 0.78, h * 0.45, 0, w * 0.78, h * 0.45, h * 0.8);
+      gr.addColorStop(0, 'rgba(52,227,168,.28)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, h);
+      const u = h / 14, s = 8 * u;
+      for (let r = -1; r < 3; r++) for (let c = 0; c < 5; c++) {
+        const x = w * 0.42 + c * s * 1.05 - ((t * 18) % (s * 1.05)), y = r * s * 1.05 + (c % 2) * s * 0.5;
+        drawMark(g, x, y, u, `rgba(255,255,255,${0.05 + 0.05 * ((r + c) % 3)})`);
+      }
+      drawMark(g, w * 0.66, h * 0.22, h / 13, 'rgba(255,255,255,.92)');
+    }
+  };
+
+  /* the card itself, over whatever background; k (0–1) counts the figures up in a video */
+  const drawShareCard = (g, w, h, d, k = 1) => {
+    const up = d.pnl >= 0, tint = up ? '#34e3a8' : '#f2646f', tintBg = up ? 'rgba(52,227,168,.18)' : 'rgba(242,100,111,.18)';
+    const shade = g.createLinearGradient(0, 0, w * 0.7, 0);
+    shade.addColorStop(0, 'rgba(0,0,0,.72)'); shade.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = shade; g.fillRect(0, 0, w, h);
+    const sc = w / 1280;
+    g.save(); g.scale(sc, sc);
+    drawMark(g, 64, 58, 5, '#fff');
+    g.fillStyle = '#fff'; g.textBaseline = 'middle'; g.textAlign = 'left'; g.font = '800 30px Inter, sans-serif'; g.fillText('AnyChain', 112, 76);
+    let x = 64, y = 262;
+    if (d.icon) { g.save(); g.beginPath(); g.arc(x + 26, y, 26, 0, Math.PI * 2); g.clip(); g.drawImage(d.icon, x, y - 26, 52, 52); g.restore(); x += 66; }
+    g.fillStyle = '#fff'; g.font = '700 40px Inter, sans-serif'; g.fillText(d.title, x, y);
+    const v = d.pnl * k, pct = d.pct == null ? null : d.pct * k;
+    const big = d.hide ? (pct == null ? (up ? 'In profit' : 'In loss') : `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`) : signed(v, Math.abs(d.pnl) < 100 ? 2 : 0);
+    g.font = '800 84px Inter, sans-serif';
+    const bw = g.measureText(big).width + 48;
+    g.fillStyle = tintBg; g.beginPath(); g.roundRect(60, 316, bw, 112, 14); g.fill();
+    g.fillStyle = tint; g.fillText(big, 84, 374);
+    if (!d.hide && pct != null) {
+      const small = `${pct >= 0 ? '+' : ''}${Math.abs(pct) >= 1000 ? Math.round(pct).toLocaleString('en-US') : pct.toFixed(1)}%`;
+      g.font = '700 34px Inter, sans-serif';
+      const sw = g.measureText(small).width + 36;
+      g.fillStyle = tintBg; g.beginPath(); g.roundRect(60, 446, sw, 58, 10); g.fill();
+      g.fillStyle = tint; g.fillText(small, 78, 476);
+    }
+    g.textAlign = 'right'; g.fillStyle = '#fff'; g.font = '800 38px Inter, sans-serif'; g.fillText(d.corner, 1216, 648);
+    g.textAlign = 'left'; g.fillStyle = 'rgba(255,255,255,.65)'; g.font = '600 20px Inter, sans-serif'; g.fillText('anychain.website', 64, 650);
+    g.restore();
+  };
+
+  const shareData = (kind, id) => {
+    const pctOf = (p, cost) => (cost > 0 ? p / cost * 100 : null);
+    if (kind === 'launch') {
+      const l = state.launches.find((x) => x.id === id);
+      if (!l) return null;
+      const p = pnlOf(l);
+      return { title: `$${l.ticker}`, pnl: p, pct: pctOf(p, l.costUsd || 0), corner: `${siteName(l.site)} · ${CHAINS[l.chain].name}`, image: l.image, file: l.ticker };
+    }
+    if (kind === 'month') {
+      const { pnl, launches } = dailyStats();
+      let p = 0, n = 0;
+      const days = new Date(cal.y, cal.m + 1, 0).getDate();
+      for (let i = 1; i <= days; i++) { const key = dayKey(new Date(cal.y, cal.m, i)); p += pnl.get(key) || 0; n += launches.get(key) || 0; }
+      const cost = state.launches.filter(inChain).filter((l) => { const d = new Date(l.created); return d.getFullYear() === cal.y && d.getMonth() === cal.m; }).reduce((a, l) => a + (l.costUsd || 0), 0);
+      return { title: `${MONTHS_FULL[cal.m]} ${cal.y}`, pnl: p, pct: pctOf(p, cost), corner: `${n} Launch${n === 1 ? '' : 'es'}`, file: `${cal.y}-${String(cal.m + 1).padStart(2, '0')}` };
+    }
+    const ls = state.launches.filter(inChain);
+    const p = ls.reduce((a, l) => a + pnlOf(l), 0), cost = ls.reduce((a, l) => a + (l.costUsd || 0), 0);
+    return { title: 'All-time P&L', pnl: p, pct: pctOf(p, cost), corner: `${ls.length} Launch${ls.length === 1 ? '' : 'es'}`, file: 'total' };
+  };
+
+  // MP4 (H.264) first: it is what X accepts; WebM where the browser can't record MP4
+  const pickRecorderType = () => ['video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs=avc1', 'video/webm;codecs=vp9,opus', 'video/webm']
+    .find((t) => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || '';
+
+  const openPnlShare = async (kind, id) => {
+    const d = shareData(kind, id);
+    if (!d) return;
+    d.icon = await loadImg(d.image);
+    await document.fonts.load('800 40px Inter').catch(() => {});
+    const st = { mode: 'image', bg: 'horizon', userImg: null, video: null, music: null, recording: false };
+    openModal('Share your P&L', `
+      <div class="studio">
+        <div class="studio-prev"><canvas id="stCanvas" width="${SW}" height="${SH}"></canvas></div>
+        <div class="studio-bar">
+          <div class="seg" id="stModes"><button type="button" data-st-mode="image" class="is-on">${icon('image')}<span>Image</span></button><button type="button" data-st-mode="video">${icon('line')}<span>Video</span></button></div>
+          <label class="check"><input type="checkbox" id="stHide"> Hide amounts</label>
+        </div>
+        <div class="studio-bgs" id="stBgs">
+          ${Object.keys(SHARE_BGS).map((k, i) => `<button type="button" class="studio-bg${i ? '' : ' is-on'}" data-st-bg="${k}"><canvas width="192" height="108"></canvas></button>`).join('')}
+          <label class="studio-bg studio-up" title="Your own photo or video — it stays in your browser">${icon('upload')}<span>Your photo or video</span><input type="file" id="stFile" accept="image/*,video/*" hidden></label>
+        </div>
+        <div class="studio-music" id="stMusicRow" hidden>
+          <label class="btn btn-ghost">${icon('upload')}<span>Add music</span><input type="file" id="stMusic" accept="audio/*" hidden></label>
+          <span class="dim" id="stMusicTxt">No music — add a song, or upload a video to use its sound</span>
+        </div>
+        <p class="studio-status dim" id="stStatus"></p>
+        <div class="form-foot">
+          <button class="btn btn-ghost" type="button" id="stCopy">${icon('copy')}<span>Copy</span></button>
+          <button class="btn btn-ghost" type="button" id="stSave">${icon('download')}<span>Download</span></button>
+          <button class="btn btn-primary" type="button" id="stX">${icon('x')}<span>Share on X</span></button>
+        </div>
+      </div>`, (body) => {
+      const cv = $('#stCanvas', body), g = cv.getContext('2d');
+      // thumbnails of our backgrounds
+      $$('[data-st-bg]', body).forEach((b) => { const c = $('canvas', b), tg = c.getContext('2d'); SHARE_BGS[b.dataset.stBg](tg, 192, 108, 0); });
+      const paintBg = (ctx, w, h, t) => {
+        if (st.bg === 'user' && st.video) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h); cover(ctx, st.video, w, h); }
+        else if (st.bg === 'user' && st.userImg) { ctx.fillStyle = '#000'; ctx.fillRect(0, 0, w, h); cover(ctx, st.userImg, w, h); }
+        else SHARE_BGS[st.bg](ctx, w, h, t);
+      };
+      const t0 = performance.now();
+      const loop = () => {
+        if (!cv.isConnected) { st.video?.pause(); st.music?.pause(); return; }
+        if (!st.recording) {
+          const t = (performance.now() - t0) / 1000;
+          paintBg(g, SW, SH, st.mode === 'video' ? t : 0);
+          drawShareCard(g, SW, SH, { ...d, hide: $('#stHide', body).checked }, st.mode === 'video' ? Math.min(1, (t % 6) / 1.2) : 1);
+        }
+        requestAnimationFrame(loop);
+      };
+      loop();
+      const status = (m) => { $('#stStatus', body).textContent = m || ''; };
+      const musicTxt = () => {
+        $('#stMusicTxt', body).textContent = st.music ? `Music: ${st.music.dataset.name}` : st.video ? 'Using your video’s own sound' : 'No music — add a song, or upload a video to use its sound';
+      };
+
+      body.addEventListener('click', (e) => {
+        const m = e.target.closest('[data-st-mode]');
+        if (m) {
+          st.mode = m.dataset.stMode;
+          $$('#stModes button', body).forEach((x) => x.classList.toggle('is-on', x === m));
+          $('#stMusicRow', body).hidden = st.mode !== 'video';
+          $('#stCopy', body).hidden = st.mode === 'video';
+          musicTxt();
+          return;
+        }
+        const b = e.target.closest('[data-st-bg]');
+        if (b) { st.bg = b.dataset.stBg; $$('.studio-bg', body).forEach((x) => x.classList.toggle('is-on', x === b)); }
+      });
+      $('#stFile', body).addEventListener('change', (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const url = URL.createObjectURL(f);
+        st.video?.pause(); st.video = null; st.userImg = null;
+        if (f.type.startsWith('video/')) {
+          const v = document.createElement('video');
+          Object.assign(v, { src: url, loop: true, muted: true, playsInline: true, crossOrigin: 'anonymous' });
+          v.play().catch(() => {});
+          st.video = v;
+          if (st.mode === 'image') $('[data-st-mode="video"]', body).click();
+        } else {
+          const im = new Image(); im.src = url; st.userImg = im;
+        }
+        st.bg = 'user';
+        $$('.studio-bg', body).forEach((x) => x.classList.toggle('is-on', x.classList.contains('studio-up')));
+        musicTxt();
+      });
+      $('#stMusic', body).addEventListener('change', (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        const a = new Audio(URL.createObjectURL(f)); a.dataset.name = f.name; st.music = a; musicTxt();
+      });
+
+      /* the still: 2× for a crisp image */
+      const still = () => {
+        const c = document.createElement('canvas'); c.width = SW * 2; c.height = SH * 2;
+        const cg = c.getContext('2d'); cg.scale(2, 2);
+        paintBg(cg, SW, SH, 0); drawShareCard(cg, SW, SH, { ...d, hide: $('#stHide', body).checked }, 1);
+        return c;
+      };
+      const pngBlob = () => new Promise((r) => still().toBlob(r, 'image/png'));
+      const saveFile = (blob, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); };
+
+      /* the video: the canvas plus the sound of the song or the background video, recorded live */
+      let audioCtx = null; const sources = new Map();
+      const record = () => new Promise((resolve, reject) => {
+        const type = pickRecorderType();
+        if (!type || !cv.captureStream) return reject(new Error('This browser can’t record video — try Chrome, Edge or Safari'));
+        const dur = st.bg === 'user' && st.video ? Math.min(Math.max(st.video.duration || 8, 3), 15) : 7;
+        const tracks = cv.captureStream(30).getVideoTracks();
+        const snd = st.music || (st.bg === 'user' ? st.video : null);
+        if (snd) {
+          audioCtx = audioCtx || new AudioContext();
+          const dest = audioCtx.createMediaStreamDestination();
+          if (!sources.has(snd)) sources.set(snd, audioCtx.createMediaElementSource(snd));
+          sources.get(snd).disconnect(); sources.get(snd).connect(dest);
+          snd.muted = false; snd.currentTime = 0;
+          tracks.push(...dest.stream.getAudioTracks());
+        }
+        if (st.video) { st.video.currentTime = 0; st.video.play().catch(() => {}); }
+        snd?.play().catch(() => {});
+        const rec = new MediaRecorder(new MediaStream(tracks), { mimeType: type, videoBitsPerSecond: 8e6 });
+        const chunks = [];
+        rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+        rec.onstop = () => { st.recording = false; if (st.music) st.music.pause(); if (st.video) st.video.muted = true; resolve(new Blob(chunks, { type: type.split(';')[0] })); };
+        st.recording = true;
+        const start = performance.now();
+        const frame = () => {
+          const t = (performance.now() - start) / 1000;
+          paintBg(g, SW, SH, t);
+          drawShareCard(g, SW, SH, { ...d, hide: $('#stHide', body).checked }, Math.min(1, t / 1.2));
+          status(`Recording… ${Math.min(dur, t).toFixed(1)} / ${dur.toFixed(0)} s`);
+          if (t < dur) requestAnimationFrame(frame); else rec.stop();
+        };
+        rec.start(250); frame();
+      });
+
+      const download = async () => {
+        if (st.mode === 'image') { saveFile(await pngBlob(), `anychain-pnl-${d.file}.png`); return true; }
+        try {
+          const blob = await record();
+          saveFile(blob, `anychain-pnl-${d.file}.${blob.type.includes('mp4') ? 'mp4' : 'webm'}`);
+          status('Video saved'); return true;
+        } catch (err) { st.recording = false; status(''); toast(err.message, true); return false; }
+      };
+      $('#stSave', body).addEventListener('click', () => { if (!st.recording) download(); });
+      $('#stCopy', body).addEventListener('click', async () => {
+        try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': await pngBlob() })]); toast('Image copied — paste it in your post'); }
+        catch (_) { toast('Your browser can’t copy images — use Download', true); }
+      });
+      $('#stX', body).addEventListener('click', async () => {
+        if (st.recording) return;
+        if (st.mode === 'image') { try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': await pngBlob() })]); toast('Image copied — paste it into the post'); } catch (_) { await download(); } }
+        else if (!(await download())) return;
+        const pct = d.pct == null ? '' : `${d.pct >= 0 ? '+' : ''}${d.pct.toFixed(0)}% `;
+        const text = kind === 'launch' ? `${pct}on ${d.title} 🚀 launched with @HeyAnyChain\n\nanychain.website`
+          : `${d.title}: ${pct}${d.corner.toLowerCase()} with @HeyAnyChain\n\nanychain.website`;
+        window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+      });
+    }, 'launch');
+  };
+
   const openCalendar = () => {
     const now = new Date();
     Object.assign(cal, { mode: 'month', y: now.getFullYear(), m: now.getMonth() });
@@ -1650,7 +1922,7 @@
         else if (t.closest('#calWeek')) {
           cal.weekStart = cal.weekStart === 1 ? 0 : 1;
           try { localStorage.setItem('anychain-week', String(cal.weekStart)); } catch (_) { /* storage blocked */ }
-        } else if (t.closest('#calExport')) { exportCalendar(); return; }
+        } else if (t.closest('#calExport')) { if (cal.mode === 'month') openPnlShare('month'); else exportCalendar(); return; }
         else return;
         renderCalendar(el);
       });
@@ -1900,6 +2172,8 @@
       return;
     }
     if (el('#calBtn')) { openCalendar(); return; }
+    if (el('#pnlShareBtn')) { openPnlShare('total'); return; }
+    if (el('[data-pnl-share]')) { openPnlShare('launch', el('[data-pnl-share]').dataset.pnlShare); return; }
     if (el('[data-legal]')) {
       e.preventDefault();
       /* opened from inside the Create Launch form: keep the form, show the text in a new tab-like modal after it */

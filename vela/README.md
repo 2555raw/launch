@@ -66,7 +66,13 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   found from the launch transaction, `buy`/`sell` are quoted with a static call and sent with a minimum out. Cost of buys and proceeds of sells are measured from the wallet and booked on the launch.
 - **Status bar**: SOL, BNB and ETH prices from CoinGecko, and what a transfer costs on Base right now (gas price × 21k gas × ETH), cached 30 s. **Tracker**: DexScreener, cached 15 s.
 - **P&L calendar** (calendar icon on *Total P&L*): daily P&L and launches per day, monthly and yearly views,
-  positive streaks, and *Save as image* for a PNG of the month.
+  and positive streaks.
+- **Share your P&L** (share icon on *Total P&L*, *Share P&L* on each launch, the export button in the
+  calendar): a 1280×720 card with the month, the token or the all-time total, the P&L and the % over one of
+  three backgrounds or the user's own photo or video. *Image* saves a 2× PNG or copies it; *Video* records
+  the animated card with the background video's sound or a song the user adds (MP4 where the browser can
+  record it, else WebM). Uploads stay in the browser. *Share on X* copies or saves the card and opens a
+  prefilled post. *Hide amounts* shows only the %.
 - **Base / BNB Chain logos**: an ERC-20 has no on-chain logo, so the one you pick is stored with the launch
   and shown in AnyChain; explorers and DEXs take their own logo submissions.
 - **Price chart** in each launch's panel (DexScreener embed) once the token has a market.

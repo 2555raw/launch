@@ -16,6 +16,7 @@ import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDate, fmtSteps } from "@/lib/format";
 import { TokenIcon } from "@/components/ui/TokenIcon";
 import { XLogo } from "@/components/ui/XLogo";
+import { ScreenshotExample } from "./ScreenshotExample";
 import { xIntent } from "@/lib/social";
 
 interface Entry {
@@ -108,6 +109,8 @@ export function StepsUploadView() {
         <UploadForm summary={summary} logged={steps} referralCode={data.referralCode} />
         <AverageCard summary={summary} />
       </div>
+
+      <ScreenshotExample />
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Average steps · 7 days" value={summary.avgSteps7} decimals={0} hint={`${summary.daysLogged7} of 7 days logged`} icon={Footprints} />
@@ -293,6 +296,11 @@ function UploadForm({ summary, logged, referralCode }: { summary: StepsResponse[
               <span className="text-sm font-medium">{reading ? "Reading image…" : "Add a screenshot of your health app"}</span>
               <span className="text-[12px] text-white/40">Apple Health, Google Fit or Samsung Health · drag it here or tap to choose</span>
             </button>
+          )}
+          {!proof && (
+            <a href="#example" className="mt-2.5 inline-flex text-[12.5px] text-lime-300/90 underline decoration-lime-400/30 underline-offset-4 hover:text-lime-200">
+              Not sure what to upload? See an example
+            </a>
           )}
         </div>
 

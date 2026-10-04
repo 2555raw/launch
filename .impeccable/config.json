@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "nested-cards",
+        "value": "*",
+        "files": [
+          "obscura-site/index.html"
+        ],
+        "createdAt": "2026-10-04T12:07:20.229Z",
+        "reason": "Direction contract: live receipt card overlaid on the hero vault photograph is the first-viewport thesis; finish reviewer marked it intended"
+      }
+    ]
+  }
+}

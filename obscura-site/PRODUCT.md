@@ -41,6 +41,9 @@ shows one bond; connecting a wallet shows everything.
   anchor with the commitment as calldata.
 - Not deployed: the $OBX token and the bond NFT contract. No contract address may be shown.
 - Product name and ticker ("Obscura", "$OBX") are placeholders; the user will supply final ones.
+- Token parameters are undecided. The landing shows a proposal (0.30% fee on buys, 80/20 burn and prover
+  split, hold-to-mint gate) carried over from the reference site and labelled "Proposed"; the user has not
+  confirmed any of them.
 - No X/Twitter account yet: the X link points to x.com until one exists.
 
 ## Evidence on Hand

@@ -34,6 +34,12 @@ if ($("r-hash")) {
 }
 
 // ---------- films: chapter list drives one player ----------
+// The same captions the films burn in, shown as text under the player on small screens.
+const CUES = {
+  cloak: [[0, "Cloak a bond: one hash that only your receipt can open."], [2.6, "Start with an asset, a random salt and a one-time key."], [5.4, "SHA-256 runs over all three. Inside your browser."], [8.4, "Out comes one 32-byte hash. It names nothing."], [11.4, "The chain can store the hash. Only your receipt can open it."]],
+  transfer: [[0, "Hand a bond on: sealed for one recipient, re-cloaked on arrival."], [2.6, "Seal the receipt with AES-256-GCM, behind a passphrase."], [5.6, "Send the package one way. Send the passphrase another."], [8.6, "The recipient opens it and re-cloaks under fresh keys."], [11.6, "One commitment out, one in. Nothing on the chain links them."]],
+  prove: [[0, "Prove one thing: show the point, hide the rest."], [2.6, "Your wallet holds many things. Most are nobody's business."], [5.6, "Hand one receipt to one counterparty."], [8.6, "Their browser recomputes the hash and compares."], [11.6, "They learn one bit: true. Everything else stays hidden."]],
+};
 const player = $("film");
 const chapters = [...document.querySelectorAll(".chapter")];
 let chapterIndex = 0;
@@ -55,7 +61,11 @@ function load(i, play = true) {
 
 if (player && chapters.length) {
   chapters.forEach((c, i) => c.addEventListener("click", () => load(i)));
+  const caption = $("film-caption");
   player.addEventListener("timeupdate", () => {
+    const cues = CUES[chapters[chapterIndex].dataset.src.match(/(\w+)\.mp4$/)[1]] || [];
+    const cue = cues.filter(([t]) => t <= player.currentTime).pop();
+    if (caption && cue && caption.textContent !== cue[1]) caption.textContent = cue[1];
     const bar = chapters[chapterIndex].querySelector(".chapter-progress i");
     bar.style.transform = `scaleX(${player.duration ? player.currentTime / player.duration : 0})`;
   });

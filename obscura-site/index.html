@@ -63,7 +63,7 @@
         <a class="btn btn-dark" href="console.html">Launch app</a>
         <a class="btn btn-light" href="#films">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
-          Watch how it works
+          Watch the films
         </a>
       </div>
       <p class="hero-note"><span class="live" aria-hidden="true"></span>The receipt on the photo is a real commitment, sealed in your browser as you read.</p>
@@ -172,6 +172,7 @@
               </button>
             </div>
           </div>
+          <p class="film-caption" id="film-caption" aria-live="polite"></p>
           <p class="films-note">Captions are part of each film. Hashes shown are examples.</p>
         </div>
       </div>
@@ -229,17 +230,17 @@
     <div class="wrap split">
       <div class="reveal">
         <h2 id="token-title">$OBX keys the set.</h2>
-        <p class="lead" style="margin-top:20px">Minting a bond onchain is gated to wallets that hold $OBX. A fee on every buy feeds a burn and the fund that pays provers.</p>
+        <p class="lead" style="margin-top:20px">The proposed design: minting a bond onchain is gated to wallets that hold $OBX, and a fee on every buy feeds a burn and the fund that pays provers.</p>
       </div>
       <div class="reveal">
-        <dl class="sheet">
-          <div class="sheet-row"><dt>Fee</dt><dd class="val">0.30%</dd><dd><p>Taken from each swap that buys $OBX in its pool, paid in $OBX.</p></dd></div>
-          <div class="sheet-row"><dt>Split</dt><dd class="val">80 / 20</dd><dd><p>80% of every fee is burned. 20% goes to the prover fund.</p></dd></div>
-          <div class="sheet-row"><dt>Gate</dt><dd class="val">Hold</dd><dd><p>The bond NFT mints only to wallets holding $OBX. It carries the commitment and nothing else.</p></dd></div>
+        <dl class="sheet" aria-describedby="token-status">
+          <div class="sheet-row"><dt>Fee<span class="proposed">Proposed</span></dt><dd class="val">0.30%</dd><dd><p>Taken from each swap that buys $OBX in its pool, paid in $OBX.</p></dd></div>
+          <div class="sheet-row"><dt>Split<span class="proposed">Proposed</span></dt><dd class="val">80 / 20</dd><dd><p>80% of every fee is burned. 20% goes to the prover fund.</p></dd></div>
+          <div class="sheet-row"><dt>Gate<span class="proposed">Proposed</span></dt><dd class="val">Hold</dd><dd><p>The bond NFT mints only to wallets holding $OBX. It carries the commitment and nothing else.</p></dd></div>
         </dl>
         <div class="status">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-          <p>Cloaking, transfers and verification work today. The token and the bond contract are not deployed, so there is no contract address. Anyone sending you one is not us.</p>
+          <p id="token-status">Cloaking, transfers and verification work today. The token and the bond contract are not deployed, and the figures above are a proposal that can change before launch. There is no contract address yet; anyone sending you one is not us.</p>
         </div>
       </div>
     </div>

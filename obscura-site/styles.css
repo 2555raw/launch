@@ -86,6 +86,7 @@ html { scrollbar-color: var(--line-2) transparent; }
 .mono { font-family: var(--mono); font-variant-ligatures: none; }
 .num { font-variant-numeric: tabular-nums; }
 .wrap { width: 100%; max-width: calc(var(--rail) + var(--gutter) * 2); margin: 0 auto; padding: 0 var(--gutter); }
+[hidden] { display: none !important; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 h1, h2, h3 { font-weight: 560; text-wrap: balance; }
@@ -222,17 +223,19 @@ p { text-wrap: pretty; }
 .wallets-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
 .wallets-head h2 { font-size: 1.625rem; letter-spacing: -.024em; }
 .wallets-head p { color: var(--dim); }
-.wallet-row { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; }
+.wallet-row { display: flex; flex-wrap: wrap; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .wallet-tile {
-  display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 8px 14px;
-  border: 1px solid var(--line); border-radius: var(--r-lg); background: #fff; cursor: pointer;
-  font-size: 13px; font-weight: 500; color: var(--ink-2);
-  transition: border-color .2s, box-shadow .3s var(--ease), transform .3s var(--spring);
+  flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 22px 10px;
+  border: 0; background: transparent; cursor: pointer; font-size: 15px; font-weight: 560; color: var(--ink); white-space: nowrap;
+  position: relative; transition: background-color .2s;
 }
-.wallet-tile img { width: 40px; height: 40px; border-radius: 11px; }
-.wallet-tile:hover { border-color: var(--line-2); box-shadow: var(--shadow-sm); transform: translateY(-2px); }
-.wallet-tile .tag { font-size: 11px; color: var(--ok); font-weight: 560; min-height: 1em; }
-@media (max-width: 900px) { .wallet-row { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.wallet-tile + .wallet-tile::before { content: ""; position: absolute; left: 0; top: 22px; bottom: 22px; width: 1px; background: var(--line); }
+.wallet-tile img { width: 28px; height: 28px; border-radius: 8px; transition: transform .35s var(--spring); }
+.wallet-tile:hover { background: var(--mist); }
+.wallet-tile:hover img { transform: scale(1.08); }
+.wallet-tile .tag { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); font-size: 11px; color: var(--accent); font-weight: 560; }
+@media (max-width: 1100px) { .wallet-tile { flex: 1 1 25%; } .wallet-tile:nth-child(5)::before { display: none; } .wallet-tile:nth-child(n+5) { border-top: 1px solid var(--line); } }
+@media (max-width: 560px) { .wallet-tile { flex: 1 1 50%; justify-content: flex-start; padding: 18px 12px; font-size: 14px; } .wallet-tile::before { display: none; } .wallet-tile:nth-child(n+3) { border-top: 1px solid var(--line); } .wallet-tile:nth-child(even) { border-left: 1px solid var(--line); } }
 
 /* ============ sections ============ */
 .section { padding: var(--space-section) 0 0; }
@@ -281,6 +284,9 @@ p { text-wrap: pretty; }
 .player-ctl button:hover { background: var(--ink); transform: scale(1.06); }
 .player-ctl svg { width: 16px; height: 16px; }
 .films-note { margin-top: 14px; font-size: 13px; color: var(--dim); }
+.film-caption { display: none; margin-top: 14px; min-height: 3.2em; font-size: 17px; font-weight: 500; line-height: 1.4; letter-spacing: -.01em; }
+@media (max-width: 700px) { .film-caption { display: block; } .films-note { display: none; } }
+.proposed { display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: var(--r-pill); background: var(--mist); color: var(--dim); font-size: 12px; font-weight: 560; letter-spacing: 0; vertical-align: middle; }
 @media (max-width: 900px) {
   .films { grid-template-columns: 1fr; }
   .films .player-col { order: -1; }
@@ -335,6 +341,7 @@ input[type="file"]::file-selector-button { margin-right: 12px; padding: 8px 14px
 .band-card p { margin-top: 14px; color: var(--dim); }
 .band .photo-credit { top: auto; bottom: 14px; right: 18px; }
 @media (max-width: 640px) {
+  .band .photo-credit { top: 12px; bottom: auto; right: 12px; }
   .band-media { height: auto; aspect-ratio: 4 / 3; }
   .band-card { position: relative; left: auto; bottom: auto; margin: -48px 12px 0; max-width: none; }
 }
@@ -404,9 +411,8 @@ dialog::backdrop { background: rgba(11, 13, 18, .42); backdrop-filter: blur(6px)
 .sheet-body { padding: 20px 28px; overflow-y: auto; }
 .sheet-foot { display: flex; gap: 10px; justify-content: flex-end; padding: 18px 28px 26px; border-top: 1px solid var(--line); flex-wrap: wrap; }
 .sheet-foot .btn { flex: 1 1 auto; }
-.terms-list { list-style: none; display: grid; gap: 14px; counter-reset: t; }
-.terms-list li { display: grid; grid-template-columns: 26px 1fr; gap: 12px; font-size: 15px; color: var(--ink-2); line-height: 1.55; counter-increment: t; }
-.terms-list li::before { content: counter(t); width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 600; background: var(--mist); color: var(--ink); margin-top: 1px; }
+.terms-list { list-style: none; border-top: 1px solid var(--line); }
+.terms-list li { padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 15px; color: var(--ink-2); line-height: 1.55; }
 .terms-more { margin-top: 18px; font-size: 14px; }
 
 .wallet-list { list-style: none; display: grid; gap: 6px; }
@@ -416,7 +422,7 @@ dialog::backdrop { background: rgba(11, 13, 18, .42); backdrop-filter: blur(6px)
 .wallet-item b { font-weight: 560; display: block; }
 .wallet-item small { color: var(--dim); font-size: 13px; }
 .wallet-item .state { font-size: 12.5px; font-weight: 560; padding: 4px 10px; border-radius: var(--r-pill); background: var(--mist); color: var(--dim); white-space: nowrap; }
-.wallet-item .state.ready { background: var(--ok-soft); color: var(--ok); }
+.wallet-item .state.ready { background: var(--accent-soft); color: var(--accent); }
 .wallet-connected { display: grid; gap: 14px; padding: 18px; border-radius: var(--r-lg); background: var(--mist); margin-bottom: 16px; }
 .wallet-connected .row { display: flex; align-items: center; gap: 12px; }
 .wallet-connected img { width: 36px; height: 36px; border-radius: 10px; }
@@ -449,6 +455,8 @@ dialog::backdrop { background: rgba(11, 13, 18, .42); backdrop-filter: blur(6px)
 .bond-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .bond-amt { font-weight: 600; font-size: 18px; letter-spacing: -.015em; font-variant-numeric: tabular-nums; }
 .bond-hash { font: 12.5px/1.5 var(--mono); color: var(--dim); word-break: break-all; }
+.bond-meta { font-size: 13.5px; color: var(--dim); word-break: break-all; }
+.bond-meta .mono { font-size: 12.5px; }
 .badge { font-size: 12px; font-weight: 560; padding: 4px 10px; border-radius: var(--r-pill); background: var(--mist); color: var(--dim); }
 .badge.live { background: var(--accent-soft); color: var(--accent); }
 .badge.sent { background: var(--steel); color: var(--dim); }

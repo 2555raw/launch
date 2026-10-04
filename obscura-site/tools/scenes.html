@@ -20,38 +20,38 @@
   .mono { font-family: "JetBrains Mono", monospace; }
   .abs { position: absolute; will-change: transform, opacity; }
 
-  .chapter { left: 64px; top: 52px; display: flex; align-items: center; gap: 14px; font-size: 18px; font-weight: 500; color: var(--dim); }
-  .chapter b { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: #fff; font-size: 15px; font-weight: 600; }
-  .brand { right: 64px; top: 56px; font-size: 18px; font-weight: 600; letter-spacing: -.01em; display: flex; gap: 9px; align-items: center; }
+  .chapter { left: 64px; top: 52px; display: flex; align-items: center; gap: 14px; font-size: 22px; font-weight: 500; color: var(--dim); }
+  .chapter b { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: #fff; font-size: 15px; font-weight: 600; }
+  .brand { right: 64px; top: 56px; font-size: 22px; font-weight: 600; letter-spacing: -.01em; display: flex; gap: 9px; align-items: center; }
   .brand i { width: 26px; height: 26px; border-radius: 8px; background: var(--ink); display: grid; place-items: center; }
   .brand i::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
-  .title { left: 64px; top: 250px; font-size: 92px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
-  .title small { display: block; font-size: 26px; font-weight: 400; letter-spacing: -.01em; color: var(--dim); margin-top: 22px; }
+  .title { left: 64px; top: 250px; font-size: 116px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
+  .title small { display: block; font-size: 34px; font-weight: 400; letter-spacing: -.01em; color: var(--dim); margin-top: 22px; }
 
-  .caption { left: 64px; right: 64px; bottom: 56px; font-size: 30px; font-weight: 500; letter-spacing: -.02em; line-height: 1.25; }
+  .caption { left: 64px; right: 64px; bottom: 56px; font-size: 40px; font-weight: 500; letter-spacing: -.02em; line-height: 1.25; }
   .caption span { color: var(--dim2); }
   .bar { left: 64px; right: 64px; bottom: 36px; height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; }
   .bar i { display: block; height: 100%; background: var(--ink); transform-origin: left; }
 
   .card { background: #fff; border: 1.5px solid var(--line); border-radius: 22px; padding: 22px 26px; box-shadow: 0 24px 50px -30px rgba(11,13,18,.35); }
-  .label { font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim2); font-weight: 600; margin-bottom: 8px; }
+  .label { font-size: 19px; color: var(--dim); font-weight: 500; margin-bottom: 8px; }
   .big { font-size: 34px; font-weight: 600; letter-spacing: -.03em; }
-  .hex { font-size: 17px; color: var(--ink); line-height: 1.5; word-break: break-all; }
+  .hex { font-size: 19px; color: var(--ink); line-height: 1.5; word-break: break-all; }
   .engine { width: 240px; height: 240px; border-radius: 50%; display: grid; place-items: center; text-align: center; background: var(--ink); color: #fff; }
   .engine div { font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
   .engine span { display: block; font-size: 15px; opacity: .6; font-weight: 400; margin-top: 6px; }
   .ring { border-radius: 50%; border: 2px solid var(--accent); }
   .hash { font-size: 25px; color: var(--accent); word-break: break-all; line-height: 1.45; }
   .pill { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: var(--soft); font-size: 20px; font-weight: 500; }
-  .who { font-size: 22px; font-weight: 600; text-align: center; }
-  .who span { display: block; font-size: 16px; color: var(--dim); font-weight: 400; margin-top: 4px; }
+  .who { font-size: 26px; font-weight: 600; text-align: center; }
+  .who span { display: block; font-size: 19px; color: var(--dim); font-weight: 400; margin-top: 4px; }
   .avatar { width: 92px; height: 92px; border-radius: 50%; margin: 0 auto 14px; background: var(--soft); border: 1.5px solid var(--line); display: grid; place-items: center; }
   .avatar svg { width: 40px; height: 40px; }
   .lock { width: 120px; height: 120px; border-radius: 30px; background: var(--ink); display: grid; place-items: center; }
   .lock svg { width: 56px; height: 56px; }
   .holding { width: 196px; padding: 18px 20px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; }
   .holding .big { font-size: 24px; white-space: nowrap; }
-  .holding .hex { font-size: 13px; color: var(--dim2); }
+  .holding .hex { font-size: 15px; color: var(--dim2); }
   .bit { font-size: 150px; font-weight: 600; letter-spacing: -.05em; color: var(--ok); line-height: 1; }
   .ok { color: var(--ok); }
 </style>
@@ -105,7 +105,7 @@ function chrome(stage, t, D, n, name, caps) {
   // captions cross-fade on their own timeline
   for (const [a, b, text] of caps) {
     if (t < a - .2 || t > b + .2) continue;
-    const c = el(text, 64, H - 112, { cls: "caption" }); c.style.width = (W - 128) + "px";
+    const c = el(text, 64, H - 124, { cls: "caption" }); c.style.width = (W - 128) + "px";
     const k = Math.min(seg(t, a - .2, a + .35), 1 - seg(t, b - .3, b + .2));
     c.style.opacity = k; c.style.transform = `translateY(${(1 - ease(seg(t, a - .2, a + .35))) * 14}px)`;
     stage.append(c);
@@ -126,7 +126,7 @@ const scenes = {
     render(stage, t) {
       chrome(stage, t, 15, 1, "Cloak", [
         [2.6, 5.4, "Start with an asset, a random salt and a one-time key."],
-        [5.4, 8.4, "Your browser runs SHA-256 over all three. <span>Nothing leaves the device.</span>"],
+        [5.4, 8.4, "SHA-256 runs over all three. <span>Inside your browser.</span>"],
         [8.4, 11.4, "Out comes one 32-byte hash. It names nothing."],
         [11.4, 15.2, "The chain can store the hash. <span>Only your receipt can open it.</span>"],
       ]);

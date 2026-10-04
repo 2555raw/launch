@@ -109,8 +109,8 @@ function renderVault() {
     );
     const extra = [];
     if (b.asset.note) extra.push(el("span", { class: "hint" }, "Note: " + b.asset.note));
-    if (b.prev) extra.push(el("span", { class: "bond-hash" }, "Re-cloaked from 0x" + b.prev.slice(0, 16) + "…"));
-    if (b.anchor) extra.push(el("span", { class: "bond-hash" }, "Anchor tx " + b.anchor));
+    if (b.prev) extra.push(el("span", { class: "bond-meta" }, "Re-cloaked from ", el("span", { class: "mono" }, "0x" + b.prev.slice(0, 16) + "…")));
+    if (b.anchor) extra.push(el("span", { class: "bond-meta" }, "Anchor transaction ", el("span", { class: "mono" }, b.anchor)));
     list.append(el("div", { class: "bond" },
       el("div", { class: "bond-top" }, el("span", { class: "bond-amt" }, label(b)), el("span", { style: "display:flex;gap:6px" }, meta, badge)),
       el("span", { class: "bond-hash" }, "0x" + b.commitment),

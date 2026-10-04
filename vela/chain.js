@@ -421,6 +421,66 @@
     'function approve(address spender, uint256 value) returns (bool)'
   ];
 
+  /* ---------- first liquidity for an ERC-20 on Base / BNB Chain ----------
+     A token deployed on Base or BNB Chain has no pool until someone adds one: this creates the
+     token/ETH (or token/BNB) pool on Uniswap V2 / PancakeSwap V2 from the creator's wallet. */
+  const V2 = {
+    base: { name: 'Uniswap', router: '0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24', factory: '0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6', weth: '0x4200000000000000000000000000000000000006',
+      page: (t) => `https://app.uniswap.org/explore/tokens/base/${t}` },
+    bnb: { name: 'PancakeSwap', router: '0x10ED43C718714eb63d5aA57B78B54704E256024E', factory: '0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73', weth: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+      page: (t) => `https://pancakeswap.finance/swap?outputCurrency=${t}` }
+  };
+  const DEAD = '0x000000000000000000000000000000000000dEaD';
+  const POOL_ABI = ['function balanceOf(address) view returns (uint256)', 'function totalSupply() view returns (uint256)', 'function decimals() view returns (uint8)',
+    'function allowance(address owner, address spender) view returns (uint256)', 'function approve(address spender, uint256 value) returns (bool)'];
+  /* the owner's balance, the supply, and whether a pool with liquidity already exists */
+  const poolInfo = async (chain, token, owner) => {
+    const ethers = await lib('ethers');
+    const p = new ethers.JsonRpcProvider(EVM[chain].rpc, EVM[chain].id, { staticNetwork: true });
+    const erc = new ethers.Contract(token, POOL_ABI, p);
+    const factory = new ethers.Contract(V2[chain].factory, ['function getPair(address,address) view returns (address)'], p);
+    const [supply, decimals, balance, pair] = await Promise.all([erc.totalSupply(), erc.decimals(), owner ? erc.balanceOf(owner) : 0n, factory.getPair(token, V2[chain].weth)]);
+    let liquid = false;
+    if (pair !== ethers.ZeroAddress) {
+      const [r0, r1] = await new ethers.Contract(pair, ['function getReserves() view returns (uint112,uint112,uint32)'], p).getReserves();
+      liquid = r0 > 0n && r1 > 0n;
+    }
+    return { supply, decimals: Number(decimals), balance, pair, liquid, dex: V2[chain].name, page: V2[chain].page(token) };
+  };
+  const addLiquidity = async (chain, token, { pct, native, burn }, step) => {
+    const ethers = await lib('ethers');
+    const acct = await connectEvm();
+    step(`Switching wallet to ${EVM[chain].name}`);
+    await switchChain(chain);
+    const signer = await new ethers.BrowserProvider(evmProvider()).getSigner();
+    const v2 = V2[chain];
+    const erc = new ethers.Contract(token, POOL_ABI, signer);
+    const info = await poolInfo(chain, token, acct.address);
+    if (info.liquid) throw new Error(`This token already has a ${v2.name} pool — add to it on ${v2.name}`);
+    const amount = info.balance * BigInt(Math.round(pct * 100)) / 10000n;
+    if (amount === 0n) throw new Error('This wallet holds none of this token');
+    const value = ethers.parseEther(String(native));
+    try {
+      if ((await erc.allowance(acct.address, v2.router)) < amount) {
+        step(`Approve the token for ${v2.name}`);
+        await (await erc.approve(v2.router, amount)).wait(1);
+      }
+      step(`Add liquidity on ${v2.name} in your wallet`);
+      const router = new ethers.Contract(v2.router, ['function addLiquidityETH(address token, uint256 amountTokenDesired, uint256 amountTokenMin, uint256 amountETHMin, address to, uint256 deadline) payable returns (uint256, uint256, uint256)'], signer);
+      // a new pool takes the amounts as given, so the minimums are those amounts (1% margin)
+      const tx = await router.addLiquidityETH(token, amount, amount * 99n / 100n, value * 99n / 100n, burn ? DEAD : acct.address, Math.floor(Date.now() / 1000) + 1200, { value });
+      step('Waiting for confirmation');
+      const rcpt = await tx.wait(1);
+      if (!rcpt || rcpt.status !== 1) throw Object.assign(new Error('Adding liquidity reverted'), { signature: tx.hash });
+      return { hash: tx.hash, page: info.page };
+    } catch (e) {
+      if (e?.signature) throw e;
+      if (e?.code === 'ACTION_REJECTED') throw new Error('Rejected in the wallet');
+      if (e?.code === 'INSUFFICIENT_FUNDS' || /insufficient funds/i.test(e?.message || '')) throw new Error(`Not enough ${EVM[chain].unit} for this amount and gas`);
+      throw new Error(e?.shortMessage || e?.message || 'Adding liquidity failed');
+    }
+  };
+
   /* ---------- Pons bonding curve (Robinhood Chain) ----------
      Each Pons token trades on its own curve contract until it graduates. A token fresh off the
      launchpad isn't on the aggregator yet, so its trades go straight to the curve. */
@@ -595,7 +655,7 @@
     hasSol: () => !!solProvider(), hasEvm: () => !!evmProvider(),
     solBalance, solTokenBalance, evmBalance, evmTokenBalance,
     launchPump, sellPump, launchEvm, launchPons, ponsPage, uploadImage,
-    signIn, getAccount, putAccount, tradeSol, tradeEvm, FEE, feeOf, reportLaunch, publicLaunches,
+    signIn, getAccount, putAccount, tradeSol, tradeEvm, FEE, feeOf, reportLaunch, publicLaunches, poolInfo, addLiquidity,
     explorerTx, explorerToken, dexscreener, dexEmbed
   };
 })();

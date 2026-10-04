@@ -85,6 +85,12 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
 - **Installable**: web app manifest, icons and a service worker (offline shell) — "Add to Home Screen".
 - **Terms and Risk disclosure**, linked from the landing and the status bar; accepting them is required
   before the first launch.
+- **Add liquidity** (Base / BNB Chain launches: right after the launch, and on the launch's panel until it has
+  a pool): creates the token/ETH pool on Uniswap V2 (Base) or the token/BNB pool on PancakeSwap V2 from the
+  creator's wallet — approve, then `addLiquidityETH` with the chosen % of the balance and amount of ETH/BNB,
+  with a preview of the starting price, market cap and liquidity. *Burn the LP tokens* (on by default) sends
+  the LP tokens to 0x…dEaD so the liquidity can never be pulled. Refused if the token already has a pool.
+  Tested on a Base mainnet fork: pool created, reserves as entered, LP burned.
 - **Token pages** (`/t/<chain>/<address>`): any token's page — price, market cap, 24h, liquidity, volume,
   DexScreener chart, buy/sell, the launchpad, and the creator for tokens launched here. The server fills in the
   link-preview tags (title, description with market cap, the token's logo) so a shared link shows the coin on

@@ -745,6 +745,74 @@
     setTimeout(tick, 1800);
   })();
 
+  /* ---------- first liquidity for a Base / BNB Chain launch ---------- */
+  const openLiquidity = (id) => {
+    const l = state.launches.find((x) => x.id === id);
+    if (!l || !['base', 'bnb'].includes(l.chain)) return;
+    const unit = CHAINS[l.chain].unit, dex = l.chain === 'base' ? 'Uniswap' : 'PancakeSwap';
+    let info = null;
+    openModal(`Add liquidity on ${dex}`, `
+      <form class="form" id="liqForm" novalidate>
+        <p class="dim" style="margin:0;font-size:13.5px">Creates the $${esc(l.ticker)} / ${unit} pool on ${dex} with your tokens and ${unit}, so anyone can buy and sell it. The ratio you add sets the starting price.</p>
+        <div class="row2">
+          <label class="field"><span>$${esc(l.ticker)} to add (% of your balance)</span><input name="pct" inputmode="decimal" value="100"></label>
+          <label class="field"><span>${unit} to add</span><input name="native" inputmode="decimal" value="${l.chain === 'bnb' ? '1' : '0.5'}"></label>
+        </div>
+        <div class="liq-prev" id="liqPrev"><span class="dim">Reading your balance…</span></div>
+        <label class="check"><input type="checkbox" name="burn" checked> Burn the LP tokens — the liquidity can never be pulled (buyers look for this)</label>
+        <ul class="steps" id="liqSteps"></ul>
+        <div class="form-foot" id="liqFoot">
+          <button class="btn btn-ghost" type="button" data-close>Cancel</button>
+          <button class="btn btn-primary" type="submit">Add liquidity</button>
+        </div>
+      </form>`, (body) => {
+      const form = $('#liqForm', body);
+      const preview = () => {
+        const pct = Math.min(100, Math.max(0, parseFloat(form.pct.value) || 0)), native = parseFloat(form.native.value) || 0;
+        if (!info) return;
+        const d = 10 ** info.decimals, bal = Number(info.balance) / d, supply = Number(info.supply) / d, tokens = bal * pct / 100;
+        if (info.liquid) { $('#liqPrev', body).innerHTML = `<span class="neg">This token already has a ${dex} pool.</span> <a class="link-btn" href="${info.page}" target="_blank" rel="noopener">Open it on ${dex}</a>`; return; }
+        const pUsd = tokens > 0 ? native / tokens * usdOf(l.chain) : 0;
+        $('#liqPrev', body).innerHTML = `
+          <div><span>Your balance</span><b>${qty(bal)} $${esc(l.ticker)}</b></div>
+          <div><span>Starting price</span><b>${pUsd ? price(pUsd) : '—'}</b></div>
+          <div><span>Starting market cap</span><b>${pUsd ? compact(pUsd * supply) : '—'}</b></div>
+          <div><span>Liquidity</span><b>${native ? money(native * usdOf(l.chain) * 2) : '—'}</b></div>`;
+      };
+      C.poolInfo(l.chain, l.addr, state.evm?.address || l.owner).then((r) => { info = r; preview(); })
+        .catch(() => { $('#liqPrev', body).innerHTML = '<span class="dim">Couldn’t read the token yet — you can still add liquidity.</span>'; });
+      form.addEventListener('input', preview);
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (busy) return;
+        const pct = parseFloat(form.pct.value), native = parseFloat(form.native.value);
+        if (!(pct > 0 && pct <= 100)) { toast('Token amount: 1 – 100 % of your balance', true); return; }
+        if (!(native > 0)) { toast(`Enter how much ${unit} to add`, true); return; }
+        if (!state.evm && !(await connect('evm'))) return;
+        busy = true;
+        form.querySelectorAll('input, button').forEach((x) => { x.disabled = true; });
+        const st = stepper($('#liqSteps', body));
+        try {
+          const r = await C.addLiquidity(l.chain, l.addr, { pct, native, burn: form.burn.checked }, st.step);
+          st.done();
+          l.pooled = true; l.poolTx = r.hash;
+          l.costUsd = Math.round(((l.costUsd || 0) + native * usdOf(l.chain)) * 100) / 100;   // the ETH/BNB put in counts as cost
+          log(`Added liquidity for ${l.ticker} on ${dex}`); save(); renderAll();
+          toast(`$${l.ticker} is live on ${dex}`);
+          $('#liqFoot', body).innerHTML = `
+            <a class="btn btn-ghost" href="${C.explorerTx(l.chain, r.hash)}" target="_blank" rel="noopener">Transaction</a>
+            <a class="btn btn-ghost" href="${r.page}" target="_blank" rel="noopener">Open on ${dex}</a>
+            <button class="btn btn-primary" type="button" data-close>Done</button>`;
+          refresh();
+        } catch (err) {
+          st.fail(err.message || 'Adding liquidity failed');
+          if (err.signature) $('#liqSteps', body).insertAdjacentHTML('beforeend', `<li><a class="link-btn" href="${C.explorerTx(l.chain, err.signature)}" target="_blank" rel="noopener">Open the transaction</a></li>`);
+          form.querySelectorAll('input, button').forEach((x) => { x.disabled = false; });
+        } finally { busy = false; }
+      });
+    });
+  };
+
   /* ---------- a token's public page ---------- */
 
   const TOKEN_ROUTE = /^\/t\/(sol|rh|base|bnb)\/([1-9A-HJ-NP-Za-km-z]{32,44}|0x[0-9a-fA-F]{40})\/?$/.exec(location.pathname);
@@ -1406,7 +1474,7 @@
             <a class="btn btn-ghost" href="${C.explorerTx(chain, res.signature)}" target="_blank" rel="noopener">Transaction</a>
             ${site.id === 'pump' ? `<a class="btn btn-ghost" href="https://pump.fun/coin/${res.address}" target="_blank" rel="noopener">pump.fun page</a>`
               : site.id === 'pons' ? `<a class="btn btn-ghost" href="${C.ponsPage(res.address)}" target="_blank" rel="noopener">Pons page</a>`
-              : `<a class="btn btn-ghost" href="${chain === 'bnb' ? 'https://pancakeswap.finance' : 'https://app.uniswap.org'}" target="_blank" rel="noopener">Add liquidity</a>`}
+              : `<button class="btn btn-primary" type="button" data-liq="${l.id}">Add liquidity</button>`}
             <button class="btn btn-primary" type="button" data-close>Done</button>`;
           $('#shareLaunch', form).addEventListener('click', () => shareOnX(`I just launched $${ticker} on ${site.name} with @HeyAnyChain 🚀\n\n${tokenUrl(chain, res.address)}`));
           paintIcons($('#createFoot', form));
@@ -1591,6 +1659,7 @@
         : '<p class="note" style="margin:0 0 14px">The price chart shows here once DexScreener lists the token, usually a few minutes after its first trades.</p>'}
       ${tradePanel(l)}
       <div class="form-foot">
+        ${['base', 'bnb'].includes(l.chain) && !l.pooled ? `<button class="btn btn-primary" type="button" data-liq="${l.id}">Add liquidity</button>` : ''}
         <a class="btn btn-ghost" href="${tokenUrl(l.chain, l.addr)}">Token page</a>
         <button class="btn btn-ghost" type="button" data-pnl-share="${l.id}">${icon('share')}<span>Share P&amp;L</span></button>
         <button class="btn btn-ghost" type="button" id="copyAddr">${icon('copy')}<span>Copy address</span></button>
@@ -2478,6 +2547,7 @@
     }
     if (el('#calBtn')) { openCalendar(); return; }
     if (el('#pnlShareBtn')) { openPnlShare('total'); return; }
+    if (el('[data-liq]')) { const id = el('[data-liq]').dataset.liq; if (!modal.hidden) closeModal(); openLiquidity(id); return; }
     if (el('[data-pnl-share]')) { openPnlShare('launch', el('[data-pnl-share]').dataset.pnlShare); return; }
     if (el('[data-legal]')) {
       e.preventDefault();

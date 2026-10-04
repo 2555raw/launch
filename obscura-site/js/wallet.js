@@ -63,7 +63,12 @@ export async function connect(id) {
   const provider = w.extra || providerFor(w);
   if (!provider) {
     if (mobile && w.deeplink) location.href = w.deeplink(location.href);
-    else window.open(w.install, "_blank", "noopener");
+    else {
+      // A real link rather than window.open, which embedded viewers block.
+      const a = document.createElement("a");
+      a.href = w.install; a.target = "_blank"; a.rel = "noopener";
+      a.click();
+    }
     return;
   }
   try {

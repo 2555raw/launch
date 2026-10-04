@@ -99,11 +99,19 @@ function renderVault() {
       el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => { $("t-bond").value = b.commitment; show("transfer"); } }, "Transfer"),
       el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => anchor(b) }, b.anchor ? "Anchored" : "Anchor with wallet"),
       el("button", {
-        class: "btn btn-ghost btn-sm", type: "button", onclick: () => {
-          if (!confirm(`Remove ${label(b)}? Without a backup this bond can never be opened again.`)) return;
+        class: "btn btn-ghost btn-sm", type: "button", onclick: (e) => {
+          // Two steps instead of confirm(): the first press asks, the second removes.
+          const btn = e.currentTarget;
+          if (btn.dataset.armed !== "1") {
+            btn.dataset.armed = "1";
+            btn.textContent = "Press again to remove for good";
+            setTimeout(() => { if (btn.isConnected) { btn.dataset.armed = ""; btn.textContent = "Remove"; } }, 4000);
+            return toast(`Without a backup, ${label(b)} can never be opened again`);
+          }
           vault = vault.filter((x) => x !== b);
           save(vault);
           renderVault();
+          toast(`${label(b)} removed from this browser`);
         },
       }, "Remove"),
     );

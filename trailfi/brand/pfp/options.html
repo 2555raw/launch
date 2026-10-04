@@ -1,0 +1,45 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0}body{width:400px;height:400px;overflow:hidden}
+svg{display:block}
+</style></head><body><div id="root"></div>
+<script>
+const L = "#c4fb6d", B = "#060807", G = "#0b1a10";
+const foot = (fill, op = 1) => `<g fill="${fill}" opacity="${op}"><ellipse cx="0" cy="0" rx="2.9" ry="4.3"/><circle cx="-1.9" cy="-6.1" r="1.05"/><circle cx="0.1" cy="-6.8" r="1.15"/><circle cx="2.0" cy="-6.1" r=".95"/></g>`;
+const glow = (c) => `<radialGradient id="gl" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="${c}"/><stop offset="1" stop-color="${B}"/></radialGradient>`;
+const O = {
+  // 1. One lime footprint, tilted, on black
+  "one-step": `<defs>${glow("#132408")}</defs><rect width="400" height="400" fill="url(#gl)"/>
+    <g transform="translate(200 214) rotate(14) scale(17)">${foot(L)}</g>`,
+  // 2. Two flat footprints, the back one dimmer
+  "two-steps": `<rect width="400" height="400" fill="${B}"/>
+    <g transform="translate(160 236) rotate(-12) scale(11)">${foot(L, .45)}</g>
+    <g transform="translate(244 176) rotate(12) scale(11)">${foot(L)}</g>`,
+  // 3. Activity ring almost closed, with the end cap
+  "ring": `<rect width="400" height="400" fill="${B}"/>
+    <circle cx="200" cy="200" r="112" fill="none" stroke="${L}" stroke-opacity=".12" stroke-width="44"/>
+    <circle cx="200" cy="200" r="112" fill="none" stroke="${L}" stroke-width="44" stroke-linecap="round"
+      stroke-dasharray="${2*Math.PI*112*0.82} 999" transform="rotate(-90 200 200)"/>`,
+  // 4. The step tube from the site, filling up
+  "tube": `<rect width="400" height="400" fill="${B}"/>
+    <rect x="148" y="70" width="104" height="260" rx="52" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".14" stroke-width="3"/>
+    <defs><linearGradient id="tf" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#84cc16"/><stop offset="1" stop-color="#d9f99d"/></linearGradient></defs>
+    <rect x="162" y="140" width="76" height="176" rx="38" fill="url(#tf)"/>`,
+  // 5. Three rising steps
+  "stairs": `<rect width="400" height="400" fill="${B}"/>
+    <path d="M110 290 V230 H170 V170 H230 V110 H290 V290 Z" fill="${L}"/>`,
+  // 6. Inverted: black footprint on lime
+  "lime": `<rect width="400" height="400" fill="${L}"/>
+    <g transform="translate(200 214) rotate(14) scale(17)">${foot(B)}</g>`,
+  // 7. A dotted trail ending in a dot
+  "trail": `<rect width="400" height="400" fill="${B}"/>
+    <path d="M96 300 C 150 300, 150 210, 200 200 S 260 110, 300 104" fill="none" stroke="${L}" stroke-opacity=".55" stroke-width="12" stroke-linecap="round" stroke-dasharray="0.1 30"/>
+    <circle cx="300" cy="104" r="22" fill="${L}"/><circle cx="300" cy="104" r="40" fill="${L}" fill-opacity=".15"/>`,
+  // 8. Stepit app mark, flat, on deep green
+  "mark": `<rect width="400" height="400" fill="${G}"/>
+    <g transform="translate(160 236) rotate(-12) scale(11)">${foot("#a3e635", .6)}</g>
+    <g transform="translate(244 176) rotate(12) scale(11)">${foot("#d9f99d")}</g>`,
+};
+const name = location.hash.slice(1);
+document.getElementById("root").innerHTML = `<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">${O[name]}</svg>`;
+window.NAMES = Object.keys(O);
+</script></body></html>

@@ -1,0 +1,464 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-04T12:30:00Z",
+  "title": "Design System: Obscura",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "oklch(100.0% 0.000 90)",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#808080",
+          "#a4a4a4",
+          "#cacaca",
+          "#eeeeee"
+        ]
+      },
+      "mist": {
+        "role": "neutral",
+        "displayName": "Mist",
+        "canonical": "oklch(97.0% 0.003 265)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#232425",
+          "#3f4041",
+          "#5d5e5f",
+          "#7f8082",
+          "#a4a4a6",
+          "#cacacb",
+          "#eeeeef"
+        ]
+      },
+      "steel": {
+        "role": "neutral",
+        "displayName": "Steel",
+        "canonical": "oklch(93.7% 0.007 269)",
+        "tonalRamp": [
+          "#0b0b0c",
+          "#232426",
+          "#3e4043",
+          "#5c5d62",
+          "#7e8084",
+          "#a3a4a7",
+          "#cacacc",
+          "#eeeeef"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "oklch(15.9% 0.011 268)",
+        "tonalRamp": [
+          "#0a0b0d",
+          "#222428",
+          "#3d4045",
+          "#5b5d64",
+          "#7e8086",
+          "#a3a4a9",
+          "#c9cacd",
+          "#eeeeef"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "canonical": "oklch(30.9% 0.019 264)",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#21242a",
+          "#3b404a",
+          "#585e69",
+          "#7b808b",
+          "#a1a5ac",
+          "#c8cacf",
+          "#eeeef0"
+        ]
+      },
+      "dim": {
+        "role": "neutral",
+        "displayName": "Dim",
+        "canonical": "oklch(47.7% 0.025 262)",
+        "tonalRamp": [
+          "#090b0f",
+          "#20242c",
+          "#39404c",
+          "#565e6c",
+          "#79818e",
+          "#9fa5ae",
+          "#c7cbd0",
+          "#edeef0"
+        ]
+      },
+      "dim-2": {
+        "role": "neutral",
+        "displayName": "Dim Light",
+        "canonical": "oklch(55.7% 0.024 262)",
+        "tonalRamp": [
+          "#090b0f",
+          "#20242c",
+          "#39404c",
+          "#565e6b",
+          "#79818d",
+          "#a0a5ae",
+          "#c7cbd0",
+          "#edeef0"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "oklch(92.7% 0.007 261)",
+        "tonalRamp": [
+          "#0a0b0c",
+          "#232426",
+          "#3e4043",
+          "#5b5e62",
+          "#7e8084",
+          "#a3a5a7",
+          "#c9cacc",
+          "#eeeeef"
+        ]
+      },
+      "line-2": {
+        "role": "neutral",
+        "displayName": "Hairline Strong",
+        "canonical": "oklch(87.8% 0.012 265)",
+        "tonalRamp": [
+          "#0a0b0d",
+          "#222428",
+          "#3d4046",
+          "#5a5e65",
+          "#7d8087",
+          "#a2a5a9",
+          "#c9cacd",
+          "#eeeeef"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Signal Blue",
+        "canonical": "oklch(52.3% 0.224 264)",
+        "tonalRamp": [
+          "#00042e",
+          "#021469",
+          "#0427aa",
+          "#1949d9",
+          "#4276f4",
+          "#79a2fb",
+          "#b1cbff",
+          "#e6efff"
+        ]
+      },
+      "accent-soft": {
+        "role": "primary",
+        "displayName": "Signal Blue Wash",
+        "canonical": "oklch(96.1% 0.018 269)",
+        "tonalRamp": [
+          "#00042e",
+          "#021469",
+          "#0427aa",
+          "#1949d9",
+          "#4276f4",
+          "#79a2fb",
+          "#b1cbff",
+          "#e6efff"
+        ]
+      },
+      "ok": {
+        "role": "semantic",
+        "displayName": "Proof Green",
+        "canonical": "oklch(55.6% 0.146 151)",
+        "tonalRamp": [
+          "#001101",
+          "#003007",
+          "#005212",
+          "#00732d",
+          "#3a9557",
+          "#7ab588",
+          "#b3d5ba",
+          "#e7f2e9"
+        ]
+      },
+      "ok-soft": {
+        "role": "semantic",
+        "displayName": "Proof Wash",
+        "canonical": "oklch(96.1% 0.018 161)",
+        "tonalRamp": [
+          "#001101",
+          "#003007",
+          "#005212",
+          "#00732d",
+          "#3a9557",
+          "#7ab588",
+          "#b3d5ba",
+          "#e7f2e9"
+        ]
+      },
+      "bad": {
+        "role": "semantic",
+        "displayName": "Exposure Red",
+        "canonical": "oklch(54.5% 0.188 26)",
+        "tonalRamp": [
+          "#210000",
+          "#500000",
+          "#840000",
+          "#af0f1b",
+          "#d14f49",
+          "#e4877e",
+          "#f3bbb4",
+          "#fceae7"
+        ]
+      },
+      "bad-soft": {
+        "role": "semantic",
+        "displayName": "Exposure Wash",
+        "canonical": "oklch(96.1% 0.016 17)",
+        "tonalRamp": [
+          "#210000",
+          "#500000",
+          "#840000",
+          "#af0f1b",
+          "#d14f49",
+          "#e4877e",
+          "#f3bbb4",
+          "#fceae7"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The single hero h1, held to about 11ch."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section h2s; smaller fixed h2s in dialogs, boxes, prose."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "h3s, token-sheet terms, FAQ summaries."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "One supporting paragraph under a heading, dim, max 34em."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text with ss01 and cv11; prose capped at about 70ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Nav, field labels, table headers, meta; sentence case."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Hashes, keys, salts, addresses and raw bytes only; ligatures off."
+      }
+    },
+    "shadows": [
+      {
+        "name": "rest",
+        "value": "0 1px 2px rgba(11,13,18,.05), 0 6px 14px -8px rgba(11,13,18,.14)",
+        "purpose": "Nav pill, drawer, dark button, active tab."
+      },
+      {
+        "name": "lift",
+        "value": "0 2px 4px rgba(11,13,18,.04), 0 24px 48px -28px rgba(11,13,18,.30)",
+        "purpose": "Receipt card over photo, toasts."
+      },
+      {
+        "name": "float",
+        "value": "0 4px 10px rgba(11,13,18,.05), 0 40px 80px -40px rgba(11,13,18,.38)",
+        "purpose": "Vault photograph, band card, dialogs, declined card."
+      },
+      {
+        "name": "focus-ring",
+        "value": "inset 0 0 0 1.5px #2458e8, 0 0 0 4px #edf2ff",
+        "purpose": "Focused fields."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Reveals, dialogs, shadows, toggles."
+      },
+      {
+        "name": "spring",
+        "value": "cubic-bezier(.34, 1.32, .64, 1)",
+        "purpose": "Button lift, icon buttons, logo hover."
+      },
+      {
+        "name": "reveal",
+        "value": "opacity + translateY(22px), .9s ease",
+        "purpose": "Section reveal on scroll; disabled under reduced motion."
+      },
+      {
+        "name": "dialog-rise",
+        "value": "translateY(18px) scale(.985) to rest, .5s ease",
+        "purpose": "Sheet card entrance."
+      },
+      {
+        "name": "press",
+        "value": "scale(.97), 80ms",
+        "purpose": "Button active state."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "gutter",
+        "value": "720px"
+      },
+      {
+        "name": "stack",
+        "value": "900px"
+      },
+      {
+        "name": "nav-collapse",
+        "value": "960px"
+      },
+      {
+        "name": "wallets-4up",
+        "value": "1100px"
+      },
+      {
+        "name": "wallets-2up",
+        "value": "560px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Dark Button",
+      "kind": "button",
+      "refersTo": "button-dark",
+      "description": "Primary action: ink pill, one per decision point.",
+      "html": "<button class=\"ds-btn-dark\">Launch app</button>",
+      "css": ".ds-btn-dark{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:inline-flex;align-items:center;min-height:46px;padding:0 22px;border:0;border-radius:999px;background:var(--ink,#0b0d12);color:#fff;font-weight:560;font-size:15px;letter-spacing:-.005em;cursor:pointer;box-shadow:0 1px 2px rgba(11,13,18,.05),0 6px 14px -8px rgba(11,13,18,.14);transition:transform .3s cubic-bezier(.34,1.32,.64,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background-color .2s}.ds-btn-dark:hover{background:#1c2029;transform:translateY(-1px);box-shadow:0 14px 28px -14px rgba(11,13,18,.55)}.ds-btn-dark:active{transform:scale(.97)}.ds-btn-dark:focus-visible{outline:2px solid var(--accent,#2458e8);outline-offset:3px}"
+    },
+    {
+      "name": "Light Button",
+      "kind": "button",
+      "refersTo": "button-light",
+      "description": "Secondary action: paper pill with an inset hairline stroke.",
+      "html": "<button class=\"ds-btn-light\"><svg viewBox=\"0 0 24 24\" width=\"17\" height=\"17\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z\"/></svg>Watch the films</button>",
+      "css": ".ds-btn-light{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:inline-flex;align-items:center;gap:9px;min-height:46px;padding:0 22px;border:0;border-radius:999px;background:#fff;color:var(--ink,#0b0d12);font-weight:560;font-size:15px;cursor:pointer;box-shadow:inset 0 0 0 1px var(--line-2,#d3d7df);transition:transform .3s cubic-bezier(.34,1.32,.64,1),box-shadow .3s}.ds-btn-light:hover{transform:translateY(-1px);box-shadow:inset 0 0 0 1px var(--dim-2,#6c7482),0 1px 2px rgba(11,13,18,.05),0 6px 14px -8px rgba(11,13,18,.14)}.ds-btn-light:active{transform:scale(.97)}.ds-btn-light:focus-visible{outline:2px solid var(--accent,#2458e8);outline-offset:3px}"
+    },
+    {
+      "name": "Soft Button",
+      "kind": "button",
+      "refersTo": "button-soft",
+      "description": "In-context utility action on mist.",
+      "html": "<button class=\"ds-btn-soft\">Draw a new salt and key</button>",
+      "css": ".ds-btn-soft{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);min-height:40px;padding:0 16px;border:0;border-radius:999px;background:var(--mist,#f4f5f7);color:var(--ink,#0b0d12);font-weight:560;font-size:14px;cursor:pointer;transition:background-color .2s}.ds-btn-soft:hover{background:var(--steel,#e8eaef)}.ds-btn-soft:focus-visible{outline:2px solid var(--accent,#2458e8);outline-offset:3px}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Inset-stroked field; focus is the signal blue ring.",
+      "html": "<label class=\"ds-field\"><span>Amount</span><input class=\"ds-input\" value=\"2.5\"></label>",
+      "css": ".ds-field{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:grid;gap:7px;font-size:14px;font-weight:500;color:var(--ink-2,#2b303a)}.ds-input{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);width:100%;min-height:46px;padding:11px 14px;border:0;border-radius:14px;background:#fff;font-size:15px;color:var(--ink,#0b0d12);box-shadow:inset 0 0 0 1px var(--line-2,#d3d7df);transition:box-shadow .2s}.ds-input:hover{box-shadow:inset 0 0 0 1px var(--dim-2,#6c7482)}.ds-input:focus{outline:0;box-shadow:inset 0 0 0 1.5px var(--accent,#2458e8),0 0 0 4px var(--accent-soft,#edf2ff)}"
+    },
+    {
+      "name": "Floating Nav",
+      "kind": "nav",
+      "refersTo": "nav",
+      "description": "Translucent pill nav floating 12px from the top.",
+      "html": "<nav class=\"ds-nav\"><b class=\"ds-brand\"><span class=\"ds-mark\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z\"/><circle cx=\"12\" cy=\"12\" r=\"2.6\" fill=\"currentColor\" stroke=\"none\"/></svg></span>Obscura</b><span class=\"ds-links\"><a aria-current=\"true\">How it works</a><a>Try it</a><a>FAQ</a></span><a class=\"ds-cta\">Launch app</a></nav>",
+      "css": ".ds-nav{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:flex;align-items:center;justify-content:space-between;gap:12px;height:60px;padding:0 8px 0 18px;background:rgba(255,255,255,.86);border:1px solid var(--line,#e4e7ec);border-radius:999px;backdrop-filter:blur(16px) saturate(170%);box-shadow:0 1px 2px rgba(11,13,18,.05),0 6px 14px -8px rgba(11,13,18,.14)}.ds-brand{display:flex;align-items:center;gap:10px;font-weight:600;font-size:17px;letter-spacing:-.02em}.ds-mark{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;background:var(--ink,#0b0d12);color:#fff}.ds-links{display:flex;gap:2px;font-size:14.5px;font-weight:500}.ds-links a{padding:8px 14px;border-radius:999px;color:var(--dim,#555d6b);cursor:pointer;transition:color .2s}.ds-links a:hover{color:var(--ink,#0b0d12)}.ds-links a[aria-current=true]{color:var(--ink,#0b0d12);background:var(--mist,#f4f5f7)}.ds-cta{min-height:40px;display:inline-flex;align-items:center;padding:0 16px;border-radius:999px;background:var(--ink,#0b0d12);color:#fff;font-weight:560;font-size:14px;cursor:pointer}"
+    },
+    {
+      "name": "Badges",
+      "kind": "chip",
+      "refersTo": "badge",
+      "description": "Status pills; blue only when live.",
+      "html": "<span class=\"ds-badge\">Proposed</span> <span class=\"ds-badge ds-live\">Live</span> <span class=\"ds-badge ds-sent\">Sent</span>",
+      "css": ".ds-badge{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:inline-block;font-size:12px;font-weight:560;padding:4px 10px;border-radius:999px;background:var(--mist,#f4f5f7);color:var(--dim,#555d6b)}.ds-live{background:var(--accent-soft,#edf2ff);color:var(--accent,#2458e8)}.ds-sent{background:var(--steel,#e8eaef)}"
+    },
+    {
+      "name": "Receipt Card",
+      "kind": "card",
+      "refersTo": "receipt",
+      "description": "Frosted card carrying a live commitment over the vault photograph.",
+      "html": "<div class=\"ds-receipt\"><div class=\"ds-rt\"><b>2.5 ETH</b><span>ethereum</span></div><div class=\"ds-rh\">0x97c868f945ea7caf6674823846efee5cd790321c9a8c0dcd8484db421a3dbfaa</div><div class=\"ds-rf\"><span>SHA-256 · salt 16 B · key 32 B</span><span>Sealed locally</span></div></div>",
+      "css": ".ds-receipt{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);max-width:480px;padding:20px 22px;border-radius:20px;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);box-shadow:0 2px 4px rgba(11,13,18,.04),0 24px 48px -28px rgba(11,13,18,.30);color:var(--ink,#0b0d12)}.ds-rt{display:flex;justify-content:space-between;align-items:baseline}.ds-rt b{font-size:22px;font-weight:600;letter-spacing:-.02em}.ds-rt span,.ds-rf{font-size:13px;color:var(--dim,#555d6b)}.ds-rh{margin-top:10px;font:13px/1.5 var(--mono,\"JetBrains Mono\",ui-monospace,monospace);color:var(--accent,#2458e8);word-break:break-all}.ds-rf{display:flex;justify-content:space-between;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line,#e4e7ec)}"
+    },
+    {
+      "name": "Ruled List (FAQ)",
+      "kind": "custom",
+      "refersTo": "ruled-list",
+      "description": "Hairline-ruled rows instead of cards; plus rotates to a cross when open.",
+      "html": "<div class=\"ds-faq\"><details open><summary>Does Obscura ever hold my funds?<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 5v14M5 12h14\"/></svg></summary><p>No. Everything runs in your browser.</p></details><details><summary>Is $OBX live?<svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 5v14M5 12h14\"/></svg></summary><p>Not yet.</p></details></div>",
+      "css": ".ds-faq{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);color:var(--ink,#0b0d12)}.ds-faq details{border-bottom:1px solid var(--line,#e4e7ec)}.ds-faq summary{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:22px 0;cursor:pointer;list-style:none;font-size:18px;font-weight:560;letter-spacing:-.012em}.ds-faq summary::-webkit-details-marker{display:none}.ds-faq summary svg{color:var(--dim,#555d6b);transition:transform .3s cubic-bezier(.16,1,.3,1)}.ds-faq details[open] summary svg{transform:rotate(45deg)}.ds-faq p{padding:0 0 24px;color:var(--dim,#555d6b)}"
+    },
+    {
+      "name": "Verdict",
+      "kind": "custom",
+      "refersTo": "verdict-true",
+      "description": "The one-bit proof result; the only place green appears.",
+      "html": "<div class=\"ds-verdict ds-true\"><span class=\"ds-bit\">1</span><div>True<small>The receipt matches this commitment.</small></div></div>",
+      "css": ".ds-verdict{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:20px;font-weight:600;font-size:17px}.ds-bit{font:600 30px/1 var(--mono,\"JetBrains Mono\",ui-monospace,monospace)}.ds-true{background:var(--ok-soft,#e8f6ee);color:var(--ok,#0f8a43)}.ds-verdict small{display:block;font-weight:400;font-size:14px;color:var(--ink-2,#2b303a);margin-top:2px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Quiet Vault",
+    "overview": "Obscura is a private-banking vault rendered as a calm white product page. The material comes from the vault photographs: paper white, cool steel greys, and near-black ink. Real safe-deposit boxes carry the metaphor. The mechanism is shown live: a commitment hash that recomputes in the browser and appears in the one signal blue. Everything else stays quiet so the hash and the proof can be the only things that announce themselves.\n\nDensity is low and the pacing is generous. Sections sit on a 1180px rail with large vertical breaks, and lists are ruled with hairlines instead of being boxed into cards. Controls are pills, media get large soft radii, and depth is a few low ambient shadows under floating things such as the nav, the receipt, dialogs and the photograph. The world turns down the category's dark neon crypto page and the icon-card feature grid.\n\nThe same world carries into the app pages (console, verify, terms, declined) and into the explainer films, which reuse the same type pairing and roles.",
+    "keyCharacteristics": [
+      "Paper white ground; mist and steel greys for tonal layering; ink for actions.",
+      "One signal blue (#2458e8) for things that are live, computed or detected.",
+      "Green appears only on a true proof. Red appears only for exposure and failure.",
+      "Host Grotesk for every word; JetBrains Mono only for hashes, bytes and addresses.",
+      "Pill controls, hairline-ruled lists, large radii on media and containers.",
+      "Real photographs credited in place, never illustrations or stock icons."
+    ],
+    "rules": [
+      {
+        "name": "The One Signal Rule",
+        "body": "Blue means live, computed or detected. If an element is not changing, verified or found in the browser right now, it is not blue. Actions are ink, not blue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Earned Green Rule",
+        "body": "Green appears only after a real proof returns true. Never use it for decoration, success toasts or \"secure\" claims.",
+        "section": "colors"
+      },
+      {
+        "name": "The Bytes-Only Mono Rule",
+        "body": "JetBrains Mono is used only for hashes, keys, salts, addresses and raw bytes. Labels, numbers and UI chrome stay in Host Grotesk, and numbers use tabular figures instead.",
+        "section": "typography"
+      },
+      {
+        "name": "The 560 Rule",
+        "body": "Headings, buttons, badges and emphasized UI share one weight (560). Bolder weights (600) are kept for the brand name, amounts and verdicts.",
+        "section": "typography"
+      },
+      {
+        "name": "The Float-Only Shadow Rule",
+        "body": "A shadow means the surface floats over something. Inline containers such as boxes, bonds, the explorer and the demo use a 1px hairline border instead, and never a shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep blue for live or computed state: hashes being recomputed, detected wallets, ready states, focus.",
+      "**Do** use ink pills for the primary action and paper pills with a line-2 stroke for the secondary one.",
+      "**Do** separate list content with 1px hairlines (#e4e7ec) instead of wrapping each item in a card.",
+      "**Do** set every hash, key, salt and address in JetBrains Mono, and every other word in Host Grotesk.",
+      "**Do** credit real photographs in place with a small ink pill, and clip them to the 28px radius.",
+      "**Do** use tabular figures for amounts, times and token figures."
+    ],
+    "donts": [
+      "**Don't** use green for anything except a true verification result.",
+      "**Don't** use red outside exposure, false verdicts and invalid fields.",
+      "**Don't** fill buttons with the signal blue.",
+      "**Don't** put shadows on inline containers. Shadows are for surfaces that float.",
+      "**Don't** introduce dark neon crypto styling, gradients on UI, or icon-card feature grids.",
+      "**Don't** add uppercase tracked labels or eyebrows above headings. Headings carry their sections alone."
+    ]
+  }
+}

@@ -27,7 +27,7 @@ self.addEventListener('fetch', (e) => {
   }
 
   e.respondWith(fetch(e.request).then((res) => {
-    if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(e.request, copy)); }
+    if (res.ok && !url.pathname.startsWith('/t/')) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(e.request, copy)); }   // token pages: always fresh
     return res;
   }).catch(() => caches.match(e.request).then((hit) => hit || caches.match('/index.html'))));
 });

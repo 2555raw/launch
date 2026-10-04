@@ -745,10 +745,77 @@
     setTimeout(tick, 1800);
   })();
 
+  /* ---------- a token's public page ---------- */
+
+  const TOKEN_ROUTE = /^\/t\/(sol|rh|base|bnb)\/([1-9A-HJ-NP-Za-km-z]{32,44}|0x[0-9a-fA-F]{40})\/?$/.exec(location.pathname);
+  const tokenUrl = (chain, addr) => `${location.origin}/t/${chain}/${addr}`;
+  const shareOnX = (text) => window.open(`https://x.com/intent/post?text=${encodeURIComponent(text)}`, '_blank', 'noopener');
+  const launchpadLink = (site, chain, addr) => (site === 'pump' ? [`https://pump.fun/coin/${addr}`, 'pump.fun'] : site === 'pons' ? [C.ponsPage(addr), 'Pons'] : null);
+
+  const renderToken = async () => {
+    const el = $('#tokenPage');
+    if (!TOKEN_ROUTE) { el.innerHTML = ''; return; }
+    const [, chain, addr] = TOKEN_ROUTE;
+    if (!el.dataset.ready) el.innerHTML = '<div class="tp-loading dim">Loading token…</div>';
+    const [mk, _] = await Promise.all([C.market([addr]).catch(() => ({})), loadLaunched()]);
+    const m = mk[addr] || Object.values(mk)[0] || null;
+    const reg = pub.list.find((x) => x.chain === chain && x.address.toLowerCase() === addr.toLowerCase());
+    const own = state.launches.find((x) => x.addr.toLowerCase() === addr.toLowerCase());
+    const sym = reg?.symbol || own?.ticker || m?.symbol || short(addr);
+    const name = reg?.name || own?.name || m?.name || sym;
+    const site = reg?.site || own?.site || null;
+    const image = reg?.image || own?.image || null;
+    const lp = launchpadLink(site, chain, addr);
+    const url = tokenUrl(chain, addr);
+    el.dataset.ready = '1';
+    el.innerHTML = `
+      <div class="tp">
+        <div class="tp-head">
+          <span class="tp-ava">${avatar({ name, ticker: sym, image, chain })}</span>
+          <div class="tp-title">
+            <h1>$${esc(sym)} <span>${esc(name)}</span></h1>
+            <div class="tp-meta">${chainChip(chain)}${site ? `<span>${esc(siteName(site))}</span>` : ''}${reg ? `<span>Launched ${age(reg.created)} ago on AnyChain</span>` : ''}${reg?.creator ? `<span>by <a class="addr" href="${chain === 'sol' ? `https://solscan.io/account/${reg.creator}` : `${C.EVM[chain].explorer}/address/${reg.creator}`}" target="_blank" rel="noopener">${short(reg.creator)}</a></span>` : ''}</div>
+          </div>
+          <div class="tp-actions">
+            <button class="btn btn-primary" type="button" id="tpShare">${icon('x')}<span>Share</span></button>
+            <button class="btn btn-ghost" type="button" id="tpCopy">${icon('copy')}<span>Copy link</span></button>
+          </div>
+        </div>
+        <div class="stats tp-stats">
+          <div class="stat"><span>Price</span><b>${m ? price(m.priceUsd) : '—'}</b></div>
+          <div class="stat"><span>Market cap</span><b>${m?.marketCap ? compact(m.marketCap) : '—'}</b></div>
+          <div class="stat"><span>24h</span><b class="${!m ? '' : m.change24h < 0 ? 'neg' : 'pos'}">${m ? `${m.change24h > 0 ? '+' : ''}${Number(m.change24h).toFixed(1)}%` : '—'}</b></div>
+          <div class="stat"><span>Liquidity</span><b>${m?.liquidity ? compact(m.liquidity) : '—'}</b></div>
+          <div class="stat"><span>Volume 24h</span><b>${m?.volume24h ? compact(m.volume24h) : '—'}</b></div>
+        </div>
+        <div class="tp-grid">
+          <div class="tp-chart">${m?.priceUsd
+            ? `<div class="chart-embed"><iframe src="${C.dexEmbed(chain, addr, document.documentElement.dataset.theme?.startsWith('light'))}" title="$${esc(sym)} price chart" loading="lazy" referrerpolicy="no-referrer"></iframe></div>`
+            : '<p class="note">The chart shows here once DexScreener lists the token, usually a few minutes after its first trades.</p>'}
+            <div class="links">
+              ${lp ? `<a href="${lp[0]}" target="_blank" rel="noopener">${lp[1]}</a>` : ''}
+              <a href="${C.dexscreener(chain, addr)}" target="_blank" rel="noopener">DexScreener</a>
+              <a href="${C.explorerToken(chain, addr)}" target="_blank" rel="noopener">Explorer</a>
+              <a href="#" data-copy="${esc(addr)}">Copy address</a>
+            </div>
+          </div>
+          <div class="tp-side">
+            <div class="card tp-trade"><div class="card-head"><span class="label">Trade $${esc(sym)}</span></div>${tradePanel({ chain, addr, ticker: sym })}</div>
+            <a class="tp-cta" href="/#dashboard">${icon('rocket')}<span><b>Launch your own coin</b><small>pump.fun, Pons, Base or BNB Chain — from your wallet</small></span></a>
+          </div>
+        </div>
+      </div>`;
+    paintIcons(el);
+    document.title = `$${sym} · ${name} on AnyChain`;
+    mountTrade(el, { chain, addr, ticker: sym, site, tx: reg?.tx || own?.tx }, own || null);
+    $('#tpCopy', el).addEventListener('click', () => copy(url, 'Link'));
+    $('#tpShare', el).addEventListener('click', () => shareOnX(`$${sym} on ${CHAINS[chain].name} 👀\n\nTrade it on @HeyAnyChain\n${url}`));
+  };
+
   /* ---------- tokens launched from AnyChain, by everyone ---------- */
 
   let pub = { at: 0, total: 0, list: [] };
-  const pubLink = (l) => (l.site === 'pump' ? `https://pump.fun/coin/${l.address}` : l.site === 'pons' ? C.ponsPage(l.address) : l.market?.url || C.dexscreener(l.chain, l.address));
+  const pubLink = (l) => tokenUrl(l.chain, l.address);
   const loadLaunched = async (force) => {
     if (!force && Date.now() - pub.at < 30000) return;
     try {
@@ -789,7 +856,7 @@
           <td class="num ${m.change24h == null ? 'dim' : m.change24h < 0 ? 'neg' : 'pos'}">${m.change24h == null ? '—' : `${m.change24h > 0 ? '+' : ''}${Number(m.change24h).toFixed(1)}%`}</td>
           <td class="num">${m.liquidity ? compact(m.liquidity) : '—'}</td>
           <td><a class="addr" href="${l.chain === 'sol' ? `https://solscan.io/account/${l.creator}` : `${C.EVM[l.chain].explorer}/address/${l.creator}`}" target="_blank" rel="noopener">${short(l.creator)}</a></td>
-          <td class="act"><a href="${esc(pubLink(l))}" target="_blank" rel="noopener">Open</a><button type="button" data-pub-track="${esc(l.address)}" data-chain="${l.chain}">Track</button></td>
+          <td class="act"><a href="${esc(pubLink(l))}">Open</a><button type="button" data-pub-track="${esc(l.address)}" data-chain="${l.chain}">Track</button></td>
         </tr>`; }).join('')}</tbody>`
       : `<tbody><tr><td class="table-empty">${pub.at ? 'No tokens launched from AnyChain yet. Yours can be the first.' : 'Loading…'}</td></tr></tbody>`;
   };
@@ -799,7 +866,7 @@
     // a small count reads as a weakness: the number only shows, in the kicker, once it is worth showing
     $('#pubKicker').textContent = pub.total >= 50 ? `${pub.total.toLocaleString('en-US')} coins launched on AnyChain` : 'Launched on AnyChain';
     $('#pubCards').innerHTML = list.length ? list.map((l) => { const m = l.market || {}; return `
-      <a class="hot-card" href="${esc(pubLink(l))}" target="_blank" rel="noopener">
+      <a class="hot-card" href="${esc(pubLink(l))}">
         <div class="hot-top">
           <span class="hot-ico">${l.image ? `<img src="${esc(l.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.visibility='hidden'">` : `<span>${esc(l.symbol.slice(0, 1))}</span>`}
             <img class="hot-chain" src="${CHAINS[l.chain].logo}" alt="${CHAINS[l.chain].name}" title="${CHAINS[l.chain].name}"></span>
@@ -814,15 +881,16 @@
 
   /* ---------- views & routing ---------- */
 
-  const VIEWS = ['dashboard', 'wallets', 'sites', 'tracker', 'launched', 'archived'];
+  const VIEWS = ['dashboard', 'wallets', 'sites', 'tracker', 'launched', 'archived', 'token'];
   let view = 'dashboard';
 
   const renderView = () => {
-    ({ dashboard: renderDashboard, wallets: renderWallets, sites: renderSites, tracker: renderTracker, launched: renderLaunched, archived: renderArchived })[view]();
+    ({ dashboard: renderDashboard, wallets: renderWallets, sites: renderSites, tracker: renderTracker, launched: renderLaunched, archived: renderArchived, token: renderToken })[view]();
   };
   const renderAll = () => { renderLaunchList(); renderFunder(); syncLandingWallet(); renderView(); };
 
   const go = (name) => {
+    if (!name && TOKEN_ROUTE) name = 'token';   // /t/<chain>/<address> opens on the token's page
     if (name === 'legal-terms' || name === 'legal-risk') { go('home'); openLegal(name.slice(6)); return; }
     const home = !name || name === 'home';
     $('#landing').hidden = !home;
@@ -831,7 +899,7 @@
     $$('.view').forEach((v) => { v.hidden = v.dataset.view !== view; });
     $$('.features-list a').forEach((a) => a.classList.toggle('is-on', a.dataset.view === view));
     $('#rangeSeg').hidden = view !== 'dashboard';
-    $('#chainSeg').hidden = view === 'wallets' || view === 'sites';
+    $('#chainSeg').hidden = view === 'wallets' || view === 'sites' || view === 'token';
     $('#app').classList.remove('is-menu');
     $('#scrim').hidden = true;
     hideTip();
@@ -948,7 +1016,28 @@
 
   /* ---------- wallets ---------- */
 
+  const isPhone = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || matchMedia('(pointer: coarse)').matches && innerWidth < 900;
+  const openWalletHelp = (fam) => {
+    const here = location.href, origin = location.origin, bare = here.replace(/^https?:\/\//, '');
+    const apps = fam === 'sol'
+      ? [['Phantom', 'img/wallets/phantom.png', `https://phantom.app/ul/browse/${encodeURIComponent(here)}?ref=${encodeURIComponent(origin)}`, 'https://phantom.app/download'],
+         ['Solflare', 'img/wallets/solflare.png', `https://solflare.com/ul/v1/browse/${encodeURIComponent(here)}?ref=${encodeURIComponent(origin)}`, 'https://solflare.com/download'],
+         ['Backpack', 'img/wallets/backpack.png', `https://backpack.app/ul/v1/browse/${encodeURIComponent(here)}?ref=${encodeURIComponent(origin)}`, 'https://backpack.app/downloads']]
+      : [['MetaMask', 'img/wallets/metamask.png', `https://metamask.app.link/dapp/${bare}`, 'https://metamask.io/download/'],
+         ['Coinbase Wallet', 'img/wallets/coinbase.png', `https://go.cb-w.com/dapp?cb_url=${encodeURIComponent(here)}`, 'https://www.coinbase.com/wallet/downloads'],
+         ['Trust Wallet', 'img/wallets/trust.png', `https://link.trustwallet.com/open_url?coin_id=60&url=${encodeURIComponent(here)}`, 'https://trustwallet.com/download']];
+    const phone = isPhone();
+    openModal(phone ? 'Open AnyChain in your wallet' : `No ${fam === 'sol' ? 'Solana' : 'EVM'} wallet found`, `
+      <p class="dim" style="margin:0 0 14px;font-size:13.5px">${phone
+        ? 'On a phone, wallets only connect inside their own app. Pick yours: AnyChain opens in its browser, right where you are.'
+        : 'Install a wallet extension, then reload this page. Already installed? Make sure it is enabled for this site.'}</p>
+      <div class="wallet-apps">${apps.map(([n, img, deep, dl]) => `
+        <a class="wallet-app" href="${phone ? deep : dl}" ${phone ? '' : 'target="_blank" rel="noopener"'}><img src="${img}" alt=""><b>${n}</b><span>${phone ? 'Open in app →' : 'Get it →'}</span></a>`).join('')}</div>
+      ${phone ? '' : '<div class="form-foot"><button class="btn btn-primary" type="button" onclick="location.reload()">I installed it — reload</button></div>'}`);
+  };
+
   const connect = async (fam) => {
+    if (!(fam === 'sol' ? C.hasSol() : C.hasEvm())) { closePops(); openWalletHelp(fam); return null; }
     try {
       const w = fam === 'sol' ? await C.connectSol() : await C.connectEvm();
       if (!w) throw new Error('No account returned');
@@ -1312,11 +1401,15 @@
           renderAll();
           toast(`${ticker} is live on ${site.name}`);
           $('#createFoot', form).innerHTML = `
+            <button class="btn btn-ghost" type="button" id="shareLaunch">${icon('x')}<span>Share on X</span></button>
+            <a class="btn btn-ghost" href="${tokenUrl(chain, res.address)}" target="_blank" rel="noopener">Token page</a>
             <a class="btn btn-ghost" href="${C.explorerTx(chain, res.signature)}" target="_blank" rel="noopener">Transaction</a>
             ${site.id === 'pump' ? `<a class="btn btn-ghost" href="https://pump.fun/coin/${res.address}" target="_blank" rel="noopener">pump.fun page</a>`
               : site.id === 'pons' ? `<a class="btn btn-ghost" href="${C.ponsPage(res.address)}" target="_blank" rel="noopener">Pons page</a>`
               : `<a class="btn btn-ghost" href="${chain === 'bnb' ? 'https://pancakeswap.finance' : 'https://app.uniswap.org'}" target="_blank" rel="noopener">Add liquidity</a>`}
             <button class="btn btn-primary" type="button" data-close>Done</button>`;
+          $('#shareLaunch', form).addEventListener('click', () => shareOnX(`I just launched $${ticker} on ${site.name} with @HeyAnyChain 🚀\n\n${tokenUrl(chain, res.address)}`));
+          paintIcons($('#createFoot', form));
           refresh();
         } catch (err) {
           busy = false;
@@ -1498,6 +1591,7 @@
         : '<p class="note" style="margin:0 0 14px">The price chart shows here once DexScreener lists the token, usually a few minutes after its first trades.</p>'}
       ${tradePanel(l)}
       <div class="form-foot">
+        <a class="btn btn-ghost" href="${tokenUrl(l.chain, l.addr)}">Token page</a>
         <button class="btn btn-ghost" type="button" data-pnl-share="${l.id}">${icon('share')}<span>Share P&amp;L</span></button>
         <button class="btn btn-ghost" type="button" id="copyAddr">${icon('copy')}<span>Copy address</span></button>
         ${l.archived

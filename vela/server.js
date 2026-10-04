@@ -693,6 +693,56 @@ const api = {
   }
 };
 
+/* ---------- token pages ----------
+   /t/<chain>/<address> is the app opened on that token, with link-preview tags (X, Telegram, Discord)
+   for the token: its name, ticker, logo and market cap. */
+const TOKEN_PAGE = /^\/t\/(sol|rh|base|bnb)\/([1-9A-HJ-NP-Za-km-z]{32,44}|0x[0-9a-fA-F]{40})\/?$/;
+const CHAIN_NAME = { sol: 'Solana', rh: 'Robinhood Chain', base: 'Base', bnb: 'BNB Chain' };
+const SITE_NAME = { pump: 'pump.fun', pons: 'Pons', base: 'Base', bnb: 'BNB Chain' };
+const escAttr = (v) => String(v ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const shortUsd = (v) => (v >= 1e9 ? `$${(v / 1e9).toFixed(2)}B` : v >= 1e6 ? `$${(v / 1e6).toFixed(2)}M` : v >= 1e3 ? `$${(v / 1e3).toFixed(1)}K` : `$${Math.round(v)}`);
+const tokenMeta = async (chain, address) => {
+  const reg = registry.find((l) => l.chain === chain && l.address.toLowerCase() === address.toLowerCase());
+  const m = { name: reg?.name, symbol: reg?.symbol, image: reg?.image, site: reg?.site, mcap: 0 };
+  try {
+    const data = await Promise.race([
+      cached(`tok:${address}`, 30000, () => fetchJson(`https://api.dexscreener.com/latest/dex/tokens/${address}`)),
+      sleep(2500).then(() => null)
+    ]);
+    const pair = (data?.pairs || []).filter((p) => p.baseToken?.address?.toLowerCase() === address.toLowerCase())
+      .sort((a, b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
+    if (pair) {
+      m.name = m.name || pair.baseToken.name; m.symbol = m.symbol || pair.baseToken.symbol;
+      m.image = m.image || pair.info?.imageUrl; m.mcap = pair.marketCap || pair.fdv || 0;
+    }
+  } catch (_) { /* preview without market data */ }
+  return m;
+};
+let indexHtml = null;
+const tokenPage = async (res, chain, address) => {
+  if (!indexHtml) indexHtml = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const m = await tokenMeta(chain, address);
+  const sym = m.symbol ? `$${m.symbol}` : `${address.slice(0, 6)}…`;
+  const title = `${sym}${m.name ? ` · ${m.name}` : ''} on AnyChain`;
+  const desc = [`${m.name || sym} on ${CHAIN_NAME[chain]}`, m.site ? `launched on ${SITE_NAME[m.site]} with AnyChain` : null,
+    m.mcap ? `market cap ${shortUsd(m.mcap)}` : null].filter(Boolean).join(' · ') + '. Trade it, or launch your own coin on any chain.';
+  const url = `https://anychain.website/t/${chain}/${address}`;
+  const img = /^https:\/\//.test(m.image || '') ? m.image : null;
+  // replacer functions, so a "$1.6M" in the text is never read as a regex back-reference
+  const set = (html, attr, key, value) => html.replace(new RegExp(`(<meta ${attr}="${key}" content=")[^"]*(")`), (_, a, b) => a + escAttr(value) + b);
+  let html = indexHtml.replace('<head>', () => '<head>\n  <base href="/">').replace(/<title>[^<]*<\/title>/, () => `<title>${escAttr(title)}</title>`);
+  html = set(html, 'name', 'description', desc);
+  html = set(html, 'property', 'og:title', title); html = set(html, 'property', 'og:description', desc); html = set(html, 'property', 'og:url', url);
+  html = set(html, 'name', 'twitter:title', title); html = set(html, 'name', 'twitter:description', desc);
+  if (img) {
+    html = set(html, 'property', 'og:image', img); html = set(html, 'name', 'twitter:image', img);
+    html = set(html, 'name', 'twitter:card', 'summary');
+    html = html.replace(/\s*<meta property="og:image:(width|height)" content="[^"]*">/g, '');
+  }
+  res.writeHead(200, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-cache' });
+  res.end(html);
+};
+
 /* ---------- server ---------- */
 
 http.createServer(async (req, res) => {
@@ -722,8 +772,11 @@ http.createServer(async (req, res) => {
     return;
   }
 
+  const tok = TOKEN_PAGE.exec(rel);
+  if (tok) { tokenPage(res, tok[1], tok[2]).catch(() => { if (!res.headersSent) res.writeHead(500).end('Server error'); }); return; }
+
   if (rel === '/') rel = '/index.html';
-  if (!PUBLIC.has(rel) && !/^\/img\/(hero\/)?[a-z]+\.(png|svg)$/.test(rel)) {
+  if (!PUBLIC.has(rel) && !/^\/img\/(hero\/|wallets\/)?[a-z]+\.(png|svg)$/.test(rel)) {
     res.writeHead(404, { 'content-type': 'text/plain; charset=utf-8' });
     res.end('404 — nothing here');
     return;

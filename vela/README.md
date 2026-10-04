@@ -85,6 +85,13 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
 - **Installable**: web app manifest, icons and a service worker (offline shell) — "Add to Home Screen".
 - **Terms and Risk disclosure**, linked from the landing and the status bar; accepting them is required
   before the first launch.
+- **Token pages** (`/t/<chain>/<address>`): any token's page — price, market cap, 24h, liquidity, volume,
+  DexScreener chart, buy/sell, the launchpad, and the creator for tokens launched here. The server fills in the
+  link-preview tags (title, description with market cap, the token's logo) so a shared link shows the coin on
+  X, Telegram or Discord. *Share* and *Copy link* on the page; after a launch, *Share on X* posts the token page.
+- **No wallet in the browser**: on a phone, AnyChain offers to open itself inside Phantom, Solflare or Backpack
+  (Solana) or MetaMask, Coinbase Wallet or Trust Wallet (EVM) through their deep links; on a computer, install
+  links. Wallet logos in `img/wallets/`.
 - **Launched here** (sidebar, and *Launched on AnyChain* on the landing page): every token launched from
   AnyChain by anyone, verified on-chain, with market cap, 24h change, liquidity, creator and a Track button.
   Kept in `DATA_DIR/anychain-launches.json`. Launches made before the list existed, or whose report was

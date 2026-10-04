@@ -263,6 +263,7 @@ kbd {
   font-size: 13px; font-weight: 600; white-space: nowrap;
 }
 .btn i { width: 14px; height: 14px; }
+.btn > svg { width: 15px; height: 15px; flex: none; }
 .btn-ghost { background: var(--card); border: 1px solid var(--line-hi); color: var(--ink); }
 .btn-ghost:hover { background: var(--surface); }
 .btn-primary { background: var(--primary); color: var(--on-primary, #fff); }
@@ -999,6 +1000,38 @@ img.logo { width: 16px; height: 16px; border-radius: 50%; flex: none; object-fit
 .legal-items b { font-size: 14px; color: var(--ink); }
 .legal-items p { margin: 3px 0 0; color: var(--muted); }
 .legal-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--dim); }
+
+/* token page */
+.tp { display: grid; gap: 16px; max-width: 1180px; }
+.tp-head { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.tp-ava .avatar { width: 64px; height: 64px; font-size: 22px; }
+.tp-ava .avatar .chain-pip { width: 16px; height: 16px; }
+.tp-title { min-width: 0; flex: 1; }
+.tp-title h1 { margin: 0; font-size: 30px; letter-spacing: -.03em; line-height: 1.1; }
+.tp-title h1 span { font-size: 18px; font-weight: 600; color: var(--muted); letter-spacing: -.01em; }
+.tp-meta { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.tp-actions { display: flex; gap: 8px; }
+.tp-stats { grid-template-columns: repeat(5, 1fr); }
+.tp-grid { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+.tp-chart .chart-embed { margin: 0 0 12px; }
+.tp-side { display: grid; gap: 12px; }
+.tp-trade { padding: 16px; }
+.tp-trade .trade { margin: 0; }
+.tp-cta { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: var(--r-md, 14px); border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+.tp-cta:hover { border-color: var(--line-hi); }
+.tp-cta svg { width: 22px; height: 22px; flex: none; }
+.tp-cta b { display: block; font-size: 14.5px; }
+.tp-cta small { color: var(--muted); font-size: 12.5px; }
+.tp-loading { padding: 40px 0; }
+@media (max-width: 1000px) { .tp-grid { grid-template-columns: 1fr; } .tp-stats { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .tp-stats { grid-template-columns: repeat(2, 1fr); } .tp-actions { width: 100%; } }
+
+/* no wallet: wallet apps to open or install */
+.wallet-apps { display: grid; gap: 8px; }
+.wallet-app { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--line); background: var(--card-hi); color: var(--ink); }
+.wallet-app:hover { border-color: var(--line-hi); }
+.wallet-app img { width: 30px; height: 30px; border-radius: 8px; object-fit: contain; }
+.wallet-app span { margin-left: auto; font-size: 13px; color: var(--muted); }
 
 /* P&L share studio */
 .btn-sm { height: 32px; padding: 0 12px; font-size: 13px; gap: 6px; }

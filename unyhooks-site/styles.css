@@ -179,6 +179,39 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .uh-lead { margin-top: 28px; max-width: 440px; font-size: 18px; line-height: 1.65; color: var(--prose); }
 .uh-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
 
+/* the hero prompt: type a request, land in the builder with it */
+.uh-try { margin-top: 32px; max-width: 520px; }
+.uh-try-label { display: block; margin-bottom: 10px; font-size: 14px; font-weight: 600; }
+.uh-try-box {
+  display: flex; gap: 8px; padding: 6px;
+  border-radius: 999px; background: #fff;
+  border: 1px solid var(--line-hi);
+  box-shadow: 0 24px 50px -30px rgba(236, 21, 134, .55);
+}
+.uh-try-box:focus-within { border-color: var(--pink); box-shadow: 0 0 0 4px var(--pink-soft), 0 24px 50px -30px rgba(236, 21, 134, .55); }
+.uh-try-box input {
+  flex: 1; min-width: 0; padding: 0 8px 0 16px;
+  border: 0; outline: 0; background: transparent;
+  font: 16px var(--font-body); color: var(--ink);
+}
+.uh-try-box .uh-btn { height: 46px; padding: 0 22px; }
+.uh-try-ideas { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.uh-try-ideas button {
+  height: 32px; padding: 0 14px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--pink-line); background: rgba(255, 255, 255, .7);
+  font: 500 13px var(--font-body); color: #4A2A3C;
+  transition: background-color .15s ease, border-color .15s ease;
+}
+.uh-try-ideas button:hover { background: var(--pink-soft); border-color: var(--pink); }
+.uh-try-ideas button:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
+.uh-try-note { margin-top: 18px; font-size: 14px; color: var(--muted); }
+.uh-try-note a { color: var(--ink); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 420px) {
+  .uh-try-box { border-radius: 20px; flex-direction: column; }
+  .uh-try-box input { height: 44px; padding: 0 12px; }
+  .uh-try-box .uh-btn { width: 100%; }
+}
+
 /* the illustration: an arched doorway onto a pink sky, all CSS */
 .uh-hero-art { position: relative; justify-self: center; width: 100%; max-width: 480px; }
 @media (min-width: 960px) { .uh-hero-art { justify-self: end; } }

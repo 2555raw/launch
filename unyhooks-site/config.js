@@ -6,7 +6,8 @@
    Network fields left empty show as "—" in the docs. */
 
 window.UNYHOOKS = {
-  APP_URL:  'app.html',       // swap for the real app once it is up, e.g. 'https://app.unyhooks.xyz'
+  APP_URL:  'build.html',     // the builder; swap for the real app's URL if it moves, e.g. 'https://app.unyhooks.xyz'
+  SIGNIN_URL: 'app.html',
   DOCS_URL: 'docs.html',
   SITE_URL: 'index.html',
   X_HANDLE: 'UnyHooks',       // without the @

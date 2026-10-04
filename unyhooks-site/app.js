@@ -15,6 +15,7 @@
 
   const HREFS = {
     app:  CONFIG.APP_URL,
+    signin: CONFIG.SIGNIN_URL || 'app.html',
     docs: CONFIG.DOCS_URL,
     site: CONFIG.SITE_URL,
     x:    `https://x.com/${CONFIG.X_HANDLE}`
@@ -117,6 +118,22 @@
     }, { rootMargin: `-${NAV_H + 40}px 0px -60% 0px`, threshold: 0 });
     sections.forEach((s) => spy.observe(s));
   }
+
+  /* ---------- hero: hand a request to the builder ---------- */
+
+  const tryForm = $('#try');
+  const tryInput = $('#try-input');
+  const goBuild = (text) => {
+    // Passed through sessionStorage: a query string or hash may not survive
+    // every host this page is served from.
+    if (text) { try { sessionStorage.setItem('unyhooks-ask', text); } catch (_) { /* storage blocked */ } }
+    window.location.href = CONFIG.APP_URL || 'build.html';
+  };
+  tryForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    goBuild(tryInput.value.trim() || tryInput.placeholder);
+  });
+  $$('[data-idea]').forEach((b) => b.addEventListener('click', () => goBuild(b.dataset.idea)));
 
   /* ---------- the typing prompt ---------- */
 

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Builder · UnyHooks</title>
+  <meta name="description" content="Describe what your Uniswap V4 pool should do and get the hook contract, ready to review and deploy.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23E5127D'/%3E%3Cstop offset='1' stop-color='%23FF6CB8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='skewX(-10) translate(3 0)' fill='none' stroke='url(%23g)' stroke-width='4.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="build.css">
+</head>
+<body>
+<div class="uh uh-build">
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="uh-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#E5127D"/>
+        <stop offset="1" stop-color="#FF6CB8"/>
+      </linearGradient>
+      <symbol id="uh-mark" viewBox="0 0 32 32">
+        <g transform="skewX(-10) translate(3 0)" fill="none" stroke="url(#uh-grad)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12"/>
+        </g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="bd-top">
+    <a class="uh-brand" data-link="site" href="index.html">
+      <svg class="uh-mark" aria-hidden="true"><use href="#uh-mark"/></svg>
+      <span>Uny<b>Hooks</b></span>
+    </a>
+    <div class="bd-top-right">
+      <a class="bd-toplink" data-link="docs" href="docs.html">Docs</a>
+      <a class="bd-wallet" id="wallet" data-link="signin" href="app.html">Connect wallet</a>
+    </div>
+  </header>
+
+  <main class="bd-main">
+    <!-- left: the conversation and the settings it fills in -->
+    <section class="bd-left" aria-label="Describe your hook">
+      <div class="bd-chat" id="thread" aria-live="polite">
+        <div class="bd-msg bd-ai">
+          <span class="bd-av"><svg aria-hidden="true"><use href="#uh-mark"/></svg></span>
+          <div class="bd-bubble">
+            <p>Tell me what your pool should do, in your own words. I'll write the Uniswap V4 hook.</p>
+            <p class="bd-hint">Or start from one of these:</p>
+            <div class="bd-examples" id="examples"></div>
+          </div>
+        </div>
+      </div>
+
+      <form class="bd-ask" id="ask">
+        <label class="bd-sr" for="prompt">Describe your hook</label>
+        <textarea id="prompt" rows="2" placeholder="e.g. Send 1% of every swap to 0x…"></textarea>
+        <button class="uh-btn uh-btn-pink bd-send" type="submit" aria-label="Send">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+      </form>
+
+      <div class="bd-card bd-settings">
+        <div class="bd-card-head">
+          <h2>Settings</h2>
+          <span class="bd-muted">Change anything; the code updates as you type.</span>
+        </div>
+        <div class="bd-recipes" id="recipes" role="tablist" aria-label="Kind of hook"></div>
+        <p class="bd-blurb" id="blurb"></p>
+        <form class="bd-fields" id="fields" autocomplete="off"></form>
+      </div>
+    </section>
+
+    <!-- right: the contract -->
+    <section class="bd-right" aria-label="Your hook">
+      <div class="bd-card bd-code-card">
+        <div class="bd-code-head">
+          <div class="bd-tabs" role="tablist">
+            <button class="bd-tab is-active" type="button" role="tab" aria-selected="true" data-view="hook" id="tab-hook">Hook</button>
+            <button class="bd-tab" type="button" role="tab" aria-selected="false" data-view="script" id="tab-script">Deploy script</button>
+          </div>
+          <span class="bd-status" id="status"></span>
+          <div class="bd-code-actions">
+            <button class="bd-mini" type="button" id="copy">Copy</button>
+            <button class="bd-mini" type="button" id="download">Download</button>
+          </div>
+        </div>
+        <div class="bd-filename"><span id="filename">SwapFeeHook.sol</span><span class="bd-muted" id="lines"></span></div>
+        <div class="bd-problems" id="problems" hidden></div>
+        <pre class="bd-code" id="code" tabindex="0"><code></code></pre>
+      </div>
+
+      <div class="bd-card bd-facts">
+        <h2>What this hook does</h2>
+        <ul id="summary"></ul>
+        <dl class="bd-kv">
+          <div><dt>Uses</dt><dd id="perms"></dd></div>
+          <div><dt>Address must end in</dt><dd><code id="flags"></code><span class="bd-muted" id="flags-note"></span></dd></div>
+          <div id="pool-row"><dt>Pool fee</dt><dd id="poolfee"></dd></div>
+        </dl>
+      </div>
+
+      <div class="bd-card bd-deploy">
+        <h2>Deploy it</h2>
+        <button class="uh-btn uh-btn-pink" type="button" disabled>Deploy from your wallet · coming soon</button>
+        <p class="bd-muted">One-click deploys from the browser are next. Until then, a developer can deploy it in a few minutes with Foundry:</p>
+        <ol class="bd-steps">
+          <li>Make a project: <code>forge init my-hook &amp;&amp; cd my-hook</code></li>
+          <li>Add Uniswap V4: <code>forge install uniswap/v4-periphery</code> and the remapping <code>@uniswap/v4-core/=lib/v4-periphery/lib/v4-core/</code>, <code>@uniswap/v4-periphery/=lib/v4-periphery/</code></li>
+          <li>Save the hook as <code id="step-src">src/SwapFeeHook.sol</code> and the deploy script as <code id="step-script">script/DeploySwapFeeHook.s.sol</code>, with <code>evm_version = "cancun"</code> in <code>foundry.toml</code></li>
+          <li>Run the command at the top of the deploy script, with the PoolManager address for <span data-net="name">Robinhood Chain</span><span id="pm-known"></span></li>
+        </ol>
+        <p class="bd-warn">Not audited. Test on a fork or testnet and have the hook reviewed before it holds real money.</p>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script src="builder.js"></script>
+<script src="build.js"></script>
+</body>
+</html>

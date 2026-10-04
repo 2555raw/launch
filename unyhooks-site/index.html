@@ -67,10 +67,19 @@
         <p class="uh-eyebrow">Plain language meets Uniswap V4</p>
         <h1 class="uh-h1">Chat to build<br>Uniswap V4<br><span class="uh-pink">hooks.</span></h1>
         <p class="uh-lead">Tell UnyHooks what your pool should do. It writes the hook, you deploy it from your own wallet, and you run your pools from the same conversation.</p>
-        <div class="uh-actions">
-          <a class="uh-btn uh-btn-pink" data-link="app" href="#">Launch app</a>
-          <a class="uh-btn uh-btn-ghost" data-scroll="how" href="#how">See how it works</a>
-        </div>
+        <form class="uh-try" id="try" action="build.html">
+          <label class="uh-try-label" for="try-input">What should your pool do?</label>
+          <div class="uh-try-box">
+            <input id="try-input" type="text" autocomplete="off" placeholder="Send 1% of every swap to my wallet">
+            <button class="uh-btn uh-btn-pink" type="submit">Build it</button>
+          </div>
+          <div class="uh-try-ideas">
+            <button type="button" data-idea="Raise the fee when the market gets volatile, lower it when it's calm.">Dynamic fees</button>
+            <button type="button" data-idea="For the first hour, cap every buy at 0.5 ETH and one buy per wallet every 30 seconds.">Stop snipers</button>
+            <button type="button" data-idea="Only trade during US market hours, weekdays.">Market hours</button>
+          </div>
+        </form>
+        <p class="uh-try-note">Free, no wallet needed to try. <a data-scroll="how" href="#how">See how it works</a></p>
       </div>
 
       <div class="uh-hero-art">
@@ -124,7 +133,7 @@
               </div>
             </div>
             <h3>Review and deploy</h3>
-            <p>The hook compiles in your browser and the full source is one click away. Hit Deploy and sign once; the address with the right hook flags is found for you.</p>
+            <p>Read the full contract and a ready-made deploy script that finds the right hook address for you. One-click deploys from your wallet are next.</p>
           </article>
 
           <article class="uh-card uh-step uh-rise">
@@ -173,8 +182,8 @@
             <p>Pair your token with NVDA, TSLA, SPY or any Robinhood stock token, as well as ETH and USDG.</p>
           </article>
           <article class="uh-card uh-tile uh-rise">
-            <h3>Allowlists and hours</h3>
-            <p>Choose who can provide liquidity, or open and close a pool on a schedule.</p>
+            <h3>Trading hours</h3>
+            <p>Open and close a pool on a schedule, like market hours for stock tokens.</p>
           </article>
         </div>
       </div>
@@ -194,7 +203,7 @@
           </div>
           <div class="uh-row">
             <dt>Read every line</dt>
-            <dd>Every hook is saved with its full Solidity source and compiled in your browser, so the bytecode you deploy comes from code you can read.</dd>
+            <dd>Every hook comes as plain Solidity you can read before anything touches the chain. Each template is compiled and tested against Uniswap V4's own PoolManager.</dd>
           </div>
           <div class="uh-row">
             <dt>You own what you deploy</dt>

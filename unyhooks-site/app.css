@@ -47,6 +47,9 @@
 
 .ap-msg { min-height: 22px; margin-top: 16px; font-size: 14px; line-height: 1.55; color: var(--prose); }
 .ap-msg.is-error { color: #C0264E; }
+.ap-skip { margin-top: 8px; font-size: 14px; color: var(--prose); }
+.ap-skip a { color: var(--ink); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+.ap-skip a:hover { color: var(--pink); }
 .ap-msg a { color: var(--pink); text-decoration: underline; text-underline-offset: 3px; }
 
 .ap-account {

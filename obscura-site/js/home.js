@@ -1,40 +1,120 @@
-// Landing page: the hash ticker in the hero and the live cloak demo.
+// Landing page: the live receipt in the hero, the film player, and the cloak demo.
 import { commit, randomBytes, toHex, SALT_BYTES, KEY_BYTES } from "./obscura.js";
+import { termsAccepted } from "./terms.js";
 
-// Hero ticker: a real SHA-256 of fresh random bytes, every couple of seconds.
-const ticker = document.getElementById("ticker");
-async function tick() {
-  const digest = await crypto.subtle.digest("SHA-256", randomBytes(64));
-  ticker.textContent = "0x" + toHex(new Uint8Array(digest));
-}
-if (ticker) {
-  tick();
-  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) setInterval(tick, 2400);
-}
-
-// Demo: same maths as the console, recomputed on every keystroke.
 const $ = (id) => document.getElementById(id);
-const fields = ["d-amount", "d-symbol", "d-chain"].map($);
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- hero receipt: a real commitment, re-sealed every few seconds ----------
+const heroAssets = [
+  { amount: "2.5", symbol: "ETH", chain: "ethereum" },
+  { amount: "40000", symbol: "USDC", chain: "base" },
+  { amount: "0.8", symbol: "WBTC", chain: "arbitrum" },
+];
+let heroIndex = 0;
+async function sealHero() {
+  const a = heroAssets[heroIndex++ % heroAssets.length];
+  const hash = await commit(a, randomBytes(SALT_BYTES), randomBytes(KEY_BYTES));
+  $("r-asset").textContent = `${Number(a.amount).toLocaleString("en-US")} ${a.symbol}`;
+  $("r-chain").textContent = a.chain;
+  const out = $("r-hash");
+  if (reduced) { out.textContent = "0x" + hash; return; }
+  // type the new hash in over the old one
+  let i = 0;
+  const step = () => {
+    i = Math.min(64, i + 4);
+    out.textContent = "0x" + hash.slice(0, i) + (i < 64 ? toHex(randomBytes(1))[0] : "");
+    if (i < 64) requestAnimationFrame(step);
+  };
+  step();
+}
+if ($("r-hash")) {
+  sealHero();
+  if (!reduced) setInterval(sealHero, 4200);
+}
+
+// ---------- films: chapter list drives one player ----------
+const player = $("film");
+const chapters = [...document.querySelectorAll(".chapter")];
+let chapterIndex = 0;
+// H.264 where the browser has it, VP9 WebM otherwise (open-source Chromium builds).
+const ext = player && !player.canPlayType('video/mp4; codecs="avc1.640028"') && player.canPlayType('video/webm; codecs="vp9"') ? ".webm" : ".mp4";
+
+function load(i, play = true) {
+  chapterIndex = (i + chapters.length) % chapters.length;
+  const c = chapters[chapterIndex];
+  chapters.forEach((el) => {
+    el.setAttribute("aria-current", String(el === c));
+    el.querySelector(".chapter-progress i").style.transform = "scaleX(0)";
+  });
+  player.poster = c.dataset.poster;
+  player.src = c.dataset.src.replace(/\.mp4$/, ext);
+  player.setAttribute("aria-label", `Film ${chapterIndex + 1} of ${chapters.length}: ${c.querySelector("h3").textContent}`);
+  if (play) player.play().catch(() => {});
+}
+
+if (player && chapters.length) {
+  chapters.forEach((c, i) => c.addEventListener("click", () => load(i)));
+  player.addEventListener("timeupdate", () => {
+    const bar = chapters[chapterIndex].querySelector(".chapter-progress i");
+    bar.style.transform = `scaleX(${player.duration ? player.currentTime / player.duration : 0})`;
+  });
+  player.addEventListener("ended", () => load(chapterIndex + 1, chapterIndex + 1 < chapters.length));
+
+  const toggle = $("film-toggle");
+  const syncToggle = () => {
+    toggle.setAttribute("aria-label", player.paused ? "Play film" : "Pause film");
+    toggle.querySelector(".i-play").style.display = player.paused ? "" : "none";
+    toggle.querySelector(".i-pause").style.display = player.paused ? "none" : "";
+  };
+  toggle.addEventListener("click", () => (player.paused ? player.play().catch(() => {}) : player.pause()));
+  player.addEventListener("play", syncToggle);
+  player.addEventListener("pause", syncToggle);
+  $("film-restart").addEventListener("click", () => load(0));
+  load(0, false);
+  syncToggle();
+
+  // Start playing the first time the films scroll into view, once the terms are accepted.
+  let started = false;
+  const start = () => {
+    if (started || reduced) return;
+    started = true;
+    player.play().catch(() => {});
+  };
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting && document.documentElement.classList.contains("gated") === false) start();
+      if (!e.isIntersecting && !player.paused) player.pause();
+    }
+  }, { threshold: 0.45 });
+  io.observe(player);
+  if (!termsAccepted) document.addEventListener("terms:accepted", () => { io.unobserve(player); io.observe(player); }, { once: true });
+}
+
+// ---------- demo: same maths as the console, recomputed on every keystroke ----------
 let salt = randomBytes(SALT_BYTES);
 let key = randomBytes(KEY_BYTES);
 
-async function render() {
+async function renderDemo() {
   $("d-salt").textContent = "0x" + toHex(salt);
   $("d-key").textContent = "0x" + toHex(key);
+  const amount = $("d-amount");
   try {
-    const asset = { amount: $("d-amount").value, symbol: $("d-symbol").value, chain: $("d-chain").value };
+    const asset = { amount: amount.value, symbol: $("d-symbol").value, chain: $("d-chain").value };
     $("d-commit").textContent = "0x" + (await commit(asset, salt, key));
+    amount.removeAttribute("aria-invalid");
   } catch (e) {
     $("d-commit").textContent = e.message;
+    amount.setAttribute("aria-invalid", "true");
   }
 }
 
 if ($("demo")) {
-  fields.forEach((f) => f.addEventListener("input", render));
+  ["d-amount", "d-symbol", "d-chain"].forEach((id) => $(id).addEventListener("input", renderDemo));
   $("d-reroll").addEventListener("click", () => {
     salt = randomBytes(SALT_BYTES);
     key = randomBytes(KEY_BYTES);
-    render();
+    renderDemo();
   });
-  render();
+  renderDemo();
 }

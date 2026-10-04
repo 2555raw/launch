@@ -8,16 +8,48 @@ No build step, no dependencies. Plain HTML, CSS and ES modules.
 ## Structure
 
 ```
-index.html      landing: hero, the leak, what you hold, how it works (live demo), $OBX, closing, footer
+index.html      landing: hero (vault photo + live receipt), wallets, the leak, films, demo,
+                photo band, $OBX, FAQ, closing, footer
 console.html    the app: Cloak, Vault, Transfer, Receive
 verify.html     paste a receipt, get one bit back
-styles.css      design system and responsive rules
+terms.html      Terms of Use and Privacy (template: have a lawyer review it)
+declined.html   where Decline on the terms gate leads
+styles.css      design system: Host Grotesk + JetBrains Mono (self-hosted), paper/steel/ink, one blue
 js/obscura.js   the crypto core (Web Crypto API, also runs in Node)
-js/site.js      nav drawer, active section, scroll reveal, toast, copy
-js/home.js      hero hash ticker and the cloak demo
+js/terms.js     terms gate shown on first visit; acceptance remembered per browser
+js/wallet.js    wallet connection: EIP-6963 discovery, real logos, install links, mobile deep links
+js/site.js      nav, scroll reveal, toast, copy
+js/home.js      live hero receipt, film player with chapters, cloak demo
 js/console.js   console state (localStorage) and the four tabs
+assets/         fonts, photos, wallet logos, films (mp4 + webm + poster)
+tools/          scenes.html (film source) and render-videos.mjs (renders the films)
 test/           node:test suite for the crypto core
 ```
+
+## Things to replace before launch
+
+- Product name and ticker: "Obscura" and "$OBX" are placeholders.
+- X link: points to https://x.com until an account exists (nav and footer, every page).
+- terms.html is a template.
+
+## Films
+
+The three explainer films are authored as an HTML scene (`tools/scenes.html`) where every frame
+is a function of time, then rendered at 30 fps and encoded to H.264 MP4 and VP9 WebM:
+
+```bash
+npm i -D playwright
+python3 -m http.server 8765 &
+node tools/render-videos.mjs            # needs ffmpeg with libx264 and libvpx
+```
+
+Edit the captions or timings in `scenes.html` and re-run to regenerate.
+
+## Credits
+
+- Photos: "Safe deposit boxes in Japan" and "Safe deposit box in Japan" by Asanagi, CC0, via Wikimedia Commons.
+- Wallet logos are the wallets' own marks (taken from RainbowKit, MIT), shown only as connection options.
+- Fonts: Host Grotesk and JetBrains Mono, SIL Open Font License.
 
 ## The tech
 
@@ -30,7 +62,7 @@ test/           node:test suite for the crypto core
   new salt and key; the new bond records the commitment it replaces.
 - **Prove** — the verifier recomputes the hash and compares it to a commitment they expect.
   The answer is true or false.
-- **Anchor** (optional) — with an injected EVM wallet, sends a 0-value transaction to yourself with
+- **Anchor** (optional) — with a connected EVM wallet, sends a 0-value transaction to yourself with
   the 32-byte commitment as calldata.
 
 Nothing is sent to a server. The token and the bond NFT contract are described on the landing page

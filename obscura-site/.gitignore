@@ -1,0 +1,5 @@
+.impeccable/review/
+.impeccable/build/
+tools/.frames/
+tools/still-*.png
+node_modules/

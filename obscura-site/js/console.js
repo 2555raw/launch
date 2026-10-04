@@ -1,6 +1,7 @@
 // Console: cloak, vault, transfer and receive. State is one array in localStorage.
 import { cloak, seal, receive, encodeReceipt, verify } from "./obscura.js";
 import { toast, copy } from "./site.js";
+import { connection, openWallets } from "./wallet.js";
 
 const STORE = "obscura.vault.v1";
 const $ = (id) => document.getElementById(id);
@@ -63,19 +64,22 @@ $("cloak-form").addEventListener("submit", async (e) => {
 
 // ---------- vault ----------
 async function anchor(b) {
-  if (!window.ethereum) return toast("No wallet found in this browser");
+  const conn = connection();
+  if (!conn) {
+    toast("Connect a wallet to anchor this commitment");
+    return openWallets();
+  }
   try {
-    const [from] = await window.ethereum.request({ method: "eth_requestAccounts" });
-    const hash = await window.ethereum.request({
+    const hash = await conn.provider.request({
       method: "eth_sendTransaction",
-      params: [{ from, to: from, value: "0x0", data: "0x" + b.commitment }],
+      params: [{ from: conn.address, to: conn.address, value: "0x0", data: "0x" + b.commitment }],
     });
     b.anchor = hash;
     save(vault);
     renderVault();
     toast("Anchored: " + hash.slice(0, 12) + "…");
   } catch (err) {
-    toast(err.message || "Wallet refused the transaction");
+    toast(err?.code === 4001 ? "Transaction was declined in the wallet" : (err?.message || "The wallet did not send the transaction"));
   }
 }
 
@@ -93,7 +97,7 @@ function renderVault() {
       el("button", { class: "btn btn-dark btn-sm", type: "button", onclick: () => copy(encodeReceipt(b), "Receipt copied") }, "Copy receipt"),
       el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => copy("0x" + b.commitment, "Commitment copied") }, "Copy commitment"),
       el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => { $("t-bond").value = b.commitment; show("transfer"); } }, "Transfer"),
-      el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => anchor(b) }, b.anchor ? "Anchored ✓" : "Anchor with wallet"),
+      el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => anchor(b) }, b.anchor ? "Anchored" : "Anchor with wallet"),
       el("button", {
         class: "btn btn-ghost btn-sm", type: "button", onclick: () => {
           if (!confirm(`Remove ${label(b)}? Without a backup this bond can never be opened again.`)) return;

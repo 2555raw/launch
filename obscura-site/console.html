@@ -7,74 +7,76 @@
   <meta name="description" content="Cloak, hold, transfer and receive private bonds. Everything runs in your browser.">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230b0d12'/%3E%3Cpath d='M6 16s4-6.5 10-6.5S26 16 26 16s-4 6.5-10 6.5S6 16 6 16z' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fff'/%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="preload" href="assets/fonts/host-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add("js")</script>
 </head>
 <body>
 
 <div class="nav-wrap">
   <nav class="nav" aria-label="Main">
-    <a class="brand" href="index.html">
+    <a class="brand" href="index.html" aria-label="Obscura, home">
       <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle class="iris" cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg></span>
       Obscura
     </a>
     <div class="nav-links">
-      <a href="index.html#how">How it works</a>
+      <a href="index.html#films">How it works</a>
       <a href="console.html" aria-current="true">Console</a>
       <a href="verify.html">Verify</a>
     </div>
     <div class="nav-right">
-      <a class="btn btn-dark btn-sm" href="verify.html">Verify a receipt</a>
-      <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
+      <a class="icon-btn" href="https://x.com" target="_blank" rel="noopener" aria-label="Obscura on X">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <button class="btn btn-light btn-sm wallet-btn" type="button" data-wallet-open>Connect wallet</button>
+      <button class="icon-btn burger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
     </div>
   </nav>
   <div class="drawer">
     <a href="index.html">Home</a>
+    <a href="index.html#films">How it works</a>
     <a href="console.html">Console</a>
-    <a href="verify.html">Verify a receipt</a>
+    <a href="verify.html">Verify</a>
+    <button type="button" data-wallet-open data-label="Connect wallet">Connect wallet</button>
   </div>
 </div>
 
 <main class="app-main">
   <div class="wrap">
     <div class="app-head">
-      <span class="eyebrow pill-tag"><span class="dot"></span>Runs locally · Web Crypto</span>
       <h1>Console</h1>
-      <p>Cloak assets into bonds, keep the receipts in this browser, and move them with a passphrase. No server sees any of it.</p>
+      <p>Cloak assets into bonds, keep the receipts in this browser, and hand them on with a passphrase. No server sees any of it.</p>
     </div>
 
-    <div class="tabs" role="tablist">
-      <button class="tab" role="tab" data-tab="cloak" aria-selected="true">Cloak</button>
-      <button class="tab" role="tab" data-tab="vault" aria-selected="false">Vault<span class="count" id="vault-count">0</span></button>
-      <button class="tab" role="tab" data-tab="transfer" aria-selected="false">Transfer</button>
-      <button class="tab" role="tab" data-tab="receive" aria-selected="false">Receive</button>
+    <div class="tabs" role="tablist" aria-label="Console">
+      <button class="tab" role="tab" id="tab-cloak" aria-controls="panel-cloak" data-tab="cloak" aria-selected="true">Cloak</button>
+      <button class="tab" role="tab" id="tab-vault" aria-controls="panel-vault" data-tab="vault" aria-selected="false">Vault<span class="count" id="vault-count">0</span></button>
+      <button class="tab" role="tab" id="tab-transfer" aria-controls="panel-transfer" data-tab="transfer" aria-selected="false">Transfer</button>
+      <button class="tab" role="tab" id="tab-receive" aria-controls="panel-receive" data-tab="receive" aria-selected="false">Receive</button>
     </div>
 
-    <!-- CLOAK -->
-    <div class="panel active" id="panel-cloak" role="tabpanel">
+    <div class="panel active" id="panel-cloak" role="tabpanel" aria-labelledby="tab-cloak">
       <form class="box" id="cloak-form" autocomplete="off">
-        <h3>Cloak an asset</h3>
+        <h2>Cloak an asset</h2>
         <p>A fresh 16-byte salt and 32-byte key are drawn for every bond.</p>
         <div class="field-row">
-          <div class="field"><label for="c-amount">Amount</label><input class="input mono" id="c-amount" inputmode="decimal" placeholder="1.0" required></div>
+          <div class="field"><label for="c-amount">Amount</label><input class="input num" id="c-amount" inputmode="decimal" placeholder="1.0" required></div>
           <div class="field"><label for="c-symbol">Asset</label><input class="input" id="c-symbol" placeholder="ETH" required></div>
         </div>
         <div class="field"><label for="c-chain">Chain</label>
           <select class="select" id="c-chain"><option>ethereum</option><option>base</option><option>arbitrum</option><option>optimism</option><option>polygon</option><option>solana</option></select>
         </div>
-        <div class="field"><label for="c-note">Private note <span class="hint">(optional, sealed into the hash)</span></label><input class="input" id="c-note" placeholder="e.g. OTC desk, March"></div>
+        <div class="field"><label for="c-note">Private note <span class="opt">(optional, sealed into the hash)</span></label><input class="input" id="c-note" placeholder="e.g. OTC desk, March"></div>
         <button class="btn btn-dark" type="submit">Cloak bond</button>
       </form>
       <div class="box soft" id="cloak-result">
-        <h3>Result</h3>
-        <p>Your commitment and receipt appear here. The receipt is saved to the vault automatically.</p>
-        <div class="empty" id="cloak-empty">Nothing cloaked yet.</div>
+        <h2>Result</h2>
+        <p>The receipt is saved to your vault automatically.</p>
+        <div class="empty" id="cloak-empty">Nothing cloaked yet. Fill in an asset and press Cloak bond.</div>
         <div id="cloak-out" hidden>
           <div class="kv">
-            <div class="kv-row"><span class="k">Commitment · public</span><span class="v big" id="c-commit"></span></div>
-            <div class="kv-row"><span class="k">Receipt · keep private</span><textarea class="textarea" id="c-receipt" readonly></textarea></div>
+            <div class="kv-row"><span class="k">Commitment, safe to share</span><span class="v big" id="c-commit"></span></div>
+            <div class="kv-row"><label class="k" for="c-receipt">Receipt, keep it private</label><textarea class="textarea" id="c-receipt" readonly></textarea></div>
           </div>
           <div class="actions">
             <button class="btn btn-dark btn-sm" type="button" data-copy="#c-receipt" data-copy-label="Receipt copied">Copy receipt</button>
@@ -84,11 +86,10 @@
       </div>
     </div>
 
-    <!-- VAULT -->
-    <div class="panel single" id="panel-vault" role="tabpanel">
+    <div class="panel single" id="panel-vault" role="tabpanel" aria-labelledby="tab-vault">
       <div class="box">
-        <div class="bond-top" style="margin-bottom:16px">
-          <div><h3>Vault</h3><p class="hint" style="margin:0">Stored only in this browser. Export a backup before you clear site data.</p></div>
+        <div class="bond-top" style="margin-bottom:20px">
+          <div><h2>Vault</h2><p class="hint" style="margin-top:4px">Stored only in this browser. Export a backup before you clear site data.</p></div>
           <div class="actions" style="margin:0">
             <button class="btn btn-light btn-sm" id="v-export" type="button">Export backup</button>
             <label class="btn btn-light btn-sm" for="v-import">Import backup</label>
@@ -99,44 +100,43 @@
       </div>
     </div>
 
-    <!-- TRANSFER -->
-    <div class="panel" id="panel-transfer" role="tabpanel">
+    <div class="panel" id="panel-transfer" role="tabpanel" aria-labelledby="tab-transfer">
       <form class="box" id="transfer-form" autocomplete="off">
-        <h3>Transfer a bond</h3>
+        <h2>Transfer a bond</h2>
         <p>Seals the receipt with AES-256-GCM under a key stretched from your passphrase (PBKDF2, 310,000 rounds).</p>
         <div class="field"><label for="t-bond">Bond</label><select class="select" id="t-bond"></select></div>
         <div class="field"><label for="t-pass">Passphrase</label><input class="input" id="t-pass" type="password" minlength="8" required autocomplete="new-password"></div>
         <div class="field"><label for="t-pass2">Repeat passphrase</label><input class="input" id="t-pass2" type="password" minlength="8" required autocomplete="new-password"></div>
         <button class="btn btn-dark" type="submit">Seal package</button>
-        <p class="hint" style="margin-top:12px">Send the package and the passphrase through different channels.</p>
+        <p class="hint" style="margin-top:14px">Send the package and the passphrase through different channels.</p>
       </form>
       <div class="box soft">
-        <h3>Package</h3>
+        <h2>Package</h2>
         <p>Hand this to the recipient. Without the passphrase it is noise.</p>
         <div class="empty" id="t-empty">No package sealed yet.</div>
         <div id="t-out" hidden>
+          <label class="sr" for="t-pkg">Transfer package</label>
           <textarea class="textarea" id="t-pkg" readonly></textarea>
           <div class="actions">
             <button class="btn btn-dark btn-sm" type="button" data-copy="#t-pkg" data-copy-label="Package copied">Copy package</button>
-            <button class="btn btn-light btn-sm" type="button" id="t-download">Download .obx</button>
+            <button class="btn btn-light btn-sm" type="button" id="t-download">Download .obx file</button>
           </div>
-          <p class="hint" style="margin-top:12px">The bond is marked as sent in your vault. Your old receipt still verifies until you remove it.</p>
+          <p class="hint" style="margin-top:14px">The bond is marked as sent in your vault. Your old receipt still verifies until you remove it.</p>
         </div>
       </div>
     </div>
 
-    <!-- RECEIVE -->
-    <div class="panel" id="panel-receive" role="tabpanel">
+    <div class="panel" id="panel-receive" role="tabpanel" aria-labelledby="tab-receive">
       <form class="box" id="receive-form" autocomplete="off">
-        <h3>Receive a bond</h3>
+        <h2>Receive a bond</h2>
         <p>Opens the package, checks the receipt inside, then re-cloaks the asset under a key only you hold.</p>
         <div class="field"><label for="r-pkg">Package</label><textarea class="textarea" id="r-pkg" placeholder="obxpkg1_…" required></textarea></div>
-        <div class="field"><label for="r-file" class="hint">…or load a .obx file</label><input id="r-file" type="file" accept=".obx,text/plain"></div>
+        <div class="field"><label for="r-file">Or load a .obx file</label><input id="r-file" type="file" accept=".obx,text/plain"></div>
         <div class="field"><label for="r-pass">Passphrase</label><input class="input" id="r-pass" type="password" required autocomplete="off"></div>
         <button class="btn btn-dark" type="submit">Open and re-cloak</button>
       </form>
       <div class="box soft">
-        <h3>Your new bond</h3>
+        <h2>Your new bond</h2>
         <p>Fresh commitment, fresh receipt, saved to the vault.</p>
         <div class="empty" id="r-empty">Nothing received yet.</div>
         <div id="r-out" hidden>
@@ -151,13 +151,24 @@
   </div>
 </main>
 
-<footer style="margin-top:40px">
+<footer>
   <div class="wrap">
-    <p class="fine" style="margin-top:0;border:0;padding:0">Receipts live in this browser's local storage and nowhere else. Anyone who reads a receipt can prove that bond, so share each one only with the party who needs it.</p>
+    <div class="foot-grid">
+      <div class="about">
+        <a class="brand" href="index.html"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle class="iris" cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg></span>Obscura</a>
+        <p>Private bonds, sealed in your browser. Self-custody end to end.</p>
+        <div class="foot-social"><a class="icon-btn" href="https://x.com" target="_blank" rel="noopener" aria-label="Obscura on X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a></div>
+      </div>
+      <div><p class="foot-h">Product</p><a href="console.html">Console</a><a href="console.html#vault">Vault</a><a href="verify.html">Verify</a></div>
+      <div><p class="foot-h">Learn</p><a href="index.html#films">How it works</a><a href="index.html#token">$OBX</a><a href="index.html#faq">FAQ</a></div>
+      <div><p class="foot-h">Legal</p><a href="terms.html">Terms of Use</a><a href="terms.html#privacy">Privacy</a></div>
+    </div>
+    <div class="fine"><p>Receipts live in this browser's storage and nowhere else. Anyone who reads a receipt can prove that bond, so share each one only with the party who needs it. Wallet names and logos belong to their owners.</p></div>
   </div>
 </footer>
-
+<script type="module" src="js/terms.js"></script>
 <script type="module" src="js/site.js"></script>
+<script type="module" src="js/wallet.js"></script>
 <script type="module" src="js/console.js"></script>
 </body>
 </html>

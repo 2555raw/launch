@@ -9,11 +9,19 @@ if (burger && drawer) {
     drawer.classList.toggle("open", open);
   });
   drawer.addEventListener("click", (e) => {
-    if (e.target.closest("a")) {
+    if (e.target.closest("a, button")) {
       burger.setAttribute("aria-expanded", "false");
       drawer.classList.remove("open");
     }
   });
+}
+
+// Lift the nav once the page scrolls.
+const navWrap = document.querySelector(".nav-wrap");
+if (navWrap) {
+  const onScroll = () => navWrap.classList.toggle("scrolled", scrollY > 8);
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
 }
 
 // Highlight the nav link of the section in view.

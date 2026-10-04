@@ -209,7 +209,6 @@ p { text-wrap: pretty; }
 .receipt-hash { margin-top: 10px; font: 13px/1.5 var(--mono); color: var(--accent); word-break: break-all; min-height: 3em; }
 .receipt-foot span { white-space: nowrap; }
 .receipt-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13px; color: var(--dim); }
-.photo-credit { position: absolute; top: 14px; right: 14px; z-index: 1; padding: 4px 9px; border-radius: var(--r-pill); font-size: 11.5px; color: #fff; background: rgba(11, 13, 18, .62); }
 
 @media (max-width: 900px) {
   .hero { padding-top: 112px; }
@@ -341,10 +340,8 @@ input[type="file"]::file-selector-button { margin-right: 12px; padding: 8px 14px
 }
 .band-card h2 { font-size: clamp(1.75rem, 1.2rem + 1.8vw, 2.6rem); }
 .band-card p { margin-top: 14px; color: var(--dim); }
-.band .photo-credit { top: auto; bottom: 14px; right: 18px; }
-@media (max-width: 640px) {
-  .band .photo-credit { top: 12px; bottom: auto; right: 12px; }
-  .band-media { height: auto; aspect-ratio: 4 / 3; }
+.band @media (max-width: 640px) {
+  .band   .band-media { height: auto; aspect-ratio: 4 / 3; }
   .band-card { position: relative; left: auto; bottom: auto; margin: -48px 12px 0; max-width: none; }
 }
 

@@ -47,7 +47,7 @@ Edit the captions or timings in `scenes.html` and re-run to regenerate.
 
 ## Credits
 
-- Photos: "Safe deposit boxes in Japan" and "Safe deposit box in Japan" by Asanagi, CC0, via Wikimedia Commons.
+- Photos: public domain, no attribution required (source recorded inside each image file).
 - Wallet logos are the wallets' own marks (taken from RainbowKit, MIT), shown only as connection options.
 - Fonts: Host Grotesk and JetBrains Mono, SIL Open Font License.
 

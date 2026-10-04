@@ -962,6 +962,7 @@
     if (name === 'legal-terms' || name === 'legal-risk') { go('home'); openLegal(name.slice(6)); return; }
     const home = !name || name === 'home';
     $('#landing').hidden = !home;
+    document.documentElement.removeAttribute('data-boot');
     if (home) { hideTip(); loadHot(); loadLaunched(); return; }
     view = VIEWS.includes(name) ? name : 'dashboard';
     $$('.view').forEach((v) => { v.hidden = v.dataset.view !== view; });

@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UnyHooks Docs</title>
+  <meta name="description" content="How UnyHooks works: describe a Uniswap V4 hook in plain words, review the Solidity, deploy it from your wallet and run pools on Robinhood Chain.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23E5127D'/%3E%3Cstop offset='1' stop-color='%23FF6CB8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='skewX(-10) translate(3 0)' fill='none' stroke='url(%23g)' stroke-width='4.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="docs.css">
+</head>
+<body>
+<div class="uh uh-docs-page">
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="uh-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#E5127D"/>
+        <stop offset="1" stop-color="#FF6CB8"/>
+      </linearGradient>
+      <symbol id="uh-mark" viewBox="0 0 32 32">
+        <g transform="skewX(-10) translate(3 0)" fill="none" stroke="url(#uh-grad)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12"/>
+        </g>
+      </symbol>
+      <symbol id="uh-ext" viewBox="0 0 24 24">
+        <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="dc-top">
+    <button class="uh-icon dc-burger" id="side-toggle" type="button" aria-label="Open the docs menu" aria-expanded="false">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <a class="uh-brand" data-link="site" href="index.html">
+      <svg class="uh-mark" aria-hidden="true"><use href="#uh-mark"/></svg>
+      <span>Uny<b>Hooks</b></span>
+    </a>
+    <div class="dc-top-right">
+      <a class="dc-ext dc-hide-sm" data-link="site" href="index.html">Website <svg width="14" height="14" aria-hidden="true"><use href="#uh-ext"/></svg></a>
+      <a class="dc-ext dc-hide-sm" data-link="x" href="#" target="_blank" rel="noopener">X <svg width="14" height="14" aria-hidden="true"><use href="#uh-ext"/></svg></a>
+      <a class="uh-btn uh-btn-pink uh-btn-sm" data-link="app" href="app.html">Launch app</a>
+      <label class="dc-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input class="dc-q" id="search" type="search" placeholder="Search" autocomplete="off" aria-label="Search the docs">
+        <kbd>Ctrl</kbd><kbd>K</kbd>
+      </label>
+    </div>
+  </header>
+
+  <div class="dc-shell">
+    <aside class="dc-side" id="side">
+      <label class="dc-search dc-search-side">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <input class="dc-q" type="search" placeholder="Search" autocomplete="off" aria-label="Search the docs">
+      </label>
+      <nav id="sidenav" aria-label="Docs">
+        <a data-page="introduction">Introduction</a>
+        <a data-page="quickstart">Quickstart</a>
+        <details open>
+          <summary>Concepts</summary>
+          <a data-page="hooks">Hooks</a>
+          <a data-page="hook-addresses">Hook addresses</a>
+          <a data-page="pools">Pools</a>
+        </details>
+        <details open>
+          <summary>Using the app</summary>
+          <a data-page="chat">Chat</a>
+          <a data-page="app-hooks">Hooks</a>
+          <a data-page="app-pools">Pools</a>
+        </details>
+        <details open>
+          <summary>Recipes</summary>
+          <a data-page="recipe-fee">A fee on every swap</a>
+          <a data-page="recipe-dynamic">Dynamic fees</a>
+          <a data-page="recipe-launch">Launch protection</a>
+          <a data-page="recipe-stocks">Stock token pairs</a>
+        </details>
+        <details open>
+          <summary>Reference</summary>
+          <a data-page="network">Network</a>
+          <a data-page="tokens">Tokens</a>
+          <a data-page="rules">Hook contract rules</a>
+          <a data-page="limits">Limits</a>
+        </details>
+        <a data-page="security">Security</a>
+        <a data-page="token">$UHOOKS</a>
+        <a data-page="faq">FAQ</a>
+        <p class="dc-noresult" id="noresult" hidden>Nothing matches that search.</p>
+      </nav>
+    </aside>
+
+    <main class="dc-main">
+      <div class="dc-col">
+        <nav class="dc-crumbs" aria-label="Breadcrumb">
+          <a data-page="introduction" href="#introduction" aria-label="Docs home">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3.2 2.5 11.4h2.8V20h5.2v-5.4h3V20h5.2v-8.6h2.8z"/></svg>
+          </a>
+          <span aria-hidden="true">›</span>
+          <span class="dc-crumb" id="crumb">Introduction</span>
+        </nav>
+
+        <!-- ===== Introduction ===== -->
+        <article class="dc-page" data-id="introduction" data-title="Introduction">
+          <h1>What is UnyHooks</h1>
+          <p>UnyHooks is a chat app for building Uniswap V4 hooks on Robinhood Chain. You describe what your pool should do, UnyHooks writes the hook contract, and you deploy it and create the pool from your own wallet.</p>
+          <ul>
+            <li><b>Website</b>: <a data-link="site" href="index.html">unyhooks</a></li>
+            <li><b>App</b>: <a data-link="app" href="app.html">launch the app</a></li>
+            <li><b>X</b>: <a data-link="x" href="#" target="_blank" rel="noopener" data-handle>@UnyHooks</a></li>
+          </ul>
+
+          <h2 id="introduction-does">What it does</h2>
+          <div class="dc-table">
+            <table>
+              <thead><tr><th>Step</th><th>What happens</th><th>Who does it</th></tr></thead>
+              <tbody>
+                <tr><td>Describe</td><td>You say what you want in plain words, for example "send 1% of every swap to my wallet".</td><td>You</td></tr>
+                <tr><td>Write</td><td>UnyHooks writes a Solidity hook and saves it to your workspace.</td><td>UnyHooks</td></tr>
+                <tr><td>Compile</td><td>The hook compiles in your browser. Compiler errors can go straight back to the chat to be fixed.</td><td>Your browser</td></tr>
+                <tr><td>Deploy</td><td>The app finds a valid hook address and you sign the deployment.</td><td>Your wallet</td></tr>
+                <tr><td>Create a pool</td><td>UnyHooks prepares the pool and you sign the transaction that creates it.</td><td>Your wallet</td></tr>
+                <tr><td>Check in</td><td>Ask for a pool's price, fee and liquidity at any time.</td><td>UnyHooks</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>UnyHooks never holds keys. It cannot deploy, create pools or move funds for you.</p>
+
+          <h2 id="introduction-not">What it does not do</h2>
+          <ul>
+            <li>It does not audit the code it writes. See <a data-page="security" href="#security">Security</a>.</li>
+            <li>It does not sign anything. Every deploy, pool and liquidity change is a transaction your wallet shows you first.</li>
+            <li>It works on Robinhood Chain only. See <a data-page="network" href="#network">Network</a>.</li>
+          </ul>
+
+          <h2 id="introduction-start">Where to start</h2>
+          <ul>
+            <li>New here: follow the <a data-page="quickstart" href="#quickstart">Quickstart</a>.</li>
+            <li>New to hooks: read <a data-page="hooks" href="#hooks">Hooks</a> first.</li>
+            <li>Know what you want: jump to a <a data-page="recipe-fee" href="#recipe-fee">recipe</a>.</li>
+          </ul>
+        </article>
+
+        <!-- ===== Quickstart ===== -->
+        <article class="dc-page" data-id="quickstart" data-title="Quickstart" hidden>
+          <h1>Quickstart</h1>
+          <p>From an empty workspace to a live pool with your own hook, in five steps.</p>
+
+          <h2 id="quickstart-need">What you need</h2>
+          <ul>
+            <li>A browser wallet such as MetaMask or Phantom, connected to Robinhood Chain.</li>
+            <li>A little ETH on Robinhood Chain for gas. Signing in is free; deploying and creating a pool are not.</li>
+            <li>The two tokens you want to pair. One of them can be ETH.</li>
+          </ul>
+
+          <h2 id="quickstart-steps">Steps</h2>
+          <ol>
+            <li><b>Sign in.</b> Open the app, pick your wallet and sign the sign-in message. It costs no gas.</li>
+            <li><b>Describe the hook.</b> Write one or two sentences, for example <code>Send 1% of every swap to my wallet.</code> UnyHooks may ask a short question if something changes the contract, such as which token the fee is taken in.</li>
+            <li><b>Read it.</b> Open the source tab. Check the fee, the recipient and any limit before going further.</li>
+            <li><b>Deploy.</b> Press Deploy. The app searches for an address whose low bits match the hook's permissions, then asks your wallet to sign one transaction.</li>
+            <li><b>Create the pool.</b> Ask for a pool with your hook, for example <code>Create a TOKEN/ETH pool with this hook, starting at 0.0001 ETH.</code> Sign, and the pool is live.</li>
+          </ol>
+          <div class="dc-callout">Start with a small amount of liquidity. Generated hooks are not audited; see <a data-page="security" href="#security">Security</a>.</div>
+        </article>
+
+        <!-- ===== Hooks ===== -->
+        <article class="dc-page" data-id="hooks" data-title="Hooks" hidden>
+          <h1>Hooks</h1>
+          <p>In Uniswap V4 every pool can point at one hook contract. The PoolManager calls that contract at fixed moments in the pool's life, and the hook can read the call, change the outcome or stop it.</p>
+
+          <h2 id="hooks-callbacks">The callbacks</h2>
+          <div class="dc-table">
+            <table>
+              <thead><tr><th>Callback</th><th>Runs</th><th>Typical use</th></tr></thead>
+              <tbody>
+                <tr><td><code>beforeInitialize</code> / <code>afterInitialize</code></td><td>When the pool is created</td><td>Lock a pool to one creator, record its start time</td></tr>
+                <tr><td><code>beforeAddLiquidity</code> / <code>afterAddLiquidity</code></td><td>When liquidity is added</td><td>Allowlists, opening hours</td></tr>
+                <tr><td><code>beforeRemoveLiquidity</code> / <code>afterRemoveLiquidity</code></td><td>When liquidity is removed</td><td>Lock-ups, exit fees</td></tr>
+                <tr><td><code>beforeSwap</code> / <code>afterSwap</code></td><td>Around every swap</td><td>Fees, dynamic fees, wallet caps, sniper limits</td></tr>
+                <tr><td><code>beforeDonate</code> / <code>afterDonate</code></td><td>When someone donates to LPs</td><td>Rarely used</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="hooks-deltas">Return deltas</h2>
+          <p>Some callbacks can return a delta: an amount the hook takes or adds to the swap. That is how a hook charges its own fee on top of the pool fee. UnyHooks only turns on a return-delta permission when the hook needs it.</p>
+        </article>
+
+        <!-- ===== Hook addresses ===== -->
+        <article class="dc-page" data-id="hook-addresses" data-title="Hook addresses" hidden>
+          <h1>Hook addresses</h1>
+          <p>Uniswap V4 does not ask a hook which callbacks it implements. It reads them from the hook's address: the lowest 14 bits of the address are flags, one per callback. If a flag is set, the PoolManager calls that callback; if not, it skips it.</p>
+
+          <h2 id="hook-addresses-mining">Finding the address</h2>
+          <p>So a hook has to be deployed at an address whose low bits match its permissions exactly. The app deploys through a CREATE2 deployer and tries salts until the resulting address carries the right flags. This runs in your browser and usually takes a few seconds.</p>
+          <p>The salt and the predicted address are shown before you sign, and the deployment fails rather than landing at a different address.</p>
+
+          <h2 id="hook-addresses-check">Checking one yourself</h2>
+          <p>Take the last four hex digits of the hook address, convert them to binary and compare the low 14 bits with the permissions in the source. The app shows the same breakdown on every hook page.</p>
+        </article>
+
+        <!-- ===== Pools ===== -->
+        <article class="dc-page" data-id="pools" data-title="Pools" hidden>
+          <h1>Pools</h1>
+          <p>A V4 pool is identified by its <b>pool key</b>: the two currencies, the fee, the tick spacing and the hook address. Change any of them and it is a different pool.</p>
+
+          <h2 id="pools-key">The pool key</h2>
+          <div class="dc-table">
+            <table>
+              <thead><tr><th>Field</th><th>What it is</th></tr></thead>
+              <tbody>
+                <tr><td><code>currency0</code>, <code>currency1</code></td><td>The two tokens, sorted by address. Native ETH is the zero address.</td></tr>
+                <tr><td><code>fee</code></td><td>A fixed fee in hundredths of a bip, or the dynamic-fee flag when the hook sets the fee.</td></tr>
+                <tr><td><code>tickSpacing</code></td><td>How finely liquidity can be placed. 60 is a common default.</td></tr>
+                <tr><td><code>hooks</code></td><td>Your hook's address.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2 id="pools-price">Starting price</h2>
+          <p>A new pool needs a starting price. Give it in plain terms ("1 TOKEN = 0.0001 ETH") and the app converts it to the <code>sqrtPriceX96</code> value the PoolManager expects, and shows both before you sign.</p>
+        </article>
+
+        <!-- ===== Chat ===== -->
+        <article class="dc-page" data-id="chat" data-title="Chat" hidden>
+          <h1>Chat</h1>
+          <p>The chat is where you describe hooks, ask for pools and check on them. It keeps the context of the hook you are working on, so follow-ups like "make the fee 0.5% instead" edit the same contract.</p>
+
+          <h2 id="chat-good">Writing a good request</h2>
+          <ul>
+            <li>Say who gets paid and in which token.</li>
+            <li>Give numbers: percentages, time windows, wallet caps.</li>
+            <li>Say what should happen at the edges: "after 24 hours, remove the cap".</li>
+          </ul>
+
+          <h2 id="chat-errors">Compiler errors</h2>
+          <p>If a hook does not compile, the error appears under the source with a button to send it back to the chat. The fix arrives as a new version; earlier versions stay in the hook's history.</p>
+        </article>
+
+        <!-- ===== App: Hooks ===== -->
+        <article class="dc-page" data-id="app-hooks" data-title="Hooks" hidden>
+          <h1>Hooks in the app</h1>
+          <p>Every hook you create is saved to your workspace with its full source, its versions, and the address it was deployed at.</p>
+
+          <h2 id="app-hooks-page">The hook page</h2>
+          <ul>
+            <li><b>Source</b>: the Solidity, read-only, with a copy button.</li>
+            <li><b>Permissions</b>: the callbacks the hook uses and the address bits they map to.</li>
+            <li><b>Status</b>: <i>Draft</i>, <i>Compiles</i>, or <i>Deployed</i> with a link to the explorer.</li>
+          </ul>
+
+          <h2 id="app-hooks-versions">Versions</h2>
+          <p>A deployed hook cannot change. Editing it in the chat creates a new version, which has to be deployed again at a new address and used by a new pool.</p>
+        </article>
+
+        <!-- ===== App: Pools ===== -->
+        <article class="dc-page" data-id="app-pools" data-title="Pools" hidden>
+          <h1>Pools in the app</h1>
+          <p>The pools tab lists every pool your wallet created with a UnyHooks hook: pair, fee, tick spacing, hook, current price and liquidity.</p>
+
+          <h2 id="app-pools-ask">Asking about a pool</h2>
+          <p>In the chat, ask "what is the price of my TOKEN/ETH pool?" or "how much liquidity is in it?". Answers are read from the chain when you ask.</p>
+
+          <h2 id="app-pools-liquidity">Liquidity</h2>
+          <p>Ask to add or remove liquidity and the app prepares the transaction, including the token approvals it needs. Your wallet shows each step and nothing happens until you sign.</p>
+        </article>
+
+        <!-- ===== Recipes ===== -->
+        <article class="dc-page" data-id="recipe-fee" data-title="A fee on every swap" hidden>
+          <h1>A fee on every swap</h1>
+          <p>The most common hook: a token launch where a share of every trade goes to a wallet or a treasury.</p>
+          <h2 id="recipe-fee-ask">Ask for it</h2>
+          <pre><code>I'm launching a token paired with ETH. Send 1% of every swap to my wallet.</code></pre>
+          <h2 id="recipe-fee-how">How it works</h2>
+          <p>The hook uses <code>afterSwap</code> with a return delta: after each swap it takes 1% of the output side and sends it to the recipient. The recipient is fixed at deploy time unless you ask for a way to change it.</p>
+          <h2 id="recipe-fee-choices">Choices you will be asked about</h2>
+          <ul>
+            <li>Which token the fee is taken in: always ETH, or whichever side leaves the pool.</li>
+            <li>Whether the recipient can be changed later, and by whom.</li>
+          </ul>
+        </article>
+
+        <article class="dc-page" data-id="recipe-dynamic" data-title="Dynamic fees" hidden>
+          <h1>Dynamic fees</h1>
+          <p>Charge more when the price is moving fast and less when it is calm, so LPs are paid for the risk they carry.</p>
+          <h2 id="recipe-dynamic-ask">Ask for it</h2>
+          <pre><code>Raise the fee when the market gets volatile, lower it when it's calm. Floor 0.05%, ceiling 1%.</code></pre>
+          <h2 id="recipe-dynamic-how">How it works</h2>
+          <p>The pool is created with the dynamic-fee flag. In <code>beforeSwap</code> the hook measures how far the price has moved recently and returns a fee between the floor and the ceiling.</p>
+        </article>
+
+        <article class="dc-page" data-id="recipe-launch" data-title="Launch protection" hidden>
+          <h1>Launch protection</h1>
+          <p>Keep a new token's first hours fair: cap how much one wallet can buy, or slow down bots that buy in the first blocks.</p>
+          <h2 id="recipe-launch-ask">Ask for it</h2>
+          <pre><code>For the first hour, no wallet can hold more than 1% of supply, and no more than one buy per wallet per block.</code></pre>
+          <h2 id="recipe-launch-how">How it works</h2>
+          <p>The hook checks each swap in <code>beforeSwap</code> against the limits while the launch window is open, then switches itself off. Routers and aggregators can hide the real buyer, so caps are best effort; the hook page explains which address it checks.</p>
+        </article>
+
+        <article class="dc-page" data-id="recipe-stocks" data-title="Stock token pairs" hidden>
+          <h1>Stock token pairs</h1>
+          <p>Pair your token with a Robinhood stock token such as NVDA, TSLA or SPY, or with ETH and USDG.</p>
+          <h2 id="recipe-stocks-ask">Ask for it</h2>
+          <pre><code>Create a TOKEN/NVDA pool with my fee hook, and only open it during US market hours.</code></pre>
+          <h2 id="recipe-stocks-notes">Notes</h2>
+          <ul>
+            <li>Stock tokens can have their own transfer rules. The app checks the token before creating the pool and tells you if a hook would conflict with them.</li>
+            <li>Market hours are set in UTC in the hook, and do not follow holidays unless you ask.</li>
+          </ul>
+        </article>
+
+        <!-- ===== Reference ===== -->
+        <article class="dc-page" data-id="network" data-title="Network" hidden>
+          <h1>Network</h1>
+          <p>UnyHooks works on Robinhood Chain only. Hooks and pools are deployed against the chain's Uniswap V4 PoolManager.</p>
+          <h2 id="network-details">Details</h2>
+          <div class="dc-table">
+            <table>
+              <tbody>
+                <tr><th>Network</th><td data-net="name">—</td></tr>
+                <tr><th>Chain ID</th><td data-net="chainId">—</td></tr>
+                <tr><th>RPC</th><td data-net="rpcUrl" class="dc-mono">—</td></tr>
+                <tr><th>Explorer</th><td data-net="explorerUrl" class="dc-mono">—</td></tr>
+                <tr><th>PoolManager</th><td data-net="poolManager" class="dc-mono">—</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>When you sign in, the app asks your wallet to switch to Robinhood Chain if it is on another network.</p>
+        </article>
+
+        <article class="dc-page" data-id="tokens" data-title="Tokens" hidden>
+          <h1>Tokens</h1>
+          <p>Any ERC-20 on Robinhood Chain can go in a pool, as can native ETH.</p>
+          <h2 id="tokens-common">Common pairs</h2>
+          <ul>
+            <li><b>ETH</b>: native, used as the zero address in a pool key.</li>
+            <li><b>USDG</b>: the dollar stablecoin on the chain.</li>
+            <li><b>Stock tokens</b>: NVDA, TSLA, SPY and the rest of Robinhood's stock tokens.</li>
+            <li><b>Your token</b>: paste its address in the chat and the app reads its name, symbol and decimals.</li>
+          </ul>
+          <div class="dc-callout">Always check token addresses on the explorer. Anyone can deploy a token with any name.</div>
+        </article>
+
+        <article class="dc-page" data-id="rules" data-title="Hook contract rules" hidden>
+          <h1>Hook contract rules</h1>
+          <p>Every hook UnyHooks writes follows the same rules, so they are easier to read and review.</p>
+          <ul>
+            <li>One contract, one file, built on the official V4 periphery <code>BaseHook</code>.</li>
+            <li>Only the callbacks it uses are enabled, and the address flags match them.</li>
+            <li>No upgradeable proxies and no <code>selfdestruct</code>.</li>
+            <li>Any owner or admin power is named in plain words at the top of the file, along with what it can change.</li>
+            <li>Fees and limits are constants or bounded settings, never unbounded values an owner can raise at will.</li>
+            <li>Callbacks revert if they are called by anything other than the PoolManager.</li>
+          </ul>
+        </article>
+
+        <article class="dc-page" data-id="limits" data-title="Limits" hidden>
+          <h1>Limits</h1>
+          <ul>
+            <li>One chain: Robinhood Chain.</li>
+            <li>One hook per pool, as in Uniswap V4 itself.</li>
+            <li>Hooks are single contracts; they do not deploy other contracts or call external price oracles unless you ask and name the oracle.</li>
+            <li>Chat messages are rate limited per wallet to keep the service responsive.</li>
+            <li>A deployed hook cannot be changed. A new version means a new address and a new pool.</li>
+          </ul>
+        </article>
+
+        <article class="dc-page" data-id="security" data-title="Security" hidden>
+          <h1>Security</h1>
+          <p>UnyHooks writes code and prepares transactions. Your wallet signs everything, and nothing moves without it.</p>
+          <h2 id="security-keys">Keys and signing</h2>
+          <ul>
+            <li>Sign-in is a plain-text message. It cannot approve tokens or send funds.</li>
+            <li>UnyHooks never asks for a seed phrase or private key. Anyone who does is not UnyHooks.</li>
+            <li>Read every transaction in your wallet before you confirm it.</li>
+          </ul>
+          <h2 id="security-audit">Audits</h2>
+          <p>Generated hooks are not audited. They follow the <a data-page="rules" href="#rules">contract rules</a> and compile, but a hook that compiles can still be wrong. Have a hook reviewed before it holds real money, and start with small amounts.</p>
+          <h2 id="security-report">Reporting a problem</h2>
+          <p>Found a bug in a generated hook or in the app? Message <a data-link="x" href="#" target="_blank" rel="noopener" data-handle>@UnyHooks</a> on X without posting exploit details publicly.</p>
+        </article>
+
+        <article class="dc-page" data-id="token" data-title="$UHOOKS" hidden>
+          <h1>$UHOOKS</h1>
+          <p>$UHOOKS is the native token of UnyHooks, on Robinhood Chain.</p>
+          <h2 id="token-ca">Contract address</h2>
+          <p class="dc-ca"><code id="doc-ca">Announced at launch</code></p>
+          <p>This is the only official $UHOOKS contract. Check every character before you interact with it, and compare it with the <a data-link="site" href="index.html">website</a>.</p>
+          <div class="dc-callout">$UHOOKS is a crypto token, not an investment product. Nothing in these docs is financial advice.</div>
+        </article>
+
+        <article class="dc-page" data-id="faq" data-title="FAQ" hidden>
+          <h1>FAQ</h1>
+          <h2 id="faq-solidity">Do I need to know Solidity?</h2>
+          <p>No. You describe the behaviour and UnyHooks writes the contract. The source is always there for you or a reviewer.</p>
+          <h2 id="faq-cost">What does it cost?</h2>
+          <p>Signing in is free. Deploying a hook and creating a pool cost gas on Robinhood Chain, paid by your wallet.</p>
+          <h2 id="faq-own">Who owns the hook?</h2>
+          <p>Your wallet deploys it, so it is yours. It keeps working whether or not you use UnyHooks again.</p>
+          <h2 id="faq-trade">Where do people trade my pool?</h2>
+          <p>Anywhere that routes Uniswap V4 pools on Robinhood Chain. The pool lives on the PoolManager, not in UnyHooks.</p>
+        </article>
+
+        <nav class="dc-pager" id="pager" aria-label="Previous and next page"></nav>
+      </div>
+
+      <aside class="dc-toc" aria-label="On this page">
+        <p>On this page</p>
+        <nav id="toc"></nav>
+      </aside>
+    </main>
+  </div>
+
+  <footer class="dc-foot">
+    <div class="dc-foot-cols">
+      <div>
+        <h3>Product</h3>
+        <a data-link="app" href="app.html">Launch app</a>
+        <a data-link="site" href="index.html">Website</a>
+        <a data-page="token" href="#token">$UHOOKS</a>
+      </div>
+      <div>
+        <h3>Docs</h3>
+        <a data-page="quickstart" href="#quickstart">Quickstart</a>
+        <a data-page="recipe-fee" href="#recipe-fee">Recipes</a>
+        <a data-page="network" href="#network">Network reference</a>
+      </div>
+      <div>
+        <h3>Community</h3>
+        <a data-link="x" href="#" target="_blank" rel="noopener">X <span data-handle>@UnyHooks</span></a>
+      </div>
+    </div>
+    <p>UnyHooks is an independent project and is not affiliated with Uniswap Labs or Robinhood.</p>
+  </footer>
+</div>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script src="docs.js"></script>
+</body>
+</html>

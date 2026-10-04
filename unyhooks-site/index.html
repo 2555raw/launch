@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UnyHooks — chat to build Uniswap V4 hooks</title>
+  <meta name="description" content="Describe what your pool should do. UnyHooks writes the Uniswap V4 hook, you deploy it from your own wallet and run your pools from the same chat.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23E5127D'/%3E%3Cstop offset='1' stop-color='%23FF6CB8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='skewX(-10) translate(3 0)' fill='none' stroke='url(%23g)' stroke-width='4.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="uh" id="top">
+
+  <!-- The mark, defined once and reused: a U whose right stem curls into a hook. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="uh-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#E5127D"/>
+        <stop offset="1" stop-color="#FF6CB8"/>
+      </linearGradient>
+      <symbol id="uh-mark" viewBox="0 0 32 32">
+        <g transform="skewX(-10) translate(3 0)" fill="none" stroke="url(#uh-grad)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12"/>
+        </g>
+      </symbol>
+      <symbol id="uh-x" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.77L17.75 3zm-1.08 16.18h1.7L7.4 4.73H5.58l11.09 14.45z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="uh-head">
+    <nav class="uh-nav">
+      <a class="uh-brand" data-scroll="top" href="#top">
+        <svg class="uh-mark" aria-hidden="true"><use href="#uh-mark"/></svg>
+        <span>Uny<b>Hooks</b></span>
+      </a>
+      <div class="uh-links" id="navlinks">
+        <a data-scroll="how" href="#how">How it works</a>
+        <a data-scroll="build" href="#build">What you can build</a>
+        <a data-scroll="token" href="#token" class="uh-link-token">$UHOOKS</a>
+        <a data-scroll="faq" href="#faq">FAQ</a>
+        <a data-link="docs" href="#">Docs</a>
+      </div>
+      <div class="uh-nav-right">
+        <a class="uh-icon" data-link="x" href="#" target="_blank" rel="noopener" aria-label="UnyHooks on X">
+          <svg width="18" height="18" aria-hidden="true"><use href="#uh-x"/></svg>
+        </a>
+        <a class="uh-btn uh-btn-pink uh-btn-sm" data-link="app" href="#">Launch app</a>
+        <button class="uh-icon uh-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- hero -->
+    <section class="uh-hero uh-wrap">
+      <div class="uh-hero-copy">
+        <p class="uh-eyebrow">Plain language meets Uniswap V4</p>
+        <h1 class="uh-h1">Chat to build<br>Uniswap V4<br><span class="uh-pink">hooks.</span></h1>
+        <p class="uh-lead">Tell UnyHooks what your pool should do. It writes the hook, you deploy it from your own wallet, and you run your pools from the same conversation.</p>
+        <div class="uh-actions">
+          <a class="uh-btn uh-btn-pink" data-link="app" href="#">Launch app</a>
+          <a class="uh-btn uh-btn-ghost" data-scroll="how" href="#how">See how it works</a>
+        </div>
+      </div>
+
+      <div class="uh-hero-art">
+        <div class="uh-scene" aria-hidden="true">
+          <div class="uh-arch">
+            <div class="uh-cloud uh-cloud-a"></div>
+            <div class="uh-cloud uh-cloud-b"></div>
+            <div class="uh-hill"></div>
+            <div class="uh-sun"></div>
+          </div>
+          <div class="uh-wall-r">
+            <svg class="uh-emboss"><use href="#uh-mark"/></svg>
+            <span>UNISWAP V4</span>
+          </div>
+          <div class="uh-floor"></div>
+          <div class="uh-beam"></div>
+        </div>
+        <div class="uh-prompt">
+          <span class="uh-prompt-av"><svg aria-hidden="true"><use href="#uh-mark"/></svg></span>
+          <span class="uh-prompt-t" id="typer">Create a Uniswap V4 hook that takes 1% of every swap</span><span class="uh-caret" aria-hidden="true"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- how it works -->
+    <section class="uh-sec" id="how">
+      <div class="uh-wrap">
+        <h2 class="uh-h2 uh-rise">From one sentence to a live pool.</h2>
+        <p class="uh-sub uh-rise">No Solidity, no Foundry, no salt mining by hand. Three steps in one conversation.</p>
+
+        <div class="uh-steps">
+          <article class="uh-card uh-step uh-rise">
+            <div class="uh-demo uh-demo-chat">
+              <div class="uh-bubble uh-bubble-me">Raise the fee when the market gets volatile, lower it when it's calm.</div>
+              <div class="uh-bubble uh-bubble-ai">On it. Floor 0.05%, ceiling 1%. Writing the hook now.</div>
+            </div>
+            <h3>Describe it</h3>
+            <p>Say what you want in plain words. UnyHooks only asks about what changes the contract and fills in sensible defaults for everything else.</p>
+          </article>
+
+          <article class="uh-card uh-step uh-rise">
+            <div class="uh-demo uh-demo-box">
+              <div class="uh-demo-row">
+                <code class="uh-code">DynamicFeeHook</code>
+                <span class="uh-badge uh-badge-ok">Compiles</span>
+              </div>
+              <div class="uh-tags"><span>beforeSwap</span><span>afterSwap</span></div>
+              <div class="uh-demo-row uh-demo-foot">
+                <small>Robinhood Chain</small>
+                <span class="uh-btn uh-btn-pink uh-btn-xs">Deploy</span>
+              </div>
+            </div>
+            <h3>Review and deploy</h3>
+            <p>The hook compiles in your browser and the full source is one click away. Hit Deploy and sign once; the address with the right hook flags is found for you.</p>
+          </article>
+
+          <article class="uh-card uh-step uh-rise">
+            <div class="uh-demo uh-demo-box">
+              <div class="uh-demo-row uh-demo-row-start">
+                <b>ETH/USDC</b>
+                <span class="uh-badge uh-badge-ok">Live</span>
+              </div>
+              <dl class="uh-kv">
+                <div><dt>Fee</dt><dd>Dynamic</dd></div>
+                <div><dt>Tick spacing</dt><dd>60</dd></div>
+                <div><dt>Hook</dt><dd class="uh-mono uh-pink">0x7a3…20C0</dd></div>
+              </dl>
+            </div>
+            <h3>Run your pools</h3>
+            <p>Create pools with your hook and keep every one of them in a single dashboard. Ask for a pool's price, fee or liquidity whenever you want to check in.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- what you can build -->
+    <section class="uh-sec uh-sec-tint" id="build">
+      <div class="uh-wrap">
+        <div class="uh-split uh-rise">
+          <h2 class="uh-h2">If you can say it,<br>your pool can <span class="uh-pink uh-nw">do it.</span></h2>
+          <p class="uh-sub">A good share of the Uniswap V4 pools on Robinhood Chain already run a hook. These are the ones people ask for most, and the places UnyHooks starts from.</p>
+        </div>
+
+        <div class="uh-bento">
+          <article class="uh-card uh-tile uh-tile-wide uh-rise">
+            <h3>A fee on every swap</h3>
+            <p>The most common hook on the chain. Launch a token and send a cut of each trade to your wallet or a treasury.</p>
+            <code class="uh-quote">"I'm launching a token paired with ETH. Send 1% of every swap to my wallet."</code>
+          </article>
+          <article class="uh-card uh-tile uh-rise">
+            <h3>Dynamic fees</h3>
+            <p>Charge more when volatility spikes and less when the market is quiet.</p>
+          </article>
+          <article class="uh-card uh-tile uh-rise">
+            <h3>Launch protection</h3>
+            <p>Cap wallet size or slow down snipers during a token's first hours.</p>
+          </article>
+          <article class="uh-card uh-tile uh-rise">
+            <h3>Stock token pairs</h3>
+            <p>Pair your token with NVDA, TSLA, SPY or any Robinhood stock token, as well as ETH and USDG.</p>
+          </article>
+          <article class="uh-card uh-tile uh-rise">
+            <h3>Allowlists and hours</h3>
+            <p>Choose who can provide liquidity, or open and close a pool on a schedule.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- trust -->
+    <section class="uh-sec" id="trust">
+      <div class="uh-wrap uh-trust">
+        <div class="uh-trust-head uh-rise">
+          <h2 class="uh-h2">Your wallet signs.<br>Nothing else can.</h2>
+          <p class="uh-sub">UnyHooks writes code and prepares transactions. It never holds keys, and it cannot move funds or deploy on your behalf.</p>
+        </div>
+        <dl class="uh-rows uh-rise">
+          <div class="uh-row">
+            <dt>Sign in with your wallet</dt>
+            <dd>One signed message proves the wallet is yours. No email, no password, no gas.</dd>
+          </div>
+          <div class="uh-row">
+            <dt>Read every line</dt>
+            <dd>Every hook is saved with its full Solidity source and compiled in your browser, so the bytecode you deploy comes from code you can read.</dd>
+          </div>
+          <div class="uh-row">
+            <dt>You own what you deploy</dt>
+            <dd>Hooks and pools are created by your wallet, directly on Uniswap V4's PoolManager. They keep working whether or not you ever open UnyHooks again.</dd>
+          </div>
+          <div class="uh-row">
+            <dt>Built for Robinhood Chain</dt>
+            <dd>Hooks and pools deploy to Robinhood Chain, on its Uniswap V4 PoolManager. Generated hooks are not audited and this is a live network, so get a hook reviewed before you trust it with real funds.</dd>
+          </div>
+        </dl>
+      </div>
+    </section>
+
+    <!-- token -->
+    <section class="uh-sec uh-sec-tight" id="token">
+      <div class="uh-wrap">
+        <div class="uh-panel uh-token uh-rise">
+          <div class="uh-token-copy">
+            <p class="uh-eyebrow">The token</p>
+            <h2 class="uh-token-name">$UHOOKS</h2>
+            <p class="uh-sub">The native token of UnyHooks, on Robinhood Chain.</p>
+
+            <p class="uh-label">Contract address · Robinhood Chain</p>
+            <div class="uh-ca">
+              <code id="ca">Announced at launch</code>
+              <button class="uh-btn uh-btn-pink uh-btn-sm" id="copy" type="button" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                <span id="copy-t">Copy CA</span>
+              </button>
+            </div>
+            <p class="uh-note">This is the only official $UHOOKS contract. Check every character before you interact with it.</p>
+
+            <div class="uh-actions">
+              <a class="uh-btn uh-btn-ghost" id="explorer" href="#" target="_blank" rel="noopener" hidden>View on explorer</a>
+              <a class="uh-btn uh-btn-ghost" data-link="x" href="#" target="_blank" rel="noopener"><span>Follow <span data-handle>@UnyHooks</span></span></a>
+            </div>
+          </div>
+          <div class="uh-coin" aria-hidden="true">
+            <div class="uh-coin-in"><svg><use href="#uh-mark"/></svg></div>
+          </div>
+        </div>
+        <p class="uh-fine">$UHOOKS is a crypto token, not an investment product. Nothing on this page is financial advice. Always check the contract address against this page before you interact with it.</p>
+      </div>
+    </section>
+
+    <!-- faq -->
+    <section class="uh-sec" id="faq">
+      <div class="uh-wrap uh-faq">
+        <h2 class="uh-h2 uh-rise">Questions</h2>
+        <div class="uh-qs uh-rise">
+          <details class="uh-q">
+            <summary>What is a Uniswap V4 hook?</summary>
+            <p>A hook is a small contract attached to a Uniswap V4 pool. The pool calls it at set moments (before and after swaps, or when liquidity is added and removed), so the hook can change fees, take a cut, block a trade or run any other rule you give it.</p>
+          </details>
+          <details class="uh-q">
+            <summary>Do I need to know Solidity?</summary>
+            <p>No. You describe the behaviour and UnyHooks writes the contract. The full source is always there if you or a reviewer want to read it.</p>
+          </details>
+          <details class="uh-q">
+            <summary>What do I need to get started?</summary>
+            <p>A wallet that works with Robinhood Chain and a little ETH there for gas. You sign in with a message, and only deploys and pool creation cost gas.</p>
+          </details>
+          <details class="uh-q">
+            <summary>Which tokens can I build pools with?</summary>
+            <p>Any token on Robinhood Chain: your own, ETH, USDG, and Robinhood stock tokens such as NVDA, TSLA and SPY.</p>
+          </details>
+          <details class="uh-q">
+            <summary>Are the hooks safe to use with real money?</summary>
+            <p>Generated hooks are not audited. They compile and follow well-known patterns, but this is a live network: have a hook reviewed before you put real funds behind it, and start with small amounts.</p>
+          </details>
+          <details class="uh-q">
+            <summary>Can I add liquidity from the chat?</summary>
+            <p>Yes. Ask to add or remove liquidity and UnyHooks prepares the transaction; your wallet shows it to you and nothing happens until you sign.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- closing call -->
+    <section class="uh-sec uh-sec-tight">
+      <div class="uh-wrap">
+        <div class="uh-panel uh-final uh-rise">
+          <svg class="uh-final-mark" aria-hidden="true"><use href="#uh-mark"/></svg>
+          <h2 class="uh-h2">Build Uniswap V4<br>hooks, <span class="uh-pink">by chat.</span></h2>
+          <a class="uh-btn uh-btn-pink" data-link="app" href="#">Launch app</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="uh-foot uh-wrap">
+    <a class="uh-brand uh-brand-sm" data-scroll="top" href="#top">
+      <svg class="uh-mark" aria-hidden="true"><use href="#uh-mark"/></svg>
+      <span>Uny<b>Hooks</b></span>
+    </a>
+    <p>UnyHooks is an independent project and is not affiliated with Uniswap Labs or Robinhood.</p>
+    <div class="uh-foot-links">
+      <a data-link="x" href="#" target="_blank" rel="noopener"><svg width="14" height="14" aria-hidden="true"><use href="#uh-x"/></svg><span data-handle>@UnyHooks</span></a>
+      <a data-link="docs" href="#">Docs</a>
+      <a data-link="app" href="#" data-host>Launch app</a>
+    </div>
+  </footer>
+
+</div>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

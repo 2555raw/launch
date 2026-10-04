@@ -1,0 +1,84 @@
+/* UnyHooks sign-in — a column of copy and wallets on the left, the doorway
+   scene bleeding off the right edge. Palette, type and the scene itself come
+   from styles.css. */
+
+.uh-app {
+  display: grid; grid-template-columns: minmax(0, 1fr);
+  min-height: 100vh;
+}
+.uh-app::before { height: 100%; }
+
+.ap-side {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  min-height: 100vh;
+  padding: 24px 16px 32px;
+}
+.ap-head { display: flex; align-items: center; justify-content: space-between; height: 48px; }
+.ap-docs { font-size: 14.5px; font-weight: 500; }
+.ap-docs:hover { color: var(--pink); }
+
+.ap-body { margin: auto 0; padding: 56px 0; max-width: 460px; }
+.ap-h1 { font-size: clamp(38px, 4.4vw, 48px); line-height: 1.06; letter-spacing: -.04em; font-weight: 700; }
+.ap-lead { margin-top: 20px; font-size: 16px; line-height: 1.65; color: var(--prose); }
+.ap-lead a { color: var(--pink); }
+
+.ap-wallets { display: grid; gap: 12px; margin-top: 36px; }
+.ap-wallet {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; height: 58px; padding: 0 18px 0 14px;
+  border-radius: 14px; border: 1px solid var(--line);
+  background: #fff; color: var(--ink);
+  font: 500 16px var(--font-body);
+  box-shadow: 0 16px 34px -26px rgba(236, 21, 134, .55);
+  cursor: pointer;
+  transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.ap-wallet:hover { border-color: var(--pink-line); transform: translateY(-1px); box-shadow: 0 20px 40px -26px rgba(236, 21, 134, .7); }
+.ap-wallet:focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; }
+.ap-wallet:disabled { cursor: progress; opacity: .7; transform: none; }
+.ap-wallet-ic { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; }
+.ap-wallet-ic svg { width: 24px; height: 24px; }
+.ap-ic-mm { background: #F6851B; }
+.ap-ic-ph { background: #AB9FF2; }
+.ap-wallet-n { flex: 1; text-align: left; }
+.ap-wallet-s { font-size: 13px; color: var(--prose); }
+.ap-wallet.is-busy .ap-wallet-s { color: var(--pink); }
+
+.ap-msg { min-height: 22px; margin-top: 16px; font-size: 14px; line-height: 1.55; color: var(--prose); }
+.ap-msg.is-error { color: #C0264E; }
+.ap-msg a { color: var(--pink); text-decoration: underline; text-underline-offset: 3px; }
+
+.ap-account {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 28px; padding: 12px 12px 12px 16px;
+  border-radius: 14px; border: 1px solid var(--line); background: #fff;
+}
+.ap-account code { flex: 1; min-width: 0; font: 14px var(--font-mono); overflow-wrap: anywhere; }
+.ap-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px var(--ok-soft); }
+.ap-out { border: 0; background: transparent; color: var(--prose); font: 500 13.5px var(--font-body); cursor: pointer; padding: 6px 8px; border-radius: 8px; }
+.ap-out:hover { background: var(--bg-tint); color: var(--ink); }
+
+.ap-foot { margin: 0; }
+
+/* the scene only shows beside the copy, never under it */
+.ap-art { display: none; }
+
+@media (min-width: 980px) {
+  .uh-app { grid-template-columns: minmax(420px, 1fr) minmax(0, 1.25fr); }
+  .ap-side { padding: 24px 48px 36px; }
+  .ap-art { display: block; position: relative; }
+  .ap-scene {
+    position: absolute; inset: 0;
+    aspect-ratio: auto; border-radius: 0;
+    box-shadow: none;
+    /* fade the left edge into the page */
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 22%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 22%);
+  }
+  .ap-scene .uh-arch { left: 22%; right: 28%; top: 0; bottom: 22%; }
+  .ap-scene .uh-wall-r { width: 30%; padding-top: 20vh; }
+  .ap-scene .uh-emboss { width: 84px; height: 84px; }
+  .ap-scene .uh-wall-r span { font-size: 22px; }
+  .ap-prompt { left: 0; right: auto; top: auto; bottom: 56px; max-width: 340px; }
+}

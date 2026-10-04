@@ -34,12 +34,12 @@
   .bar i { display: block; height: 100%; background: var(--ink); transform-origin: left; }
 
   .card { background: #fff; border: 1.5px solid var(--line); border-radius: 22px; padding: 22px 26px; box-shadow: 0 24px 50px -30px rgba(11,13,18,.35); }
-  .label { font-size: 19px; color: var(--dim); font-weight: 500; margin-bottom: 8px; }
+  .label { font-size: 22px; color: var(--dim); font-weight: 500; margin-bottom: 8px; }
   .big { font-size: 34px; font-weight: 600; letter-spacing: -.03em; }
-  .hex { font-size: 19px; color: var(--ink); line-height: 1.5; word-break: break-all; }
+  .hex { font-size: 23px; color: var(--ink); line-height: 1.5; word-break: break-all; }
   .engine { width: 240px; height: 240px; border-radius: 50%; display: grid; place-items: center; text-align: center; background: var(--ink); color: #fff; }
   .engine div { font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
-  .engine span { display: block; font-size: 15px; opacity: .6; font-weight: 400; margin-top: 6px; }
+  .engine span { display: block; font-size: 22px; opacity: .6; font-weight: 400; margin-top: 6px; }
   .ring { border-radius: 50%; border: 2px solid var(--accent); }
   .hash { font-size: 25px; color: var(--accent); word-break: break-all; line-height: 1.45; }
   .pill { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: var(--soft); font-size: 20px; font-weight: 500; }
@@ -49,9 +49,9 @@
   .avatar svg { width: 40px; height: 40px; }
   .lock { width: 120px; height: 120px; border-radius: 30px; background: var(--ink); display: grid; place-items: center; }
   .lock svg { width: 56px; height: 56px; }
-  .holding { width: 196px; padding: 18px 20px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; }
+  .holding { width: 200px; padding: 18px 20px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; }
   .holding .big { font-size: 24px; white-space: nowrap; }
-  .holding .hex { font-size: 15px; color: var(--dim2); }
+  .holding .hex { font-size: 18px; color: var(--dim2); }
   .bit { font-size: 150px; font-weight: 600; letter-spacing: -.05em; color: var(--ok); line-height: 1; }
   .ok { color: var(--ok); }
 </style>
@@ -135,13 +135,13 @@ const scenes = {
 
       const gather = inout(seg(t, 5.4, 6.8));          // inputs fly into the engine
       const inputs = [
-        [`<div class="label">Asset</div><div class="big">2.5 ETH</div><div class="hex" style="color:var(--dim)">ethereum</div>`, 64, 150, 2.6],
-        [`<div class="label">Salt · 16 bytes</div><div class="hex mono">${hexAt(Math.floor(t * 12) + 7, 32)}</div>`, 64, 295, 3.1],
-        [`<div class="label">Key · 32 bytes</div><div class="hex mono">${hexAt(Math.floor(t * 12) + 99, 64)}</div>`, 64, 430, 3.6],
+        [`<div class="label">Asset</div><div class="big">2.5 ETH</div><div class="hex" style="color:var(--dim)">ethereum</div>`, 64, 96, 2.6],
+        [`<div class="label">Salt · 16 bytes</div><div class="hex mono">${hexAt(Math.floor(t * 12) + 7, 32)}</div>`, 64, 264, 3.1],
+        [`<div class="label">Key · 32 bytes</div><div class="hex mono">${hexAt(Math.floor(t * 12) + 99, 64)}</div>`, 64, 390, 3.6],
       ];
       const ex = 640 - 120, ey = 180;                    // engine top-left
       inputs.forEach(([html, x, y, at], i) => {
-        const node = el(html, x, y, { cls: "card", w: i === 2 ? 420 : 340 });
+        const node = el(html, x, y, { cls: "card", w: [340, 500, 560][i] });
         const k = seg(t, at, at + .8);
         const tx = lerp(0, ex + 120 - x - 170, gather), ty = lerp(0, ey + 120 - y - 50, gather);
         node.style.opacity = ease(k) * (1 - seg(t, 6.3, 6.8));
@@ -196,20 +196,20 @@ const scenes = {
 
       // receipt -> lock
       const rk = seg(t, 3.0, 3.7), into = inout(seg(t, 4.4, 5.2));
-      const receipt = el(`<div class="label">Receipt</div><div class="big" style="font-size:24px">2.5 ETH</div><div class="hex mono" style="color:var(--dim)">0x${COMMIT.slice(0, 12)}…</div>`, 300, 210, { cls: "card", w: 250 });
+      const receipt = el(`<div class="label">Receipt</div><div class="big" style="font-size:24px">2.5 ETH</div><div class="hex mono" style="color:var(--dim)">0x${COMMIT.slice(0, 12)}…</div>`, 300, 200, { cls: "card", w: 300 });
       receipt.style.opacity = ease(rk) * (1 - seg(t, 4.9, 5.2));
       receipt.style.transform = `translate(${into * 230}px, ${(1 - ease(rk)) * 20}px) scale(${lerp(1, .4, into)})`;
       stage.append(receipt);
 
       const dots = "•".repeat(Math.round(14 * seg(t, 3.4, 4.4)));
-      const pass = el(`<span style="color:var(--dim)">Passphrase</span> <b class="mono">${dots}</b>`, 300, 370, { cls: "pill" });
+      const pass = el(`<span style="color:var(--dim)">Passphrase</span> <b class="mono">${dots}</b>`, 300, 400, { cls: "pill" });
       show(pass, seg(t, 3.3, 3.9)); pass.style.opacity = +pass.style.opacity * (1 - seg(t, 4.9, 5.2));
       stage.append(pass);
 
       // the package travels
       const travel = inout(seg(t, 5.8, 8.2));
       const opened = seg(t, 8.6, 9.2);
-      const pk = el(`<div class="lock">${opened > .5 ? icons.unlock : icons.lock}</div><div class="mono" style="text-align:center;margin-top:12px;font-size:14px;color:var(--dim)">obxpkg1_${hexAt(3, 8)}…</div><div style="text-align:center;font-size:14px;color:var(--dim2);margin-top:2px">AES-256-GCM</div>`, 540, 205, { w: 200 });
+      const pk = el(`<div class="lock">${opened > .5 ? icons.unlock : icons.lock}</div><div class="mono" style="text-align:center;margin-top:12px;font-size:21px;color:var(--dim)">obxpkg1_${hexAt(3, 8)}…</div><div style="text-align:center;font-size:21px;color:var(--dim);margin-top:2px">AES-256-GCM</div>`, 540, 205, { w: 200 });
       const pkIn = seg(t, 4.9, 5.6);
       pk.style.opacity = ease(pkIn) * (1 - seg(t, 9.6, 10.1));
       pk.style.transform = `translate(${travel * 230}px, ${Math.sin(travel * Math.PI) * -40}px) scale(${lerp(.6, 1, ease(pkIn))})`;
@@ -221,7 +221,7 @@ const scenes = {
         const p2 = el(`<span class="mono">••••••••••••••</span>`, 300 + pr * 540, 470, { cls: "pill" });
         p2.style.opacity = Math.min(seg(t, 6.0, 6.4), 1 - seg(t, 8.9, 9.4));
         stage.append(p2);
-        const lbl = el(`a separate channel`, 300 + pr * 540, 528); lbl.style.cssText += ";font-size:15px;color:var(--dim2)";
+        const lbl = el(`a separate channel`, 300 + pr * 540, 528); lbl.style.cssText += ";font-size:21px;color:var(--dim)";
         lbl.style.opacity = p2.style.opacity; stage.append(lbl);
       }
 
@@ -232,8 +232,8 @@ const scenes = {
       stage.append(fresh);
 
       // out / in
-      const o1 = el(`<div class="label">Out · your old commitment</div><div class="hash mono" style="font-size:18px;color:var(--dim)">0x${COMMIT}</div>`, 64, 330, { cls: "card", w: 560 });
-      const o2 = el(`<div class="label">In · a fresh commitment</div><div class="hash mono" style="font-size:18px">0x${COMMIT2}</div>`, 656, 330, { cls: "card", w: 560 });
+      const o1 = el(`<div class="label">Out · your old commitment</div><div class="hash mono" style="font-size:21px;color:var(--dim)">0x${COMMIT}</div>`, 64, 300, { cls: "card", w: 560 });
+      const o2 = el(`<div class="label">In · a fresh commitment</div><div class="hash mono" style="font-size:21px">0x${COMMIT2}</div>`, 656, 300, { cls: "card", w: 560 });
       show(o1, seg(t, 11.6, 12.4)); show(o2, seg(t, 12.0, 12.8));
       if (t > 11.6) { you.style.opacity = them.style.opacity = 1 - seg(t, 11.6, 12.0); }
       stage.append(o1, o2);
@@ -257,7 +257,7 @@ const scenes = {
       items.forEach(([amt, s], i) => {
         const col = i % 3, row = Math.floor(i / 3);
         const x = 64 + col * 214, y = 170 + row * 142;
-        const node = el(`<div class="big">${amt}</div><div class="hex mono">0x${hexAt(s * 31, 14)}…</div>`, x, y, { cls: "holding" });
+        const node = el(`<div class="big">${amt}</div><div class="hex mono">0x${hexAt(s * 31, 8)}…</div>`, x, y, { cls: "holding" });
         const k = seg(t, 2.6 + i * .12, 3.3 + i * .12);
         if (i === pick) {
           node.style.borderColor = t > 4.6 ? "var(--accent)" : "";
@@ -280,8 +280,8 @@ const scenes = {
       // recompute
       if (t > 8.4) {
         const k = seg(t, 8.6, 9.4);
-        const a = el(`<div class="label">Recomputed</div><div class="hash mono" style="font-size:16px">0x${COMMIT.slice(0, Math.round(64 * seg(t, 8.8, 10.0)))}</div>`, 700, 350, { cls: "card", w: 516 });
-        const b = el(`<div class="label">Expected</div><div class="hash mono" style="font-size:16px;color:var(--dim)">0x${COMMIT}</div>`, 700, 470, { cls: "card", w: 516 });
+        const a = el(`<div class="label">Recomputed</div><div class="hash mono" style="font-size:19px">0x${COMMIT.slice(0, Math.round(64 * seg(t, 8.8, 10.0)))}</div>`, 700, 322, { cls: "card", w: 516 });
+        const b = el(`<div class="label">Expected</div><div class="hash mono" style="font-size:19px;color:var(--dim)">0x${COMMIT}</div>`, 700, 440, { cls: "card", w: 516 });
         show(a, k); show(b, seg(t, 9.0, 9.8));
         const gone = 1 - seg(t, 11.2, 11.6);
         a.style.opacity = +a.style.opacity * gone; b.style.opacity = +b.style.opacity * gone;
@@ -291,7 +291,7 @@ const scenes = {
 
       // the bit
       const bk = seg(t, 11.6, 12.4);
-      const bit = el(`<div class="bit">1</div><div style="font-size:34px;font-weight:600;letter-spacing:-.02em" class="ok">true</div><div style="font-size:19px;color:var(--dim);margin-top:6px">2.5 ETH is held. Nothing else is shown.</div>`, 760, 290, { w: 460 });
+      const bit = el(`<div class="bit">1</div><div style="font-size:34px;font-weight:600;letter-spacing:-.02em" class="ok">true</div><div style="font-size:24px;color:var(--dim);margin-top:6px">2.5 ETH is held. Nothing else is shown.</div>`, 760, 290, { w: 460 });
       show(bit, bk, 30, .9); stage.append(bit);
       if (t > 11.6) ver.style.opacity = 1 - seg(t, 11.6, 12.0);
     },

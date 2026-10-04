@@ -162,6 +162,12 @@
         <div class="player-col">
           <div class="player">
             <video id="film" muted playsinline preload="metadata" poster="assets/video/cloak.jpg"></video>
+          </div>
+          <div class="player-bar">
+            <div>
+              <p class="film-caption" id="film-caption" aria-live="polite"></p>
+              <p class="films-note">Captions are part of each film. Hashes shown are examples.</p>
+            </div>
             <div class="player-ctl">
               <button type="button" id="film-restart" aria-label="Watch from the start">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
@@ -172,8 +178,6 @@
               </button>
             </div>
           </div>
-          <p class="film-caption" id="film-caption" aria-live="polite"></p>
-          <p class="films-note">Captions are part of each film. Hashes shown are examples.</p>
         </div>
       </div>
     </div>

@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Console — Obscura</title>
+  <meta name="description" content="Cloak, hold, transfer and receive private bonds. Everything runs in your browser.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230b0d12'/%3E%3Cpath d='M6 16s4-6.5 10-6.5S26 16 26 16s-4 6.5-10 6.5S6 16 6 16z' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="nav-wrap">
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="index.html">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle class="iris" cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg></span>
+      Obscura
+    </a>
+    <div class="nav-links">
+      <a href="index.html#how">How it works</a>
+      <a href="console.html" aria-current="true">Console</a>
+      <a href="verify.html">Verify</a>
+    </div>
+    <div class="nav-right">
+      <a class="btn btn-dark btn-sm" href="verify.html">Verify a receipt</a>
+      <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="drawer">
+    <a href="index.html">Home</a>
+    <a href="console.html">Console</a>
+    <a href="verify.html">Verify a receipt</a>
+  </div>
+</div>
+
+<main class="app-main">
+  <div class="wrap">
+    <div class="app-head">
+      <span class="eyebrow pill-tag"><span class="dot"></span>Runs locally · Web Crypto</span>
+      <h1>Console</h1>
+      <p>Cloak assets into bonds, keep the receipts in this browser, and move them with a passphrase. No server sees any of it.</p>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="cloak" aria-selected="true">Cloak</button>
+      <button class="tab" role="tab" data-tab="vault" aria-selected="false">Vault<span class="count" id="vault-count">0</span></button>
+      <button class="tab" role="tab" data-tab="transfer" aria-selected="false">Transfer</button>
+      <button class="tab" role="tab" data-tab="receive" aria-selected="false">Receive</button>
+    </div>
+
+    <!-- CLOAK -->
+    <div class="panel active" id="panel-cloak" role="tabpanel">
+      <form class="box" id="cloak-form" autocomplete="off">
+        <h3>Cloak an asset</h3>
+        <p>A fresh 16-byte salt and 32-byte key are drawn for every bond.</p>
+        <div class="field-row">
+          <div class="field"><label for="c-amount">Amount</label><input class="input mono" id="c-amount" inputmode="decimal" placeholder="1.0" required></div>
+          <div class="field"><label for="c-symbol">Asset</label><input class="input" id="c-symbol" placeholder="ETH" required></div>
+        </div>
+        <div class="field"><label for="c-chain">Chain</label>
+          <select class="select" id="c-chain"><option>ethereum</option><option>base</option><option>arbitrum</option><option>optimism</option><option>polygon</option><option>solana</option></select>
+        </div>
+        <div class="field"><label for="c-note">Private note <span class="hint">(optional, sealed into the hash)</span></label><input class="input" id="c-note" placeholder="e.g. OTC desk, March"></div>
+        <button class="btn btn-dark" type="submit">Cloak bond</button>
+      </form>
+      <div class="box soft" id="cloak-result">
+        <h3>Result</h3>
+        <p>Your commitment and receipt appear here. The receipt is saved to the vault automatically.</p>
+        <div class="empty" id="cloak-empty">Nothing cloaked yet.</div>
+        <div id="cloak-out" hidden>
+          <div class="kv">
+            <div class="kv-row"><span class="k">Commitment · public</span><span class="v big" id="c-commit"></span></div>
+            <div class="kv-row"><span class="k">Receipt · keep private</span><textarea class="textarea" id="c-receipt" readonly></textarea></div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-dark btn-sm" type="button" data-copy="#c-receipt" data-copy-label="Receipt copied">Copy receipt</button>
+            <button class="btn btn-light btn-sm" type="button" data-copy="#c-commit" data-copy-label="Commitment copied">Copy commitment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VAULT -->
+    <div class="panel single" id="panel-vault" role="tabpanel">
+      <div class="box">
+        <div class="bond-top" style="margin-bottom:16px">
+          <div><h3>Vault</h3><p class="hint" style="margin:0">Stored only in this browser. Export a backup before you clear site data.</p></div>
+          <div class="actions" style="margin:0">
+            <button class="btn btn-light btn-sm" id="v-export" type="button">Export backup</button>
+            <label class="btn btn-light btn-sm" for="v-import">Import backup</label>
+            <input type="file" id="v-import" accept="application/json,.json" hidden>
+          </div>
+        </div>
+        <div id="vault-list"></div>
+      </div>
+    </div>
+
+    <!-- TRANSFER -->
+    <div class="panel" id="panel-transfer" role="tabpanel">
+      <form class="box" id="transfer-form" autocomplete="off">
+        <h3>Transfer a bond</h3>
+        <p>Seals the receipt with AES-256-GCM under a key stretched from your passphrase (PBKDF2, 310,000 rounds).</p>
+        <div class="field"><label for="t-bond">Bond</label><select class="select" id="t-bond"></select></div>
+        <div class="field"><label for="t-pass">Passphrase</label><input class="input" id="t-pass" type="password" minlength="8" required autocomplete="new-password"></div>
+        <div class="field"><label for="t-pass2">Repeat passphrase</label><input class="input" id="t-pass2" type="password" minlength="8" required autocomplete="new-password"></div>
+        <button class="btn btn-dark" type="submit">Seal package</button>
+        <p class="hint" style="margin-top:12px">Send the package and the passphrase through different channels.</p>
+      </form>
+      <div class="box soft">
+        <h3>Package</h3>
+        <p>Hand this to the recipient. Without the passphrase it is noise.</p>
+        <div class="empty" id="t-empty">No package sealed yet.</div>
+        <div id="t-out" hidden>
+          <textarea class="textarea" id="t-pkg" readonly></textarea>
+          <div class="actions">
+            <button class="btn btn-dark btn-sm" type="button" data-copy="#t-pkg" data-copy-label="Package copied">Copy package</button>
+            <button class="btn btn-light btn-sm" type="button" id="t-download">Download .obx</button>
+          </div>
+          <p class="hint" style="margin-top:12px">The bond is marked as sent in your vault. Your old receipt still verifies until you remove it.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RECEIVE -->
+    <div class="panel" id="panel-receive" role="tabpanel">
+      <form class="box" id="receive-form" autocomplete="off">
+        <h3>Receive a bond</h3>
+        <p>Opens the package, checks the receipt inside, then re-cloaks the asset under a key only you hold.</p>
+        <div class="field"><label for="r-pkg">Package</label><textarea class="textarea" id="r-pkg" placeholder="obxpkg1_…" required></textarea></div>
+        <div class="field"><label for="r-file" class="hint">…or load a .obx file</label><input id="r-file" type="file" accept=".obx,text/plain"></div>
+        <div class="field"><label for="r-pass">Passphrase</label><input class="input" id="r-pass" type="password" required autocomplete="off"></div>
+        <button class="btn btn-dark" type="submit">Open and re-cloak</button>
+      </form>
+      <div class="box soft">
+        <h3>Your new bond</h3>
+        <p>Fresh commitment, fresh receipt, saved to the vault.</p>
+        <div class="empty" id="r-empty">Nothing received yet.</div>
+        <div id="r-out" hidden>
+          <div class="kv">
+            <div class="kv-row"><span class="k">Asset</span><span class="v" id="r-asset"></span></div>
+            <div class="kv-row"><span class="k">New commitment</span><span class="v big" id="r-commit"></span></div>
+            <div class="kv-row"><span class="k">Replaces</span><span class="v" id="r-prev"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer style="margin-top:40px">
+  <div class="wrap">
+    <p class="fine" style="margin-top:0;border:0;padding:0">Receipts live in this browser's local storage and nowhere else. Anyone who reads a receipt can prove that bond, so share each one only with the party who needs it.</p>
+  </div>
+</footer>
+
+<script type="module" src="js/site.js"></script>
+<script type="module" src="js/console.js"></script>
+</body>
+</html>

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Obscura — private bonds, cloaked in your browser</title>
+  <meta name="description" content="Obscura seals an asset into one hash that only your receipt can open. Hold it, hand it on, and prove it one bit at a time. Everything runs in your browser.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230b0d12'/%3E%3Cpath d='M6 16s4-6.5 10-6.5S26 16 26 16s-4 6.5-10 6.5S6 16 6 16z' fill='none' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="nav-wrap">
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="#top">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/>
+          <circle class="iris" cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      Obscura
+    </a>
+    <div class="nav-links">
+      <a href="#leak">The leak</a>
+      <a href="#hold">What you hold</a>
+      <a href="#how">How it works</a>
+      <a href="#token">$OBX</a>
+      <a href="verify.html">Verify</a>
+    </div>
+    <div class="nav-right">
+      <a class="btn btn-ghost btn-sm" href="verify.html">Verify</a>
+      <a class="btn btn-dark btn-sm" href="console.html">Launch app</a>
+      <button class="burger" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="drawer">
+    <a href="#leak">The leak</a>
+    <a href="#hold">What you hold</a>
+    <a href="#how">How it works</a>
+    <a href="#token">$OBX</a>
+    <a href="verify.html">Verify a receipt</a>
+    <a href="console.html">Launch app</a>
+  </div>
+</div>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="orb" aria-hidden="true">
+      <div class="ring"><i></i></div>
+      <div class="ring"><i></i></div>
+      <div class="ring"><i></i></div>
+      <div class="core"></div>
+    </div>
+    <span class="eyebrow pill-tag"><span class="dot"></span>Private onchain bonds</span>
+    <h1>Yours to hold. <em>Nobody's to see.</em></h1>
+    <p class="lead">Obscura seals an asset into a single hash that only your receipt can open. Hold it, hand it on, and prove it one bit at a time, without showing the rest of your wallet.</p>
+    <div class="cta-row">
+      <a class="btn btn-dark" href="console.html">Cloak your first bond</a>
+      <a class="btn btn-light" href="#how">See how it works</a>
+    </div>
+    <div class="hash-strip" aria-live="off">
+      <b>SHA-256</b>
+      <span id="ticker" class="mono">computing in your browser…</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="leak">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">The leak</span>
+        <h2>Every signature leaves a trail back to you.</h2>
+        <p>Each swap, mint and wallet login lands on the same address. Anyone can read what you hold, what you paid and when you moved, for as long as the chain exists.</p>
+      </div>
+      <div class="leak-card reveal" aria-label="What an explorer shows about one address">
+        <div class="row"><b>0x7a3f…c91e</b><span>swap</span><span>12.4 ETH → 41,880 USDC</span><span class="tag">entry visible</span></div>
+        <div class="row"><b>0x7a3f…c91e</b><span>mint</span><span>NFT #2291</span><span class="tag">wallet linked</span></div>
+        <div class="row"><b>0x7a3f…c91e</b><span>login</span><span>signed message, app.example</span><span class="tag">identity tied</span></div>
+        <div class="row"><b>0x7a3f…c91e</b><span>transfer</span><span>9,000 USDC → exchange</span><span class="tag">exit visible</span></div>
+      </div>
+      <div class="chips reveal">
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Copy-traders lose your entries</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Share an address, keep your PnL private</span>
+        <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Prove one holding, hide the rest</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="hold" class="alt">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">What you hold</span>
+        <h2>Bonds stay sealed. Proofs come out one bit wide.</h2>
+      </div>
+      <div class="grid grid-2">
+        <article class="card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+          <h3>Cloak</h3>
+          <p>Your browser seals the asset under a random salt and a key used once. The hash names neither the asset nor the keys.</p>
+          <div class="sees"><b>Chain sees</b>32 bytes</div>
+        </article>
+        <article class="card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 4v12M6 10l6 6 6-6"/><path d="M4 20h16"/></svg></div>
+          <h3>Receive</h3>
+          <p>Open a transfer package and the bond re-cloaks under a fresh key minted in your browser. It is yours alone from then on.</p>
+          <div class="sees"><b>Chain sees</b>one more commitment</div>
+        </article>
+        <article class="card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h14M13 6l6 6-6 6"/></svg></div>
+          <h3>Transfer</h3>
+          <p>Seal the receipt in an AES-256-GCM package behind a passphrase. Send the package one way and the passphrase another.</p>
+          <div class="sees"><b>Chain sees</b>one out, one in</div>
+        </article>
+        <article class="card reveal">
+          <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3z"/><path d="m9 12 2 2 4-4"/></svg></div>
+          <h3>Prove</h3>
+          <p>Hand one receipt to one counterparty. Their browser recomputes the hash and learns about that bond and nothing else.</p>
+          <div class="sees"><b>Verifier sees</b>true or false</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">How it works</span>
+        <h2>Cloak, hold, prove. All three run on your device.</h2>
+      </div>
+      <div class="grid grid-3">
+        <article class="card reveal">
+          <span class="step-n">01</span>
+          <h3>Cloak</h3>
+          <p>SHA-256 over the asset, a 16-byte salt and a 32-byte key. Anchor it and the chain stores 32 bytes.</p>
+        </article>
+        <article class="card reveal">
+          <span class="step-n">02</span>
+          <h3>Hold</h3>
+          <p>The receipt lives in your browser's storage. Back it up: lose it and nobody can open that bond again.</p>
+        </article>
+        <article class="card reveal">
+          <span class="step-n">03</span>
+          <h3>Prove</h3>
+          <p>Your counterparty pastes the receipt into Verify and gets a single bit back: true or false.</p>
+        </article>
+      </div>
+
+      <div class="demo reveal" id="demo">
+        <form class="demo-in" autocomplete="off" onsubmit="return false">
+          <span class="eyebrow">Try it — nothing leaves this page</span>
+          <h3 style="margin:12px 0 18px">Cloak an asset</h3>
+          <div class="field-row">
+            <div class="field"><label for="d-amount">Amount</label><input class="input mono" id="d-amount" value="2.5" inputmode="decimal"></div>
+            <div class="field"><label for="d-symbol">Asset</label><input class="input" id="d-symbol" value="ETH"></div>
+          </div>
+          <div class="field"><label for="d-chain">Chain</label>
+            <select class="select" id="d-chain"><option>ethereum</option><option>base</option><option>arbitrum</option><option>optimism</option><option>solana</option></select>
+          </div>
+          <button class="btn btn-light btn-sm" id="d-reroll" type="button">New salt and key</button>
+        </form>
+        <div class="demo-out">
+          <div class="kv">
+            <div class="kv-row"><span class="k">Salt · 16 bytes</span><span class="v" id="d-salt">—</span></div>
+            <div class="kv-row"><span class="k">Key · 32 bytes</span><span class="v" id="d-key">—</span></div>
+            <div class="kv-row"><span class="k">Commitment · what the chain sees</span><span class="v big" id="d-commit">—</span></div>
+          </div>
+          <div class="actions"><a class="btn btn-dark btn-sm" href="console.html">Keep it in the console</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="token" class="alt">
+    <div class="wrap">
+      <div class="sec-head reveal">
+        <span class="eyebrow">$OBX</span>
+        <h2>The token keys the set.</h2>
+        <p>Minting a bond onchain is gated to wallets that hold $OBX, and the fee on every buy feeds a burn and the people who run provers.</p>
+      </div>
+      <div class="grid grid-3">
+        <article class="card reveal">
+          <div class="stat">0.30%</div>
+          <h3>The fee</h3>
+          <p>Taken from each swap that buys $OBX in its pool, paid in $OBX.</p>
+        </article>
+        <article class="card reveal">
+          <div class="stat">80 / 20</div>
+          <h3>The split</h3>
+          <p>80% of every fee is burned, 20% goes to the prover fund.</p>
+        </article>
+        <article class="card reveal">
+          <div class="stat">Hold</div>
+          <h3>The gate</h3>
+          <p>The bond NFT mints only to wallets holding $OBX. It carries the commitment and nothing else.</p>
+        </article>
+      </div>
+      <div class="token-band reveal">
+        <p>Cloaking, transfers and verification work today in the console. The token and the bond contract are not deployed yet, so there is no contract address to copy. Anyone showing you one is not us.</p>
+        <a class="btn btn-dark btn-sm" href="console.html">Open the console</a>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="closing reveal">
+        <span class="eyebrow">Show the point. Hide the rest.</span>
+        <h2>Connecting a wallet shows your whole history. A receipt shows one bond.</h2>
+        <p>Cloak an asset, hold it under a key that has touched nothing else, and prove it when someone asks.</p>
+        <div class="cta-row">
+          <a class="btn btn-light" href="console.html">Launch app</a>
+          <a class="btn btn-outline" href="verify.html">Verify a receipt</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="brand" href="#top"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none"/></svg></span>Obscura</a>
+        <p>Private bonds, cloaked in your browser. Self-custody end to end.</p>
+      </div>
+      <div><h4>PRODUCT</h4><a href="console.html">Console</a><a href="console.html#vault">Vault</a><a href="verify.html">Verify</a></div>
+      <div><h4>LEARN</h4><a href="#how">How it works</a><a href="#token">$OBX</a><a href="#hold">Bond states</a></div>
+      <div><h4>LEGAL</h4><a href="#">Privacy</a><a href="#">Terms</a></div>
+    </div>
+    <p class="fine">Cloaking, proofs, transfers and verification run in your browser with the Web Crypto API. Nothing reaches a chain unless you send a transaction from your own wallet. Receipts are stored only in this browser: back them up. Nothing here is financial advice.</p>
+  </div>
+</footer>
+
+<script type="module" src="js/site.js"></script>
+<script type="module" src="js/home.js"></script>
+</body>
+</html>

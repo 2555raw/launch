@@ -52,16 +52,16 @@
 <header class="hero" id="top">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <h1>Prove one holding. Hide the rest.</h1>
-      <p class="lead">Obscura seals an asset into a single hash that only your receipt can open. Hand it on, or prove it to one counterparty, without exposing the wallet behind it.</p>
-      <div class="cta-row">
-        <a class="btn btn-dark" href="console.html">Launch app</a>
+      <h1 class="hero-title"><span class="line"><span>Prove one holding.</span></span> <span class="line"><span>Hide the rest.</span></span></h1>
+      <p class="lead hero-in" style="--d:.42s">Obscura seals an asset into a single hash that only your receipt can open. Hand it on, or prove it to one counterparty, without exposing the wallet behind it.</p>
+      <div class="cta-row hero-in" style="--d:.54s">
+        <a class="btn btn-dark btn-arrow" href="console.html">Launch app<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a class="btn btn-light" href="#films">
           <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
           Watch the films
         </a>
       </div>
-      <p class="hero-note"><span class="live" aria-hidden="true"></span>The receipt on the photo is a real commitment, sealed in your browser as you read.</p>
+      <p class="hero-note hero-in" style="--d:.66s"><span class="live" aria-hidden="true"></span>The receipt on the photo is a real commitment, sealed in your browser as you read.</p>
     </div>
 
     <figure class="vault">
@@ -72,7 +72,7 @@
       <div class="receipt" aria-live="off">
         <div class="receipt-top"><b id="r-asset" class="num">2.5 ETH</b><span id="r-chain">ethereum</span></div>
         <div class="receipt-hash" id="r-hash">0x…</div>
-        <div class="receipt-foot"><span>SHA-256 · salt 16 B · key 32 B</span><span>Sealed locally</span></div>
+        <div class="receipt-foot"><span>SHA-256 · salt 16 B · key 32 B</span><span class="seal" id="r-seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path class="shackle" d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span id="r-seal-text">Sealed locally</span></span></div>
       </div>
     </figure>
   </div>
@@ -85,15 +85,15 @@
         <h2 id="wallets-title">Connect the wallet you already use</h2>
         <p class="small">Optional. Only needed to anchor a commitment onchain.</p>
       </div>
-      <div class="wallet-row">
-        <button class="wallet-tile" type="button" data-wallet="metamask"><img src="assets/wallets/metamask.svg" alt="" width="40" height="40">MetaMask<span class="tag"></span></button>
-        <button class="wallet-tile" type="button" data-wallet="phantom"><img src="assets/wallets/phantom.svg" alt="" width="40" height="40">Phantom<span class="tag"></span></button>
-        <button class="wallet-tile" type="button" data-wallet="coinbase"><img src="assets/wallets/coinbase.svg" alt="" width="40" height="40">Coinbase<span class="tag"></span></button>
-        <button class="wallet-tile" type="button" data-wallet="rabby"><img src="assets/wallets/rabby.svg" alt="" width="40" height="40">Rabby<span class="tag"></span></button>
-        <button class="wallet-tile" type="button" data-wallet="trust"><img src="assets/wallets/trust.svg" alt="" width="40" height="40">Trust<span class="tag"></span></button>
-        <button class="wallet-tile" type="button" data-wallet="okx"><img src="assets/wallets/okx.svg" alt="" width="40" height="40">OKX<span class="tag"></span></button>
-        <button class="wallet-tile" type="button" data-wallet="rainbow"><img src="assets/wallets/rainbow.svg" alt="" width="40" height="40">Rainbow<span class="tag"></span></button>
-        <button class="wallet-tile" type="button" data-wallet="brave"><img src="assets/wallets/brave.svg" alt="" width="40" height="40">Brave<span class="tag"></span></button>
+      <div class="wallet-row" id="wallet-row">
+        <button class="wallet-tile" style="--i:1" type="button" data-wallet="metamask"><img src="assets/wallets/metamask.svg" alt="" width="40" height="40">MetaMask<span class="tag"></span></button>
+        <button class="wallet-tile" style="--i:2" type="button" data-wallet="phantom"><img src="assets/wallets/phantom.svg" alt="" width="40" height="40">Phantom<span class="tag"></span></button>
+        <button class="wallet-tile" style="--i:3" type="button" data-wallet="coinbase"><img src="assets/wallets/coinbase.svg" alt="" width="40" height="40">Coinbase<span class="tag"></span></button>
+        <button class="wallet-tile" style="--i:4" type="button" data-wallet="rabby"><img src="assets/wallets/rabby.svg" alt="" width="40" height="40">Rabby<span class="tag"></span></button>
+        <button class="wallet-tile" style="--i:5" type="button" data-wallet="trust"><img src="assets/wallets/trust.svg" alt="" width="40" height="40">Trust<span class="tag"></span></button>
+        <button class="wallet-tile" style="--i:6" type="button" data-wallet="okx"><img src="assets/wallets/okx.svg" alt="" width="40" height="40">OKX<span class="tag"></span></button>
+        <button class="wallet-tile" style="--i:7" type="button" data-wallet="rainbow"><img src="assets/wallets/rainbow.svg" alt="" width="40" height="40">Rainbow<span class="tag"></span></button>
+        <button class="wallet-tile" style="--i:8" type="button" data-wallet="brave"><img src="assets/wallets/brave.svg" alt="" width="40" height="40">Brave<span class="tag"></span></button>
       </div>
     </div>
   </section>
@@ -109,16 +109,16 @@
           <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>Prove a single holding and keep the rest sealed.</li>
         </ul>
       </div>
-      <div class="explorer reveal" role="region" aria-label="Example: what a block explorer shows about one address">
+      <div class="explorer" id="explorer" role="region" aria-label="Example: what a block explorer shows about one address">
         <div class="explorer-bar"><span>Explorer</span><span class="addr">0x7a3f…c91e</span><span style="margin-left:auto">Example data</span></div>
         <div class="explorer-wrap">
           <table>
             <thead><tr><th scope="col">When</th><th scope="col">Action</th><th scope="col">Detail</th><th scope="col">Anyone can see</th></tr></thead>
             <tbody>
-              <tr><td class="num">09:14</td><td>Swap</td><td class="what">12.4 ETH → 41,880 USDC</td><td class="exposed">Your entry</td></tr>
-              <tr><td class="num">11:02</td><td>Mint</td><td class="what">NFT #2291</td><td class="exposed">Your wallet</td></tr>
-              <tr><td class="num">15:37</td><td>Login</td><td class="what">Signed message, app.example</td><td class="exposed">Your identity</td></tr>
-              <tr><td class="num">18:50</td><td>Transfer</td><td class="what">9,000 USDC → exchange</td><td class="exposed">Your exit</td></tr>
+              <tr style="--i:1"><td class="num">09:14</td><td>Swap</td><td class="what">12.4 ETH → 41,880 USDC</td><td class="exposed">Your entry</td></tr>
+              <tr style="--i:2"><td class="num">11:02</td><td>Mint</td><td class="what">NFT #2291</td><td class="exposed">Your wallet</td></tr>
+              <tr style="--i:3"><td class="num">15:37</td><td>Login</td><td class="what">Signed message, app.example</td><td class="exposed">Your identity</td></tr>
+              <tr style="--i:4"><td class="num">18:50</td><td>Transfer</td><td class="what">9,000 USDC → exchange</td><td class="exposed">Your exit</td></tr>
             </tbody>
           </table>
         </div>
@@ -209,7 +209,7 @@
   </section>
 
   <div class="wrap">
-    <section class="band reveal" aria-labelledby="band-title">
+    <section class="band" id="band" aria-labelledby="band-title">
       <div class="band-media">
         <picture>
           <source srcset="assets/img/box.webp" type="image/webp">

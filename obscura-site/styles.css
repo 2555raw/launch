@@ -545,3 +545,100 @@ details.raw summary:hover { color: var(--ink); }
 .check.info .check-icon { color: var(--dim); }
 #v-note { margin-top: 14px; }
 .field-row { align-items: start; }
+
+/* ============ motion ============
+   One authored moment: the hero seals a receipt over the vault.
+   Everything else explains a state: the explorer reading an address,
+   the vault opening, a hash changing, a film switching. */
+:root { interpolate-size: allow-keywords; }
+
+/* hero: lines rise out of a mask, then the copy settles in */
+.hero-title .line { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em; }
+.hero-title .line > span { display: inline-block; }
+.btn-arrow svg { transition: transform .3s var(--ease); }
+.btn-arrow:hover svg { transform: translateX(3px); }
+
+/* the receipt and its seal */
+.receipt { overflow: hidden; isolation: isolate; }
+.receipt::before {
+  content: ""; position: absolute; inset: -40% auto -40% -60%; width: 45%; z-index: -1; pointer-events: none;
+  background: linear-gradient(100deg, transparent, rgba(36, 88, 232, .14) 45%, rgba(255, 255, 255, .9) 50%, rgba(36, 88, 232, .14) 55%, transparent);
+  transform: translateX(0) skewX(-12deg); opacity: 0;
+}
+.seal { display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 7px; border-radius: var(--r-pill); color: var(--dim); transition: color .3s, background-color .3s; }
+.seal svg { width: 14px; height: 14px; }
+.seal .shackle { transition: transform .35s var(--spring); transform-box: fill-box; transform-origin: 100% 100%; }
+.receipt.sealing .seal .shackle { transform: translateY(-2.5px) rotate(14deg); }
+.receipt.sealed .seal { color: var(--accent); background: var(--accent-soft); }
+.receipt-hash { transition: color .3s; }
+.receipt.sealing .receipt-hash { color: var(--dim-2); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .js .hero-title .line > span { transform: translateY(105%); animation: rise .9s var(--ease) forwards; }
+  .js .hero-title .line:nth-child(2) > span { animation-delay: .12s; }
+  .js .hero-in { opacity: 0; transform: translateY(14px); animation: settle-in .8s var(--ease) var(--d, .4s) forwards; }
+  .js .receipt { opacity: 0; transform: translateY(26px); filter: blur(8px); animation: card-in .9s var(--ease) .75s forwards; }
+  .receipt.sealed::before { animation: glint 1.1s var(--ease); }
+  .receipt.sealed .seal { animation: stamp .45s var(--spring); }
+}
+@keyframes rise { to { transform: none; } }
+@keyframes settle-in { to { opacity: 1; transform: none; } }
+@keyframes card-in { to { opacity: 1; transform: none; filter: none; } }
+@keyframes glint { 0% { opacity: 0; transform: translateX(0) skewX(-12deg); } 15% { opacity: 1; } 100% { opacity: 0; transform: translateX(380%) skewX(-12deg); } }
+@keyframes stamp { 0% { transform: scale(.86); } 60% { transform: scale(1.06); } 100% { transform: none; } }
+
+/* wallets arrive as a list, once */
+@media (prefers-reduced-motion: no-preference) {
+  .js .wallet-row:not(.in) .wallet-tile { opacity: 0; transform: translateY(10px); }
+  .wallet-row.in .wallet-tile { transition: opacity .6s var(--ease), transform .6s var(--ease), background-color .2s; transition-delay: calc(var(--i) * 45ms), calc(var(--i) * 45ms), 0s; }
+}
+
+/* the explorer reads the address: a scan line passes, each row is exposed */
+.explorer { position: relative; }
+.explorer::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; pointer-events: none; opacity: 0;
+  background: linear-gradient(90deg, transparent, var(--bad), transparent);
+  box-shadow: 0 0 18px 2px rgba(198, 47, 47, .35);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .js .explorer:not(.scan) .exposed { color: var(--line-2); }
+  .explorer.scan::after { animation: scan 1.9s cubic-bezier(.45, 0, .2, 1) .1s forwards; }
+  .explorer.scan tbody tr { animation: exposed 1.1s var(--ease) calc(.15s + var(--i) * .36s); }
+  .explorer.scan .exposed { animation: tag-on .5s var(--ease) calc(.2s + var(--i) * .36s) backwards; }
+}
+@keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: calc(100% - 2px); opacity: 0; } }
+@keyframes exposed { 0%, 100% { background-color: transparent; } 25% { background-color: var(--bad-soft); } }
+@keyframes tag-on { from { color: var(--line-2); transform: translateX(-6px); } }
+
+/* the vault opens as it comes into view */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .band-media img { animation: door linear both; animation-timeline: view(); animation-range: entry 5% cover 35%; }
+    .band-card { animation: card-up linear both; animation-timeline: view(); animation-range: entry 15% cover 32%; }
+  }
+  @supports not (animation-timeline: view()) {
+    .js .band:not(.in) .band-media img { clip-path: circle(22% at 52% 52%); }
+    .band.in .band-media img { transition: clip-path 1.4s var(--ease); }
+  }
+}
+@keyframes door { from { clip-path: circle(20% at 52% 52%); transform: scale(1.08); } to { clip-path: circle(80% at 52% 52%); transform: none; } }
+@keyframes card-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
+
+/* a hash that changes, visibly */
+.v.big, .receipt-hash { font-variant-ligatures: none; }
+.scrambling { color: var(--dim-2) !important; }
+
+/* films crossfade between chapters */
+.player video { transition: opacity .35s var(--ease); }
+.player video.switching { opacity: .25; }
+
+/* FAQ opens instead of jumping */
+.faq details::details-content { block-size: 0; overflow: hidden; transition: block-size .4s var(--ease), content-visibility .4s allow-discrete; }
+.faq details[open]::details-content { block-size: auto; }
+.faq summary { transition: color .2s; }
+.faq summary:hover { color: var(--accent); }
+
+/* quieter generic reveal for section heads */
+@media (prefers-reduced-motion: no-preference) {
+  .js .reveal { transform: translateY(14px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+}

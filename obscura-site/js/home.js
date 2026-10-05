@@ -12,26 +12,65 @@ const heroAssets = [
   { amount: "0.8", symbol: "WBTC", chain: "arbitrum" },
 ];
 let heroIndex = 0;
+
+// Resolve a hex string left to right out of noise. Returns when it lands.
+const HEX = "0123456789abcdef";
+export function scramble(el, target, ms = 900) {
+  if (reduced) { el.textContent = target; return Promise.resolve(); }
+  const start = performance.now();
+  const run = (el._scramble = (el._scramble || 0) + 1); // a newer call wins
+  const lead = target.startsWith("0x") ? 2 : 0;
+  el.classList.add("scrambling");
+  return new Promise((done) => {
+    const frame = (now) => {
+      if (el._scramble !== run) return done();
+      const k = Math.min(1, (now - start) / ms);
+      const fixed = Math.max(lead, Math.floor(target.length * (1 - Math.pow(1 - k, 2))));
+      let out = target.slice(0, fixed);
+      for (let i = fixed; i < target.length; i++) out += HEX[(Math.random() * 16) | 0];
+      el.textContent = out;
+      if (k < 1) requestAnimationFrame(frame);
+      else { el.textContent = target; el.classList.remove("scrambling"); done(); }
+    };
+    requestAnimationFrame(frame);
+  });
+}
+
 async function sealHero() {
   const a = heroAssets[heroIndex++ % heroAssets.length];
   const hash = await commit(a, randomBytes(SALT_BYTES), randomBytes(KEY_BYTES));
+  const card = document.querySelector(".receipt");
   $("r-asset").textContent = `${Number(a.amount).toLocaleString("en-US")} ${a.symbol}`;
   $("r-chain").textContent = a.chain;
-  const out = $("r-hash");
-  if (reduced) { out.textContent = "0x" + hash; return; }
-  // type the new hash in over the old one
-  let i = 0;
-  const step = () => {
-    i = Math.min(64, i + 4);
-    out.textContent = "0x" + hash.slice(0, i) + (i < 64 ? toHex(randomBytes(1))[0] : "");
-    if (i < 64) requestAnimationFrame(step);
-  };
-  step();
+  card.classList.remove("sealed");
+  card.classList.add("sealing");
+  $("r-seal-text").textContent = "Sealing…";
+  await scramble($("r-hash"), "0x" + hash, 1000);
+  card.classList.remove("sealing");
+  void card.offsetWidth; // restart the glint
+  card.classList.add("sealed");
+  $("r-seal-text").textContent = "Sealed locally";
 }
 if ($("r-hash")) {
-  sealHero();
-  if (!reduced) setInterval(sealHero, 4200);
+  // First seal lands once the card has arrived; then a new asset every few seconds.
+  setTimeout(() => {
+    sealHero();
+    if (!reduced) setInterval(() => { if (!document.hidden) sealHero(); }, 4800);
+  }, reduced ? 0 : 1300);
 }
+
+// ---------- things that start when they come into view ----------
+function onceInView(el, cls, threshold = 0.35) {
+  if (!el) return;
+  if (!("IntersectionObserver" in window)) return el.classList.add(cls);
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) { el.classList.add(cls); io.disconnect(); }
+  }, { threshold });
+  io.observe(el);
+}
+onceInView($("wallet-row"), "in", 0.4);
+onceInView($("explorer"), "scan", 0.5);
+onceInView($("band"), "in", 0.3);
 
 // ---------- films: chapter list drives one player ----------
 // The same captions the films burn in, shown as text under the player on small screens.
@@ -53,6 +92,7 @@ function load(i, play = true) {
     el.setAttribute("aria-current", String(el === c));
     el.querySelector(".chapter-progress i").style.transform = "scaleX(0)";
   });
+  player.classList.add("switching");
   player.poster = c.dataset.poster;
   player.src = c.dataset.src.replace(/\.mp4$/, ext);
   player.setAttribute("aria-label", `Film ${chapterIndex + 1} of ${chapters.length}: ${c.querySelector("h3").textContent}`);
@@ -69,6 +109,7 @@ if (player && chapters.length) {
     const bar = chapters[chapterIndex].querySelector(".chapter-progress i");
     bar.style.transform = `scaleX(${player.duration ? player.currentTime / player.duration : 0})`;
   });
+  player.addEventListener("loadeddata", () => player.classList.remove("switching"));
   player.addEventListener("ended", () => load(chapterIndex + 1, chapterIndex + 1 < chapters.length));
 
   const toggle = $("film-toggle");
@@ -111,7 +152,7 @@ async function renderDemo() {
   const amount = $("d-amount");
   try {
     const asset = { amount: amount.value, symbol: $("d-symbol").value, chain: $("d-chain").value };
-    $("d-commit").textContent = "0x" + (await commit(asset, salt, key));
+    scramble($("d-commit"), "0x" + (await commit(asset, salt, key)), 420);
     amount.removeAttribute("aria-invalid");
   } catch (e) {
     $("d-commit").textContent = e.message;

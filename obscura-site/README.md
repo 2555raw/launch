@@ -82,6 +82,18 @@ Edit the captions or timings in `scenes.html` and re-run to regenerate.
 Nothing is sent to a server. The token and the bond NFT contract are described on the landing page
 but are not deployed, so the page shows no contract address.
 
+## Live deploy
+
+Served from Railway, project `protective-nature`, service `launch`, at
+https://launch-production-c4cd.up.railway.app — source `2555raw/launch`, branch
+`claude/keen-allen-lgtl9w`, root directory `/obscura-site`, start `node server.js`, healthcheck `/health`.
+That service previously ran Propello (branch `claude/gifted-allen-3obxjy`, root `/propello-site`) with
+no public domain; pointing the source and root back restores it.
+
+Balance checks use free publicnode.com endpoints, which only answer for recent blocks. Older proofs are
+checked against the current balance, and the verify page says so. A paid archive RPC in
+`js/proof.js` (`CHAINS[*].rpc`) would check the exact block instead.
+
 ## Run it
 
 ES modules need to be served over HTTP (opening the file directly will not load them):

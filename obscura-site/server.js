@@ -32,6 +32,10 @@ const HIDDEN = /^\/(\.|tools\/|test\/|server\.js|package\.json|PRODUCT\.md|DESIG
 http.createServer((req, res) => {
   let rel;
   try { rel = decodeURIComponent(new URL(req.url, "http://x").pathname); } catch { rel = "/"; }
+  if (rel === "/health") {
+    res.writeHead(200, { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" });
+    return res.end("ok");
+  }
   if (rel.endsWith("/")) rel += "index.html";
   const file = join(ROOT, normalize(rel));
   if (!file.startsWith(ROOT) || HIDDEN.test(rel)) return notFound(res);

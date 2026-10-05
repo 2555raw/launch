@@ -22,6 +22,7 @@
  *   GET  /api/evm/quote       best swap route on Robinhood Chain, Base or BNB Chain (KyberSwap aggregator)
  *   POST /api/evm/build       calldata for that route, for the user's wallet to send
  *   GET  /api/token/:addrs    market data from DexScreener (cached 15 s)
+ *   GET  /api/chart           price candles and latest trades for a token, from its first trade (GeckoTerminal)
  *   GET  /api/trending        tokens trending on DexScreener on Solana, Robinhood Chain, Base, BNB (cached 60 s)
  *
  * No dependencies; needs Node 18+ for fetch, FormData and Blob.
@@ -78,6 +79,10 @@ const RPC_METHODS = new Set([
    there goes through its custodial Lightning wallet, which AnyChain does not use. */
 const POOLS = new Set(['pump']);
 const KYBER = { rh: 'robinhood', base: 'base', bnb: 'bsc' };
+const GT = 'https://api.geckoterminal.com/api/v2';
+const GT_HEAD = { headers: { accept: 'application/json;version=20230302' } };
+const GT_NET = { sol: 'solana', rh: 'robinhood', base: 'base', bnb: 'bsc' };
+const GT_TF = { '1m': ['minute', 1], '5m': ['minute', 5], '15m': ['minute', 15], '1h': ['hour', 1], '4h': ['hour', 4] };
 const B58 = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 const EVM = /^0x[0-9a-fA-F]{40}$/;
 
@@ -116,6 +121,22 @@ const cached = async (key, ttl, fn) => {
   cache.set(key, { t: Date.now(), v });
   if (cache.size > 500) cache.delete(cache.keys().next().value);
   return v;
+};
+
+/* like cached(), but when the source fails (GeckoTerminal rate-limits at 30 calls a minute)
+   the last good answer is served instead of an error */
+const stale = async (key, ttl, fn) => {
+  const hit = cache.get(key);
+  if (hit && Date.now() - hit.t < ttl) return hit.v;
+  try {
+    const v = await fn();
+    cache.set(key, { t: Date.now(), v });
+    if (cache.size > 500) cache.delete(cache.keys().next().value);
+    return v;
+  } catch (e) {
+    if (hit) return hit.v;
+    throw e;
+  }
 };
 
 const fetchJson = async (url, init) => {
@@ -664,6 +685,44 @@ const api = {
       }
     }
     send(res, 200, { total: registry.length, launches: list.map((l) => ({ ...l, market: market[l.address.toLowerCase()] || null })) });
+  },
+
+  /* Price chart for any token, from its first trades: GeckoTerminal indexes the pump.fun and Pons
+     bonding curves and new V2 pools within a minute, long before DexScreener lists a token.
+     Candles in USD for the token (base or quote side), oldest first, with the latest trades. */
+  'GET /api/chart': async (req, res) => {
+    const q = new URL(req.url, 'http://x').searchParams;
+    const net = GT_NET[q.get('chain')];
+    const addr = q.get('addr') || '';
+    const tf = GT_TF[q.get('tf')] ? q.get('tf') : '1m';
+    if (!net || !(q.get('chain') === 'sol' ? B58.test(addr) : EVM.test(addr))) return fail(res, 400, 'Bad chart request');
+    const key = addr.toLowerCase();
+    const pool = await stale(`gtpool:${key}`, 60000, async () => {
+      const j = await fetchJson(`${GT}/networks/${net}/tokens/${addr}/pools?page=1`, GT_HEAD);
+      const best = (j?.data || []).sort((a, b) => Number(b.attributes.reserve_in_usd || 0) - Number(a.attributes.reserve_in_usd || 0))[0];
+      if (!best) return null;
+      const a = best.attributes;
+      return { address: a.address, name: a.name, dex: best.relationships?.dex?.data?.id || '', priceUsd: Number(a.token_price_usd || a.base_token_price_usd) || 0,
+        mcap: Number(a.market_cap_usd || a.fdv_usd) || 0, liquidity: Number(a.reserve_in_usd) || 0, change24h: Number(a.price_change_percentage?.h24) || 0,
+        volume24h: Number(a.volume_usd?.h24) || 0 };
+    }).catch(() => null);
+    if (!pool) return send(res, 200, { pool: null, candles: [], trades: [] });   // no trades yet: the page polls again
+    const [unit, agg] = GT_TF[tf];
+    const [candles, trades] = await Promise.all([
+      stale(`gtohlcv:${pool.address}:${tf}`, 12000, async () => {
+        const j = await fetchJson(`${GT}/networks/${net}/pools/${pool.address}/ohlcv/${unit}?aggregate=${agg}&limit=300&currency=usd&token=${addr}`, GT_HEAD);
+        return (j?.data?.attributes?.ohlcv_list || []).map((c) => c.map(Number)).reverse();
+      }).catch(() => []),
+      stale(`gttrades:${pool.address}`, 12000, async () => {
+        const j = await fetchJson(`${GT}/networks/${net}/pools/${pool.address}/trades`, GT_HEAD);
+        return (j?.data || []).slice(0, 30).map(({ attributes: t }) => {
+          const buy = t.to_token_address?.toLowerCase() === key;
+          return { t: Date.parse(t.block_timestamp), side: buy ? 'buy' : 'sell', usd: Number(t.volume_in_usd) || 0,
+            amount: Number(buy ? t.to_token_amount : t.from_token_amount) || 0, maker: t.tx_from_address, tx: t.tx_hash };
+        });
+      }).catch(() => [])
+    ]);
+    send(res, 200, { pool, candles, trades });
   },
 
   'GET /api/token': async (req, res, rest) => {

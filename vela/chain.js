@@ -686,6 +686,7 @@
   const reportLaunch = (l) => postJson('/api/launches', l).then(() => 'listed',
     (e) => (/did not create|Bad address|Unknown launchpad/.test(e.message) ? 'rejected' : 'retry'));
   const publicLaunches = () => api('/api/launches');
+  const chart = (chain, addr, tf) => api(`/api/chart?chain=${chain}&addr=${addr}&tf=${tf}`);
 
   window.VelaChain = {
     EVM, health, prices, market,
@@ -693,7 +694,7 @@
     hasSol: () => !!solProvider(), hasEvm: () => !!evmProvider(),
     solBalance, solTokenBalance, evmBalance, evmTokenBalance,
     launchPump, sellPump, launchEvm, launchPons, ponsPage, uploadImage,
-    signIn, getAccount, putAccount, tradeSol, tradeEvm, FEE, feeOf, reportLaunch, publicLaunches, poolInfo, addLiquidity,
+    signIn, getAccount, putAccount, tradeSol, tradeEvm, FEE, feeOf, reportLaunch, publicLaunches, chart, poolInfo, addLiquidity,
     explorerTx, explorerToken, dexscreener, dexEmbed
   };
 })();

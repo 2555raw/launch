@@ -831,11 +831,12 @@
     const own = state.launches.find((x) => x.addr.toLowerCase() === addr.toLowerCase());
     const sym = reg?.symbol || own?.ticker || m?.symbol || short(addr);
     const name = reg?.name || own?.name || m?.name || sym;
+    if (el.dataset.ready === addr && $('[data-pc]', el)?.isConnected) return;   // already showing: the chart and trade panel keep themselves live
     const site = reg?.site || own?.site || null;
     const image = reg?.image || own?.image || null;
     const lp = launchpadLink(site, chain, addr);
     const url = tokenUrl(chain, addr);
-    el.dataset.ready = '1';
+    el.dataset.ready = addr;
     el.innerHTML = `
       <div class="tp">
         <div class="tp-head">
@@ -850,16 +851,14 @@
           </div>
         </div>
         <div class="stats tp-stats">
-          <div class="stat"><span>Price</span><b>${m ? price(m.priceUsd) : '—'}</b></div>
-          <div class="stat"><span>Market cap</span><b>${m?.marketCap ? compact(m.marketCap) : '—'}</b></div>
-          <div class="stat"><span>24h</span><b class="${!m ? '' : m.change24h < 0 ? 'neg' : 'pos'}">${m ? `${m.change24h > 0 ? '+' : ''}${Number(m.change24h).toFixed(1)}%` : '—'}</b></div>
-          <div class="stat"><span>Liquidity</span><b>${m?.liquidity ? compact(m.liquidity) : '—'}</b></div>
-          <div class="stat"><span>Volume 24h</span><b>${m?.volume24h ? compact(m.volume24h) : '—'}</b></div>
+          <div class="stat"><span>Price</span><b data-tp="price">${m ? price(m.priceUsd) : '—'}</b></div>
+          <div class="stat"><span>Market cap</span><b data-tp="mcap">${m?.marketCap ? compact(m.marketCap) : '—'}</b></div>
+          <div class="stat"><span>24h</span><b data-tp="change" class="${!m ? '' : m.change24h < 0 ? 'neg' : 'pos'}">${m ? `${m.change24h > 0 ? '+' : ''}${Number(m.change24h).toFixed(1)}%` : '—'}</b></div>
+          <div class="stat"><span>Liquidity</span><b data-tp="liquidity">${m?.liquidity ? compact(m.liquidity) : '—'}</b></div>
+          <div class="stat"><span>Volume 24h</span><b data-tp="volume">${m?.volume24h ? compact(m.volume24h) : '—'}</b></div>
         </div>
         <div class="tp-grid">
-          <div class="tp-chart">${m?.priceUsd
-            ? `<div class="chart-embed"><iframe src="${C.dexEmbed(chain, addr, document.documentElement.dataset.theme?.startsWith('light'))}" title="$${esc(sym)} price chart" loading="lazy" referrerpolicy="no-referrer"></iframe></div>`
-            : '<p class="note">The chart shows here once DexScreener lists the token, usually a few minutes after its first trades.</p>'}
+          <div class="tp-chart">${priceChart()}
             <div class="links">
               ${lp ? `<a href="${lp[0]}" target="_blank" rel="noopener">${lp[1]}</a>` : ''}
               <a href="${C.dexscreener(chain, addr)}" target="_blank" rel="noopener">DexScreener</a>
@@ -875,6 +874,14 @@
       </div>`;
     paintIcons(el);
     document.title = `$${sym} · ${name} on AnyChain`;
+    /* the stats follow the chart's live data: it has the token from its first trade, DexScreener only later */
+    mountChart(el, { chain, addr, ticker: sym }, (pool) => {
+      const set = (k, v) => { const b = $(`[data-tp="${k}"]`, el); if (b && v) b.textContent = v; };
+      set('price', price(pool.priceUsd)); set('mcap', pool.mcap && compact(pool.mcap));
+      set('liquidity', pool.liquidity && compact(pool.liquidity)); set('volume', pool.volume24h && compact(pool.volume24h));
+      const ch = $('[data-tp="change"]', el);
+      if (ch && !m) { ch.textContent = `${pool.change24h > 0 ? '+' : ''}${pool.change24h.toFixed(1)}%`; ch.className = pool.change24h < 0 ? 'neg' : 'pos'; }
+    });
     mountTrade(el, { chain, addr, ticker: sym, site, tx: reg?.tx || own?.tx, priceUsd: m?.priceUsd }, own || null);
     $('#tpCopy', el).addEventListener('click', () => copy(url, 'Link'));
     $('#tpShare', el).addEventListener('click', () => shareOnX(`$${sym} on ${CHAINS[chain].name} 👀\n\nTrade it on @HeyAnyChain\n${url}`));
@@ -1148,6 +1155,7 @@
     $('.modal-box', modal).classList.toggle('wide', wide === true);
     $('.modal-box', modal).classList.toggle('cal-box', wide === 'cal');
     $('.modal-box', modal).classList.toggle('launch-box', wide === 'launch');
+    $('.modal-box', modal).classList.toggle('term-box', wide === 'term');
     paintIcons($('#modalBody'));
     modal.hidden = false;
     onMount?.($('#modalBody'));
@@ -1535,6 +1543,197 @@
     });
   };
 
+  /* ---------- price chart ----------
+     Candles from GeckoTerminal through /api/chart, from a token's first trade on its bonding curve
+     or pool (DexScreener takes minutes to list a new token). Market cap or price, five timeframes,
+     the latest trades, refreshed every 12 s while it is on screen. */
+  const TF_SEC = { '1m': 60, '5m': 300, '15m': 900, '1h': 3600, '4h': 14400 };
+  const since = (t) => { const x = Math.max(0, (Date.now() - t) / 1000); return x < 60 ? `${Math.floor(x)}s` : x < 3600 ? `${Math.floor(x / 60)}m` : x < 86400 ? `${Math.floor(x / 3600)}h` : `${Math.floor(x / 86400)}d`; };
+  const chartPrefs = () => { try { return JSON.parse(localStorage.getItem('anychain-chart') || '{}'); } catch (_) { return {}; } };
+  const priceChart = () => {
+    const p = chartPrefs(), tf = TF_SEC[p.tf] ? p.tf : '1m', mode = p.mode === 'price' ? 'price' : 'mc';
+    return `
+      <div class="pc" data-pc>
+        <div class="pc-head">
+          <div class="pc-big"><b data-pc-big>—</b><span data-pc-sub class="dim"></span></div>
+          <div class="pc-ctl">
+            <div class="seg pc-mode">${['mc', 'price'].map((m) => `<button type="button" data-pc-mode="${m}" class="${m === mode ? 'is-on' : ''}">${m === 'mc' ? 'MCap' : 'Price'}</button>`).join('')}</div>
+            <div class="seg pc-tf">${Object.keys(TF_SEC).map((k) => `<button type="button" data-pc-tf="${k}" class="${k === tf ? 'is-on' : ''}">${k}</button>`).join('')}</div>
+          </div>
+        </div>
+        <div class="pc-plot"><canvas></canvas><div class="pc-tip" hidden></div><div class="pc-empty" hidden></div></div>
+        <div class="pc-trades">
+          <div class="pc-trades-head"><span class="label">Trades</span><span class="dim" data-pc-pool></span></div>
+          <div data-pc-trades><p class="dim pc-none">Loading trades…</p></div>
+        </div>
+      </div>`;
+  };
+
+  /* t: { chain, addr, ticker }. onPool(pool) gets the market data (price, market cap, liquidity, volume) on every refresh. */
+  const mountChart = (root, t, onPool) => {
+    const box = $('[data-pc]', root);
+    if (!box) return;
+    const cv = $('canvas', box), plot = $('.pc-plot', box), tip = $('.pc-tip', box), empty = $('.pc-empty', box);
+    const prefs = chartPrefs();
+    let tf = TF_SEC[prefs.tf] ? prefs.tf : '1m', mode = prefs.mode === 'price' ? 'price' : 'mc';
+    let data = null, bars = [], hover = -1, timer = 0, geo = null, seq = 0;
+    const keep = () => { try { localStorage.setItem('anychain-chart', JSON.stringify({ tf, mode })); } catch (_) { /* this session only */ } };
+    const mult = () => (mode === 'mc' && data?.pool?.mcap && data.pool.priceUsd ? data.pool.mcap / data.pool.priceUsd : 1);
+    const fmt = (v) => (mode === 'mc' && mult() !== 1 ? compact(v) : price(v));
+
+    /* GeckoTerminal only returns buckets that traded: carry the last close through the quiet ones, up to now */
+    const fill = (candles) => {
+      const step = TF_SEC[tf], now = Math.floor(Date.now() / 1000 / step) * step, out = [];
+      if (!candles.length) {
+        const px = data?.pool?.priceUsd;
+        return px ? [[now, px, px, px, px, 0]] : [];
+      }
+      candles.forEach((c, i) => {
+        if (i) for (let ts = candles[i - 1][0] + step, pc = candles[i - 1][4]; ts < c[0] && out.length < 4000; ts += step) out.push([ts, pc, pc, pc, pc, 0]);
+        out.push(c);
+      });
+      for (let ts = out[out.length - 1][0] + step, pc = out[out.length - 1][4]; ts <= now && out.length < 4000; ts += step) out.push([ts, pc, pc, pc, pc, 0]);
+      return out.slice(-120);
+    };
+
+    const draw = () => {
+      const W = plot.clientWidth, H = plot.clientHeight;
+      if (!W || !H) return;
+      const dpr = window.devicePixelRatio || 1;
+      cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+      const g = cv.getContext('2d');
+      g.setTransform(dpr, 0, 0, dpr, 0, 0);
+      g.clearRect(0, 0, W, H);
+      if (!bars.length) { geo = null; return; }
+      const css = getComputedStyle(document.documentElement);
+      const col = (v, d) => css.getPropertyValue(v).trim() || d;
+      const up = col('--accent', '#34e3a8'), down = col('--neg', '#f2646f'), grid = col('--line', '#222'), text = col('--muted', '#888'), ink = col('--ink', '#fff');
+      const k = mult(), padB = 22, top = 10, volH = (H - padB - top) * 0.16, plotH = H - padB - top - volH - 6;
+      let lo = Infinity, hi = -Infinity, vmax = 0;
+      bars.forEach((b) => { lo = Math.min(lo, b[3] * k); hi = Math.max(hi, b[2] * k); vmax = Math.max(vmax, b[5]); });
+      if (hi - lo < hi * 1e-6) { lo *= 0.95; hi *= 1.05; }
+      const span = hi - lo; lo -= span * 0.08; hi += span * 0.08;
+      /* labels with just enough digits to tell the grid lines apart */
+      const stepV = (hi - lo) / 4;
+      const label = (v) => {
+        const [d, suf] = v >= 1e9 ? [1e9, 'B'] : v >= 1e6 ? [1e6, 'M'] : v >= 1e3 ? [1e3, 'K'] : [1, ''];
+        return `$${(v / d).toFixed(Math.min(12, Math.max(suf ? 1 : 2, Math.ceil(-Math.log10(stepV / d)) + 1)))}${suf}`;
+      };
+      g.font = '11px Inter, system-ui, sans-serif';
+      const labels = [0, 1, 2, 3, 4].map((i) => label(lo + (hi - lo) * (1 - i / 4)));
+      const padR = Math.max(60, Math.max(...labels.map((x) => g.measureText(x).width), g.measureText(label(bars[bars.length - 1][4] * k)).width + 6) + 16);
+      const n = bars.length, slot = (W - padR) / Math.max(n, 48), body = Math.max(1, Math.min(14, slot * 0.68));
+      const y = (v) => top + (1 - (v * k - lo) / (hi - lo)) * plotH;
+      const x = (i) => (W - padR) - (n - i - 0.5) * slot;
+      geo = { x, slot, n, padR, W };
+      g.textBaseline = 'middle';
+      // grid and axis
+      for (let i = 0; i <= 4; i++) {
+        const yy = top + plotH * i / 4;
+        g.strokeStyle = grid; g.globalAlpha = 0.6; g.beginPath(); g.moveTo(0, Math.round(yy) + 0.5); g.lineTo(W - padR, Math.round(yy) + 0.5); g.stroke(); g.globalAlpha = 1;
+        g.fillStyle = text; g.textAlign = 'left'; g.fillText(labels[i], W - padR + 8, yy);
+      }
+      const every = Math.max(1, Math.ceil(64 / slot)), long = TF_SEC[tf] >= 3600;
+      g.textAlign = 'center'; g.fillStyle = text;
+      for (let i = n - 1; i >= 0; i -= every) {
+        const d = new Date(bars[i][0] * 1000);
+        g.fillText(long ? `${d.getDate()}/${d.getMonth() + 1} ${String(d.getHours()).padStart(2, '0')}h` : `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`, x(i), H - padB / 2);
+      }
+      // volume, then candles
+      const vTop = top + plotH + 6;
+      bars.forEach((b, i) => {
+        if (!b[5] || !vmax) return;
+        const h = Math.max(1, b[5] / vmax * volH);
+        g.fillStyle = b[4] >= b[1] ? up : down; g.globalAlpha = 0.28;
+        g.fillRect(x(i) - body / 2, vTop + volH - h, body, h); g.globalAlpha = 1;
+      });
+      bars.forEach((b, i) => {
+        const c = b[4] >= b[1] ? up : down, xx = Math.round(x(i)) + 0.5;
+        g.strokeStyle = c; g.fillStyle = c;
+        g.beginPath(); g.moveTo(xx, y(b[2])); g.lineTo(xx, y(b[3])); g.stroke();
+        const y0 = y(Math.max(b[1], b[4])), y1 = y(Math.min(b[1], b[4]));
+        g.fillRect(xx - body / 2, y0, body, Math.max(1, y1 - y0));
+      });
+      // last value
+      const last = bars[n - 1], ly = y(last[4]), lc = last[4] >= last[1] ? up : down;
+      g.setLineDash([3, 3]); g.strokeStyle = lc; g.globalAlpha = 0.7;
+      g.beginPath(); g.moveTo(0, Math.round(ly) + 0.5); g.lineTo(W - padR, Math.round(ly) + 0.5); g.stroke();
+      g.setLineDash([]); g.globalAlpha = 1;
+      g.fillStyle = lc; g.fillRect(W - padR + 2, ly - 9, padR - 4, 18);
+      g.fillStyle = '#05110c'; g.textAlign = 'left'; g.font = '600 11px Inter, system-ui, sans-serif';
+      g.fillText(label(last[4] * k), W - padR + 7, ly);
+      // crosshair
+      if (hover >= 0 && hover < n) {
+        g.strokeStyle = ink; g.globalAlpha = 0.25;
+        g.beginPath(); g.moveTo(Math.round(x(hover)) + 0.5, top); g.lineTo(Math.round(x(hover)) + 0.5, H - padB); g.stroke(); g.globalAlpha = 1;
+      }
+    };
+
+    const showTip = () => {
+      if (hover < 0 || !bars[hover]) { tip.hidden = true; return; }
+      const b = bars[hover], k = mult(), d = new Date(b[0] * 1000), chg = b[1] ? (b[4] / b[1] - 1) * 100 : 0;
+      tip.innerHTML = `<span class="dim">${d.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+        <span>O <b>${fmt(b[1] * k)}</b></span><span>H <b>${fmt(b[2] * k)}</b></span><span>L <b>${fmt(b[3] * k)}</b></span><span>C <b>${fmt(b[4] * k)}</b></span>
+        <span class="${chg < 0 ? 'neg' : 'pos'}">${chg > 0 ? '+' : ''}${chg.toFixed(2)}%</span>${b[5] ? `<span>Vol <b>${money(b[5])}</b></span>` : ''}`;
+      tip.hidden = false;
+    };
+
+    const paint = () => {
+      const pool = data?.pool;
+      empty.hidden = !!bars.length;
+      if (!bars.length) empty.innerHTML = `<b>Waiting for the first trade</b><span>The chart starts with the first buy on ${t.chain === 'sol' ? 'pump.fun' : t.chain === 'rh' ? 'Pons' : 'the pool'} — it can take a minute to show up.</span>`;
+      if (pool) {
+        const k = mult(), last = bars.length ? bars[bars.length - 1][4] : pool.priceUsd, first = bars.length ? bars[0][1] : last;
+        const chg = first ? (last / first - 1) * 100 : 0;
+        $('[data-pc-big]', box).textContent = mode === 'mc' && k !== 1 ? compact(last * k) : price(last);
+        $('[data-pc-sub]', box).innerHTML = `${mode === 'mc' && k !== 1 ? price(last) : pool.mcap ? `MC ${compact(pool.mcap)}` : ''}
+          <span class="${chg < 0 ? 'neg' : 'pos'}">${chg > 0 ? '+' : ''}${chg.toFixed(2)}%</span>`;
+        $('[data-pc-pool]', box).textContent = `${pool.name} · ${pool.dex.replace(/-/g, ' ')}`;
+      }
+      const mine = (t.chain === 'sol' ? state.sol?.address : state.evm?.address)?.toLowerCase();
+      const trades = data?.trades || [];
+      $('[data-pc-trades]', box).innerHTML = !trades.length ? `<p class="dim pc-none">${pool ? 'No trades yet' : 'Trades show here from the first buy'}</p>`
+        : `<table class="pc-tt"><tbody>${trades.slice(0, 14).map((x) => `
+          <tr class="is-${x.side}"><td class="dim">${since(x.t)}</td><td class="pc-side">${x.side === 'buy' ? 'Buy' : 'Sell'}</td><td>${money(x.usd)}</td><td class="dim">${qty(x.amount)}</td>
+          <td>${mine && x.maker?.toLowerCase() === mine ? '<b>You</b>' : `<span class="mono dim">${short(x.maker)}</span>`}</td>
+          <td><a class="link-btn" href="${C.explorerTx(t.chain, x.tx)}" target="_blank" rel="noopener" aria-label="Transaction">↗</a></td></tr>`).join('')}</tbody></table>`;
+      draw(); showTip();
+    };
+
+    const load = async () => {
+      clearTimeout(timer);
+      if (!box.isConnected) return;
+      const mySeq = ++seq;
+      try {
+        const d = await C.chart(t.chain, t.addr, tf);
+        if (mySeq !== seq || !box.isConnected) return;
+        data = d; bars = fill(d.candles || []);
+        paint();
+        if (d.pool) onPool?.(d.pool);
+      } catch (_) { if (!data) { empty.hidden = false; empty.innerHTML = '<b>Chart unavailable</b><span>Retrying…</span>'; } }
+      timer = setTimeout(load, data?.pool ? 12000 : 6000);
+    };
+
+    box.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-pc-tf], [data-pc-mode]');
+      if (!b) return;
+      if (b.dataset.pcTf) { tf = b.dataset.pcTf; $$('[data-pc-tf]', box).forEach((x) => x.classList.toggle('is-on', x === b)); keep(); bars = []; hover = -1; load(); }
+      else { mode = b.dataset.pcMode; $$('[data-pc-mode]', box).forEach((x) => x.classList.toggle('is-on', x === b)); keep(); paint(); }
+    });
+    plot.addEventListener('pointermove', (e) => {
+      if (!geo) return;
+      const r = plot.getBoundingClientRect(), px = e.clientX - r.left;
+      const i = px > geo.W - geo.padR ? -1 : Math.round(geo.n - 0.5 - ((geo.W - geo.padR) - px) / geo.slot);
+      hover = i >= 0 && i < geo.n ? i : -1;
+      draw(); showTip();
+    });
+    plot.addEventListener('pointerleave', () => { hover = -1; draw(); showTip(); });
+    new ResizeObserver(() => draw()).observe(plot);
+    // after a trade from the panel next to it, look again once the indexer has caught up
+    root.addEventListener('traded', () => { setTimeout(load, 4000); setTimeout(load, 20000); });
+    load();
+  };
+
   /* ---------- trading ---------- */
 
   /* Quick buys and sells fire in one click, like a trading terminal: presets and slippage are
@@ -1681,6 +1880,7 @@
         log(`${buy ? 'Bought' : `Sold ${value}% of`} ${t.ticker || short(t.addr)}${buy ? ` for ${value} ${unit}` : deltaUsd != null ? ` for ${money(Math.max(0, deltaUsd))}` : ''}`);
         save();
         toast(buy ? `Bought ${t.ticker || 'token'} for ${value} ${unit}` : `Sold ${value}% of ${t.ticker || 'token'}`);
+        box.dispatchEvent(new CustomEvent('traded', { bubbles: true }));
         refresh();
         showPos();
         setTimeout(showPos, 4000);   // RPC nodes can lag a few seconds behind the confirmation
@@ -1700,8 +1900,8 @@
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">${avatar(t)}
         <div><b>${esc(t.ticker || '?')}</b> <span class="dim">${esc(t.name || '')}</span>
         <div class="mono dim" style="letter-spacing:0">${short(t.addr)} · ${CHAINS[t.chain].name}${t.priceUsd ? ` · ${price(t.priceUsd)}` : ''}</div></div></div>
-      ${t.priceUsd ? `<div class="chart-embed"><iframe src="${C.dexEmbed(t.chain, t.addr, document.documentElement.dataset.theme?.startsWith('light'))}" title="Price chart" loading="lazy" referrerpolicy="no-referrer"></iframe></div>` : ''}
-      ${tradePanel(t)}`, (body) => mountTrade(body, t, null), 'launch');
+      <div class="term"><div class="term-main">${priceChart()}</div><div class="term-side">${tradePanel(t)}</div></div>`,
+    (body) => { mountChart(body, t); mountTrade(body, t, null); }, 'term');
   };
 
   const openLaunch = (id) => {
@@ -1717,9 +1917,9 @@
         <div class="stat"><span>Chain</span><b>${CHAINS[l.chain].name}</b></div>
         <div class="stat"><span>Launched</span><b>${dateLong(l.created)}</b></div>
         <div class="stat"><span>Cost (dev buy + fees)</span><b>${money(l.costUsd || 0)}</b></div>
-        <div class="stat"><span>Price</span><b>${price(l.priceUsd)}</b></div>
+        <div class="stat"><span>Price</span><b data-live-price>${price(l.priceUsd)}</b></div>
         <div class="stat"><span>Dev holdings</span><b>${l.holdings != null ? qty(l.holdings) : '—'}</b> <span class="dim">${l.priceUsd ? money(holdUsd(l)) : ''}</span></div>
-        <div class="stat"><span>Market cap</span><b>${l.mcap ? compact(l.mcap) : '—'}</b></div>
+        <div class="stat"><span>Market cap</span><b data-live-mc>${l.mcap ? compact(l.mcap) : '—'}</b></div>
         <div class="stat"><span>Realized</span><b>${money(l.realizedUsd || 0)}</b></div>
         <div class="stat"><span>P&amp;L</span><b>${pnlCell(p)}</b></div>
       </div>
@@ -1731,10 +1931,7 @@
         ${l.tx ? `<a href="${C.explorerTx(l.chain, l.tx)}" target="_blank" rel="noopener">Launch tx</a>` : ''}
         ${Object.entries(l.links || {}).filter(([, u]) => /^https?:\/\//i.test(u)).map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${{ twitter: 'X', telegram: 'Telegram', website: 'Website' }[k]}</a>`).join('')}
       </div>
-      ${l.priceUsd
-        ? `<div class="chart-embed"><iframe src="${C.dexEmbed(l.chain, l.addr, document.documentElement.dataset.theme?.startsWith('light'))}" title="${esc(l.ticker)} price chart" loading="lazy" referrerpolicy="no-referrer"></iframe></div>`
-        : '<p class="note" style="margin:0 0 14px">The price chart shows here once DexScreener lists the token, usually a few minutes after its first trades.</p>'}
-      ${tradePanel(l)}
+      <div class="term"><div class="term-main">${priceChart()}</div><div class="term-side">${tradePanel(l)}</div></div>
       <div class="form-foot">
         ${['base', 'bnb'].includes(l.chain) && !l.pooled ? `<button class="btn btn-primary" type="button" data-liq="${l.id}">Add liquidity</button>` : ''}
         <a class="btn btn-ghost" href="${tokenUrl(l.chain, l.addr)}">Token page</a>
@@ -1755,8 +1952,13 @@
         state.removed = (state.removed || []).concat(l.addr.toLowerCase()).slice(-2000);
         log(`Removed ${l.ticker} from AnyChain`); save(); closeModal(); renderAll();
       });
+      mountChart(body, l, (pool) => {
+        if (!$('[data-live-price]', body)) return;
+        $('[data-live-price]', body).textContent = price(pool.priceUsd);
+        if (pool.mcap) $('[data-live-mc]', body).textContent = compact(pool.mcap);
+      });
       mountTrade(body, l, l);
-    }, 'launch');
+    }, 'term');
   };
 
   /* ---------- P&L calendar ---------- */

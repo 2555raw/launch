@@ -70,6 +70,12 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   one-click sells (10 / 25 / 50 / 100 % or a custom %), slippage remembered per chain (20 % on Solana by default),
   and the wallet's balance and holdings of the token, refreshed after every trade. A finished launch offers
   *Trade* right away.
+- **Price chart** next to the trade panel (launch panel, *Trade*, token pages): AnyChain's own candlestick chart,
+  from a token's first trade on its pump.fun or Pons bonding curve or its new pool — GeckoTerminal indexes those
+  within a minute, DexScreener only later. Market cap or price, 1m / 5m / 15m / 1h / 4h, crosshair with OHLC,
+  volume, the latest trades (yours marked *You*), refreshed every 12 s and right after a trade from the panel.
+  `GET /api/chart?chain=&addr=&tf=` picks the token's deepest pool and caches candles and trades 12 s (pool 60 s),
+  serving the last good answer if GeckoTerminal rate-limits.
 - **Status bar**: SOL, BNB and ETH prices from CoinGecko, and what a transfer costs on Base right now (gas price × 21k gas × ETH), cached 30 s. **Tracker**: DexScreener, cached 15 s.
 - **P&L calendar** (calendar icon on *Total P&L*): daily P&L and launches per day, monthly and yearly views,
   and positive streaks.
@@ -142,6 +148,7 @@ server.js           static files + /api (below)
 | `POST /api/pump/sell` | unsigned sell transaction (a % of the wallet's tokens) |
 | `POST /api/sol/swap` | Solana buy/sell transaction from Jupiter |
 | `POST /api/sol/trade` | the same from PumpPortal (fallback) |
+| `GET /api/chart` | candles and latest trades for a token from its first trade (GeckoTerminal, cached) |
 | `GET /api/evm/quote`, `POST /api/evm/build` | best route and calldata from KyberSwap on Robinhood Chain, Base, BNB Chain |
 | `POST /api/auth/nonce`, `POST /api/auth/verify` | wallet sign-in (one-time message, signature check, session token) |
 | `GET /api/account`, `PUT /api/account` | the signed-in wallet's synced data |

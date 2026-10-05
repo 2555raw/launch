@@ -6,6 +6,8 @@ import { useRef } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { TokenIcon } from "@/components/ui/TokenIcon";
+import { XLogo } from "@/components/ui/XLogo";
+import { X_HANDLE, X_URL } from "@/lib/social";
 import { fmtSteps } from "@/lib/format";
 import { HeroStatsCard } from "./HeroStatsCard";
 import { usePublicStats } from "./usePublicStats";
@@ -153,6 +155,11 @@ export function Hero() {
               </li>
               <li className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-lime-400" /> Verified activity only
+              </li>
+              <li>
+                <a href={X_URL} target="_blank" rel="noreferrer" className="flex items-center gap-2 transition hover:text-lime-300">
+                  <XLogo className="h-3.5 w-3.5 text-white" /> @{X_HANDLE}
+                </a>
               </li>
             </motion.ul>
           </div>

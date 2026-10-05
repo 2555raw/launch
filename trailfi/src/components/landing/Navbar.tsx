@@ -104,7 +104,7 @@ export function Navbar() {
             target="_blank"
             rel="noreferrer"
             aria-label="Stepit on X"
-            className="hidden h-9 w-9 place-items-center rounded-full text-white/55 transition hover:bg-white/[0.06] hover:text-white xl:grid"
+            className="hidden h-9 w-9 place-items-center rounded-full border border-white/10 text-white/80 transition hover:border-lime-400/40 hover:bg-white/[0.06] hover:text-lime-300 sm:grid"
           >
             <XLogo className="h-[15px] w-[15px]" />
           </a>

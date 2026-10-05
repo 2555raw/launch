@@ -84,6 +84,9 @@
           <a data-page="chat">Chat</a>
           <a data-page="app-hooks">Hooks</a>
           <a data-page="app-pools">Pools</a>
+          <a data-page="launch">Launch a token</a>
+          <a data-page="locks">Liquidity locks</a>
+          <a data-page="public-page">Public pages</a>
         </details>
         <details open>
           <summary>Recipes</summary>
@@ -286,6 +289,62 @@
 
           <h2 id="app-pools-positions">Positions</h2>
           <p>A deposit is a position NFT from Uniswap's PositionManager, held by your wallet. It shows in the Uniswap app too, where you can collect fees or withdraw.</p>
+        </article>
+
+        <article class="dc-page" data-id="launch" data-title="Launch a token" hidden>
+          <h1>Launch a token</h1>
+          <p><a href="launch.html">Launch a token</a> creates a new token and everything it needs to trade, in one transaction from your wallet:</p>
+          <ol>
+            <li>the token: a plain ERC-20 with a fixed supply, no owner, no mint, no taxes and no blocklist;</li>
+            <li>a launch-protection hook (the <a data-page="recipe-launch" href="#recipe-launch">Launch protection</a> recipe) at an address that carries its permission bits;</li>
+            <li>a token/ETH pool on Uniswap V4 with that hook;</li>
+            <li>a full-range position with the ETH you add and the share of supply you choose;</li>
+            <li>a <a data-page="locks" href="#locks">liquidity lock</a> holding that position, if you pick one.</li>
+          </ol>
+          <p>The rest of the supply and any unused ETH come back to your wallet in the same transaction. If any part fails, nothing is created.</p>
+
+          <h2 id="launch-choices">What you choose</h2>
+          <ul>
+            <li><b>Name, symbol, total supply.</b> The token has 18 decimals.</li>
+            <li><b>ETH to pair with</b> and <b>supply in the pool</b>. Together they set the starting price: putting 900M tokens next to 1 ETH starts at 1 ETH = 900M tokens. 100% in the pool is a fair launch; less keeps the rest in your wallet.</li>
+            <li><b>Pool fee</b>, 1% or 0.3%. It goes to the liquidity, which is yours.</li>
+            <li><b>Protection</b>: how long it lasts, the biggest buy in ETH and the wait between buys per wallet. The page shows how far the biggest buy moves the price at your pool size.</li>
+            <li><b>Lock</b>: none, 30 days, 90 days, a year or forever.</li>
+          </ul>
+
+          <h2 id="launch-how">How one transaction does all of it</h2>
+          <p>The transaction creates a small contract, <code>UnyLaunch</code>, whose constructor does the work and keeps nothing. Before you sign, the page compiles every contract in your browser, works out the addresses (the launcher's from your wallet's next transaction number, the token's from the launcher, the hook's from a mined salt), and dry-runs the whole launch. If another transaction from your wallet goes first, the numbers no longer match and the launch is refused on chain: nothing is created, and your ETH stays with you.</p>
+          <p>After the launch, the source of the token, the hook and the lock is published on Sourcify, and the launch appears on My hooks.</p>
+          <div class="dc-callout">Not audited, and this is mainnet. Start with a small amount, and read the contracts: they are on the launch page's Sourcify links.</div>
+        </article>
+
+        <article class="dc-page" data-id="locks" data-title="Liquidity locks" hidden>
+          <h1>Liquidity locks</h1>
+          <p>A <code>LiquidityLock</code> holds Uniswap V4 positions until a date. Until then nobody can remove the liquidity, its owner included. That is what buyers look for first: liquidity that cannot be pulled out from under them.</p>
+          <ul>
+            <li><b>Fees keep flowing.</b> Anyone can call <i>Collect fees</i>, and the fees always go to the lock's owner.</li>
+            <li><b>The date only moves later.</b> The owner can extend a lock, never shorten it.</li>
+            <li><b>After the date</b> the owner can take the position back. A lock made "forever" never opens.</li>
+          </ul>
+          <h2 id="locks-how">Locking from the app</h2>
+          <p>A launch can lock its liquidity directly. For any other position you hold, open My hooks, find the position under its pool and press <i>Lock it</i>. It takes two signatures: one creates your lock, the other moves the position into it.</p>
+          <h2 id="locks-trust">Why the lock can be trusted</h2>
+          <p>The lock has no admin and no upgrade. Every lock has exactly the same code, so the public page compares a lock's code hash with the published one, byte for byte, and checks with Uniswap's PositionManager that the lock really holds the position.</p>
+        </article>
+
+        <article class="dc-page" data-id="public-page" data-title="Public pages" hidden>
+          <h1>Public pages</h1>
+          <p>Every hook has a page to share: <code>hook.html?a=0x…</code>, or <code>/h/0x…</code> when the site runs on its own server. The launch page and My hooks link to it.</p>
+          <p>Nothing on it comes from a database. It reads, live:</p>
+          <ul>
+            <li>what the hook does, from the hook's own settings;</li>
+            <li>whether the hook's source is published on Sourcify;</li>
+            <li>whether the token is an UnyHooks token (fixed supply, no owner), by its code hash;</li>
+            <li>how much of the pool's liquidity sits in genuine locks, and until when;</li>
+            <li>whether launch protection is still on, with a countdown;</li>
+            <li>the price from the pool, and USD figures from DexScreener once it lists the pool.</li>
+          </ul>
+          <p>Anyone can open it, without a wallet.</p>
         </article>
 
         <!-- ===== Recipes ===== -->

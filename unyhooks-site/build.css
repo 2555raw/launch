@@ -330,7 +330,7 @@
 @media (max-width: 460px) {
   .bd-top { gap: 8px; padding: 0 12px; }
   .bd-top-right { gap: 10px; }
-  .bd-top-right .bd-toplink[data-link="docs"] { display: none; }
+  .bd-top-right .bd-toplink[data-link="docs"], .bd-top-right .bd-hide-xs { display: none; }
   .bd-top .uh-brand span { display: none; }
 }
 .lq > *, .lq-amounts > *, .lq-custom > *, .bd-field, .dp-pair > * { min-width: 0; }

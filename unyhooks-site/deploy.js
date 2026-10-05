@@ -146,26 +146,8 @@
 
   /* ---------- 2. deploy the hook ---------- */
 
-  let worker = null;
-  const compiled = new Map();
-  let jobs = 0;
-  const compile = (hook) => {
-    if (compiled.has(hook.source)) return Promise.resolve(compiled.get(hook.source));
-    if (!worker) worker = new Worker('compile-worker.js');
-    const id = ++jobs;
-    return new Promise((resolve, reject) => {
-      const onMsg = (e) => {
-        if (e.data.id !== id) return;
-        worker.removeEventListener('message', onMsg);
-        if (!e.data.ok) return reject(new Error(`The hook did not compile: ${e.data.error}`));
-        compiled.set(hook.source, e.data);
-        resolve(e.data);
-      };
-      worker.addEventListener('message', onMsg);
-      worker.addEventListener('error', (err) => reject(new Error(`The compiler failed to start: ${err.message || 'check your connection'}`)), { once: true });
-      worker.postMessage({ id, file: hook.file, contract: hook.contract, source: hook.source });
-    });
-  };
+  const compile = (hook) => C.compile({ file: hook.file, contract: hook.contract, source: hook.source })
+    .catch((err) => { throw new Error(err.message.replace(/^It did not compile/, 'The hook did not compile')); });
 
   // Searches salts until the CREATE2 address ends in the hook's permission
   // bits and nothing is deployed there yet. About 16,000 tries on average.
@@ -195,7 +177,7 @@
     const note = $('#dp-hook-note');
     say('');
     try {
-      note.textContent = compiled.has(hook.source)
+      note.textContent = C.isCompiled({ file: hook.file, contract: hook.contract, source: hook.source })
         ? 'Compiling…'
         : 'Compiling in your browser. The first time this downloads the Solidity compiler (about 9 MB).';
       const c = await compile(hook);

@@ -50,6 +50,17 @@ const PRIVATE = /^\/(node_modules|scripts|\.)|^\/(server\.js|package(-lock)?\.js
 function serveFile(req, res) {
   let rel;
   try { rel = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch (_) { rel = '/'; }
+  // Short links to a hook's public page: /h/0x… serves hook.html, with a <base>
+  // so its relative links still point at the site root.
+  const short = rel.match(/^\/h\/(0x[0-9a-fA-F]{40})\/?$/);
+  if (short) {
+    return fs.readFile(path.join(ROOT, 'hook.html'), 'utf8', (err, html) => {
+      if (err) return send(res, 404, 'text/plain; charset=utf-8', 'Not found');
+      const page = absoluteMeta(html.replace('<head>', `<head>\n  <base href="/">\n  <meta property="og:url" content="h/${short[1]}">`), req);
+      res.writeHead(200, { 'content-type': TYPES['.html'], 'cache-control': 'no-cache', 'x-content-type-options': 'nosniff' });
+      res.end(page);
+    });
+  }
   if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
   if (PRIVATE.test(rel) || rel.split('/').some((part) => part.startsWith('.'))) return send(res, 404, 'text/plain; charset=utf-8', 'Not found');
 

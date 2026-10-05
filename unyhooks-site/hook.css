@@ -1,0 +1,52 @@
+/* UnyHooks — a hook's public page. Cards and buttons come from build.css. */
+
+.hk-main { position: relative; max-width: 860px; margin: 0 auto; padding: 28px 16px 64px; display: grid; gap: 16px; }
+.hk-main > * { min-width: 0; }
+.hk-hero { display: grid; gap: 10px; padding: 24px; }
+.hk-kicker { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--pink); }
+.hk-hero h1 { font-size: clamp(32px, 6vw, 52px); line-height: 1.05; letter-spacing: -.04em; font-weight: 800; overflow-wrap: anywhere; }
+.hk-name { font-size: .45em; font-weight: 600; letter-spacing: -.01em; color: var(--prose); }
+.hk-addr { font: 13px var(--font-mono); color: var(--prose); overflow-wrap: anywhere; }
+.hk-addr a, .hk-card a, .hk-check a { color: var(--pink); text-decoration: underline; text-underline-offset: 2px; }
+.hk-copy { margin-left: 6px; height: 24px; padding: 0 8px; border-radius: 7px; border: 1px solid var(--line-hi); background: #fff; cursor: pointer; font: 500 12px var(--font-body); color: var(--prose); }
+.hk-copy:hover { border-color: var(--pink); color: var(--pink); }
+.hk-price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; margin-top: 4px; }
+.hk-price b { font-size: 28px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.hk-price span { font-size: 14px; color: var(--prose); font-variant-numeric: tabular-nums; }
+.hk-change.is-up { color: var(--ok); font-weight: 600; }
+.hk-change.is-down { color: #C0264E; font-weight: 600; }
+.hk-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-top: 6px; }
+.hk-link { font-size: 14px; font-weight: 500; color: var(--pink); text-decoration: underline; text-underline-offset: 3px; }
+
+.hk-checks { display: grid; gap: 8px; }
+.hk-check { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: #fff; border: 1px solid var(--line); font-size: 14.5px; line-height: 1.55; }
+.hk-check p { min-width: 0; overflow-wrap: anywhere; }
+.hk-dot { flex: none; display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%; font-size: 12px; font-weight: 700; color: #fff; }
+.hk-check.is-ok { border-color: var(--ok-line); background: #F6FDF9; }
+.hk-check.is-ok .hk-dot { background: var(--ok); }
+.hk-check.is-ok .hk-dot::before { content: '✓'; }
+.hk-check.is-warn { border-color: var(--warn-line); background: var(--warn-bg); color: var(--warn-ink); }
+.hk-check.is-warn .hk-dot { background: #D98A00; }
+.hk-check.is-warn .hk-dot::before { content: '!'; }
+.hk-check.is-info .hk-dot { background: var(--pink-soft); color: var(--pink); }
+.hk-check.is-info .hk-dot::before { content: 'i'; }
+
+.hk-card { display: grid; gap: 12px; }
+.hk-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0; }
+.hk-stats div { padding: 12px 14px; border-radius: 14px; background: #FFFCFD; border: 1px solid var(--line); }
+.hk-stats dt { font-size: 12.5px; color: var(--muted); }
+.hk-stats dd { margin: 4px 0 0; font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.hk-note { font-size: 13px; line-height: 1.55; color: var(--muted); }
+.hk-note:empty { display: none; }
+.hk-locks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.hk-locks li { display: grid; gap: 4px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--ok-line); background: #F6FDF9; font-size: 14px; }
+.hk-tag { margin-left: 6px; font-size: 12px; font-weight: 600; color: var(--ok); }
+.hk-lock-time { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.hk-lock-links { font-size: 13px; color: var(--prose); }
+.hk-contracts { display: grid; gap: 8px; margin: 0; }
+.hk-contracts div { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 10px; font-size: 13.5px; }
+.hk-contracts dt { color: var(--muted); }
+.hk-contracts dd { margin: 0; font: 12.5px var(--font-mono); overflow-wrap: anywhere; }
+.hk-contracts code { font: inherit; }
+.hk-fine { font-size: 12.5px; line-height: 1.55; color: var(--muted); text-align: center; }
+@media (max-width: 460px) { .hk-hero { padding: 18px; } .hk-contracts div { grid-template-columns: 1fr; gap: 2px; } }

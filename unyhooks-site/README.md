@@ -13,8 +13,12 @@ index.html   landing: hero with a "what should your pool do?" box, live demo, ho
              recipes, trust, $UHOOKS with live market data, FAQ, closing call
 build.html   the builder: chat, settings, the contract and its Foundry script, and the
              four steps (connect, deploy hook, create pool, add liquidity)
+launch.html  launch a token in one signature: token, protected pool, liquidity and a lock
+hook.html    a hook's public page (hook.html?a=0x…, or /h/0x… with server.js): what it does,
+             published source, token check, locked liquidity, live price, buy and share
 hooks.html   My hooks: hooks and pools from this browser, live price and liquidity, published
-             source, follow a hook by address, add a pool by ID, create pools, add liquidity
+             source, follow a hook by address, add a pool by ID, create pools, add liquidity,
+             lock positions, collect locked fees, take positions back after the date
 docs.html    docs: sidebar, one article per hash (#quickstart, #hooks…), on-this-page rail, search
 app.html     sign in: connect MetaMask or Phantom and sign one message
 config.js    links, token, network and contract addresses: the only file to edit
@@ -28,6 +32,10 @@ chain.js     shared: wallet session, chain reads, pool lookup by ID, error messa
              the list of hooks this browser follows, pool creation, Sourcify publishing
 liquidity.js the add-liquidity form: full or custom range, Permit2 approvals, PositionManager mint
 pool-math.js Uniswap V4 math in BigInt: TickMath, LiquidityAmounts, amount deltas, prices
+launch-kit.js  the token, LiquidityLock and UnyLaunch sources, their code hashes, and the
+             launch planner (addresses, mined hook salt, price, liquidity); no DOM
+launch.js    the launch page
+hook.js      the public hook page
 hooks.js     My hooks page
 wallet.js    wallet discovery (EIP-6963 + fallbacks), connect, switch to Robinhood Chain
 compile-worker.js   solc 0.8.26 (WebAssembly, from jsDelivr) in a worker
@@ -37,7 +45,8 @@ demo.js      the demo window on the landing page
 app.js       shared: links from config, sticky nav, menu, typing prompt, copy CA, scroll reveal
 docs.js      docs routing, table of contents, previous/next and search
 signin.js    sign-in message (EIP-4361) for app.html
-styles.css / build.css / docs.css / app.css / hooks.css   design system and per-page layout
+styles.css / build.css / docs.css / app.css / hooks.css / launch.css / hook.css
+             design system and per-page layout
 
 server.js    serves the site, POST /api/chat (Claude), absolute og:image URLs, /healthz
 og.png       the 1200×630 link-preview image
@@ -109,6 +118,31 @@ between two prices). ERC-20s go through Permit2: `approve(Permit2)` once per tok
 ports of Uniswap's own `TickMath` and `LiquidityAmounts` (`pool-math.js`), a hair under what
 the amounts allow, and dry-run before signing.
 
+## Launching a token
+
+`launch.html` sends one transaction that creates `UnyLaunch` (launch-kit.js). Its constructor:
+creates `UnyToken` (fixed supply minted to itself, no owner), creates the `LaunchGuardHook` with
+CREATE2 at a mined address carrying its permission bits, initializes the token/ETH pool, creates
+a `LiquidityLock` if asked, mints a full-range position to the lock (or to the creator) through
+the PositionManager with Permit2, sends the rest of the supply and any unused ETH back, and emits
+`Launched(creator, token, hook, poolId, tokenId, lock)`. About 2.7M gas.
+
+Every address is known before signing: the launcher is the creator's next CREATE address, the
+token is the launcher's first, so the hook's constructor argument and its address follow; the
+page mines the salt and dry-runs the whole launch. If the wallet sends another transaction first,
+the hook's address no longer carries its bits and the launch reverts, creating nothing.
+
+**Locks.** `LiquidityLock` holds positions until `unlockAt` (`type(uint256).max` = forever).
+Anyone can send the fees to the owner (`collectFees`); the owner can only move the date later
+(`extend`) and take positions back after it (`withdraw`). Positions sent with `safeTransferFrom`
+announce themselves with `Locked(poolId, tokenId, owner, unlockAt)`. From My hooks, locking an
+existing position is two signatures: deploy a lock through the CREATE2 deployer, move the position.
+
+**Telling real from lookalike.** The token's and the lock's runtime code carry no immutables, so
+every copy has the same code hash (`CODEHASH` in launch-kit.js, checked by `launch.test.js`). The
+public page trusts a lock only if its code hash matches and the PositionManager says it holds
+the position, and calls a token clean only if its code hash matches.
+
 ## Robinhood Chain
 
 In `config.js`, each checked against the chain itself:
@@ -142,6 +176,10 @@ npm run node         # then, with the site served on :8765:
 npm run e2e          # 25 checks: the builder deploys from a browser wallet, then liquidity and swaps
 node e2e-app.js      # 28 checks on Robinhood Chain's own contract code (copied from mainnet):
                      # deploy, source publishing, pool, liquidity (full and custom range), My hooks
+npm run launch       # 39 checks: the one-transaction launch, protection, the lock (fees, dates,
+                     # withdrawals), standalone locks, code hashes
+node e2e-launch.js   # 45 checks in a browser: launch page, Sourcify, public page, locking from
+                     # My hooks, collecting fees, taking a position back
 
 node scripts/server-tests/chat.test.js     # 26 checks on /api/chat (after npm install)
 node scripts/site-tests/builder.test.js    # needs playwright and the site on :8765

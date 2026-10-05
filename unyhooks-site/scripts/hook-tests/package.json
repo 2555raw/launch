@@ -6,7 +6,8 @@
     "test": "hardhat run test.js",
     "node": "hardhat node --port 8545",
     "e2e": "node e2e.js",
-    "mainnet": "node mainnet-sim.js"
+    "mainnet": "node mainnet-sim.js",
+    "launch": "node launch.test.js"
   },
   "devDependencies": {
     "@uniswap/v4-core": "1.0.2",

@@ -49,3 +49,21 @@
 .lq .bd-input select { flex: 1; height: 42px; border: 0; outline: 0; background: transparent; padding: 0 12px; font: 15px var(--font-body); color: var(--ink); }
 /* Grid children default to min-width: auto; long addresses would push the cards wider than the screen. */
 .mh-main > *, .mh-list > *, .mh-card > *, .mh-pools > *, .mh-pool > * { min-width: 0; }
+
+/* positions and locks */
+.mh-token, .mh-public { margin-top: 4px; font-size: 13.5px; color: var(--prose); }
+.mh-token a, .mh-public a { color: var(--pink); text-decoration: underline; text-underline-offset: 2px; }
+.mh-posl:empty { display: none; }
+.mh-posl { display: grid; gap: 8px; }
+.mh-posl-title { font-size: 12px; color: var(--muted); }
+.mh-posrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: #fff; font-size: 14px; }
+.mh-posrow > a { font-weight: 600; color: var(--ink); }
+.mh-posrow.is-locked { border-color: var(--ok-line); background: #F6FDF9; }
+.mh-lockbadge { color: #075E40; font-weight: 500; }
+.mh-lockbadge::before { content: '🔒 '; }
+.mh-unlocked { color: var(--warn-ink); }
+.mh-posact { margin-left: auto; display: inline-flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 13px; }
+.mh-posact a { color: var(--pink); }
+.mh-lockform:not([hidden]) { display: grid; gap: 10px; width: 100%; padding-top: 6px; }
+.mh-lockform .uh-btn { justify-self: start; }
+.mh-posrow .dp-msg { width: 100%; }

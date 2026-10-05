@@ -593,3 +593,24 @@ h1, h2, h3, p, dl, dd { margin: 0; }
   html { scroll-behavior: auto; }
   .uh-caret { animation: none; }
 }
+
+/* ---------- launch a token ---------- */
+.uh-launch { display: grid; gap: 40px; align-items: center; }
+@media (min-width: 980px) { .uh-launch { grid-template-columns: 1.1fr .9fr; gap: 64px; } }
+.uh-launch-list { margin: 28px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.uh-launch-list li { position: relative; padding-left: 28px; font-size: 16px; line-height: 1.6; color: var(--prose); }
+.uh-launch-list li::before { content: '✓'; position: absolute; left: 0; top: 1px; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--pink-soft); color: var(--pink); font-size: 12px; font-weight: 700; }
+.uh-launch-list b { color: var(--ink); font-weight: 600; }
+.uh-launch-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.uh-launch-card { display: grid; gap: 14px; padding: 28px; transform: rotate(-1.2deg); }
+.uh-launch-kicker { font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--pink); }
+.uh-card .uh-launch-sym { margin: 0; font-size: 44px; font-weight: 800; letter-spacing: -.04em; color: var(--ink); line-height: 1; }
+.uh-launch-sym span { font-size: 18px; font-weight: 600; letter-spacing: -.01em; color: var(--prose); }
+.uh-launch-checks { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+.uh-launch-checks li { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); font-size: 14px; color: var(--ink); }
+.uh-launch-checks li::before { flex: none; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 700; }
+.uh-launch-checks .is-ok { background: #F6FDF9; border-color: var(--ok-line); }
+.uh-launch-checks .is-ok::before { content: '✓'; background: var(--ok); color: #fff; }
+.uh-launch-checks .is-info::before { content: 'i'; background: var(--pink-soft); color: var(--pink); }
+.uh-launch-card .uh-btn { justify-self: start; }
+@media (prefers-reduced-motion: reduce) { .uh-launch-card { transform: none; } }

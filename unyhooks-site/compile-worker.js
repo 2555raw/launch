@@ -6,8 +6,11 @@
    The Uniswap V4 files the hook imports come from vendor/v4-sources.json, so
    nothing else is fetched.
 
-   Message in:  { id, file, contract, source }
-   Message out: { id, ok: true, abi, bytecode, input, version } or { id, ok: false, error } */
+   Message in:  { id, file, contract, source, extra?, want? }
+                extra: more files for the same input ({ 'UnyToken.sol': source, … })
+                want:  more contracts to return, as [file, name] pairs
+   Message out: { id, ok: true, abi, bytecode, input, version, contracts } or { id, ok: false, error }
+                contracts: { name: { abi, bytecode, runtime } } for each wanted contract */
 
 const SOLJSON = 'https://cdn.jsdelivr.net/npm/solc@0.8.26/soljson.js';
 const DEPS = 'vendor/v4-sources.json';
@@ -28,7 +31,7 @@ function loadCompiler() {
 }
 
 self.onmessage = async (e) => {
-  const { id, file, contract, source } = e.data || {};
+  const { id, file, contract, source, extra = {}, want = [] } = e.data || {};
   try {
     if (!deps) {
       const res = await fetch(DEPS);
@@ -38,6 +41,7 @@ self.onmessage = async (e) => {
     const { compile, version } = loadCompiler();
 
     const sources = { [file]: { content: source } };
+    for (const [path, content] of Object.entries(extra)) sources[path] = { content };
     for (const [path, content] of Object.entries(deps)) sources[path] = { content };
     const input = {
       language: 'Solidity',
@@ -45,7 +49,7 @@ self.onmessage = async (e) => {
       settings: {
         evmVersion: 'cancun',
         optimizer: { enabled: true, runs: 200 },
-        outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object', 'metadata'] } }
+        outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object', 'evm.deployedBytecode.object', 'metadata'] } }
       }
     };
 
@@ -56,7 +60,13 @@ self.onmessage = async (e) => {
     const c = out.contracts && out.contracts[file] && out.contracts[file][contract];
     if (!c || !c.evm.bytecode.object) throw new Error(`the compiler returned no bytecode for ${contract}`);
 
-    self.postMessage({ id, ok: true, abi: c.abi, bytecode: '0x' + c.evm.bytecode.object, input, version });
+    const contracts = {};
+    for (const [f, name] of want) {
+      const w = out.contracts[f] && out.contracts[f][name];
+      if (!w) throw new Error(`the compiler returned no bytecode for ${name}`);
+      contracts[name] = { abi: w.abi, bytecode: '0x' + w.evm.bytecode.object, runtime: '0x' + w.evm.deployedBytecode.object };
+    }
+    self.postMessage({ id, ok: true, abi: c.abi, bytecode: '0x' + c.evm.bytecode.object, input, version, contracts });
   } catch (err) {
     self.postMessage({ id, ok: false, error: String((err && err.message) || err) });
   }

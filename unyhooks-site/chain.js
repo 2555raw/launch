@@ -21,6 +21,19 @@
   const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
+  // Prices as DEX screens show them: 0.0₈1111 for 0.000000001111, 1.25M for big ones.
+  const SUB = '₀₁₂₃₄₅₆₇₈₉';
+  const price = (v) => {
+    if (!Number.isFinite(v)) return '—';
+    if (v === 0) return '0';
+    if (v >= 1e6) return new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 }).format(v);
+    if (v >= 1e-4) return String(Number(v.toPrecision(4)));
+    let zeros = Math.floor(-Math.log10(v));
+    let digits = Math.round(v * 10 ** (zeros + 4));
+    if (digits >= 10000) { digits = 1000; zeros -= 1; }
+    return `0.0${String(zeros).split('').map((d) => SUB[d]).join('')}${String(digits).replace(/0+$/, '')}`;
+  };
+
   /* ---------- ABIs ---------- */
 
   const PM_ABI = [
@@ -100,21 +113,109 @@
     return { id, sqrtPriceX96: slot.sqrtPriceX96, tick: Number(slot.tick), lpFee: Number(slot.lpFee), liquidity };
   };
 
-  // A pool's key from its ID, through the PoolManager's Initialize event. The
-  // public RPC answers at most 10 million blocks per query, so it asks in slices.
-  const findPool = async (id) => {
+  // Logs over the whole chain. The public RPC answers at most 10 million blocks
+  // per query, so it asks in slices.
+  const allLogs = async (filter) => {
     const p = reader();
     const latest = await p.getBlockNumber();
-    const iface = new ethers.Interface(PM_ABI);
-    const topic = iface.getEvent('Initialize').topicHash;
     const span = 10_000_000;
     const slices = [];
     for (let to = latest; to > 0; to -= span) slices.push([Math.max(0, to - span + 1), to]);
-    const logs = (await Promise.all(slices.map(([fromBlock, toBlock]) =>
-      p.getLogs({ address: NET.poolManager, fromBlock, toBlock, topics: [topic, id] })))).flat();
+    const logs = (await Promise.all(slices.map(([fromBlock, toBlock]) => p.getLogs({ ...filter, fromBlock, toBlock })))).flat();
+    return logs.sort((x, y) => x.blockNumber - y.blockNumber || x.index - y.index);
+  };
+
+  // A pool's key from its ID, through the PoolManager's Initialize event.
+  const findPool = async (id) => {
+    const iface = new ethers.Interface(PM_ABI);
+    const topic = iface.getEvent('Initialize').topicHash;
+    const logs = await allLogs({ address: NET.poolManager, topics: [topic, id] });
     if (!logs.length) return null;
     const ev = iface.parseLog(logs[0]).args;
     return { currency0: ev.currency0, currency1: ev.currency1, fee: Number(ev.fee), tickSpacing: Number(ev.tickSpacing), hooks: ev.hooks };
+  };
+
+  /* ---------- launches and liquidity locks (launch-kit.js) ---------- */
+
+  const LOCK_ABI = [
+    'function owner() view returns (address)',
+    'function unlockAt() view returns (uint256)',
+    'function collectFees(uint256 tokenId)',
+    'function withdraw(uint256 tokenId)',
+    'function extend(uint256 newUnlockAt)',
+    'event Locked(bytes32 indexed poolId, uint256 indexed tokenId, address indexed owner, uint256 unlockAt)',
+    'error NotOwner()', 'error NotHeld()', 'error OnlyPositions()', 'error StillLocked(uint256 unlockAt)', 'error NotLater()'
+  ];
+  const POSITIONS_READ_ABI = [
+    'function ownerOf(uint256 tokenId) view returns (address)',
+    'function getPositionLiquidity(uint256 tokenId) view returns (uint128)',
+    'function safeTransferFrom(address from, address to, uint256 tokenId)'
+  ];
+  const kit = () => window.UnyLaunchKit || {};
+  const codeHash = async (address) => ethers.keccak256(await reader().getCode(address));
+  // Is this the UnyHooks token / lock, byte for byte? (Their code has no immutables.)
+  const isGenuine = async (kind, address) => { try { return (await codeHash(address)) === (kit().CODEHASH || {})[kind]; } catch (_) { return false; } };
+
+  // A lock's state, and whether it really is a LiquidityLock.
+  const lockInfo = async (address) => {
+    const c = new ethers.Contract(address, LOCK_ABI, reader());
+    const [owner, unlockAt, genuine] = await Promise.all([c.owner(), c.unlockAt(), isGenuine('lock', address)]);
+    return { address: ethers.getAddress(address), owner, unlockAt, genuine, forever: unlockAt === (kit().MAX_UINT256 || -1n) };
+  };
+
+  // Positions of a pool held by genuine locks: Locked events give candidates,
+  // the PositionManager's ownerOf and the lock's code confirm them.
+  const locksForPool = async (poolIdHex) => {
+    const iface = new ethers.Interface(LOCK_ABI);
+    const logs = await allLogs({ topics: [iface.getEvent('Locked').topicHash, poolIdHex] });
+    const seen = new Map();
+    for (const l of logs) {
+      const ev = iface.parseLog(l);
+      seen.set(`${l.address.toLowerCase()}:${ev.args.tokenId}`, { lock: ethers.getAddress(l.address), tokenId: ev.args.tokenId });
+    }
+    const posm = new ethers.Contract(NET.positionManager, POSITIONS_READ_ABI, reader());
+    const out = [];
+    for (const c of seen.values()) {
+      try {
+        if ((await posm.ownerOf(c.tokenId)) !== c.lock) continue;
+        const info = await lockInfo(c.lock);
+        if (!info.genuine) continue;
+        out.push({ ...info, tokenId: c.tokenId.toString(), liquidity: await posm.getPositionLiquidity(c.tokenId) });
+      } catch (_) { /* burned or not a lock */ }
+    }
+    return out;
+  };
+
+  // The Launched event for a hook, if it was launched with UnyLaunch.
+  const launchOf = async (hook) => {
+    if (!kit().LAUNCHED) return null;
+    const iface = new ethers.Interface([kit().LAUNCHED]);
+    const logs = await allLogs({ topics: [iface.getEvent('Launched').topicHash, null, null, ethers.zeroPadValue(hook, 32)] });
+    if (!logs.length) return null;
+    const ev = iface.parseLog(logs[0]).args;
+    return { creator: ev.creator, token: ev.token, hook: ev.hook, poolId: ev.poolId, tokenId: ev.tokenId.toString(), lock: BigInt(ev.lock) === 0n ? null : ev.lock, tx: logs[0].transactionHash, launcher: logs[0].address, block: logs[0].blockNumber };
+  };
+
+  /* ---------- recognising a hook ---------- */
+
+  // Reads the public settings UnyHooks templates expose; null when it is some other hook.
+  const recognise = async (address) => {
+    const r = reader();
+    const call = (sig, ...args) => new ethers.Contract(address, [`function ${sig}`], r)[sig.split('(')[0]](...args);
+    const tryAll = async (fns) => { try { return await Promise.all(fns.map((f) => f())); } catch (_) { return null; } };
+
+    let v = await tryAll([() => call('FEE_BPS() view returns (uint256)'), () => call('recipient() view returns (address)')]);
+    if (v) return { recipe: 'fee', contract: 'SwapFeeHook', settings: { feePercent: Number(v[0]) / 100, recipient: v[1] } };
+    v = await tryAll([() => call('MIN_FEE() view returns (uint24)'), () => call('MAX_FEE() view returns (uint24)'), () => call('FULL_MOVE_TICKS() view returns (uint256)'), () => call('WINDOW() view returns (uint256)')]);
+    if (v) return { recipe: 'dynamic', contract: 'DynamicFeeHook', settings: { floorPercent: Number(v[0]) / 10000, ceilingPercent: Number(v[1]) / 10000, fullMovePercent: Number(((1.0001 ** Number(v[2]) - 1) * 100).toFixed(1)), windowMinutes: Number(v[3]) / 60 } };
+    v = await tryAll([() => call('LAUNCH_WINDOW() view returns (uint256)'), () => call('MAX_BUY() view returns (uint256)'), () => call('COOLDOWN() view returns (uint256)'), () => call('token() view returns (address)')]);
+    if (v) return { recipe: 'launch', contract: 'LaunchGuardHook', settings: { windowMinutes: Number(v[0]) / 60, maxBuy: Number(M.fromUnits(v[1], 18, 18)), cooldownSeconds: Number(v[2]), token: v[3], pairDecimals: 18 } };
+    v = await tryAll([() => call('OPEN_MINUTE() view returns (uint256)'), () => call('CLOSE_MINUTE() view returns (uint256)'), () => call('WEEKDAYS_ONLY() view returns (bool)')]);
+    if (v) {
+      const hhmm = (m) => `${String(Math.floor(Number(m) / 60)).padStart(2, '0')}:${String(Number(m) % 60).padStart(2, '0')}`;
+      return { recipe: 'hours', contract: 'TradingHoursHook', settings: { open: hhmm(v[0]), close: hhmm(v[1]), weekdaysOnly: v[2] } };
+    }
+    return null;
   };
 
   /* ---------- the wallet session ---------- */
@@ -138,6 +239,24 @@
     return session;
   };
 
+  // Connects, asking which wallet when the browser has several. box: an element
+  // for the choice; say(html, kind): where to talk to the person.
+  const NO_WALLET = 'No browser wallet found. Install <a href="https://metamask.io/download/" target="_blank" rel="noopener">MetaMask</a> or <a href="https://phantom.com/download" target="_blank" rel="noopener">Phantom</a>, then reload this page. On a phone, open this page in your wallet app\'s browser.';
+  const connectUI = (box, say) => new Promise((resolve, reject) => {
+    if (session.signer) { resolve(session); return; }
+    const wallets = W.list();
+    if (!wallets.length) { say(NO_WALLET, 'error'); reject(Object.assign(new Error('No wallet'), { handled: true })); return; }
+    const go = async (w) => {
+      box.hidden = true;
+      try { say(`Approve the connection in ${esc(w.name)}…`); await connect(w); say(''); resolve(session); } catch (err) { reject(err); }
+    };
+    if (wallets.length === 1) { go(wallets[0]); return; }
+    box.innerHTML = wallets.map((w, i) => `<button type="button" class="dp-wallet" data-i="${i}">${w.icon ? `<img src="${esc(w.icon)}" alt="" width="22" height="22">` : ''}<span>${esc(w.name)}</span></button>`).join('');
+    box.hidden = false;
+    say('Pick your wallet.');
+    box.onclick = (e) => { const b = e.target.closest('[data-i]'); if (b) go(wallets[Number(b.dataset.i)]); };
+  });
+
   /* ---------- explaining failures ---------- */
 
   const FRIENDLY = {
@@ -151,9 +270,13 @@
     DeadlinePassed: 'The transaction waited too long in the wallet. Try again.',
     InsufficientAllowance: 'The token approval is too low. Approve again.',
     AllowanceExpired: 'The token approval expired. Approve again.',
-    MarketClosed: 'This pool only trades during its hours.'
+    MarketClosed: 'This pool only trades during its hours.',
+    StillLocked: 'This liquidity is still locked.',
+    NotLater: 'The new date must be later than the current one.',
+    NotOwner: 'Only the lock\'s owner can do that.',
+    NoLiquidity: 'Add some ETH and tokens to the pool.'
   };
-  const ERR_IFACES = [PM_ABI, POSM_ABI, PERMIT2_ABI].map((a) => new ethers.Interface(a));
+  const ERR_IFACES = [PM_ABI, POSM_ABI, PERMIT2_ABI, LOCK_ABI].map((a) => new ethers.Interface(a));
 
   const explain = (err, extraAbis = []) => {
     const data = err && (err.data || (err.info && err.info.error && err.info.error.data) || (err.error && err.error.data));
@@ -183,6 +306,15 @@
     fee: JSON.stringify({ feeAmount: key.fee, tickSpacing: key.tickSpacing, isDynamic: key.fee === 0x800000 }),
     hook: key.hooks
   })}`;
+  const uniswapSwap = (token) => `https://app.uniswap.org/swap?${new URLSearchParams({ chain: NET.uniswapChain || 'robinhood', inputCurrency: 'NATIVE', outputCurrency: token })}`;
+  const hookPage = (hook) => new URL(`hook.html?a=${ethers.getAddress(hook)}`, window.location.href).href;
+  // "until 3 Jan 2027", "forever"
+  const unlockText = (unlockAt) => {
+    const v = BigInt(unlockAt);
+    if (v === 0n) return 'not locked';
+    if (v === (window.UnyLaunchKit || {}).MAX_UINT256) return 'forever';
+    return `until ${new Date(Number(v) * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  };
   const uniswapPosition = (tokenId) => `https://app.uniswap.org/positions/v4/${NET.uniswapChain || 'robinhood'}/${tokenId}`;
   const dexscreenerPool = (id) => `https://dexscreener.com/${NET.dexscreenerChain || 'robinhood'}/${id}`;
   const sourcifyPage = (address) => `https://repo.sourcify.dev/${NET.chainId}/${ethers.getAddress(address)}`;
@@ -264,6 +396,33 @@
     return { id: poolId(key), key, tx: tx.hash, a: { ...a }, b: { ...b }, price: price.trim(), at: new Date().toISOString() };
   };
 
+  /* ---------- compiling in the browser ---------- */
+
+  // compile-worker.js in one shared worker; results kept per input.
+  // job: { file, contract, source, extra?, want? } -> { abi, bytecode, input, version, contracts }
+  let worker = null;
+  let jobs = 0;
+  const compiled = new Map();
+  const compile = (job) => {
+    const cacheKey = JSON.stringify([job.file, job.contract, job.source, job.extra || null, job.want || null]);
+    if (compiled.has(cacheKey)) return Promise.resolve(compiled.get(cacheKey));
+    if (!worker) worker = new Worker('compile-worker.js');
+    const id = ++jobs;
+    return new Promise((resolve, reject) => {
+      const onMsg = (e) => {
+        if (e.data.id !== id) return;
+        worker.removeEventListener('message', onMsg);
+        if (!e.data.ok) return reject(new Error(`It did not compile: ${e.data.error}`));
+        compiled.set(cacheKey, e.data);
+        resolve(e.data);
+      };
+      worker.addEventListener('message', onMsg);
+      worker.addEventListener('error', (err) => reject(new Error(`The compiler failed to start: ${err.message || 'check your connection'}`)), { once: true });
+      worker.postMessage({ id, file: job.file, contract: job.contract, source: job.source, extra: job.extra, want: job.want });
+    });
+  };
+  const isCompiled = (job) => compiled.has(JSON.stringify([job.file, job.contract, job.source, job.extra || null, job.want || null]));
+
   /* ---------- publishing source on Sourcify ---------- */
 
   const SOURCIFY = 'https://sourcify.dev/server';
@@ -311,9 +470,10 @@
   };
 
   window.UnyChain = {
-    CONFIG, NET, ZERO, ABI: { PM: PM_ABI, ERC20: ERC20_ABI, PERMIT2: PERMIT2_ABI, POSM: POSM_ABI, STATE_VIEW: STATE_VIEW_ABI },
-    esc, short, session, connect, reader, tokenInfo, balanceOf, poolId, readPool, findPool, explain,
-    explorer, link, uniswapAddLiquidity, uniswapPosition, dexscreenerPool, sourcifyPage,
-    store, createPool, sourcifyStatus, verify, isRejection: W.isRejection, wallets: W.list
+    CONFIG, NET, ZERO, ABI: { PM: PM_ABI, ERC20: ERC20_ABI, PERMIT2: PERMIT2_ABI, POSM: POSM_ABI, STATE_VIEW: STATE_VIEW_ABI, LOCK: LOCK_ABI, POSITIONS: POSITIONS_READ_ABI },
+    esc, short, price, session, connect, connectUI, reader, tokenInfo, balanceOf, poolId, readPool, allLogs, findPool, explain,
+    recognise, isGenuine, lockInfo, locksForPool, launchOf,
+    explorer, link, uniswapAddLiquidity, uniswapPosition, uniswapSwap, hookPage, unlockText, dexscreenerPool, sourcifyPage,
+    store, createPool, compile, isCompiled, sourcifyStatus, verify, isRejection: W.isRejection, wallets: W.list
   };
 })();

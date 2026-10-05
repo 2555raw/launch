@@ -657,6 +657,30 @@ ${envLines ? envLines + '\n' : ''}
     return out + escHtml(line.slice(last));
   };
 
+  // What a hook does, in a few plain lines (HTML: values escaped, key numbers in <b>).
+  const describe = (recipe, s) => {
+    if (recipe === 'fee') return [
+      `Takes <b>${escHtml(s.feePercent)}%</b> of every swap, from the token leaving the pool on a normal swap.`,
+      isAddress(s.recipient) ? `Sends it straight to <code>${escHtml(s.recipient)}</code>, fixed at deploy.` : 'Sends it to the wallet you set, fixed at deploy.',
+      'Works with any pair, ETH included. The pool\'s own LP fee is charged as usual on top.'
+    ];
+    if (recipe === 'dynamic') return [
+      `Charges <b>${escHtml(s.floorPercent)}%</b> when the price is still and up to <b>${escHtml(s.ceilingPercent)}%</b> when it moves.`,
+      `Reaches the top after a <b>${escHtml(s.fullMovePercent)}%</b> price move within about ${escHtml(s.windowMinutes)} minute${Number(s.windowMinutes) === 1 ? '' : 's'}.`,
+      'The fee goes to liquidity providers, like any pool fee.'
+    ];
+    if (recipe === 'launch') return [
+      `For the first <b>${escHtml(s.windowMinutes)} minutes</b>, each buy is capped at <b>${escHtml(s.maxBuy)}</b> of the paying token.`,
+      `A wallet must wait <b>${escHtml(s.cooldownSeconds)} s</b> between buys. Selling is never limited.`,
+      'After the window the pool trades freely. Determined bots can still use many wallets; this slows them down.'
+    ];
+    return [
+      `Swaps go through between <b>${escHtml(s.open)}</b> and <b>${escHtml(s.close)}</b> UTC${s.weekdaysOnly ? ', Monday to Friday' : ', every day'}.`,
+      'Outside those hours swaps fail. Liquidity can be added or removed at any time.',
+      'Hours are fixed in UTC: they do not move with daylight saving time.'
+    ];
+  };
+
   const EXAMPLES = [
     'I\'m launching a token paired with ETH. Send 1% of every swap to my wallet.',
     'Raise the fee when the market gets volatile, lower it when it\'s calm. Floor 0.05%, ceiling 1%.',
@@ -664,5 +688,5 @@ ${envLines ? envLines + '\n' : ''}
     'Only trade during US market hours, weekdays.'
   ];
 
-  return { RECIPES, EXAMPLES, defaults, generate, understand, isAddress, toUnits, ticksFor, highlight };
+  return { RECIPES, EXAMPLES, defaults, generate, understand, isAddress, toUnits, ticksFor, highlight, describe };
 });

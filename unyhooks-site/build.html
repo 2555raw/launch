@@ -47,6 +47,7 @@
       <span>Uny<b>Hooks</b></span>
     </a>
     <div class="bd-top-right">
+      <a class="bd-toplink" href="hooks.html">My hooks</a>
       <a class="bd-toplink" data-link="docs" href="docs.html">Docs</a>
       <a class="bd-wallet" id="wallet" data-link="signin" href="app.html">Connect wallet</a>
     </div>
@@ -176,6 +177,17 @@
             </form>
             <div class="dp-result" id="dp-pool-result" hidden></div>
           </li>
+
+          <li class="dp-step" id="dp-step-liquidity" data-state="todo">
+            <div class="dp-row">
+              <span class="dp-num" aria-hidden="true">4</span>
+              <div class="dp-body">
+                <b>Add liquidity</b>
+                <p class="dp-note" id="dp-liquidity-note">Deposit both tokens so people can trade. You keep the position and earn the pool's fees.</p>
+              </div>
+            </div>
+            <div class="dp-liquidity" id="dp-liquidity"></div>
+          </li>
         </ol>
 
         <p class="dp-msg" id="dp-msg" role="status" aria-live="polite"></p>
@@ -211,6 +223,9 @@
 <script src="build.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
 <script src="wallet.js"></script>
+<script src="pool-math.js"></script>
+<script src="chain.js"></script>
+<script src="liquidity.js"></script>
 <script src="deploy.js"></script>
 </body>
 </html>

@@ -12,7 +12,9 @@ adds the AI side of the chat; without it everything else still works on any stat
 index.html   landing: hero with a "what should your pool do?" box, live demo, how it works,
              recipes, trust, $UHOOKS with live market data, FAQ, closing call
 build.html   the builder: chat, settings, the contract and its Foundry script, and the
-             three deploy steps (connect, deploy hook, create pool)
+             four steps (connect, deploy hook, create pool, add liquidity)
+hooks.html   My hooks: hooks and pools from this browser, live price and liquidity, published
+             source, follow a hook by address, add a pool by ID, create pools, add liquidity
 docs.html    docs: sidebar, one article per hash (#quickstart, #hooks…), on-this-page rail, search
 app.html     sign in: connect MetaMask or Phantom and sign one message
 config.js    links, token, network and contract addresses: the only file to edit
@@ -20,7 +22,13 @@ config.js    links, token, network and contract addresses: the only file to edit
 builder.js   the hook writer, no DOM: understand(text), generate(recipe, settings), highlight();
              also loads in Node for the checks
 build.js     builder page: conversation (AI first, built-in reader as fallback), settings, code view
-deploy.js    deploy steps: compile, mine the hook address, dry-run, deploy, create the pool
+deploy.js    builder steps: compile, mine the hook address, dry-run, deploy, publish the source,
+             create the pool, then the liquidity form
+chain.js     shared: wallet session, chain reads, pool lookup by ID, error messages, links,
+             the list of hooks this browser follows, pool creation, Sourcify publishing
+liquidity.js the add-liquidity form: full or custom range, Permit2 approvals, PositionManager mint
+pool-math.js Uniswap V4 math in BigInt: TickMath, LiquidityAmounts, amount deltas, prices
+hooks.js     My hooks page
 wallet.js    wallet discovery (EIP-6963 + fallbacks), connect, switch to Robinhood Chain
 compile-worker.js   solc 0.8.26 (WebAssembly, from jsDelivr) in a worker
 vendor/v4-sources.json   the Uniswap V4 files the templates import, for the in-browser compiler
@@ -29,7 +37,7 @@ demo.js      the demo window on the landing page
 app.js       shared: links from config, sticky nav, menu, typing prompt, copy CA, scroll reveal
 docs.js      docs routing, table of contents, previous/next and search
 signin.js    sign-in message (EIP-4361) for app.html
-styles.css / build.css / docs.css / app.css   design system and per-page layout
+styles.css / build.css / docs.css / app.css / hooks.css   design system and per-page layout
 
 server.js    serves the site, POST /api/chat (Claude), absolute og:image URLs, /healthz
 og.png       the 1200×630 link-preview image
@@ -84,9 +92,22 @@ the address's low 14 bits equal the hook's permission flags and nothing is deplo
 (about 16,000 tries). The deployment is dry-run with `eth_call`, then sent through the standard
 CREATE2 deployer (`0x4e59b448…956C`): one signature. The pool is created with
 `PoolManager.initialize` from the pair, fee tier (or the dynamic-fee flag) and a starting price,
-converted exactly to `sqrtPriceX96`. The last step links to Uniswap's new-position page with the
-pair, fee and hook filled in. Hooks deployed from a browser are remembered there, so a reload
-keeps the pool step.
+converted exactly to `sqrtPriceX96`. Hooks deployed from a browser are remembered there and
+listed on My hooks.
+
+**Publishing the source.** Right after a deploy, the exact standard-JSON input the hook was
+compiled from goes to Sourcify (`/v2/verify/4663/<address>`, with the creation transaction),
+which recompiles it and matches it against the chain. Sourcify supports Robinhood Chain and
+already holds Uniswap's own contracts there; the explorer's API sits behind a bot challenge,
+so it is not called directly. On failure the page offers a retry and the file to upload by hand.
+
+**Adding liquidity.** Through Uniswap's PositionManager, the same positions the Uniswap app
+shows. Type one amount and the other follows from the pool price and the range (full, or
+between two prices). ERC-20s go through Permit2: `approve(Permit2)` once per token, then
+`Permit2.approve(PositionManager)` for 30 days; the deposit is `modifyLiquidities` with
+`MINT_POSITION` + `SETTLE_PAIR`, plus `SWEEP` to return unused ETH. Liquidity is computed with
+ports of Uniswap's own `TickMath` and `LiquidityAmounts` (`pool-math.js`), a hair under what
+the amounts allow, and dry-run before signing.
 
 ## Robinhood Chain
 
@@ -99,6 +120,8 @@ In `config.js`, each checked against the chain itself:
 | Explorer | `https://robinhoodchain.blockscout.com` |
 | PoolManager | `0x8366a39cc670b4001a1121b8f6a443a643e40951` (Uniswap's v4 deployments page) |
 | StateView | `0xf3334192d15450cdd385c8b70e03f9a6bd9e673b` |
+| PositionManager | `0x58daec3116aae6d93017baaea7749052e8a04fa7` |
+| Permit2 | `0x000000000022D473030F116dDEE9F6B43aC78BA3` |
 | CREATE2 deployer | `0x4e59b44847b379578588920cA78FbF26c0B4956C` |
 | USDG / WETH | `0x5fc5…d168` / `0x0Bd7…AD73` (docs.robinhood.com/chain/contracts) |
 
@@ -117,6 +140,8 @@ npm test             # 32 behaviour checks with Uniswap's PoolManager and test r
 npm run mainnet      # every recipe's deploy and pool creation, simulated on Robinhood Chain mainnet
 npm run node         # then, with the site served on :8765:
 npm run e2e          # 25 checks: the builder deploys from a browser wallet, then liquidity and swaps
+node e2e-app.js      # 28 checks on Robinhood Chain's own contract code (copied from mainnet):
+                     # deploy, source publishing, pool, liquidity (full and custom range), My hooks
 
 node scripts/server-tests/chat.test.js     # 26 checks on /api/chat (after npm install)
 node scripts/site-tests/builder.test.js    # needs playwright and the site on :8765
@@ -129,7 +154,11 @@ directions; dynamic fees sit at the floor when calm, hit the ceiling after a big
 back; launch protection refuses oversized, exact-output and too-frequent buys and leaves sells
 alone; trading hours open and close at the right minute, past midnight and on weekends. The
 browser deploys each recipe and creates its pool, swaps through the new pool pay the fee, and
-on mainnet the real PoolManager accepts every recipe's pool.
+on mainnet the real PoolManager accepts every recipe's pool. `e2e-app.js` copies the runtime code
+of the PoolManager, PositionManager, StateView, Permit2 and CREATE2 deployer from mainnet to the
+same addresses on a local chain, so the pages run with their real configuration: the source
+sent to Sourcify recompiles to the deployed bytes, deposits mint real positions (unused ETH
+comes back), and a swap afterwards pays the hook's fee.
 
 `e2e` uses a local chain with Uniswap's PoolManager rather than a fork: Robinhood Chain's public
 RPC keeps very little history, so a fork loses its state within a minute or two. `mainnet`

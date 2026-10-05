@@ -120,7 +120,7 @@
         <article class="dc-page" data-id="introduction" data-title="Introduction">
           <h1>What is UnyHooks</h1>
           <p>UnyHooks is a chat app for building Uniswap V4 hooks on Robinhood Chain. You describe what your pool should do, UnyHooks writes the hook contract, and you deploy it and create the pool from your own wallet.</p>
-          <div class="dc-callout"><b>Where things stand.</b> The <a data-link="app" href="build.html">builder</a> is live on Robinhood Chain mainnet: describe a hook, adjust its settings, deploy it from your wallet and create its pool. It builds four kinds of hook today: a fee on every swap, dynamic fees, launch protection and trading hours. Adding liquidity happens in the Uniswap app.</div>
+          <div class="dc-callout"><b>Where things stand.</b> The <a data-link="app" href="build.html">builder</a> is live on Robinhood Chain mainnet: describe a hook, deploy it from your wallet with its source published on Sourcify, create its pool and add liquidity. <a href="hooks.html">My hooks</a> keeps your hooks and pools with live prices. Four kinds of hook today: a fee on every swap, dynamic fees, launch protection and trading hours.</div>
           <ul>
             <li><b>Website</b>: <a data-link="site" href="index.html">unyhooks</a></li>
             <li><b>App</b>: <a data-link="app" href="app.html">launch the app</a></li>
@@ -176,7 +176,8 @@
             <li><b>Describe the hook.</b> Write one or two sentences, for example <code>Send 1% of every swap to my wallet.</code> UnyHooks may ask a short question if something changes the contract, such as which token the fee is taken in.</li>
             <li><b>Read it.</b> Open the source tab. Check the fee, the recipient and any limit before going further.</li>
             <li><b>Deploy.</b> Press Deploy. The app searches for an address whose low bits match the hook's permissions, then asks your wallet to sign one transaction.</li>
-            <li><b>Create the pool.</b> Ask for a pool with your hook, for example <code>Create a TOKEN/ETH pool with this hook, starting at 0.0001 ETH.</code> Sign, and the pool is live.</li>
+            <li><b>Create the pool.</b> Pick the pair and a starting price under step 3, for example 1 TOKEN = 0.0001 ETH. Sign, and the pool is live.</li>
+            <li><b>Add liquidity.</b> Under step 4, type how much of one token to deposit; the other side follows the pool's price. Sign the approvals (once per token) and the deposit.</li>
           </ol>
           <div class="dc-callout">Start with a small amount of liquidity. Generated hooks are not audited; see <a data-page="security" href="#security">Security</a>.</div>
         </article>
@@ -258,29 +259,33 @@
         <!-- ===== App: Hooks ===== -->
         <article class="dc-page" data-id="app-hooks" data-title="Hooks" hidden>
           <h1>Hooks in the app</h1>
-          <p>Every hook you create is saved to your workspace with its full source, its versions, and the address it was deployed at.</p>
+          <p>Every hook you deploy from the builder is kept in this browser and listed on <a href="hooks.html">My hooks</a>, with what it does, its address and its pools.</p>
 
-          <h2 id="app-hooks-page">The hook page</h2>
-          <ul>
-            <li><b>Source</b>: the Solidity, read-only, with a copy button.</li>
-            <li><b>Permissions</b>: the callbacks the hook uses and the address bits they map to.</li>
-            <li><b>Status</b>: <i>Draft</i>, <i>Compiles</i>, or <i>Deployed</i> with a link to the explorer.</li>
-          </ul>
+          <h2 id="app-hooks-source">Published source</h2>
+          <p>Right after a deploy, the exact compiler input the hook was built from goes to <a href="https://sourcify.dev" target="_blank" rel="noopener">Sourcify</a>, the open contract-verification service. Sourcify recompiles it and checks that it produces the bytes on chain; when it does, anyone can read the hook's code at its address. My hooks shows a <i>Source published</i> mark, or a button to try again if it did not go through.</p>
+
+          <h2 id="app-hooks-follow">Following a hook</h2>
+          <p>Paste any hook's address on My hooks to follow it. Hooks made with UnyHooks are recognised by their settings; for any other hook the page still shows its permissions and pools. A pool made elsewhere can be added by its pool ID.</p>
 
           <h2 id="app-hooks-versions">Versions</h2>
-          <p>A deployed hook cannot change. Editing it in the chat creates a new version, which has to be deployed again at a new address and used by a new pool.</p>
+          <p>A deployed hook cannot change. Editing it in the builder makes a new version, which is deployed at a new address and used by a new pool.</p>
         </article>
 
         <!-- ===== App: Pools ===== -->
         <article class="dc-page" data-id="app-pools" data-title="Pools" hidden>
           <h1>Pools in the app</h1>
-          <p>The pools tab lists every pool your wallet created with a UnyHooks hook: pair, fee, tick spacing, hook, current price and liquidity.</p>
+          <p>Each hook on My hooks lists its pools with the pair, fee, the current price read from the chain, liquidity and 24-hour volume (in dollars once DexScreener has seen trades), and your positions.</p>
 
-          <h2 id="app-pools-ask">Asking about a pool</h2>
-          <p>In the chat, ask "what is the price of my TOKEN/ETH pool?" or "how much liquidity is in it?". Answers are read from the chain when you ask.</p>
+          <h2 id="app-pools-liquidity">Adding liquidity</h2>
+          <p>Use step 4 in the builder, or <i>Add liquidity</i> under any pool on My hooks. Type how much of one token to deposit and the other follows from the pool's price.</p>
+          <ul>
+            <li><b>Full range</b> earns fees at every price. It is the usual choice for a new pool.</li>
+            <li><b>Custom range</b> concentrates the deposit between two prices. It earns more while the price stays inside and nothing outside.</li>
+          </ul>
+          <p>Uniswap V4 moves tokens through Permit2. The first deposit of a token asks for two approvals, letting Permit2 move it and letting Uniswap's PositionManager use it for 30 days, then the deposit itself. Deposits in ETH need no approval, and any ETH not used comes straight back.</p>
 
-          <h2 id="app-pools-liquidity">Liquidity</h2>
-          <p>Ask to add or remove liquidity and the app prepares the transaction, including the token approvals it needs. Your wallet shows each step and nothing happens until you sign.</p>
+          <h2 id="app-pools-positions">Positions</h2>
+          <p>A deposit is a position NFT from Uniswap's PositionManager, held by your wallet. It shows in the Uniswap app too, where you can collect fees or withdraw.</p>
         </article>
 
         <!-- ===== Recipes ===== -->

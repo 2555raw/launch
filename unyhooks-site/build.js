@@ -93,28 +93,7 @@
     afterInitialize: 'afterInitialize', beforeSwap: 'beforeSwap'
   };
 
-  const summaryFor = (recipe, s) => {
-    if (recipe === 'fee') return [
-      `Takes <b>${esc(s.feePercent)}%</b> of every swap, from the token leaving the pool on a normal swap.`,
-      B.isAddress(s.recipient) ? `Sends it straight to <code>${esc(s.recipient)}</code>, fixed at deploy.` : 'Sends it to the wallet you set, fixed at deploy.',
-      'Works with any pair, ETH included. The pool\'s own LP fee is charged as usual on top.'
-    ];
-    if (recipe === 'dynamic') return [
-      `Charges <b>${esc(s.floorPercent)}%</b> when the price is still and up to <b>${esc(s.ceilingPercent)}%</b> when it moves.`,
-      `Reaches the top after a <b>${esc(s.fullMovePercent)}%</b> price move within about ${esc(s.windowMinutes)} minute${Number(s.windowMinutes) === 1 ? '' : 's'}.`,
-      'The fee goes to liquidity providers, like any pool fee.'
-    ];
-    if (recipe === 'launch') return [
-      `For the first <b>${esc(s.windowMinutes)} minutes</b>, each buy is capped at <b>${esc(s.maxBuy)}</b> of the paying token.`,
-      `A wallet must wait <b>${esc(s.cooldownSeconds)} s</b> between buys. Selling is never limited.`,
-      'After the window the pool trades freely. Determined bots can still use many wallets; this slows them down.'
-    ];
-    return [
-      `Swaps go through between <b>${esc(s.open)}</b> and <b>${esc(s.close)}</b> UTC${s.weekdaysOnly ? ', Monday to Friday' : ', every day'}.`,
-      'Outside those hours swaps fail. Liquidity can be added or removed at any time.',
-      'Hours are fixed in UTC: they do not move with daylight saving time.'
-    ];
-  };
+  const summaryFor = B.describe;
 
   const render = (opts = {}) => {
     const prev = current ? (state.view === 'hook' ? current.source : current.script) : '';

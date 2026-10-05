@@ -1,0 +1,51 @@
+/* UnyHooks — "My hooks": a column of hook cards, each with its pools.
+   Buttons, fields and the liquidity form come from build.css. */
+
+.mh-main { position: relative; max-width: 980px; margin: 0 auto; padding: 28px 16px 64px; display: grid; gap: 18px; }
+.mh-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.mh-head h1 { font-size: clamp(30px, 4vw, 40px); letter-spacing: -.035em; font-weight: 700; }
+.mh-head p { margin-top: 6px; font-size: 15px; }
+.mh-follow { display: flex; gap: 8px; }
+.mh-follow .bd-input { flex: 1; }
+.mh-follow input { font: 14px var(--font-mono); }
+.mh-wallets { display: flex; flex-wrap: wrap; gap: 8px; }
+.mh-list { display: grid; gap: 16px; }
+
+.mh-card { display: grid; gap: 14px; }
+.mh-card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px 16px; }
+.mh-card-head h2 { font-size: 19px !important; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.mh-recipe { font-size: 13px; font-weight: 500; color: var(--pink); }
+.mh-addr { margin-top: 4px; font: 12.5px var(--font-mono); color: var(--prose); overflow-wrap: anywhere; }
+.mh-addr a, .mh-source a, .mh-stats a { color: var(--pink); text-decoration: underline; text-underline-offset: 2px; }
+.mh-source { font-size: 13px; color: var(--muted); }
+.mh-source.is-ok { color: var(--ok); font-weight: 500; }
+.mh-source.is-ok::before { content: '✓ '; }
+.mh-source.is-ok a { color: var(--ok); }
+.mh-source.is-todo { color: var(--warn-ink); }
+.mh-does { margin: 0; padding-left: 18px; font-size: 14.5px; line-height: 1.6; color: #2E2733; }
+.mh-does code { font: 12px var(--font-mono); overflow-wrap: anywhere; }
+.mh-perms { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.mh-pools { display: grid; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.mh-pools h3 { font-size: 14px; font-weight: 600; color: var(--prose); }
+.mh-pool { display: grid; gap: 10px; padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: #FFFCFD; }
+.mh-pool-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.mh-pool-fee { font-size: 12.5px; color: var(--muted); }
+.mh-live { margin-left: auto; font-size: 14px; font-variant-numeric: tabular-nums; color: var(--ink); }
+.mh-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+@media (max-width: 560px) { .mh-stats { grid-template-columns: 1fr 1fr; } .mh-live { margin-left: 0; width: 100%; } }
+.mh-stats dt { font-size: 12px; color: var(--muted); }
+.mh-stats dd { margin-top: 2px; font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.mh-actions, .mh-pool-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.mh-link { border: 0; background: none; padding: 0; cursor: pointer; font: 500 13.5px var(--font-body); color: var(--pink); text-decoration: underline; text-underline-offset: 3px; }
+.mh-link a { color: inherit; }
+.mh-quiet { color: var(--muted); }
+.mh-form:not([hidden]), .mh-liquidity:not([hidden]) { display: block; }
+.mh-card-foot { display: flex; justify-content: flex-end; }
+
+.mh-empty { padding: 40px 24px; text-align: center; border-radius: 22px; border: 1px dashed var(--line-hi); background: rgba(255, 255, 255, .6); }
+.mh-empty h2 { font-size: 20px; font-weight: 600; }
+.mh-empty p { max-width: 460px; margin: 8px auto 18px; font-size: 15px; color: var(--prose); }
+.lq .bd-input select { flex: 1; height: 42px; border: 0; outline: 0; background: transparent; padding: 0 12px; font: 15px var(--font-body); color: var(--ink); }
+/* Grid children default to min-width: auto; long addresses would push the cards wider than the screen. */
+.mh-main > *, .mh-list > *, .mh-card > *, .mh-pools > *, .mh-pool > * { min-width: 0; }

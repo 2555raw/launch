@@ -205,14 +205,26 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 
 /* ---------- the line down the left side ---------- */
 
-.uh-rail { display: none; }
-@media (min-width: 1280px) {
-  .uh-rail { display: block; position: fixed; left: max(24px, calc(50% - 680px)); top: 72px; bottom: 0; width: 20px; z-index: 30; pointer-events: none; }
-  .uh-rail::before { content: ''; position: absolute; left: 9px; top: 0; bottom: 0; width: 1px; background: var(--line-hi); }
-  .uh-rail-fill { position: absolute; left: 8px; top: 0; width: 3px; border-radius: 3px; background: linear-gradient(180deg, rgba(232, 176, 75, .2), var(--pink)); box-shadow: 0 0 12px rgba(232, 176, 75, .6); }
-  .uh-rail-dot { position: absolute; left: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--bg); border: 1.5px solid var(--line-hi); transition: background-color .3s ease, border-color .3s ease, box-shadow .3s ease; }
-  .uh-rail-dot.is-past { background: var(--pink); border-color: var(--pink-hi); box-shadow: 0 0 10px rgba(232, 176, 75, .8); }
-  .uh-rail-hook { position: absolute; left: -6px; top: 0; width: 32px; height: 32px; filter: drop-shadow(0 0 10px rgba(232, 176, 75, .55)); will-change: transform; }
+/* A fixed line in the left gutter. As the page scrolls the hook slides down
+   it, the line above the hook fills with light and each section's dot lights
+   up once its top has passed. landing.js sets --rail-y and the dots. */
+.uh-rail { --rail-y: 0px; --rail-w: 16px; position: fixed; left: 2px; top: 84px; bottom: 24px; width: var(--rail-w); z-index: 30; pointer-events: none; }
+.uh-rail::before { content: ''; position: absolute; left: calc(var(--rail-w) / 2 - .5px); top: 0; bottom: 0; width: 1px; background: linear-gradient(180deg, transparent, var(--line-hi) 6%, var(--line-hi) 94%, transparent); }
+.uh-rail-fill { position: absolute; left: calc(var(--rail-w) / 2 - 1.5px); top: 0; width: 3px; height: calc(var(--rail-y) + 4px); border-radius: 3px; background: linear-gradient(180deg, rgba(232, 176, 75, 0), rgba(232, 176, 75, .55) 30%, var(--pink-hi)); box-shadow: 0 0 10px rgba(232, 176, 75, .7), 0 0 26px rgba(232, 176, 75, .35); }
+.uh-rail-fill::after { content: ''; position: absolute; left: 50%; bottom: -10px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: radial-gradient(circle, rgba(247, 215, 140, .9), rgba(232, 176, 75, .25) 45%, transparent 70%); }
+.uh-rail-dot { position: absolute; left: calc(var(--rail-w) / 2 - 3.5px); width: 7px; height: 7px; border-radius: 50%; background: var(--bg); border: 1.5px solid var(--line-hi); transition: background-color .4s ease, border-color .4s ease, box-shadow .4s ease, transform .4s var(--ease); }
+.uh-rail-dot.is-past { background: var(--pink); border-color: var(--pink-hi); box-shadow: 0 0 12px rgba(232, 176, 75, .9); transform: scale(1.35); }
+.uh-rail-hook { position: absolute; left: 0; top: 0; width: var(--rail-w); height: calc(var(--rail-w) * 1.25); transform: translateY(var(--rail-y)) rotate(var(--rail-tilt, 0deg)); transform-origin: 50% 0; filter: drop-shadow(0 0 8px rgba(232, 176, 75, .7)); will-change: transform; }
+@media (min-width: 760px) {
+  .uh-rail { --rail-w: 34px; left: max(14px, calc(50% - var(--wrap) / 2 - 60px)); }
+  .uh-rail-dot { width: 9px; height: 9px; left: calc(var(--rail-w) / 2 - 4.5px); }
+}
+/* Below 1300px the gutter is narrower than the hook: move the content over. */
+@media (min-width: 760px) and (max-width: 1299px) {
+  main .uh-wrap, .uh-foot .uh-wrap { padding-left: 68px; }
+}
+@media (max-width: 759px) {
+  main .uh-wrap, .uh-foot .uh-wrap { padding-left: 24px; }
 }
 
 /* ---------- hero ---------- */
@@ -481,7 +493,7 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 
 /* Hidden only once the script has added .uh-js, so without JS (or with reduced
    motion) the page renders complete. */
-.uh-js .uh-rise { opacity: 0; transform: translateY(22px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
+.uh-js .uh-rise { opacity: 0; transform: translateY(40px); transition: opacity .9s var(--ease), transform .9s var(--ease); }
 .uh-js .uh-rise.is-in { opacity: 1; transform: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

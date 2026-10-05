@@ -174,9 +174,12 @@
 
   /* ---------- the line down the left ---------- */
 
+  // The hook's place on the line is how far the page has scrolled. A section's
+  // dot sits where the hook will be when that section's top reaches 40% of the
+  // window, so the dot lights the moment the section comes into view. While
+  // scrolling the hook swings a little with the speed and settles when you stop.
   const rail = $('#rail');
   const hook = $('#rail-hook');
-  const fill = $('#rail-fill');
   const sections = [...document.querySelectorAll('main > section')];
   if (rail && hook && sections.length) {
     const dots = sections.map(() => {
@@ -186,20 +189,29 @@
       return d;
     });
     let frame = 0;
+    let lastY = window.scrollY;
+    let tilt = 0;
     const place = () => {
       frame = 0;
       const doc = document.documentElement;
-      const H = rail.clientHeight;
+      const run = Math.max(1, rail.clientHeight - hook.getBoundingClientRect().height);
       const max = Math.max(1, doc.scrollHeight - window.innerHeight);
-      const progress = still ? 0 : window.scrollY / max;
-      const y = progress * (H - 40);
-      hook.style.transform = `translateY(${y}px)`;
-      fill.style.height = `${y + 6}px`;
+      const at = (scroll) => Math.min(1, Math.max(0, scroll / max)) * run;
+      const y = still ? 0 : at(window.scrollY);
+      rail.style.setProperty('--rail-y', `${y.toFixed(1)}px`);
       sections.forEach((s, i) => {
-        const at = (s.offsetTop / doc.scrollHeight) * (H - 40) + 16;
-        dots[i].style.top = `${at}px`;
-        dots[i].classList.toggle('is-past', at <= y + 16);
+        const top = s.getBoundingClientRect().top + window.scrollY;
+        const dy = at(top - window.innerHeight * 0.4);
+        dots[i].style.top = `${dy + 4}px`;
+        dots[i].classList.toggle('is-past', !still && dy <= y + 1);
       });
+      if (still) return;
+      // Swing against the direction of travel, then ease back to rest.
+      const v = window.scrollY - lastY;
+      lastY = window.scrollY;
+      tilt = tilt * 0.82 + Math.max(-14, Math.min(14, v * 0.35)) * 0.18;
+      rail.style.setProperty('--rail-tilt', `${tilt.toFixed(2)}deg`);
+      if (Math.abs(tilt) > 0.05) ask();
     };
     const ask = () => { if (!frame) frame = requestAnimationFrame(place); };
     window.addEventListener('scroll', ask, { passive: true });

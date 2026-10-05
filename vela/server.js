@@ -70,7 +70,7 @@ const PUBLIC = new Set(['/index.html', '/styles.css', '/app.js', '/chain.js', '/
    can't be borrowed as a general-purpose RPC. */
 const RPC_METHODS = new Set([
   'getBalance', 'getLatestBlockhash', 'sendTransaction', 'simulateTransaction',
-  'getSignatureStatuses', 'getTokenAccountsByOwner', 'getParsedTokenAccountsByOwner',
+  'getSignatureStatuses', 'getTokenAccountsByOwner',
   'getTokenAccountBalance', 'getAccountInfo'
 ]);
 
@@ -541,8 +541,9 @@ const api = {
       const pct = Math.round(Number(b.percent));
       if (!(pct >= 1 && pct <= 100)) return fail(res, 400, 'Percent must be 1–100');
       const r = await fetch(SOLANA_RPC_URL, { method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getParsedTokenAccountsByOwner', params: [b.publicKey, { mint: b.mint }, { encoding: 'jsonParsed' }] }),
-        signal: AbortSignal.timeout(15000) }).then((x) => x.json());
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'getTokenAccountsByOwner', params: [b.publicKey, { mint: b.mint }, { encoding: 'jsonParsed' }] }),
+        signal: AbortSignal.timeout(15000) }).then((x) => x.json()).catch(() => null);
+      if (!r?.result) return fail(res, 502, 'Could not read the wallet balance');   // the client falls back to PumpPortal
       const raw = (r.result?.value || []).reduce((a, acc) => a + BigInt(acc.account?.data?.parsed?.info?.tokenAmount?.amount || '0'), 0n);
       amount = raw * BigInt(pct) / 100n;
       if (amount === 0n) return fail(res, 400, 'This wallet holds none of this token');

@@ -63,7 +63,13 @@ Opening `index.html` straight from disk shows the interface but nothing works: t
   (every DEX and the pump.fun curve; PumpPortal as fallback), Robinhood Chain / Base / BNB Chain through
   the KyberSwap aggregator, with slippage protection and the ERC-20 approval when selling. A Pons token
   the aggregator hasn't indexed yet (a fresh launch) trades straight on its bonding curve: the curve is
-  found from the launch transaction, `buy`/`sell` are quoted with a static call and sent with a minimum out. Cost of buys and proceeds of sells are measured from the wallet and booked on the launch.
+  found from the launch transaction, `buy`/`sell` are quoted with a static call and sent with a minimum out. A Base / BNB
+  Chain pool made with *Add liquidity* that the aggregator hasn't indexed yet trades straight on the Uniswap V2 /
+  PancakeSwap V2 router (`getAmountsOut` quote, minimum out, approval for sells). Cost of buys and proceeds of sells are measured from the wallet and booked on the launch.
+  The panel works like a trading terminal: one-click quick buys (presets per chain, editable, kept on the device),
+  one-click sells (10 / 25 / 50 / 100 % or a custom %), slippage remembered per chain (20 % on Solana by default),
+  and the wallet's balance and holdings of the token, refreshed after every trade. A finished launch offers
+  *Trade* right away.
 - **Status bar**: SOL, BNB and ETH prices from CoinGecko, and what a transfer costs on Base right now (gas price × 21k gas × ETH), cached 30 s. **Tracker**: DexScreener, cached 15 s.
 - **P&L calendar** (calendar icon on *Total P&L*): daily P&L and launches per day, monthly and yearly views,
   and positive streaks.

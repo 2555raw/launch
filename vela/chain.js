@@ -121,7 +121,7 @@
   const solBalance = async (address) => (await solRpc('getBalance', [address, { commitment: 'confirmed' }])).value / 1e9;
 
   const solTokenBalance = async (owner, mint) => {
-    const res = await solRpc('getParsedTokenAccountsByOwner', [owner, { mint }, { encoding: 'jsonParsed', commitment: 'confirmed' }]);
+    const res = await solRpc('getTokenAccountsByOwner', [owner, { mint }, { encoding: 'jsonParsed', commitment: 'confirmed' }]);
     return (res?.value || []).reduce((a, acc) => a + (acc.account?.data?.parsed?.info?.tokenAmount?.uiAmount || 0), 0);
   };
 
@@ -543,6 +543,42 @@
     return tx.hash;
   };
 
+  /* A pool made with "Add liquidity" takes a while to show up on the aggregator: until then,
+     Base and BNB Chain trades go straight to the Uniswap V2 / PancakeSwap V2 router. */
+  const V2_ROUTER_ABI = [
+    'function getAmountsOut(uint256 amountIn, address[] path) view returns (uint256[])',
+    'function swapExactETHForTokensSupportingFeeOnTransferTokens(uint256 amountOutMin, address[] path, address to, uint256 deadline) payable',
+    'function swapExactTokensForETHSupportingFeeOnTransferTokens(uint256 amountIn, uint256 amountOutMin, address[] path, address to, uint256 deadline)'
+  ];
+  const tradeV2 = async (ethers, signer, acct, chain, token, side, amountIn, opts, step) => {
+    const v2 = V2[chain];
+    step(`Trading on ${v2.name}`);
+    if (!(await poolInfo(chain, token, null)).liquid) throw new Error('This token has no pool yet — add liquidity first');
+    const router = new ethers.Contract(v2.router, V2_ROUTER_ABI, signer);
+    const path = side === 'buy' ? [v2.weth, token] : [token, v2.weth];
+    if (side === 'sell') {
+      const erc20 = new ethers.Contract(token, ERC20_ABI, signer);
+      if ((await erc20.allowance(acct.address, v2.router)) < amountIn) {
+        step(`Approve the token for ${v2.name}`);
+        await (await erc20.approve(v2.router, amountIn)).wait(1);
+      }
+    }
+    const out = (await router.getAmountsOut(amountIn, path))[1];
+    const minOut = out * (10000n - BigInt(Math.round((opts.slippage || 10) * 100))) / 10000n;
+    const deadline = Math.floor(Date.now() / 1000) + 1200;
+    step(side === 'buy' ? 'Approve the buy in your wallet' : 'Approve the sale in your wallet');
+    const [fn, args, ov] = side === 'buy'
+      ? ['swapExactETHForTokensSupportingFeeOnTransferTokens', [minOut, path, acct.address, deadline], { value: amountIn }]
+      : ['swapExactTokensForETHSupportingFeeOnTransferTokens', [amountIn, minOut, path, acct.address, deadline], {}];
+    // a first buy touches cold storage in the pair and the token: give the estimate 30% headroom
+    const gas = await router[fn].estimateGas(...args, ov);
+    const tx = await router[fn](...args, { ...ov, gasLimit: gas * 13n / 10n });
+    step('Waiting for confirmation');
+    const rcpt = await tx.wait(1);
+    if (!rcpt || rcpt.status !== 1) throw Object.assign(new Error('Trade reverted'), { signature: tx.hash });
+    return tx.hash;
+  };
+
   /* Robinhood Chain, Base, BNB: route from the aggregator, sent by the user's wallet.
      Buy: value = native amount (ETH/BNB). Sell: value = % of the wallet's tokens. */
   const tradeEvm = async (chain, token, side, value, opts, step) => {
@@ -566,11 +602,13 @@
     try {
       const quote = await api(`/api/evm/quote?${qs}`);
       built = await postJson('/api/evm/build', { chain, routeSummary: quote.routeSummary, sender: acct.address, slippageBps: Math.round((opts.slippage || 10) * 100) });
-    } catch (e) {
-      if (chain !== 'rh') throw e;   // on Robinhood Chain a fresh Pons token trades on its curve instead
+    } catch (_) {
+      // no aggregator route yet: a fresh Pons token trades on its curve, a fresh Base/BNB pool on the V2 router
     }
     try {
-      if (!built) return await tradePonsCurve(ethers, signer, acct, token, side, amountIn, opts, step);
+      if (!built) return chain === 'rh'
+        ? await tradePonsCurve(ethers, signer, acct, token, side, amountIn, opts, step)
+        : await tradeV2(ethers, signer, acct, chain, token, side, amountIn, opts, step);
       if (side === 'sell') {
         const allowed = await erc20.allowance(acct.address, built.to);
         if (allowed < amountIn) {

@@ -875,7 +875,7 @@
       </div>`;
     paintIcons(el);
     document.title = `$${sym} · ${name} on AnyChain`;
-    mountTrade(el, { chain, addr, ticker: sym, site, tx: reg?.tx || own?.tx }, own || null);
+    mountTrade(el, { chain, addr, ticker: sym, site, tx: reg?.tx || own?.tx, priceUsd: m?.priceUsd }, own || null);
     $('#tpCopy', el).addEventListener('click', () => copy(url, 'Link'));
     $('#tpShare', el).addEventListener('click', () => shareOnX(`$${sym} on ${CHAINS[chain].name} 👀\n\nTrade it on @HeyAnyChain\n${url}`));
   };
@@ -1475,8 +1475,9 @@
             <a class="btn btn-ghost" href="${C.explorerTx(chain, res.signature)}" target="_blank" rel="noopener">Transaction</a>
             ${site.id === 'pump' ? `<a class="btn btn-ghost" href="https://pump.fun/coin/${res.address}" target="_blank" rel="noopener">pump.fun page</a>`
               : site.id === 'pons' ? `<a class="btn btn-ghost" href="${C.ponsPage(res.address)}" target="_blank" rel="noopener">Pons page</a>`
-              : `<button class="btn btn-primary" type="button" data-liq="${l.id}">Add liquidity</button>`}
-            <button class="btn btn-primary" type="button" data-close>Done</button>`;
+              : `<button class="btn btn-ghost" type="button" data-liq="${l.id}">Add liquidity</button>`}
+            <button class="btn btn-ghost" type="button" data-close>Done</button>
+            <button class="btn btn-primary" type="button" data-launch="${l.id}">Trade ${esc(ticker)}</button>`;
           $('#shareLaunch', form).addEventListener('click', () => shareOnX(`I just launched $${ticker} on ${site.name} with @HeyAnyChain 🚀\n\n${tokenUrl(chain, res.address)}`));
           paintIcons($('#createFoot', form));
           refresh();
@@ -1536,49 +1537,120 @@
 
   /* ---------- trading ---------- */
 
-  const QUICK = { sol: ['0.1', '0.5', '1'], rh: ['0.005', '0.01', '0.05'], base: ['0.005', '0.01', '0.05'], bnb: ['0.01', '0.05', '0.1'] };
+  /* Quick buys and sells fire in one click, like a trading terminal: presets and slippage are
+     kept per chain on this device and can be edited from the panel. */
+  const TRADE_DEF = {
+    buy: { sol: ['0.05', '0.1', '0.5', '1'], rh: ['0.001', '0.005', '0.01', '0.05'], base: ['0.001', '0.005', '0.01', '0.05'], bnb: ['0.01', '0.05', '0.1', '0.5'] },
+    slip: { sol: 20, rh: 15, base: 10, bnb: 10 }
+  };
+  const SELL_PCT = ['10', '25', '50', '100'];
+  const ROUTES = { sol: 'Jupiter · PumpPortal', rh: 'KyberSwap · Pons curve', base: 'KyberSwap · Uniswap', bnb: 'KyberSwap · PancakeSwap' };
+  const tradePrefs = () => { try { return JSON.parse(localStorage.getItem('anychain-trade') || '{}'); } catch (_) { return {}; } };
+  const saveTradePrefs = (p) => { try { localStorage.setItem('anychain-trade', JSON.stringify(p)); } catch (_) { /* this session only */ } };
+  const presetsOf = (chain) => tradePrefs().buy?.[chain] || TRADE_DEF.buy[chain];
+  const slipOf = (chain) => tradePrefs().slip?.[chain] || TRADE_DEF.slip[chain];
 
-  const tradePanel = (t) => `
+  const tradePanel = (t) => {
+    const unit = CHAINS[t.chain].unit, tick = t.ticker ? `$${esc(t.ticker)}` : 'token';
+    return `
       <div class="trade">
         <div class="trade-head">
-          <div class="seg"><button type="button" data-tside="buy" class="is-on">Buy</button><button type="button" data-tside="sell">Sell</button></div>
-          <span class="dim" style="font-size:12px">${t.chain === 'sol' ? 'Best pool via PumpPortal' : 'Best route via KyberSwap'} · slippage <input class="trade-slip" name="tslip" inputmode="decimal" value="10">%</span>
+          <div class="seg trade-seg"><button type="button" data-tside="buy" class="is-on">Buy</button><button type="button" data-tside="sell">Sell</button></div>
+          <label class="trade-slip-l">Slippage <input class="trade-slip" name="tslip" inputmode="decimal" value="${slipOf(t.chain)}">%</label>
         </div>
-        <div data-pane="buy" class="trade-row">
-          <label class="trade-amt"><input name="tamt" inputmode="decimal" placeholder="0.0"><span>${CHAINS[t.chain].unit}</span></label>
-          ${QUICK[t.chain].map((q) => `<button class="btn btn-ghost" type="button" data-quick="${q}">${q}</button>`).join('')}
-          <button class="btn btn-primary" type="button" data-trade="buy">Buy ${esc(t.ticker || '')}</button>
+        <div class="trade-pos" data-pos><span class="dim">Connect a wallet to see your position</span></div>
+        <div data-pane="buy" class="trade-pane">
+          <div class="trade-quick" data-presets>
+            ${presetsOf(t.chain).map((q) => `<button class="tq tq-buy" type="button" data-trade="buy" data-amt="${esc(q)}"><b>${esc(q)}</b><span>${unit}</span></button>`).join('')}
+          </div>
+          <div class="trade-row">
+            <label class="trade-amt"><input name="tamt" inputmode="decimal" placeholder="Custom"><span>${unit}</span></label>
+            <button class="btn btn-buy" type="button" data-trade="buy">Buy ${tick}</button>
+          </div>
         </div>
-        <div data-pane="sell" class="trade-row" hidden>
-          <span class="dim" style="font-size:13px">Sell from your wallet</span>
-          <button class="btn btn-ghost" type="button" data-trade="sell" data-pct="25">25%</button>
-          <button class="btn btn-ghost" type="button" data-trade="sell" data-pct="50">50%</button>
-          <button class="btn btn-danger" type="button" data-trade="sell" data-pct="100">100%</button>
+        <div data-pane="sell" class="trade-pane" hidden>
+          <div class="trade-quick">
+            ${SELL_PCT.map((q) => `<button class="tq tq-sell" type="button" data-trade="sell" data-pct="${q}"><b>${q}%</b></button>`).join('')}
+          </div>
+          <div class="trade-row">
+            <label class="trade-amt"><input name="tpct" inputmode="decimal" placeholder="Custom"><span>%</span></label>
+            <button class="btn btn-sell" type="button" data-trade="sell">Sell ${tick}</button>
+          </div>
         </div>
+        <div class="trade-foot dim"><span>${ROUTES[t.chain]}</span><button class="link-btn" type="button" data-edit-presets>Edit presets</button></div>
         <ul class="steps" data-trade-steps></ul>
       </div>`;
+  };
 
-  /* t: { chain, addr, ticker }. launch: the AnyChain launch to book costs and proceeds on, if any. */
+  /* t: { chain, addr, ticker, priceUsd? }. launch: the AnyChain launch to book costs and proceeds on, if any. */
   const mountTrade = (body, t, launch) => {
     const box = $('.trade', body);
     if (!box) return;
+    const fam = t.chain === 'sol' ? 'sol' : 'evm';
+    const unit = CHAINS[t.chain].unit;
+
+    /* the wallet's native balance and holdings of this token, refreshed after every trade */
+    let held = null;
+    const showPos = async () => {
+      const pos = box.querySelector('[data-pos]');
+      if (!state[fam]) { held = null; pos.innerHTML = '<span class="dim">Connect a wallet to see your position</span>'; return; }
+      const owner = state[fam].address;
+      const [nat, tok] = await Promise.all([
+        (t.chain === 'sol' ? C.solBalance(owner) : C.evmBalance(t.chain, owner)).catch(() => null),
+        (t.chain === 'sol' ? C.solTokenBalance(owner, t.addr) : C.evmTokenBalance(t.chain, t.addr, owner)).catch(() => null)
+      ]);
+      held = tok;
+      const px = t.priceUsd || launch?.priceUsd || 0;
+      pos.innerHTML = `
+        <span><span class="dim">Wallet</span> <b>${nat == null ? '—' : `${nat < 1 ? nat.toFixed(4) : nat.toFixed(3)} ${unit}`}</b></span>
+        <span><span class="dim">Holding</span> <b>${tok == null ? '—' : `${qty(tok)} ${esc(t.ticker || '')}`}</b>${tok && px ? ` <span class="dim">≈ ${money(tok * px)}</span>` : ''}</span>`;
+    };
+    showPos();
+
+    const editPresets = () => {
+      const wrap = box.querySelector('[data-presets]');
+      const btn = box.querySelector('[data-edit-presets]');
+      if (btn.dataset.on) {
+        const vals = $$('input', wrap).map((i) => i.value.trim()).filter((v) => parseFloat(v) > 0);
+        const p = tradePrefs();
+        p.buy = { ...(p.buy || {}), [t.chain]: vals.length ? vals : TRADE_DEF.buy[t.chain] };
+        saveTradePrefs(p);
+        wrap.innerHTML = presetsOf(t.chain).map((q) => `<button class="tq tq-buy" type="button" data-trade="buy" data-amt="${esc(q)}"><b>${esc(q)}</b><span>${unit}</span></button>`).join('');
+        delete btn.dataset.on; btn.textContent = 'Edit presets';
+        return;
+      }
+      wrap.innerHTML = presetsOf(t.chain).map((q) => `<label class="tq tq-edit"><input value="${esc(q)}" inputmode="decimal" aria-label="Quick buy amount"><span>${unit}</span></label>`).join('');
+      btn.dataset.on = '1'; btn.textContent = 'Save presets';
+      $$("[data-tside]", box).forEach((b) => b.classList.toggle('is-on', b.dataset.tside === 'buy'));
+      $$('[data-pane]', box).forEach((p) => { p.hidden = p.dataset.pane !== 'buy'; });
+    };
+
+    box.addEventListener('change', (e) => {
+      if (e.target.name !== 'tslip') return;
+      const v = Math.min(50, Math.max(0.5, parseFloat(e.target.value) || TRADE_DEF.slip[t.chain]));
+      e.target.value = v;
+      const p = tradePrefs(); p.slip = { ...(p.slip || {}), [t.chain]: v }; saveTradePrefs(p);
+    });
     box.addEventListener('click', async (e) => {
-      const side = e.target.closest("[data-tside]");
+      const side = e.target.closest('[data-tside]');
       if (side) {
         $$("[data-tside]", box).forEach((b) => b.classList.toggle('is-on', b === side));
         $$('[data-pane]', box).forEach((p) => { p.hidden = p.dataset.pane !== side.dataset.tside; });
+        box.querySelector('[data-edit-presets]').hidden = side.dataset.tside !== 'buy';
         return;
       }
-      const quick = e.target.closest('[data-quick]');
-      if (quick) { box.querySelector('[name="tamt"]').value = quick.dataset.quick; return; }
+      if (e.target.closest('[data-edit-presets]')) { if (!busy) editPresets(); return; }
       const btn = e.target.closest('[data-trade]');
       if (!btn || busy) return;
       const buy = btn.dataset.trade === 'buy';
-      const value = buy ? parseFloat(box.querySelector('[name="tamt"]').value) : +btn.dataset.pct;
-      if (buy && !(value > 0)) { toast(`Enter an amount in ${CHAINS[t.chain].unit}`, true); return; }
-      const slippage = Math.min(50, Math.max(0.5, parseFloat(box.querySelector('[name="tslip"]').value) || 10));
-      const fam = t.chain === 'sol' ? 'sol' : 'evm';
+      const value = buy
+        ? parseFloat(btn.dataset.amt || box.querySelector('[name="tamt"]').value)
+        : parseFloat(btn.dataset.pct || box.querySelector('[name="tpct"]').value);
+      if (buy && !(value > 0)) { toast(`Enter an amount in ${unit}`, true); return; }
+      if (!buy && !(value > 0 && value <= 100)) { toast('Enter a percentage from 1 to 100', true); return; }
+      const slippage = Math.min(50, Math.max(0.5, parseFloat(box.querySelector('[name="tslip"]').value) || TRADE_DEF.slip[t.chain]));
       if (!state[fam] && !(await connect(fam))) return;
+      if (!buy && held === 0) { toast(`This wallet holds no ${t.ticker || 'tokens'}`, true); return; }
       const owner = state[fam].address;
       /* balances only book the trade's cost/proceeds: never let a slow RPC hold up the trade */
       const balance = () => Promise.race([
@@ -1588,6 +1660,7 @@
 
       busy = true;
       $$('button, input', box).forEach((x) => { x.disabled = true; });
+      btn.classList.add('is-busy');
       const list = box.querySelector('[data-trade-steps]');
       list.innerHTML = '';
       const st = stepper(list);
@@ -1605,15 +1678,18 @@
           else launch.realizedUsd = Math.round(((launch.realizedUsd || 0) + Math.max(0, deltaUsd)) * 100) / 100;
           if (!launch.owner) launch.owner = owner;
         }
-        log(`${buy ? 'Bought' : `Sold ${value}% of`} ${t.ticker || short(t.addr)}${buy ? ` for ${value} ${CHAINS[t.chain].unit}` : deltaUsd != null ? ` for ${money(Math.max(0, deltaUsd))}` : ''}`);
+        log(`${buy ? 'Bought' : `Sold ${value}% of`} ${t.ticker || short(t.addr)}${buy ? ` for ${value} ${unit}` : deltaUsd != null ? ` for ${money(Math.max(0, deltaUsd))}` : ''}`);
         save();
-        toast(buy ? `Bought ${t.ticker || 'token'}` : `Sold ${value}% of ${t.ticker || 'token'}`);
+        toast(buy ? `Bought ${t.ticker || 'token'} for ${value} ${unit}` : `Sold ${value}% of ${t.ticker || 'token'}`);
         refresh();
+        showPos();
+        setTimeout(showPos, 4000);   // RPC nodes can lag a few seconds behind the confirmation
       } catch (err) {
         st.fail(err.message || 'Trade failed');
         if (err.signature) list.insertAdjacentHTML('beforeend', `<li><a class="link-btn" href="${C.explorerTx(t.chain, err.signature)}" target="_blank" rel="noopener">Open the transaction</a></li>`);
       } finally {
         busy = false;
+        btn.classList.remove('is-busy');
         $$('button, input', box).forEach((x) => { x.disabled = false; });
       }
     });

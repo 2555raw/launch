@@ -3,46 +3,73 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UnyHooks — chat to build Uniswap V4 hooks</title>
-  <meta name="description" content="Describe what your pool should do. UnyHooks writes the Uniswap V4 hook, you deploy it from your own wallet and run your pools from the same chat.">
+  <title>UnyHooks — hook your pool, rule the seas</title>
+  <meta name="description" content="Chat to build Uniswap V4 hooks on Robinhood Chain, or launch a token with a protected pool and locked liquidity in one signature.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="UnyHooks">
-  <meta property="og:title" content="UnyHooks: chat to build Uniswap V4 hooks">
-  <meta property="og:description" content="Say what your pool should do. UnyHooks writes the Uniswap V4 hook and you deploy it from your wallet on Robinhood Chain.">
+  <meta property="og:title" content="UnyHooks: hook your pool, rule the seas">
+  <meta property="og:description" content="Chat to build Uniswap V4 hooks, or launch a token with anti-sniper protection and locked liquidity in one signature. On Robinhood Chain.">
   <meta property="og:image" content="og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="UnyHooks: chat to build Uniswap V4 hooks, with a hook contract ready to deploy">
+  <meta property="og:image:alt" content="UnyHooks: a golden pirate hook over the night sea">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@UnyHooks">
   <meta name="twitter:image" content="og.png">
-  <meta name="theme-color" content="#EC1586">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23E5127D'/%3E%3Cstop offset='1' stop-color='%23FF6CB8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='skewX(-10) translate(3 0)' fill='none' stroke='url(%23g)' stroke-width='4.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12'/%3E%3C/g%3E%3C/svg%3E">
+  <meta name="theme-color" content="#070B14">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23FBE7B0'/%3E%3Cstop offset='.45' stop-color='%23E8B04B'/%3E%3Cstop offset='1' stop-color='%23A86F18'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M23 45V24A13 13 0 0 1 49 24C49 32 44 38 36.5 39.5C41.5 35 43 30 43 24A7 7 0 0 0 29 24V45Z' fill='url(%23g)'/%3E%3Crect x='20' y='41' width='12' height='5' rx='1.6' fill='%23B57A1F'/%3E%3Cpath d='M14 46.5h24a1.8 1.8 0 0 1 1.8 2l-1.4 9.6a2.4 2.4 0 0 1-2.4 2.1H16a2.4 2.4 0 0 1-2.4-2.1l-1.4-9.6a1.8 1.8 0 0 1 1.8-2z' fill='%23A86F18'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,500&family=IM+Fell+English:ital@0;1&family=Pirata+One&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="uh" id="top">
 
-  <!-- The mark, defined once and reused: a U whose right stem curls into a hook. -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <linearGradient id="uh-grad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#E5127D"/>
-        <stop offset="1" stop-color="#FF6CB8"/>
-      </linearGradient>
-      <symbol id="uh-mark" viewBox="0 0 32 32">
-        <g transform="skewX(-10) translate(3 0)" fill="none" stroke="url(#uh-grad)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12"/>
-        </g>
+      <!-- the mark: a pirate's hook on its cuff -->
+      <linearGradient id="uh-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBE7B0"/><stop offset=".45" stop-color="#E8B04B"/><stop offset="1" stop-color="#A86F18"/></linearGradient>
+      <linearGradient id="uh-cuff" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C98F2E"/><stop offset="1" stop-color="#7E5313"/></linearGradient>
+      <symbol id="uh-mark" viewBox="0 0 64 64">
+        <path d="M23 45V24A13 13 0 0 1 49 24C49 32 44 38 36.5 39.5C41.5 35 43 30 43 24A7 7 0 0 0 29 24V45Z" fill="url(#uh-gold)"/>
+        <path d="M26 42V24A10 10 0 0 1 45.6 21.3" fill="none" stroke="#FFF4D6" stroke-opacity=".55" stroke-width="1.4" stroke-linecap="round"/>
+        <rect x="20" y="41" width="12" height="5" rx="1.6" fill="url(#uh-cuff)"/>
+        <path d="M14 46.5h24a1.8 1.8 0 0 1 1.8 2l-1.4 9.6a2.4 2.4 0 0 1-2.4 2.1H16a2.4 2.4 0 0 1-2.4-2.1l-1.4-9.6a1.8 1.8 0 0 1 1.8-2z" fill="url(#uh-cuff)"/>
+        <path d="M13.2 51.2h25.6M13.9 55.4h24.2" stroke="#FBE7B0" stroke-opacity=".45" stroke-width="1.2"/>
       </symbol>
       <symbol id="uh-x" viewBox="0 0 24 24">
         <path fill="currentColor" d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.77L17.75 3zm-1.08 16.18h1.7L7.4 4.73H5.58l11.09 14.45z"/>
       </symbol>
+      <!-- the ship's chest of icons: 24px line drawings in currentColor -->
+      <symbol id="i-anchor" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.6" r="1.9"/><path d="M12 6.5V20.5M8 9.5h8M4.5 13c0 4.2 3.4 7.5 7.5 7.5s7.5-3.3 7.5-7.5M4.5 13 3 15M4.5 13l2 1.4M19.5 13l1.5 2M19.5 13l-2 1.4"/></g></symbol>
+      <symbol id="i-skull" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3C8.3 3 5.6 5.6 5.6 9c0 2 .9 3.5 2.3 4.4V15.5h8.2v-2.1c1.4-.9 2.3-2.4 2.3-4.4C18.4 5.6 15.7 3 12 3z"/><path d="M10.3 15.5v-1.6M13.7 15.5v-1.6M4 18.5l16 3M20 18.5l-16 3"/></g><circle cx="9.7" cy="9.4" r="1.5" fill="currentColor"/><circle cx="14.3" cy="9.4" r="1.5" fill="currentColor"/></symbol>
+      <symbol id="i-cannon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 13.8 15.8 8.6l1.7 4L5.2 17.8z"/><path d="M17.5 8 19 11.6M20.5 9.8h1.5"/><circle cx="8.5" cy="18" r="2.6"/></g></symbol>
+      <symbol id="i-chest" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11h17v9h-17zM3.5 11c0-3.4 3.8-5.8 8.5-5.8s8.5 2.4 8.5 5.8M3.5 14.5h17"/><rect x="10.6" y="13" width="2.8" height="3.2" rx=".6"/></g></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 11V8a4.5 4.5 0 0 1 9 0v3M5.5 11h13v9.5h-13z"/><path d="M12 14.5v2.5"/></g></symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></g></symbol>
+      <symbol id="i-swords" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4l11 11M20 4 9 15M13 17l4-4M11 17l-4-4M16.5 16.5 20 20M7.5 16.5 4 20"/></g></symbol>
+      <symbol id="i-ship" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16h18l-2.5 4h-13zM12 3v13M12 4.5c3 1.5 4.5 4 4.5 7.5H12M12 6c-2.6 1.3-4 3.4-4 6h4"/></g></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V3.5M5 4h13l-3 4.5 3 4.5H5"/></g></symbol>
+      <symbol id="i-storm" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 15a4 4 0 0 1-.4-8A5.5 5.5 0 0 1 17 8a3.5 3.5 0 0 1 0 7M12.5 12.5 10.5 16h3l-2 3.5"/></g></symbol>
+      <symbol id="i-hourglass" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11M6.5 20.5h11M8 3.5c0 4 4 5 4 8.5S8 16.5 8 20.5M16 3.5c0 4-4 5-4 8.5s4 4.5 4 8.5"/></g></symbol>
+      <symbol id="i-coin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="5.2"/></g></symbol>
+      <symbol id="i-scroll" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h11a2 2 0 0 1 2 2v1h-4M7 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V7M9 9h6M9 12.5h6M9 16h4"/></g></symbol>
+      <symbol id="i-key" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="4.5"/><path d="M11.2 11.2 20 20M16.5 16.5l2-2M18.5 18.5l2-2"/></g></symbol>
+      <symbol id="i-eye" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></g></symbol>
+      <!-- the hero's metal -->
+      <linearGradient id="hk-metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6E460D"/><stop offset=".22" stop-color="#E2A946"/><stop offset=".42" stop-color="#FFF3CC"/><stop offset=".58" stop-color="#EDBB5C"/><stop offset=".85" stop-color="#9A6516"/><stop offset="1" stop-color="#5A390A"/></linearGradient>
+      <linearGradient id="hk-cuff" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4A2F0A"/><stop offset=".35" stop-color="#B57A1F"/><stop offset=".55" stop-color="#E8B04B"/><stop offset="1" stop-color="#4A2F0A"/></linearGradient>
+      <radialGradient id="sea-sky" cx=".7" cy=".25" r=".9"><stop offset="0" stop-color="#1B2C49"/><stop offset=".55" stop-color="#0B1426"/><stop offset="1" stop-color="#060A13"/></radialGradient>
+      <linearGradient id="sea-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#11233D"/><stop offset="1" stop-color="#050A14"/></linearGradient>
+      <radialGradient id="sea-moon" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFF6DD"/><stop offset=".7" stop-color="#F1DDA8"/><stop offset="1" stop-color="#D9BC78"/></radialGradient>
+      <radialGradient id="sea-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#F3D58E" stop-opacity=".45"/><stop offset="1" stop-color="#F3D58E" stop-opacity="0"/></radialGradient>
+      <clipPath id="sea-clip"><circle cx="300" cy="300" r="268"/></clipPath>
     </defs>
   </svg>
+
+  <!-- the rope down the left side; the hook follows the page -->
+  <div class="uh-rope" id="rope" aria-hidden="true"><svg class="uh-rope-hook" id="rope-hook"><use href="#uh-mark"/></svg></div>
 
   <header class="uh-head">
     <nav class="uh-nav">
@@ -51,22 +78,21 @@
         <span>Uny<b>Hooks</b></span>
       </a>
       <div class="uh-links" id="navlinks">
-        <a data-scroll="how" href="#how">How it works</a>
+        <a data-scroll="voyage" href="#voyage">The voyage</a>
         <a data-scroll="launch" href="#launch">Launch a token</a>
-        <a data-scroll="build" href="#build">What you can build</a>
+        <a data-scroll="armory" href="#armory">The armory</a>
+        <a data-scroll="code" href="#code">The code</a>
         <a data-scroll="token" href="#token" class="uh-link-token">$UHOOKS</a>
         <a data-scroll="faq" href="#faq">FAQ</a>
         <a data-link="docs" href="#">Docs</a>
       </div>
       <div class="uh-nav-right">
         <a class="uh-icon" data-link="x" href="#" target="_blank" rel="noopener" aria-label="UnyHooks on X">
-          <svg width="18" height="18" aria-hidden="true"><use href="#uh-x"/></svg>
+          <svg width="16" height="16" aria-hidden="true"><use href="#uh-x"/></svg>
         </a>
-        <a class="uh-btn uh-btn-pink uh-btn-sm" data-link="app" href="#">Launch app</a>
+        <a class="uh-btn uh-btn-pink uh-btn-sm" data-link="app" href="#">Set sail</a>
         <button class="uh-icon uh-burger" id="burger" type="button" aria-label="Open the menu" aria-expanded="false">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         </button>
       </div>
     </nav>
@@ -75,57 +101,113 @@
   <main>
 
     <!-- hero -->
-    <section class="uh-hero uh-wrap">
+    <section class="uh-wrap uh-hero" id="hero">
       <div class="uh-hero-copy">
-        <p class="uh-eyebrow">Plain language meets Uniswap V4</p>
-        <h1 class="uh-h1">Chat to build<br>Uniswap V4<br><span class="uh-pink">hooks.</span></h1>
-        <p class="uh-lead">Tell UnyHooks what your pool should do. It writes the hook, you deploy it from your own wallet, and you run your pools from the same conversation.</p>
+        <p class="uh-eyebrow">Uniswap V4 hooks / Robinhood Chain</p>
+        <h1 class="uh-h1">Hook your pool.<br><span class="uh-pink">Rule the seas.</span></h1>
+        <p class="uh-lead"><b>Say what your pool should do, and UnyHooks forges the hook.</b> A cut of every trade, fees that rise with the storm, cannons against snipers. Or launch a whole token, protected and locked, in one signature from your own wallet.</p>
         <form class="uh-try" id="try" action="build.html">
-          <label class="uh-try-label" for="try-input">What should your pool do?</label>
+          <label class="uh-try-label" for="try-input">Captain's orders</label>
           <div class="uh-try-box">
             <input id="try-input" type="text" autocomplete="off" placeholder="Send 1% of every swap to my wallet">
-            <button class="uh-btn uh-btn-pink" type="submit">Build it</button>
+            <button class="uh-btn uh-btn-pink" type="submit">Forge the hook</button>
           </div>
           <div class="uh-try-ideas">
-            <button type="button" data-idea="Raise the fee when the market gets volatile, lower it when it's calm.">Dynamic fees</button>
-            <button type="button" data-idea="For the first hour, cap every buy at 0.5 ETH and one buy per wallet every 30 seconds.">Stop snipers</button>
-            <button type="button" data-idea="Only trade during US market hours, weekdays.">Market hours</button>
+            <button type="button" data-idea="Raise the fee when the market gets volatile, lower it when it's calm.">Storm fees</button>
+            <button type="button" data-idea="For the first hour, cap every buy at 0.5 ETH and one buy per wallet every 30 seconds.">Cannons on snipers</button>
+            <button type="button" data-idea="Only trade during US market hours, weekdays.">Harbour hours</button>
           </div>
         </form>
-        <p class="uh-try-note">Free, no wallet needed to try. <a data-scroll="how" href="#how">See how it works</a> · <a href="launch.html">Launch a token in one signature</a></p>
+        <p class="uh-try-note">No wallet needed to try. <a href="launch.html">Launch a token in one signature</a></p>
+        <div class="uh-chips" aria-label="How it goes"><span>Name it</span><i></i><span>Forge it</span><i></i><span>Sign once</span></div>
       </div>
 
-      <div class="uh-hero-art">
-        <div class="uh-scene" aria-hidden="true">
-          <div class="uh-arch">
-            <div class="uh-cloud uh-cloud-a"></div>
-            <div class="uh-cloud uh-cloud-b"></div>
-            <div class="uh-hill"></div>
-            <div class="uh-sun"></div>
-          </div>
-          <div class="uh-wall-r">
-            <svg class="uh-emboss"><use href="#uh-mark"/></svg>
-            <span>UNISWAP V4</span>
-          </div>
-          <div class="uh-floor"></div>
-          <div class="uh-beam"></div>
-        </div>
-        <div class="uh-prompt">
-          <span class="uh-prompt-av"><svg aria-hidden="true"><use href="#uh-mark"/></svg></span>
-          <span class="uh-prompt-t" id="typer">Create a Uniswap V4 hook that takes 1% of every swap</span><span class="uh-caret" aria-hidden="true"></span>
-        </div>
+      <div class="uh-sea" aria-hidden="true">
+        <div class="uh-sea-ring"></div>
+        <svg class="uh-sea-art" viewBox="0 0 600 600">
+          <circle cx="300" cy="300" r="268" fill="url(#sea-sky)"/>
+          <g clip-path="url(#sea-clip)">
+            <g fill="#F3E6C8">
+              <circle class="uh-twinkle" cx="120" cy="120" r="1.6"/><circle cx="180" cy="80" r="1.1"/><circle class="uh-twinkle" cx="250" cy="140" r="1.3" style="animation-delay:1.2s"/>
+              <circle cx="90" cy="210" r="1"/><circle class="uh-twinkle" cx="330" cy="70" r="1.4" style="animation-delay:.6s"/><circle cx="510" cy="250" r="1.1"/>
+              <circle class="uh-twinkle" cx="470" cy="80" r="1.2" style="animation-delay:2s"/><circle cx="210" cy="230" r="1"/><circle cx="150" cy="300" r=".9"/>
+            </g>
+            <circle cx="268" cy="150" r="120" fill="url(#sea-glow)"/>
+            <circle cx="268" cy="150" r="40" fill="url(#sea-moon)"/>
+            <circle cx="255" cy="138" r="6.5" fill="#E4CC92" opacity=".55"/><circle cx="280" cy="162" r="4.5" fill="#E4CC92" opacity=".5"/><circle cx="276" cy="133" r="3.2" fill="#E4CC92" opacity=".45"/>
+            <rect x="0" y="362" width="600" height="240" fill="url(#sea-water)"/>
+            <g stroke="#F3D58E" stroke-linecap="round" opacity=".55">
+              <path d="M300 382h44M306 398h36M298 414h52M308 432h32M302 452h44M311 474h26" stroke-width="2"/>
+            </g>
+            <!-- the ship -->
+            <g transform="translate(-78 6)"><g class="uh-bob">
+              <g fill="#0A1222" stroke="#C99A48" stroke-opacity=".35" stroke-width="1">
+                <path d="M196 362V214M246 362V196M290 362V232"/>
+              </g>
+              <g fill="#E3CFA2" opacity=".92">
+                <path d="M200 222c26 8 34 30 30 52h-30z"/>
+                <path d="M200 284c30 7 38 32 33 58h-33z"/>
+                <path d="M250 204c30 9 40 34 35 60h-35z"/>
+                <path d="M250 272c34 8 44 36 38 66h-38z"/>
+                <path d="M294 240c22 7 28 26 25 44h-25z"/>
+                <path d="M294 294c26 6 31 28 27 46h-27z"/>
+              </g>
+              <g fill="#B79C6A" opacity=".55"><path d="M200 222c10 16 12 34 10 52h-10zM250 204c12 18 14 38 12 60h-12zM250 272c12 20 14 42 12 66h-12z"/></g>
+              <path d="M246 196h28l-6 7 6 7h-28z" fill="#111"/>
+              <circle cx="257" cy="203" r="2.6" fill="#F3E6C8"/>
+              <path d="M150 346h16l4 10h170l14-14h4l-20 44q-90 12-176 2z" fill="#0B1424" stroke="#C99A48" stroke-opacity=".45" stroke-width="1.2"/>
+              <path d="M150 346h16l2-16h-22z" fill="#0B1424" stroke="#C99A48" stroke-opacity=".45" stroke-width="1.2"/>
+              <path d="M172 372h160" stroke="#C99A48" stroke-opacity=".4" stroke-width="1.5"/>
+              <g fill="#05080F"><rect x="196" y="377" width="9" height="6" rx="1"/><rect x="236" y="378" width="9" height="6" rx="1"/><rect x="276" y="378" width="9" height="6" rx="1"/></g>
+              <g fill="#FFD27A"><circle class="uh-flash" cx="200" cy="380" r="7"/><circle class="uh-flash d2" cx="240" cy="381" r="7"/><circle class="uh-flash d3" cx="280" cy="381" r="7"/></g>
+              <g fill="#CFC4AE"><circle class="uh-puff" cx="190" cy="380" r="9"/><circle class="uh-puff d2" cx="230" cy="381" r="9"/><circle class="uh-puff d3" cx="270" cy="381" r="9"/></g>
+            </g></g>
+            <!-- waves, two periods wide so they can loop -->
+            <g class="uh-wave-c" fill="#0D1C33"><path d="M0 382c40-8 60-8 100 0s60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0V600H0z"/></g>
+            <g class="uh-wave-a" fill="#0A172B"><path d="M0 410c30-10 50-10 80 0s50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0V600H0z"/><path d="M0 410c30-10 50-10 80 0s50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0" fill="none" stroke="#E8B04B" stroke-opacity=".28" stroke-width="1.5"/></g>
+            <g class="uh-wave-b" fill="#071222"><path d="M0 452c45-12 75-12 120 0s75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0V600H0z"/><path d="M0 452c45-12 75-12 120 0s75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0" fill="none" stroke="#E8B04B" stroke-opacity=".2" stroke-width="1.5"/></g>
+          </g>
+          <!-- the hook, in front of everything -->
+          <g class="uh-float" style="filter: drop-shadow(0 18px 30px rgba(0,0,0,.7)) drop-shadow(0 0 26px rgba(232,176,75,.35))">
+            <g transform="translate(236 6) scale(5.9)">
+              <path d="M23 45V24A13 13 0 0 1 49 24C49 32 44 38 36.5 39.5C41.5 35 43 30 43 24A7 7 0 0 0 29 24V45Z" fill="url(#hk-metal)"/>
+              <path d="M25.6 42V24A10.4 10.4 0 0 1 46 21.4" fill="none" stroke="#FFF7DE" stroke-opacity=".7" stroke-width=".7" stroke-linecap="round"/>
+              <rect x="20" y="41" width="12" height="5" rx="1.6" fill="url(#hk-cuff)"/>
+              <path d="M14 46.5h24a1.8 1.8 0 0 1 1.8 2l-1.4 9.6a2.4 2.4 0 0 1-2.4 2.1H16a2.4 2.4 0 0 1-2.4-2.1l-1.4-9.6a1.8 1.8 0 0 1 1.8-2z" fill="url(#hk-cuff)"/>
+              <path d="M13.2 51.2h25.6M13.9 55.4h24.2" stroke="#FBE7B0" stroke-opacity=".5" stroke-width=".6"/>
+              <g fill="#FBE7B0" opacity=".7"><circle cx="17" cy="49" r=".7"/><circle cx="35" cy="49" r=".7"/><circle cx="17.6" cy="58" r=".7"/><circle cx="34.4" cy="58" r=".7"/></g>
+            </g>
+          </g>
+        </svg>
+        <div class="uh-tag uh-tag-a"><b>Rule fired</b><span>when <em>buy &gt; 0.1 ETH</em><br>then <em>refuse</em></span></div>
+        <div class="uh-tag uh-tag-b is-red"><b>Captain's orders</b><span id="typer">Take 1% of every swap</span></div>
       </div>
     </section>
+
+    <div class="uh-wrap">
+      <div class="uh-articles uh-rise">
+        <div><svg aria-hidden="true"><use href="#i-anchor"/></svg><h3>Liquidity can't be pulled</h3><p>A locked pool stays locked until the date. Nobody holds a key to it early.</p></div>
+        <div><svg aria-hidden="true"><use href="#i-coin"/></svg><h3>No more coins get minted</h3><p>Every launched token has a fixed supply and no owner. Ever.</p></div>
+        <div><svg aria-hidden="true"><use href="#i-cannon"/></svg><h3>Snipers meet the cannons</h3><p>Launch protection caps buys and slows bots. Selling is never blocked.</p></div>
+        <div><svg aria-hidden="true"><use href="#i-scroll"/></svg><h3>Every chart is public</h3><p>Token, hook and lock are published on Sourcify for anyone to read.</p></div>
+      </div>
+    </div>
+
+    <!-- the ship's log -->
+    <div class="uh-ticker" aria-label="Example rules" style="margin-top:72px">
+      <div class="uh-ticker-track" id="ticker"></div>
+    </div>
 
     <!-- live demo: the real builder output, played back -->
     <section class="uh-sec uh-demo-sec" id="demo" aria-label="Demo">
       <div class="uh-wrap">
         <div class="uh-demo-head uh-rise">
-          <p class="uh-eyebrow">See it work</p>
-          <h2 class="uh-h2">One sentence in. <span class="uh-pink uh-nw">A live hook out.</span></h2>
+          <p class="uh-eyebrow">The captain's log</p>
+          <h2 class="uh-h2">One sentence in. <span class="uh-pink">A live hook out.</span></h2>
+          <p class="uh-sub">Speak like a captain, not a coder. UnyHooks only asks about what changes the contract and fills in sensible defaults for everything else.</p>
         </div>
         <div class="dm-window uh-rise" id="demo-window">
-          <div class="dm-bar" aria-hidden="true"><i></i><i></i><i></i><span>unyhooks.app/build</span></div>
+          <div class="dm-bar" aria-hidden="true"><i></i><i></i><i></i><span>unyhooks · the builder</span></div>
           <div class="dm-body">
             <div class="dm-chat">
               <div class="dm-msg dm-me"><span id="dm-typed"></span><span class="dm-caret" aria-hidden="true"></span></div>
@@ -142,161 +224,213 @@
             </div>
           </div>
         </div>
-        <p class="uh-demo-note uh-rise">A replay of the builder writing real contracts. <a data-link="app" href="build.html">Try it with your own words</a></p>
+        <p class="uh-demo-note uh-rise">A replay of the builder writing real contracts. <a data-link="app" href="build.html">Give your own orders</a></p>
       </div>
     </section>
 
-    <!-- how it works -->
-    <section class="uh-sec" id="how">
+    <!-- the voyage (parchment) -->
+    <section class="uh-sec uh-parch" id="voyage">
       <div class="uh-wrap">
-        <h2 class="uh-h2 uh-rise">From one sentence to a live pool.</h2>
-        <p class="uh-sub uh-rise">No Solidity, no Foundry, no salt mining by hand. Three steps in one conversation.</p>
-
-        <div class="uh-steps">
-          <article class="uh-card uh-step uh-rise">
-            <div class="uh-demo uh-demo-chat">
-              <div class="uh-bubble uh-bubble-me">Raise the fee when the market gets volatile, lower it when it's calm.</div>
-              <div class="uh-bubble uh-bubble-ai">On it. Floor 0.05%, ceiling 1%. Writing the hook now.</div>
-            </div>
-            <h3>Describe it</h3>
-            <p>Say what you want in plain words. UnyHooks only asks about what changes the contract and fills in sensible defaults for everything else.</p>
+        <div class="uh-rise">
+          <p class="uh-eyebrow">The voyage</p>
+          <h2 class="uh-h2">From one sentence to a <span class="uh-pink">live pool.</span></h2>
+          <p class="uh-sub">No Solidity, no Foundry, no salt mining by hand. Three legs, one conversation, and your wallet signs every one.</p>
+        </div>
+        <div class="uh-voyage">
+          <svg class="uh-route" viewBox="0 0 1000 60" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M40 30C200 -10 300 70 480 30S800 -10 960 30" fill="none" stroke="#7A2414" stroke-width="2" stroke-dasharray="2 9" stroke-linecap="round" opacity=".7"/>
+          </svg>
+          <article class="uh-leg uh-rise">
+            <div class="uh-leg-n">I</div>
+            <h3>Give your orders</h3>
+            <p>Say what you want in plain words. A fee, a schedule, a cap on snipers.</p>
+            <div class="uh-mini">"For the first hour, cap every buy at <b>0.5 ETH</b>."</div>
           </article>
-
-          <article class="uh-card uh-step uh-rise">
-            <div class="uh-demo uh-demo-box">
-              <div class="uh-demo-row">
-                <code class="uh-code">DynamicFeeHook</code>
-                <span class="uh-badge uh-badge-ok">Compiles</span>
-              </div>
-              <div class="uh-tags"><span>beforeSwap</span><span>afterSwap</span></div>
-              <div class="uh-demo-row uh-demo-foot">
-                <small>Robinhood Chain</small>
-                <span class="uh-btn uh-btn-pink uh-btn-xs">Deploy</span>
-              </div>
-            </div>
-            <h3>Review and deploy</h3>
-            <p>The hook compiles in your browser and the full source is one click away. Press Deploy and sign once; the address with the right hook flags is found for you.</p>
+          <article class="uh-leg uh-rise">
+            <div class="uh-leg-n">II</div>
+            <h3>Forge and deploy</h3>
+            <p>The hook compiles in your browser, the address with the right hook flags is found for you, and you sign once.</p>
+            <div class="uh-mini">LaunchGuardHook · <b>compiles</b> · beforeSwap</div>
           </article>
-
-          <article class="uh-card uh-step uh-rise">
-            <div class="uh-demo uh-demo-box">
-              <div class="uh-demo-row uh-demo-row-start">
-                <b>ETH/USDC</b>
-                <span class="uh-badge uh-badge-ok">Live</span>
-              </div>
-              <dl class="uh-kv">
-                <div><dt>Fee</dt><dd>Dynamic</dd></div>
-                <div><dt>Tick spacing</dt><dd>60</dd></div>
-                <div><dt>Hook</dt><dd class="uh-mono uh-pink">0x7a3…20C0</dd></div>
-              </dl>
-            </div>
-            <h3>Run your pools</h3>
-            <p>Create pools with your hook and keep every one of them in a single dashboard. Ask for a pool's price, fee or liquidity whenever you want to check in.</p>
+          <article class="uh-leg uh-rise">
+            <div class="uh-leg-n">III</div>
+            <h3>Run your fleet</h3>
+            <p>Create pools, add liquidity, lock it, and watch every pool from one dashboard.</p>
+            <div class="uh-mini">PINK/ETH · <b>live</b> · liquidity locked <span class="uh-x">✕</span></div>
           </article>
         </div>
+        <p class="uh-quote-line uh-rise">A token is a ship. The hook is the code it sails by: <span class="uh-pink">written before it leaves port.</span></p>
       </div>
     </section>
 
     <!-- launch a token -->
     <section class="uh-sec" id="launch">
       <div class="uh-wrap uh-launch">
-        <div class="uh-launch-copy uh-rise">
-          <p class="uh-eyebrow">New: launch a token</p>
-          <h2 class="uh-h2">Token, pool, protection.<br><span class="uh-pink uh-nw">One signature.</span></h2>
-          <p class="uh-sub">Name it and add some ETH. UnyHooks creates the token, its Uniswap V4 pool with anti-sniper protection, the liquidity and a lock, in one transaction from your wallet. Then share its page, where buyers can check all of it on chain.</p>
-          <ul class="uh-launch-list">
-            <li><b>A clean token.</b> Fixed supply, no owner, no mint, no taxes, no blocklist.</li>
-            <li><b>Launch protection.</b> Caps buys and adds a cooldown while the price finds its level.</li>
-            <li><b>Locked liquidity.</b> 30 days, a year or forever. You keep earning the pool's fees.</li>
-            <li><b>A page to share.</b> Every claim is checked on chain, not taken from a database.</li>
-          </ul>
-          <div class="uh-launch-cta">
-            <a class="uh-btn uh-btn-pink" href="launch.html">Launch a token</a>
+        <div class="uh-rise">
+          <p class="uh-eyebrow">Launch a token</p>
+          <h2 class="uh-h2">Hoist your flag. <span class="uh-pink">One signature.</span></h2>
+          <p class="uh-sub">Name it and add some ETH. UnyHooks creates the token, its Uniswap V4 pool with anti-sniper cannons, the liquidity and the lock, in one transaction from your wallet. If any part fails, nothing is created.</p>
+          <div class="uh-born is-rows">
+            <div><span class="uh-ico"><svg><use href="#i-coin"/></svg></span><h3>A token</h3><p>Fixed supply, minted once. No owner, no mint, no tax, no blocklist.</p></div>
+            <div><span class="uh-ico"><svg><use href="#i-cannon"/></svg></span><h3>A guarded pool</h3><p>Uniswap V4 against ETH, with buy caps and a cooldown while the price finds its level.</p></div>
+            <div><span class="uh-ico"><svg><use href="#i-lock"/></svg></span><h3>A lock</h3><p>30 days, a year or forever. You keep earning the pool's fees.</p></div>
+          </div>
+          <div class="uh-actions">
+            <a class="uh-btn uh-btn-pink" href="launch.html" id="fire-link"><svg aria-hidden="true"><use href="#i-cannon"/></svg>Launch a token</a>
             <a class="uh-btn uh-btn-ghost" href="docs.html#launch">How it works</a>
           </div>
         </div>
-        <div class="uh-card uh-launch-card uh-rise" aria-hidden="true">
-          <p class="uh-launch-kicker">Launched with UnyHooks</p>
-          <p class="uh-launch-sym">$PINK <span>Pink Moon</span></p>
-          <ul class="uh-launch-checks">
-            <li class="is-ok">Hook source published on Sourcify</li>
-            <li class="is-ok">Fixed supply of 1B, no owner</li>
-            <li class="is-ok"><span><b>All</b> of the liquidity locked for 1 year</span></li>
-            <li class="is-info"><span><b>Launch protection on</b>, 42:10 left</span></li>
-          </ul>
-          <span class="uh-btn uh-btn-pink uh-btn-sm">Buy $PINK</span>
+        <div class="uh-battery uh-rise" id="battery" aria-hidden="true">
+          <svg viewBox="0 0 500 380">
+            <defs>
+              <linearGradient id="bt-iron" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4A505C"/><stop offset=".45" stop-color="#1E222B"/><stop offset="1" stop-color="#0A0C11"/></linearGradient>
+              <linearGradient id="bt-wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A5024"/><stop offset="1" stop-color="#3A240E"/></linearGradient>
+              <linearGradient id="bt-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#132341"/><stop offset="1" stop-color="#0A1222"/></linearGradient>
+              <radialGradient id="bt-flash" cx=".3" cy=".5" r=".7"><stop offset="0" stop-color="#FFF6D6"/><stop offset=".4" stop-color="#FFC04D"/><stop offset="1" stop-color="#E5624B" stop-opacity="0"/></radialGradient>
+              <clipPath id="bt-clip"><rect x="0" y="0" width="500" height="380" rx="26"/></clipPath>
+            </defs>
+            <g clip-path="url(#bt-clip)">
+              <rect width="500" height="380" fill="url(#bt-sky)"/>
+              <circle cx="120" cy="70" r="90" fill="url(#sea-glow)"/>
+              <circle cx="120" cy="70" r="24" fill="url(#sea-moon)"/>
+              <g fill="#F3E6C8" opacity=".8"><circle cx="230" cy="40" r="1.3"/><circle cx="40" cy="120" r="1"/><circle cx="200" cy="110" r="1"/><circle cx="470" cy="30" r="1.2"/></g>
+              <rect y="190" width="500" height="80" fill="#0B1A30"/>
+              <path class="uh-wave-a" d="M0 200c30-6 50-6 80 0s50 6 80 0 50-6 80 0 50 6 80 0 50-6 80 0 50 6 80 0 50-6 80 0 50 6 80 0 50-6 80 0 50 6 80 0 50-6 80 0 50 6 80 0 50-6 80 0V280H0z" fill="#0A1628"/>
+              <!-- rail -->
+              <rect y="232" width="500" height="10" fill="#4A2F12"/>
+              <g fill="#3A240E"><rect x="20" y="242" width="10" height="44"/><rect x="110" y="242" width="10" height="44"/><rect x="200" y="242" width="10" height="44"/><rect x="290" y="242" width="10" height="44"/><rect x="380" y="242" width="10" height="44"/><rect x="470" y="242" width="10" height="44"/></g>
+              <rect y="284" width="500" height="96" fill="#24180B"/>
+              <g stroke="#140D05" stroke-width="1.2" opacity=".8"><path d="M0 300h500M0 320h500M0 342h500M0 364h500M70 284v96M190 284v96M330 284v96M440 284v96"/></g>
+              <!-- cannonballs stacked -->
+              <g fill="#14171E" stroke="#4A505C" stroke-width="1.2"><circle cx="380" cy="318" r="12"/><circle cx="405" cy="318" r="12"/><circle cx="392" cy="297" r="12"/></g>
+              <!-- the cannon -->
+              <g id="bt-barrel">
+                <path d="M54 250 L252 214 Q268 212 270 228 L272 248 Q273 263 257 265 L66 286 Q42 289 40 270 Q38 253 54 250z" fill="url(#bt-iron)"/>
+                <path d="M252 214 Q268 212 270 228 L272 248 Q273 263 257 265" fill="none" stroke="#C99A48" stroke-width="5"/>
+                <path d="M112 240 L117 280M176 229 L181 273" stroke="#C99A48" stroke-width="3.5" opacity=".85"/>
+                <circle cx="40" cy="268" r="10" fill="url(#bt-iron)" stroke="#C99A48" stroke-width="2.5"/>
+                <path d="M70 254 L240 224" stroke="#FFF" stroke-opacity=".2" stroke-width="3.5" stroke-linecap="round"/>
+              </g>
+              <path d="M60 288h160l-14 30H76z" fill="url(#bt-wood)"/>
+              <circle cx="92" cy="316" r="20" fill="#2A1A0A" stroke="#C99A48" stroke-width="3"/><circle cx="92" cy="316" r="5" fill="#C99A48"/>
+              <circle cx="190" cy="316" r="20" fill="#2A1A0A" stroke="#C99A48" stroke-width="3"/><circle cx="190" cy="316" r="5" fill="#C99A48"/>
+              <!-- fire -->
+              <g id="bt-muzzle" opacity="0"><path d="M274 238l46-26-16 23 44 2-44 12 18 25-48-21z" fill="url(#bt-flash)"/></g>
+              <g id="bt-smoke" fill="#CFC4AE" opacity="0"><circle cx="292" cy="236" r="18"/><circle cx="314" cy="222" r="13"/><circle cx="316" cy="250" r="12"/><circle cx="336" cy="234" r="10"/></g>
+              <circle id="bt-ball" r="8" fill="#0E1015" stroke="#6A707C" stroke-width="1.5" opacity="0"/>
+              <g id="bt-hit" opacity="0" fill="#FFD27A"><circle cx="0" cy="0" r="6"/><path d="M0-24v12M0 12v12M-24 0h12M12 0h12M-17-17l8 8M9 9l8 8M17-17l-8 8M-9 9l-8 8" stroke="#FFD27A" stroke-width="3" stroke-linecap="round"/></g>
+            </g>
+            <rect x=".5" y=".5" width="499" height="379" rx="26" fill="none" stroke="rgba(232,196,120,.25)"/>
+          </svg>
+          <div class="uh-flag-card">
+            <small>Hoisted</small>
+            <b>$PINK</b>
+            <ul><li>Fixed supply, no owner</li><li>Launch protection on</li><li>Liquidity locked 1 year</li></ul>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- what you can build -->
-    <section class="uh-sec uh-sec-tint" id="build">
+    <!-- the armory: what you can build -->
+    <section class="uh-sec" id="armory" style="padding-top:40px">
       <div class="uh-wrap">
-        <div class="uh-split uh-rise">
-          <h2 class="uh-h2">If you can say it,<br>your pool can <span class="uh-pink uh-nw">do it.</span></h2>
-          <p class="uh-sub">A good share of the Uniswap V4 pools on Robinhood Chain already run a hook. These are the ones people ask for most, and the places UnyHooks starts from.</p>
+        <div class="uh-rise">
+          <p class="uh-eyebrow">The armory</p>
+          <h2 class="uh-h2">If you can say it, your pool can <span class="uh-pink">do it.</span></h2>
+          <p class="uh-sub">A good share of the Uniswap V4 pools on Robinhood Chain already run a hook. These are the ones captains ask for most, and where UnyHooks starts.</p>
         </div>
-
-        <div class="uh-bento">
-          <article class="uh-card uh-tile uh-tile-wide uh-rise">
-            <h3>A fee on every swap</h3>
-            <p>The most common hook on the chain. Launch a token and send a cut of each trade to your wallet or a treasury.</p>
-            <code class="uh-quote">"I'm launching a token paired with ETH. Send 1% of every swap to my wallet."</code>
+        <div class="uh-armory">
+          <article class="uh-arm uh-arm-wide uh-rise">
+            <span class="uh-ico"><svg><use href="#i-chest"/></svg></span>
+            <small>The toll</small>
+            <h3>A cut of every swap</h3>
+            <p>The most common hook on the chain. Every ship that passes pays its share to your wallet or the treasury.</p>
+            <code>"Send <b>1%</b> of every swap to my wallet."</code>
           </article>
-          <article class="uh-card uh-tile uh-rise">
-            <h3>Dynamic fees</h3>
-            <p>Charge more when volatility spikes and less when the market is quiet.</p>
-          </article>
-          <article class="uh-card uh-tile uh-rise">
+          <article class="uh-arm uh-arm-wide uh-rise">
+            <span class="uh-ico"><svg><use href="#i-cannon"/></svg></span>
+            <small>Cannons on the gate</small>
             <h3>Launch protection</h3>
-            <p>Cap wallet size or slow down snipers during a token's first hours.</p>
+            <p>For the first minutes, cap each buy and add a cooldown per wallet, so snipers can't take half the hold in the first block.</p>
+            <code>"Cap buys at <b>0.5 ETH</b> for the first hour."</code>
           </article>
-          <article class="uh-card uh-tile uh-rise">
-            <h3>Stock token pairs</h3>
-            <p>Pair your token with NVDA, TSLA, SPY or any Robinhood stock token, as well as ETH and USDG.</p>
+          <article class="uh-arm uh-rise">
+            <span class="uh-ico"><svg><use href="#i-storm"/></svg></span>
+            <small>Storm fees</small>
+            <h3>Dynamic fees</h3>
+            <p>Charge more when the sea gets rough and less when it is calm.</p>
           </article>
-          <article class="uh-card uh-tile uh-rise">
+          <article class="uh-arm uh-rise">
+            <span class="uh-ico"><svg><use href="#i-hourglass"/></svg></span>
+            <small>Harbour hours</small>
             <h3>Trading hours</h3>
             <p>Open and close a pool on a schedule, like market hours for stock tokens.</p>
           </article>
+          <article class="uh-arm uh-rise">
+            <span class="uh-ico"><svg><use href="#i-ship"/></svg></span>
+            <small>Foreign cargo</small>
+            <h3>Stock token pairs</h3>
+            <p>Pair your token with NVDA, TSLA, SPY or any Robinhood stock token, as well as ETH and USDG.</p>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- trust -->
-    <section class="uh-sec" id="trust">
+    <!-- the code: hard limits -->
+    <section class="uh-sec" id="code" style="background:linear-gradient(180deg,transparent,rgba(10,17,32,.8) 30%,rgba(10,17,32,.8) 70%,transparent)">
+      <div class="uh-wrap">
+        <div class="uh-rise">
+          <p class="uh-eyebrow">The pirate's code</p>
+          <h2 class="uh-h2">Three things no captain <span class="uh-pink">can do.</span></h2>
+          <p class="uh-sub">Not settings, not promises. They are how the contracts are written, and the public page of every launch checks them on chain.</p>
+        </div>
+        <div class="uh-code-grid">
+          <article class="uh-law uh-rise">
+            <svg class="uh-skull" aria-hidden="true"><use href="#i-skull"/></svg>
+            <div class="uh-law-n">01</div>
+            <h3>Pull locked liquidity early</h3>
+            <p>The lock gives positions back <b>only after the date</b>, and the date can only move later. The owner collects fees, never the liquidity.</p>
+          </article>
+          <article class="uh-law uh-rise">
+            <svg class="uh-skull" aria-hidden="true"><use href="#i-skull"/></svg>
+            <div class="uh-law-n">02</div>
+            <h3>Mint more tokens</h3>
+            <p>A launched token is minted once, with <b>no owner and no mint function</b>. No taxes, no blocklist, no pause.</p>
+          </article>
+          <article class="uh-law uh-rise">
+            <svg class="uh-skull" aria-hidden="true"><use href="#i-skull"/></svg>
+            <div class="uh-law-n">03</div>
+            <h3>Stop you from selling</h3>
+            <p>Launch protection only limits <b>buys</b>, and only for the window it states. Sells always go through.</p>
+          </article>
+        </div>
+        <p class="uh-callout uh-rise"><b>Trust the chart, not the captain.</b> Every launch has a public page that reads all of this from the chain: the source, the token's code, how much liquidity is locked and until when.</p>
+      </div>
+    </section>
+
+    <!-- trust (parchment) -->
+    <section class="uh-sec uh-parch" id="trust">
       <div class="uh-wrap uh-trust">
-        <div class="uh-trust-head uh-rise">
-          <h2 class="uh-h2">Your wallet signs.<br>Nothing else can.</h2>
+        <div class="uh-rise">
+          <p class="uh-eyebrow">Articles of agreement</p>
+          <h2 class="uh-h2">Your wallet signs. <span class="uh-pink">Nobody else.</span></h2>
           <p class="uh-sub">UnyHooks writes code and prepares transactions. It never holds keys, and it cannot move funds or deploy on your behalf.</p>
         </div>
         <dl class="uh-rows uh-rise">
-          <div class="uh-row">
-            <dt>Sign in with your wallet</dt>
-            <dd>One signed message proves the wallet is yours. No email, no password, no gas.</dd>
-          </div>
-          <div class="uh-row">
-            <dt>Read every line</dt>
-            <dd>Every hook comes as plain Solidity you can read, and it is compiled in your browser, so the bytecode you deploy comes from the code on your screen. Each template is tested against Uniswap V4's own PoolManager.</dd>
-          </div>
-          <div class="uh-row">
-            <dt>You own what you deploy</dt>
-            <dd>Hooks and pools are created by your wallet, directly on Uniswap V4's PoolManager. They keep working whether or not you ever open UnyHooks again.</dd>
-          </div>
-          <div class="uh-row">
-            <dt>Built for Robinhood Chain</dt>
-            <dd>Hooks and pools deploy to Robinhood Chain, on its Uniswap V4 PoolManager. Generated hooks are not audited and this is a live network, so get a hook reviewed before you trust it with real funds.</dd>
-          </div>
+          <div class="uh-row"><dt><svg aria-hidden="true"><use href="#i-key"/></svg>Your keys stay yours</dt><dd>Every deploy, pool and lock is a transaction your wallet shows you first. Nothing moves until you sign.</dd></div>
+          <div class="uh-row"><dt><svg aria-hidden="true"><use href="#i-eye"/></svg>Read every line</dt><dd>Hooks come as plain Solidity, compiled in your browser, so the bytecode you deploy comes from the code on your screen. Each template is tested against Uniswap V4's own PoolManager.</dd></div>
+          <div class="uh-row"><dt><svg aria-hidden="true"><use href="#i-anchor"/></svg>You own what you deploy</dt><dd>Hooks and pools are created by your wallet, directly on Uniswap V4. They keep working whether or not you ever open UnyHooks again.</dd></div>
+          <div class="uh-row"><dt><svg aria-hidden="true"><use href="#i-compass"/></svg>Built for Robinhood Chain</dt><dd>Hooks and pools deploy to Robinhood Chain's Uniswap V4. The contracts are not audited and this is a live network: start small.</dd></div>
         </dl>
       </div>
     </section>
 
-    <!-- token -->
-    <section class="uh-sec uh-sec-tight" id="token">
+    <!-- the treasure: the token -->
+    <section class="uh-sec uh-sec-tight" id="token" style="padding-top:110px">
       <div class="uh-wrap">
         <div class="uh-panel uh-token uh-rise">
           <div class="uh-token-copy">
-            <p class="uh-eyebrow">The token</p>
+            <p class="uh-eyebrow">The treasure</p>
             <h2 class="uh-token-name">$UHOOKS</h2>
             <p class="uh-sub">The native token of UnyHooks, on Robinhood Chain.</p>
 
@@ -316,7 +450,29 @@
             </div>
           </div>
           <div class="uh-coin" aria-hidden="true">
-            <div class="uh-coin-in"><svg><use href="#uh-mark"/></svg></div>
+            <svg viewBox="0 0 320 320">
+              <defs>
+                <radialGradient id="cn-face" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#FFF1C4"/><stop offset=".45" stop-color="#E8B04B"/><stop offset="1" stop-color="#8A5A12"/></radialGradient>
+                <radialGradient id="cn-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#E8B04B" stop-opacity=".35"/><stop offset="1" stop-color="#E8B04B" stop-opacity="0"/></radialGradient>
+              </defs>
+              <circle cx="160" cy="160" r="160" fill="url(#cn-glow)"/>
+              <g class="uh-spin">
+                <circle cx="160" cy="160" r="118" fill="#7A4E10"/>
+                <circle cx="160" cy="156" r="118" fill="url(#cn-face)"/>
+                <circle cx="160" cy="156" r="104" fill="none" stroke="#8A5A12" stroke-width="2" stroke-dasharray="1.5 6" stroke-linecap="round"/>
+                <circle cx="160" cy="156" r="92" fill="none" stroke="#FBE7B0" stroke-opacity=".7" stroke-width="1.5"/>
+                <g transform="translate(160 162)" fill="none" stroke="#6E460D" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M-62 34 62 64M62 34-62 64" stroke-width="11"/>
+                  <path d="M-62 34 62 64M62 34-62 64" stroke="#F2C76A" stroke-width="5"/>
+                  <path d="M0-64c-30 0-50 20-50 46 0 15 7 26 17 33v15h66v-15c10-7 17-18 17-33 0-26-20-46-50-46z" fill="#F2C76A" stroke-width="5"/>
+                  <circle cx="-18" cy="-17" r="11" fill="#6E460D" stroke="none"/><circle cx="18" cy="-17" r="11" fill="#6E460D" stroke="none"/>
+                  <path d="M0-2l-6 10h12z" fill="#6E460D" stroke="none"/>
+                  <path d="M-14 30v-9M0 30v-9M14 30v-9" stroke-width="4"/>
+                </g>
+                <path d="M70 150a90 90 0 0 1 180 0" fill="none" id="cn-arc"/>
+                <text font-family="Pirata One, serif" font-size="20" fill="#6E460D" letter-spacing="4"><textPath href="#cn-arc" startOffset="50%" text-anchor="middle">UNYHOOKS</textPath></text>
+              </g>
+            </svg>
           </div>
 
           <!-- live market: filled by token.js once CONTRACT is set in config.js -->
@@ -354,7 +510,10 @@
     <!-- faq -->
     <section class="uh-sec" id="faq">
       <div class="uh-wrap uh-faq">
-        <h2 class="uh-h2 uh-rise">Questions</h2>
+        <div class="uh-rise">
+          <p class="uh-eyebrow">Ask the quartermaster</p>
+          <h2 class="uh-h2">Questions <span class="uh-pink">before you sail.</span></h2>
+        </div>
         <div class="uh-qs uh-rise">
           <details class="uh-q">
             <summary>What is a Uniswap V4 hook?</summary>
@@ -365,39 +524,53 @@
             <p>No. You describe the behaviour and UnyHooks writes the contract. The full source is always there if you or a reviewer want to read it.</p>
           </details>
           <details class="uh-q">
+            <summary>What does "launch in one signature" create?</summary>
+            <p>A token with a fixed supply and no owner, a Uniswap V4 pool against ETH with launch protection, a full-range position with the ETH you add, and a lock on it if you choose one. All in one transaction: if any part fails, nothing is created.</p>
+          </details>
+          <details class="uh-q">
+            <summary>Can the liquidity be pulled after launch?</summary>
+            <p>Not before the lock's date: the lock contract gives positions back only after it, and the date can only move later. Choose "forever" and it never opens. Without a lock, the position is yours to manage like any other.</p>
+          </details>
+          <details class="uh-q">
             <summary>What do I need to get started?</summary>
-            <p>A wallet that works with Robinhood Chain and a little ETH there for gas. You sign in with a message, and only deploys and pool creation cost gas.</p>
+            <p>A wallet that works with Robinhood Chain and a little ETH there for gas. Only deploys, pools and locks cost gas.</p>
           </details>
           <details class="uh-q">
-            <summary>Which tokens can I build pools with?</summary>
-            <p>Any token on Robinhood Chain: your own, ETH, USDG, and Robinhood stock tokens such as NVDA, TSLA and SPY.</p>
-          </details>
-          <details class="uh-q">
-            <summary>Are the hooks safe to use with real money?</summary>
-            <p>Generated hooks are not audited. They compile and follow well-known patterns, but this is a live network: have a hook reviewed before you put real funds behind it, and start with small amounts.</p>
-          </details>
-          <details class="uh-q">
-            <summary>Can I add liquidity from the chat?</summary>
-            <p>Yes. Ask to add or remove liquidity and UnyHooks prepares the transaction; your wallet shows it to you and nothing happens until you sign.</p>
+            <summary>Are the contracts safe to use with real money?</summary>
+            <p>They are not audited. They compile, follow well-known patterns and are tested against Uniswap's own contracts, but this is a live network: have them reviewed before you put real funds behind them, and start with small amounts.</p>
           </details>
         </div>
       </div>
     </section>
 
     <!-- closing call -->
-    <section class="uh-sec uh-sec-tight">
-      <div class="uh-wrap">
-        <div class="uh-panel uh-final uh-rise">
-          <svg class="uh-final-mark" aria-hidden="true"><use href="#uh-mark"/></svg>
-          <h2 class="uh-h2">Build Uniswap V4<br>hooks, <span class="uh-pink">by chat.</span></h2>
-          <a class="uh-btn uh-btn-pink" data-link="app" href="#">Launch app</a>
+    <section class="uh-close">
+      <div class="uh-close-glow"></div>
+      <div class="uh-wrap uh-rise">
+        <p class="uh-eyebrow">All hands on deck</p>
+        <h2 class="uh-h2">Raise the flag. <span class="uh-pink">Drop the hook.</span></h2>
+        <p class="uh-sub">Build a hook by chat, or launch a token with its pool, protection and lock in one signature.</p>
+        <div class="uh-actions">
+          <a class="uh-btn uh-btn-pink" href="launch.html">Launch a token</a>
+          <a class="uh-btn uh-btn-ghost" data-link="app" href="#">Forge a hook</a>
         </div>
+      </div>
+      <div class="uh-close-sea" aria-hidden="true">
+        <svg viewBox="0 0 1200 190" preserveAspectRatio="xMidYMax slice">
+          <g class="uh-bob" fill="#0B1424" stroke="#C99A48" stroke-opacity=".3">
+            <path d="M560 112V40M600 112V28M636 112V50"/>
+            <path d="M563 46c14 4 18 16 16 28h-16zM603 34c16 5 21 18 18 32h-18zM603 72c18 4 23 18 20 34h-20zM639 56c12 4 15 14 13 24h-13z" fill="#1C2A40"/>
+            <path d="M520 104h12l3 8h130l10-10h4l-15 30q-70 8-136 1z"/>
+          </g>
+          <path class="uh-wave-a" d="M0 130c40-8 60-8 100 0s60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0V190H0z" fill="#0A1528"/>
+          <path class="uh-wave-b" d="M0 150c45-10 75-10 120 0s75 10 120 0 75-10 120 0 75 10 120 0 75-10 120 0 75 10 120 0 75-10 120 0 75 10 120 0 75-10 120 0 75 10 120 0 75-10 120 0 75 10 120 0 75-10 120 0 75 10 120 0 75-10 120 0 75 10 120 0 75-10 120 0 75 10 120 0 75-10 120 0 75 10 120 0V190H0z" fill="#070F1D"/>
+        </svg>
       </div>
     </section>
   </main>
 
-  <footer class="uh-foot uh-wrap">
-    <a class="uh-brand uh-brand-sm" data-scroll="top" href="#top">
+  <footer class="uh-foot">
+    <a class="uh-brand" data-scroll="top" href="#top">
       <svg class="uh-mark" aria-hidden="true"><use href="#uh-mark"/></svg>
       <span>Uny<b>Hooks</b></span>
     </a>
@@ -405,7 +578,8 @@
     <div class="uh-foot-links">
       <a data-link="x" href="#" target="_blank" rel="noopener"><svg width="14" height="14" aria-hidden="true"><use href="#uh-x"/></svg><span data-handle>@UnyHooks</span></a>
       <a data-link="docs" href="#">Docs</a>
-      <a data-link="app" href="#" data-host>Launch app</a>
+      <a href="launch.html">Launch a token</a>
+      <a data-link="app" href="#" data-host>Builder</a>
     </div>
   </footer>
 
@@ -415,5 +589,6 @@
 <script src="app.js"></script>
 <script src="demo.js"></script>
 <script src="token.js"></script>
+<script src="landing.js"></script>
 </body>
 </html>

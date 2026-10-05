@@ -1,1 +1,3 @@
 node_modules
+# screenshots the browser tests leave behind
+scripts/site-tests/*.png

@@ -16,11 +16,11 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@UnyHooks">
   <meta name="twitter:image" content="og.png">
-  <meta name="theme-color" content="#EC1586">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23E5127D'/%3E%3Cstop offset='1' stop-color='%23FF6CB8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cg transform='skewX(-10) translate(3 0)' fill='none' stroke='url(%23g)' stroke-width='4.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12'/%3E%3C/g%3E%3C/svg%3E">
+  <meta name="theme-color" content="#070B14">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23FBE7B0'/%3E%3Cstop offset='.45' stop-color='%23E8B04B'/%3E%3Cstop offset='1' stop-color='%23A86F18'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M23 45V24A13 13 0 0 1 49 24C49 32 44 38 36.5 39.5C41.5 35 43 30 43 24A7 7 0 0 0 29 24V45Z' fill='url(%23g)'/%3E%3Crect x='20' y='41' width='12' height='5' rx='1.6' fill='%23B57A1F'/%3E%3Cpath d='M14 46.5h24a1.8 1.8 0 0 1 1.8 2l-1.4 9.6a2.4 2.4 0 0 1-2.4 2.1H16a2.4 2.4 0 0 1-2.4-2.1l-1.4-9.6a1.8 1.8 0 0 1 1.8-2z' fill='%23A86F18'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,500&family=IM+Fell+English:ital@0;1&family=Pirata+One&display=swap">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="app.css">
 </head>
@@ -29,14 +29,14 @@
 
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <linearGradient id="uh-grad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#E5127D"/>
-        <stop offset="1" stop-color="#FF6CB8"/>
-      </linearGradient>
-      <symbol id="uh-mark" viewBox="0 0 32 32">
-        <g transform="skewX(-10) translate(3 0)" fill="none" stroke="url(#uh-grad)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12"/>
-        </g>
+      <linearGradient id="uh-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBE7B0"/><stop offset=".45" stop-color="#E8B04B"/><stop offset="1" stop-color="#A86F18"/></linearGradient>
+      <linearGradient id="uh-cuff" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C98F2E"/><stop offset="1" stop-color="#7E5313"/></linearGradient>
+      <symbol id="uh-mark" viewBox="0 0 64 64">
+        <path d="M23 45V24A13 13 0 0 1 49 24C49 32 44 38 36.5 39.5C41.5 35 43 30 43 24A7 7 0 0 0 29 24V45Z" fill="url(#uh-gold)"/>
+        <path d="M26 42V24A10 10 0 0 1 45.6 21.3" fill="none" stroke="#FFF4D6" stroke-opacity=".55" stroke-width="1.4" stroke-linecap="round"/>
+        <rect x="20" y="41" width="12" height="5" rx="1.6" fill="url(#uh-cuff)"/>
+        <path d="M14 46.5h24a1.8 1.8 0 0 1 1.8 2l-1.4 9.6a2.4 2.4 0 0 1-2.4 2.1H16a2.4 2.4 0 0 1-2.4-2.1l-1.4-9.6a1.8 1.8 0 0 1 1.8-2z" fill="url(#uh-cuff)"/>
+        <path d="M13.2 51.2h25.6M13.9 55.4h24.2" stroke="#FBE7B0" stroke-opacity=".45" stroke-width="1.2"/>
       </symbol>
     </defs>
   </svg>
@@ -94,28 +94,79 @@
       </div>
     </div>
 
-    <p class="uh-eyebrow ap-foot">Plain language meets Uniswap V4</p>
+    <p class="uh-eyebrow ap-foot">Hook your pool. Rule the seas.</p>
   </section>
 
   <section class="ap-art" aria-hidden="true">
-    <div class="uh-scene ap-scene">
-      <div class="uh-arch">
-        <div class="uh-cloud uh-cloud-a"></div>
-        <div class="uh-cloud uh-cloud-b"></div>
-        <div class="uh-hill"></div>
-        <div class="uh-sun"></div>
+    <div class="uh-sea" aria-hidden="true">
+        <div class="uh-sea-ring"></div>
+        <svg class="uh-sea-art" viewBox="0 0 600 600">
+          <defs>
+      <linearGradient id="hk-metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6E460D"/><stop offset=".22" stop-color="#E2A946"/><stop offset=".42" stop-color="#FFF3CC"/><stop offset=".58" stop-color="#EDBB5C"/><stop offset=".85" stop-color="#9A6516"/><stop offset="1" stop-color="#5A390A"/></linearGradient>
+      <linearGradient id="hk-cuff" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#4A2F0A"/><stop offset=".35" stop-color="#B57A1F"/><stop offset=".55" stop-color="#E8B04B"/><stop offset="1" stop-color="#4A2F0A"/></linearGradient>
+      <radialGradient id="sea-sky" cx=".7" cy=".25" r=".9"><stop offset="0" stop-color="#1B2C49"/><stop offset=".55" stop-color="#0B1426"/><stop offset="1" stop-color="#060A13"/></radialGradient>
+      <linearGradient id="sea-water" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#11233D"/><stop offset="1" stop-color="#050A14"/></linearGradient>
+      <radialGradient id="sea-moon" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#FFF6DD"/><stop offset=".7" stop-color="#F1DDA8"/><stop offset="1" stop-color="#D9BC78"/></radialGradient>
+      <radialGradient id="sea-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#F3D58E" stop-opacity=".45"/><stop offset="1" stop-color="#F3D58E" stop-opacity="0"/></radialGradient>
+      <clipPath id="sea-clip"><circle cx="300" cy="300" r="268"/></clipPath>
+          </defs>
+          <circle cx="300" cy="300" r="268" fill="url(#sea-sky)"/>
+          <g clip-path="url(#sea-clip)">
+            <g fill="#F3E6C8">
+              <circle class="uh-twinkle" cx="120" cy="120" r="1.6"/><circle cx="180" cy="80" r="1.1"/><circle class="uh-twinkle" cx="250" cy="140" r="1.3" style="animation-delay:1.2s"/>
+              <circle cx="90" cy="210" r="1"/><circle class="uh-twinkle" cx="330" cy="70" r="1.4" style="animation-delay:.6s"/><circle cx="510" cy="250" r="1.1"/>
+              <circle class="uh-twinkle" cx="470" cy="80" r="1.2" style="animation-delay:2s"/><circle cx="210" cy="230" r="1"/><circle cx="150" cy="300" r=".9"/>
+            </g>
+            <circle cx="268" cy="150" r="120" fill="url(#sea-glow)"/>
+            <circle cx="268" cy="150" r="40" fill="url(#sea-moon)"/>
+            <circle cx="255" cy="138" r="6.5" fill="#E4CC92" opacity=".55"/><circle cx="280" cy="162" r="4.5" fill="#E4CC92" opacity=".5"/><circle cx="276" cy="133" r="3.2" fill="#E4CC92" opacity=".45"/>
+            <rect x="0" y="362" width="600" height="240" fill="url(#sea-water)"/>
+            <g stroke="#F3D58E" stroke-linecap="round" opacity=".55">
+              <path d="M300 382h44M306 398h36M298 414h52M308 432h32M302 452h44M311 474h26" stroke-width="2"/>
+            </g>
+            <!-- the ship -->
+            <g transform="translate(-78 6)"><g class="uh-bob">
+              <g fill="#0A1222" stroke="#C99A48" stroke-opacity=".35" stroke-width="1">
+                <path d="M196 362V214M246 362V196M290 362V232"/>
+              </g>
+              <g fill="#E3CFA2" opacity=".92">
+                <path d="M200 222c26 8 34 30 30 52h-30z"/>
+                <path d="M200 284c30 7 38 32 33 58h-33z"/>
+                <path d="M250 204c30 9 40 34 35 60h-35z"/>
+                <path d="M250 272c34 8 44 36 38 66h-38z"/>
+                <path d="M294 240c22 7 28 26 25 44h-25z"/>
+                <path d="M294 294c26 6 31 28 27 46h-27z"/>
+              </g>
+              <g fill="#B79C6A" opacity=".55"><path d="M200 222c10 16 12 34 10 52h-10zM250 204c12 18 14 38 12 60h-12zM250 272c12 20 14 42 12 66h-12z"/></g>
+              <path d="M246 196h28l-6 7 6 7h-28z" fill="#111"/>
+              <circle cx="257" cy="203" r="2.6" fill="#F3E6C8"/>
+              <path d="M150 346h16l4 10h170l14-14h4l-20 44q-90 12-176 2z" fill="#0B1424" stroke="#C99A48" stroke-opacity=".45" stroke-width="1.2"/>
+              <path d="M150 346h16l2-16h-22z" fill="#0B1424" stroke="#C99A48" stroke-opacity=".45" stroke-width="1.2"/>
+              <path d="M172 372h160" stroke="#C99A48" stroke-opacity=".4" stroke-width="1.5"/>
+              <g fill="#05080F"><rect x="196" y="377" width="9" height="6" rx="1"/><rect x="236" y="378" width="9" height="6" rx="1"/><rect x="276" y="378" width="9" height="6" rx="1"/></g>
+              <g fill="#FFD27A"><circle class="uh-flash" cx="200" cy="380" r="7"/><circle class="uh-flash d2" cx="240" cy="381" r="7"/><circle class="uh-flash d3" cx="280" cy="381" r="7"/></g>
+              <g fill="#CFC4AE"><circle class="uh-puff" cx="190" cy="380" r="9"/><circle class="uh-puff d2" cx="230" cy="381" r="9"/><circle class="uh-puff d3" cx="270" cy="381" r="9"/></g>
+            </g></g>
+            <!-- waves, two periods wide so they can loop -->
+            <g class="uh-wave-c" fill="#0D1C33"><path d="M0 382c40-8 60-8 100 0s60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0V600H0z"/></g>
+            <g class="uh-wave-a" fill="#0A172B"><path d="M0 410c30-10 50-10 80 0s50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0V600H0z"/><path d="M0 410c30-10 50-10 80 0s50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0" fill="none" stroke="#E8B04B" stroke-opacity=".28" stroke-width="1.5"/></g>
+            <g class="uh-wave-b" fill="#071222"><path d="M0 452c45-12 75-12 120 0s75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0V600H0z"/><path d="M0 452c45-12 75-12 120 0s75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0" fill="none" stroke="#E8B04B" stroke-opacity=".2" stroke-width="1.5"/></g>
+          </g>
+          <!-- the hook, in front of everything -->
+          <g class="uh-float" style="filter: drop-shadow(0 18px 30px rgba(0,0,0,.7)) drop-shadow(0 0 26px rgba(232,176,75,.35))">
+            <g transform="translate(236 6) scale(5.9)">
+              <path d="M23 45V24A13 13 0 0 1 49 24C49 32 44 38 36.5 39.5C41.5 35 43 30 43 24A7 7 0 0 0 29 24V45Z" fill="url(#hk-metal)"/>
+              <path d="M25.6 42V24A10.4 10.4 0 0 1 46 21.4" fill="none" stroke="#FFF7DE" stroke-opacity=".7" stroke-width=".7" stroke-linecap="round"/>
+              <rect x="20" y="41" width="12" height="5" rx="1.6" fill="url(#hk-cuff)"/>
+              <path d="M14 46.5h24a1.8 1.8 0 0 1 1.8 2l-1.4 9.6a2.4 2.4 0 0 1-2.4 2.1H16a2.4 2.4 0 0 1-2.4-2.1l-1.4-9.6a1.8 1.8 0 0 1 1.8-2z" fill="url(#hk-cuff)"/>
+              <path d="M13.2 51.2h25.6M13.9 55.4h24.2" stroke="#FBE7B0" stroke-opacity=".5" stroke-width=".6"/>
+              <g fill="#FBE7B0" opacity=".7"><circle cx="17" cy="49" r=".7"/><circle cx="35" cy="49" r=".7"/><circle cx="17.6" cy="58" r=".7"/><circle cx="34.4" cy="58" r=".7"/></g>
+            </g>
+          </g>
+        </svg>
+        <div class="uh-tag uh-tag-a"><b>Signed in</b><span>your keys <em>stay yours</em></span></div>
+        <div class="uh-tag uh-tag-b is-red"><b>Captain's orders</b><span>Raise the fee when the sea gets rough</span></div>
       </div>
-      <div class="uh-wall-r">
-        <svg class="uh-emboss"><use href="#uh-mark"/></svg>
-        <span>UNISWAP V4</span>
-      </div>
-      <div class="uh-floor"></div>
-      <div class="uh-beam"></div>
-    </div>
-    <div class="uh-prompt ap-prompt">
-      <span class="uh-prompt-av"><svg><use href="#uh-mark"/></svg></span>
-      <span class="uh-prompt-t">Create a Uniswap V4 hook that implements dynamic fees.</span>
-    </div>
   </section>
 
 </div>

@@ -3,8 +3,8 @@
 .ln-main { position: relative; max-width: 1180px; margin: 0 auto; padding: 32px 16px 64px; display: grid; gap: 24px; }
 .ln-head { max-width: 760px; }
 .ln-kicker { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--pink); }
-.ln-head h1 { margin-top: 8px; font-size: clamp(30px, 4.4vw, 48px); line-height: 1.08; letter-spacing: -.04em; font-weight: 800; }
-.ln-accent { background: var(--pink-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ln-head h1 { margin-top: 8px; font-size: clamp(30px, 4.4vw, 48px); line-height: 1.08; letter-spacing: -.04em; font-family: var(--font-display); font-weight: 300; }
+.ln-accent { font-family: var(--font-accent); font-style: italic; font-weight: 400; background: var(--pink-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .ln-lead { margin-top: 14px; font-size: 17px; line-height: 1.6; color: var(--prose); }
 
 .ln-grid { display: grid; gap: 20px; align-items: start; }
@@ -21,9 +21,9 @@
 @media (min-width: 620px) { .ln-row { grid-template-columns: 1fr 1fr; } .ln-row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .ln-row > * { min-width: 0; }
 .ln-hint { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
-.ln-hint.is-bad { color: #B4233F; }
+.ln-hint.is-bad { color: #F4A08E; }
 .ln-chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.ln-chips label { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-hi); background: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
+.ln-chips label { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-hi); background: var(--card); font-size: 14px; font-weight: 500; cursor: pointer; }
 .ln-chips label:has(input:checked) { border-color: var(--pink); background: var(--pink-soft); color: var(--pink); }
 .ln-chips label:has(input:focus-visible) { outline: 2px solid var(--pink); outline-offset: 2px; }
 .ln-chips input { position: absolute; opacity: 0; pointer-events: none; }
@@ -41,7 +41,7 @@
 .ln-summary .dp-wallets { margin: 0; }
 
 .ln-done { display: grid; gap: 12px; padding: 16px; border-radius: 16px; background: var(--ok-soft); border: 1px solid var(--ok-line); font-size: 14px; line-height: 1.55; }
-.ln-done h3 { font-size: 17px; font-weight: 700; letter-spacing: -.01em; color: #075E40; }
+.ln-done h3 { font-size: 17px; font-weight: 700; letter-spacing: -.01em; color: #8EE6C4; }
 .ln-done code { font: 12px var(--font-mono); overflow-wrap: anywhere; }
 .ln-done a:not(.uh-btn) { color: var(--pink); text-decoration: underline; text-underline-offset: 3px; }
 .ln-done-actions { display: flex; flex-wrap: wrap; gap: 8px; }

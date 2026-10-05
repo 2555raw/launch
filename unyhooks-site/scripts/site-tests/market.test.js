@@ -30,10 +30,10 @@ const withCA = async (r) => { const body = (await (await r.fetch()).text()).repl
   const bx = await p.$eval('#mk-spark', e => { const r = e.getBoundingClientRect(); return { x: r.x + r.width * 0.5, y: r.y + r.height / 2 }; });
   await p.waitForTimeout(900); await p.mouse.move(bx.x, bx.y); await p.waitForTimeout(150);
   ok('hover tooltip with time and price', /\$0\.000/.test(await p.textContent('#mk-tip')), await p.textContent('#mk-tip'));
-  await p.screenshot({ path: 'market.png' });
+  await p.screenshot({ path: require('path').join(__dirname, 'market.png') });
   await p.setViewportSize({ width: 390, height: 844 }); await p.waitForTimeout(200);
   ok('mobile: no sideways scroll', (await p.evaluate(() => document.documentElement.scrollWidth)) <= 390);
-  await p.$eval('#market', e => e.scrollIntoView({ block: 'center', behavior: 'instant' })); await p.screenshot({ path: 'market-m.png' });
+  await p.$eval('#market', e => e.scrollIntoView({ block: 'center', behavior: 'instant' })); await p.screenshot({ path: require('path').join(__dirname, 'market-m.png') });
   await ctx.close();
 
   ctx = await b.newContext(); p = await ctx.newPage();

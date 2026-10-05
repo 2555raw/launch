@@ -95,8 +95,8 @@
     const end = points[points.length - 1];
     svg.innerHTML = `
       <defs><linearGradient id="mk-fill" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="${up ? '#0C9F6B' : '#EC1586'}" stop-opacity=".18"/>
-        <stop offset="1" stop-color="${up ? '#0C9F6B' : '#EC1586'}" stop-opacity="0"/>
+        <stop offset="0" stop-color="${up ? '#5FD3A6' : '#E5624B'}" stop-opacity=".18"/>
+        <stop offset="1" stop-color="${up ? '#5FD3A6' : '#E5624B'}" stop-opacity="0"/>
       </linearGradient></defs>
       <line x1="0" x2="${W}" y1="${H - 0.5}" y2="${H - 0.5}" stroke="var(--line)" stroke-width="1"/>
       <path d="${area}" fill="url(#mk-fill)"/>
@@ -108,7 +108,7 @@
     dot.hidden = false;
     dot.style.left = `${(end.x / W) * 100}%`;
     dot.style.top = `${(end.y / H) * 72}px`;
-    dot.style.background = up ? '#0C9F6B' : '#EC1586';
+    dot.style.background = up ? '#5FD3A6' : '#E5624B';
   };
 
   const tip = $('mk-tip');

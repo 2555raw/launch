@@ -43,6 +43,7 @@ vendor/v4-sources.json   the Uniswap V4 files the templates import, for the in-b
 token.js     live $UHOOKS market panel (DexScreener, GeckoTerminal, Blockscout)
 demo.js      the demo window on the landing page
 app.js       shared: links from config, sticky nav, menu, typing prompt, copy CA, scroll reveal
+landing.js   the landing's moving parts: ship's log ticker, the rope and its hook, the cannon
 docs.js      docs routing, table of contents, previous/next and search
 signin.js    sign-in message (EIP-4361) for app.html
 styles.css / build.css / docs.css / app.css / hooks.css / launch.css / hook.css
@@ -225,26 +226,31 @@ Elsewhere:
 
 ## Design
 
-A blush-white ground, near-black display type and one hot pink. The pink is the brand: the mark,
-the primary button, the word that lands each headline, and the glow behind the panels.
+The pirate edition: a night sea, brass and parchment, after the editorial dark style of
+dynamichooks.com. The gold is the brand: the hook, the primary button, the word that lands each
+headline, the glow on the water. Parchment sections read like a captain's chart.
 
 | Token | Value | Role |
 | --- | --- | --- |
-| `--pink` / `--pink-grad` | `#EC1586` / `#E5127D → #FF7CC2` | mark, primary button, headline accent |
-| `--pink-soft` / `--pink-line` | `#FFE6F2` / `#FBCDE3` | chat bubble, tags, active states |
-| `--bg` / `--bg-tint` / `--card` | `#FFF9FC` / `#FFF2F8` / `#FFFFFF` | page, tinted band, cards |
-| `--ink` / `--prose` / `--muted` | `#0F0B12` / `#5D5563` / `#8E8494` | headings, body, labels |
-| `--ok` | `#0C9F6B` | "Compiles", "Live", done steps, price up |
+| `--pink` / `--pink-grad` | `#E8B04B` / `#FBE7B0 → #E8B04B → #B57A1F` | the accent (the name is historical): mark, primary button, headline word |
+| `--bg` / `--card` / `--card-2` | `#070B14` / `#0F182B` / `#0B1323` | night sea, panels, wells |
+| `--ink` / `--prose` / `--muted` | `#F3EAD7` / `#BDB29C` / `#8D8576` | headings, body, labels |
+| `--parch` / `--parch-ink` | `#F2E4C4` / `#24180A` | chart sections |
+| `--ok` / `--red` | `#5FD3A6` / `#E5624B` | live, locked, done / cannon fire, refusals |
 
-Type: **Inter** for everything, **JetBrains Mono** for addresses and code. The mark is a U whose
-right stem curls into a hook, drawn once as an SVG `<symbol>` per page. The hero picture is pure
-CSS.
+Type: **Montserrat** light for headlines with the last words in **IM Fell English** italic,
+**Pirata One** for the wordmark and big numerals, **Inter** for text, **JetBrains Mono** for
+addresses, code and labels. The mark is a pirate's hook on its cuff, drawn once as an SVG
+`<symbol>` per page (`#uh-mark`, 64×64). The landing's ship, sea, cannon and doubloon are inline
+SVG; the line icons (anchor, skull, cannon, chest…) are a sprite at the top of `index.html`.
 
 ## Motion
 
-The hero prompt types through example requests, the demo window plays the builder back while it
-is on screen, and sections rise in once on scroll. With `prefers-reduced-motion` nothing moves:
-the prompt shows its first line and the demo its finished first scene. The scroll-reveal hidden
-state only applies once the script has run, so the page renders complete without JS.
+The hero ship bobs, the waves roll, cannon ports flash, the hook floats; a rope runs down the
+left edge with a knot per section and the hook slides down it as the page scrolls; the ship's
+log ticker scrolls; the cannon in the launch section fires while it is on screen (`landing.js`).
+The demo window plays the builder back while it is visible, and sections rise in once. With
+`prefers-reduced-motion` nothing moves. The scroll-reveal hidden state only applies once the
+script has run, so the page renders complete without JS.
 
 UnyHooks is an independent project and is not affiliated with Uniswap Labs or Robinhood.

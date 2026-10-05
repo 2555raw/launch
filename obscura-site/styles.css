@@ -118,12 +118,15 @@ p { text-wrap: pretty; }
 .nav-wrap.scrolled .nav { box-shadow: 0 1px 2px rgba(11, 13, 18, .05), 0 10px 24px -14px rgba(11, 13, 18, .28); }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; letter-spacing: -.02em; }
 .brand-mark { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--ink); color: #fff; transition: transform .35s var(--spring); }
-.brand:hover .brand-mark { transform: rotate(-8deg) scale(1.06); }
+.brand:hover .brand-mark { transform: scale(1.06); }
 .brand-mark svg { width: 18px; height: 18px; }
+/* the wheel turns like a vault door: a slow quarter turn on load, a full turn on hover */
+.brand-mark .wheel { transform-origin: 12px 12px; transform-box: view-box; }
 @media (prefers-reduced-motion: no-preference) {
-  .brand-mark .iris { transform-origin: 50% 50%; animation: blink 7s cubic-bezier(.4, 0, .2, 1) infinite; }
+  .brand-mark .wheel { animation: unlock 1.6s var(--ease) .2s backwards; transition: transform .9s var(--ease); }
+  .brand:hover .brand-mark .wheel { transform: rotate(180deg); }
 }
-@keyframes blink { 0%, 84%, 100% { transform: scaleY(1); } 87% { transform: scaleY(.12); } 91% { transform: scaleY(1); } }
+@keyframes unlock { from { transform: rotate(-90deg); } }
 
 .nav-links { display: flex; gap: 2px; font-size: 14.5px; font-weight: 500; }
 .nav-links a { padding: 8px 14px; border-radius: var(--r-pill); color: var(--dim); transition: color .2s, background-color .2s; }

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, Footprints, Inbox, Mail, Users } from "lucide-react";
+import { AlertTriangle, ArrowRight, Footprints, Gauge, Inbox, Mail, PauseCircle, Users } from "lucide-react";
 import Link from "next/link";
 import { StepsChart } from "@/components/dashboard/StepsChart";
 import { Card, CardHeader } from "@/components/ui/Card";
@@ -26,6 +26,8 @@ export function AdminOverviewView() {
   }
   const t = data.settings.payoutTokenSymbol;
   const s = data.settings;
+  const owed = data.rewards.approved + data.rewards.processing;
+  const short = data.payoutBalance !== null && owed > data.payoutBalance;
   const rates = s.ratePoints.filter(([steps]) => steps > 0).map(([steps]) => ({ steps, amount: tierReward(steps, { ...s, points: s.ratePoints }) }));
 
   return (
@@ -42,6 +44,25 @@ export function AdminOverviewView() {
           </a>
         }
       />
+
+      {short && (
+        <div className="mb-5 flex items-start gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/[0.08] p-4 text-[13.5px] leading-relaxed text-amber-100/90">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+          <span>
+            <strong className="font-semibold">Your payout wallet is short.</strong> It holds ${fmtAmount(data.payoutBalance ?? 0)} {t} but walkers are owed $
+            {fmtAmount(owed)}. Top it up before paying the requests.
+          </span>
+        </div>
+      )}
+      {s.signupsPaused && (
+        <Link
+          href="/admin/settings"
+          className="mb-5 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-[13.5px] text-white/70 transition hover:border-white/20"
+        >
+          <PauseCircle className="h-4 w-4 shrink-0 text-amber-300" /> New sign-ups are paused. Existing walkers can still upload.
+          <span className="ml-auto text-lime-300">Change</span>
+        </Link>
+      )}
 
       {/* What needs doing */}
       <div className="grid gap-5 md:grid-cols-2">
@@ -64,15 +85,25 @@ export function AdminOverviewView() {
       </div>
 
       {/* Key numbers */}
-      <div className="mt-5 grid gap-5 sm:grid-cols-3">
+      <div className="mt-5 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         <Number label="Walkers" value={data.users.users.toLocaleString("en-US")} hint={`+${data.users.newWeek} this week`} icon={<Users className="h-4 w-4" />} />
         <Number
           label="Owed to walkers"
-          value={`$${fmtAmount(data.rewards.approved + data.rewards.processing)}`}
-          hint="Verified, not paid yet"
+          value={`$${fmtAmount(owed)}`}
+          hint={data.payoutBalance !== null ? `Payout wallet holds $${fmtAmount(data.payoutBalance)}` : "Verified, not paid yet"}
           icon={<TokenIcon symbol={t} />}
         />
-        <Number label="Paid out" value={`$${fmtAmount(data.rewards.paid)}`} hint={`${data.payouts.confirmed} payments`} icon={<TokenIcon symbol={t} />} accent />
+        <Number label="Paid out" value={`$${fmtAmount(data.rewards.paid)}`} hint={`${data.payouts.confirmed} ${data.payouts.confirmed === 1 ? "payment" : "payments"}`} icon={<TokenIcon symbol={t} />} accent />
+        <Number
+          label="Credited today"
+          value={`$${fmtAmount(data.creditedToday)}`}
+          hint={
+            s.dailyBudget > 0
+              ? `of $${fmtAmount(s.dailyBudget)} daily budget · $${fmtAmount(Math.max(0, s.dailyBudget - data.creditedToday))} left`
+              : "No daily budget set"
+          }
+          icon={<Gauge className="h-4 w-4" />}
+        />
       </div>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-3">
@@ -87,7 +118,7 @@ export function AdminOverviewView() {
         </Card>
         <Card className="p-6">
           <CardHeader
-            label="Private"
+            label="Rates"
             title="Your rates"
             action={
               <Link href="/admin/settings" className="text-xs text-lime-300 hover:underline">
@@ -106,7 +137,7 @@ export function AdminOverviewView() {
             ))}
           </ul>
           <p className="mt-4 text-[12px] leading-relaxed text-white/40">
-            Verifying a photo credits that day straight away. Walkers never see these rates.
+            Verifying a photo credits that day straight away. Walkers see the daily maximum on the home page.
           </p>
         </Card>
       </div>

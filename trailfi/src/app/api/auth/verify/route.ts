@@ -7,7 +7,9 @@ import { consumeNonceCookie, createSession } from "@/lib/auth/session";
 import { assertHoldsPayoutToken } from "@/lib/services/gate";
 import { cookies } from "next/headers";
 import { linkReferral } from "@/lib/services/referrals";
-import { upsertOnLogin } from "@/lib/services/users";
+import { getSettings } from "@/lib/services/settings";
+import { upsertOnLogin, walletHasAccount } from "@/lib/services/users";
+import { isAdminWallet } from "@/lib/auth/guard";
 import { publicClient } from "@/lib/web3/server";
 import { SUPPORTED_CHAINS } from "@/lib/web3/chains";
 
@@ -45,6 +47,10 @@ export const POST = route(async (req) => {
       .catch(() => false);
   }
   if (!ok) throw new HttpError(401, "Signature does not match the wallet.", "bad_signature");
+  // While sign-ups are paused only existing walkers (and admins) get in.
+  if ((await getSettings()).signupsPaused && !isAdminWallet(parsed.address) && !(await walletHasAccount(parsed.address))) {
+    throw new HttpError(403, "New sign-ups are paused for now. Follow @HelloStepit on X to hear when they reopen.", "signups_paused");
+  }
   await assertHoldsPayoutToken(parsed.address);
 
   const user = await upsertOnLogin(parsed.address);

@@ -70,7 +70,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-white/60">
-              Every step counts. Walk the trail, earn from the token, keep what you make.
+              Every step counts. Walk, upload your steps and get paid in USDG.
             </p>
             <ul className="mt-6 space-y-3 text-[14.5px] text-white/75">
               <li>

@@ -23,6 +23,10 @@ export interface PlatformSettings {
   tierCap: number;
   ratePoints: RatePoint[];
   referralBonus: number;
+  /** Most USDG creditable per UTC day by verifying uploads; 0 means no limit. */
+  dailyBudget: number;
+  /** New wallets can't join while true. */
+  signupsPaused: boolean;
   updatedBy: string | null;
   updatedAt: string;
 }
@@ -33,6 +37,7 @@ const SELECT = `select reward_percent::float8 as "rewardPercent", daily_step_goa
   payout_token_address as "payoutTokenAddress", payout_token_decimals as "payoutTokenDecimals",
   estimated_daily_fees::float8 as "estimatedDailyFees", redistribute_excess as "redistributeExcess",
   tier_min as "tierMin", tier_avg::float8 as "tierAvg", tier_threshold as "tierThreshold", tier_max::float8 as "tierMax", tier_cap as "tierCap", rate_points as "ratePoints", referral_bonus::float8 as "referralBonus",
+  daily_budget::float8 as "dailyBudget", signups_paused as "signupsPaused",
   updated_by as "updatedBy", updated_at as "updatedAt" from platform_settings where id = 1`;
 
 export async function getSettings(): Promise<PlatformSettings> {
@@ -72,6 +77,8 @@ export const settingsSchema = z.object({
   tierMax: z.number().min(0).max(1_000_000),
   tierCap: z.number().int().min(1).max(500000),
   referralBonus: z.number().min(0).max(1000),
+  dailyBudget: z.number().min(0).max(10_000_000).default(0),
+  signupsPaused: z.boolean().default(false),
   ratePoints: z.array(z.tuple([z.number().int().min(0).max(500000), z.number().min(0).max(1_000_000)])).min(2).max(12),
 });
 
@@ -93,7 +100,8 @@ export async function updateSettings(input: unknown, actor: string): Promise<Pla
       `update platform_settings set reward_percent = $1, daily_step_goal = $2, max_reward_per_user = $3,
         step_cap_multiplier = $4, distribution_frequency = $5, payout_token_symbol = $6, payout_token_address = $7,
         payout_token_decimals = $8, estimated_daily_fees = $9, redistribute_excess = $10, updated_by = $11, updated_at = now(),
-        tier_min = $12, tier_avg = $13, tier_threshold = $14, tier_max = $15, tier_cap = $16, rate_points = $17::jsonb, referral_bonus = $18
+        tier_min = $12, tier_avg = $13, tier_threshold = $14, tier_max = $15, tier_cap = $16, rate_points = $17::jsonb, referral_bonus = $18,
+        daily_budget = $19, signups_paused = $20
        where id = 1`,
       [
         s.rewardPercent,
@@ -114,6 +122,8 @@ export async function updateSettings(input: unknown, actor: string): Promise<Pla
         s.tierCap,
         JSON.stringify(s.ratePoints),
         s.referralBonus,
+        s.dailyBudget,
+        s.signupsPaused,
       ],
     );
     await audit(actor, "settings.update", "platform_settings", "1", { before: current, after: s }, q);

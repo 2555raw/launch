@@ -9,15 +9,15 @@ import { Reveal, SectionHeading } from "./Reveal";
 const QUESTIONS = [
   {
     q: "Where do the rewards come from?",
-    a: "From the trading fees of the $STEPIT token. Every buy and sell pays a small fee, and those fees fund the rewards paid to walkers. Nothing is minted to pay rewards.",
+    a: "Stepit pays them in USDG, the dollar stablecoin issued by Paxos, from its rewards wallet on Robinhood Chain. Each verified day pays according to your steps, up to the daily maximum shown on the home page. Every payment is public onchain.",
   },
   {
-    q: "Are rewards guaranteed?",
-    a: "Yes, as long as you walk. Every day you upload your steps and the team verifies your screenshot earns a reward, and you can request it to your wallet whenever you like. The more you walk, the more you earn. Days with too few steps, or uploads that don't match the screenshot, don't earn.",
+    q: "How much will I earn?",
+    a: "Every day you upload your steps and the team verifies your screenshot earns a reward, and you can request it to your wallet whenever you like. The more you walk, the more that day pays, up to the daily maximum. Rewards aren't guaranteed: days with too few steps, or screenshots that don't match, don't earn, and rates can change.",
   },
   {
-    q: "Do I need to buy $STEPIT to earn?",
-    a: "No. Walking is free and you don't need $STEPIT. To join, your wallet just needs some USDG (the dollar on Robinhood Chain): it keeps out bots and it is the same token your rewards are paid in.",
+    q: "Do I need to buy anything?",
+    a: "No. Walking is free. To join, your wallet just needs a little USDG on Robinhood Chain, even $1: it keeps out bots and it's the same token you're paid in. The Get USDG page shows how to get some in a couple of minutes.",
   },
   {
     q: "How are my steps verified?",

@@ -29,11 +29,15 @@ export interface AdminOverview {
     tierCap: number;
     ratePoints: [number, number][];
     referralBonus: number;
+    dailyBudget: number;
+    signupsPaused: boolean;
     updatedBy: string | null;
     updatedAt: string;
   };
   payoutWallets: string[];
   demoMode: boolean;
+  creditedToday: number;
+  payoutBalance: number | null;
   /** False when the payout token is not a contract on the payout network. */
   tokenReady: boolean;
   distributions: Array<{

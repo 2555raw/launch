@@ -1,7 +1,9 @@
 import "server-only";
 import { one, query } from "@/lib/db";
 import { env } from "@/lib/env";
+import { formatUnits } from "viem";
 import { publicClient } from "@/lib/web3/server";
+import { ERC20_ABI } from "@/lib/web3/tokens";
 import { getSettings } from "./settings";
 
 const tokenCheckCache = new Map<string, { ok: boolean; at: number }>();
@@ -23,6 +25,20 @@ export async function payoutTokenReady(address: `0x${string}`): Promise<boolean>
   }
   tokenCheckCache.set(key, { ok, at: Date.now() });
   return ok;
+}
+
+/** Payout token held across the configured payout wallets. */
+async function payoutWalletBalance(token: `0x${string}`, decimals: number): Promise<number | null> {
+  try {
+    const balances = await Promise.all(
+      env.payoutWallets.map((w) =>
+        publicClient().readContract({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [w as `0x${string}`] }),
+      ),
+    );
+    return Number(formatUnits(balances.reduce((a, b) => a + b, 0n), decimals));
+  } catch {
+    return null;
+  }
 }
 
 /** Live numbers for the public landing page. Totals only: no wallets, no rate table, just the daily maximum. */
@@ -98,7 +114,14 @@ export async function platformOverview() {
     one<{ n: number }>("select count(*)::int as n from step_entries where verification in ('flagged', 'unverified')"),
     getSettings(),
   ]);
-  const subscribers = await one<{ n: number }>("select count(*)::int as n from newsletter_subscribers");
+  const [subscribers, creditedToday, payoutBalance] = await Promise.all([
+    one<{ n: number }>("select count(*)::int as n from newsletter_subscribers"),
+    one<{ total: number }>(
+      `select coalesce(sum(amount), 0)::float8 as total from rewards
+        where status <> 'rejected' and reviewed_at >= (now() at time zone 'utc')::date`,
+    ),
+    payoutWalletBalance(settings.payoutTokenAddress, settings.payoutTokenDecimals),
+  ]);
   return {
     tokenReady: await payoutTokenReady(settings.payoutTokenAddress),
     users: totals,
@@ -111,5 +134,8 @@ export async function platformOverview() {
     settings,
     payoutWallets: env.payoutWallets,
     demoMode: env.demoMode,
+    creditedToday: creditedToday?.total ?? 0,
+    /** USDG held by the payout wallets, null when the chain can't be read. */
+    payoutBalance,
   };
 }

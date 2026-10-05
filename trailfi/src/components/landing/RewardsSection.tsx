@@ -9,11 +9,11 @@ import { Reveal, SectionHeading } from "./Reveal";
 import { usePublicStats } from "./usePublicStats";
 import { TokenIcon } from "@/components/ui/TokenIcon";
 
-// Where the money comes from: a fee on every $STEPIT trade.
+// How a day turns into pay.
 const FLOW = [
-  { k: "People trade $STEPIT", sub: "every buy and sell onchain" },
-  { k: "A small fee on each trade", sub: "goes into the reward fund" },
-  { k: "The fund pays walkers", sub: "based on verified steps", accent: true },
+  { k: "You walk and upload", sub: "a screenshot of the day's steps" },
+  { k: "The team verifies it", sub: "the date and the steps must match" },
+  { k: "USDG goes to your wallet", sub: "request a payout whenever you like", accent: true },
 ];
 
 export function RewardsSection() {
@@ -27,9 +27,9 @@ export function RewardsSection() {
       <div className="pointer-events-none absolute right-0 top-1/3 h-[520px] w-[520px] rounded-full bg-lime-400/[0.07] blur-[140px]" />
       <div className="container relative grid items-center gap-16 lg:grid-cols-2">
         <div>
-          <SectionHeading index="02" label="Rewards" title="Token fees," accent="paid to the people who move.">
-            Every buy and sell of the $STEPIT token pays a small trading fee. Those fees fund the rewards paid to
-            everyone who walks with verified activity. The more you move, the more you earn.
+          <SectionHeading index="02" label="Rewards" title="Real dollars," accent="for every verified day.">
+            Every day you upload your steps and the team verifies your screenshot pays in USDG, the dollar stablecoin
+            on Robinhood Chain. The more you walk, the more that day pays.
           </SectionHeading>
 
           <Reveal delay={0.15} className="mt-10 space-y-3">
@@ -55,7 +55,8 @@ export function RewardsSection() {
             ))}
             <p className="flex gap-2 pt-2 text-[13px] leading-relaxed text-white/45">
               <Info className="mt-0.5 h-4 w-4 shrink-0" />
-              Rewards depend on trading volume and are reviewed before payment. They are never guaranteed.
+              Every day is reviewed before it pays. Amounts follow Stepit&apos;s current rates, which can change, and days that
+              aren&apos;t verified don&apos;t pay.
             </p>
           </Reveal>
         </div>

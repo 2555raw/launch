@@ -30,7 +30,7 @@ const STEPS = [
     n: "03",
     stage: "Summit",
     title: "Earn rewards",
-    body: "Paid from the $STEPIT trading fees. Request a payout and it lands in your wallet after review.",
+    body: "Each verified day pays in USDG. Request a payout and it lands in your wallet after review.",
     icon: Coins,
     tags: ["Stablecoin", "Onchain"],
     Visual: PayoutVisual,

@@ -7,13 +7,13 @@ export default function AboutPage() {
     <InfoPage
       label="About Stepit"
       title="Built for people who'd rather be outside."
-      intro="Stepit is a Web3 platform that rewards verified real world activity. Walk, hike and explore, and get paid from the $STEPIT token's trading fees in your own wallet."
+      intro="Stepit is a Web3 platform that rewards verified real world activity. Walk, hike and explore, and get paid in USDG in your own wallet."
     >
       <Section title="Why Stepit">
         <p>
           Most move to earn projects paid people in a token that only had value while new users kept buying it. Stepit
-          does the opposite: rewards are funded by the <strong>real trading fees</strong> of the $STEPIT token, paid in
-          established stablecoins.
+          does the opposite: rewards are paid in <strong>USDG</strong>, a dollar stablecoin issued by Paxos, so a dollar
+          earned is a dollar in your wallet.
         </p>
       </Section>
       <Section title="Principles">

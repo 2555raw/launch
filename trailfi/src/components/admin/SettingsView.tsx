@@ -142,9 +142,37 @@ export function SettingsView() {
             </Field>
           </div>
           <p className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.05] p-4 text-[12.5px] text-lime-100/80">
-            These rates are private. Walkers only see the amount each verified day earns. Verifying a photo credits that day
-            straight away.
+            Walkers see the daily maximum (the last milestone) on the home page and what each verified day earns. Verifying a
+            photo credits that day straight away.
           </p>
+
+          <div className="hairline" />
+          <CardHeader label="Spending" title="Limits" />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field
+              label={`Daily budget (${form.payoutTokenSymbol})`}
+              hint="Most you can credit per day (UTC) by verifying photos, referral bonuses included. Verifying stops at the limit. 0 means no limit."
+            >
+              <input type="number" className="input font-mono" min={0} step={10} value={form.dailyBudget} onChange={(e) => set("dailyBudget", Number(e.target.value))} />
+            </Field>
+            <Field label="New sign-ups" hint="When paused, wallets without an account can't join. Existing walkers keep uploading.">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={form.signupsPaused}
+                onClick={() => set("signupsPaused", !form.signupsPaused)}
+                className={cn(
+                  "flex h-11 w-full items-center justify-between rounded-xl border px-4 text-[14px] font-medium transition",
+                  form.signupsPaused ? "border-amber-400/40 bg-amber-400/10 text-amber-200" : "border-white/10 bg-black/30 text-white/80",
+                )}
+              >
+                {form.signupsPaused ? "Paused" : "Open"}
+                <span className={cn("relative h-6 w-11 rounded-full transition", form.signupsPaused ? "bg-amber-400/70" : "bg-lime-400/70")}>
+                  <span className={cn("absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all", form.signupsPaused ? "left-[22px]" : "left-0.5")} />
+                </span>
+              </button>
+            </Field>
+          </div>
 
           <div className="hairline" />
           <CardHeader label="Payouts" title="Token" />

@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import { HttpError } from "@/lib/api";
 import { audit } from "@/lib/audit";
-import { one, query, tx } from "@/lib/db";
+import { one, query, tx, type Queryable } from "@/lib/db";
 import { tierReward } from "@/lib/rewards/engine";
 import { changedShare, photoFingerprint, SAME_PHOTO_MAX_CHANGED } from "@/lib/steps/photoFingerprint";
 import { checkStepSubmission, initialVerification, utcToday, type StepSource } from "@/lib/steps/validation";
@@ -199,6 +199,31 @@ export const reviewSchema = z.object({
   note: z.string().trim().max(300).optional(),
 });
 
+/**
+ * Stops a verification that would credit more than the daily budget (UTC day),
+ * counting the referral bonuses it would also release. Rejecting is never blocked.
+ */
+async function assertWithinDailyBudget(q: Queryable, userId: string, amount: number, referralBonus: number, budget: number) {
+  const [today] = await q.query<{ credited: number }>(
+    `select coalesce(sum(amount), 0)::float8 as credited from rewards
+      where status <> 'rejected' and reviewed_at >= (now() at time zone 'utc')::date`,
+  );
+  const [ref] = await q.query<{ eligible: boolean }>(
+    `select (u.referred_by is not null and u.referral_rewarded_at is null and r.status = 'active') as eligible
+       from users u left join users r on r.id = u.referred_by where u.id = $1`,
+    [userId],
+  );
+  const adding = amount + (ref?.eligible && referralBonus > 0 ? referralBonus * 2 : 0);
+  const credited = Number(today?.credited ?? 0);
+  if (credited + adding > budget + 1e-9) {
+    throw new HttpError(
+      409,
+      `Daily budget reached: $${credited.toFixed(2)} of $${budget.toFixed(2)} credited today, and this upload would add $${adding.toFixed(2)}. Raise the budget in Rates & settings or verify it tomorrow.`,
+      "budget_reached",
+    );
+  }
+}
+
 /** Manual admin review — the only way a browser-submitted entry becomes payable. */
 export async function reviewStepEntry(entryId: string, input: unknown, actor: string) {
   const { decision, note } = reviewSchema.parse(input);
@@ -223,6 +248,7 @@ export async function reviewStepEntry(entryId: string, input: unknown, actor: st
     let reward: number | null = null;
     if (decision === "verified") {
       const amount = tierReward(row.steps, toTiers(settings));
+      if (settings.dailyBudget > 0) await assertWithinDailyBudget(q, row.userId, amount, settings.referralBonus, settings.dailyBudget);
       if (amount > 0) {
         await q.query(
           `insert into rewards (user_id, step_entry_id, period_start, period_end, valid_steps, eligible_days, weight, amount,

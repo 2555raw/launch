@@ -31,9 +31,10 @@ export default function DocsPage() {
       </Section>
       <Section title="3. Rewards">
         <p>
-          Every trade of the <strong>$STEPIT</strong> token pays a small fee, and those fees fund the rewards. Rewards grow
-          with your verified daily steps: the more you walk, the more you earn. Days with very little activity earn
-          nothing. Amounts are set by the Stepit team and can change over time.
+          Rewards are paid in <strong>USDG</strong> on Robinhood Chain. Each verified day earns an amount that grows with
+          your steps, up to a daily maximum: the more you walk, the more you earn. Days with very little activity earn
+          nothing. Amounts are set by the Stepit team and can change over time. Inviting a friend adds a referral bonus
+          for both of you once their first upload is verified.
         </p>
       </Section>
       <Section title="4. Requesting a payout">

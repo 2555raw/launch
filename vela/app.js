@@ -777,7 +777,7 @@
           <div><span>Your balance</span><b>${qty(bal)} $${esc(l.ticker)}</b></div>
           <div><span>Starting price</span><b>${pUsd ? price(pUsd) : '—'}</b></div>
           <div><span>Starting market cap</span><b>${pUsd ? compact(pUsd * supply) : '—'}</b></div>
-          <div><span>Liquidity</span><b>${native ? money(native * usdOf(l.chain) * 2) : '—'}</b></div>`;
+          <div><span>Liquidity</span><b>${!native ? '—' : usdOf(l.chain) ? money(native * usdOf(l.chain) * 2) : `${native} ${unit} + ${qty(tokens)} $${esc(l.ticker)}`}</b></div>`;
       };
       C.poolInfo(l.chain, l.addr, state.evm?.address || l.owner).then((r) => { info = r; preview(); })
         .catch(() => { $('#liqPrev', body).innerHTML = '<span class="dim">Couldn’t read the token yet — you can still add liquidity.</span>'; });

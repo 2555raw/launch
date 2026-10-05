@@ -393,10 +393,8 @@ input[type="file"]::file-selector-button { margin-right: 12px; padding: 8px 14px
 .foot-x > svg:first-child { width: 15px; height: 15px; color: var(--ink); }
 .foot-x > svg:last-child { width: 14px; height: 14px; opacity: 0; transform: translate(-3px, 3px); transition: opacity .2s, transform .3s var(--ease); }
 .foot-x:hover > svg:last-child { opacity: 1; transform: none; }
-.foot-mark {
-  margin: 64px 0 0; font-weight: 600; letter-spacing: -.055em; line-height: .76;
-  font-size: clamp(4.5rem, .5rem + 21vw, 21rem); color: var(--steel); user-select: none; white-space: nowrap;
-}
+.foot-mark { display: block; width: 100%; height: auto; margin-top: 64px; user-select: none; }
+.foot-mark text { font-family: var(--sans); font-weight: 600; font-size: 252px; fill: var(--steel); }
 .foot-bottom { position: relative; display: flex; justify-content: space-between; gap: 12px 32px; flex-wrap: wrap; margin-top: 18px; padding-top: 22px; border-top: 1px solid var(--line-2); font-size: 13px; color: var(--dim); }
 .foot-credits { max-width: 62ch; }
 @media (max-width: 960px) { .foot-top { grid-template-columns: 1fr; } }

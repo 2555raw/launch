@@ -317,6 +317,7 @@
       ${deployed.input ? `<p class="dp-note">To publish the source on the explorer: open the hook there, choose Verify &amp; publish, then "Solidity (Standard JSON input)", compiler ${esc(deployed.compiler.replace('.Emscripten.clang', ''))}, and upload that file.</p>` : ''}`;
     const v = $('#dp-verify');
     if (v) v.addEventListener('click', verificationFile);
+    $('#dp-hook-note').textContent = `Deployed on ${NET.name}.`;
     step('hook', 'done');
     $('#dp-pool').hidden = false;
     step('pool', 'active');

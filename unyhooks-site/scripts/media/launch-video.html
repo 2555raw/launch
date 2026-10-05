@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>UnyHooks launch (video frames)</title>
+  <!-- A motion piece for social video, drawn from a clock instead of CSS animation:
+       window.seek(t) puts every element where it is at second t, so
+       record-launch.js can capture exact frames at 30 fps.
+       ?format=wide (1280×720) | tall (720×1280) | square (720×720)
+       ?cut=launch (the full launch, ~30 s) | checks (the public page, ~16 s)
+       Recorded at 1.5× scale: 1920×1080, 1080×1920, 1080×1080. -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    html, body { margin: 0; overflow: hidden; background: #FFF9FC; }
+    body.uh::before, body.uh::after { display: none; }
+    body { width: var(--W); height: var(--H); position: relative; font-family: var(--font-body); color: var(--ink); }
+    body.wide { --W: 1280px; --H: 720px; }
+    body.tall { --W: 720px; --H: 1280px; }
+    body.square { --W: 720px; --H: 720px; }
+
+    .glow { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; will-change: transform; }
+    .glow.a { width: 620px; height: 620px; background: #FFC4E1; left: -160px; top: -220px; }
+    .glow.b { width: 520px; height: 520px; background: #FFD9EC; right: -180px; bottom: -200px; }
+    .glow.c { width: 360px; height: 360px; background: #FFB3D6; left: 50%; top: 55%; opacity: .25; }
+
+    .scene { position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; }
+    .center { text-align: center; padding: 0 56px; }
+
+    .brandbar { position: absolute; left: 44px; top: 34px; display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 700; letter-spacing: -.02em; z-index: 5; }
+    .brandbar svg { width: 32px; height: 32px; }
+    .brandbar b { background: var(--pink-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .tag { position: absolute; right: 44px; top: 38px; font-size: 14px; font-weight: 500; color: var(--prose); z-index: 5; }
+    .tall .brandbar { left: 40px; top: 56px; } .tall .tag { right: 40px; top: 62px; }
+
+    .big { font-size: 76px; line-height: 1.02; letter-spacing: -.045em; font-weight: 800; margin: 0; }
+    .tall .big { font-size: 72px; }
+    .square .big { font-size: 58px; }
+    .pink { background: var(--pink-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .sub { margin: 22px auto 0; max-width: 760px; font-size: 24px; line-height: 1.45; color: var(--prose); }
+    .tall .sub { font-size: 26px; }
+
+    /* scene: the old way */
+    .chores { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 900px; margin: 34px auto 0; }
+    .tall .chores { max-width: 600px; }
+    .chore { position: relative; padding: 12px 18px; border-radius: 999px; background: #fff; border: 1px solid var(--line-hi); font-size: 21px; font-weight: 500; color: #3A3340; box-shadow: 0 10px 30px -20px rgba(236, 21, 134, .5); }
+    .chore i { position: absolute; left: 14px; right: 14px; top: 50%; height: 3px; border-radius: 3px; background: var(--pink); transform-origin: left; transform: scaleX(0); }
+
+    /* product cards */
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 24px; box-shadow: 0 40px 80px -50px rgba(236, 21, 134, .55); padding: 24px; }
+    .card h3 { margin: 0 0 14px; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .n { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--pink-soft); color: var(--pink); font-size: 13px; }
+    .field { display: grid; gap: 6px; margin-top: 12px; }
+    .field label { font-size: 14px; font-weight: 500; }
+    .input { display: flex; align-items: center; height: 46px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line-hi); font-size: 17px; }
+    .input.is-on { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
+    .input .u { margin-left: auto; color: var(--muted); font-size: 15px; }
+    .caret { display: inline-block; width: 2px; height: 20px; margin-left: 1px; background: var(--pink); vertical-align: -3px; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip { height: 38px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid var(--line-hi); font-size: 15px; font-weight: 500; background: #fff; }
+    .chip.is-on { border-color: var(--pink); background: var(--pink-soft); color: var(--pink); }
+
+    .launch-wrap { position: relative; display: grid; gap: 22px; align-items: start; }
+    .wide .launch-wrap { grid-template-columns: 560px 420px; }
+    .tall .launch-wrap { width: 600px; align-self: start; margin-top: 118px; }
+    .kv { display: grid; gap: 11px; }
+    .kv div { display: flex; justify-content: space-between; gap: 12px; font-size: 16px; }
+    .kv dt { color: var(--muted); }
+    .kv dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .kv .big-row dd { font-size: 20px; }
+    .go { margin-top: 18px; height: 54px; border-radius: 999px; display: grid; place-items: center; background: var(--pink-grad); color: #fff; font-size: 18px; font-weight: 600; box-shadow: var(--pink-glow); }
+    .steps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 9px; }
+    .steps li { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--prose); opacity: .35; }
+    .steps li.done { opacity: 1; }
+    .dot { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-hi); display: grid; place-items: center; font-size: 11px; color: #fff; }
+    .done .dot { background: var(--ok); border-color: var(--ok); }
+    .done .dot::before { content: '✓'; }
+
+    .wallet { position: absolute; width: 360px; padding: 22px; border-radius: 22px; background: #fff; border: 1px solid var(--line); box-shadow: 0 50px 100px -30px rgba(15, 11, 18, .35); }
+    .wallet .wt { font-size: 14px; color: var(--muted); }
+    .wallet .wa { margin-top: 6px; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+    .wallet .wr { display: flex; justify-content: space-between; margin-top: 12px; font-size: 15px; color: var(--prose); }
+    .wallet .wb { margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .wallet .wb span { height: 46px; display: grid; place-items: center; border-radius: 14px; font-weight: 600; font-size: 16px; }
+    .wallet .no { background: #F6EEF3; color: var(--prose); }
+    .wallet .yes { background: #F6851B; color: #fff; }
+    .wallet .fox { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+    .wallet .fox i { width: 22px; height: 22px; border-radius: 6px; background: linear-gradient(135deg, #F6851B, #E2761B); }
+    .dim { position: absolute; inset: 0; background: rgba(15, 11, 18, .28); }
+
+    .cursor { position: absolute; width: 26px; height: 26px; z-index: 20; left: 0; top: 0; filter: drop-shadow(0 3px 4px rgba(0,0,0,.25)); }
+
+    /* public page */
+    .pub { width: 700px; display: grid; gap: 12px; }
+    .tall .pub { width: 620px; }
+    .square .pub { width: 600px; gap: 9px; }
+    .pub-hero { padding: 24px 26px; }
+    .pub-kick { font-size: 13px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--pink); }
+    .pub-title { margin: 8px 0 0; font-size: 58px; font-weight: 800; letter-spacing: -.045em; line-height: 1; }
+    .square .pub-title { font-size: 46px; }
+    .pub-title span { font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: var(--prose); }
+    .pub-price { margin-top: 12px; display: flex; align-items: baseline; gap: 14px; }
+    .pub-price b { font-size: 30px; letter-spacing: -.02em; }
+    .pub-price em { font-style: normal; color: var(--prose); font-weight: 500; font-size: 16px; }
+    .pub-btns { display: flex; gap: 10px; margin-top: 16px; }
+    .btn { height: 44px; padding: 0 20px; display: inline-flex; align-items: center; border-radius: 999px; font-weight: 600; font-size: 16px; border: 1px solid var(--line-hi); background: #fff; }
+    .btn.pinkb { background: var(--pink-grad); color: #fff; border: 0; box-shadow: var(--pink-glow); }
+    .check { display: flex; gap: 12px; align-items: center; padding: 14px 16px; border-radius: 16px; background: #fff; border: 1px solid var(--line); font-size: 17px; }
+    .square .check { padding: 11px 14px; font-size: 15.5px; }
+    .check .d { flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font-size: 13px; font-weight: 700; color: #fff; }
+    .check.ok { background: #F6FDF9; border-color: var(--ok-line); }
+    .check.ok .d { background: var(--ok); }
+    .check.ok .d::before { content: '✓'; }
+    .check.info .d { background: var(--pink-soft); color: var(--pink); }
+    .check.info .d::before { content: 'i'; }
+    .check b { font-weight: 700; }
+    .tnum { font-variant-numeric: tabular-nums; }
+
+    .live-badge { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 999px; background: var(--ok-soft); border: 1px solid var(--ok-line); color: #075E40; font-weight: 600; font-size: 18px; }
+    .live-badge::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 4px rgba(12, 159, 107, .18); }
+
+    /* outro */
+    .list { margin: 26px auto 0; display: grid; gap: 10px; justify-items: center; }
+    .list span { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+    .square .list span { font-size: 24px; }
+    .cta { margin-top: 34px; display: inline-flex; align-items: center; gap: 12px; height: 62px; padding: 0 30px; border-radius: 999px; background: var(--pink-grad); color: #fff; font-size: 22px; font-weight: 700; box-shadow: var(--pink-glow); }
+    .fine { margin-top: 18px; font-size: 15px; color: var(--muted); }
+    .square .tag { display: none; }
+    .cap { position: absolute; left: 0; right: 0; text-align: center; font-size: 30px; font-weight: 700; letter-spacing: -.02em; z-index: 6; opacity: 0; }
+    .wide .cap { bottom: 22px; font-size: 24px; }
+    .tall .cap { bottom: 64px; font-size: 40px; line-height: 1.15; padding: 0 50px; }
+    .cap span { background: var(--pink-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .mark-big { width: 96px; height: 96px; display: block; margin: 0 auto 22px; }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="uh-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E5127D"/><stop offset="1" stop-color="#FF6CB8"/></linearGradient>
+      <symbol id="uh-mark" viewBox="0 0 32 32">
+        <g transform="skewX(-10) translate(3 0)" fill="none" stroke="url(#uh-grad)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12"/></g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="glow a" id="g1"></div><div class="glow b" id="g2"></div><div class="glow c" id="g3"></div>
+  <div class="brandbar" id="brand"><svg><use href="#uh-mark"/></svg><span>Uny<b>Hooks</b></span></div>
+  <div class="tag" id="tag">Robinhood Chain · Uniswap V4</div>
+
+  <!-- 1. the old way -->
+  <section class="scene" id="s-old"><div class="center">
+    <h1 class="big" id="old-h">Launching a token?</h1>
+    <div class="chores" id="chores"></div>
+  </div></section>
+
+  <!-- 2. one signature -->
+  <section class="scene" id="s-one"><div class="center">
+    <svg class="mark-big" id="one-mark"><use href="#uh-mark"/></svg>
+    <h1 class="big" id="one-h">Now it's <span class="pink">one signature.</span></h1>
+    <p class="sub" id="one-s">Token, pool, anti-sniper protection, liquidity and a lock. One transaction from your wallet.</p>
+  </div></section>
+
+  <!-- 3. the launch form -->
+  <section class="scene" id="s-form"><div class="launch-wrap" id="lw">
+    <div class="card" id="form-card">
+      <h3><span class="n">1</span> Your token</h3>
+      <div class="row2">
+        <div class="field"><label>Name</label><div class="input" id="in-name"></div></div>
+        <div class="field"><label>Symbol</label><div class="input" id="in-sym"></div></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>ETH to pair with</label><div class="input" id="in-eth"></div></div>
+        <div class="field"><label>Supply in the pool</label><div class="input" id="in-share"></div></div>
+      </div>
+      <div class="field"><label>Lock the liquidity</label>
+        <div class="chips" id="locks"><span class="chip">No lock</span><span class="chip">30 days</span><span class="chip">90 days</span><span class="chip">1 year</span><span class="chip">Forever</span></div>
+      </div>
+    </div>
+    <div class="card" id="sum-card">
+      <h3>Your launch</h3>
+      <dl class="kv" id="kv"></dl>
+      <div class="go" id="go">Launch token</div>
+      <ol class="steps" id="steps">
+        <li><span class="dot"></span>Compile the contracts</li>
+        <li><span class="dot"></span>Work out the addresses</li>
+        <li><span class="dot"></span>Check the launch before you sign</li>
+        <li><span class="dot"></span>Confirm in your wallet</li>
+        <li><span class="dot"></span>Launching on Robinhood Chain</li>
+      </ol>
+    </div>
+    <div class="dim" id="dim"></div>
+    <div class="wallet" id="wallet">
+      <div class="fox"><i></i>Wallet</div>
+      <div class="wt" style="margin-top:14px">Confirm transaction</div>
+      <div class="wa">Launch $PINK</div>
+      <div class="wr"><span>Amount</span><b>1 ETH</b></div>
+      <div class="wr"><span>Network</span><b>Robinhood Chain</b></div>
+      <div class="wb"><span class="no">Reject</span><span class="yes" id="yes">Confirm</span></div>
+    </div>
+  </div></section>
+
+  <!-- 4. the public page -->
+  <section class="scene" id="s-pub"><div class="pub" id="pub">
+    <div class="card pub-hero" id="pub-hero">
+      <div class="pub-kick">Launched with UnyHooks</div>
+      <h2 class="pub-title">$PINK <span>Pink Moon</span></h2>
+      <div class="pub-price"><b class="tnum" id="pub-price">0.0₈1111 ETH</b><em>1 ETH = 900M PINK</em></div>
+      <div class="pub-btns"><span class="btn pinkb">Buy $PINK</span><span class="btn">Share on X</span></div>
+    </div>
+    <div class="check ok" data-c><span class="d"></span><span>Hook source published on Sourcify</span></div>
+    <div class="check ok" data-c><span class="d"></span><span>Token: fixed supply of 1B, <b>no owner</b>, no mint</span></div>
+    <div class="check ok" data-c><span class="d"></span><span><b>All</b> of the liquidity locked until <b>Oct 2027</b></span></div>
+    <div class="check info" data-c><span class="d"></span><span><b>Launch protection on</b>, <span class="tnum" id="cd">59:59</span> left</span></div>
+  </div>
+  <div class="live-badge" id="live">$PINK is live</div></section>
+
+  <!-- 5. outro -->
+  <section class="scene" id="s-out"><div class="center">
+    <h1 class="big" id="out-h">Launch yours in<br><span class="pink">one signature.</span></h1>
+    <div class="list" id="out-list"><span>Token</span><span>Pool</span><span>Anti-sniper</span><span>Locked liquidity</span></div>
+    <div class="cta" id="cta">Launch a token →</div>
+    <p class="fine" id="fine">unyhooks · @UnyHooks · Not audited. Start small.</p>
+  </div></section>
+
+  <div class="cap" id="cap"></div>
+
+  <svg class="cursor" id="cursor" viewBox="0 0 24 24"><path d="M4 2l16 9.5-7 1.6-3.6 6.4z" fill="#0F0B12" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+
+<script>
+(() => {
+  const q = new URLSearchParams(location.search);
+  const FORMAT = q.get('format') || 'wide';
+  const CUT = q.get('cut') || 'launch';
+  document.body.className = `uh ${FORMAT}`;
+  const $ = (s) => document.querySelector(s);
+  const $$ = (s) => [...document.querySelectorAll(s)];
+
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const p = (t, a, b) => clamp((t - a) / (b - a));
+  const out3 = (x) => 1 - Math.pow(1 - x, 3);
+  const inOut = (x) => (x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+  const back = (x) => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+  const rise = (el, x, dist = 26) => { el.style.opacity = x; el.style.transform = `translateY(${(1 - x) * dist}px)`; };
+  const type = (text, x) => text.slice(0, Math.round(text.length * clamp(x)));
+
+  // The cuts: scenes and how long each lasts (seconds).
+  const CUTS = {
+    launch: [['old', 4.2], ['one', 3.6], ['form', 10.2], ['pub', 7.6], ['out', 5]],
+    checks: [['ask', 3], ['pub', 8], ['out', 5]]
+  };
+  const scenes = [];
+  let at = 0;
+  for (const [name, dur] of CUTS[CUT]) { scenes.push({ name, start: at, dur }); at += dur; }
+  window.DURATION = at;
+
+  const CHORES = ['Deploy the token', 'Create the pool', 'Approve ×2', 'Add liquidity', 'Find a locker', 'Fight the snipers', 'Prove you won\'t rug'];
+  $('#chores').innerHTML = CHORES.map((c) => `<span class="chore">${c}<i></i></span>`).join('');
+
+  const fmtPrice = 'ETH';
+  const kv = (name, sym, eth, share, lock) => {
+    const tokens = 1e9 * share / 100;
+    const per = eth ? tokens / eth : 0;
+    const big = (v) => new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 }).format(v);
+    const rows = [
+      ['Starting price', eth ? `1 ETH = ${big(per)} ${sym || 'TOKEN'}` : '—'],
+      ['Starting market cap', eth ? `${(eth * 100 / share).toPrecision(4).replace(/\.?0+$/, '')} ETH` : '—', true],
+      ['In the pool', `${big(tokens)} ${sym || 'TOKEN'} + ${eth || 0} ETH`],
+      ['Protection', '60 min, 0.1 ETH max buy'],
+      ['Liquidity', lock],
+      ['Signatures', '1']
+    ];
+    return rows.map(([k, v, b]) => `<div${b ? ' class="big-row"' : ''}><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+  };
+
+  const pos = (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+  const cursorAt = (x, y, show, pressed) => {
+    const c = $('#cursor');
+    c.style.opacity = show;
+    c.style.transform = `translate(${x - 4}px, ${y - 2}px) scale(${pressed ? .85 : 1})`;
+  };
+
+  const draw = {
+    old(t, d) {
+      rise($('#old-h'), out3(p(t, .1, .7)));
+      $$('.chore').forEach((c, i) => {
+        const x = back(p(t, .5 + i * .22, .85 + i * .22));
+        c.style.opacity = clamp(x);
+        c.style.transform = `scale(${.6 + .4 * x})`;
+        const strike = out3(p(t, 2.7 + i * .08, 3.0 + i * .08));
+        c.querySelector('i').style.transform = `scaleX(${strike})`;
+        c.style.color = strike > .5 ? '#B5A9B8' : '';
+      });
+    },
+    ask(t) {
+      $('#old-h').textContent = 'Is the liquidity locked?';
+      rise($('#old-h'), out3(p(t, .1, .7)));
+      $('#chores').style.display = 'none';
+    },
+    one(t) {
+      const m = back(p(t, .05, .6));
+      $('#one-mark').style.transform = `scale(${m}) rotate(${(1 - m) * -30}deg)`;
+      $('#one-mark').style.opacity = clamp(m);
+      rise($('#one-h'), out3(p(t, .35, 1)));
+      rise($('#one-s'), out3(p(t, .9, 1.6)));
+    },
+    form(t) {
+      rise($('#form-card'), out3(p(t, 0, .6)), 40);
+      rise($('#sum-card'), out3(p(t, .2, .8)), 40);
+      const name = type('Pink Moon', p(t, .9, 1.9));
+      const sym = type('PINK', p(t, 2.1, 2.6));
+      const eth = p(t, 2.9, 3.1) > 0 ? '1' : '';
+      const share = p(t, 3.4, 3.6) > 0 ? '90' : '100';
+      const lockI = t < 4.4 ? 2 : 3;
+      const on = t < 2 ? 'name' : t < 2.8 ? 'sym' : t < 3.3 ? 'eth' : t < 4 ? 'share' : '';
+      const caret = (k) => (on === k && Math.floor(t * 2.4) % 2 === 0 ? '<span class="caret"></span>' : '');
+      $('#in-name').innerHTML = `${name}${caret('name')}`;
+      $('#in-sym').innerHTML = `${sym}${caret('sym')}`;
+      $('#in-eth').innerHTML = `${eth}${caret('eth')}<span class="u">ETH</span>`;
+      $('#in-share').innerHTML = `${share}${caret('share')}<span class="u">%</span>`;
+      ['name', 'sym', 'eth', 'share'].forEach((k) => $(`#in-${k === 'sym' ? 'sym' : k}`).classList.toggle('is-on', on === k));
+      $$('#locks .chip').forEach((c, i) => c.classList.toggle('is-on', i === lockI));
+      $('#kv').innerHTML = kv(name, sym, eth ? 1 : 0, Number(share), lockI === 3 ? 'locked 1 year' : 'locked 90 days');
+      $('#go').textContent = sym ? `Launch $${sym}` : 'Launch token';
+
+      // cursor: to "1 year", then to the button, click
+      const chip = pos($$('#locks .chip')[3]);
+      const go = pos($('#go'));
+      const start = { x: chip.x + 140, y: chip.y + 120 };
+      let cx = start.x, cy = start.y, pressed = false;
+      const a = inOut(p(t, 3.7, 4.3));
+      cx = start.x + (chip.x - start.x) * a; cy = start.y + (chip.y - start.y) * a;
+      if (t > 4.2 && t < 4.45) pressed = true;
+      const b = inOut(p(t, 4.8, 5.6));
+      cx += (go.x - cx) * b; cy += (go.y - cy) * b;
+      if (t > 5.65 && t < 5.9) pressed = true;
+      $('#go').style.transform = `scale(${t > 5.65 && t < 5.9 ? .97 : 1})`;
+
+      // wallet
+      const w = back(p(t, 5.9, 6.4));
+      const wEl = $('#wallet');
+      const lw = $('#lw').getBoundingClientRect();
+      wEl.style.opacity = clamp(w) * (1 - p(t, 7.6, 7.9));
+      const wx = (innerWidth - 360) / 2 - lw.left;
+      const wy = (innerHeight - wEl.offsetHeight) / 2 - lw.top;
+      wEl.style.transform = `translate(${wx}px, ${wy + (1 - w) * 30}px) scale(${.92 + .08 * w})`;
+      $('#dim').style.opacity = clamp(p(t, 5.9, 6.2)) * (1 - p(t, 7.6, 7.9));
+      $('#dim').style.inset = `${-lw.top}px ${lw.right - innerWidth}px ${lw.bottom - innerHeight}px ${-lw.left}px`;
+      const yes = pos($('#yes'));
+      const c2 = inOut(p(t, 6.5, 7.1));
+      if (t > 6.4) { cx += (yes.x - cx) * c2; cy += (yes.y - cy) * c2; }
+      if (t > 7.15 && t < 7.4) pressed = true;
+      $('#yes').style.filter = t > 7.15 && t < 7.4 ? 'brightness(.88)' : '';
+      cursorAt(cx, cy, clamp(p(t, 3.4, 3.7)) * (1 - p(t, 7.6, 8)), pressed);
+
+      // steps tick after the click on the button; "confirm" waits for the wallet
+      const ticks = [5.95, 6.15, 6.35, 7.35, 8.3];
+      $$('#steps li').forEach((li, i) => li.classList.toggle('done', t > ticks[i]));
+    },
+    pub(t, d) {
+      rise($('#pub-hero'), out3(p(t, .1, .7)), 40);
+      $$('[data-c]').forEach((c, i) => {
+        const x = back(p(t, 1.0 + i * .55, 1.45 + i * .55));
+        c.style.opacity = clamp(x);
+        c.style.transform = `translateX(${(1 - clamp(x)) * -30}px) scale(${.96 + .04 * x})`;
+      });
+      const left = 3599 - Math.floor(t);
+      $('#cd').textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+      // A sample token: the price stays put, no made-up gains.
+      $('#pub-price').textContent = '0.0₈1111 ETH';
+      const lb = back(p(t, .3, .8));
+      const live = $('#live');
+      live.style.position = 'absolute';
+      live.style.opacity = clamp(lb) * (1 - p(t, d - .6, d - .2));
+      const top = FORMAT === 'tall' ? 150 : FORMAT === 'square' ? 30 : 28;
+      live.style.top = `${top}px`;
+      live.style.left = '50%';
+      live.style.transform = `translateX(-50%) scale(${.7 + .3 * lb})`;
+      if (FORMAT === 'square') $('#pub').style.marginTop = '46px';
+      if (FORMAT === 'wide') $('#pub').style.marginTop = '40px';
+    },
+    out(t) {
+      rise($('#out-h'), out3(p(t, .05, .6)));
+      $$('#out-list span').forEach((s, i) => rise(s, out3(p(t, .6 + i * .22, 1 + i * .22)), 16));
+      const c = back(p(t, 1.8, 2.3));
+      $('#cta').style.opacity = clamp(c);
+      $('#cta').style.transform = `scale(${.8 + .2 * c})`;
+      rise($('#fine'), out3(p(t, 2.3, 2.8)), 10);
+    }
+  };
+
+  // Captions, for people watching without sound: [scene, from, to, html, formats].
+  const CAPS = [
+    ['form', 0.3, 5.5, 'Name it. Add ETH. <span>Pick a lock.</span>', ['wide', 'tall']],
+    ['form', 5.7, 10.2, '<span>Sign once.</span> That\'s the whole launch.', ['wide', 'tall']],
+    ['pub', 0.8, 7.6, 'Buyers check it all <span>on chain.</span>', ['tall']]
+  ];
+  const caption = (t) => {
+    const el = $('#cap');
+    let shown = 0;
+    for (const s of scenes) {
+      const local = t - s.start;
+      for (const [name, a, b, html, fmts] of CAPS) {
+        if (name !== s.name || !fmts.includes(FORMAT) || local < a || local > b) continue;
+        el.innerHTML = html;
+        shown = Math.min(p(local, a, a + .35), 1 - p(local, b - .3, b));
+        el.style.transform = `translateY(${(1 - out3(p(local, a, a + .4))) * 14}px)`;
+      }
+    }
+    el.style.opacity = shown;
+  };
+
+  window.seek = (t) => {
+    caption(t);
+    // background drift
+    $('#g1').style.transform = `translate(${Math.sin(t * .35) * 40}px, ${Math.cos(t * .3) * 30}px)`;
+    $('#g2').style.transform = `translate(${Math.cos(t * .28) * 50}px, ${Math.sin(t * .33) * 30}px)`;
+    $('#g3').style.transform = `translate(-50%, -50%) scale(${1 + Math.sin(t * .5) * .08})`;
+    $('#cursor').style.opacity = 0;
+    for (const s of scenes) {
+      const el = $(`#s-${s.name === 'ask' ? 'old' : s.name}`);
+      const local = t - s.start;
+      const fade = Math.min(p(local, 0, .35), 1 - p(local, s.dur - .35, s.dur));
+      if (local < 0 || local > s.dur) { if (!scenes.some((o) => o !== s && (o.name === s.name || (o.name === 'ask' && s.name === 'old')) && t >= o.start && t <= o.start + o.dur)) el.style.opacity = 0; continue; }
+      el.style.opacity = s === scenes[0] ? Math.min(1, 1 - p(local, s.dur - .35, s.dur)) : fade;
+      if (s === scenes[scenes.length - 1]) el.style.opacity = p(local, 0, .35);
+      draw[s.name](local, s.dur);
+    }
+  };
+  window.seek(0);
+})();
+</script>
+</body>
+</html>

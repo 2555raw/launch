@@ -50,14 +50,17 @@ styles.css / build.css / docs.css / app.css / hooks.css / launch.css / hook.css
 
 server.js    serves the site, POST /api/chat (Claude), absolute og:image URLs, /healthz
 og.png       the 1200×630 link-preview image
-media/       unyhooks-demo.mp4 (1080p, 36 s) and unyhooks-demo.gif, for posting
+media/       videos for posting: unyhooks-launch.mp4 (1080p, 31 s), unyhooks-launch-vertical.mp4
+             (1080×1920), unyhooks-checks.mp4 (1080×1080, 16 s), unyhooks-launch.gif,
+             unyhooks-demo.mp4 / .gif (the builder); tweets.md: posts and a thread, EN and ES
 
 scripts/check-hooks.js         compiles every template and deploy script against Uniswap V4
 scripts/bundle-v4-sources.js   rebuilds vendor/v4-sources.json
 scripts/hook-tests/            contract behaviour, browser deploy end to end, mainnet simulation
 scripts/server-tests/          the chat endpoint against a stand-in API
 scripts/site-tests/            builder page, market panel, AI chat in a browser
-scripts/media/                 the demo video and the social card, and their sources
+scripts/media/                 the videos and the social card, and their sources
+                               (record-launch.js renders launch-video.html frame by frame)
 ```
 
 ## Run it

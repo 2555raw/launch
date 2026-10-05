@@ -11,6 +11,12 @@
         ],
         "createdAt": "2026-10-04T12:07:20.229Z",
         "reason": "Direction contract: live receipt card overlaid on the hero vault photograph is the first-viewport thesis; finish reviewer marked it intended"
+      },
+      {
+        "rule": "design-system-font",
+        "value": "mono",
+        "createdAt": "2026-10-05T11:17:04.887Z",
+        "reason": "Generic monospace fallback after JetBrains Mono, which DESIGN.md declares for hashes"
       }
     ]
   }

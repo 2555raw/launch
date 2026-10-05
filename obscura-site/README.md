@@ -72,6 +72,11 @@ Edit the captions or timings in `scenes.html` and re-run to regenerate.
   balance at that block, falling back to the current balance when the node keeps no history.
 - **Share** — a proof link (`verify.html#obx1_…`) and its QR code. The receipt rides after the `#`,
   which browsers never send to a server; opening the link verifies on the reader's device.
+- **Expiry** — a bond can carry a validity date (1 hour to 30 days). It is hashed with the asset and named in
+  the wallet's signed statement, so it cannot be extended; Verify shows an expired proof as expired.
+- **Link previews** — Open Graph and Twitter cards (`assets/og-home.jpg`, `assets/og-verify.jpg`, drawn from
+  `tools/og.html` by `tools/render-og.mjs`). `server.js` fills in `__ORIGIN__` with the address each request
+  arrived on, so previews keep working on any domain.
 - **Backup** — the vault exports as an `obxbak1_…` file sealed with AES-256-GCM under a passphrase;
   the console reminds the holder while any bond is not in a backup.
 - **Prove** — the verifier recomputes the hash and compares it to a commitment they expect.

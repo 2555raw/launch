@@ -64,12 +64,28 @@ export function canonicalAsset(asset) {
   if (!symbol) throw new Error("Asset needs a symbol");
   if (!/^\d+(\.\d+)?$/.test(amount) || Number(amount) <= 0) throw new Error("Amount must be a positive number");
   if (!chain) throw new Error("Asset needs a chain");
-  return { chain, symbol, amount, note };
+  const out = { chain, symbol, amount, note };
+  // Optional expiry, in Unix seconds. It is hashed with the asset, so it cannot
+  // be pushed back without breaking the seal.
+  if (asset.expires != null && asset.expires !== "") {
+    const expires = Number(asset.expires);
+    if (!Number.isInteger(expires) || expires <= 0) throw new Error("Expiry must be a date");
+    out.expires = expires;
+  }
+  return out;
 }
 
 function assetBytes(asset) {
   const a = canonicalAsset(asset);
-  return enc.encode(JSON.stringify([a.chain, a.symbol, a.amount, a.note]));
+  const fields = [a.chain, a.symbol, a.amount, a.note];
+  if (a.expires) fields.push(a.expires); // receipts without expiry hash exactly as before
+  return enc.encode(JSON.stringify(fields));
+}
+
+// Seconds left before a receipt expires: null when it never does, 0 once it has.
+export function secondsLeft(asset, now = Date.now()) {
+  if (!asset?.expires) return null;
+  return Math.max(0, asset.expires - Math.floor(now / 1000));
 }
 
 export async function commit(asset, salt, key) {

@@ -59,3 +59,18 @@ test("a signature from another wallet, or an edited amount, is rejected", async 
   const edited = { ...r, asset: { ...r.asset, amount: "250" } };
   assert.equal((await verifyFunds(edited)).signed, false);
 });
+
+test("the wallet signs the expiry too", async () => {
+  const w = Wallet.createRandom();
+  const expires = Math.floor(Date.now() / 1000) + 600;
+  const r = await obx.cloak({ chain: "base", symbol: "ETH", amount: "1", expires });
+  const proof = { type: "funds-v1", address: w.address.toLowerCase(), chainId: 8453, block: 7 };
+  const msg = fundsMessage({ commitment: r.commitment, address: proof.address, chainId: 8453, amount: "1", symbol: "ETH", block: 7, expires });
+  assert.match(msg, /Valid until: /);
+  proof.signature = await w.signMessage(msg);
+  fakeChain(parseUnits("2"));
+  assert.equal((await verifyFunds({ ...r, proof })).signed, true);
+  // A message signed without the expiry does not match a receipt that has one.
+  const bare = await w.signMessage(fundsMessage({ commitment: r.commitment, address: proof.address, chainId: 8453, amount: "1", symbol: "ETH", block: 7 }));
+  assert.equal((await verifyFunds({ ...r, proof: { ...proof, signature: bare } })).signed, false);
+});

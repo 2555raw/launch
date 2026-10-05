@@ -642,3 +642,5 @@ details.raw summary:hover { color: var(--ink); }
 @media (prefers-reduced-motion: no-preference) {
   .js .reveal { transform: translateY(14px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
 }
+.badge.expired { background: var(--bad-soft); color: var(--bad); }
+.check.time .check-icon { background: var(--accent-soft); color: var(--accent); }

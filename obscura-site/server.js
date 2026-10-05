@@ -3,7 +3,7 @@
 // No dependencies. Supports HTTP Range requests, which Safari needs before it
 // will play the films, and keeps every request inside this folder.
 import http from "node:http";
-import { createReadStream, statSync } from "node:fs";
+import { createReadStream, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -57,6 +57,16 @@ http.createServer((req, res) => {
     "x-content-type-options": "nosniff",
     "referrer-policy": "strict-origin-when-cross-origin",
   };
+
+  // Link previews need absolute URLs: fill in the address this request came to.
+  if (ext === ".html") {
+    const proto = req.headers["x-forwarded-proto"] || "http";
+    const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
+    const body = readFileSync(file, "utf8").replaceAll("__ORIGIN__", `${proto}://${host}`);
+    const buf = Buffer.from(body);
+    res.writeHead(200, { ...headers, "content-length": buf.length });
+    return res.end(req.method === "HEAD" ? undefined : buf);
+  }
 
   const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
   if (range) {

@@ -42,9 +42,9 @@ export function floorAmount(wei, decimals = 18, places = 4) {
 }
 
 // ---------- the signed statement ----------
-export function fundsMessage({ commitment, address, chainId, amount, symbol, block }) {
+export function fundsMessage({ commitment, address, chainId, amount, symbol, block, expires }) {
   const chain = CHAINS[chainId]?.name || `chain ${chainId}`;
-  return [
+  const lines = [
     "Obscura proof of funds",
     "",
     `I control ${address.toLowerCase()}`,
@@ -53,7 +53,9 @@ export function fundsMessage({ commitment, address, chainId, amount, symbol, blo
     "",
     `Bond: 0x${commitment}`,
     `Chain id: ${chainId}`,
-  ].join("\n");
+  ];
+  if (expires) lines.push(`Valid until: ${new Date(expires * 1000).toISOString()}`);
+  return lines.join("\n");
 }
 
 const toHexUtf8 = (s) => "0x" + Array.from(new TextEncoder().encode(s), (b) => b.toString(16).padStart(2, "0")).join("");
@@ -68,7 +70,7 @@ export async function readBalance(provider, address) {
 }
 
 export async function signFunds(provider, { receipt, address, chainId, block }) {
-  const message = fundsMessage({ commitment: receipt.commitment, address, chainId, amount: receipt.asset.amount, symbol: receipt.asset.symbol, block });
+  const message = fundsMessage({ commitment: receipt.commitment, address, chainId, amount: receipt.asset.amount, symbol: receipt.asset.symbol, block, expires: receipt.asset.expires });
   const signature = await provider.request({ method: "personal_sign", params: [toHexUtf8(message), address] });
   return { type: "funds-v1", address: address.toLowerCase(), chainId, block, signature };
 }
@@ -91,7 +93,7 @@ export async function verifyFunds(receipt) {
   const out = { signed: false, signer: null, onchain: "unchecked", heldAt: null, detail: "" };
   if (!p || p.type !== "funds-v1") return out;
 
-  const message = fundsMessage({ commitment: receipt.commitment, address: p.address, chainId: p.chainId, amount: receipt.asset.amount, symbol: receipt.asset.symbol, block: p.block });
+  const message = fundsMessage({ commitment: receipt.commitment, address: p.address, chainId: p.chainId, amount: receipt.asset.amount, symbol: receipt.asset.symbol, block: p.block, expires: receipt.asset.expires });
   try {
     const { verifyMessage } = await import("../assets/vendor/ethers.min.js");
     out.signer = verifyMessage(message, p.signature).toLowerCase();

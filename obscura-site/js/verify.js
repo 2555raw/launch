@@ -1,5 +1,5 @@
 // Verify page: checks a receipt from the link (#obx1_…) or pasted by hand.
-import { verify, decodeReceipt, RECEIPT_PREFIX } from "./obscura.js";
+import { verify, decodeReceipt, RECEIPT_PREFIX, secondsLeft } from "./obscura.js";
 import { verifyFunds, CHAINS } from "./proof.js";
 
 const $ = (id) => document.getElementById(id);
@@ -8,6 +8,7 @@ const ICONS = {
   fail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 7v6M12 17h.01"/></svg>',
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 12h10"/></svg>',
+  time: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>',
 };
 const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
@@ -50,6 +51,19 @@ async function run(text, expected) {
   const list = [sealOk
     ? row("pass", "The seal matches", expected ? "The receipt opens exactly the seal code you expected." : "Nothing in the receipt was changed.")
     : row("fail", "The seal does not match", expected ? "This receipt is not the bond with that seal code." : "The receipt was edited or damaged.")];
+
+  // Expiry is sealed in, so it is only trusted once the seal matches.
+  const left = sealOk ? secondsLeft(r.asset) : null;
+  const until = r.asset.expires ? new Date(r.asset.expires * 1000).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "";
+  if (left === 0) {
+    list.push(row("fail", "This proof has expired", `It was valid until ${until}. Ask the sender for a new one.`));
+    checks.replaceChildren(...list);
+    $("v-claim").className = "claim fail";
+    $("v-claim").textContent = "Expired";
+    $("v-note").textContent = "";
+    return;
+  }
+  if (left) list.push(row("time", `Valid until ${until}`, "The sender set this date when sealing it. It cannot be extended."));
 
   let verdict = sealOk ? "declared" : "fail";
   if (sealOk && r.proof) {

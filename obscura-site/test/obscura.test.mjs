@@ -64,3 +64,15 @@ test("backups are encrypted and open only with the passphrase", async () => {
   assert.deepEqual(back.map((b) => b.commitment), bonds.map((b) => b.commitment));
   await assert.rejects(obx.openBackup(text, "the wrong phrase!!"), /Wrong passphrase/);
 });
+
+test("an expiry is sealed into the bond", async () => {
+  const expires = Math.floor(Date.now() / 1000) + 3600;
+  const r = await obx.cloak({ ...asset, expires });
+  assert.equal(r.asset.expires, expires);
+  assert.equal(await obx.verify(obx.encodeReceipt(r)), true);
+  assert.equal(await obx.verify({ ...r, asset: { ...r.asset, expires: expires + 86400 } }), false, "pushing the date back breaks the seal");
+  assert.equal(await obx.verify({ ...r, asset: { ...r.asset, expires: undefined } }), false, "dropping it breaks the seal too");
+  assert.ok(obx.secondsLeft(r.asset) > 3500);
+  assert.equal(obx.secondsLeft(r.asset, (expires + 5) * 1000), 0);
+  assert.equal(obx.secondsLeft((await obx.cloak(asset)).asset), null);
+});

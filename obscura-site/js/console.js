@@ -1,5 +1,5 @@
 // Console: cloak, vault, transfer and receive. State is one array in localStorage.
-import { cloak, seal, receive, encodeReceipt, verify, sealBackup, openBackup, BACKUP_PREFIX } from "./obscura.js";
+import { cloak, seal, receive, encodeReceipt, verify, sealBackup, openBackup, BACKUP_PREFIX, secondsLeft } from "./obscura.js";
 import { toast, copy } from "./site.js";
 import { connection, openWallets, onWalletChange } from "./wallet.js";
 import { readBalance, signFunds, floorAmount, parseUnits, formatUnits } from "./proof.js";
@@ -23,6 +23,16 @@ function addBond(receipt) {
 }
 
 const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
+
+// "Expires in 23 h", "Expired", or nothing for bonds without an expiry.
+export function expiryLabel(asset) {
+  const left = secondsLeft(asset);
+  if (left === null) return null;
+  if (left === 0) return { text: "Expired", cls: "expired" };
+  const h = left / 3600;
+  const text = h < 1 ? `Expires in ${Math.max(1, Math.round(left / 60))} min` : h < 48 ? `Expires in ${Math.round(h)} h` : `Expires in ${Math.round(h / 24)} days`;
+  return { text, cls: "" };
+}
 
 function label(b) {
   return `${b.asset.amount} ${b.asset.symbol}`;
@@ -106,9 +116,11 @@ $("f-clear").addEventListener("click", () => setFundsMode(null));
 function showResult(r) {
   $("c-commit").textContent = "0x" + r.commitment;
   $("c-receipt").value = encodeReceipt(r);
+  const exp = expiryLabel(r.asset);
   $("c-backing").replaceChildren(r.proof
     ? el("span", { class: "badge live" }, "Backed by wallet " + short(r.proof.address))
-    : el("span", { class: "badge" }, "Self-declared: the amount is not checked against a wallet"));
+    : el("span", { class: "badge" }, "Self-declared: the amount is not checked against a wallet"),
+    ...(exp ? [" ", el("span", { class: "badge " + exp.cls }, exp.text)] : []));
   renderShare($("c-share"), r);
   $("cloak-empty").hidden = true;
   $("cloak-out").hidden = false;
@@ -119,7 +131,9 @@ $("cloak-form").addEventListener("submit", async (e) => {
   const btn = $("c-submit");
   btn.setAttribute("aria-busy", "true");
   try {
+    const ttl = Number($("c-expiry").value);
     const asset = { amount: $("c-amount").value, symbol: $("c-symbol").value, chain: $("c-chain").value, note: $("c-note").value };
+    if (ttl) asset.expires = Math.floor(Date.now() / 1000) + ttl;
     if (funds && parseUnits(asset.amount, funds.chain.decimals) > funds.wei) {
       throw new Error(`You can prove at most ${formatUnits(funds.wei, funds.chain.decimals, 4)} ${funds.chain.symbol}`);
     }
@@ -174,6 +188,8 @@ function renderVault() {
     const badge = el("span", { class: "badge " + b.status }, b.status === "sent" ? "Sent" : "Live");
     const meta = el("span", { class: "badge" }, b.asset.chain);
     const backed = el("span", { class: "badge" + (b.proof ? " live" : "") }, b.proof ? "Wallet-backed" : "Self-declared");
+    const exp = expiryLabel(b.asset);
+    const expBadge = exp ? [el("span", { class: "badge " + exp.cls }, exp.text)] : [];
     const actions = el("div", { class: "actions", style: "margin-top:4px" },
       el("button", { class: "btn btn-dark btn-sm", type: "button", onclick: () => openShareDialog(b, label(b)) }, "Share proof"),
       el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => copy(encodeReceipt(b), "Receipt copied") }, "Copy receipt"),
@@ -202,7 +218,7 @@ function renderVault() {
     if (b.prev) extra.push(el("span", { class: "bond-meta" }, "Re-cloaked from ", el("span", { class: "mono" }, "0x" + b.prev.slice(0, 16) + "…")));
     if (b.anchor) extra.push(el("span", { class: "bond-meta" }, "Anchor transaction ", el("span", { class: "mono" }, b.anchor)));
     list.append(el("div", { class: "bond" },
-      el("div", { class: "bond-top" }, el("span", { class: "bond-amt" }, label(b)), el("span", { style: "display:flex;gap:6px;flex-wrap:wrap" }, backed, meta, badge)),
+      el("div", { class: "bond-top" }, el("span", { class: "bond-amt" }, label(b)), el("span", { style: "display:flex;gap:6px;flex-wrap:wrap" }, backed, ...expBadge, meta, badge)),
       el("span", { class: "bond-hash" }, "0x" + b.commitment),
       ...extra,
       actions,

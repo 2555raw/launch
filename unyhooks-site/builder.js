@@ -636,6 +636,27 @@ ${envLines ? envLines + '\n' : ''}
     return { recipe, settings: s, heard, missing: problems(recipe, s) };
   };
 
+  /* ---------- syntax colouring (one line of Solidity -> HTML) ---------- */
+
+  const escHtml = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const KEYWORDS = 'pragma|solidity|import|from|contract|is|function|returns|return|if|else|revert|error|event|emit|struct|mapping|constant|immutable|public|internal|external|pure|view|override|virtual|memory|calldata|storage|using|for|constructor|new|abstract|require|true|false';
+  const TYPES = 'address|bool|bytes4|bytes32|bytes|string|uint256|uint160|uint128|uint64|uint24|int256|int128|int24|minutes|seconds|days|ether';
+  const TOKEN = new RegExp(`(//[^\\n]*)|("(?:[^"\\\\]|\\\\.)*")|\\b(${KEYWORDS})\\b|\\b(${TYPES})\\b|\\b(0x[0-9a-fA-F]+|\\d[\\d_]*)\\b`, 'g');
+
+  // Spans with classes c (comment), s (string), k (keyword), t (type), n (number).
+  const highlight = (line) => {
+    let out = '';
+    let last = 0;
+    line.replace(TOKEN, (m, com, str, kw, type, num, at) => {
+      out += escHtml(line.slice(last, at));
+      const cls = com ? 'c' : str ? 's' : kw ? 'k' : type ? 't' : 'n';
+      out += `<span class="${cls}">${escHtml(m)}</span>`;
+      last = at + m.length;
+      return m;
+    });
+    return out + escHtml(line.slice(last));
+  };
+
   const EXAMPLES = [
     'I\'m launching a token paired with ETH. Send 1% of every swap to my wallet.',
     'Raise the fee when the market gets volatile, lower it when it\'s calm. Floor 0.05%, ceiling 1%.',
@@ -643,5 +664,5 @@ ${envLines ? envLines + '\n' : ''}
     'Only trade during US market hours, weekdays.'
   ];
 
-  return { RECIPES, EXAMPLES, defaults, generate, understand, isAddress, toUnits, ticksFor };
+  return { RECIPES, EXAMPLES, defaults, generate, understand, isAddress, toUnits, ticksFor, highlight };
 });

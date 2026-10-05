@@ -104,6 +104,35 @@
       </div>
     </section>
 
+    <!-- live demo: the real builder output, played back -->
+    <section class="uh-sec uh-demo-sec" id="demo" aria-label="Demo">
+      <div class="uh-wrap">
+        <div class="uh-demo-head uh-rise">
+          <p class="uh-eyebrow">See it work</p>
+          <h2 class="uh-h2">One sentence in. <span class="uh-pink uh-nw">A live hook out.</span></h2>
+        </div>
+        <div class="dm-window uh-rise" id="demo-window">
+          <div class="dm-bar" aria-hidden="true"><i></i><i></i><i></i><span>unyhooks.app/build</span></div>
+          <div class="dm-body">
+            <div class="dm-chat">
+              <div class="dm-msg dm-me"><span id="dm-typed"></span><span class="dm-caret" aria-hidden="true"></span></div>
+              <div class="dm-msg dm-ai" id="dm-reply"></div>
+              <ol class="dm-steps" id="dm-steps">
+                <li data-step="compile"><span class="dm-dot"></span><span>Compile in the browser</span><em></em></li>
+                <li data-step="deploy"><span class="dm-dot"></span><span>Deploy the hook</span><em></em></li>
+                <li data-step="pool"><span class="dm-dot"></span><span>Create the pool</span><em></em></li>
+              </ol>
+            </div>
+            <div class="dm-code">
+              <div class="dm-code-head"><span id="dm-file">SwapFeeHook.sol</span><span class="dm-status" id="dm-status">Writing…</span></div>
+              <pre id="dm-code" aria-hidden="true"></pre>
+            </div>
+          </div>
+        </div>
+        <p class="uh-demo-note uh-rise">A replay of the builder writing real contracts. <a data-link="app" href="build.html">Try it with your own words</a></p>
+      </div>
+    </section>
+
     <!-- how it works -->
     <section class="uh-sec" id="how">
       <div class="uh-wrap">
@@ -337,7 +366,9 @@
 
 </div>
 <script src="config.js"></script>
+<script src="builder.js"></script>
 <script src="app.js"></script>
+<script src="demo.js"></script>
 <script src="token.js"></script>
 </body>
 </html>

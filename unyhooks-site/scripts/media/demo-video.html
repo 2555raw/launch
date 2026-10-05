@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1280, initial-scale=1">
+  <title>UnyHooks demo (video frame)</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+  <link rel="stylesheet" href="../../styles.css">
+  <style>
+    /* A 16:9 frame for social video: the demo window with the brand around it. */
+    html, body { margin: 0; width: 1280px; height: 720px; overflow: hidden; background: #FFF9FC; }
+    .uh { width: 1280px; height: 720px; display: grid; grid-template-rows: auto 1fr auto; padding: 26px 56px 22px; box-sizing: border-box; }
+    .uh::before { height: 720px; }
+    .v-top { position: relative; display: flex; align-items: center; justify-content: space-between; }
+    .v-top .uh-brand { font-size: 22px; }
+    .v-top .uh-mark { width: 32px; height: 32px; }
+    .v-top h1 { margin: 0; font-size: 26px; letter-spacing: -.03em; font-weight: 700; }
+    .v-mid { position: relative; display: grid; align-items: center; }
+    .dm-window { margin: 16px auto 0; width: 1168px; max-width: none; }
+    .dm-body { min-height: 0; height: 500px; grid-template-columns: minmax(0, .9fr) minmax(0, 1.2fr); }
+    .dm-msg { font-size: 17px; }
+    .dm-steps li { font-size: 15.5px; }
+    .dm-code pre { font-size: 14px; }
+    .v-foot { position: relative; display: flex; justify-content: space-between; font-size: 14px; color: var(--muted); }
+    .v-foot b { color: var(--ink); font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="uh">
+  <!-- The mark, defined once and reused: a U whose right stem curls into a hook. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="uh-grad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#E5127D"/>
+        <stop offset="1" stop-color="#FF6CB8"/>
+      </linearGradient>
+      <symbol id="uh-mark" viewBox="0 0 32 32">
+        <g transform="skewX(-10) translate(3 0)" fill="none" stroke="url(#uh-grad)" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 5v11a8 8 0 0 0 16 0V9.5a3.4 3.4 0 0 0-6.8 0V12"/>
+        </g>
+      </symbol>
+      <symbol id="uh-x" viewBox="0 0 24 24">
+        <path fill="currentColor" d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.77L17.75 3zm-1.08 16.18h1.7L7.4 4.73H5.58l11.09 14.45z"/>
+      </symbol>
+    </defs>
+  </svg>
+  <div class="v-top">
+    <span class="uh-brand"><svg class="uh-mark" aria-hidden="true"><use href="#uh-mark"/></svg><span>Uny<b>Hooks</b></span></span>
+    <h1>Chat to build Uniswap V4 <span class="uh-pink">hooks.</span></h1>
+  </div>
+  <div class="v-mid">
+        <div class="dm-window" id="demo-window">
+          <div class="dm-bar" aria-hidden="true"><i></i><i></i><i></i><span>unyhooks.app/build</span></div>
+          <div class="dm-body">
+            <div class="dm-chat">
+              <div class="dm-msg dm-me"><span id="dm-typed"></span><span class="dm-caret" aria-hidden="true"></span></div>
+              <div class="dm-msg dm-ai" id="dm-reply"></div>
+              <ol class="dm-steps" id="dm-steps">
+                <li data-step="compile"><span class="dm-dot"></span><span>Compile in the browser</span><em></em></li>
+                <li data-step="deploy"><span class="dm-dot"></span><span>Deploy the hook</span><em></em></li>
+                <li data-step="pool"><span class="dm-dot"></span><span>Create the pool</span><em></em></li>
+              </ol>
+            </div>
+            <div class="dm-code">
+              <div class="dm-code-head"><span id="dm-file">SwapFeeHook.sol</span><span class="dm-status" id="dm-status">Writing…</span></div>
+              <pre id="dm-code" aria-hidden="true"></pre>
+            </div>
+          </div>
+        </div>
+  </div>
+  <div class="v-foot"><span>Describe it · deploy it from your wallet · run your pool</span><span><b>Robinhood Chain</b> · Uniswap V4</span></div>
+</div>
+<script src="../../builder.js"></script>
+<script src="../../demo.js"></script>
+</body>
+</html>

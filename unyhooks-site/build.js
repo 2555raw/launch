@@ -42,24 +42,7 @@
   $$('[data-net="name"]').forEach((el) => { if (NET.name) el.textContent = NET.name; });
   if (NET.poolManager) $('#pm-known').textContent = NET.poolManager;
 
-  /* ---------- syntax colouring ---------- */
-
-  const KEYWORDS = 'pragma|solidity|import|from|contract|is|function|returns|return|if|else|revert|error|event|emit|struct|mapping|constant|immutable|public|internal|external|pure|view|override|virtual|memory|calldata|storage|using|for|constructor|new|abstract|require|true|false';
-  const TYPES = 'address|bool|bytes4|bytes32|bytes|string|uint256|uint160|uint128|uint64|uint24|int256|int128|int24|minutes|seconds|days|ether';
-  const TOKEN = new RegExp(`(//[^\\n]*)|("(?:[^"\\\\]|\\\\.)*")|\\b(${KEYWORDS})\\b|\\b(${TYPES})\\b|\\b(0x[0-9a-fA-F]+|\\d[\\d_]*)\\b`, 'g');
-
-  const colour = (line) => {
-    let out = '';
-    let last = 0;
-    line.replace(TOKEN, (m, com, str, kw, type, num, at) => {
-      out += esc(line.slice(last, at));
-      const cls = com ? 'c' : str ? 's' : kw ? 'k' : type ? 't' : 'n';
-      out += `<span class="${cls}">${esc(m)}</span>`;
-      last = at + m.length;
-      return m;
-    });
-    return out + esc(line.slice(last));
-  };
+  const colour = B.highlight;
 
   const renderCode = (text, flashLines = []) => {
     const lines = text.replace(/\n$/, '').split('\n');

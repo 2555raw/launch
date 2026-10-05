@@ -72,5 +72,5 @@
   .ap-side { padding: 24px 48px 36px; }
   .ap-art { display: block; position: relative; }
   .ap-art { display: grid; place-items: center; padding: 40px; }
-  .ap-art .uh-sea { width: min(620px, 90%); }
+  .ap-art .uh-orb { width: min(560px, 88%); }
 }

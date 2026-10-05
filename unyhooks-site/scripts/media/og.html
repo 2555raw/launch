@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>UnyHooks social card</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,500&family=IM+Fell+English:ital@0;1&family=Pirata+One&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,600;1,700&family=Pirata+One&display=swap">
   <link rel="stylesheet" href="../../styles.css">
   <style>
     /* 1200×630, the size X, Telegram and Discord use for link previews. */
@@ -18,8 +18,8 @@
     .c-copy p { margin: 22px 0 0; font-size: 21px; line-height: 1.45; color: var(--prose); max-width: 520px; }
     .uh-chips { margin-top: 26px; }
     .uh-chips span { font-size: 13px; }
-    .uh-sea { max-width: 560px; }
-    .uh-bob, .uh-float, .uh-wave-a, .uh-wave-b, .uh-wave-c, .uh-twinkle, .uh-puff, .uh-flash { animation: none !important; }
+    .uh-orb { max-width: 500px; }
+    .uh-float, .uh-spin-slow, .uh-twinkle { animation: none !important; }
   </style>
 </head>
 <body>
@@ -29,12 +29,12 @@
       <!-- the mark: a pirate's hook on its cuff -->
       <linearGradient id="uh-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FBE7B0"/><stop offset=".45" stop-color="#E8B04B"/><stop offset="1" stop-color="#A86F18"/></linearGradient>
       <linearGradient id="uh-cuff" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C98F2E"/><stop offset="1" stop-color="#7E5313"/></linearGradient>
-      <symbol id="uh-mark" viewBox="0 0 64 64">
-        <path d="M23 45V24A13 13 0 0 1 49 24C49 32 44 38 36.5 39.5C41.5 35 43 30 43 24A7 7 0 0 0 29 24V45Z" fill="url(#uh-gold)"/>
-        <path d="M26 42V24A10 10 0 0 1 45.6 21.3" fill="none" stroke="#FFF4D6" stroke-opacity=".55" stroke-width="1.4" stroke-linecap="round"/>
-        <rect x="20" y="41" width="12" height="5" rx="1.6" fill="url(#uh-cuff)"/>
-        <path d="M14 46.5h24a1.8 1.8 0 0 1 1.8 2l-1.4 9.6a2.4 2.4 0 0 1-2.4 2.1H16a2.4 2.4 0 0 1-2.4-2.1l-1.4-9.6a1.8 1.8 0 0 1 1.8-2z" fill="url(#uh-cuff)"/>
-        <path d="M13.2 51.2h25.6M13.9 55.4h24.2" stroke="#FBE7B0" stroke-opacity=".45" stroke-width="1.2"/>
+      <symbol id="uh-mark" viewBox="0 0 64 80">
+        <path d="M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z" fill="url(#uh-gold)"/>
+        <path d="M25 58V27A11 11 0 0 1 46.4 23.6" fill="none" stroke="#FFF4D6" stroke-opacity=".55" stroke-width="1.3" stroke-linecap="round"/>
+        <rect x="19" y="58.5" width="12" height="4.5" rx="1.5" fill="url(#uh-cuff)"/>
+        <path d="M18 63h14l6.2 12.6a1.6 1.6 0 0 1-1.4 2.4H13.2a1.6 1.6 0 0 1-1.4-2.4z" fill="url(#uh-cuff)"/>
+        <path d="M15.6 70.5h18.8" stroke="#FBE7B0" stroke-opacity=".45" stroke-width="1.1"/>
       </symbol>
       <symbol id="uh-x" viewBox="0 0 24 24">
         <path fill="currentColor" d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.77L17.75 3zm-1.08 16.18h1.7L7.4 4.73H5.58l11.09 14.45z"/>
@@ -67,67 +67,44 @@
   </svg>
   <div class="c-copy">
     <span class="uh-brand"><svg class="uh-mark"><use href="#uh-mark"/></svg><span>Uny<b>Hooks</b></span></span>
-    <h1>Hook your pool.<br><span class="uh-pink">Rule the seas.</span></h1>
+    <h1>Pools that<br><span class="uh-pink">follow rules.</span></h1>
     <p>Build Uniswap V4 hooks by describing them, or launch a token with buy limits and locked liquidity in one transaction.</p>
-    <div class="uh-chips"><span>Robinhood Chain</span><i></i><span>Uniswap V4</span><i></i><span>One transaction</span></div>
+    <div class="uh-steps"><span>Robinhood Chain</span><i>·</i><span>Uniswap V4</span><i>·</i><span>One transaction</span></div>
   </div>
-  <div class="uh-sea" aria-hidden="true">
-        <div class="uh-sea-ring"></div>
-        <svg class="uh-sea-art" viewBox="0 0 600 600">
-          <circle cx="300" cy="300" r="268" fill="url(#sea-sky)"/>
-          <g clip-path="url(#sea-clip)">
-            <g fill="#F3E6C8">
-              <circle class="uh-twinkle" cx="120" cy="120" r="1.6"/><circle cx="180" cy="80" r="1.1"/><circle class="uh-twinkle" cx="250" cy="140" r="1.3" style="animation-delay:1.2s"/>
-              <circle cx="90" cy="210" r="1"/><circle class="uh-twinkle" cx="330" cy="70" r="1.4" style="animation-delay:.6s"/><circle cx="510" cy="250" r="1.1"/>
-              <circle class="uh-twinkle" cx="470" cy="80" r="1.2" style="animation-delay:2s"/><circle cx="210" cy="230" r="1"/><circle cx="150" cy="300" r=".9"/>
-            </g>
-            <circle cx="268" cy="150" r="120" fill="url(#sea-glow)"/>
-            <circle cx="268" cy="150" r="40" fill="url(#sea-moon)"/>
-            <circle cx="255" cy="138" r="6.5" fill="#E4CC92" opacity=".55"/><circle cx="280" cy="162" r="4.5" fill="#E4CC92" opacity=".5"/><circle cx="276" cy="133" r="3.2" fill="#E4CC92" opacity=".45"/>
-            <rect x="0" y="362" width="600" height="240" fill="url(#sea-water)"/>
-            <g stroke="#F3D58E" stroke-linecap="round" opacity=".55">
-              <path d="M300 382h44M306 398h36M298 414h52M308 432h32M302 452h44M311 474h26" stroke-width="2"/>
-            </g>
-            <!-- the ship -->
-            <g transform="translate(-78 6)"><g class="uh-bob">
-              <g fill="#0A1222" stroke="#C99A48" stroke-opacity=".35" stroke-width="1">
-                <path d="M196 362V214M246 362V196M290 362V232"/>
+  <div class="uh-orb" aria-hidden="true">
+          <svg viewBox="0 0 560 600">
+            <defs>
+              <radialGradient id="orb-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#E8B04B" stop-opacity=".32"/><stop offset=".55" stop-color="#7A4E10" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+              <linearGradient id="orb-metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2B1903"/><stop offset=".14" stop-color="#8C5A14"/><stop offset=".3" stop-color="#E6AE4E"/><stop offset=".42" stop-color="#FFF4D2"/><stop offset=".52" stop-color="#F0C46A"/><stop offset=".7" stop-color="#A86C17"/><stop offset=".86" stop-color="#5A3708"/><stop offset="1" stop-color="#2B1903"/></linearGradient>
+              <linearGradient id="orb-sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF8E6" stop-opacity=".55"/><stop offset=".45" stop-color="#FFF8E6" stop-opacity="0"/></linearGradient>
+              <linearGradient id="orb-cuff" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1E1203"/><stop offset=".25" stop-color="#7A4E10"/><stop offset=".45" stop-color="#E8B04B"/><stop offset=".55" stop-color="#F7D78C"/><stop offset=".75" stop-color="#7A4E10"/><stop offset="1" stop-color="#1E1203"/></linearGradient>
+              <radialGradient id="orb-floor" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#E8B04B" stop-opacity=".35"/><stop offset="1" stop-color="#E8B04B" stop-opacity="0"/></radialGradient>
+              <filter id="orb-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
+            </defs>
+            <circle cx="280" cy="300" r="260" fill="url(#orb-glow)"/>
+            <circle cx="280" cy="300" r="258" fill="none" stroke="rgba(232,196,120,.14)"/>
+            <circle cx="280" cy="300" r="206" fill="none" stroke="rgba(232,196,120,.1)"/>
+            <g class="uh-spin-slow"><circle cx="280" cy="300" r="232" fill="none" stroke="rgba(232,196,120,.18)" stroke-dasharray="2 14"/></g>
+            <g fill="#F3E6C8"><circle class="uh-twinkle" cx="92" cy="140" r="1.6"/><circle cx="470" cy="90" r="1.2"/><circle class="uh-twinkle" cx="500" cy="420" r="1.4" style="animation-delay:1.4s"/><circle cx="70" cy="420" r="1"/><circle class="uh-twinkle" cx="300" cy="40" r="1.2" style="animation-delay:.7s"/></g>
+            <ellipse cx="284" cy="548" rx="150" ry="20" fill="url(#orb-floor)"/>
+            <g class="uh-float">
+              <g transform="translate(82 18) scale(6.4)">
+                <path d="M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z" fill="#000" opacity=".55" filter="url(#orb-blur)" transform="translate(1.2 1.6)"/>
+                <path d="M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z" fill="url(#orb-metal)"/>
+                <path d="M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z" fill="url(#orb-sheen)"/>
+                <path d="M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z" fill="none" stroke="#FFE7A8" stroke-opacity=".35" stroke-width=".22"/>
+                <path d="M24.9 58V27.2A11.1 11.1 0 0 1 46.3 23.4" fill="none" stroke="#FFFDF4" stroke-opacity=".85" stroke-width=".55" stroke-linecap="round"/>
+                <path d="M47 33C46 37.4 43.2 40.6 39.6 42.4" fill="none" stroke="#FFF4D2" stroke-opacity=".5" stroke-width=".4" stroke-linecap="round"/>
+                <rect x="18.6" y="58.2" width="12.8" height="5" rx="1.5" fill="url(#orb-cuff)"/>
+                <path d="M18 63h14l6.2 12.6a1.6 1.6 0 0 1-1.4 2.4H13.2a1.6 1.6 0 0 1-1.4-2.4z" fill="url(#orb-cuff)"/>
+                <path d="M15.6 70.5h18.8" stroke="#2B1903" stroke-opacity=".55" stroke-width=".7"/>
+                <path d="M15.4 71h19.2" stroke="#FBE7B0" stroke-opacity=".35" stroke-width=".35"/>
+                <g fill="#FFF1C4"><circle cx="15.4" cy="74.6" r=".6"/><circle cx="34.6" cy="74.6" r=".6"/></g>
               </g>
-              <g fill="#E3CFA2" opacity=".92">
-                <path d="M200 222c26 8 34 30 30 52h-30z"/>
-                <path d="M200 284c30 7 38 32 33 58h-33z"/>
-                <path d="M250 204c30 9 40 34 35 60h-35z"/>
-                <path d="M250 272c34 8 44 36 38 66h-38z"/>
-                <path d="M294 240c22 7 28 26 25 44h-25z"/>
-                <path d="M294 294c26 6 31 28 27 46h-27z"/>
-              </g>
-              <g fill="#B79C6A" opacity=".55"><path d="M200 222c10 16 12 34 10 52h-10zM250 204c12 18 14 38 12 60h-12zM250 272c12 20 14 42 12 66h-12z"/></g>
-              <path d="M246 196h28l-6 7 6 7h-28z" fill="#111"/>
-              <circle cx="257" cy="203" r="2.6" fill="#F3E6C8"/>
-              <path d="M150 346h16l4 10h170l14-14h4l-20 44q-90 12-176 2z" fill="#0B1424" stroke="#C99A48" stroke-opacity=".45" stroke-width="1.2"/>
-              <path d="M150 346h16l2-16h-22z" fill="#0B1424" stroke="#C99A48" stroke-opacity=".45" stroke-width="1.2"/>
-              <path d="M172 372h160" stroke="#C99A48" stroke-opacity=".4" stroke-width="1.5"/>
-              <g fill="#05080F"><rect x="196" y="377" width="9" height="6" rx="1"/><rect x="236" y="378" width="9" height="6" rx="1"/><rect x="276" y="378" width="9" height="6" rx="1"/></g>
-              <g fill="#FFD27A"><circle class="uh-flash" cx="200" cy="380" r="7"/><circle class="uh-flash d2" cx="240" cy="381" r="7"/><circle class="uh-flash d3" cx="280" cy="381" r="7"/></g>
-              <g fill="#CFC4AE"><circle class="uh-puff" cx="190" cy="380" r="9"/><circle class="uh-puff d2" cx="230" cy="381" r="9"/><circle class="uh-puff d3" cx="270" cy="381" r="9"/></g>
-            </g></g>
-            <!-- waves, two periods wide so they can loop -->
-            <g class="uh-wave-c" fill="#0D1C33"><path d="M0 382c40-8 60-8 100 0s60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0 60-8 100 0 60 8 100 0V600H0z"/></g>
-            <g class="uh-wave-a" fill="#0A172B"><path d="M0 410c30-10 50-10 80 0s50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0V600H0z"/><path d="M0 410c30-10 50-10 80 0s50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0 50 10 80 0 50-10 80 0" fill="none" stroke="#E8B04B" stroke-opacity=".28" stroke-width="1.5"/></g>
-            <g class="uh-wave-b" fill="#071222"><path d="M0 452c45-12 75-12 120 0s75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0V600H0z"/><path d="M0 452c45-12 75-12 120 0s75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0 75-12 120 0 75 12 120 0" fill="none" stroke="#E8B04B" stroke-opacity=".2" stroke-width="1.5"/></g>
-          </g>
-          <!-- the hook, in front of everything -->
-          <g class="uh-float" style="filter: drop-shadow(0 18px 30px rgba(0,0,0,.7)) drop-shadow(0 0 26px rgba(232,176,75,.35))">
-            <g transform="translate(236 6) scale(5.9)">
-              <path d="M23 45V24A13 13 0 0 1 49 24C49 32 44 38 36.5 39.5C41.5 35 43 30 43 24A7 7 0 0 0 29 24V45Z" fill="url(#hk-metal)"/>
-              <path d="M25.6 42V24A10.4 10.4 0 0 1 46 21.4" fill="none" stroke="#FFF7DE" stroke-opacity=".7" stroke-width=".7" stroke-linecap="round"/>
-              <rect x="20" y="41" width="12" height="5" rx="1.6" fill="url(#hk-cuff)"/>
-              <path d="M14 46.5h24a1.8 1.8 0 0 1 1.8 2l-1.4 9.6a2.4 2.4 0 0 1-2.4 2.1H16a2.4 2.4 0 0 1-2.4-2.1l-1.4-9.6a1.8 1.8 0 0 1 1.8-2z" fill="url(#hk-cuff)"/>
-              <path d="M13.2 51.2h25.6M13.9 55.4h24.2" stroke="#FBE7B0" stroke-opacity=".5" stroke-width=".6"/>
-              <g fill="#FBE7B0" opacity=".7"><circle cx="17" cy="49" r=".7"/><circle cx="35" cy="49" r=".7"/><circle cx="17.6" cy="58" r=".7"/><circle cx="34.4" cy="58" r=".7"/></g>
             </g>
-          </g>
-        </svg>
+          </svg>
+          <div class="uh-tag uh-tag-a"><b>Armed</b><span>when <em>buy &gt; 0.1 ETH</em><br>then <em>refuse</em></span></div>
+          <div class="uh-tag uh-tag-b is-fired"><b>Rule fired</b><span>when <em>60 min since launch</em><br>then <em>lift the cap</em></span></div>
         </div>
 </div>
 </body>

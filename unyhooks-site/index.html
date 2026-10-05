@@ -244,6 +244,34 @@
           <div class="uh-coin" aria-hidden="true">
             <div class="uh-coin-in"><svg><use href="#uh-mark"/></svg></div>
           </div>
+
+          <!-- live market: filled by token.js once CONTRACT is set in config.js -->
+          <div class="uh-market" id="market" hidden>
+            <div class="uh-market-top">
+              <div class="uh-price">
+                <span class="uh-label">Price</span>
+                <b id="mk-price">—</b>
+                <span class="uh-chg" id="mk-chg"></span>
+              </div>
+              <div class="uh-spark-box">
+                <svg class="uh-spark" id="mk-spark" viewBox="0 0 320 72" preserveAspectRatio="none" role="img" aria-label="Price over the last 24 hours"></svg>
+                <span class="uh-spark-dot" id="mk-dot" hidden></span>
+                <div class="uh-spark-tip" id="mk-tip" hidden></div>
+                <span class="uh-spark-cap">Last 24 hours</span>
+              </div>
+            </div>
+            <dl class="uh-stats">
+              <div><dt>Market cap</dt><dd id="mk-mcap">—</dd></div>
+              <div><dt>Liquidity</dt><dd id="mk-liq">—</dd></div>
+              <div><dt>24h volume</dt><dd id="mk-vol">—</dd></div>
+              <div><dt>Holders</dt><dd id="mk-holders">—</dd></div>
+            </dl>
+            <div class="uh-market-foot">
+              <a class="uh-btn uh-btn-pink" id="mk-buy" href="#" target="_blank" rel="noopener">Buy $UHOOKS</a>
+              <a class="uh-btn uh-btn-ghost" id="mk-chart" href="#" target="_blank" rel="noopener">Full chart</a>
+              <span class="uh-market-src" id="mk-updated" aria-live="polite"></span>
+            </div>
+          </div>
         </div>
         <p class="uh-fine">$UHOOKS is a crypto token, not an investment product. Nothing on this page is financial advice. Always check the contract address against this page before you interact with it.</p>
       </div>
@@ -310,5 +338,6 @@
 </div>
 <script src="config.js"></script>
 <script src="app.js"></script>
+<script src="token.js"></script>
 </body>
 </html>

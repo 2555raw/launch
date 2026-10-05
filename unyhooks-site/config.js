@@ -35,6 +35,7 @@ window.UNYHOOKS = {
     // bits match their permissions.
     create2Deployer: '0x4e59b44847b379578588920cA78FbF26c0B4956C',
     dexscreenerChain: 'robinhood',
+    uniswapChain: 'robinhood',      // the app's ?chain= value, read from app.uniswap.org's own chain list
     geckoterminalNetwork: 'robinhood'
   },
 

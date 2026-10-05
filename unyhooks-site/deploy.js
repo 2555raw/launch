@@ -425,6 +425,19 @@
     return isqrt((num << 192n) / den);
   };
 
+  // app.uniswap.org's new-position page, prefilled. Native ETH is "NATIVE" there.
+  const addLiquidityUrl = (key, dynamic) => {
+    const cur = (a) => (a === ZERO ? 'NATIVE' : a);
+    const q = new URLSearchParams({
+      chain: NET.uniswapChain || 'robinhood',
+      currencyA: cur(key.currency0),
+      currencyB: cur(key.currency1),
+      fee: JSON.stringify({ feeAmount: key.fee, tickSpacing: key.tickSpacing, isDynamic: dynamic }),
+      hook: key.hooks
+    });
+    return `https://app.uniswap.org/positions/create/v4?${q}`;
+  };
+
   const explain = (err, hookAbi) => {
     const data = err && (err.data || (err.info && err.info.error && err.info.error.data) || (err.error && err.error.data));
     const pm = new ethers.Interface(PM_ABI);
@@ -496,7 +509,7 @@
         <p><b>${esc(a.symbol)}/${esc(b.symbol)}</b> · starts at 1 ${esc(a.symbol)} = ${esc($('#dp-price').value.trim())} ${esc(b.symbol)}</p>
         <p class="dp-mono">Pool ID ${esc(poolId)}</p>
         <p class="dp-links">${link('tx', tx.hash, 'Pool transaction')} · <a href="https://dexscreener.com/${esc(NET.dexscreenerChain)}/${esc(poolId)}" target="_blank" rel="noopener">DexScreener</a> (after the first trade)</p>
-        <p class="dp-next"><b>Next: add liquidity.</b> The pool has no liquidity yet, so nobody can trade. Open <a href="https://app.uniswap.org/positions/create/v4" target="_blank" rel="noopener">Uniswap</a>, choose ${esc(NET.name)}, pick ${esc(a.symbol)} and ${esc(b.symbol)}, and add the hook <code>${esc(deployed.address)}</code> under the advanced options.</p>`;
+        <p class="dp-next"><b>Next: add liquidity.</b> The pool has no liquidity yet, so nobody can trade. <a href="${esc(addLiquidityUrl(key, dynamic))}" target="_blank" rel="noopener">Add liquidity on Uniswap</a> opens with this pair, fee and hook filled in. Check that the hook shown there is <code>${esc(deployed.address)}</code>.</p>`;
       remember({ ...deployed, input: undefined, pool: { id: poolId, key: { ...key }, tx: tx.hash } });
       say('');
     } catch (err) {

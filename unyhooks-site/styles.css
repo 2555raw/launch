@@ -447,6 +447,42 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 }
 .uh-coin-in svg { width: 52%; height: 52%; }
 
+/* live market */
+.uh-market {
+  grid-column: 1 / -1;
+  display: grid; gap: 20px;
+  padding: 22px; border-radius: 26px;
+  background: rgba(255, 255, 255, .78);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 50px -40px rgba(236, 21, 134, .5);
+}
+.uh-market-top { display: grid; gap: 16px; align-items: end; }
+@media (min-width: 720px) { .uh-market-top { grid-template-columns: auto minmax(0, 1fr); gap: 32px; } }
+.uh-price { display: grid; gap: 2px; }
+.uh-price .uh-label { margin: 0; }
+.uh-price b { font-size: clamp(30px, 4vw, 40px); letter-spacing: -.03em; font-weight: 700; font-variant-numeric: tabular-nums; }
+.uh-chg { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.uh-chg.is-up { color: var(--ok); }
+.uh-chg.is-down { color: #C0264E; }
+.uh-spark-box { position: relative; min-width: 0; }
+.uh-spark { display: block; width: 100%; height: 72px; overflow: visible; cursor: crosshair; }
+.uh-spark-dot { position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(15, 11, 18, .08); pointer-events: none; }
+.uh-spark-cap { display: block; margin-top: 4px; font-size: 12px; color: var(--muted); text-align: right; }
+.uh-spark-tip {
+  position: absolute; top: -34px; transform: translateX(-50%);
+  padding: 4px 8px; border-radius: 8px; white-space: nowrap; pointer-events: none;
+  background: var(--ink); color: #fff; font: 12px var(--font-mono);
+}
+.uh-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (min-width: 720px) { .uh-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.uh-stats div { padding: 12px 14px; border-radius: 14px; background: #FFF7FB; border: 1px solid var(--line); min-width: 0; }
+.uh-stats dt { font-size: 12px; color: var(--muted); }
+.uh-stats dd { margin-top: 2px; font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.uh-market-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+.uh-market-src { font-size: 12.5px; color: var(--muted); }
+.uh-market-src a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.uh-market.is-waiting .uh-stats, .uh-market.is-waiting .uh-spark-box, .uh-market.is-waiting #mk-chart { display: none; }
+
 .uh-fine { margin-top: 24px; text-align: center; font-size: 12.5px; color: var(--muted); }
 
 /* faq */

@@ -596,9 +596,9 @@ details.raw summary:hover { color: var(--ink); }
 /* the explorer reads the address: a scan line passes, each row is exposed */
 .explorer { position: relative; }
 .explorer::after {
-  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; pointer-events: none; opacity: 0;
-  background: linear-gradient(90deg, transparent, var(--bad), transparent);
-  box-shadow: 0 0 18px 2px rgba(198, 47, 47, .35);
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 28px; pointer-events: none; opacity: 0;
+  background: linear-gradient(180deg, rgba(198, 47, 47, 0), rgba(198, 47, 47, .10));
+  border-bottom: 2px solid var(--bad);
 }
 @media (prefers-reduced-motion: no-preference) {
   .js .explorer:not(.scan) .exposed { color: var(--line-2); }
@@ -606,7 +606,7 @@ details.raw summary:hover { color: var(--ink); }
   .explorer.scan tbody tr { animation: exposed 1.1s var(--ease) calc(.15s + var(--i) * .36s); }
   .explorer.scan .exposed { animation: tag-on .5s var(--ease) calc(.2s + var(--i) * .36s) backwards; }
 }
-@keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: calc(100% - 2px); opacity: 0; } }
+@keyframes scan { 0% { top: -26px; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: calc(100% - 28px); opacity: 0; } }
 @keyframes exposed { 0%, 100% { background-color: transparent; } 25% { background-color: var(--bad-soft); } }
 @keyframes tag-on { from { color: var(--line-2); transform: translateX(-6px); } }
 

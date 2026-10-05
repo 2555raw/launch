@@ -40,7 +40,7 @@
   } catch (_) { /* storage blocked */ }
 
   $$('[data-net="name"]').forEach((el) => { if (NET.name) el.textContent = NET.name; });
-  if (NET.poolManager) $('#pm-known').innerHTML = `: <code>${esc(NET.poolManager)}</code>`;
+  if (NET.poolManager) $('#pm-known').textContent = NET.poolManager;
 
   /* ---------- syntax colouring ---------- */
 
@@ -158,7 +158,7 @@
     box.hidden = ok;
     box.innerHTML = ok ? '' : `<b>Before deploying:</b><ul>${current.problems.map((p) => `<li>${esc(p)}</li>`).join('')}</ul>`;
 
-    $$('.bd-field').forEach((el) => {
+    $$('#fields .bd-field').forEach((el) => {
       const f = B.RECIPES[state.recipe].fields.find((x) => x.key === el.dataset.field);
       const bad = current.problems.some((p) => p.startsWith(f.label) || (f.type === 'address' && /address|wallet that receives/i.test(p)));
       el.classList.toggle('is-bad', bad);
@@ -175,6 +175,8 @@
       : 'Any fixed fee, for example 0.3% (<code>3000</code>)';
 
     save();
+    // deploy.js follows the hook on screen through this event.
+    document.dispatchEvent(new CustomEvent('unyhooks:hook', { detail: { recipe: state.recipe, settings: { ...state.settings }, hook: current } }));
   };
 
   /* ---------- conversation ---------- */
@@ -317,6 +319,8 @@
   });
 
   /* ---------- start ---------- */
+
+  window.UnyBuild = { current: () => ({ recipe: state.recipe, settings: { ...state.settings }, hook: current }) };
 
   renderRecipes();
   renderFields();

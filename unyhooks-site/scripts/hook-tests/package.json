@@ -1,15 +1,19 @@
 {
   "name": "unyhooks-hook-tests",
   "private": true,
-  "description": "Deploys each UnyHooks template next to a real Uniswap V4 PoolManager on a local chain and checks what it does.",
+  "description": "Checks for the UnyHooks templates and the builder's deploy flow.",
   "scripts": {
-    "test": "hardhat run test.js"
+    "test": "hardhat run test.js",
+    "node": "hardhat node --port 8545",
+    "e2e": "node e2e.js",
+    "mainnet": "node mainnet-sim.js"
   },
   "devDependencies": {
     "@uniswap/v4-core": "1.0.2",
     "@uniswap/v4-periphery": "1.0.3",
     "ethers": "^6.13.0",
     "hardhat": "^2.22.0",
-    "solc": "0.8.26"
+    "solc": "0.8.26",
+    "playwright": "^1.56.0"
   }
 }

@@ -92,6 +92,94 @@
         <pre class="bd-code" id="code" tabindex="0"><code></code></pre>
       </div>
 
+      <div class="bd-card bd-deploy" id="deploy">
+        <div class="bd-card-head">
+          <h2>Deploy on <span data-net="name">Robinhood Chain</span></h2>
+          <span class="bd-muted" id="dp-account"></span>
+        </div>
+
+        <ol class="dp-steps">
+          <li class="dp-step" id="dp-step-connect" data-state="active">
+            <div class="dp-row">
+              <span class="dp-num" aria-hidden="true">1</span>
+              <div class="dp-body">
+                <b>Connect your wallet</b>
+                <p class="dp-note" id="dp-connect-note">MetaMask, Phantom or any browser wallet. You'll need a little ETH on Robinhood Chain for gas.</p>
+              </div>
+              <button class="uh-btn uh-btn-pink uh-btn-sm" type="button" id="dp-connect">Connect</button>
+            </div>
+            <div class="dp-wallets" id="dp-wallets" hidden></div>
+          </li>
+
+          <li class="dp-step" id="dp-step-hook" data-state="todo">
+            <div class="dp-row">
+              <span class="dp-num" aria-hidden="true">2</span>
+              <div class="dp-body">
+                <b>Deploy the hook</b>
+                <p class="dp-note" id="dp-hook-note">Compiles in your browser, finds an address with the right permission bits, then asks for one signature.</p>
+              </div>
+              <button class="uh-btn uh-btn-pink uh-btn-sm" type="button" id="dp-deploy" disabled>Deploy hook</button>
+            </div>
+            <div class="dp-result" id="dp-hook-result" hidden></div>
+          </li>
+
+          <li class="dp-step" id="dp-step-pool" data-state="todo">
+            <div class="dp-row">
+              <span class="dp-num" aria-hidden="true">3</span>
+              <div class="dp-body">
+                <b>Create the pool</b>
+                <p class="dp-note" id="dp-pool-note">Pick the pair and a starting price. The pool goes live on Uniswap V4 with your hook.</p>
+              </div>
+            </div>
+            <form class="dp-pool" id="dp-pool" autocomplete="off" hidden>
+              <div class="dp-pair">
+                <div class="bd-field">
+                  <label for="dp-token-a">Token</label>
+                  <div class="bd-input"><input id="dp-token-a" type="text" spellcheck="false" placeholder="0x… your token" data-type="address"></div>
+                  <small class="dp-token-info" id="dp-token-a-info"></small>
+                </div>
+                <div class="bd-field">
+                  <label for="dp-token-b">Paired with</label>
+                  <div class="bd-input"><input id="dp-token-b" type="text" spellcheck="false" placeholder="0x…" data-type="address"></div>
+                  <div class="dp-picks" id="dp-picks"></div>
+                  <small class="dp-token-info" id="dp-token-b-info"></small>
+                </div>
+              </div>
+              <div class="bd-field">
+                <label for="dp-price">Starting price</label>
+                <div class="bd-input"><span class="bd-unit" id="dp-price-pre">1 token =</span><input id="dp-price" type="text" inputmode="decimal" placeholder="0.0001"><span class="bd-unit" id="dp-price-unit">ETH</span></div>
+              </div>
+              <div class="bd-field" id="dp-fee-field">
+                <label for="dp-fee">Pool fee (paid to liquidity providers)</label>
+                <div class="bd-input">
+                  <select id="dp-fee">
+                    <option value="500">0.05%</option>
+                    <option value="3000" selected>0.3%</option>
+                    <option value="10000">1%</option>
+                  </select>
+                </div>
+              </div>
+              <p class="dp-note" id="dp-fee-dynamic" hidden>This hook sets the fee itself, so the pool is created with Uniswap's dynamic-fee flag.</p>
+              <button class="uh-btn uh-btn-pink uh-btn-sm" type="submit" id="dp-create" disabled>Create pool</button>
+            </form>
+            <div class="dp-result" id="dp-pool-result" hidden></div>
+          </li>
+        </ol>
+
+        <p class="dp-msg" id="dp-msg" role="status" aria-live="polite"></p>
+        <p class="bd-warn">Not audited, and this is mainnet with real money. Read the code, start with small amounts, and have the hook reviewed before it holds real funds.</p>
+
+        <details class="dp-foundry">
+          <summary>Prefer to deploy with Foundry?</summary>
+          <ol class="bd-steps">
+            <li>Make a project: <code>forge init my-hook &amp;&amp; cd my-hook</code></li>
+            <li>Add Uniswap V4: <code>forge install uniswap/v4-periphery</code> and the remappings <code>@uniswap/v4-core/=lib/v4-periphery/lib/v4-core/</code>, <code>@uniswap/v4-periphery/=lib/v4-periphery/</code></li>
+            <li>Save the hook as <code id="step-src">src/SwapFeeHook.sol</code> and the deploy script as <code id="step-script">script/DeploySwapFeeHook.s.sol</code>, with <code>evm_version = "cancun"</code> in <code>foundry.toml</code></li>
+            <li>Run the command at the top of the deploy script with <code>POOL_MANAGER=<span id="pm-known"></span></code></li>
+          </ol>
+        </details>
+      </div>
+
       <div class="bd-card bd-facts">
         <h2>What this hook does</h2>
         <ul id="summary"></ul>
@@ -102,18 +190,6 @@
         </dl>
       </div>
 
-      <div class="bd-card bd-deploy">
-        <h2>Deploy it</h2>
-        <button class="uh-btn uh-btn-pink" type="button" disabled>Deploy from your wallet · coming soon</button>
-        <p class="bd-muted">One-click deploys from the browser are next. Until then, a developer can deploy it in a few minutes with Foundry:</p>
-        <ol class="bd-steps">
-          <li>Make a project: <code>forge init my-hook &amp;&amp; cd my-hook</code></li>
-          <li>Add Uniswap V4: <code>forge install uniswap/v4-periphery</code> and the remapping <code>@uniswap/v4-core/=lib/v4-periphery/lib/v4-core/</code>, <code>@uniswap/v4-periphery/=lib/v4-periphery/</code></li>
-          <li>Save the hook as <code id="step-src">src/SwapFeeHook.sol</code> and the deploy script as <code id="step-script">script/DeploySwapFeeHook.s.sol</code>, with <code>evm_version = "cancun"</code> in <code>foundry.toml</code></li>
-          <li>Run the command at the top of the deploy script, with the PoolManager address for <span data-net="name">Robinhood Chain</span><span id="pm-known"></span></li>
-        </ol>
-        <p class="bd-warn">Not audited. Test on a fork or testnet and have the hook reviewed before it holds real money.</p>
-      </div>
     </section>
   </main>
 </div>
@@ -121,5 +197,8 @@
 <script src="app.js"></script>
 <script src="builder.js"></script>
 <script src="build.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="wallet.js"></script>
+<script src="deploy.js"></script>
 </body>
 </html>

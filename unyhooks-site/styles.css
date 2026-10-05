@@ -399,10 +399,9 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 @media (min-width: 1000px) { .uh-launch { grid-template-columns: 1fr 1fr; gap: 64px; } }
 .uh-born { display: grid; gap: 12px; margin-top: 34px; }
 @media (min-width: 640px) { .uh-born:not(.is-rows) { grid-template-columns: repeat(3, 1fr); } }
-.uh-born.is-rows div { display: grid; grid-template-columns: 38px 1fr; column-gap: 16px; align-items: start; padding: 16px 18px; }
-.uh-born.is-rows .uh-ico { grid-row: span 2; }
+.uh-born.is-rows div { display: grid; grid-template-columns: 110px 1fr; column-gap: 16px; align-items: baseline; padding: 14px 18px; }
 .uh-born.is-rows h3 { margin-top: 0; }
-.uh-born.is-rows p { margin-top: 3px; }
+.uh-born.is-rows p { margin-top: 0; }
 .uh-born div { padding: 20px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); }
 .uh-born .uh-ico { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: var(--pink-soft); border: 1px solid var(--pink-line); color: var(--pink-hi); }
 .uh-born .uh-ico svg { width: 19px; height: 19px; }

@@ -1,6 +1,6 @@
 /* UnyHooks — the landing page's moving parts.
 
-   - the ship's log: a ticker of example rules, written twice so it can loop
+   - a ticker of example rules, written twice so it can loop
    - the rope: a line down the left edge with a knot per section; the hook
      slides down it as the page scrolls and the knot of the current section lights
    - the cannon: fires every few seconds while the launch section is on screen
@@ -18,18 +18,16 @@
   /* ---------- the ship's log ---------- */
 
   const LOG = [
-    ['i-anchor', 'when', 'buy > 0.1 ETH', 'refuse'],
-    ['i-chest', 'when', 'anyone swaps', '1% to the captain'],
-    ['i-storm', 'when', 'price moves 2%', 'raise the fee'],
-    ['i-cannon', 'when', 'a wallet buys twice in 30s', 'refuse'],
-    ['i-hourglass', 'when', 'the market closes', 'hold all swaps'],
-    ['i-lock', 'until', '4 Oct 2027', 'liquidity stays locked'],
-    ['i-flag', 'when', '60 minutes pass', 'open the gates']
+    ['buy > 0.1 ETH', 'refuse'],
+    ['any swap', '1% to the treasury'],
+    ['price moves 2%', 'raise the fee'],
+    ['same wallet buys within 30s', 'refuse'],
+    ['market closed', 'hold swaps'],
+    ['60 minutes since launch', 'lift the buy cap']
   ];
   const ticker = $('#ticker');
   if (ticker) {
-    const items = LOG.map(([icon, when, cond, then]) =>
-      `<span class="uh-ticker-item"><svg aria-hidden="true"><use href="#${icon}"/></svg><b>${when}</b> <code>${cond}</code> <b>then</b> <code>${then}</code></span>`).join('');
+    const items = LOG.map(([cond, then]) => `<span class="uh-ticker-item"><b>when</b> <code>${cond}</code> <b>then</b> <code>${then}</code></span>`).join('');
     ticker.innerHTML = items + items.replace(/<span class="uh-ticker-item">/g, '<span class="uh-ticker-item" aria-hidden="true">');
   }
 

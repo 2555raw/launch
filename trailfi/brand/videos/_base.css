@@ -1,0 +1,8 @@
+@font-face{font-family:SG;font-weight:500;src:url(../../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2)}
+@font-face{font-family:SG;font-weight:700;src:url(../../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2)}
+@font-face{font-family:JB;font-weight:500;src:url(../../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2)}
+*{margin:0;box-sizing:border-box}
+html,body{overflow:hidden;background:#060807;color:#fff;font-family:SG}
+.abs{position:absolute}
+.lime{color:#c4fb6d}
+.mono{font-family:JB}

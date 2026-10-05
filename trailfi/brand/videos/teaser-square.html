@@ -1,0 +1,64 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+body{width:1080px;height:1080px}
+.glow{left:50%;top:46%;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;background:radial-gradient(circle,rgba(196,251,109,.20),transparent 62%)}
+.grid{inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:60px 60px;-webkit-mask-image:radial-gradient(circle at 50% 45%,#000 25%,transparent 72%)}
+.line{left:0;right:0;text-align:center;font-weight:700;letter-spacing:-3px;line-height:1.02}
+.big{font-size:104px}
+.huge{font-size:300px;letter-spacing:-14px}
+.sub{font-size:34px;font-weight:500;color:rgba(255,255,255,.62);letter-spacing:0}
+.foot{width:46px;height:46px}
+.brand{left:0;right:0;display:flex;flex-direction:column;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:14px;border:2px solid rgba(196,251,109,.5);border-radius:999px;padding:16px 34px;font-size:36px;font-weight:700}
+.dot{width:14px;height:14px;border-radius:50%;background:#5dff9d}
+.counter{font-family:JB;font-size:120px;font-weight:500;color:#c4fb6d;letter-spacing:-4px}
+</style></head><body>
+<div class="abs glow" id="glow"></div><div class="abs grid"></div>
+<div id="trail"></div>
+
+<div class="abs line big" id="a" style="top:360px">You already walk<br><span class="lime">8,000 steps a day.</span></div>
+
+<div class="abs line big" id="b1" style="top:300px">Your phone counts</div>
+<div class="abs line" id="b2" style="top:430px"><span class="counter" id="count">0</span></div>
+<div class="abs line big" id="b3" style="top:590px;font-size:64px;letter-spacing:-1px;color:rgba(255,255,255,.7)">every single one.</div>
+
+<div class="abs line big" id="c" style="top:390px;font-size:150px;letter-spacing:-6px">Now they<br><span class="lime">pay you.</span></div>
+
+<div class="abs line sub" id="d0" style="top:250px">up to</div>
+<div class="abs line huge lime" id="d1" style="top:300px">$5</div>
+<div class="abs line" id="d2" style="top:640px;font-size:56px;letter-spacing:-1px;display:flex;justify-content:center;align-items:center;gap:18px">a day, in <img src="../../public/tokens/usdg.png" style="width:64px;height:64px"> USDG</div>
+
+<div class="abs brand" id="e" style="top:300px">
+  <svg width="150" height="150" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#5dff9d"/></linearGradient></defs><rect x=".5" y=".5" width="31" height="31" rx="9.5" fill="#071d14" stroke="rgba(196,251,109,.35)"/><g fill="url(#g)" opacity=".7"><ellipse cx="11" cy="20.3" rx="2.9" ry="4.3" transform="rotate(-12 11 20.3)"/><circle cx="9.1" cy="14.2" r="1.05"/><circle cx="11.1" cy="13.5" r="1.15"/><circle cx="13" cy="14.1" r=".95"/></g><g fill="url(#g)"><ellipse cx="20.8" cy="14.6" rx="2.9" ry="4.3" transform="rotate(12 20.8 14.6)"/><circle cx="19.3" cy="8.5" r="1.05"/><circle cx="21.3" cy="7.9" r="1.15"/><circle cx="23.2" cy="8.6" r=".95"/></g></svg>
+  <div style="margin-top:28px;font-size:112px;font-weight:700;letter-spacing:-4px">Step<span class="lime">it</span></div>
+  <div class="sub" style="margin-top:10px">Walk. Upload. Earn USDG.</div>
+  <div class="pill" style="margin-top:46px"><span class="dot"></span>stepit.site</div>
+</div>
+
+<script src="_anim.js"></script><script>
+window.DURATION = 12;
+// Footprints walking along the bottom, left then right
+const trail = document.getElementById("trail");
+const STEPS = 14;
+for (let i = 0; i < STEPS; i++) {
+  const left = i % 2 === 0;
+  trail.insertAdjacentHTML("beforeend", `<svg class="abs foot" id="f${i}" viewBox="0 0 10 14" style="left:${60 + i * 70}px;top:${left ? 950 : 912}px;transform:rotate(${left ? -8 : 8}deg)"><g fill="#c4fb6d"><ellipse cx="5" cy="9.3" rx="2.9" ry="4.3"/><circle cx="3.1" cy="3.2" r="1.05"/><circle cx="5.1" cy="2.5" r="1.15"/><circle cx="7" cy="3.1" r=".95"/></g></svg>`);
+}
+window.render = (t) => {
+  set("glow", { transform: `scale(${1 + 0.06 * Math.sin(t * 1.6)})` });
+  for (let i = 0; i < STEPS; i++) {
+    const at = 0.3 + i * 0.75;
+    const o = t > 10 ? 0.12 * win(t, at, 11.7) : Math.max(0, 0.55 * win(t, at, at + 4, 0.25));
+    set("f" + i, { opacity: o });
+  }
+  const up = (id, i, o, y = 40) => { const v = win(t, i, o); set(id, { opacity: v, transform: `translateY(${(1 - prog(t, i, i + 0.6)) * y}px)` }); };
+  up("a", 0.2, 2.6);
+  up("b1", 2.8, 5.2); up("b2", 3.0, 5.2); up("b3", 3.6, 5.2);
+  $("count").textContent = Math.round(10871 * prog(t, 3.0, 4.8)).toLocaleString("en-US");
+  const c = win(t, 5.4, 7.6); set("c", { opacity: c, transform: `scale(${0.9 + 0.1 * prog(t, 5.4, 6.1)})` });
+  up("d0", 7.8, 10.1, 20);
+  const d = win(t, 7.9, 10.1); set("d1", { opacity: d, transform: `scale(${0.6 + 0.4 * prog(t, 7.9, 8.5)})` });
+  up("d2", 8.4, 10.1, 20);
+  const e = win(t, 10.2, 12.4); set("e", { opacity: e, transform: `translateY(${(1 - prog(t, 10.2, 10.9)) * 30}px)` });
+};
+window.render(0);
+</script></body></html>

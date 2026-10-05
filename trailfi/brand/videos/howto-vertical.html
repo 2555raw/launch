@@ -1,0 +1,120 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+body{width:1080px;height:1920px}
+.glow{left:50%;top:52%;width:1100px;height:1100px;margin:-550px 0 0 -550px;border-radius:50%;background:radial-gradient(circle,rgba(196,251,109,.16),transparent 62%)}
+.head{left:0;right:0;top:120px;text-align:center}
+.kicker{font-family:JB;font-size:30px;letter-spacing:8px;color:rgba(255,255,255,.5);text-transform:uppercase}
+.title{margin-top:18px;font-size:92px;font-weight:700;letter-spacing:-3px;line-height:1}
+.chips{left:0;right:0;top:400px;display:flex;justify-content:center;gap:18px}
+.chip{display:flex;align-items:center;gap:12px;padding:16px 26px;border-radius:999px;border:2px solid rgba(255,255,255,.12);font-size:32px;font-weight:700;color:rgba(255,255,255,.45);background:rgba(255,255,255,.03)}
+.chip b{font-family:JB;font-size:24px;color:rgba(255,255,255,.35)}
+.chip.on{border-color:rgba(196,251,109,.6);color:#0b0f0c;background:#c4fb6d}
+.chip.on b{color:#0b0f0c}
+.phone{left:50%;top:540px;width:600px;height:1200px;margin-left:-300px;border-radius:96px;border:3px solid rgba(255,255,255,.16);background:#0b0c0d;padding:20px;box-shadow:0 60px 140px -40px rgba(0,0,0,.95)}
+.screen{position:relative;width:100%;height:100%;border-radius:78px;overflow:hidden;background:#000}
+.notch{position:absolute;left:50%;top:18px;width:190px;height:48px;margin-left:-95px;border-radius:30px;background:#000;z-index:20}
+.scene{position:absolute;inset:0}
+.ring{border-radius:50%;display:grid;place-items:center}
+.cap{left:0;right:0;bottom:70px;text-align:center;font-size:44px;font-weight:500;color:rgba(255,255,255,.75)}
+.end{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#060807}
+.pill{display:inline-flex;align-items:center;gap:16px;border:2px solid rgba(196,251,109,.5);border-radius:999px;padding:20px 40px;font-size:44px;font-weight:700}
+.dot{width:16px;height:16px;border-radius:50%;background:#5dff9d}
+</style></head><body>
+<div class="abs glow"></div>
+<div class="abs head" id="head"><div class="kicker">Stepit</div><div class="title">Get paid <span class="lime">to walk.</span></div></div>
+<div class="abs chips" id="chips">
+  <div class="chip" id="c1"><b>1</b>Walk</div><div class="chip" id="c2"><b>2</b>Screenshot</div><div class="chip" id="c3"><b>3</b>Upload</div><div class="chip" id="c4"><b>4</b>Get paid</div>
+</div>
+
+<div class="abs phone" id="phone"><div class="screen">
+  <div class="notch"></div>
+  <!-- 1 Fitness -->
+  <div class="scene" id="s1" style="padding:120px 50px 0">
+    <div style="text-align:center;font-size:30px;font-weight:700">Saturday, Oct 3</div>
+    <div class="ring" id="ring" style="margin:60px auto 0;width:300px;height:300px"><div style="width:190px;height:190px;border-radius:50%;background:#000"></div></div>
+    <div style="margin-top:60px;font-size:26px">Move</div>
+    <div style="font-size:44px;font-weight:700;color:#fa114f" id="kcal">0/360 KCAL</div>
+    <div style="margin-top:50px;display:flex;justify-content:space-between">
+      <div><div style="font-size:26px">Steps</div><div class="mono" id="steps" style="font-size:64px;color:#d1d1d6">0</div></div>
+      <div><div style="font-size:26px">Distance</div><div style="font-size:64px;color:#d1d1d6" id="km">0.00<span style="font-size:30px"> KM</span></div></div>
+    </div>
+  </div>
+  <div class="scene" id="flash" style="background:#fff"></div>
+  <div class="abs" id="thumb" style="left:40px;bottom:60px;width:130px;height:250px;border:4px solid #fff;border-radius:18px;background:#000;z-index:15;padding:30px 10px;text-align:center">
+    <div style="margin:0 auto;width:60px;height:60px;border-radius:50%;border:8px solid #fa114f"></div>
+    <div style="margin-top:20px;font-size:16px;color:rgba(255,255,255,.7)">Steps</div><div style="font-size:24px;font-weight:700">10,871</div>
+  </div>
+  <!-- 3 Upload -->
+  <div class="scene" id="s3" style="background:#060807;padding:110px 44px 0">
+    <div style="display:flex;align-items:center;gap:14px;font-size:34px;font-weight:700">
+      <span style="width:52px;height:52px;border-radius:14px;background:#071d14;display:grid;place-items:center;border:1px solid rgba(196,251,109,.35)"><svg width="34" height="34" viewBox="0 0 32 32"><g fill="#c4fb6d" opacity=".7"><ellipse cx="11" cy="20.3" rx="2.9" ry="4.3" transform="rotate(-12 11 20.3)"/><circle cx="9.1" cy="14.2" r="1.05"/><circle cx="11.1" cy="13.5" r="1.15"/><circle cx="13" cy="14.1" r=".95"/></g><g fill="#5dff9d"><ellipse cx="20.8" cy="14.6" rx="2.9" ry="4.3" transform="rotate(12 20.8 14.6)"/><circle cx="19.3" cy="8.5" r="1.05"/><circle cx="21.3" cy="7.9" r="1.15"/><circle cx="23.2" cy="8.6" r=".95"/></g></svg></span>Step<span class="lime" style="margin-left:-14px">it</span>
+    </div>
+    <div class="mono" style="margin-top:50px;font-size:20px;letter-spacing:5px;color:rgba(255,255,255,.45)">UPLOAD STEPS</div>
+    <div style="margin-top:8px;font-size:46px;font-weight:700">Log your day</div>
+    <div class="mono" id="typed" style="margin-top:40px;border:2px solid rgba(255,255,255,.12);border-radius:22px;padding:24px 28px;font-size:40px;background:rgba(0,0,0,.4)">10,871</div>
+    <div id="att" style="margin-top:24px;display:flex;align-items:center;gap:22px;border:2px solid rgba(196,251,109,.35);border-radius:22px;padding:18px;background:rgba(196,251,109,.06)">
+      <div style="width:66px;height:120px;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:#000;display:grid;place-items:center"><div style="width:34px;height:34px;border-radius:50%;border:5px solid #fa114f"></div></div>
+      <div style="font-size:28px;color:#d9f99d">✓ Screenshot ready</div>
+    </div>
+    <div id="btn" style="margin-top:34px;border-radius:24px;padding:30px;text-align:center;font-size:34px;font-weight:700;background:#c4fb6d;color:#0b0f0c">Upload steps</div>
+  </div>
+  <!-- 4 Paid -->
+  <div class="scene" id="s4" style="background:#060807;display:flex;flex-direction:column;align-items:center;padding-top:150px">
+    <div id="ver" class="mono" style="display:flex;align-items:center;gap:10px;border:2px solid rgba(196,251,109,.45);background:rgba(196,251,109,.1);color:#c4fb6d;border-radius:999px;padding:12px 26px;font-size:24px;letter-spacing:3px">✓ VERIFIED</div>
+    <div style="margin-top:22px;font-size:28px;color:rgba(255,255,255,.5)">Sat, Oct 3 · 10,871 steps</div>
+    <img id="coin" src="../../public/tokens/usdg.png" style="margin-top:110px;width:170px;height:170px">
+    <div id="amt" style="margin-top:40px;font-size:120px;font-weight:700;color:#c4fb6d;letter-spacing:-4px">+$5.00</div>
+    <div id="rcv" style="font-size:34px;color:rgba(255,255,255,.6)">USDG received</div>
+  </div>
+</div></div>
+
+<div class="abs cap" id="cap"></div>
+<div class="abs end" id="end">
+  <svg width="170" height="170" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#5dff9d"/></linearGradient></defs><rect x=".5" y=".5" width="31" height="31" rx="9.5" fill="#071d14" stroke="rgba(196,251,109,.35)"/><g fill="url(#g)" opacity=".7"><ellipse cx="11" cy="20.3" rx="2.9" ry="4.3" transform="rotate(-12 11 20.3)"/><circle cx="9.1" cy="14.2" r="1.05"/><circle cx="11.1" cy="13.5" r="1.15"/><circle cx="13" cy="14.1" r=".95"/></g><g fill="url(#g)"><ellipse cx="20.8" cy="14.6" rx="2.9" ry="4.3" transform="rotate(12 20.8 14.6)"/><circle cx="19.3" cy="8.5" r="1.05"/><circle cx="21.3" cy="7.9" r="1.15"/><circle cx="23.2" cy="8.6" r=".95"/></g></svg>
+  <div style="margin-top:40px;font-size:140px;font-weight:700;letter-spacing:-5px">Step<span class="lime">it</span></div>
+  <div style="margin-top:20px;font-size:56px;font-weight:700;letter-spacing:-1px">Up to <span class="lime">$5 a day</span> in USDG</div>
+  <div style="margin-top:14px;font-size:36px;color:rgba(255,255,255,.55)">for the steps you already walk</div>
+  <div class="pill" style="margin-top:70px"><span class="dot"></span>stepit.site</div>
+  <div class="mono" style="margin-top:30px;font-size:30px;color:rgba(255,255,255,.45)">@HelloStepit</div>
+</div>
+
+<script src="../videos/_anim.js"></script><script>
+window.DURATION = 15;
+const CAPS = [[0, 3.6, "Your phone counts every step"], [3.6, 5.4, "Screenshot the day"], [5.4, 9.4, "Upload it to stepit.site"], [9.4, 12.6, "Verified. USDG in your wallet."]];
+window.render = (t) => {
+  const scene = t < 3.6 ? 1 : t < 5.4 ? 2 : t < 9.4 ? 3 : 4;
+  ["c1", "c2", "c3", "c4"].forEach((c, i) => $(c).classList.toggle("on", scene === i + 1 && t < 12.6));
+  // 1: counting
+  const k = prog(t, 0.3, 3.0);
+  $("steps").textContent = Math.round(10871 * k).toLocaleString("en-US");
+  $("km").firstChild.textContent = (8.48 * k).toFixed(2);
+  $("kcal").textContent = `${Math.round(329 * k)}/360 KCAL`;
+  set("ring", { background: `conic-gradient(#fa114f ${k * 330}deg, rgba(250,17,79,.16) 0)` });
+  set("s1", { opacity: win(t, -1, 5.6, 0.3) });
+  // 2: flash + thumbnail
+  set("flash", { opacity: t >= 3.6 && t < 4.1 ? 1 - prog(t, 3.6, 4.1) : 0 });
+  const th = prog(t, 4.0, 4.6);
+  set("thumb", { opacity: win(t, 4.0, 5.6, 0.15), transform: `translate(${(1 - th) * 180}px, ${(1 - th) * -500}px) scale(${1 + (1 - th) * 2.6})` });
+  // 3: upload
+  set("s3", { opacity: win(t, 5.4, 9.6, 0.3), transform: `translateX(${(1 - prog(t, 5.4, 5.9)) * 80}px)` });
+  set("att", { opacity: prog(t, 6.2, 6.6), transform: `scale(${0.8 + 0.2 * prog(t, 6.2, 6.6)})` });
+  const pressed = t > 7.4 && t < 7.7;
+  const sent = t >= 7.7;
+  set("btn", { transform: `scale(${pressed ? 0.95 : 1})`, background: sent ? "rgba(196,251,109,.15)" : "#c4fb6d", color: sent ? "#c4fb6d" : "#0b0f0c" });
+  $("btn").textContent = sent ? "Uploaded · in review" : "Upload steps";
+  // 4: paid
+  set("s4", { opacity: win(t, 9.4, 12.8, 0.3) });
+  set("ver", { opacity: prog(t, 9.6, 9.9), transform: `scale(${0.7 + 0.3 * prog(t, 9.6, 10.0)})` });
+  const pay = prog(t, 10.4, 10.9);
+  set("coin", { opacity: pay, transform: `translateY(${(1 - pay) * 60}px) rotate(${(1 - pay) * -90}deg)` });
+  set("amt", { opacity: pay, transform: `translateY(${(1 - pay) * 40}px)` });
+  set("rcv", { opacity: prog(t, 10.8, 11.2) });
+  // captions
+  const cap = CAPS.find(([a, b]) => t >= a && t < b);
+  $("cap").textContent = cap ? cap[2] : "";
+  set("cap", { opacity: cap ? win(t, cap[0], cap[1], 0.25) : 0 });
+  // end card
+  set("end", { opacity: prog(t, 12.6, 13.1) });
+  set("head", { opacity: 1 - prog(t, 12.4, 12.7) });
+};
+window.render(0);
+</script></body></html>

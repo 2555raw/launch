@@ -193,7 +193,20 @@
     return el;
   };
 
-  const reply = (text) => {
+  const applyHook = (recipe, settings) => {
+    state.recipe = recipe;
+    state.settings = settings;
+    renderRecipes();
+    renderFields();
+    render({ flash: true });
+  };
+
+  const missingHtml = (missing) => (missing.length
+    ? `<p class="bd-todo">Still needed: ${missing.map(esc).join(' ')} Fill it in under Settings, or tell me here.</p>`
+    : '<p>The hook is ready. Read it on the right, then deploy it.</p>');
+
+  // The built-in reader: keywords, numbers, addresses and times. Always available.
+  const replyFromRules = (text) => {
     const got = B.understand(text, state);
     if (!got) {
       addMsg('ai', `<p>I couldn't tell which kind of hook you want. Right now I can build:</p>
@@ -201,18 +214,56 @@
         <p>Try one of the examples above, or pick a kind under Settings.</p>`);
       return;
     }
-    state.recipe = got.recipe;
-    state.settings = got.settings;
-    renderRecipes();
-    renderFields();
-    render({ flash: true });
-
+    applyHook(got.recipe, got.settings);
     const r = B.RECIPES[got.recipe];
     const heard = got.heard.length ? `<ul>${got.heard.map((h) => `<li>${esc(h)}</li>`).join('')}</ul>` : '';
-    const todo = got.missing.length
-      ? `<p class="bd-todo">Still needed: ${got.missing.map(esc).join(' ')} Fill it in under Settings, or tell me here.</p>`
-      : '<p>The hook is ready. Read it on the right, then deploy it.</p>';
-    addMsg('ai', `<p>Got it: a <b>${esc(r.title.toLowerCase())}</b> hook.</p>${heard}${todo}`);
+    addMsg('ai', `<p>Got it: a <b>${esc(r.title.toLowerCase())}</b> hook.</p>${heard}${missingHtml(got.missing)}`);
+  };
+
+  // The AI side, served by server.js at /api/chat. When the page is hosted
+  // without it (404, 405, 501, 503, or an answer that is not JSON) the page
+  // stops asking and uses the built-in reader for the rest of the visit.
+  let aiOff = CONFIG.AI_URL === false;
+  const askAI = async (text) => {
+    if (aiOff) return null;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 30000);
+    try {
+      const res = await fetch(CONFIG.AI_URL || 'api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ text, current: { recipe: state.recipe, settings: state.settings } }),
+        signal: ctrl.signal
+      });
+      if ([404, 405, 501, 503].includes(res.status)) { aiOff = true; return null; }
+      if (!res.ok) return null;
+      const data = await res.json().catch(() => { aiOff = true; return null; });
+      return data && data.source === 'ai' && typeof data.reply === 'string' ? data : null;
+    } catch (_) {
+      return null;
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  let asking = false;
+  const reply = async (text) => {
+    if (asking) return;
+    asking = true;
+    prompt.disabled = true;
+    const typing = aiOff ? null : addMsg('ai', '<p class="bd-typing" aria-label="Thinking"><i></i><i></i><i></i></p>');
+    try {
+      const ai = await askAI(text);
+      if (typing) typing.remove();
+      if (!ai) { replyFromRules(text); return; }
+      const said = esc(ai.reply).replace(/\n+/g, '</p><p>');
+      if (!ai.recipe || !B.RECIPES[ai.recipe]) { addMsg('ai', `<p>${said}</p>`); return; }
+      applyHook(ai.recipe, { ...B.defaults(ai.recipe), ...ai.settings });
+      addMsg('ai', `<p>${said}</p>${missingHtml(current.problems)}`);
+    } finally {
+      asking = false;
+      prompt.disabled = false;
+    }
   };
 
   $('#examples').innerHTML = B.EXAMPLES.map((e) => `<button class="bd-example" type="button">${esc(e)}</button>`).join('');

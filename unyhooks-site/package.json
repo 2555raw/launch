@@ -1,0 +1,15 @@
+{
+  "name": "unyhooks-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "UnyHooks: chat to build Uniswap V4 hooks on Robinhood Chain. Static site plus a small server for the AI chat.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

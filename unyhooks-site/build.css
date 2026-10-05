@@ -102,6 +102,12 @@
 .bd-example:hover { background: var(--pink-soft); border-color: var(--pink); }
 .bd-example:focus-visible, .bd-tab:focus-visible, .bd-mini:focus-visible, .bd-recipe:focus-visible { outline: 2px solid var(--pink); outline-offset: 2px; }
 .bd-todo { color: #9A5B00; }
+.bd-typing { display: flex; gap: 4px; padding: 4px 0; }
+.bd-typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--pink-line); animation: bd-dot 1s ease-in-out infinite; }
+.bd-typing i:nth-child(2) { animation-delay: .15s; }
+.bd-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes bd-dot { 50% { background: var(--pink); transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .bd-typing i { animation: none; } }
 
 .bd-ask {
   display: flex; align-items: flex-end; gap: 8px;

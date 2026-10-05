@@ -23,6 +23,7 @@ const COLUMNS = [
     title: "Walkers",
     links: [
       { href: "/steps", label: "Upload steps" },
+      { href: "/get-usdg", label: "Get USDG" },
       { href: "/dashboard", label: "Dashboard" },
       { href: "/docs", label: "Documentation" },
     ],

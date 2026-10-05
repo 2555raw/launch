@@ -73,8 +73,11 @@ function ConnectToStart() {
           ))}
         </ol>
 
-        <div className="mt-9">
+        <div className="mt-9 flex flex-wrap items-center gap-4">
           <ConnectWallet size="lg" />
+          <Link href="/get-usdg" className="flex items-center gap-2 text-[14px] text-white/60 transition hover:text-lime-300">
+            <TokenIcon symbol="USDG" /> No USDG yet? <span className="text-lime-300 underline decoration-lime-400/40 underline-offset-4">Get some in 2 minutes</span>
+          </Link>
         </div>
 
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px]">

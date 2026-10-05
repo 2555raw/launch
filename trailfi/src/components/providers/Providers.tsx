@@ -71,7 +71,7 @@ function AuthBridge({ children }: { children: ReactNode }) {
             if (err.code === "token_required") {
               toast.error(err.error, {
                 duration: 12_000,
-                action: { label: "Get USDG", onClick: () => window.open("https://docs.robinhood.com/chain/bridging", "_blank", "noopener") },
+                action: { label: "Get USDG", onClick: () => window.location.assign("/get-usdg") },
               });
             } else {
               toast.error(err.error ?? "Wallet verification failed");

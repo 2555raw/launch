@@ -213,9 +213,9 @@ function compileLib() {
   await page.waitForFunction(() => document.querySelector('#dp-msg').textContent.length > 0, null, { timeout: 60000 });
   check('creating the same pool twice explains why it fails', (await page.textContent('#dp-msg')).includes('already exists'), await page.textContent('#dp-msg'));
 
-  await page.screenshot({ path: '../deploy-done.png', fullPage: false, clip: { x: 0, y: 0, width: 1440, height: 1000 } });
+  await page.screenshot({ path: require('path').join(__dirname, 'e2e-deploy-done.png'), fullPage: false, clip: { x: 0, y: 0, width: 1440, height: 1000 } });
   await page.$eval('#deploy', (e) => e.scrollIntoView());
-  await page.screenshot({ path: '../deploy-panel.png' });
+  await page.screenshot({ path: require('path').join(__dirname, 'e2e-deploy-panel.png') });
   check('no page errors', errors.length === 0, errors.join(' | '));
   console.log(`\n${results.filter(Boolean).length}/${results.length} passed`);
   await browser.close();

@@ -16,6 +16,7 @@ export const SALT_BYTES = 16;
 export const KEY_BYTES = 32;
 export const RECEIPT_PREFIX = "obx1_";
 export const PACKAGE_PREFIX = "obxpkg1_";
+export const BACKUP_PREFIX = "obxbak1_";
 export const PBKDF2_ITERATIONS = 310000;
 
 export function randomBytes(n) {
@@ -110,8 +111,10 @@ export async function verify(receipt, expected = null) {
 }
 
 export function encodeReceipt(receipt) {
-  const { v, asset, salt, key, commitment } = receipt;
-  return RECEIPT_PREFIX + toBase64Url(enc.encode(JSON.stringify({ v, asset, salt, key, commitment })));
+  const { v, asset, salt, key, commitment, proof } = receipt;
+  const body = { v, asset, salt, key, commitment };
+  if (proof) body.proof = proof;
+  return RECEIPT_PREFIX + toBase64Url(enc.encode(JSON.stringify(body)));
 }
 
 export function decodeReceipt(text) {
@@ -133,35 +136,50 @@ async function passphraseKey(passphrase, salt) {
   );
 }
 
-// Seal a receipt behind a passphrase: PBKDF2-SHA-256 into AES-256-GCM.
-export async function seal(receipt, passphrase) {
+// Seal text behind a passphrase: PBKDF2-SHA-256 into AES-256-GCM.
+async function sealText(text, passphrase, prefix) {
   if (!passphrase || passphrase.length < 8) throw new Error("Passphrase needs at least 8 characters");
   const salt = randomBytes(16);
   const iv = randomBytes(12);
   const aesKey = await passphraseKey(passphrase, salt);
-  const plain = enc.encode(encodeReceipt(receipt));
-  const ct = new Uint8Array(await subtle.encrypt({ name: "AES-GCM", iv }, aesKey, plain));
-  return PACKAGE_PREFIX + toBase64Url(concat(salt, iv, ct));
+  const ct = new Uint8Array(await subtle.encrypt({ name: "AES-GCM", iv }, aesKey, enc.encode(text)));
+  return prefix + toBase64Url(concat(salt, iv, ct));
+}
+
+async function openText(sealed, passphrase, prefix, what) {
+  const t = String(sealed).trim();
+  if (!t.startsWith(prefix)) throw new Error(`Not an Obscura ${what}`);
+  const raw = fromBase64Url(t.slice(prefix.length));
+  try {
+    const aesKey = await passphraseKey(passphrase, raw.slice(0, 16));
+    return dec.decode(await subtle.decrypt({ name: "AES-GCM", iv: raw.slice(16, 28) }, aesKey, raw.slice(28)));
+  } catch {
+    throw new Error(`Wrong passphrase, or the ${what} was altered`);
+  }
+}
+
+// Seal a receipt for transfer.
+export function seal(receipt, passphrase) {
+  return sealText(encodeReceipt(receipt), passphrase, PACKAGE_PREFIX);
+}
+
+// Seal a whole vault for backup. Receipts are keys: a backup in the clear is a
+// copy of every bond for whoever finds the file.
+export function sealBackup(bonds, passphrase) {
+  return sealText(JSON.stringify({ app: "obscura", v: 1, exported: new Date().toISOString(), bonds }), passphrase, BACKUP_PREFIX);
+}
+
+export async function openBackup(text, passphrase) {
+  const data = JSON.parse(await openText(text, passphrase, BACKUP_PREFIX, "backup"));
+  if (!Array.isArray(data.bonds)) throw new Error("The backup holds no bonds");
+  return data.bonds;
 }
 
 // Open a package, check the receipt inside, and re-cloak the same asset under
 // a new salt and key. The sender's old receipt keeps verifying; the new one
 // is the recipient's alone.
 export async function receive(pkg, passphrase) {
-  const t = String(pkg).trim();
-  if (!t.startsWith(PACKAGE_PREFIX)) throw new Error("Not an Obscura transfer package");
-  const raw = fromBase64Url(t.slice(PACKAGE_PREFIX.length));
-  const salt = raw.slice(0, 16);
-  const iv = raw.slice(16, 28);
-  const ct = raw.slice(28);
-  let plain;
-  try {
-    const aesKey = await passphraseKey(passphrase, salt);
-    plain = await subtle.decrypt({ name: "AES-GCM", iv }, aesKey, ct);
-  } catch {
-    throw new Error("Wrong passphrase, or the package was altered");
-  }
-  const incoming = decodeReceipt(dec.decode(plain));
+  const incoming = decodeReceipt(await openText(pkg, passphrase, PACKAGE_PREFIX, "transfer package"));
   if (!(await verify(incoming))) throw new Error("The receipt inside does not verify");
   return cloak(incoming.asset, { prev: incoming.commitment });
 }

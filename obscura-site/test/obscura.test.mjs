@@ -54,3 +54,13 @@ test("bad assets are refused", async () => {
   await assert.rejects(obx.cloak({ ...asset, amount: "-1" }), /positive/);
   await assert.rejects(obx.cloak({ ...asset, symbol: "" }), /symbol/);
 });
+
+test("backups are encrypted and open only with the passphrase", async () => {
+  const bonds = [await obx.cloak(asset), await obx.cloak({ ...asset, amount: "3" })];
+  const text = await obx.sealBackup(bonds, "a long backup phrase");
+  assert.ok(text.startsWith(obx.BACKUP_PREFIX));
+  assert.ok(!text.includes(bonds[0].key), "key is not readable in the backup");
+  const back = await obx.openBackup(text, "a long backup phrase");
+  assert.deepEqual(back.map((b) => b.commitment), bonds.map((b) => b.commitment));
+  await assert.rejects(obx.openBackup(text, "the wrong phrase!!"), /Wrong passphrase/);
+});

@@ -44,31 +44,31 @@
 <main class="app-main">
   <div class="wrap">
     <div class="app-head">
-      <h1>Verify a receipt</h1>
-      <p>Someone handed you a receipt to prove they hold a bond. Paste it here. Your browser recomputes the hash and answers true or false.</p>
+      <h1>Verify a proof</h1>
+      <p>Someone sent you a proof link or a receipt. Your browser checks it here: nothing is sent to us.</p>
     </div>
     <div class="panel active">
-      <form class="box" id="verify-form" autocomplete="off">
-        <div class="field"><label for="v-receipt">Receipt</label><textarea class="textarea" id="v-receipt" placeholder="obx1_…" required></textarea></div>
-        <div class="field">
-          <label for="v-commit">Commitment you expect <span class="opt">(recommended)</span></label>
-          <input class="input mono" id="v-commit" placeholder="0x…">
-          <span class="hint">Take it from the chain or from a channel you trust, not from the same message as the receipt. Without it you only learn that the receipt is self-consistent.</span>
-        </div>
-        <button class="btn btn-dark" type="submit">Verify</button>
-        <div id="verdict" aria-live="polite"></div>
-      </form>
-      <div class="box soft">
-        <h2>What the receipt opens</h2>
-        <p>Shown only after the hash checks out.</p>
-        <div class="empty" id="v-empty">Waiting for a receipt.</div>
-        <div class="kv" id="v-out" hidden>
-          <div class="kv-row"><span class="k">Asset</span><span class="v" id="v-asset"></span></div>
-          <div class="kv-row"><span class="k">Chain</span><span class="v" id="v-chain"></span></div>
-          <div class="kv-row"><span class="k">Note</span><span class="v" id="v-note"></span></div>
-          <div class="kv-row"><span class="k">Commitment</span><span class="v big" id="v-hash"></span></div>
+      <div class="box" id="v-result-box">
+        <h2>Result</h2>
+        <p>Open a proof link, or paste a receipt below.</p>
+        <div class="empty" id="v-empty">Waiting for a proof.</div>
+        <div id="v-out" hidden>
+          <div class="claim" id="v-claim"></div>
+          <ul class="checks" id="v-checks"></ul>
+          <p class="hint" id="v-note"></p>
         </div>
       </div>
+      <form class="box soft" id="verify-form" autocomplete="off">
+        <h2>Check a receipt by hand</h2>
+        <p>Paste the receipt you were given. The link does this for you.</p>
+        <div class="field"><label for="v-receipt">Receipt</label><textarea class="textarea" id="v-receipt" placeholder="obx1_…" required></textarea></div>
+        <div class="field">
+          <label for="v-commit">Seal code you expect <span class="opt">(optional)</span></label>
+          <input class="input mono" id="v-commit" placeholder="0x…">
+          <span class="hint">If the holder posted their seal code somewhere public, paste it to make sure this receipt is that bond.</span>
+        </div>
+        <button class="btn btn-dark" type="submit">Verify</button>
+      </form>
     </div>
   </div>
 </main>
@@ -101,37 +101,6 @@
 <script type="module" src="js/terms.js"></script>
 <script type="module" src="js/site.js"></script>
 <script type="module" src="js/wallet.js"></script>
-<script type="module">
-  import { verify, decodeReceipt } from "./js/obscura.js";
-  const $ = (id) => document.getElementById(id);
-  $("verify-form").addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const expected = $("v-commit").value.trim();
-    const ok = await verify($("v-receipt").value, expected || null);
-    const v = $("verdict");
-    v.className = "verdict " + ok;
-    v.replaceChildren();
-    const bit = document.createElement("span");
-    bit.className = "bit";
-    bit.textContent = ok ? "1" : "0";
-    const text = document.createElement("div");
-    text.textContent = ok ? "true" : "false";
-    const small = document.createElement("small");
-    small.textContent = ok
-      ? (expected ? "The receipt opens the commitment you expected." : "The receipt is consistent. Check it against a commitment you trust.")
-      : "The receipt does not open this commitment. Check that it was pasted whole.";
-    text.append(small);
-    v.append(bit, text);
-    $("v-out").hidden = !ok;
-    $("v-empty").hidden = ok;
-    if (ok) {
-      const r = decodeReceipt($("v-receipt").value);
-      $("v-asset").textContent = `${r.asset.amount} ${r.asset.symbol}`;
-      $("v-chain").textContent = r.asset.chain;
-      $("v-note").textContent = r.asset.note || "None";
-      $("v-hash").textContent = "0x" + r.commitment;
-    }
-  });
-</script>
+<script type="module" src="js/verify.js"></script>
 </body>
 </html>

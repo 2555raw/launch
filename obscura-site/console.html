@@ -48,6 +48,12 @@
       <p>Cloak assets into bonds, keep the receipts in this browser, and hand them on with a passphrase. No server sees any of it.</p>
     </div>
 
+    <div class="banner" id="backup-banner" role="status" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.5 17.5A2 2 0 0 0 4.2 20.5h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+      <p><b id="backup-count"></b> Clearing this browser's data deletes them for good.</p>
+      <button class="btn btn-dark btn-sm" type="button" id="backup-now">Back up now</button>
+    </div>
+
     <div class="tabs" role="tablist" aria-label="Console">
       <button class="tab" role="tab" id="tab-cloak" aria-controls="panel-cloak" data-tab="cloak" aria-selected="true">Cloak</button>
       <button class="tab" role="tab" id="tab-vault" aria-controls="panel-vault" data-tab="vault" aria-selected="false">Vault<span class="count" id="vault-count">0</span></button>
@@ -59,29 +65,42 @@
       <form class="box" id="cloak-form" autocomplete="off">
         <h2>Cloak an asset</h2>
         <p>A fresh 16-byte salt and 32-byte key are drawn for every bond.</p>
+        <div class="funds" id="funds">
+          <div class="funds-head"><h3>Back it with your wallet</h3><span class="badge live">Recommended</span></div>
+          <p id="f-text">Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word.</p>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn btn-dark btn-sm" type="button" id="f-read">Read balance from wallet</button>
+            <button class="btn btn-ghost btn-sm" type="button" id="f-clear" hidden>Type an amount instead</button>
+          </div>
+        </div>
         <div class="field-row">
-          <div class="field"><label for="c-amount">Amount</label><input class="input num" id="c-amount" inputmode="decimal" placeholder="1.0" required></div>
+          <div class="field"><label for="c-amount" id="c-amount-label">Amount</label><input class="input num" id="c-amount" inputmode="decimal" placeholder="1.0" required><span class="hint" id="c-amount-hint" hidden></span></div>
           <div class="field"><label for="c-symbol">Asset</label><input class="input" id="c-symbol" placeholder="ETH" required></div>
         </div>
         <div class="field"><label for="c-chain">Chain</label>
-          <select class="select" id="c-chain"><option>ethereum</option><option>base</option><option>arbitrum</option><option>optimism</option><option>polygon</option><option>solana</option></select>
+          <select class="select" id="c-chain"><option>ethereum</option><option>base</option><option>arbitrum</option><option>optimism</option><option>polygon</option><option>bnb</option><option>solana</option></select>
         </div>
         <div class="field"><label for="c-note">Private note <span class="opt">(optional, sealed into the hash)</span></label><input class="input" id="c-note" placeholder="e.g. OTC desk, March"></div>
-        <button class="btn btn-dark" type="submit">Cloak bond</button>
+        <button class="btn btn-dark" type="submit" id="c-submit">Cloak bond</button>
       </form>
       <div class="box soft" id="cloak-result">
         <h2>Result</h2>
         <p>The receipt is saved to your vault automatically.</p>
         <div class="empty" id="cloak-empty">Nothing cloaked yet. Fill in an asset and press Cloak bond.</div>
         <div id="cloak-out" hidden>
-          <div class="kv">
-            <div class="kv-row"><span class="k">Commitment, safe to share</span><span class="v big" id="c-commit"></span></div>
-            <div class="kv-row"><label class="k" for="c-receipt">Receipt, keep it private</label><textarea class="textarea" id="c-receipt" readonly></textarea></div>
-          </div>
-          <div class="actions">
-            <button class="btn btn-dark btn-sm" type="button" data-copy="#c-receipt" data-copy-label="Receipt copied">Copy receipt</button>
-            <button class="btn btn-light btn-sm" type="button" data-copy="#c-commit" data-copy-label="Commitment copied">Copy commitment</button>
-          </div>
+          <p class="backing" id="c-backing"></p>
+          <div class="share" id="c-share"></div>
+          <details class="raw">
+            <summary>Show the raw receipt and commitment</summary>
+            <div class="kv" style="margin-top:14px">
+              <div class="kv-row"><span class="k">Commitment, safe to post anywhere</span><span class="v big" id="c-commit"></span></div>
+              <div class="kv-row"><label class="k" for="c-receipt">Receipt, share only with who should see this bond</label><textarea class="textarea" id="c-receipt" readonly></textarea></div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-light btn-sm" type="button" data-copy="#c-receipt" data-copy-label="Receipt copied">Copy receipt</button>
+              <button class="btn btn-light btn-sm" type="button" data-copy="#c-commit" data-copy-label="Commitment copied">Copy commitment</button>
+            </div>
+          </details>
         </div>
       </div>
     </div>
@@ -89,14 +108,31 @@
     <div class="panel single" id="panel-vault" role="tabpanel" aria-labelledby="tab-vault">
       <div class="box">
         <div class="bond-top" style="margin-bottom:20px">
-          <div><h2>Vault</h2><p class="hint" style="margin-top:4px">Stored only in this browser. Export a backup before you clear site data.</p></div>
-          <div class="actions" style="margin:0">
-            <button class="btn btn-light btn-sm" id="v-export" type="button">Export backup</button>
-            <label class="btn btn-light btn-sm" for="v-import">Import backup</label>
-            <input type="file" id="v-import" accept="application/json,.json" hidden>
-          </div>
+          <div><h2>Vault</h2><p class="hint" style="margin-top:4px">Stored only in this browser. Keep an encrypted backup below.</p></div>
         </div>
         <div id="vault-list"></div>
+      </div>
+      <div class="box soft" id="backup">
+        <h2>Backup</h2>
+        <p>Your receipts are keys. The backup is locked with a passphrase so a lost file opens nothing.</p>
+        <form id="backup-form" class="backup-grid" autocomplete="off">
+          <div class="field"><label for="b-pass">Backup passphrase</label><input class="input" id="b-pass" type="password" minlength="8" required autocomplete="new-password"></div>
+          <div class="field"><label for="b-pass2">Repeat it</label><input class="input" id="b-pass2" type="password" minlength="8" required autocomplete="new-password"></div>
+          <div class="actions" style="margin-top:0">
+            <button class="btn btn-dark btn-sm" type="submit" name="download">Download encrypted backup</button>
+            <button class="btn btn-light btn-sm" type="submit" name="copy">Copy backup text</button>
+          </div>
+        </form>
+        <p class="hint" id="b-status" style="margin-top:12px"></p>
+        <details class="raw" style="margin-top:18px">
+          <summary>Restore from a backup</summary>
+          <form id="restore-form" autocomplete="off" style="margin-top:14px">
+            <div class="field"><label for="r-file2">Backup file</label><input id="r-file2" type="file" accept=".obxbak,.json,text/plain"></div>
+            <div class="field"><label for="r-text">Or paste the backup text</label><textarea class="textarea" id="r-text" placeholder="obxbak1_…"></textarea></div>
+            <div class="field"><label for="r-pass2">Backup passphrase</label><input class="input" id="r-pass2" type="password" autocomplete="off"></div>
+            <button class="btn btn-dark btn-sm" type="submit">Restore bonds</button>
+          </form>
+        </details>
       </div>
     </div>
 
@@ -179,6 +215,15 @@
 <script type="module" src="js/terms.js"></script>
 <script type="module" src="js/site.js"></script>
 <script type="module" src="js/wallet.js"></script>
+<dialog id="share-dialog" aria-labelledby="share-title">
+  <div class="sheet-card">
+    <button class="icon-btn dialog-close" type="button" aria-label="Close" data-close>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div class="sheet-head"><h2 id="share-title">Share this proof</h2><p id="share-sub"></p></div>
+    <div class="sheet-body"><div class="share" id="share-body"></div></div>
+  </div>
+</dialog>
 <script type="module" src="js/console.js"></script>
 </body>
 </html>

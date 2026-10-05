@@ -20,7 +20,10 @@ js/terms.js     terms gate shown on first visit; acceptance remembered per brows
 js/wallet.js    wallet connection: EIP-6963 discovery, real logos, install links, mobile deep links
 js/site.js      nav, scroll reveal, toast, copy
 js/home.js      live hero receipt, film player with chapters, cloak demo
-js/console.js   console state (localStorage) and the four tabs
+js/console.js   console state (localStorage), the four tabs, wallet-backed sealing, backups
+js/proof.js     proof of funds: read balance, sign, verify signature and balance onchain
+js/share.js     proof link and QR code
+js/verify.js    the verify page
 assets/         fonts, photos, wallet logos, films (mp4 + webm + poster)
 tools/          scenes.html (film source) and render-videos.mjs (renders the films)
 test/           node:test suite for the crypto core
@@ -48,6 +51,8 @@ Edit the captions or timings in `scenes.html` and re-run to regenerate.
 ## Credits
 
 - Photos: public domain, no attribution required (source recorded inside each image file).
+- Vendored: `assets/vendor/ethers.min.js` (ethers 6.17, MIT) to check signatures, `assets/vendor/qrcode.mjs`
+  (qrcode-generator 2.0.4, MIT) for QR codes.
 - Wallet logos are the wallets' own marks (taken from RainbowKit, MIT), shown only as connection options.
 - Fonts: Host Grotesk and JetBrains Mono, SIL Open Font License.
 
@@ -60,6 +65,15 @@ Edit the captions or timings in `scenes.html` and re-run to regenerate.
   (310,000 rounds, random salt) into an `obxpkg1_…` package. The sender's bond is marked as sent.
 - **Receive** — opens the package, checks the receipt inside, then re-cloaks the asset under a
   new salt and key; the new bond records the commitment it replaces.
+- **Back it with a wallet** — the console reads the connected wallet's native balance (ETH, POL, BNB)
+  on Ethereum, Base, Arbitrum, Optimism, Polygon, BNB Chain or Sepolia, and the wallet signs a
+  plain-text statement naming the bond, the address, the chain, the block and the amount
+  (`js/proof.js`). The verifier recovers the signer and asks a public node for that address's
+  balance at that block, falling back to the current balance when the node keeps no history.
+- **Share** — a proof link (`verify.html#obx1_…`) and its QR code. The receipt rides after the `#`,
+  which browsers never send to a server; opening the link verifies on the reader's device.
+- **Backup** — the vault exports as an `obxbak1_…` file sealed with AES-256-GCM under a passphrase;
+  the console reminds the holder while any bond is not in a backup.
 - **Prove** — the verifier recomputes the hash and compares it to a commitment they expect.
   The answer is true or false.
 - **Anchor** (optional) — with a connected EVM wallet, sends a 0-value transaction to yourself with

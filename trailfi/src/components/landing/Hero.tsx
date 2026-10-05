@@ -5,7 +5,10 @@ import { ArrowDown, KeyRound, Lock, ShieldCheck } from "lucide-react";
 import { useRef } from "react";
 import { ButtonLink } from "@/components/ui/Button";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
+import { TokenIcon } from "@/components/ui/TokenIcon";
+import { fmtSteps } from "@/lib/format";
 import { HeroStatsCard } from "./HeroStatsCard";
+import { usePublicStats } from "./usePublicStats";
 
 const LINES = [
   { text: "Your steps.", className: "text-white" },
@@ -36,6 +39,9 @@ export function Hero() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
   const fade = useTransform(scrollYProgress, [0, 0.7], [1, 0]);
+  const { data: stats } = usePublicStats();
+  const max = stats?.maxDaily ? `$${Number.isInteger(stats.maxDaily) ? stats.maxDaily : stats.maxDaily.toFixed(2)}` : "$5";
+  const maxSteps = stats?.maxDailySteps ? fmtSteps(stats.maxDailySteps) : "10,000";
 
   return (
     <section id="home" ref={ref} className="grain relative isolate flex min-h-[100svh] flex-col overflow-hidden">
@@ -79,8 +85,9 @@ export function Hero() {
               <span className="whitespace-nowrap rounded-full bg-lime-400 px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-forest-950">
                 Walk to earn
               </span>
-              <span className="text-[13px] text-white/75">
-                Funded by <span className="font-mono text-lime-300">$STEPIT</span> trading fees
+              <span className="flex items-center gap-1.5 text-[13px] text-white/75">
+                Up to <span className="font-mono font-semibold text-lime-300">{max}</span> a day · paid in
+                <TokenIcon symbol="USDG" className="h-3.5 w-3.5" /> USDG
               </span>
             </motion.div>
 
@@ -105,8 +112,9 @@ export function Hero() {
               transition={{ delay: 0.85, duration: 0.7 }}
               className="mt-7 max-w-xl text-[17px] leading-relaxed text-white/75 sm:text-lg"
             >
-              Turn your daily steps into crypto rewards. Explore the outdoors, stay active and get paid from the $STEPIT
-              token&apos;s trading fees.
+              Upload a screenshot of your daily steps and earn up to{" "}
+              <span className="font-semibold text-lime-300">{max} a day</span> in USDG, sent to your wallet on Robinhood Chain.
+              The more you walk, the more you earn, up to {maxSteps} steps.
             </motion.p>
 
             <motion.div

@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Check, Footprints, Send } from "lucide-react";
+import { ArrowUpRight, Check, Footprints, Send } from "lucide-react";
 import { AddressAvatar } from "@/components/wallet/ConnectWallet";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { fmtAmount, fmtSteps } from "@/lib/format";
@@ -15,6 +15,7 @@ interface PublicPayout {
   token: string;
   steps: number;
   paidAt: string;
+  txUrl: string | null;
 }
 
 function ago(iso: string) {
@@ -43,7 +44,7 @@ export function Leaderboard() {
       <div className="container">
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <SectionHeading index="04" label="Payouts" title="Steps, turned into pay.">
-            Every time a walker is paid, the payout shows up here.
+            Every time a walker is paid, the payout shows up here, with the transaction on Robinhood Chain so anyone can check it.
           </SectionHeading>
           <Reveal className="flex items-center gap-2 lg:pb-3">
             <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-neon" />
@@ -54,7 +55,7 @@ export function Leaderboard() {
         <Reveal delay={0.1} className="mt-12">
           <div className="glass overflow-hidden rounded-3xl">
             <div className="no-scrollbar overflow-x-auto">
-              <table className="w-full min-w-[620px]">
+              <table className="w-full min-w-[720px]">
                 <thead className="border-b border-white/10 bg-white/[0.02]">
                   <tr>
                     <th className="table-head">Status</th>
@@ -62,19 +63,20 @@ export function Leaderboard() {
                     <th className="table-head">Steps</th>
                     <th className="table-head text-right">Received</th>
                     <th className="table-head text-right">When</th>
+                    <th className="table-head text-right">Proof</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isLoading && (
                     <tr>
-                      <td className="table-cell" colSpan={5}>
+                      <td className="table-cell" colSpan={6}>
                         <Skeleton className="h-8 w-full" />
                       </td>
                     </tr>
                   )}
                   {!isLoading && rows.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-5 py-16 text-center">
+                      <td colSpan={6} className="px-5 py-16 text-center">
                         <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-white/10 bg-white/[0.03] text-lime-300">
                           <Send className="h-5 w-5" />
                         </div>
@@ -117,6 +119,20 @@ export function Leaderboard() {
                         </span>
                       </td>
                       <td className="table-cell text-right text-[12.5px] text-white/45">{ago(r.paidAt)}</td>
+                      <td className="table-cell text-right">
+                        {r.txUrl ? (
+                          <a
+                            href={r.txUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2.5 py-1 text-[12px] text-white/70 transition hover:border-lime-400/40 hover:text-lime-300"
+                          >
+                            View tx <ArrowUpRight className="h-3.5 w-3.5" />
+                          </a>
+                        ) : (
+                          <span className="text-[12px] text-white/25">·</span>
+                        )}
+                      </td>
                     </motion.tr>
                   ))}
                 </tbody>

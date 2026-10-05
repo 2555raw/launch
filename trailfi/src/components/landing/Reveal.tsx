@@ -22,7 +22,7 @@ export function SectionHeading({
   children,
   center,
 }: {
-  index: string;
+  index?: string;
   label: string;
   title: string;
   accent?: string;
@@ -32,7 +32,7 @@ export function SectionHeading({
   return (
     <Reveal className={center ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
       <div className={`mb-5 flex items-center gap-3 ${center ? "justify-center" : ""}`}>
-        <span className="font-mono text-[11px] text-lime-400">{index}</span>
+        {index && <span className="font-mono text-[11px] text-lime-400">{index}</span>}
         <span className="label">{label}</span>
       </div>
       <h2 className="font-display text-4xl font-bold leading-[1.02] tracking-[-0.02em] sm:text-5xl lg:text-[56px]">

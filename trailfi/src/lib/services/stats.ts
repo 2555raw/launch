@@ -25,7 +25,7 @@ export async function payoutTokenReady(address: `0x${string}`): Promise<boolean>
   return ok;
 }
 
-/** Live numbers for the public landing page. Totals only: no wallets, no rates. */
+/** Live numbers for the public landing page. Totals only: no wallets, no rate table, just the daily maximum. */
 export async function publicStats() {
   const [walkers, today, series, paid, settings] = await Promise.all([
     // Admins run the platform; they are not counted as walkers.
@@ -56,6 +56,9 @@ export async function publicStats() {
     paid: paid ?? { total: 0, count: 0 },
     dailyGoal: settings.dailyStepGoal,
     tokenSymbol: settings.payoutTokenSymbol,
+    // The most a day can pay, and the step count where it's reached: the last rate milestone.
+    maxDaily: settings.ratePoints.at(-1)?.[1] ?? 0,
+    maxDailySteps: settings.ratePoints.at(-1)?.[0] ?? 0,
   };
 }
 

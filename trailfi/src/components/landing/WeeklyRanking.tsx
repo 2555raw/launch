@@ -81,7 +81,7 @@ export function WeeklyRanking() {
               ))}
             </div>
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-white/40">
-              {data ? `${fmtDay(data.weekStart)} – ${fmtDay(data.weekEnd)}` : "…"} · {week === "this" ? resetsIn() : "Final"}
+              {data ? `${fmtDay(data.weekStart)} to ${fmtDay(data.weekEnd)}` : "…"} · {week === "this" ? resetsIn() : "Final"}
             </span>
           </Reveal>
         </div>

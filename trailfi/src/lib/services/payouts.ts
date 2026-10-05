@@ -1,4 +1,5 @@
 import "server-only";
+import { explorerTxUrl } from "@/lib/web3/chains";
 import { decodeEventLog, parseUnits, type Hash } from "viem";
 import { z } from "zod";
 import { HttpError } from "@/lib/api";
@@ -251,12 +252,20 @@ export async function simulatePayout(id: string, actor: string): Promise<Payout>
 
 /** Public feed: confirmed payouts with shortened wallets — never the full address. */
 export async function publicPayouts(limit = 12) {
-  const rows = await query<{ wallet: string; amount: string; token: string; steps: number; paidAt: string }>(
+  const rows = await query<{ wallet: string; amount: string; token: string; steps: number; paidAt: string; chainId: number; txHash: string | null; simulated: boolean }>(
     `select p.wallet_address as wallet, p.amount::text as amount, p.token_symbol as token,
        (select coalesce(sum(r.valid_steps), 0)::int from rewards r where r.payout_id = p.id) as steps,
-       coalesce(p.confirmed_at, p.created_at) as "paidAt"
+       coalesce(p.confirmed_at, p.created_at) as "paidAt", p.chain_id as "chainId", p.tx_hash as "txHash", p.simulated
      from payouts p where p.status = 'confirmed' order by coalesce(p.confirmed_at, p.created_at) desc limit $1`,
     [limit],
   );
-  return rows.map((r) => ({ wallet: `${r.wallet.slice(0, 6)}…${r.wallet.slice(-4)}`, amount: r.amount, token: r.token, steps: Number(r.steps), paidAt: r.paidAt }));
+  return rows.map((r) => ({
+    wallet: `${r.wallet.slice(0, 6)}…${r.wallet.slice(-4)}`,
+    amount: r.amount,
+    token: r.token,
+    steps: Number(r.steps),
+    paidAt: r.paidAt,
+    // The on-chain transfer anyone can check; simulated (demo) payouts have none.
+    txUrl: r.txHash && !r.simulated ? explorerTxUrl(r.chainId, r.txHash) : null,
+  }));
 }

@@ -1,4 +1,5 @@
 import { CallToAction } from "@/components/landing/CallToAction";
+import { DemoLoop } from "@/components/landing/DemoLoop";
 import { Faq } from "@/components/landing/Faq";
 import { Footer } from "@/components/landing/Footer";
 import { Hero } from "@/components/landing/Hero";
@@ -14,6 +15,7 @@ export default function HomePage() {
       <Navbar />
       <main>
         <Hero />
+        <DemoLoop />
         <HowItWorks />
         <RewardsSection />
         <WeeklyRanking />

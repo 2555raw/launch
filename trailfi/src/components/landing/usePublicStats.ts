@@ -10,6 +10,8 @@ export interface PublicStats {
   paid: { total: number; count: number };
   dailyGoal: number;
   tokenSymbol: string;
+  maxDaily: number;
+  maxDailySteps: number;
 }
 
 /** Live community totals shared by the landing page cards. */

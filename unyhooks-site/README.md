@@ -241,7 +241,7 @@ headline, the glow on the water. Parchment sections read like a captain's chart.
 3D: `scene3d.js` (built from `src/scene3d.js` with three.js, `npm run build:3d`) draws three
 WebGL scenes on top of their 2D drawings: the hero's night sea (Gerstner swell, the moon and
 its glitter, a galleon on the horizon) with a captain's hook floating over it where the `.uh-orb`
-box sits (steel hook, brass ferrule, riveted leather cup, lace ruffle and red sleeve), the $UHOOKS doubloon turning in studio light, and the sea under the closing call
+box sits (polished steel hook, brass ferrule, leather cup with a brass band and rivets), the $UHOOKS doubloon turning in studio light, and the sea under the closing call
 with the ship sailing across. A scene only draws while its canvas is on screen; the 2D
 drawing stays without WebGL, and with reduced motion one still frame is drawn.
 

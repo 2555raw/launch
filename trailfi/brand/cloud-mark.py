@@ -43,14 +43,14 @@ wx = fractal([14, 40], [0.7, 1.0]) * 15 + 7 * np.sin(yy / 19.0)
 wy = fractal([14, 40], [0.7, 1.0]) * 7
 mask = nd.map_coordinates(mask, [yy + wy, xx + wx], order=1)
 fray = fractal([2, 6, 16], [0.35, 0.7, 1.0])
-mask = nd.gaussian_filter(mask, 5.5)
+mask = nd.gaussian_filter(mask, 4.5)
 mask = smooth(0.05, 0.95, mask + 0.45 * fray * mask * (1 - mask) * 4)   # wispy, uneven edges
 mask = nd.gaussian_filter(mask, 3)
 
 # Density varies like real vapour: thick in places, almost gone in others, fading toward the outer tips.
 density = smooth(-1.4, 1.2, fractal([5, 14, 40], [0.4, 0.7, 1.0]))
 ends = np.exp(-(((xx - CX) / (W * 0.7)) ** 2))
-amount = STRENGTH * mask * (0.35 + 0.65 * density) * (0.6 + 0.4 * ends)
+amount = STRENGTH * mask * (0.6 + 0.4 * density) * (0.75 + 0.25 * ends)
 
 # Cloud colour and texture come from the photo's own brightest cloud; gaps get a touch of the thinner, darker sky.
 lum = img.mean(axis=2)

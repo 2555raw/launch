@@ -79,6 +79,8 @@
 
     <section class="uh-wrap" id="hero">
       <div class="uh-hero">
+        <canvas class="uh-3d uh-3d-hero" data-scene="hero" data-anchor=".uh-orb" aria-hidden="true"></canvas>
+        <div class="uh-3d-shade" aria-hidden="true"></div>
         <div class="uh-hero-copy">
           <p class="uh-eyebrow">Uniswap V4 hooks / Robinhood Chain</p>
           <h1 class="uh-h1">Pools that keep<br><span class="uh-pink">the Code.</span></h1>
@@ -307,6 +309,7 @@
             </div>
           </div>
           <div class="uh-coin" aria-hidden="true">
+            <canvas class="uh-3d" data-scene="coin"></canvas>
             <svg viewBox="0 0 320 320">
               <defs>
                 <radialGradient id="cn-face" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="#FFF1C4"/><stop offset=".45" stop-color="#E8B04B"/><stop offset="1" stop-color="#8A5A12"/></radialGradient>
@@ -401,6 +404,7 @@
     </section>
 
     <section class="uh-close">
+      <canvas class="uh-3d uh-3d-sea" data-scene="sea" aria-hidden="true"></canvas>
       <div class="uh-close-glow"></div>
       <div class="uh-wrap uh-rise">
         <p class="uh-eyebrow">Set sail</p>
@@ -438,5 +442,6 @@
 <script src="app.js"></script>
 <script src="token.js"></script>
 <script src="landing.js"></script>
+<script type="module" src="scene3d.js"></script>
 </body>
 </html>

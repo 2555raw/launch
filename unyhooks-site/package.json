@@ -4,7 +4,8 @@
   "private": true,
   "description": "UnyHooks: chat to build Uniswap V4 hooks on Robinhood Chain. Static site plus a small server for the AI chat.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build:3d": "npm i --no-save three@0.186.1 esbuild@0.24.0 && npx esbuild src/scene3d.js --bundle --format=esm --minify --target=es2020 --outfile=scene3d.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0"

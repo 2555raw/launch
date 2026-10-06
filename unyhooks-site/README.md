@@ -238,6 +238,13 @@ headline, the glow on the water. Parchment sections read like a captain's chart.
 | `--parch` / `--parch-ink` | `#F2E4C4` / `#24180A` | chart sections |
 | `--ok` / `--red` | `#5FD3A6` / `#E5624B` | live, locked, done / cannon fire, refusals |
 
+3D: `scene3d.js` (built from `src/scene3d.js` with three.js, `npm run build:3d`) draws three
+WebGL scenes on top of their 2D drawings: the hero's night sea (Gerstner swell, the moon and
+its glitter, a galleon on the horizon) with a brass hook floating in it where the `.uh-orb`
+box sits, the $UHOOKS doubloon turning in studio light, and the sea under the closing call
+with the ship sailing across. A scene only draws while its canvas is on screen; the 2D
+drawing stays without WebGL, and with reduced motion one still frame is drawn.
+
 Type: **Grenze Gotisch** for headlines with the last words in gold **IM Fell English**
 italic, **Pirata One** for the wordmark, compass letters and numerals, **Spectral** for text,
 **Geist Mono** for addresses, code and labels. The landing's hero is a porthole on a night

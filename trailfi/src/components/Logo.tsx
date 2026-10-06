@@ -1,10 +1,29 @@
 import Link from "next/link";
 import { useId } from "react";
 import { cn } from "@/lib/cn";
+import { MARK_H, MARK_PATH, MARK_ROUND, MARK_W } from "@/lib/brand";
 
+/** The Stepit mark on its own, in lime. */
+export function Mark({ className }: { className?: string }) {
+  // Each copy gets its own gradient id: a shared id breaks when the first copy sits in a hidden element.
+  const g = `mk-g-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  return (
+    <svg viewBox={`-6 -6 ${MARK_W + 12} ${MARK_H + 12}`} className={className} aria-hidden>
+      <defs>
+        <linearGradient id={g} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#d8ff9c" />
+          <stop offset="1" stopColor="#5dff9d" />
+        </linearGradient>
+      </defs>
+      <path d={MARK_PATH} fill={`url(#${g})`} stroke={`url(#${g})`} strokeWidth={MARK_ROUND} strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** The app tile: the mark on a dark square, used next to the wordmark. */
 export function LogoMark({ className }: { className?: string }) {
-  // Each mark gets its own gradient id: a shared id breaks when the first copy sits in a hidden element.
   const g = `tf-g-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const k = 20 / MARK_W; // the mark spans 20 of the tile's 32 units
   return (
     <svg viewBox="0 0 32 32" className={cn("h-8 w-8", className)} aria-hidden>
       <defs>
@@ -14,18 +33,8 @@ export function LogoMark({ className }: { className?: string }) {
         </linearGradient>
       </defs>
       <rect x="0.5" y="0.5" width="31" height="31" rx="9.5" fill="#071d14" stroke="rgba(196,251,109,0.35)" />
-      {/* Two footprints, one step ahead of the other */}
-      <g fill={`url(#${g})`} opacity="0.7">
-        <ellipse cx="11" cy="20.3" rx="2.9" ry="4.3" transform="rotate(-12 11 20.3)" />
-        <circle cx="9.1" cy="14.2" r="1.05" />
-        <circle cx="11.1" cy="13.5" r="1.15" />
-        <circle cx="13" cy="14.1" r="0.95" />
-      </g>
-      <g fill={`url(#${g})`}>
-        <ellipse cx="20.8" cy="14.6" rx="2.9" ry="4.3" transform="rotate(12 20.8 14.6)" />
-        <circle cx="19.3" cy="8.5" r="1.05" />
-        <circle cx="21.3" cy="7.9" r="1.15" />
-        <circle cx="23.2" cy="8.6" r="0.95" />
+      <g transform={`translate(6 ${16 - (MARK_H * k) / 2}) scale(${k})`}>
+        <path d={MARK_PATH} fill={`url(#${g})`} stroke={`url(#${g})`} strokeWidth={MARK_ROUND} strokeLinejoin="round" />
       </g>
     </svg>
   );

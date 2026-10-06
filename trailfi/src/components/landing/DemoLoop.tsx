@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Camera, Check, Footprints, Upload, Wallet } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { LogoMark } from "@/components/Logo";
 import { TokenIcon } from "@/components/ui/TokenIcon";
 import { cn } from "@/lib/cn";
 import { Reveal, SectionHeading } from "./Reveal";
@@ -199,9 +200,7 @@ function UploadScreen({ t }: { t: number }) {
   return (
     <div className="h-full bg-ink-950 px-4 pt-12 text-white">
       <div className="flex items-center gap-2 text-[13px] font-bold">
-        <span className="grid h-6 w-6 place-items-center rounded-md bg-forest-800 text-lime-300">
-          <Footprints className="h-3.5 w-3.5" />
-        </span>
+        <LogoMark className="h-6 w-6" />
         Step<span className="-ml-2 text-lime-400">it</span>
       </div>
       <div className="mt-5 font-mono text-[9px] uppercase tracking-[0.18em] text-white/45">Upload steps</div>

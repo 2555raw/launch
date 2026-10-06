@@ -22,8 +22,8 @@
 .hk-checks { display: grid; gap: 8px; }
 .hk-check { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); font-size: 14.5px; line-height: 1.55; }
 .hk-check p { min-width: 0; overflow-wrap: anywhere; }
-.hk-dot { flex: none; display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%; font-size: 12px; font-weight: 700; color: #FFF8EC; }
-.hk-check.is-ok { border-color: var(--ok-line); background: rgba(62, 138, 85, .1); }
+.hk-dot { flex: none; display: grid; place-items: center; width: 22px; height: 22px; margin-top: 1px; border-radius: 50%; font-size: 12px; font-weight: 700; color: #0A0E14; }
+.hk-check.is-ok { border-color: var(--ok-line); background: rgba(95, 211, 166, .07); }
 .hk-check.is-ok .hk-dot { background: var(--ok); }
 .hk-check.is-ok .hk-dot::before { content: '✓'; }
 .hk-check.is-warn { border-color: var(--warn-line); background: var(--warn-bg); color: var(--warn-ink); }
@@ -40,7 +40,7 @@
 .hk-note { font-size: 13px; line-height: 1.55; color: var(--muted); }
 .hk-note:empty { display: none; }
 .hk-locks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.hk-locks li { display: grid; gap: 4px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--ok-line); background: rgba(62, 138, 85, .1); font-size: 14px; }
+.hk-locks li { display: grid; gap: 4px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--ok-line); background: rgba(95, 211, 166, .07); font-size: 14px; }
 .hk-tag { margin-left: 6px; font-size: 12px; font-weight: 600; color: var(--ok); }
 .hk-lock-time { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .hk-lock-links { font-size: 13px; color: var(--prose); }

@@ -30,11 +30,11 @@
   border-radius: 14px; border: 1px solid var(--line);
   background: var(--card); color: var(--ink);
   font: 500 16px var(--font-body);
-  box-shadow: 0 16px 34px -26px rgba(226, 163, 59, 0.99);
+  box-shadow: 0 16px 34px -26px rgba(232, 176, 75, .55);
   cursor: pointer;
   transition: border-color .15s ease, transform .15s ease, box-shadow .15s ease;
 }
-.ap-wallet:hover { border-color: var(--pink-line); transform: translateY(-1px); box-shadow: 0 20px 40px -26px rgba(226, 163, 59, 1); }
+.ap-wallet:hover { border-color: var(--pink-line); transform: translateY(-1px); box-shadow: 0 20px 40px -26px rgba(232, 176, 75, .7); }
 .ap-wallet:focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; }
 .ap-wallet:disabled { cursor: progress; opacity: .7; transform: none; }
 .ap-wallet-ic { flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; }
@@ -72,9 +72,5 @@
   .ap-side { padding: 24px 48px 36px; }
   .ap-art { display: block; position: relative; }
   .ap-art { display: grid; place-items: center; padding: 40px; }
-  .ap-art .uh-stage { width: min(540px, 88%); }
+  .ap-art .uh-orb { width: min(560px, 88%); }
 }
-
-/* clay */
-.ap-h1 { font-weight: 900; font-variation-settings: var(--soft); letter-spacing: -.01em; }
-.ap-wallet, .ap-account { border: 0; box-shadow: var(--clay-sm); }

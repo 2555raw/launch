@@ -238,14 +238,12 @@ headline, the glow on the water. Parchment sections read like a captain's chart.
 | `--parch` / `--parch-ink` | `#F2E4C4` / `#24180A` | chart sections |
 | `--ok` / `--red` | `#5FD3A6` / `#E5624B` | live, locked, done / cannon fire, refusals |
 
-Type: **Fraunces** (soft, wonky axes on) for headlines with the last words in red italic,
-**Nunito** for text, **Geist Mono** for addresses, code and labels. The look is stop-motion
-clay: a warm afternoon sky, deck planks, rope, a red coat, a navy coat and a brass hook. Slabs
-use layered shadows (lit top edge, darker underside, a thick base); the hero, icons, coin
-and ships are SVG shapes run through a lighting filter (`#clay`, `#clay-md`, `#clay-sm`) that
-gives them a plasticine surface. The hero is a deck set: mast, rigging, a flag, the sea, a
-railing and a cargo hook swinging on a rope; the rail down the left is a rope the hook is let
-down as you scroll; a clay ship crosses the closing section. The mark is a pirate's hook on its cuff, drawn once as an SVG
+Type: **Grenze Gotisch** for headlines with the last words in gold **IM Fell English**
+italic, **Pirata One** for the wordmark, compass letters and numerals, **Spectral** for text,
+**Geist Mono** for addresses, code and labels. The landing's hero is a porthole on a night
+sea (moon, a ship riding the swell, a compass rose), the rail down the left is a rope the
+hook is let down as you scroll, the "map" section is parchment with rhumb lines and an X on
+the lock date, and a ship crosses the closing section. The mark is a pirate's hook on its cuff, drawn once as an SVG
 `<symbol>` per page (`#uh-mark`, 64×80). The landing's ship, sea, cannon and doubloon are inline
 SVG; the line icons (anchor, skull, cannon, chest…) are a sprite at the top of `index.html`.
 

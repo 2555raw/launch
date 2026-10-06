@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, Smartphone, HeartPulse, KeyRound, ShieldCheck, Upload, Wallet, Watch } from "lucide-react";
+import { KeyRound, ShieldCheck, Upload, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -117,10 +117,11 @@ const DAYS = [
   { day: "Wed", steps: 3210, status: "In review" },
 ];
 const APPS = [
-  { name: "Apple Health", icon: HeartPulse, tone: "bg-rose-500/15 text-rose-300" },
-  { name: "Google Fit", icon: Activity, tone: "bg-sky-500/15 text-sky-300" },
-  { name: "Samsung Health", icon: Smartphone, tone: "bg-indigo-500/15 text-indigo-300" },
-  { name: "Fitbit / Garmin", icon: Watch, tone: "bg-teal-500/15 text-teal-300" },
+  { name: "Apple Health", icon: "/apps/apple-health.png" },
+  { name: "Google Fit", icon: "/apps/google-fit.png" },
+  { name: "Samsung Health", icon: "/apps/samsung-health.png" },
+  { name: "Fitbit", icon: "/apps/fitbit.png" },
+  { name: "Garmin", icon: "/apps/garmin-connect.png" },
 ];
 
 /** A sample week as a walker sees it: each day fills towards the 10,000 step goal. */
@@ -197,10 +198,9 @@ function ExampleCard() {
         <div className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-white/45">Screenshot from</div>
         <div className="mt-3 flex flex-wrap gap-2">
           {APPS.map((a) => (
-            <span key={a.name} className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] py-1 pl-1 pr-3 text-[12.5px] text-white/75">
-              <span className={cn("grid h-6 w-6 place-items-center rounded-full", a.tone)}>
-                <a.icon className="h-3.5 w-3.5" />
-              </span>
+            <span key={a.name} className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] py-1 pl-1.5 pr-3 text-[12.5px] text-white/75">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={a.icon} alt="" width={24} height={24} className="h-6 w-6 rounded-[7px]" />
               {a.name}
             </span>
           ))}

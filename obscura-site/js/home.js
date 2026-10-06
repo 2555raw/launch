@@ -155,6 +155,8 @@ async function renderDemo() {
     scramble($("d-commit"), "0x" + (await commit(asset, salt, key)), 420);
     amount.removeAttribute("aria-invalid");
   } catch (e) {
+    $("d-commit")._scramble = ($("d-commit")._scramble || 0) + 1; // stop a scramble still landing
+    $("d-commit").classList.remove("scrambling");
     $("d-commit").textContent = e.message;
     amount.setAttribute("aria-invalid", "true");
   }

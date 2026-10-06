@@ -74,3 +74,46 @@ test("the wallet signs the expiry too", async () => {
   const bare = await w.signMessage(fundsMessage({ commitment: r.commitment, address: proof.address, chainId: 8453, amount: "1", symbol: "ETH", block: 7 }));
   assert.equal((await verifyFunds({ ...r, proof: { ...proof, signature: bare } })).signed, false);
 });
+
+test("a USDC proof names the token and checks its balance", async () => {
+  const w = Wallet.createRandom();
+  const usdc = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"; // USDC on Base, 6 decimals
+  const r = await obx.cloak({ chain: "base", symbol: "USDC", amount: "1000" });
+  const proof = { type: "funds-v1", address: w.address.toLowerCase(), chainId: 8453, block: 9, token: usdc };
+  const msg = fundsMessage({ commitment: r.commitment, address: proof.address, chainId: 8453, amount: "1000", symbol: "USDC", block: 9, token: usdc });
+  assert.match(msg, /Token contract: 0x833589/);
+  proof.signature = await w.signMessage(msg);
+  let calls = [];
+  globalThis.fetch = async (_u, init) => {
+    const body = JSON.parse(init.body); calls.push(body.method);
+    return { json: async () => ({ result: "0x" + (1500n * 10n ** 6n).toString(16) }) }; // 1,500 USDC
+  };
+  const ok = await verifyFunds({ ...r, proof });
+  assert.equal(ok.signed, true);
+  assert.equal(ok.onchain, "pass");
+  assert.deepEqual(calls, ["eth_call"], "token balance is read with balanceOf, not eth_getBalance");
+  // Swapping the token contract breaks the signature.
+  const swapped = { ...r, proof: { ...proof, token: "0xdac17f958d2ee523a2206206994597c13d831ec7" } };
+  assert.equal((await verifyFunds(swapped)).signed, false);
+});
+
+test("a wallet cannot back a bond that names another asset or chain", async () => {
+  const w = Wallet.createRandom();
+  fakeChain(10n * 10n ** 18n); // 10 of the chain's coin
+  for (const asset of [{ chain: "polygon", symbol: "BTC", amount: "10" }, { chain: "ethereum", symbol: "POL", amount: "10" }]) {
+    const r = await obx.cloak(asset);
+    const proof = { type: "funds-v1", address: w.address.toLowerCase(), chainId: 137, block: 5 };
+    proof.signature = await w.signMessage(fundsMessage({ commitment: r.commitment, address: proof.address, chainId: 137, amount: "10", symbol: asset.symbol, block: 5 }));
+    const out = await verifyFunds({ ...r, proof });
+    assert.equal(out.signed, true);
+    assert.equal(out.onchain, "fail", `${asset.symbol} on ${asset.chain} must not pass on POL`);
+  }
+});
+
+test("a damaged proof is rejected instead of throwing", async () => {
+  const r = await obx.cloak({ chain: "ethereum", symbol: "ETH", amount: "1" });
+  for (const proof of [{ type: "funds-v1" }, { type: "funds-v1", address: 5, signature: "0x", chainId: 1, block: 1 }, { type: "funds-v1", address: "0x" + "a".repeat(40), signature: "0x", chainId: "1", block: 1 }]) {
+    const out = await verifyFunds({ ...r, proof });
+    assert.equal(out.signed, false);
+  }
+});

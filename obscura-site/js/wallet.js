@@ -7,7 +7,7 @@
 import { toast } from "./site.js";
 
 export const WALLETS = [
-  { id: "metamask", name: "MetaMask", rdns: ["io.metamask"], flag: (e) => e.isMetaMask && !e.isRabby && !e.isBraveWallet && !e.isPhantom && !e.isTrust && !e.isOkxWallet,
+  { id: "metamask", name: "MetaMask", rdns: ["io.metamask"], flag: (e) => e.isMetaMask && !e.isRabby && !e.isBraveWallet && !e.isPhantom && !e.isTrust && !e.isTrustWallet && !e.isOkxWallet && !e.isRainbow && !e.isCoinbaseWallet,
     install: "https://metamask.io/download/", deeplink: (u) => `https://metamask.app.link/dapp/${u.replace(/^https?:\/\//, "")}` },
   { id: "phantom", name: "Phantom", rdns: ["app.phantom"], flag: (e) => e.isPhantom, legacy: () => window.phantom?.ethereum,
     install: "https://phantom.com/download", deeplink: (u) => `https://phantom.app/ul/browse/${encodeURIComponent(u)}?ref=${encodeURIComponent(location.origin)}` },
@@ -38,8 +38,12 @@ function providerFor(w) {
   if (w.legacy?.()) return w.legacy();
   const eth = window.ethereum;
   if (!eth) return null;
-  if (Array.isArray(eth.providers)) return eth.providers.find((p) => w.flag(p)) || null;
-  return w.flag(eth) ? eth : null;
+  // A provider that already announced itself under another name is that wallet,
+  // whatever flags it copies from MetaMask.
+  const claimed = new Set([...announced.values()].map((a) => a.provider));
+  const pick = (p) => !claimed.has(p) && w.flag(p);
+  if (Array.isArray(eth.providers)) return eth.providers.find(pick) || null;
+  return pick(eth) ? eth : null;
 }
 
 // Wallets that announced themselves but are not in our list still get a row,
@@ -69,6 +73,18 @@ export function waitForConnection() {
 export function onWalletChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 function emit() { renderButtons(); renderList(); listeners.forEach((fn) => fn(current)); }
 
+// Follow account and network changes once per provider, however it connected.
+const watched = new WeakSet();
+function watch(provider) {
+  if (watched.has(provider) || !provider.on) return;
+  watched.add(provider);
+  provider.on("accountsChanged", (accs) => {
+    if (current?.provider !== provider) return;
+    if (!accs?.length) disconnect(); else if (accs[0] !== current.address) { current.address = accs[0]; emit(); }
+  });
+  provider.on("chainChanged", () => { if (current?.provider === provider) emit(); });
+}
+
 export async function connect(id) {
   const w = findWallet(id);
   if (!w) return;
@@ -88,10 +104,7 @@ export async function connect(id) {
     if (!address) throw new Error("No account was shared");
     current = { wallet: w, provider, address };
     try { localStorage.setItem(STORE, w.rdns[0]); } catch { /* not remembered */ }
-    provider.on?.("accountsChanged", (accs) => {
-      if (current?.provider !== provider) return;
-      if (!accs.length) disconnect(); else { current.address = accs[0]; emit(); }
-    });
+    watch(provider);
     emit();
     dialog()?.close();
     toast(`${w.name} connected · ${short(address)}`);
@@ -119,7 +132,7 @@ async function restore() {
   if (!provider) return;
   try {
     const [address] = await provider.request({ method: "eth_accounts" });
-    if (address) { current = { wallet: w, provider, address }; emit(); }
+    if (address) { current = { wallet: w, provider, address }; watch(provider); emit(); }
   } catch { /* stay disconnected */ }
 }
 

@@ -36,8 +36,11 @@ http.createServer((req, res) => {
     res.writeHead(200, { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" });
     return res.end("ok");
   }
+  // Normalise before any check, so /x/..%2fserver.js cannot slip past HIDDEN.
+  rel = normalize(rel).replaceAll("\\", "/");
+  if (!rel.startsWith("/")) rel = "/" + rel;
   if (rel.endsWith("/")) rel += "index.html";
-  const file = join(ROOT, normalize(rel));
+  const file = join(ROOT, rel);
   if (!file.startsWith(ROOT) || HIDDEN.test(rel)) return notFound(res);
 
   let size;
@@ -60,8 +63,10 @@ http.createServer((req, res) => {
 
   // Link previews need absolute URLs: fill in the address this request came to.
   if (ext === ".html") {
-    const proto = req.headers["x-forwarded-proto"] || "http";
-    const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
+    const fwdProto = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim();
+    const proto = fwdProto === "https" || fwdProto === "http" ? fwdProto : "http";
+    const rawHost = String(req.headers["x-forwarded-host"] || req.headers.host || "").split(",")[0].trim();
+    const host = /^[\w.:-]+$/.test(rawHost) ? rawHost : "localhost";
     const body = readFileSync(file, "utf8").replaceAll("__ORIGIN__", `${proto}://${host}`);
     const buf = Buffer.from(body);
     res.writeHead(200, { ...headers, "content-length": buf.length });
@@ -79,12 +84,12 @@ http.createServer((req, res) => {
     }
     res.writeHead(206, { ...headers, "content-range": `bytes ${start}-${end}/${size}`, "content-length": end - start + 1 });
     if (req.method === "HEAD") return res.end();
-    return createReadStream(file, { start, end }).pipe(res);
+    return createReadStream(file, { start, end }).on("error", () => res.destroy()).pipe(res);
   }
 
   res.writeHead(200, { ...headers, "content-length": size });
   if (req.method === "HEAD") return res.end();
-  createReadStream(file).pipe(res);
+  createReadStream(file).on("error", () => res.destroy()).pipe(res);
 }).listen(PORT, () => console.log(`Obscura on :${PORT}`));
 
 function notFound(res) {

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Console — Obscura</title>
-  <meta name="description" content="Cloak, hold, transfer and receive private bonds. Everything runs in your browser.">
+  <meta name="description" content="Seal what you hold into a private proof, share it as a link, check it on chain. Everything runs in your browser.">
   <meta name="theme-color" content="#ffffff">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Obscura">
@@ -58,7 +58,7 @@
   <div class="wrap">
     <div class="app-head">
       <h1>Console</h1>
-      <p>Cloak assets into bonds, keep the receipts in this browser, and hand them on with a passphrase. No server sees any of it.</p>
+      <p>Seal what you hold into a private proof, keep it in this browser, and share it as a link. No server sees any of it.</p>
     </div>
 
     <div class="banner" id="backup-banner" role="status" hidden>
@@ -68,7 +68,7 @@
     </div>
 
     <div class="tabs" role="tablist" aria-label="Console">
-      <button class="tab" role="tab" id="tab-cloak" aria-controls="panel-cloak" data-tab="cloak" aria-selected="true">Cloak</button>
+      <button class="tab" role="tab" id="tab-cloak" aria-controls="panel-cloak" data-tab="cloak" aria-selected="true">Seal</button>
       <button class="tab" role="tab" id="tab-vault" aria-controls="panel-vault" data-tab="vault" aria-selected="false">Vault<span class="count" id="vault-count">0</span></button>
       <button class="tab" role="tab" id="tab-transfer" aria-controls="panel-transfer" data-tab="transfer" aria-selected="false">Transfer</button>
       <button class="tab" role="tab" id="tab-receive" aria-controls="panel-receive" data-tab="receive" aria-selected="false">Receive</button>
@@ -76,11 +76,12 @@
 
     <div class="panel active" id="panel-cloak" role="tabpanel" aria-labelledby="tab-cloak">
       <form class="box" id="cloak-form" autocomplete="off">
-        <h2>Cloak an asset</h2>
+        <h2>Seal an asset</h2>
         <p>A fresh 16-byte salt and 32-byte key are drawn for every bond.</p>
         <div class="funds" id="funds">
           <div class="funds-head"><h3>Back it with your wallet</h3><span class="badge live">Recommended</span></div>
           <p id="f-text">Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word.</p>
+          <div class="field" id="f-asset-field" hidden style="margin:12px 0 0"><label for="f-asset">Asset to prove</label><select class="select" id="f-asset"></select></div>
           <div class="actions" style="margin-top:12px">
             <button class="btn btn-dark btn-sm" type="button" id="f-read">Read balance from wallet</button>
             <button class="btn btn-ghost btn-sm" type="button" id="f-clear" hidden>Type an amount instead</button>
@@ -104,24 +105,24 @@
           </select>
           <span class="hint">After this, anyone opening the proof sees it has expired. The date is sealed in, so it cannot be extended.</span>
         </div>
-        <button class="btn btn-dark" type="submit" id="c-submit">Cloak bond</button>
+        <button class="btn btn-dark" type="submit" id="c-submit">Seal bond</button>
       </form>
       <div class="box soft" id="cloak-result">
         <h2>Result</h2>
         <p>The receipt is saved to your vault automatically.</p>
-        <div class="empty" id="cloak-empty">Nothing cloaked yet. Fill in an asset and press Cloak bond.</div>
+        <div class="empty" id="cloak-empty">Nothing sealed yet. Read your wallet or type an amount, then press Seal.</div>
         <div id="cloak-out" hidden>
           <p class="backing" id="c-backing"></p>
           <div class="share" id="c-share"></div>
           <details class="raw">
-            <summary>Show the raw receipt and commitment</summary>
+            <summary>Show the raw receipt and seal code</summary>
             <div class="kv" style="margin-top:14px">
-              <div class="kv-row"><span class="k">Commitment, safe to post anywhere</span><span class="v big" id="c-commit"></span></div>
+              <div class="kv-row"><span class="k">Seal code, safe to post anywhere</span><span class="v big" id="c-commit"></span></div>
               <div class="kv-row"><label class="k" for="c-receipt">Receipt, share only with who should see this bond</label><textarea class="textarea" id="c-receipt" readonly></textarea></div>
             </div>
             <div class="actions">
               <button class="btn btn-light btn-sm" type="button" data-copy="#c-receipt" data-copy-label="Receipt copied">Copy receipt</button>
-              <button class="btn btn-light btn-sm" type="button" data-copy="#c-commit" data-copy-label="Commitment copied">Copy commitment</button>
+              <button class="btn btn-light btn-sm" type="button" data-copy="#c-commit" data-copy-label="Seal code copied">Copy seal code</button>
             </div>
           </details>
         </div>
@@ -188,20 +189,20 @@
     <div class="panel" id="panel-receive" role="tabpanel" aria-labelledby="tab-receive">
       <form class="box" id="receive-form" autocomplete="off">
         <h2>Receive a bond</h2>
-        <p>Opens the package, checks the receipt inside, then re-cloaks the asset under a key only you hold.</p>
+        <p>Opens the package, checks the receipt inside, then re-seals the asset under a key only you hold.</p>
         <div class="field"><label for="r-pkg">Package</label><textarea class="textarea" id="r-pkg" placeholder="obxpkg1_…" required></textarea></div>
         <div class="field"><label for="r-file">Or load a .obx file</label><input id="r-file" type="file" accept=".obx,text/plain"></div>
         <div class="field"><label for="r-pass">Passphrase</label><input class="input" id="r-pass" type="password" required autocomplete="off"></div>
-        <button class="btn btn-dark" type="submit">Open and re-cloak</button>
+        <button class="btn btn-dark" type="submit">Open and re-seal</button>
       </form>
       <div class="box soft">
         <h2>Your new bond</h2>
-        <p>Fresh commitment, fresh receipt, saved to the vault.</p>
+        <p>Fresh seal code, fresh receipt, saved to the vault.</p>
         <div class="empty" id="r-empty">Nothing received yet.</div>
         <div id="r-out" hidden>
           <div class="kv">
             <div class="kv-row"><span class="k">Asset</span><span class="v" id="r-asset"></span></div>
-            <div class="kv-row"><span class="k">New commitment</span><span class="v big" id="r-commit"></span></div>
+            <div class="kv-row"><span class="k">New seal code</span><span class="v big" id="r-commit"></span></div>
             <div class="kv-row"><span class="k">Replaces</span><span class="v" id="r-prev"></span></div>
           </div>
         </div>

@@ -1,8 +1,8 @@
 // Console: cloak, vault, transfer and receive. State is one array in localStorage.
 import { cloak, seal, receive, encodeReceipt, verify, sealBackup, openBackup, BACKUP_PREFIX, secondsLeft } from "./obscura.js";
 import { toast, copy } from "./site.js";
-import { connection, openWallets, waitForConnection } from "./wallet.js";
-import { readBalance, signFunds, floorAmount, parseUnits, formatUnits } from "./proof.js";
+import { connection, openWallets, waitForConnection, onWalletChange } from "./wallet.js";
+import { readBalances, signFunds, floorAmount, parseUnits, formatUnits } from "./proof.js";
 import { renderShare, openShareDialog } from "./share.js";
 
 const STORE = "obscura.vault.v1";
@@ -62,32 +62,47 @@ if (tabs.some((t) => t.dataset.tab === start)) show(start);
 
 // ---------- cloak ----------
 // Wallet-backed mode: the balance comes from the wallet and the wallet signs.
-let funds = null; // { address, provider, chainId, block, wei, chain }
+let funds = null; // { address, provider, chainId, block, chain, assets, pick }
+
+const pickAsset = () => funds && funds.assets[funds.pick];
 
 function setFundsMode(f) {
   funds = f;
   const on = !!f;
   $("f-clear").hidden = !on;
+  $("f-asset-field").hidden = !on;
   $("f-read").textContent = on ? "Read again" : "Read balance from wallet";
   $("c-amount-label").textContent = on ? "Prove at least" : "Amount";
   $("c-amount-hint").hidden = !on;
   $("c-symbol").readOnly = on;
   $("c-chain").disabled = on;
-  $("c-submit").textContent = on ? "Seal and sign with wallet" : "Cloak bond";
+  $("c-submit").textContent = on ? "Seal and sign with wallet" : "Seal bond";
   $("funds").classList.toggle("on", on);
   if (!on) {
     $("f-text").textContent = "Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word.";
     return;
   }
-  const held = formatUnits(f.wei, f.chain.decimals, 4);
-  $("f-text").textContent = `${short(f.address)} holds ${held} ${f.chain.symbol} on ${f.chain.name} (block ${f.block.toLocaleString("en-US")}).`;
-  $("c-amount").value = floorAmount(f.wei, f.chain.decimals);
-  $("c-amount-hint").textContent = `Up to ${held} ${f.chain.symbol}. You can prove less than you hold.`;
-  $("c-symbol").value = f.chain.symbol;
-  const sel = $("c-chain");
-  if (![...sel.options].some((o) => o.value === f.chain.key)) sel.append(el("option", { value: f.chain.key }, f.chain.key));
-  sel.value = f.chain.key;
+  $("f-text").textContent = `${short(f.address)} on ${f.chain.name}, block ${f.block.toLocaleString("en-US")}. Pick what to prove.`;
+  const sel = $("f-asset");
+  sel.replaceChildren(...f.assets.map((a, i) => el("option", { value: String(i) }, `${a.symbol} · ${formatUnits(a.wei, a.decimals, 4)}`)));
+  sel.value = String(f.pick);
+  const chainSel = $("c-chain");
+  if (![...chainSel.options].some((o) => o.value === f.chain.key)) chainSel.append(el("option", { value: f.chain.key }, f.chain.key));
+  chainSel.value = f.chain.key;
+  applyPick();
 }
+
+function applyPick() {
+  const a = pickAsset();
+  const held = formatUnits(a.wei, a.decimals, 4);
+  $("c-symbol").value = a.symbol;
+  $("c-amount").value = a.wei > 0n ? floorAmount(a.wei, a.decimals) : "";
+  $("c-amount-hint").textContent = a.wei > 0n
+    ? `Up to ${held} ${a.symbol}. You can prove less than you hold.`
+    : `This wallet holds no ${a.symbol} on ${funds.chain.name}.`;
+}
+
+$("f-asset").addEventListener("change", () => { funds.pick = Number($("f-asset").value); applyPick(); });
 
 async function readFromWallet() {
   let conn = connection();
@@ -99,9 +114,11 @@ async function readFromWallet() {
   const btn = $("f-read");
   btn.setAttribute("aria-busy", "true");
   try {
-    const r = await readBalance(conn.provider, conn.address);
-    if (r.wei === 0n) toast(`This wallet holds no ${r.chain.symbol} on ${r.chain.name}. Switch network in the wallet and read again.`);
-    setFundsMode({ ...r, address: conn.address, provider: conn.provider });
+    const r = await readBalances(conn.provider, conn.address);
+    // Start on the largest holding the wallet has, native coin first on ties.
+    const firstHeld = r.assets.findIndex((a) => a.wei > 0n);
+    if (firstHeld === -1) toast(`This wallet holds nothing listed on ${r.chain.name}. Switch network in the wallet and read again.`);
+    setFundsMode({ ...r, address: conn.address, provider: conn.provider, pick: Math.max(0, firstHeld) });
   } catch (err) {
     toast(err?.message || "The wallet did not return a balance");
   } finally {
@@ -110,6 +127,18 @@ async function readFromWallet() {
 }
 
 $("f-read").addEventListener("click", readFromWallet);
+// A balance read for one account or network says nothing about another.
+onWalletChange((c) => {
+  if (!funds) return;
+  if (!c || c.address.toLowerCase() !== funds.address.toLowerCase() || c.provider !== funds.provider) {
+    setFundsMode(null);
+    toast("The wallet changed. Read the balance again to back the bond.");
+    return;
+  }
+  c.provider.request({ method: "eth_chainId" }).then((id) => {
+    if (funds && Number(id) !== funds.chainId) { setFundsMode(null); toast("The wallet switched network. Read the balance again."); }
+  }).catch(() => {});
+});
 $("f-clear").addEventListener("click", () => setFundsMode(null));
 
 function showResult(r) {
@@ -118,39 +147,44 @@ function showResult(r) {
   const exp = expiryLabel(r.asset);
   $("c-backing").replaceChildren(r.proof
     ? el("span", { class: "badge live" }, "Backed by wallet " + short(r.proof.address))
-    : el("span", { class: "badge" }, "Self-declared: the amount is not checked against a wallet"),
+    : el("span", { class: "badge" }, "Self-declared: not checked against a wallet"),
     ...(exp ? [" ", el("span", { class: "badge " + exp.cls }, exp.text)] : []));
   renderShare($("c-share"), r);
   $("cloak-empty").hidden = true;
   $("cloak-out").hidden = false;
 }
 
+let sealing = false; // Enter in a field submits too, even while the wallet prompt is open
 $("cloak-form").addEventListener("submit", async (e) => {
   e.preventDefault();
+  if (sealing) return;
+  sealing = true;
   const btn = $("c-submit");
   btn.setAttribute("aria-busy", "true");
   try {
     const ttl = Number($("c-expiry").value);
     const asset = { amount: $("c-amount").value, symbol: $("c-symbol").value, chain: $("c-chain").value, note: $("c-note").value };
     if (ttl) asset.expires = Math.floor(Date.now() / 1000) + ttl;
-    if (funds && parseUnits(asset.amount, funds.chain.decimals) > funds.wei) {
-      throw new Error(`You can prove at most ${formatUnits(funds.wei, funds.chain.decimals, 4)} ${funds.chain.symbol}`);
+    const held = pickAsset();
+    if (held && parseUnits(asset.amount, held.decimals) > held.wei) {
+      throw new Error(`You can prove at most ${formatUnits(held.wei, held.decimals, 4)} ${held.symbol}`);
     }
     const r = await cloak(asset);
     if (funds) {
       toast("Confirm the signature in your wallet. It costs nothing and sends no transaction.");
       try {
-        r.proof = await signFunds(funds.provider, { receipt: r, address: funds.address, chainId: funds.chainId, block: funds.block });
+        r.proof = await signFunds(funds.provider, { receipt: r, address: funds.address, chainId: funds.chainId, block: funds.block, token: held.token });
       } catch (err) {
         throw new Error(err?.code === 4001 ? "The signature was declined, so nothing was saved" : (err?.message || "The wallet did not sign"));
       }
     }
     addBond(r);
     showResult(r);
-    toast(r.proof ? "Bond sealed and signed. Share the link to prove it." : "Bond cloaked and saved to the vault");
+    toast(r.proof ? "Bond sealed and signed. Share the link to prove it." : "Bond sealed and saved to the vault");
   } catch (err) {
     toast(err.message);
   } finally {
+    sealing = false;
     btn.removeAttribute("aria-busy");
   }
 });
@@ -181,7 +215,7 @@ function renderVault() {
   list.replaceChildren();
   $("vault-count").textContent = vault.length;
   if (!vault.length) {
-    list.append(el("div", { class: "empty" }, "Your vault is empty. Cloak a bond or receive one."));
+    list.append(el("div", { class: "empty" }, "Your vault is empty. Seal a bond or receive one."));
   }
   for (const b of vault) {
     const badge = el("span", { class: "badge " + b.status }, b.status === "sent" ? "Sent" : "Live");
@@ -214,7 +248,7 @@ function renderVault() {
     const extra = [];
     if (b.asset.note) extra.push(el("span", { class: "hint" }, "Note: " + b.asset.note));
     if (b.proof) extra.push(el("span", { class: "bond-meta" }, "Signed by ", el("span", { class: "mono" }, b.proof.address), ` at block ${Number(b.proof.block).toLocaleString("en-US")}`));
-    if (b.prev) extra.push(el("span", { class: "bond-meta" }, "Re-cloaked from ", el("span", { class: "mono" }, "0x" + b.prev.slice(0, 16) + "…")));
+    if (b.prev) extra.push(el("span", { class: "bond-meta" }, "Re-sealed from ", el("span", { class: "mono" }, "0x" + b.prev.slice(0, 16) + "…")));
     if (b.anchor) extra.push(el("span", { class: "bond-meta" }, "Anchor transaction ", el("span", { class: "mono" }, b.anchor)));
     list.append(el("div", { class: "bond" },
       el("div", { class: "bond-top" }, el("span", { class: "bond-amt" }, label(b)), el("span", { style: "display:flex;gap:6px;flex-wrap:wrap" }, backed, ...expBadge, meta, badge)),
@@ -265,7 +299,7 @@ $("backup-form").addEventListener("submit", async (e) => {
   try {
     const text = await sealBackup(vault, $("b-pass").value);
     if (e.submitter?.name === "copy") {
-      await copy(text, "Encrypted backup copied. Paste it somewhere safe");
+      if (!(await copy(text, "Encrypted backup copied. Paste it somewhere safe"))) return;
     } else {
       const a = el("a", { href: URL.createObjectURL(new Blob([text], { type: "text/plain" })), download: `obscura-backup-${new Date().toISOString().slice(0, 10)}.obxbak` });
       a.click();
@@ -297,13 +331,16 @@ $("restore-form").addEventListener("submit", async (e) => {
       const data = JSON.parse(text);
       bonds = Array.isArray(data) ? data : data.bonds;
     }
-    let added = 0;
+    // Check everything first, then add it in one go, so a bad entry leaves the vault as it was.
+    const fresh = [];
     for (const b of bonds || []) {
-      if (vault.some((x) => x.commitment === b.commitment)) continue;
-      if (!(await verify(b))) continue;
-      vault.push({ ...b, status: b.status === "sent" ? "sent" : "live" });
-      added++;
+      if (!b || typeof b !== "object" || !b.commitment) continue;
+      if (vault.some((x) => x.commitment === b.commitment) || fresh.some((x) => x.commitment === b.commitment)) continue;
+      if (!(await verify(b).catch(() => false))) continue;
+      fresh.push({ ...b, status: b.status === "sent" ? "sent" : "live" });
     }
+    const added = fresh.length;
+    vault.push(...fresh);
     save(vault);
     renderVault();
     $("r-text").value = $("r-pass2").value = "";
@@ -361,7 +398,7 @@ $("receive-form").addEventListener("submit", async (e) => {
     $("r-empty").hidden = true;
     $("r-out").hidden = false;
     $("r-pass").value = "";
-    toast("Bond received and re-cloaked");
+    toast("Bond received and re-sealed");
   } catch (err) {
     toast(err.message);
   } finally {

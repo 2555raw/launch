@@ -66,8 +66,10 @@ export async function copy(text, label = "Copied") {
   try {
     await navigator.clipboard.writeText(text);
     toast(label);
+    return true;
   } catch {
     toast("Copy blocked by the browser; select the text instead");
+    return false;
   }
 }
 

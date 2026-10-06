@@ -29,7 +29,22 @@ function row(state, title, detail) {
   return li;
 }
 
+let runId = 0;
+
 async function run(text, expected) {
+  const id = ++runId;
+  try { await check(text, expected, () => id !== runId); }
+  catch {
+    if (id !== runId) return;
+    $("v-checks").replaceChildren(row("fail", "This proof could not be checked", "Part of the link is damaged. Ask the sender for it again."));
+    $("v-claim").className = "claim fail";
+    $("v-claim").textContent = "Not valid";
+    $("v-note").textContent = "";
+  }
+}
+
+// stale() turns true once a newer check has started; this one then stops writing.
+async function check(text, expected, stale) {
   $("v-empty").hidden = true;
   $("v-out").hidden = false;
   const checks = $("v-checks");
@@ -48,6 +63,7 @@ async function run(text, expected) {
 
   const amount = `${r.asset.amount} ${r.asset.symbol}`;
   const sealOk = await verify(r, expected || null);
+  if (stale()) return;
   const list = [sealOk
     ? row("pass", "The seal matches", expected ? "The receipt opens exactly the seal code you expected." : "Nothing in the receipt was changed.")
     : row("fail", "The seal does not match", expected ? "This receipt is not the bond with that seal code." : "The receipt was edited or damaged.")];
@@ -69,16 +85,18 @@ async function run(text, expected) {
   if (sealOk && r.proof) {
     checks.replaceChildren(...list, row("info", "Checking the wallet…", "Reading the balance from the blockchain."));
     const f = await verifyFunds(r);
+    if (stale()) return;
     const chain = CHAINS[r.proof.chainId]?.name || `chain ${r.proof.chainId}`;
     list.push(f.signed
       ? row("pass", `Signed by wallet ${short(r.proof.address)}`, "The owner of that address signed this exact bond and amount.")
       : row("fail", "The wallet signature is not valid", "Someone other than the address owner made this proof, or it was edited."));
     if (f.signed) {
       if (f.onchain === "pass") list.push(row("pass", `Holds at least ${amount} on ${chain}`, f.heldAt === "block" ? `Confirmed on the blockchain at block ${Number(r.proof.block).toLocaleString("en-US")}.` : "Confirmed with the current balance (the node does not keep the older block)."));
+      else if (f.onchain === "fail" && !f.heldAt) list.push(row("fail", "The bond does not match what was signed", f.detail || "The asset in the bond is not the one the wallet signed for."));
       else if (f.onchain === "fail") list.push(row("fail", `Does not hold ${amount} on ${chain}`, f.heldAt === "latest" ? "The current balance is lower. The funds may have moved since the proof was made." : "The balance at that block was lower than claimed."));
       else list.push(row("warn", "Balance not checked", f.detail || "The blockchain could not be reached. Try again later."));
     }
-    verdict = f.signed && f.onchain === "pass" ? "proven" : f.signed && f.onchain === "unreachable" ? "signed" : "fail";
+    verdict = f.signed && f.onchain === "pass" ? "proven" : f.signed && (f.onchain === "unreachable" || f.onchain === "unsupported") ? "signed" : "fail";
   } else if (sealOk) {
     list.push(row("warn", "Not backed by a wallet", "The sender typed this amount. It is not checked against any wallet."));
   }
@@ -100,9 +118,15 @@ $("verify-form").addEventListener("submit", (e) => {
   run($("v-receipt").value.trim(), $("v-commit").value.trim());
 });
 
-// A proof link carries the receipt after the #.
-const fromLink = decodeURIComponent(location.hash.slice(1));
-if (fromLink.startsWith(RECEIPT_PREFIX)) {
-  $("v-receipt").value = fromLink;
-  run(fromLink, "");
+// A proof link carries the receipt after the #. Pasting a second link into the
+// same tab only changes the hash, so check again when it does.
+function fromLink() {
+  let text = location.hash.slice(1);
+  try { text = decodeURIComponent(text); } catch { /* keep it as it came */ }
+  if (!text.startsWith(RECEIPT_PREFIX)) return;
+  $("v-receipt").value = text;
+  $("v-commit").value = "";
+  run(text, "");
 }
+addEventListener("hashchange", fromLink);
+fromLink();

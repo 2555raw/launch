@@ -21,7 +21,7 @@
 @media (min-width: 620px) { .ln-row { grid-template-columns: 1fr 1fr; } .ln-row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .ln-row > * { min-width: 0; }
 .ln-hint { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
-.ln-hint.is-bad { color: #F4A08E; }
+.ln-hint.is-bad { color: #B03426; }
 .ln-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .ln-chips label { display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line-hi); background: var(--card); font-size: 14px; font-weight: 500; cursor: pointer; }
 .ln-chips label:has(input:checked) { border-color: var(--pink); background: var(--pink-soft); color: var(--pink); }
@@ -41,7 +41,7 @@
 .ln-summary .dp-wallets { margin: 0; }
 
 .ln-done { display: grid; gap: 12px; padding: 16px; border-radius: 16px; background: var(--ok-soft); border: 1px solid var(--ok-line); font-size: 14px; line-height: 1.55; }
-.ln-done h3 { font-size: 17px; font-weight: 700; letter-spacing: -.01em; color: #8EE6C4; }
+.ln-done h3 { font-size: 17px; font-weight: 700; letter-spacing: -.01em; color: var(--ok); }
 .ln-done code { font: 12px var(--font-mono); overflow-wrap: anywhere; }
 .ln-done a:not(.uh-btn) { color: var(--pink); text-decoration: underline; text-underline-offset: 3px; }
 .ln-done-actions { display: flex; flex-wrap: wrap; gap: 8px; }

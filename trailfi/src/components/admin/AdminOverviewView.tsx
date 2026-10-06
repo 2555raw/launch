@@ -2,6 +2,7 @@
 
 import { AlertTriangle, ArrowRight, Footprints, Gauge, Inbox, Mail, PauseCircle, Users } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { StepsChart } from "@/components/dashboard/StepsChart";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -136,10 +137,37 @@ export function AdminOverviewView() {
               </li>
             ))}
           </ul>
+          <RateCalculator tiers={{ ...s, points: s.ratePoints }} token={t} />
           <p className="mt-4 text-[12px] leading-relaxed text-white/40">
-            Verifying a photo credits that day straight away. Walkers see the daily maximum on the home page.
+            Between two rates a day pays the average in proportion, so 2,250 steps sits halfway between $1 and $2. Verifying a photo
+            credits that day straight away. Walkers see the daily maximum on the home page.
           </p>
         </Card>
+      </div>
+    </div>
+  );
+}
+
+/** Type any step count and see what that day pays, averaged between the two rates around it. */
+function RateCalculator({ tiers, token }: { tiers: Parameters<typeof tierReward>[1]; token: string }) {
+  const [raw, setRaw] = useState("2250");
+  const steps = parseInt(raw.replace(/[^0-9]/g, ""), 10) || 0;
+  const amount = tierReward(steps, tiers);
+  return (
+    <div className="mt-4 rounded-xl border border-lime-400/25 bg-lime-400/[0.05] p-3.5">
+      <div className="label !text-[10px]">Try a day</div>
+      <div className="mt-2 flex items-center gap-3">
+        <input
+          inputMode="numeric"
+          value={raw}
+          onChange={(e) => setRaw(e.target.value)}
+          aria-label="Steps"
+          className="w-28 rounded-lg border border-white/10 bg-ink-950 px-3 py-2 font-mono text-sm text-white outline-none focus:border-lime-400/50"
+        />
+        <span className="text-sm text-white/50">steps pays</span>
+        <span className="ml-auto flex items-center gap-1.5 font-mono text-lg font-semibold text-lime-300">
+          <TokenIcon symbol={token} /> ${fmtAmount(amount)}
+        </span>
       </div>
     </div>
   );

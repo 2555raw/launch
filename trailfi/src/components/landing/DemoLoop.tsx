@@ -9,7 +9,9 @@ import { cn } from "@/lib/cn";
 import { Reveal, SectionHeading } from "./Reveal";
 
 const STEPS = 10_871;
-const LOOP = 15; // seconds
+const LOOP = 15; // loop seconds
+/** Playback speed: the 15 loop seconds play in 12 real ones. */
+const SPEED = 1.25;
 const SCENES = [
   { id: "walk", from: 0, to: 4, label: "Walk", body: "Your phone counts every step.", icon: MarkIcon },
   { id: "shot", from: 4, to: 6, label: "Screenshot", body: "Capture the day's steps and the date.", icon: Camera },
@@ -33,10 +35,10 @@ function useLoopClock() {
   useEffect(() => {
     if (!visible) return;
     // Real elapsed time, so the loop keeps its pace even when frames are dropped.
-    const start = performance.now() - offset.current * 1000;
+    const start = performance.now() - (offset.current / SPEED) * 1000;
     let raf = 0;
     const tick = (now: number) => {
-      offset.current = ((now - start) / 1000) % LOOP;
+      offset.current = (((now - start) / 1000) * SPEED) % LOOP;
       setT(offset.current);
       raf = requestAnimationFrame(tick);
     };
@@ -46,7 +48,7 @@ function useLoopClock() {
   return { ref, t };
 }
 
-/** The whole flow, walk to wallet, as a 15 second loop. */
+/** The whole flow, walk to wallet, as a 12 second loop. */
 export function DemoLoop() {
   const reduced = useReducedMotion();
   const { ref, t: clock } = useLoopClock();
@@ -58,7 +60,7 @@ export function DemoLoop() {
       <div className="container">
         <div className="grid items-center gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
           <div>
-            <SectionHeading label="15 seconds" title="From your walk" accent="to your wallet.">
+            <SectionHeading label="12 seconds" title="From your walk" accent="to your wallet.">
               No app to install and no tracker to buy. The phone in your pocket already counts your steps.
             </SectionHeading>
 

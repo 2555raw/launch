@@ -7,6 +7,9 @@ const res = []; const ok = (n, c, x = '') => res.push(`${c ? 'PASS' : 'FAIL'}  $
 (async () => {
   const b = await chromium.launch();
   const ctx = await b.newContext({ ignoreHTTPSErrors: true, acceptDownloads: true, permissions: ['clipboard-read', 'clipboard-write'] });
+  // Only the site itself: fonts and CDNs are not needed here, and without a
+  // network they can hang and keep the page from ever going idle.
+  await ctx.route((u) => !u.href.startsWith(B), (r) => r.abort());
   const errs = []; const watch = p => { p.on('pageerror', e => errs.push(e.message)); p.on('response', r => { if (r.url().startsWith(B) && r.status() >= 400 && !r.url().endsWith('/api/chat')) errs.push('404 ' + r.url()); }); };
   let p = await ctx.newPage(); watch(p); await p.setViewportSize({ width: 1440, height: 900 });
 

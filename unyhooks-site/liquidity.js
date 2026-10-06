@@ -194,7 +194,7 @@
         await runStep(`Let Permit2 move your ${t.symbol}`, () => erc20.approve(NET.permit2, ethers.MaxUint256));
       }
       const p2 = new ethers.Contract(NET.permit2, C.ABI.PERMIT2, C.session.signer);
-      const now = Math.floor(Date.now() / 1000);
+      const now = await C.chainNow();
       const al = await p2.allowance(owner, t.address, NET.positionManager);
       if (al.amount < amount || Number(al.expiration) < now + 600) {
         await runStep(`Let Uniswap use your ${t.symbol}`, () => p2.approve(t.address, NET.positionManager, MAX_UINT160, now + 30 * 86400));
@@ -245,7 +245,7 @@
           ...(native ? [coder.encode(['address', 'address'], [key.currency0, owner])] : [])
         ];
         const unlockData = coder.encode(['bytes', 'bytes[]'], [ethers.hexlify(new Uint8Array(actions)), params]);
-        const deadline = Math.floor(Date.now() / 1000) + 20 * 60;
+        const deadline = (await C.chainNow()) + 20 * 60;
         const posm = new ethers.Contract(NET.positionManager, C.ABI.POSM, C.session.signer);
         const value = native ? max0 : 0n;
 

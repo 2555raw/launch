@@ -469,11 +469,27 @@
     throw new Error('Sourcify did not see the contract yet. Try again in a minute.');
   };
 
+  /* The chain's clock. Deadlines and countdowns follow the chain's time, not
+     the browser's: a computer whose clock is off would otherwise send
+     transactions that are already expired, or show the wrong time left. The
+     gap is read from the latest block and kept for a minute. */
+  let clockGap = 0, clockRead = 0;
+  const chainNow = async () => {
+    if (Date.now() - clockRead > 60000) {
+      const blk = await reader().getBlock('latest').catch(() => null);
+      if (blk) { clockGap = Number(blk.timestamp) - Date.now() / 1000; clockRead = Date.now(); }
+    }
+    return Math.floor(Date.now() / 1000 + clockGap);
+  };
+  // the same clock without a network call, once chainNow() has run
+  const chainNowSync = () => Date.now() / 1000 + clockGap;
+
   window.UnyChain = {
     CONFIG, NET, ZERO, ABI: { PM: PM_ABI, ERC20: ERC20_ABI, PERMIT2: PERMIT2_ABI, POSM: POSM_ABI, STATE_VIEW: STATE_VIEW_ABI, LOCK: LOCK_ABI, POSITIONS: POSITIONS_READ_ABI },
     esc, short, price, session, connect, connectUI, reader, tokenInfo, balanceOf, poolId, readPool, allLogs, findPool, explain,
     recognise, isGenuine, lockInfo, locksForPool, launchOf,
     explorer, link, uniswapAddLiquidity, uniswapPosition, uniswapSwap, hookPage, unlockText, dexscreenerPool, sourcifyPage,
+    chainNow, chainNowSync,
     store, createPool, compile, isCompiled, sourcifyStatus, verify, isRejection: W.isRejection, wallets: W.list
   };
 })();

@@ -106,8 +106,10 @@
       say(`There is no contract at this address on ${esc(NET.name)}.`, 'error');
       return;
     }
-    const [known, launch, source] = await Promise.all([
+    const [known, , launch, source] = await Promise.all([
       C.recognise(hook).catch(() => null),
+      // read the chain's clock now, so the countdowns below follow it
+      C.chainNow().catch(() => 0).then(() => null),
       C.launchOf(hook).catch(() => null),
       C.sourcifyStatus(hook).catch(() => undefined)
     ]);
@@ -191,7 +193,7 @@
         timers.push(() => {
           const el = document.getElementById(id);
           if (!el) return;
-          const rest = ends - Date.now() / 1000;
+          const rest = ends - C.chainNowSync();
           el.innerHTML = rest > 0 ? `<b>Launch protection on</b>, ${esc(left(rest))}.` : `Launch protection ended ${esc(date(ends))}.`;
         });
       }
@@ -240,7 +242,7 @@
         const el = document.querySelector(`[data-lock="${i}"]`);
         if (!el) return;
         if (l.forever) { el.textContent = 'Locked forever'; return; }
-        const rest = Number(l.unlockAt) - Date.now() / 1000;
+        const rest = Number(l.unlockAt) - C.chainNowSync();
         el.textContent = rest > 0 ? `Locked until ${date(l.unlockAt)} · ${left(rest)}` : `Unlocked since ${date(l.unlockAt)}`;
       }));
     }

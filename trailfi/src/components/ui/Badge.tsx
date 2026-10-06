@@ -5,11 +5,11 @@ type Tone = "lime" | "neutral" | "amber" | "red" | "blue" | "green";
 
 const tones: Record<Tone, string> = {
   lime: "border-lime-400/30 bg-lime-400/10 text-lime-300",
-  green: "border-emerald-400/30 bg-emerald-400/10 text-emerald-300",
+  green: "border-lime-400/30 bg-lime-400/10 text-lime-300",
   neutral: "border-white/10 bg-white/5 text-white/70",
   amber: "border-amber-400/30 bg-amber-400/10 text-amber-200",
   red: "border-red-400/30 bg-red-500/10 text-red-200",
-  blue: "border-sky-400/30 bg-sky-400/10 text-sky-200",
+  blue: "border-white/15 bg-white/[0.06] text-white/80",
 };
 
 export function Badge({ tone = "neutral", children, dot, className }: { tone?: Tone; children: ReactNode; dot?: boolean; className?: string }) {

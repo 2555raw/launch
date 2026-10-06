@@ -68,7 +68,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
               fontWeight: 700,
             }}
           >
-            <div style={{ display: "flex", width: 12, height: 12, borderRadius: 999, background: "#5dff9d" }} />
+            <div style={{ display: "flex", width: 12, height: 12, borderRadius: 999, background: "#b2f047" }} />
             stepit.site
           </div>
         </div>

@@ -13,5 +13,5 @@ export function markTileSvg(size = 32): string {
   const k = 24 / MARK_W; // the mark spans 24 of the tile's 32 units
   const tx = 4;
   const ty = 16 - (MARK_H * k) / 2;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#5dff9d"/></linearGradient></defs><rect x=".5" y=".5" width="31" height="31" rx="9.5" fill="#071d14" stroke="rgba(196,251,109,.35)"/><g transform="translate(${tx} ${ty.toFixed(2)}) scale(${k.toFixed(5)})"><path d="${MARK_PATH}" fill="url(#g)" stroke="url(#g)" stroke-width="${MARK_ROUND}" stroke-linejoin="round"/></g></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#b2f047"/></linearGradient></defs><rect x=".5" y=".5" width="31" height="31" rx="9.5" fill="#071d14" stroke="rgba(196,251,109,.35)"/><g transform="translate(${tx} ${ty.toFixed(2)}) scale(${k.toFixed(5)})"><path d="${MARK_PATH}" fill="url(#g)" stroke="url(#g)" stroke-width="${MARK_ROUND}" stroke-linejoin="round"/></g></svg>`;
 }

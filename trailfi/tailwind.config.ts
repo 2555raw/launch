@@ -29,7 +29,7 @@ const config: Config = {
           500: "#b2f047",
           600: "#8fcb24",
         },
-        neon: "#5dff9d",
+        neon: "#b2f047",
         mist: "#a7b5ad",
       },
       fontFamily: {
@@ -40,7 +40,7 @@ const config: Config = {
       boxShadow: {
         glass: "0 1px 0 0 rgba(255,255,255,0.06) inset, 0 20px 60px -20px rgba(0,0,0,0.6)",
         glow: "0 0 0 1px rgba(196,251,109,0.35), 0 8px 40px -8px rgba(178,240,71,0.45)",
-        neon: "0 0 24px rgba(93,255,157,0.35)",
+        neon: "0 0 24px rgba(178,240,71,0.35)",
       },
       backgroundImage: {
         "grid-fade":

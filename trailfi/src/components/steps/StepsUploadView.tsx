@@ -73,7 +73,7 @@ async function compressScreenshot(file: File): Promise<string> {
 }
 
 function celebrate() {
-  const colors = ["#c4fb6d", "#5dff9d", "#ffffff", "#d8ff9c"];
+  const colors = ["#c4fb6d", "#b2f047", "#ffffff", "#d8ff9c"];
   confetti({ particleCount: 110, spread: 75, origin: { y: 0.4 }, colors, scalar: 0.9 });
 }
 

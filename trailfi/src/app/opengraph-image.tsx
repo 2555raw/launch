@@ -61,7 +61,7 @@ export default async function Image() {
               fontWeight: 700,
             }}
           >
-            <div style={{ display: "flex", width: 11, height: 11, borderRadius: 999, background: "#5dff9d" }} />
+            <div style={{ display: "flex", width: 11, height: 11, borderRadius: 999, background: "#b2f047" }} />
             stepit.site
           </div>
         </div>
@@ -88,7 +88,7 @@ export default async function Image() {
           <div style={{ display: "flex", marginTop: 22, fontSize: 84, fontWeight: 700, lineHeight: 1, letterSpacing: -3, color: LIME }}>8,432</div>
           <div style={{ display: "flex", marginTop: 6, fontSize: 24, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>steps walked</div>
           <div style={{ display: "flex", marginTop: 26, height: 12, borderRadius: 999, background: "rgba(255,255,255,0.08)" }}>
-            <div style={{ display: "flex", width: "84%", borderRadius: 999, background: `linear-gradient(90deg, #8fd14f, ${LIME})` }} />
+            <div style={{ display: "flex", width: "84%", borderRadius: 999, background: `linear-gradient(90deg, #b2f047, ${LIME})` }} />
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, fontSize: 16, color: "rgba(255,255,255,0.4)" }}>
             <span>0</span>

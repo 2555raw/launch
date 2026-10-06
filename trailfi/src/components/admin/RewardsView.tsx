@@ -337,7 +337,7 @@ export function RewardsView() {
                   <td className="table-cell">
                     {r.status === "pending" && (
                       <div className="flex justify-end gap-1.5">
-                        <button className="grid h-8 w-8 place-items-center rounded-lg border border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/10" title="Approve" onClick={() => reviewM.mutate({ ids: [r.id], decision: "approved" })}>
+                        <button className="grid h-8 w-8 place-items-center rounded-lg border border-lime-400/30 text-lime-300 hover:bg-lime-400/10" title="Approve" onClick={() => reviewM.mutate({ ids: [r.id], decision: "approved" })}>
                           <Check className="h-4 w-4" />
                         </button>
                         <button

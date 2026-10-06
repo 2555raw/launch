@@ -82,7 +82,7 @@ const SOURCE_LABEL: Record<string, string> = {
 };
 
 function celebrate() {
-  const colors = ["#c4fb6d", "#5dff9d", "#ffffff", "#d8ff9c"];
+  const colors = ["#c4fb6d", "#b2f047", "#ffffff", "#d8ff9c"];
   confetti({ particleCount: 120, spread: 75, origin: { y: 0.35 }, colors, scalar: 0.9 });
   setTimeout(() => confetti({ particleCount: 60, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors }), 220);
   setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors }), 380);

@@ -117,7 +117,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
       await refresh(body.payout);
       if (body.payout.status === "confirmed") {
         setSuccess(true);
-        confetti({ particleCount: 90, spread: 70, origin: { y: 0.45 }, colors: ["#c4fb6d", "#5dff9d", "#ffffff"] });
+        confetti({ particleCount: 90, spread: 70, origin: { y: 0.45 }, colors: ["#c4fb6d", "#b2f047", "#ffffff"] });
         toast.success("Payment confirmed onchain", { description: `${fmtAmount(body.payout.amount)} ${body.payout.tokenSymbol} sent.` });
       } else {
         toast.error("Payout failed verification", { description: body.payout.error });
@@ -345,7 +345,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                   </label>
 
                   {busy && (
-                    <div className="flex items-center gap-2.5 rounded-2xl border border-sky-400/25 bg-sky-400/[0.07] p-3.5 text-[13px] text-sky-100">
+                    <div className="flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.04] p-3.5 text-[13px] text-white/80">
                       <Loader2 className="h-4 w-4 animate-spin" /> {PHASE_LABEL[phase]}
                     </div>
                   )}

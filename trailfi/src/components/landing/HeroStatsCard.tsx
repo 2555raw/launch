@@ -94,7 +94,7 @@ function LiveCard() {
                 key={i}
                 className={
                   i === all.length - 1
-                    ? "flex-1 rounded-sm bg-gradient-to-t from-lime-500 to-neon shadow-[0_0_12px_rgba(93,255,157,0.5)]"
+                    ? "flex-1 rounded-sm bg-gradient-to-t from-lime-500 to-neon shadow-[0_0_12px_rgba(178,240,71,0.5)]"
                     : "flex-1 rounded-sm bg-white/15"
                 }
                 initial={{ height: 0 }}

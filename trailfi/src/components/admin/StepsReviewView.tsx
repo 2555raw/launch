@@ -129,7 +129,7 @@ export function StepsReviewView() {
               </Link>
               <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
                 <button
-                  className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-emerald-400/30 text-sm font-medium text-emerald-300 transition hover:bg-emerald-400/10 disabled:opacity-40"
+                  className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-lime-400/30 text-sm font-medium text-lime-300 transition hover:bg-lime-400/10 disabled:opacity-40"
                   disabled={review.isPending}
                   onClick={() => decide(e, "verified")}
                 >
@@ -175,7 +175,7 @@ export function StepsReviewView() {
             {data && <PayoutEstimate entry={zoom} token={data.tokenSymbol} />}
             <div className="mt-4 grid grid-cols-2 gap-2">
               <button
-                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-emerald-400/30 text-sm text-emerald-300 hover:bg-emerald-400/10"
+                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-lime-400/30 text-sm text-lime-300 hover:bg-lime-400/10"
                 onClick={() => {
                   decide(zoom, "verified");
                   setZoom(null);

@@ -27,7 +27,7 @@ export function ProgressRing({
           <linearGradient id={`${id}-grad`} x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#d8ff9c" />
             <stop offset="60%" stopColor="#b2f047" />
-            <stop offset="100%" stopColor="#5dff9d" />
+            <stop offset="100%" stopColor="#b2f047" />
           </linearGradient>
           <filter id={`${id}-glow`} x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="3" result="b" />

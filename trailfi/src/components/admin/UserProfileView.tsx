@@ -178,7 +178,7 @@ export function UserProfileView({ id }: { id: string }) {
                         {s.verification === "unverified" || s.verification === "flagged" ? (
                           <div className="flex justify-end gap-1.5">
                             <button
-                              className="grid h-8 w-8 place-items-center rounded-lg border border-emerald-400/30 text-emerald-300 hover:bg-emerald-400/10"
+                              className="grid h-8 w-8 place-items-center rounded-lg border border-lime-400/30 text-lime-300 hover:bg-lime-400/10"
                               title="Verify"
                               onClick={() => review.mutate({ entryId: s.id, decision: "verified", note: "Manually reviewed" })}
                             >

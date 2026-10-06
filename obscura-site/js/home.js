@@ -169,3 +169,38 @@ if ($("demo")) {
   });
   renderDemo();
 }
+
+// ---------- story: the step in view drives the stage ----------
+const stage = $("story-stage");
+const steps = [...document.querySelectorAll(".story-step")];
+if (stage && steps.length && "IntersectionObserver" in window) {
+  const setStep = (n) => {
+    if (stage.dataset.step === n) return;
+    stage.dataset.step = n;
+    const tag = $("st-tag");
+    if (tag) tag.textContent = { 1: "Public", 2: "Sealing 1 of 6", 3: "Proof sent", 4: "Rest stays private" }[n];
+    steps.forEach((s) => s.classList.toggle("is-active", s.dataset.step === n));
+  };
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) if (e.isIntersecting) setStep(e.target.dataset.step);
+  }, { rootMargin: "-45% 0px -50% 0px" });
+  steps.forEach((s) => io.observe(s));
+}
+
+// ---------- headings rise word by word ----------
+// Plain-text headings only; the words stay real text for screen readers.
+for (const h of document.querySelectorAll("main h2")) {
+  if (h.children.length || h.closest(".closing")) continue;
+  const words = h.textContent.trim().split(/\s+/);
+  h.replaceChildren(...words.flatMap((w, i) => {
+    const outer = document.createElement("span");
+    outer.className = "w";
+    outer.style.setProperty("--w", i);
+    const inner = document.createElement("span");
+    inner.textContent = w;
+    outer.append(inner);
+    return i ? [" ", outer] : [outer];
+  }));
+  h.classList.add("split-words");
+  onceInView(h, "in", 0.6);
+}

@@ -642,3 +642,133 @@ details.raw summary:hover { color: var(--ink); }
 }
 .badge.expired { background: var(--bad-soft); color: var(--bad); }
 .check.time .check-icon { background: var(--accent-soft); color: var(--accent); }
+
+/* ============ story: what Obscura does, told by scrolling ============
+   A sticky stage on one side, four steps on the other. The step in view sets
+   data-step on the stage; every change below is a transition between states. */
+.story { padding-top: var(--space-section); }
+.story-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); gap: clamp(32px, 5vw, 80px); align-items: start; }
+.story-stage-wrap { position: sticky; top: 104px; }
+.story-stage {
+  position: relative; aspect-ratio: 6 / 5; border-radius: var(--r-xl); overflow: hidden;
+  background: var(--mist); border: 1px solid var(--line);
+  --t: .75s; --e: var(--ease);
+}
+
+.story-stage > * { position: absolute; transition: transform var(--t) var(--e), opacity var(--t) var(--e), filter var(--t) var(--e); }
+
+/* the wallet */
+.st-wallet { left: 6%; top: 9%; width: 54%; padding: 16px; border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-md); }
+.st-wallet-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; color: var(--dim); margin-bottom: 10px; }
+.st-tag { white-space: nowrap; font-size: 11.5px; font-weight: 560; padding: 3px 9px; border-radius: var(--r-pill); background: var(--bad-soft); color: var(--bad); transition: background-color .4s, color .4s; }
+.st-wallet ul { list-style: none; display: grid; gap: 6px; }
+.st-row { display: grid; grid-template-columns: 1fr auto 18px; gap: 8px; align-items: center; padding: 9px 10px; border-radius: 10px; background: var(--mist); font-size: 14px;
+  transition: opacity .6s var(--ease), filter .6s var(--ease), transform .6s var(--ease), background-color .4s, box-shadow .4s; transition-delay: calc(var(--r) * 40ms); }
+.st-row b { font-weight: 560; }
+.st-row span { font-size: 12px; color: var(--dim); }
+.st-eye { color: var(--bad); display: grid; } .st-eye svg { width: 16px; height: 16px; }
+
+/* the sealed receipt */
+.st-receipt { left: 22%; top: 58%; width: 46%; padding: 14px 16px; border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-lg); opacity: 0; transform: translateY(24px) scale(.92); }
+.st-receipt-top { display: flex; justify-content: space-between; align-items: center; }
+.st-receipt-top b { font-size: 20px; font-weight: 600; letter-spacing: -.02em; }
+.st-lock { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.st-lock svg { width: 16px; height: 16px; }
+.st-hash { display: block; margin-top: 8px; font-size: 11.5px; color: var(--accent); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+/* the link in flight */
+.st-link { left: 54%; top: 46%; z-index: 3; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px 8px 8px; border-radius: var(--r-pill); background: var(--ink); color: #fff; font-size: 12px; opacity: 0; transform: translateX(-90%) scale(.9); box-shadow: var(--shadow-md); }
+.st-link-icon { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .14); }
+.st-link-icon svg { width: 13px; height: 13px; }
+
+/* the counterparty's phone */
+.st-phone { right: 6%; top: 7%; width: 36%; height: 86%; padding: 34px 14px 16px; border-radius: 26px; background: #fff; box-shadow: 0 0 0 1px var(--line-2), 0 22px 40px -24px rgba(11, 13, 18, .35); opacity: 0; transform: translateX(40px); display: flex; flex-direction: column; gap: 12px; }
+.st-phone-notch { position: absolute; top: 10px; left: 50%; width: 46px; height: 6px; margin-left: -23px; border-radius: 6px; background: var(--line-2); }
+.st-phone-label { font-size: 12px; color: var(--dim); }
+.st-proof { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; padding: 12px; border-radius: 14px; background: var(--ok-soft); opacity: 0; transform: scale(.94); transition: opacity .5s var(--ease), transform .5s var(--ease); }
+.st-proof b { display: block; font-size: 15px; color: var(--ok); letter-spacing: -.01em; }
+.st-proof span { font-size: 11.5px; color: var(--ink-2); }
+.st-check { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: var(--ok); }
+.st-check svg { width: 16px; height: 16px; }
+.st-hidden { display: grid; gap: 7px; opacity: 0; transition: opacity .5s var(--ease) .15s; }
+.st-hidden span { height: 10px; border-radius: 6px; background: var(--steel); }
+.st-hidden span:nth-child(2) { width: 80%; } .st-hidden span:nth-child(3) { width: 60%; }
+.st-phone-foot { margin-top: auto; font-size: 11.5px; color: var(--dim); opacity: 0; transition: opacity .5s var(--ease) .25s; }
+
+/* step 2: one row lifts, the rest goes out of focus, a receipt is sealed */
+.story-stage:not([data-step="1"]) .st-row:not(.st-pick) { opacity: .35; filter: blur(2.5px); }
+.story-stage:not([data-step="1"]) .st-pick { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.story-stage:not([data-step="1"]) .st-pick .st-eye { color: var(--accent); }
+.story-stage:not([data-step="1"]) .st-tag { background: var(--accent-soft); color: var(--accent); }
+.story-stage[data-step="2"] .st-receipt { opacity: 1; transform: none; }
+.story-stage[data-step="2"] .st-lock { animation: lock-in .6s var(--ease) .35s backwards; }
+@keyframes lock-in { from { transform: scale(.4) rotate(-30deg); opacity: 0; } }
+
+/* step 3: the receipt becomes a link and travels to the phone */
+.story-stage[data-step="3"] .st-wallet, .story-stage[data-step="4"] .st-wallet { transform: translateX(-6%) scale(.94); opacity: .55; }
+.story-stage[data-step="3"] .st-receipt { opacity: 0; transform: translateX(30%) scale(.7); }
+.story-stage[data-step="3"] .st-link { opacity: 1; transform: translateX(-50%); }
+.story-stage[data-step="3"] .st-phone, .story-stage[data-step="4"] .st-phone { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .story-stage[data-step="3"] .st-link { animation: fly 1.6s var(--ease) both; }
+}
+@keyframes fly { 0% { opacity: 0; transform: translate(-130%, 70px) scale(.8); } 30% { opacity: 1; } 100% { opacity: 1; transform: translateX(-50%); } }
+
+/* step 4: the phone shows one answer, the wallet goes dark */
+.story-stage[data-step="4"] .st-wallet { filter: blur(4px); opacity: .4; }
+.story-stage[data-step="4"] .st-tag { background: var(--ink); color: #fff; }
+.story-stage[data-step="4"] .st-proof { opacity: 1; transform: none; transition-delay: .25s; }
+.story-stage[data-step="4"] .st-hidden, .story-stage[data-step="4"] .st-phone-foot { opacity: 1; }
+.story-stage[data-step="4"] .st-check { animation: lock-in .6s var(--ease) .5s backwards; }
+
+/* the steps */
+.story-steps { list-style: none; display: grid; }
+.story-step { position: relative; min-height: 62vh; padding: 8px 0 0 64px; opacity: .32; transition: opacity .5s var(--ease); }
+.story-step:last-child { min-height: 46vh; }
+.story-step.is-active { opacity: 1; }
+.story-n { position: absolute; left: 0; top: 4px; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; font-weight: 600; background: #fff; box-shadow: inset 0 0 0 1px var(--line-2); transition: background-color .4s, color .4s, box-shadow .4s; }
+.story-step.is-active .story-n { background: var(--ink); color: #fff; box-shadow: none; }
+.story-step h3 { font-size: clamp(1.4rem, 1.1rem + 1vw, 1.9rem); letter-spacing: -.028em; line-height: 1.15; }
+.story-step p { margin-top: 12px; color: var(--dim); font-size: var(--fs-lead); max-width: 30em; }
+.story-step .btn { margin-top: 24px; }
+.story-step::before { content: ""; position: absolute; left: 19px; top: 52px; bottom: 8px; width: 2px; background: var(--line); }
+.story-step:last-child::before { display: none; }
+
+@media (max-width: 900px) {
+  .story-grid { grid-template-columns: 1fr; gap: 0; }
+  .story-stage-wrap { top: 76px; z-index: 2; padding-bottom: 12px; background: linear-gradient(var(--paper) 85%, rgba(255, 255, 255, 0)); }
+  .story-stage { aspect-ratio: auto; height: min(56vw, 300px); }
+  .st-wallet { padding: 10px; width: 56%; } .st-row { padding: 5px 8px; font-size: 12px; } .st-row span { display: none; } .st-row { grid-template-columns: 1fr 16px; }
+  .st-wallet-head { margin-bottom: 6px; font-size: 11px; }
+  .st-phone { padding: 22px 10px 10px; gap: 8px; } .st-proof { padding: 8px; grid-template-columns: 24px 1fr; } .st-check { width: 24px; height: 24px; }
+  .st-proof b { font-size: 12.5px; } .st-phone-label, .st-phone-foot { font-size: 10px; } .st-proof span { display: none; } .st-wait { font-size: 10px; }
+  .st-receipt { padding: 10px 12px; } .st-receipt-top b { font-size: 15px; }
+  .story-step { min-height: 56vh; padding-top: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-stage > *, .st-row, .st-proof, .st-hidden, .st-phone-foot { transition-duration: .01s !important; transition-delay: 0s !important; }
+}
+
+/* headings rise word by word as they come into view */
+@media (prefers-reduced-motion: no-preference) {
+  .js .split-words .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .1em; margin-bottom: -.1em; }
+  .js .split-words .w > span { display: inline-block; transform: translateY(105%); transition: transform .8s var(--ease); transition-delay: calc(var(--w) * 55ms); }
+  .js .split-words.in .w > span { transform: none; }
+}
+
+/* the vault photo drifts behind the receipt as the page scrolls */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .vault picture { display: block; height: 100%; animation: drift linear both; animation-timeline: scroll(root); animation-range: 0 90vh; }
+    .vault .receipt { animation: card-in .9s var(--ease) .75s forwards, lift linear both; animation-timeline: auto, scroll(root); animation-range: normal, 0 90vh; }
+  }
+}
+@keyframes drift { to { transform: translateY(8%) scale(1.06); } }
+@keyframes lift { to { translate: 0 -28px; } }
+
+.st-wait { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--dim); opacity: 0; transition: opacity .4s var(--ease); }
+.story-stage[data-step="3"] .st-wait { opacity: 1; transition-delay: .8s; }
+.story-stage[data-step="4"] .st-wait { display: none; }
+.st-spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line-2); border-top-color: var(--accent); }
+@media (prefers-reduced-motion: no-preference) { .st-spin { animation: spin .8s linear infinite; } }
+@keyframes spin { to { transform: rotate(360deg); } }

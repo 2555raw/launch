@@ -238,9 +238,12 @@ headline, the glow on the water. Parchment sections read like a captain's chart.
 | `--parch` / `--parch-ink` | `#F2E4C4` / `#24180A` | chart sections |
 | `--ok` / `--red` | `#5FD3A6` / `#E5624B` | live, locked, done / cannon fire, refusals |
 
-Type: **Bricolage Grotesque** for headlines with the last words in gold **Instrument Serif**
-italic, **Pirata One** for the wordmark, **Geist** for text, **Geist Mono** for addresses,
-code and labels. The mark is a pirate's hook on its cuff, drawn once as an SVG
+Type: **Grenze Gotisch** for headlines with the last words in gold **IM Fell English**
+italic, **Pirata One** for the wordmark, compass letters and numerals, **Spectral** for text,
+**Geist Mono** for addresses, code and labels. The landing's hero is a porthole on a night
+sea (moon, a ship riding the swell, a compass rose), the rail down the left is a rope the
+hook is let down as you scroll, the "map" section is parchment with rhumb lines and an X on
+the lock date, and a ship crosses the closing section. The mark is a pirate's hook on its cuff, drawn once as an SVG
 `<symbol>` per page (`#uh-mark`, 64×80). The landing's ship, sea, cannon and doubloon are inline
 SVG; the line icons (anchor, skull, cannon, chest…) are a sprite at the top of `index.html`.
 

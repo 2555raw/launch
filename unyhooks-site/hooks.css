@@ -3,7 +3,7 @@
 
 .mh-main { position: relative; max-width: 980px; margin: 0 auto; padding: 28px 16px 64px; display: grid; gap: 18px; }
 .mh-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.mh-head h1 { font-family: var(--font-display); font-size: clamp(32px, 4vw, 44px); letter-spacing: -.03em; font-weight: 400; }
+.mh-head h1 { font-family: var(--font-display); font-size: clamp(32px, 4vw, 44px); letter-spacing: 0; font-weight: 400; }
 .mh-head p { margin-top: 6px; font-size: 15px; }
 .mh-follow { display: flex; gap: 8px; }
 .mh-follow .bd-input { flex: 1; }

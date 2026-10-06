@@ -53,7 +53,7 @@ export async function assertHoldsPayoutToken(address: `0x${string}`, who: "self"
     throw new HttpError(
       403,
       who === "self"
-        ? `To cash out, your wallet needs ${need} on Robinhood Chain. It stays in your wallet; add a little and request again.`
+        ? `To cash out, your wallet needs ${need} on Robinhood Chain. It keeps bots from farming rewards and nothing is charged: it stays in your wallet. Add a little and request again.`
         : `This walker's wallet holds no ${check.symbol} on Robinhood Chain yet, so it can't be paid until it does.`,
       "token_required",
     );

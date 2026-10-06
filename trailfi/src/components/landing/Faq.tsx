@@ -20,6 +20,10 @@ const QUESTIONS = [
     a: "No. Joining and walking are free. To cash out, your wallet just needs a little USDG on Robinhood Chain, even $1: it keeps out bots and it's the same token you're paid in. It stays in your wallet. The Get USDG page shows how to get some in a couple of minutes.",
   },
   {
+    q: "Why do I need USDG to cash out?",
+    a: "Two reasons. First, it keeps out bots: anyone can create hundreds of empty wallets for free, but each one would need real USDG to get paid, so farming rewards stops being worth it. Second, it shows your wallet is already set up on Robinhood Chain with USDG, the exact token and network your rewards are sent on, so your payment lands where you can see it. Nothing is charged: the USDG stays in your wallet and Stepit only reads the balance.",
+  },
+  {
     q: "How are my steps verified?",
     a: "You upload your daily total with a screenshot from your phone's health app, and the team checks that the date and the steps match before the day counts. Duplicates, future dates and implausible numbers are rejected.",
   },

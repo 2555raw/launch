@@ -98,6 +98,17 @@ export function GetUsdgGuide() {
           Joining is free. To cash out, your wallet needs a little USDG on Robinhood Chain. Any amount works, even $1. It stays in your wallet:
           Stepit only reads the balance and never asks to move it.
         </p>
+        <div className="mt-6 grid max-w-2xl gap-3 sm:grid-cols-2">
+          {[
+            ["Keeps out bots", "Empty wallets are free to create by the hundred. Needing a little USDG to get paid makes farming rewards not worth it."],
+            ["Your wallet is ready", "It shows your wallet already holds USDG on Robinhood Chain, the same token and network your rewards are sent on."],
+          ].map(([t, d]) => (
+            <div key={t} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="text-[14px] font-semibold text-lime-300">Why: {t.toLowerCase()}</div>
+              <p className="mt-1 text-[13px] leading-relaxed text-white/55">{d}</p>
+            </div>
+          ))}
+        </div>
       </motion.div>
 
       {/* Live check */}

@@ -9,6 +9,7 @@ import { env } from "@/lib/env";
 import { PAYOUT_CHAIN_ID } from "@/lib/web3/chains";
 import { publicClient } from "@/lib/web3/server";
 import { ERC20_ABI } from "@/lib/web3/tokens";
+import { assertHoldsPayoutToken } from "./gate";
 import { getSettings } from "./settings";
 
 export interface Payout {
@@ -79,11 +80,14 @@ export async function listPayouts(opts: { userId?: string; status?: string; limi
  * prepares: no funds move until an authorised wallet signs the transfer.
  */
 export async function preparePayout(userId: string, actor: string): Promise<Payout> {
+  const user = await one<{ wallet_address: `0x${string}` }>("select wallet_address from users where id = $1", [userId]);
+  if (user) await assertHoldsPayoutToken(user.wallet_address, "walker");
   return createPayout(userId, actor, "prepared");
 }
 
 /** A walker asks to be paid their approved rewards. The owner pays it from the admin console. */
 export async function requestPayout(userId: string, wallet: string): Promise<Payout> {
+  await assertHoldsPayoutToken(wallet as `0x${string}`);
   return createPayout(userId, wallet, "requested");
 }
 

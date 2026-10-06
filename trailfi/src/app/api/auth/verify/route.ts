@@ -4,7 +4,6 @@ import { z } from "zod";
 import { HttpError, clientIp, json, rateLimit, readJson, route } from "@/lib/api";
 import { SIWE_STATEMENT } from "@/lib/auth/constants";
 import { consumeNonceCookie, createSession } from "@/lib/auth/session";
-import { assertHoldsPayoutToken } from "@/lib/services/gate";
 import { cookies } from "next/headers";
 import { linkReferral } from "@/lib/services/referrals";
 import { getSettings } from "@/lib/services/settings";
@@ -51,7 +50,6 @@ export const POST = route(async (req) => {
   if ((await getSettings()).signupsPaused && !isAdminWallet(parsed.address) && !(await walletHasAccount(parsed.address))) {
     throw new HttpError(403, "New sign-ups are paused for now. Follow @HelloStepit on X to hear when they reopen.", "signups_paused");
   }
-  await assertHoldsPayoutToken(parsed.address);
 
   const user = await upsertOnLogin(parsed.address);
   // A first sign-in through someone's invite link links the two walkers.

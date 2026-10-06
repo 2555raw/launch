@@ -17,7 +17,7 @@ const QUESTIONS = [
   },
   {
     q: "Do I need to buy anything?",
-    a: "No. Walking is free. To join, your wallet just needs a little USDG on Robinhood Chain, even $1: it keeps out bots and it's the same token you're paid in. The Get USDG page shows how to get some in a couple of minutes.",
+    a: "No. Joining and walking are free. To cash out, your wallet just needs a little USDG on Robinhood Chain, even $1: it keeps out bots and it's the same token you're paid in. It stays in your wallet. The Get USDG page shows how to get some in a couple of minutes.",
   },
   {
     q: "How are my steps verified?",

@@ -55,7 +55,7 @@ const ROUTES = [
   },
 ] as const;
 
-/** Step by step guide to the USDG a wallet needs to join, with a live balance check. */
+/** Step by step guide to the USDG a wallet needs to cash out, with a live balance check. */
 export function GetUsdgGuide() {
   const { address: connected } = useAccount();
   const { status } = useSession();
@@ -95,7 +95,7 @@ export function GetUsdgGuide() {
           Get USDG <span className="text-lime-400">in 2 minutes.</span>
         </h1>
         <p className="mt-5 max-w-2xl text-[17px] leading-relaxed text-white/60">
-          To join, your wallet needs a little USDG on Robinhood Chain. Any amount works, even $1. It stays in your wallet:
+          Joining is free. To cash out, your wallet needs a little USDG on Robinhood Chain. Any amount works, even $1. It stays in your wallet:
           Stepit only reads the balance and never asks to move it.
         </p>
       </motion.div>
@@ -158,10 +158,10 @@ export function GetUsdgGuide() {
                 {result.ok ? <CheckCircle2 className="h-6 w-6 shrink-0 text-lime-300" /> : <XCircle className="h-6 w-6 shrink-0 text-amber-300" />}
                 <div>
                   <div className="font-semibold">
-                    {result.ok ? `You hold ${Number(result.balance).toLocaleString("en-US", { maximumFractionDigits: 2 })} ${result.symbol}. You're ready.` : `No ${result.symbol} on Robinhood Chain yet`}
+                    {result.ok ? `You hold ${Number(result.balance).toLocaleString("en-US", { maximumFractionDigits: 2 })} ${result.symbol}. You're ready to cash out.` : `No ${result.symbol} on Robinhood Chain yet`}
                   </div>
                   <div className="text-[13px] text-white/55">
-                    {result.ok ? "Connect this wallet and sign the free message to start." : "Follow one of the routes below, then check again."}
+                    {result.ok ? "This wallet can cash out its rewards." : "You can still join and walk. Follow one of the routes below before you cash out."}
                   </div>
                 </div>
               </div>
@@ -227,7 +227,7 @@ export function GetUsdgGuide() {
         {[
           ["Why USDG?", "It's what Stepit pays in, and holding a little keeps out throwaway wallets."],
           ["Does Stepit take it?", "No. Stepit only reads your balance. It never asks for approvals or moves your funds."],
-          ["Do I need ETH for gas?", "Not to join or to get paid. Only if you later want to send your USDG somewhere."],
+          ["Do I need ETH for gas?", "Not to join, cash out or get paid. Only if you later want to send your USDG somewhere."],
         ].map(([q, a]) => (
           <div key={q} className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
             <div className="font-semibold">{q}</div>

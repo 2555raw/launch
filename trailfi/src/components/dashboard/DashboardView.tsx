@@ -426,7 +426,10 @@ function RequestBanner({
       await qc.invalidateQueries({ queryKey: ["me"] });
       toast.success("Payout requested", { description: `${fmtAmount(payout.amount)} ${token} · the team will send it to your wallet.` });
     },
-    onError: (err: Error) => toast.error(err.message),
+    onError: (err: Error & { code?: string }) =>
+      err.code === "token_required"
+        ? toast.error(err.message, { duration: 12_000, action: { label: "Get USDG", onClick: () => window.location.assign("/get-usdg") } })
+        : toast.error(err.message),
   });
 
   if (openRequest) {

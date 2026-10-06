@@ -20,22 +20,18 @@ export function Mark({ className }: { className?: string }) {
   );
 }
 
-/** The app tile: the mark on a dark square, used next to the wordmark. */
+/** The mark in a square box, lime with no background, used next to the wordmark. */
 export function LogoMark({ className }: { className?: string }) {
   const g = `tf-g-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const k = 24 / MARK_W; // the mark spans 24 of the tile's 32 units
   return (
-    <svg viewBox="0 0 32 32" className={cn("h-8 w-8", className)} aria-hidden>
+    <svg viewBox={`-6 ${-(MARK_W - MARK_H) / 2 - 6} ${MARK_W + 12} ${MARK_W + 12}`} className={cn("h-8 w-8", className)} aria-hidden>
       <defs>
         <linearGradient id={g} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#d8ff9c" />
           <stop offset="1" stopColor="#5dff9d" />
         </linearGradient>
       </defs>
-      <rect x="0.5" y="0.5" width="31" height="31" rx="9.5" fill="#071d14" stroke="rgba(196,251,109,0.35)" />
-      <g transform={`translate(4 ${16 - (MARK_H * k) / 2}) scale(${k})`}>
-        <path d={MARK_PATH} fill={`url(#${g})`} stroke={`url(#${g})`} strokeWidth={MARK_ROUND} strokeLinejoin="round" />
-      </g>
+      <path d={MARK_PATH} fill={`url(#${g})`} stroke={`url(#${g})`} strokeWidth={MARK_ROUND} strokeLinejoin="round" />
     </svg>
   );
 }

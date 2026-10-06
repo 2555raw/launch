@@ -518,13 +518,28 @@ function seaScene(canvas, opts) {
   const ship = shipModel();
   scene.add(ship);
 
-  let hook = null, warm = null;
+  let hook = null, warm = null, ripple = null;
   if (opts.hook) {
     hook = hookModel();
     // the hook reflects a lit studio rather than the night, so the steel reads as steel
     const studio = environment(renderer, true);
     hook.traverse((o) => { if (o.material) o.material.envMap = studio; });
     scene.add(hook);
+    ripple = new THREE.Mesh(new THREE.RingGeometry(0.16, 1.6, 128, 6), new THREE.ShaderMaterial({
+      transparent: true, depthWrite: false, uniforms: { uTime: { value: 0 } },
+      vertexShader: 'varying vec2 vP; void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: /* glsl */`
+        uniform float uTime; varying vec2 vP;
+        void main() {
+          float r = length(vP);
+          float rings = pow(0.5 + 0.5 * sin(r * 22.0 - uTime * 3.2), 6.0);
+          float a = smoothstep(1.6, 0.25, r) * smoothstep(0.16, 0.24, r);
+          float foam = smoothstep(0.32, 0.17, r);
+          gl_FragColor = vec4(vec3(0.85, 0.88, 0.9), a * rings * 0.22 + foam * 0.35);
+        }`
+    }));
+    ripple.rotation.x = -Math.PI / 2;
+    scene.add(ripple);
     warm = new THREE.PointLight(0xffb060, 26, 30, 2);
     scene.add(warm);
     const rim = new THREE.SpotLight(0xdfe8ff, 60, 40, 0.5, 0.6, 2);
@@ -541,21 +556,23 @@ function seaScene(canvas, opts) {
     // Put the hook where the page's box for it is: a point along the ray
     // through the box's centre, hovering a little above the swell.
     const cr = canvas.getBoundingClientRect(), ar = anchor.getBoundingClientRect();
-    const ndc = new THREE.Vector2(((ar.left + ar.width / 2 - cr.left) / cr.width) * 2 - 1, -(((ar.top + ar.height * 0.52 - cr.top) / cr.height) * 2 - 1));
+    const ndc = new THREE.Vector2(((ar.left + ar.width / 2 - cr.left) / cr.width) * 2 - 1, -(((ar.top + ar.height * 0.56 - cr.top) / cr.height) * 2 - 1));
     ray.setFromCamera(ndc, camera);
-    const want = Math.min(ar.height, ar.width * 1.15) * 0.92 / cr.height;
-    // The model is 3.54 tall with its centre 0.35 below its origin, and it
-    // floats with its lowest point 0.8 above the water: its centre sits at
-    // 0.8 + 1.77·s. At distance d the screen holds 2·d·tan(fov/2), so d = s/k;
-    // the camera's height is what puts that centre on the ray through the box.
-    const k = (want * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / 3.54;
-    const s = 0.75;
+    const want = Math.min(ar.height, ar.width * 1.15) * 0.5 / cr.height;
+    // The hook stands half under water: the sea cuts its shaft at the model's
+    // y = -0.35, so what shows is the 1.77 above that (the curl and the upper
+    // shaft), centred 0.89 above the water. At distance d the screen holds
+    // 2·d·tan(fov/2), so d = s/k; the camera's height is what puts that centre
+    // on the ray through the box.
+    const k = (want * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / 1.85;
+    const s = 1.1;
     const d = s / k;
     const dir = ray.ray.direction;
-    camY = 0.8 + 1.77 * s + Math.max(0.01, -dir.y) * d;
+    camY = 0.89 * s + Math.max(0.01, -dir.y) * d;
     const p = new THREE.Vector3(camera.position.x + dir.x * d, 0, camera.position.z + dir.z * d);
     hook.userData.base = { x: p.x, z: p.z, s };
     hook.scale.setScalar(s);
+    ripple.scale.setScalar(s);
   };
 
   const draw = (t) => {
@@ -579,11 +596,13 @@ function seaScene(canvas, opts) {
     if (hook) {
       const b = hook.userData.base;
       const w = waveAt(b.x, b.z, t);
-      const bob = Math.sin(t * 0.8) * 0.08 + w.y * 0.12;
-      hook.position.set(b.x, 0.8 + 2.12 * b.s + bob, b.z);
-      hook.rotation.set(-0.1 + Math.sin(t * 0.45) * 0.03, -0.45 + Math.sin(t * 0.25) * 0.45 + pointer.x * 0.35, -0.12 + Math.sin(t * 0.6) * 0.04);
-      warm.position.set(b.x - 3 * b.s, 2.6 * b.s + 1.2, b.z + 3.2 * b.s);
-      hook.userData.rim.position.set(b.x + 3.5 * b.s, 3.5 * b.s + 1.5, b.z - 2.5 * b.s);
+      const bob = Math.sin(t * 0.8) * 0.05;
+      hook.position.set(b.x + w.x * 0.5, 0.35 * b.s + w.y * 0.85 + bob, b.z + w.z * 0.5);
+      ripple.position.set(b.x + w.x * 0.5, w.y + 0.02, b.z + w.z * 0.5);
+      ripple.material.uniforms.uTime.value = t;
+      hook.rotation.set(Math.sin(t * 0.45) * 0.03, -0.45 + Math.sin(t * 0.25) * 0.45 + pointer.x * 0.35, -0.12 + Math.sin(t * 0.6) * 0.04);
+      warm.position.set(b.x - 3 * b.s, 2.2 * b.s + 0.8, b.z + 3.2 * b.s);
+      hook.userData.rim.position.set(b.x + 3.5 * b.s, 3 * b.s + 1.2, b.z - 2.5 * b.s);
     }
     renderer.render(scene, camera);
     canvas.parentElement.classList.add('is-3d');
@@ -618,6 +637,269 @@ function coinScene(canvas) {
   });
 }
 
+/* ---------- the broadside: two cannons that fire as you scroll past ---------- */
+
+function softTexture(inner, outer) {
+  const c = document.createElement('canvas');
+  c.width = c.height = 128;
+  const g = c.getContext('2d');
+  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  gr.addColorStop(0, inner); gr.addColorStop(0.45, outer); gr.addColorStop(1, 'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+  return new THREE.CanvasTexture(c);
+}
+
+function smokeTexture() {
+  // a lumpy puff: a few overlapping soft blobs
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const g = c.getContext('2d');
+  for (let i = 0; i < 14; i++) {
+    const x = 128 + (Math.random() - 0.5) * 110, y = 128 + (Math.random() - 0.5) * 110, r = 40 + Math.random() * 50;
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
+  }
+  return new THREE.CanvasTexture(c);
+}
+
+function plankTexture() {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 512;
+  const g = c.getContext('2d');
+  for (let i = 0; i < 8; i++) {
+    const y = i * 64, tone = 38 + Math.random() * 14;
+    g.fillStyle = `rgb(${tone + 22},${tone + 6},${tone - 10})`;
+    g.fillRect(0, y, 1024, 64);
+    for (let k = 0; k < 60; k++) {
+      g.strokeStyle = `rgba(0,0,0,${0.05 + Math.random() * 0.08})`;
+      g.beginPath(); const yy = y + Math.random() * 64; g.moveTo(0, yy); g.bezierCurveTo(300, yy + 3, 700, yy - 3, 1024, yy + 1); g.stroke();
+    }
+    g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(0, y, 1024, 3);
+    const cut = Math.random() * 900;
+    g.fillRect(cut, y, 3, 64);
+    g.fillStyle = 'rgba(30,20,10,0.9)';
+    [cut - 14, cut + 17].forEach((x) => { g.beginPath(); g.arc(x, y + 20, 3, 0, 7); g.arc(x, y + 44, 3, 0, 7); g.fill(); });
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+function cannonModel(studio) {
+  const g = new THREE.Group();
+  const bronze = new THREE.MeshPhysicalMaterial({ color: 0xC58A3E, metalness: 1, roughness: 0.3, clearcoat: 0.3, envMap: studio, envMapIntensity: 1.5 });
+  const iron = new THREE.MeshStandardMaterial({ color: 0x1c1c1f, metalness: 0.8, roughness: 0.5, envMap: studio });
+  const wood = new THREE.MeshStandardMaterial({ color: 0x5a341c, roughness: 0.8 });
+  // the barrel: knob, breech, reinforce rings, a long chase and the muzzle swell
+  const prof = [
+    [0, -0.55], [0.07, -0.54], [0.09, -0.5], [0.07, -0.45], [0.05, -0.42], [0.09, -0.38], [0.26, -0.33], [0.32, -0.25],
+    [0.33, -0.12], [0.36, -0.1], [0.36, 0.0], [0.32, 0.02], [0.31, 0.5], [0.34, 0.52], [0.34, 0.6], [0.29, 0.62],
+    [0.25, 1.7], [0.28, 1.72], [0.28, 1.78], [0.25, 1.8], [0.27, 1.95], [0.31, 2.02], [0.31, 2.1], [0.16, 2.1], [0.15, 2.0]
+  ].map(([r, y]) => new THREE.Vector2(r, y));
+  const barrel = new THREE.Mesh(new THREE.LatheGeometry(prof, 96), bronze);
+  const bore = new THREE.Mesh(new THREE.CircleGeometry(0.15, 32), new THREE.MeshBasicMaterial({ color: 0x050302 }));
+  bore.rotation.x = -Math.PI / 2; bore.position.y = 2.0;
+  const trunnion = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.86, 24), bronze);
+  trunnion.rotation.z = Math.PI / 2; trunnion.position.y = 0.55;
+  const gun = new THREE.Group();
+  gun.add(barrel, bore, trunnion);
+  gun.rotation.z = -Math.PI / 2 + 0.06; // lie along +x, nose up a touch
+  gun.position.set(-0.5, 0.92, 0);
+  g.add(gun);
+  // the carriage: two cheeks, an axle and four wheels
+  const cheek = new THREE.Shape();
+  cheek.moveTo(-1.1, 0); cheek.lineTo(0.6, 0); cheek.lineTo(0.6, 0.62); cheek.lineTo(0.15, 0.62); cheek.lineTo(0.15, 0.5);
+  cheek.lineTo(-0.25, 0.5); cheek.lineTo(-0.25, 0.38); cheek.lineTo(-0.7, 0.38); cheek.lineTo(-0.7, 0.26); cheek.lineTo(-1.1, 0.26);
+  [-0.38, 0.38].forEach((z) => {
+    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(cheek, { depth: 0.12, bevelEnabled: true, bevelSize: 0.015, bevelThickness: 0.015, bevelSegments: 2 }), wood);
+    m.position.set(0, 0.24, z - 0.06);
+    g.add(m);
+  });
+  [[-0.85, 0.2], [0.35, 0.24]].forEach(([x, r]) => {
+    [-0.5, 0.5].forEach((z) => {
+      const w = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.12, 32), wood);
+      w.rotation.x = Math.PI / 2; w.position.set(x, r, z);
+      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.14, 16), iron);
+      hub.rotation.x = Math.PI / 2; hub.position.copy(w.position);
+      g.add(w, hub);
+    });
+  });
+  const touch = new THREE.Object3D(); // the touch hole, where the fuse burns
+  touch.position.set(-0.2, 0.3, 0);
+  gun.add(touch);
+  const muzzle = new THREE.Object3D();
+  muzzle.position.set(0, 2.15, 0);
+  gun.add(muzzle);
+  return { group: g, gun, touch, muzzle };
+}
+
+function broadsideScene(canvas) {
+  const renderer = makeRenderer(canvas, false, 1.5);
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 2000);
+  const studio = environment(renderer, true);
+  scene.environment = environment(renderer);
+  scene.add(skyDome(1000, true));
+  const sky = stars(small ? 500 : 1000, 900);
+  sky.material.uniforms.uPx.value = renderer.getPixelRatio();
+  scene.add(sky);
+  const water = sea();
+  water.position.y = -3.2;
+  scene.add(water);
+  scene.add(new THREE.HemisphereLight(0x5a6c90, 0x05070c, 0.6));
+  const moon = new THREE.DirectionalLight(0xdfe6ff, 1.2);
+  moon.position.copy(MOON_DIR).multiplyScalar(50);
+  scene.add(moon);
+
+  // the deck and the bulwark with two gun ports
+  const planks = plankTexture();
+  planks.repeat.set(3, 3);
+  const deck = new THREE.Mesh(new THREE.PlaneGeometry(10, 9), new THREE.MeshStandardMaterial({ map: planks, roughness: 0.75 }));
+  deck.rotation.x = -Math.PI / 2; deck.position.set(-3.3, 0, -1);
+  scene.add(deck);
+  const rail = new THREE.MeshStandardMaterial({ color: 0x4a2b16, roughness: 0.7 });
+  // the hull's side, dropping to the sea below the bulwark
+  const side = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.4, 9.2), rail);
+  side.position.set(1.8, -1.6, -1);
+  scene.add(side);
+  const wall = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.5, 9), rail);
+  wall.position.set(1.75, 0.25, -1); scene.add(wall);
+  const top = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.12, 9.2), rail);
+  top.position.set(1.75, 1.45, -1); scene.add(top);
+  [-4.6, -2.2, 0.0, 2.2].forEach((z) => {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.0, 0.6), rail);
+    post.position.set(1.75, 0.95, z + 1.1 - 1); scene.add(post);
+  });
+
+  // a lantern on the rail, swinging a little
+  const lamp = new THREE.PointLight(0xffa850, 14, 14, 2);
+  lamp.position.set(1.0, 2.0, -2.6); scene.add(lamp);
+  const lampGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTexture('rgba(255,210,140,1)', 'rgba(255,140,40,0.35)'), blending: THREE.AdditiveBlending, depthWrite: false }));
+  lampGlow.scale.setScalar(0.9); lampGlow.position.copy(lamp.position); scene.add(lampGlow);
+
+  const guns = [cannonModel(studio), cannonModel(studio)];
+  guns[0].group.position.set(0.55, 0, 0.0);
+  guns[1].group.position.set(0.55, 0, -2.2);
+  guns.forEach((c) => scene.add(c.group));
+
+  // effects
+  const flashTex = softTexture('rgba(255,250,220,1)', 'rgba(255,150,40,0.6)');
+  const smokeTex = smokeTexture();
+  const sparkTex = softTexture('rgba(255,240,200,1)', 'rgba(255,160,60,0.5)');
+  const parts = [];
+  const sprite = (tex, additive) => {
+    const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending }));
+    scene.add(m);
+    return m;
+  };
+  const emit = (kind, pos, vel, life, size, grow) => {
+    const m = sprite(kind === 'smoke' ? smokeTex : kind === 'flash' ? flashTex : sparkTex, kind !== 'smoke');
+    m.position.copy(pos);
+    m.material.rotation = Math.random() * 6.28;
+    parts.push({ m, kind, vel, life, age: 0, size, grow });
+  };
+  const flash = new THREE.PointLight(0xffc070, 0, 30, 2);
+  scene.add(flash);
+  const balls = [];
+  const ballMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.7, roughness: 0.4 });
+
+  const muzzlePos = new THREE.Vector3(), dirV = new THREE.Vector3();
+  const fire = (c) => {
+    c.muzzle.getWorldPosition(muzzlePos);
+    dirV.set(Math.cos(0.06), Math.sin(0.06), 0);
+    c.kick = 1;
+    flash.position.copy(muzzlePos); flash.intensity = 260;
+    for (let i = 0; i < 3; i++) emit('flash', muzzlePos.clone().addScaledVector(dirV, 0.3 + i * 0.35), dirV.clone().multiplyScalar(2), 0.14 + i * 0.03, 2.2 - i * 0.4, 6);
+    for (let i = 0; i < (small ? 22 : 36); i++) {
+      const v = dirV.clone().multiplyScalar(2.5 + Math.random() * 6).add(new THREE.Vector3((Math.random() - 0.5) * 1.5, Math.random() * 1.6, (Math.random() - 0.5) * 2.2));
+      emit('smoke', muzzlePos.clone(), v, 2.6 + Math.random() * 2.2, 0.5 + Math.random() * 0.6, 1.4 + Math.random());
+    }
+    for (let i = 0; i < 26; i++) {
+      const v = dirV.clone().multiplyScalar(4 + Math.random() * 8).add(new THREE.Vector3((Math.random() - 0.5) * 4, Math.random() * 4, (Math.random() - 0.5) * 4));
+      emit('spark', muzzlePos.clone(), v, 0.5 + Math.random() * 0.7, 0.08 + Math.random() * 0.08, 0);
+    }
+    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 12), ballMat);
+    ball.position.copy(muzzlePos);
+    balls.push({ m: ball, v: dirV.clone().multiplyScalar(42), age: 0 });
+    scene.add(ball);
+    // the page feels it
+    const host = canvas.parentElement;
+    host.classList.remove('is-boom'); void host.offsetWidth; host.classList.add('is-boom');
+  };
+
+  // fire when the scene comes into view; re-arm once it has left the screen
+  let armed = true, timeline = null;
+  new IntersectionObserver(([e]) => {
+    if (still) return;
+    if (e.intersectionRatio >= 0.5 && armed) { armed = false; timeline = 0; }
+    if (e.intersectionRatio === 0) armed = true;
+  }, { threshold: [0, 0.5] }).observe(canvas);
+
+  let last = 0;
+  loop(canvas, (t) => {
+    if (!fit(renderer, camera, canvas)) return;
+    const dt = Math.min(0.1, t - last); last = t;
+    pointer.x += (pointer.tx - pointer.x) * 0.05;
+    const wide = camera.aspect > 1.4;
+    camera.position.set(-3.6 + pointer.x * 0.3, 2.4, wide ? 5.2 : 7.5);
+    camera.lookAt(wide ? 2.6 : 1.4, 0.9, -1.2);
+    water.material.uniforms.uTime.value = t;
+    sky.material.uniforms.uTime.value = t;
+    lamp.intensity = 13 + Math.sin(t * 9) * 1.2 + Math.sin(t * 23) * 0.6;
+    lampGlow.position.set(1.0 + Math.sin(t * 1.3) * 0.05, 2.0, -2.6);
+
+    // the fuses fizz, then the guns fire one after the other
+    if (timeline !== null) {
+      const before = timeline;
+      timeline += dt;
+      guns.forEach((c, i) => {
+        const at = 0.55 + i * 0.5;
+        if (timeline < at && Math.random() < 0.7) {
+          const p = c.touch.getWorldPosition(new THREE.Vector3());
+          emit('spark', p, new THREE.Vector3((Math.random() - 0.5) * 1.5, 1 + Math.random() * 1.5, (Math.random() - 0.5) * 1.5), 0.3, 0.05 + Math.random() * 0.05, 0);
+        }
+        if (before < at && timeline >= at) fire(c);
+      });
+      if (timeline > 6) timeline = null;
+    }
+    // recoil: back fast, then run out slowly
+    guns.forEach((c, i) => {
+      c.kick = Math.max(0, (c.kick || 0) - dt * 0.9);
+      const k = c.kick > 0.85 ? (1 - c.kick) / 0.15 : c.kick / 0.85;
+      c.group.position.x = 0.55 - 0.7 * Math.pow(Math.max(0, k), 0.6) * (c.kick > 0 ? 1 : 0);
+    });
+    flash.intensity *= Math.pow(0.0005, dt);
+
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i];
+      p.age += dt;
+      const f = p.age / p.life;
+      if (f >= 1) { scene.remove(p.m); p.m.material.dispose(); parts.splice(i, 1); continue; }
+      if (p.kind === 'smoke') {
+        p.vel.multiplyScalar(Math.pow(0.18, dt)); p.vel.y += dt * 0.35; p.vel.x += dt * 0.25;
+        p.m.material.opacity = 0.5 * Math.sin(Math.min(1, f * 6) * Math.PI / 2) * (1 - f);
+        p.m.material.color.setRGB(0.55 + 0.2 * (1 - f), 0.52 + 0.15 * (1 - f), 0.5);
+      } else if (p.kind === 'spark') {
+        p.vel.y -= dt * 9; p.m.material.opacity = 1 - f;
+      } else {
+        p.m.material.opacity = 1 - f;
+      }
+      p.m.position.addScaledVector(p.vel, dt);
+      p.m.scale.setScalar(p.size * (1 + p.grow * f));
+    }
+    for (let i = balls.length - 1; i >= 0; i--) {
+      const b = balls[i];
+      b.age += dt; b.v.y -= 9.8 * dt;
+      b.m.position.addScaledVector(b.v, dt);
+      if (b.age > 3) { scene.remove(b.m); balls.splice(i, 1); }
+    }
+    renderer.render(scene, camera);
+    canvas.parentElement.classList.add('is-3d');
+  });
+}
+
 /* ---------- start ---------- */
 
 function webgl() {
@@ -646,6 +928,8 @@ if (webgl()) {
         });
       } else if (kind === 'coin') {
         coinScene(canvas);
+      } else if (kind === 'broadside') {
+        broadsideScene(canvas);
       }
     } catch (err) {
       // leave the 2D drawing in place

@@ -19,7 +19,7 @@
 .ap-docs:hover { color: var(--pink); }
 
 .ap-body { margin: auto 0; padding: 56px 0; max-width: 460px; }
-.ap-h1 { font-family: var(--font-display); font-size: clamp(38px, 4.4vw, 52px); line-height: 1.06; letter-spacing: 0; font-weight: 400; }
+.ap-h1 { font-family: var(--font-display); font-size: clamp(38px, 4.4vw, 52px); line-height: 1.06; letter-spacing: -.01em; font-weight: 800; }
 .ap-lead { margin-top: 20px; font-size: 16px; line-height: 1.65; color: var(--prose); }
 .ap-lead a { color: var(--pink); }
 

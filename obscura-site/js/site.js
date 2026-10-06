@@ -77,3 +77,35 @@ document.addEventListener("click", (e) => {
   const src = document.querySelector(btn.dataset.copy);
   if (src) copy(src.value ?? src.textContent, btn.dataset.copyLabel || "Copied");
 });
+
+// Inside a preview frame (for example a claude.ai link), wallets, chain lookups
+// and downloads are blocked. Point people at the full site instead of letting
+// those features fail quietly.
+const FULL_SITE = "https://launch-production-c4cd.up.railway.app";
+let framed = false;
+try { framed = window.self !== window.top; } catch { framed = true; }
+if (framed && !location.href.startsWith(FULL_SITE)) {
+  const bar = document.createElement("div");
+  bar.className = "preview-bar";
+  bar.setAttribute("role", "note");
+  const text = document.createElement("span");
+  text.textContent = "Preview: wallets, balance checks and downloads only work on the full site.";
+  const link = document.createElement("a");
+  link.href = FULL_SITE + location.pathname.replace(/^.*\//, "/") + location.hash;
+  link.target = "_blank";
+  link.rel = "noopener";
+  link.textContent = "Open the full site";
+  bar.append(text, link);
+  document.body.prepend(bar);
+  document.documentElement.classList.add("has-preview-bar");
+}
+
+// Sealing needs the Web Crypto API, which browsers only expose on https.
+if (!globalThis.crypto?.subtle) {
+  const bar = document.createElement("div");
+  bar.className = "preview-bar";
+  bar.setAttribute("role", "alert");
+  bar.textContent = "This page needs a secure connection (https) to seal and check proofs. Open it from its https address.";
+  document.body.prepend(bar);
+  document.documentElement.classList.add("has-preview-bar");
+}

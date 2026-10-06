@@ -772,3 +772,8 @@ details.raw summary:hover { color: var(--ink); }
 .st-spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line-2); border-top-color: var(--accent); }
 @media (prefers-reduced-motion: no-preference) { .st-spin { animation: spin .8s linear infinite; } }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* preview frames: a bar that sends people to the full site */
+.preview-bar { position: sticky; top: 0; z-index: 60; display: flex; align-items: center; justify-content: center; gap: 6px 14px; flex-wrap: wrap; padding: 10px 16px; background: var(--ink); color: #fff; font-size: 13.5px; text-align: center; }
+.preview-bar a { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.has-preview-bar .nav-wrap { top: 58px; }

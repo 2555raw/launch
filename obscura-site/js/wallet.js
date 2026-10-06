@@ -54,6 +54,18 @@ const allWallets = () => [...WALLETS, ...extraWallets()];
 const findWallet = (id) => allWallets().find((w) => w.id === id || w.rdns.includes(id));
 
 export function connection() { return current; }
+
+// Resolves with the connection, or null if the picker is closed without one.
+const closedListeners = new Set();
+function emitClosed() { closedListeners.forEach((fn) => fn()); closedListeners.clear(); }
+export function waitForConnection() {
+  if (current) return Promise.resolve(current);
+  return new Promise((resolve) => {
+    const off = onWalletChange((c) => { if (c) { off(); closedListeners.delete(cancel); resolve(c); } });
+    const cancel = () => { off(); resolve(null); };
+    closedListeners.add(cancel);
+  });
+}
 export function onWalletChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
 function emit() { renderButtons(); renderList(); listeners.forEach((fn) => fn(current)); }
 
@@ -129,6 +141,7 @@ function buildDialog() {
       </div>
       <div class="sheet-body"><div id="wallet-connected"></div><ul class="wallet-list" id="wallet-list"></ul></div>
     </div>`;
+  dlg.addEventListener("close", () => { if (!current) emitClosed(); });
   dlg.addEventListener("click", (e) => {
     if (e.target === dlg || e.target.closest("[data-close]")) dlg.close();
     const item = e.target.closest("[data-connect]");

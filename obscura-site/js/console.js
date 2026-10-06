@@ -1,7 +1,7 @@
 // Console: cloak, vault, transfer and receive. State is one array in localStorage.
 import { cloak, seal, receive, encodeReceipt, verify, sealBackup, openBackup, BACKUP_PREFIX, secondsLeft } from "./obscura.js";
 import { toast, copy } from "./site.js";
-import { connection, openWallets, onWalletChange } from "./wallet.js";
+import { connection, openWallets, waitForConnection } from "./wallet.js";
 import { readBalance, signFunds, floorAmount, parseUnits, formatUnits } from "./proof.js";
 import { renderShare, openShareDialog } from "./share.js";
 
@@ -93,9 +93,8 @@ async function readFromWallet() {
   let conn = connection();
   if (!conn) {
     openWallets();
-    conn = await new Promise((resolve) => {
-      const off = onWalletChange((c) => { if (c) { off(); resolve(c); } });
-    });
+    conn = await waitForConnection();
+    if (!conn) return; // picker closed without a wallet
   }
   const btn = $("f-read");
   btn.setAttribute("aria-busy", "true");

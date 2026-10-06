@@ -1,0 +1,23 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:SG;font-weight:700;src:url(../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2)}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:transparent}
+.v{display:none;position:relative;overflow:hidden;align-items:center;justify-content:center}
+body[data-v="mark"] #mark,body[data-v="pfp-dark"] #pfp-dark,body[data-v="pfp-lime"] #pfp-lime,body[data-v="wordmark"] #wordmark,body[data-v="wordmark-dark"] #wordmark-dark{display:flex}
+#mark{width:1024px;height:1024px}
+#pfp-dark{width:800px;height:800px;background:radial-gradient(60% 60% at 50% 50%,#132a12 0%,#060807 100%)}
+#pfp-lime{width:800px;height:800px;background:#c4fb6d}
+#wordmark,#wordmark-dark{width:1600px;height:480px;gap:56px}
+#wordmark-dark{background:#060807}
+.word{font-family:SG;font-weight:700;font-size:200px;letter-spacing:-6px;color:#fff;line-height:1}
+.word i{font-style:normal;color:#c4fb6d}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#b2f047"/></linearGradient>
+<path id="m" d="M108.0 6.0L177.5 42.1L177.5 84.7L108.0 47.4ZM284.0 6.0L214.5 42.1L214.5 84.7L284.0 47.4ZM59.0 69.0L177.5 127.1L177.5 169.7L59.0 110.4ZM333.0 69.0L214.5 127.1L214.5 169.7L333.0 110.4ZM6.0 132.0L177.5 214.0L177.5 256.6L6.0 173.4ZM386.0 132.0L214.5 214.0L214.5 256.6L386.0 173.4Z" stroke-width="12" stroke-linejoin="round"/></defs></svg>
+<div class="v" id="mark"><svg width="900" height="604" viewBox="-6 -6 404 275"><use href="#m" fill="url(#g)" stroke="url(#g)"/></svg></div>
+<div class="v" id="pfp-dark"><svg width="470" height="315" viewBox="-6 -6 404 275" style="margin-top:12px"><use href="#m" fill="url(#g)" stroke="url(#g)"/></svg></div>
+<div class="v" id="pfp-lime"><svg width="470" height="315" viewBox="-6 -6 404 275" style="margin-top:12px"><use href="#m" fill="#060807" stroke="#060807"/></svg></div>
+<div class="v" id="wordmark"><svg width="330" height="221" viewBox="-6 -6 404 275"><use href="#m" fill="url(#g)" stroke="url(#g)"/></svg><div class="word">Step<i>it</i></div></div>
+<div class="v" id="wordmark-dark"><svg width="330" height="221" viewBox="-6 -6 404 275"><use href="#m" fill="url(#g)" stroke="url(#g)"/></svg><div class="word">Step<i>it</i></div></div>
+<script>document.body.dataset.v=location.hash.slice(1)||"mark"</script>
+</body></html>

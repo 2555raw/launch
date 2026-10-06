@@ -1,0 +1,65 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:SG;font-weight:500;src:url(../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2)}
+@font-face{font-family:SG;font-weight:700;src:url(../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2)}
+@font-face{font-family:JB;font-weight:500;src:url(../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1500px;height:500px;overflow:hidden;background:#060807;font-family:SG;color:#fff;position:relative}
+/* The hero photo, cropped to the peaks and clouds */
+.photo{position:absolute;inset:0;background:url(../public/images/hero-trail.jpg) no-repeat;background-size:2246px auto;background-position:0 -18px;filter:saturate(.55) brightness(.72)}
+.shade{position:absolute;inset:0;background:
+  linear-gradient(to bottom,rgba(5,8,7,.35),rgba(5,8,7,.05) 55%,rgba(5,8,7,.75)),
+  linear-gradient(to left,rgba(5,8,7,.55),transparent 45%),
+  radial-gradient(80% 90% at 45% 45%,transparent 50%,rgba(4,10,7,.6) 100%)}
+.tint{position:absolute;inset:0;background:rgba(11,42,28,.18);mix-blend-mode:multiply}
+.glass{position:absolute;border-radius:24px;border:1px solid rgba(255,255,255,.12);background:rgba(10,13,11,.55);backdrop-filter:blur(18px) saturate(140%);box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 30px 60px -20px rgba(0,0,0,.7)}
+.label{font-family:JB;font-weight:500;font-size:10.5px;letter-spacing:2.4px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#c4fb6d;box-shadow:0 0 12px rgba(196,251,109,.8);margin-right:8px;vertical-align:1px}
+/* Steps panel */
+.steps{right:300px;top:96px;width:300px;padding:22px 24px}
+.big{font-weight:700;font-size:54px;letter-spacing:-2px;line-height:1;margin-top:16px}
+.unit{font-size:14px;color:rgba(255,255,255,.55);margin-top:6px;display:flex;align-items:center;gap:7px}
+.bar{margin-top:18px;height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar i{display:block;height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#b2f047,#d8ff9c);box-shadow:0 0 14px rgba(196,251,109,.6)}
+.marks{display:flex;justify-content:space-between;margin-top:8px;font-family:JB;font-size:10px;color:rgba(255,255,255,.35)}
+/* Week panel */
+.week{right:56px;top:66px;width:220px;padding:20px 20px 16px}
+.cols{display:flex;align-items:flex-end;gap:9px;height:112px;margin-top:16px}
+.cols div{flex:1;border-radius:7px;background:rgba(196,251,109,.22)}
+.cols div.on{background:linear-gradient(to top,#b2f047,#d8ff9c);box-shadow:0 0 14px rgba(196,251,109,.45)}
+.days{display:flex;gap:9px;margin-top:8px;font-family:JB;font-size:10px;color:rgba(255,255,255,.4)}
+.days span{flex:1;text-align:center}
+/* Payout panel */
+.paid{right:56px;top:300px;width:300px;padding:16px 18px;display:flex;align-items:center;gap:14px;border-color:rgba(196,251,109,.35)}
+.paid img{width:42px;height:42px;border-radius:50%}
+.amt{font-weight:700;font-size:28px;letter-spacing:-.8px;color:#d8ff9c;line-height:1}
+.amt small{font-size:15px;color:rgba(255,255,255,.7);font-weight:500;letter-spacing:0;margin-left:4px}
+.sub{font-size:12.5px;color:rgba(255,255,255,.5);margin-top:5px}
+.check{margin-left:auto;width:30px;height:30px;border-radius:50%;background:#c4fb6d;display:grid;place-items:center}
+/* Verified chip */
+.chip{right:376px;top:330px;padding:10px 14px 10px 10px;display:flex;align-items:center;gap:10px;border-radius:999px;font-size:13.5px;color:rgba(255,255,255,.85)}
+.chip b{width:26px;height:26px;border-radius:50%;background:rgba(196,251,109,.15);display:grid;place-items:center}
+</style></head><body>
+<div class="photo"></div><div class="tint"></div><div class="shade"></div>
+
+<div class="glass steps">
+  <div class="label"><span class="dot"></span>Steps today</div>
+  <div class="big">10,000</div>
+  <div class="unit"><svg width="16" height="16" viewBox="-6 -70.5 404 404"><path fill="#c4fb6d" stroke="#c4fb6d" stroke-width="12" stroke-linejoin="round" d="M108.0 6.0L177.5 42.1L177.5 84.7L108.0 47.4ZM284.0 6.0L214.5 42.1L214.5 84.7L284.0 47.4ZM59.0 69.0L177.5 127.1L177.5 169.7L59.0 110.4ZM333.0 69.0L214.5 127.1L214.5 169.7L333.0 110.4ZM6.0 132.0L177.5 214.0L177.5 256.6L6.0 173.4ZM386.0 132.0L214.5 214.0L214.5 256.6L386.0 173.4Z"/></svg>Daily goal reached</div>
+  <div class="bar"><i></i></div>
+  <div class="marks"><span>0</span><span>5K</span><span>10K</span></div>
+</div>
+
+<div class="glass week">
+  <div class="label">This week</div>
+  <div class="cols"><div class="on" style="height:72%"></div><div class="on" style="height:55%"></div><div style="height:30%"></div><div class="on" style="height:88%"></div><div class="on" style="height:64%"></div><div class="on" style="height:100%"></div><div style="height:18%"></div></div>
+  <div class="days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+</div>
+
+<div class="glass paid">
+  <img src="../public/tokens/usdg.png" alt="">
+  <div><div class="amt">+5.00<small>USDG</small></div><div class="sub">Paid on Robinhood Chain</div></div>
+  <div class="check"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#060807" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+</div>
+
+<div class="glass chip"><b><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4fb6d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></b>Screenshot verified</div>
+</body></html>

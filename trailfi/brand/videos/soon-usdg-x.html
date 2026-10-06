@@ -12,10 +12,15 @@ body{width:1600px;height:900px}
 .word{font-size:200px;font-weight:700;letter-spacing:-6px;line-height:1;color:#c4fb6d;text-shadow:0 0 60px rgba(196,251,109,.35)}
 .tag{margin-top:26px;display:flex;justify-content:flex-start;align-items:center;gap:14px;font-size:34px;font-weight:700}
 .label{font-family:JB;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.chip{position:absolute;display:flex;align-items:center;gap:10px;padding:10px 16px 10px 10px;border-radius:999px;background:rgba(10,13,11,.55);border:1px solid rgba(196,251,109,.28);font-family:JB;font-size:20px;color:#d8ff9c;white-space:nowrap}
+.chip img{width:30px;height:30px;border-radius:50%}
+.fcoin{position:absolute;border-radius:50%;box-shadow:0 0 30px rgba(196,251,109,.35)}
 .fade{inset:0;background:#060807}
 </style></head><body>
 <div class="abs sky" id="sky"></div><div class="abs skyshade"></div>
 <div class="abs glow" id="glow"></div>
+<div class="abs" id="float" style="inset:0;overflow:hidden"></div>
+<div class="abs" id="tshade" style="left:700px;top:230px;width:820px;height:500px;border-radius:50%;background:radial-gradient(closest-side,rgba(6,8,7,.82),rgba(6,8,7,.5) 60%,transparent);opacity:0"></div>
 <div class="abs phone" id="phone"><div class="screen">
   <div class="notch"></div>
 
@@ -61,15 +66,49 @@ body{width:1600px;height:900px}
 <div class="abs soon" id="soon">
   <div class="word" id="word">SOON</div>
   <div id="sub" style="margin-top:14px;font-size:38px;font-weight:700;letter-spacing:-1px">Walk. Upload. <span class="lime">Get paid in USDG.</span></div>
-  <div class="tag" id="tag"><svg width="48" height="32" viewBox="-6 -6 404 275"><path id="mk3" fill="url(#lg)" stroke="url(#lg)" stroke-width="12" stroke-linejoin="round"/></svg>Step<span class="lime" style="margin-left:-14px">it</span><span style="color:rgba(255,255,255,.45);font-weight:500;margin-left:8px">stepit.site</span></div>
+  <div class="tag" id="tag"><svg width="48" height="32" viewBox="-6 -6 404 275"><path id="mk3" fill="url(#lg)" stroke="url(#lg)" stroke-width="12" stroke-linejoin="round"/></svg>Step<span class="lime" style="margin-left:-14px">it</span></div>
 </div>
 <svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#b2f047"/></linearGradient></defs></svg>
 <div class="abs fade" id="fade"></div>
 <script src="_anim.js"></script><script>
 const MARK = "M108.0 6.0L177.5 42.1L177.5 84.7L108.0 47.4ZM284.0 6.0L214.5 42.1L214.5 84.7L284.0 47.4ZM59.0 69.0L177.5 127.1L177.5 169.7L59.0 110.4ZM333.0 69.0L214.5 127.1L214.5 169.7L333.0 110.4ZM6.0 132.0L177.5 214.0L177.5 256.6L6.0 173.4ZM386.0 132.0L214.5 214.0L214.5 256.6L386.0 173.4Z";
 ["mk1", "mk2", "mk3"].forEach((id) => $(id).setAttribute("d", MARK));
+
+// Steps and USDG floating up behind SOON
+const FL = [];
+(() => {
+  const host = $("float");
+  const kinds = ["coin", "steps", "coin", "usdg", "coin", "steps", "coin", "usdg"];
+  const steps = ["10,871", "8,432", "12,050", "9,870", "7,215", "11,342", "6,104"];
+  let html = "";
+  for (let i = 0; i < 26; i++) {
+    const k = kinds[i % kinds.length];
+    const x = 40 + ((i * 397) % 1500), y0 = 260 + ((i * 263) % 960), sp = 120 + ((i * 53) % 110), sz = 34 + ((i * 29) % 56);
+    const depth = 0.45 + ((i * 37) % 55) / 100;
+    if (k === "coin") html += `<img class="fcoin fl" src="../../public/tokens/usdg.png" style="width:${sz}px;height:${sz}px">`;
+    else if (k === "steps") html += `<div class="chip fl"><svg width="26" height="18" viewBox="-6 -6 404 275"><path d="${MARK}" fill="#c4fb6d" stroke="#c4fb6d" stroke-width="12" stroke-linejoin="round"/></svg>${steps[i % steps.length]} steps</div>`;
+    else html += `<div class="chip fl"><img src="../../public/tokens/usdg.png">+${(1 + (i % 5)).toFixed(2)} USDG</div>`;
+    FL.push({ x, y0, sp, depth, sway: (i % 2 ? 1 : -1) * (10 + (i % 4) * 6), ph: i * 0.9 });
+  }
+  host.innerHTML = html;
+})();
 window.DURATION = 5.6;
 window.render = (t) => {
+  // floating layer appears with SOON
+  const fa = prog(t, 3.4, 3.9) * (1 - prog(t, 5.25, 5.55));
+  set("tshade", { opacity: String(fa) });
+  document.querySelectorAll("#float .fl").forEach((el, i) => {
+    const f = FL[i], dt = Math.max(0, t - 3.2);
+    el.style.left = `${f.x + f.sway * Math.sin(t * 1.6 + f.ph)}px`;
+    el.style.top = `${f.y0 - dt * f.sp * 1.3}px`;
+    // fade items as they pass behind the SOON text so it stays clean
+    const ex = f.x + f.sway * Math.sin(t * 1.6 + f.ph), ey = f.y0 - dt * f.sp * 1.3;
+    const edge = Math.min(ex - 640, 1460 - ex, ey - 280, 690 - ey); // distance inside the text box
+    const hide = clamp(edge / 70);
+    el.style.opacity = String(fa * f.depth * 0.6 * (1 - 0.92 * hide));
+    el.style.transform = `scale(${0.7 + f.depth * 0.5})`;
+    el.style.filter = f.depth < 0.6 ? "blur(2px)" : "none";
+  });
   set("sky", { transform: `translate(${-30 * (t / window.DURATION)}px, ${10 * Math.sin(t * 0.6)}px) scale(${1.02 + 0.03 * (t / window.DURATION)})` });
   // 1 · steps race up
   const k = prog(t, 0.1, 1.2);

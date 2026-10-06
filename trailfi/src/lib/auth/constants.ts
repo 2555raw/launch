@@ -1,6 +1,6 @@
 export const SESSION_COOKIE = "trailfi_session";
 export const NONCE_COOKIE = "trailfi_nonce";
-export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 7;
+export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
 
 /**
  * Signed during sign-in. It is the consent the user gives for their public

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDisconnect } from "wagmi";
+import { useSignIn } from "@/components/providers/Providers";
 import { useSession } from "@/components/providers/SessionProvider";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -28,11 +29,13 @@ export function AddressAvatar({ address, className }: { address: string; classNa
 export function ConnectWallet({ size = "md", className, label = "Connect Wallet" }: { size?: "sm" | "md" | "lg"; className?: string; label?: string }) {
   const needsWalletApp = useNeedsWalletApp();
   const [sheetOpen, setSheetOpen] = useState(false);
+  const { status } = useSession();
+  const { signIn, signing } = useSignIn();
   return (
     <ConnectButton.Custom>
-      {({ account, chain, openConnectModal, mounted, authenticationStatus }) => {
-        const ready = mounted && authenticationStatus !== "loading";
-        const connected = ready && account && chain && authenticationStatus === "authenticated";
+      {({ account, chain, openConnectModal, mounted }) => {
+        const ready = mounted && status !== "loading";
+        const connected = ready && account && chain && status === "authenticated";
 
         if (!ready) {
           return (
@@ -47,10 +50,10 @@ export function ConnectWallet({ size = "md", className, label = "Connect Wallet"
               <Button
                 size={size}
                 className={className}
-                onClick={() => (needsWalletApp && !account ? setSheetOpen(true) : openConnectModal())}
+                onClick={() => (account ? void signIn() : needsWalletApp ? setSheetOpen(true) : openConnectModal())}
                 icon={<Wallet className="h-4 w-4" />}
               >
-                {account ? "Verify wallet" : label}
+                {account ? (signing ? "Check your wallet…" : "Sign in") : label}
               </Button>
               <MobileWalletSheet open={sheetOpen} onClose={() => setSheetOpen(false)} openConnectModal={openConnectModal} />
             </>

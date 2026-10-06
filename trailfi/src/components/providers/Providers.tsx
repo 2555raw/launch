@@ -1,18 +1,12 @@
 "use client";
 
 import "@rainbow-me/rainbowkit/styles.css";
-import {
-  RainbowKitAuthenticationProvider,
-  RainbowKitProvider,
-  createAuthenticationAdapter,
-  darkTheme,
-  type DisclaimerComponent,
-} from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, darkTheme, type DisclaimerComponent } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useMemo, useState, type ReactNode, useEffect } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Toaster, toast } from "sonner";
 import { createSiweMessage } from "viem/siwe";
-import { WagmiProvider } from "wagmi";
+import { WagmiProvider, useAccount, useSignMessage } from "wagmi";
 import { SIWE_STATEMENT } from "@/lib/auth/constants";
 import { makeWagmiConfig } from "@/lib/web3/wagmi";
 import { PAYOUT_CHAIN_ID, SUPPORTED_CHAINS } from "@/lib/web3/chains";
@@ -38,68 +32,90 @@ theme.colors.modalBorder = "rgba(255,255,255,0.08)";
 theme.colors.profileForeground = "#0b100d";
 theme.colors.connectButtonBackground = "#0b100d";
 
+interface SignInState {
+  /** Asks the wallet for the one free sign-in signature and opens a session. */
+  signIn: () => Promise<void>;
+  signing: boolean;
+}
+const SignInContext = createContext<SignInState>({ signIn: async () => {}, signing: false });
+export const useSignIn = () => useContext(SignInContext);
+
+/**
+ * Sign-In With Ethereum without an extra step: as soon as a wallet connects, the signature
+ * request opens in the wallet. The session then lasts 30 days, so it is a one time thing per device.
+ */
 function AuthBridge({ children }: { children: ReactNode }) {
   const session = useSession();
-  const adapter = useMemo(
-    () =>
-      createAuthenticationAdapter({
-        getNonce: async () => {
-          const res = await fetch("/api/auth/nonce", { cache: "no-store" });
-          if (!res.ok) throw new Error("Could not start login");
-          return (await res.json()).nonce as string;
-        },
-        createMessage: ({ nonce, address, chainId }) =>
-          createSiweMessage({
-            domain: window.location.host,
-            address,
-            statement: SIWE_STATEMENT,
-            uri: window.location.origin,
-            version: "1",
-            chainId: SUPPORTED_CHAINS[chainId] ? chainId : PAYOUT_CHAIN_ID,
-            nonce,
-            issuedAt: new Date(),
-            expirationTime: new Date(Date.now() + 10 * 60_000),
-          }),
-        verify: async ({ message, signature }) => {
-          const res = await fetch("/api/auth/verify", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ message, signature }),
-          });
-          if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            if (err.code === "token_required") {
-              toast.error(err.error, {
-                duration: 12_000,
-                action: { label: "Get USDG", onClick: () => window.location.assign("/get-usdg") },
-              });
-            } else {
-              toast.error(err.error ?? "Wallet verification failed");
-            }
-            return false;
-          }
-          await session.refresh();
-          toast.success("Wallet connected", { description: "Your public address is verified and registered." });
-          return true;
-        },
-        signOut: async () => {
-          await session.signOut();
-        },
-      }),
-    [session],
-  );
+  const { address, chainId, isConnected } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+  const [signing, setSigning] = useState(false);
+  const busy = useRef(false);
 
+  const signIn = useCallback(async () => {
+    if (!address || busy.current) return;
+    busy.current = true;
+    setSigning(true);
+    try {
+      const nonceRes = await fetch("/api/auth/nonce", { cache: "no-store" });
+      if (!nonceRes.ok) throw new Error("Could not start login");
+      const { nonce } = (await nonceRes.json()) as { nonce: string };
+      const message = createSiweMessage({
+        domain: window.location.host,
+        address,
+        statement: SIWE_STATEMENT,
+        uri: window.location.origin,
+        version: "1",
+        chainId: chainId && SUPPORTED_CHAINS[chainId] ? chainId : PAYOUT_CHAIN_ID,
+        nonce,
+        issuedAt: new Date(),
+        expirationTime: new Date(Date.now() + 10 * 60_000),
+      });
+      const signature = await signMessageAsync({ message });
+      const res = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ message, signature }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error ?? "Wallet verification failed");
+        return;
+      }
+      await session.refresh();
+      toast.success("Wallet connected", { description: "Your public address is verified and registered." });
+    } catch (e) {
+      const rejected = /reject|denied|cancel/i.test(String((e as Error)?.message ?? e));
+      toast.error(rejected ? "Signature cancelled" : "Wallet verification failed", {
+        description: rejected ? "Sign the free message to finish connecting. It moves no money." : undefined,
+      });
+    } finally {
+      busy.current = false;
+      setSigning(false);
+    }
+  }, [address, chainId, signMessageAsync, session]);
+
+  // Open the signature request right after the wallet connects (once per address per visit).
+  const autoTried = useRef<string | null>(null);
+  useEffect(() => {
+    if (!isConnected || !address || session.status !== "unauthenticated") return;
+    if (autoTried.current === address.toLowerCase()) return;
+    autoTried.current = address.toLowerCase();
+    void signIn();
+  }, [isConnected, address, session.status, signIn]);
+
+  const value = useMemo(() => ({ signIn, signing }), [signIn, signing]);
   return (
-    <RainbowKitAuthenticationProvider adapter={adapter} status={session.status}>
+    <SignInContext.Provider value={value}>
       <RainbowKitProvider
         theme={theme}
         modalSize="compact"
+        locale="en-US"
         initialChain={PAYOUT_CHAIN_ID}
         appInfo={{ appName: "Stepit", disclaimer: Disclaimer, learnMoreUrl: "/docs" }}
       >
         {children}
       </RainbowKitProvider>
-    </RainbowKitAuthenticationProvider>
+    </SignInContext.Provider>
   );
 }
 

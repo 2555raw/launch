@@ -27,8 +27,12 @@ const withCA = async (r) => { const body = (await (await r.fetch()).text()).repl
   ok('holders from explorer', (await p.textContent('#mk-holders')) === '1,234');
   await p.$eval('#market', e => e.scrollIntoView({ block: 'center', behavior: 'instant' }));
   await p.waitForTimeout(900);
+  // measure right before hovering (the reveal animation can still be moving
+  // the chart), then wait for the tooltip rather than a fixed time
+  await p.waitForTimeout(900);
   const bx = await p.$eval('#mk-spark', e => { const r = e.getBoundingClientRect(); return { x: r.x + r.width * 0.5, y: r.y + r.height / 2 }; });
-  await p.waitForTimeout(900); await p.mouse.move(bx.x, bx.y); await p.waitForTimeout(150);
+  await p.mouse.move(bx.x, bx.y);
+  await p.waitForFunction(() => /\$0\.000/.test(document.querySelector('#mk-tip').textContent), null, { timeout: 3000 }).catch(() => {});
   ok('hover tooltip with time and price', /\$0\.000/.test(await p.textContent('#mk-tip')), await p.textContent('#mk-tip'));
   await p.screenshot({ path: require('path').join(__dirname, 'market.png') });
   await p.setViewportSize({ width: 390, height: 844 }); await p.waitForTimeout(200);

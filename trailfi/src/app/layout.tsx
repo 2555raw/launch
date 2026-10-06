@@ -23,7 +23,8 @@ export const metadata: Metadata = {
     type: "website",
   },
   twitter: { card: "summary_large_image" },
-  icons: { icon: "/icon.svg" },
+  // A new file name so browsers drop the cached footprints icon.
+  icons: { icon: "/stepit-icon.svg", apple: "/stepit-icon.svg" },
 };
 
 export const viewport: Viewport = {

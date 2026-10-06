@@ -1,0 +1,104 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:SG;font-weight:500;src:url(../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2)}
+@font-face{font-family:SG;font-weight:700;src:url(../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2)}
+@font-face{font-family:JB;font-weight:500;src:url(../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1600px;height:900px;overflow:hidden;background:#060807;color:#fff;font-family:SG;position:relative}
+.v{display:none;position:absolute;inset:0}
+body[data-v="gym"] #gym,body[data-v="zero"] #zero,body[data-v="grass"] #grass,body[data-v="how"] #how{display:block}
+.clouds{position:absolute;inset:0;background:url(videos/clouds-bg.jpg) no-repeat;background-size:2400px auto;background-position:-400px -760px}
+.shade{position:absolute;inset:0;background:radial-gradient(80% 80% at 50% 45%,rgba(6,8,7,.25),rgba(6,8,7,.85))}
+.lime{color:#c4fb6d}
+.mono{font-family:JB}
+.label{font-family:JB;font-size:18px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.brand{position:absolute;left:70px;bottom:56px;display:flex;align-items:center;gap:14px;font-size:30px;font-weight:700}
+.card{background:rgba(10,13,11,.72);border:1px solid rgba(255,255,255,.1);border-radius:36px;backdrop-filter:blur(14px);box-shadow:0 40px 90px -30px rgba(0,0,0,.9)}
+.coin{border-radius:50%;box-shadow:0 0 50px rgba(196,251,109,.35)}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#b2f047"/></linearGradient>
+<path id="m" d="M108.0 6.0L177.5 42.1L177.5 84.7L108.0 47.4ZM284.0 6.0L214.5 42.1L214.5 84.7L284.0 47.4ZM59.0 69.0L177.5 127.1L177.5 169.7L59.0 110.4ZM333.0 69.0L214.5 127.1L214.5 169.7L333.0 110.4ZM6.0 132.0L177.5 214.0L177.5 256.6L6.0 173.4ZM386.0 132.0L214.5 214.0L214.5 256.6L386.0 173.4Z" stroke-width="12" stroke-linejoin="round"/></defs></svg>
+
+<!-- 1 · Gyms charge you. We pay you. -->
+<div class="v" id="gym"><div class="clouds"></div><div class="shade"></div>
+  <div style="position:absolute;left:70px;top:70px" class="label">Two ways to move</div>
+  <div style="position:absolute;left:70px;right:70px;top:150px;display:grid;grid-template-columns:1fr 1fr;gap:40px">
+    <div class="card" style="padding:50px;border-color:rgba(255,255,255,.08)">
+      <div class="label">The gym</div>
+      <div style="font-size:112px;font-weight:700;letter-spacing:-4px;margin-top:22px;color:rgba(255,255,255,.55)">−$40</div>
+      <div style="font-size:30px;color:rgba(255,255,255,.45);margin-top:6px">every month, to move</div>
+      <div style="margin-top:46px;font-size:46px;font-weight:700;color:rgba(255,255,255,.5)">You pay them.</div>
+    </div>
+    <div class="card" style="padding:50px;border-color:rgba(196,251,109,.45);background:rgba(196,251,109,.07)">
+      <div class="label" style="color:#c4fb6d">Stepit</div>
+      <div style="display:flex;align-items:center;gap:22px;margin-top:22px"><span style="font-size:112px;font-weight:700;letter-spacing:-4px;color:#d8ff9c">+USDG</span></div>
+      <div style="font-size:30px;color:rgba(255,255,255,.6);margin-top:6px">for the steps you already walk</div>
+      <div style="margin-top:46px;font-size:46px;font-weight:700">We pay you.</div>
+    </div>
+  </div>
+  <div class="brand"><svg width="54" height="36" viewBox="-6 -6 404 275"><use href="#m" fill="url(#lg)" stroke="url(#lg)"/></svg>Step<span class="lime" style="margin-left:-14px">it</span></div>
+</div>
+
+<!-- 2 · You walked 6,000 steps. You got paid nothing. -->
+<div class="v" id="zero"><div class="clouds" style="background-position:-780px -600px"></div><div class="shade"></div>
+  <div style="position:absolute;left:110px;top:130px;width:360px;height:660px;border-radius:60px;border:3px solid rgba(255,255,255,.16);background:#0b0c0d;padding:13px">
+    <div style="width:100%;height:100%;border-radius:48px;background:#000;padding:70px 34px 0;position:relative">
+      <div style="position:absolute;left:50%;top:14px;width:110px;height:30px;margin-left:-55px;border-radius:18px;background:#111"></div>
+      <div style="text-align:center;font-size:20px;font-weight:700">Today</div>
+      <div style="margin:34px auto 0;width:200px;height:200px;border-radius:50%;background:conic-gradient(#fa114f 216deg,rgba(250,17,79,.16) 0);display:grid;place-items:center"><div style="width:128px;height:128px;border-radius:50%;background:#000"></div></div>
+      <div style="margin-top:40px;font-size:20px">Steps</div>
+      <div class="mono" style="font-size:60px;letter-spacing:-2px">6,000</div>
+      <div style="margin-top:22px;font-size:20px;color:rgba(255,255,255,.4)">Earned</div>
+      <div class="mono" style="font-size:44px;color:rgba(255,255,255,.35)">$0.00</div>
+    </div>
+  </div>
+  <div style="position:absolute;left:600px;top:210px;right:80px">
+    <div style="font-size:84px;font-weight:700;letter-spacing:-3px;line-height:1.02">You walked 6,000 steps today.</div>
+    <div style="font-size:84px;font-weight:700;letter-spacing:-3px;line-height:1.02;color:rgba(255,255,255,.35);margin-top:10px">You got paid nothing.</div>
+    <div style="margin-top:46px;display:flex;align-items:center;gap:18px;font-size:44px;font-weight:700" class="lime"><img class="coin" src="../public/tokens/usdg.png" style="width:60px;height:60px">That's about to change.</div>
+  </div>
+  <div class="brand" style="left:auto;right:80px"><svg width="54" height="36" viewBox="-6 -6 404 275"><use href="#m" fill="url(#lg)" stroke="url(#lg)"/></svg>Step<span class="lime" style="margin-left:-14px">it</span></div>
+</div>
+
+<!-- 3 · Touch grass. Get paid. -->
+<div class="v" id="grass">
+  <div style="position:absolute;inset:0;background:url(../public/images/hero-trail.jpg) center 60%/cover no-repeat;filter:saturate(.7) brightness(.62)"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,8,7,.9),rgba(6,8,7,.45) 55%,rgba(6,8,7,.1)),linear-gradient(0deg,rgba(6,8,7,.75),transparent 40%)"></div>
+  <div style="position:absolute;left:80px;top:220px">
+    <div style="font-size:150px;font-weight:700;letter-spacing:-6px;line-height:.95">Touch grass.</div>
+    <div style="font-size:150px;font-weight:700;letter-spacing:-6px;line-height:.95" class="lime">Get paid.</div>
+    <div style="margin-top:34px;display:flex;align-items:center;gap:16px;font-size:34px;color:rgba(255,255,255,.75)"><img class="coin" src="../public/tokens/usdg.png" style="width:46px;height:46px">Your steps, paid in USDG on Robinhood Chain</div>
+  </div>
+  <div class="brand"><svg width="54" height="36" viewBox="-6 -6 404 275"><use href="#m" fill="url(#lg)" stroke="url(#lg)"/></svg>Step<span class="lime" style="margin-left:-14px">it</span></div>
+</div>
+
+<!-- 4 · How it works -->
+<div class="v" id="how"><div class="clouds" style="background-position:-760px -400px"></div><div class="shade"></div>
+  <div style="position:absolute;left:0;right:0;top:80px;text-align:center">
+    <div class="label">How Stepit works</div>
+    <div style="font-size:84px;font-weight:700;letter-spacing:-3px;margin-top:14px">Three steps. <span class="lime">One payout.</span></div>
+  </div>
+  <div style="position:absolute;left:80px;right:80px;top:330px;display:grid;grid-template-columns:repeat(3,1fr);gap:34px">
+    <div class="card" style="padding:40px">
+      <div class="mono lime" style="font-size:22px">01</div>
+      <svg width="84" height="56" viewBox="-6 -6 404 275" style="margin-top:26px"><use href="#m" fill="url(#lg)" stroke="url(#lg)"/></svg>
+      <div style="font-size:48px;font-weight:700;margin-top:24px">Walk</div>
+      <div style="font-size:24px;color:rgba(255,255,255,.55);margin-top:8px">Your phone already counts every step.</div>
+    </div>
+    <div class="card" style="padding:40px">
+      <div class="mono lime" style="font-size:22px">02</div>
+      <div style="display:flex;gap:10px;margin-top:26px"><img src="../public/apps/apple-health.png" style="width:56px;height:56px;border-radius:14px"><img src="../public/apps/google-fit.png" style="width:56px;height:56px;border-radius:14px"><img src="../public/apps/samsung-health.png" style="width:56px;height:56px;border-radius:14px"></div>
+      <div style="font-size:48px;font-weight:700;margin-top:24px">Screenshot</div>
+      <div style="font-size:24px;color:rgba(255,255,255,.55);margin-top:8px">Upload today's steps in a couple of taps.</div>
+    </div>
+    <div class="card" style="padding:40px;border-color:rgba(196,251,109,.45);background:rgba(196,251,109,.07)">
+      <div class="mono lime" style="font-size:22px">03</div>
+      <img class="coin" src="../public/tokens/usdg.png" style="width:60px;height:60px;margin-top:24px">
+      <div style="font-size:48px;font-weight:700;margin-top:22px">Get paid</div>
+      <div style="font-size:24px;color:rgba(255,255,255,.55);margin-top:8px">Verified days pay in USDG to your wallet.</div>
+    </div>
+  </div>
+  <div class="brand" style="left:50%;transform:translateX(-50%)"><svg width="54" height="36" viewBox="-6 -6 404 275"><use href="#m" fill="url(#lg)" stroke="url(#lg)"/></svg>Step<span class="lime" style="margin-left:-14px">it</span></div>
+</div>
+<script>document.body.dataset.v = location.hash.slice(1) || "gym";</script>
+</body></html>

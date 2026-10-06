@@ -10,9 +10,14 @@ hole = nd.binary_dilation(g > 0.028, iterations=26)
 lab, n = nd.label(hole); sizes = nd.sum(hole, lab, range(1, n + 1))
 hole = np.isin(lab, [i + 1 for i, s in enumerate(sizes) if s > 20000])
 xx = np.arange(W)[None, :].repeat(H, 0)
-shift = np.where(xx < W // 2, -330, 330)                  # left half borrows from further left, right from further right
-src_x = np.clip(xx + shift, 0, W - 1)
-patch = a[np.arange(H)[:, None], src_x]
+# Left half borrows from further left, right half from further right, crossfaded across the middle
+# so there is no seam where the two meet.
+rows = np.arange(H)[:, None]
+left = a[rows, np.clip(xx - 330, 0, W - 1)]
+right = a[rows, np.clip(xx + 330, 0, W - 1)]
+ramp = np.clip((xx - (W // 2 - 110)) / 220, 0, 1)[..., None]
+ramp = ramp * ramp * (3 - 2 * ramp)
+patch = left * (1 - ramp) + right * ramp
 soft = nd.gaussian_filter(hole.astype(np.float32), 18)[..., None]
 out = a * (1 - soft) + patch * soft
 gray = out.mean(axis=2, keepdims=True)

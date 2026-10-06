@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, animate, motion, useInView, useMotionTemplate, useMotionValue, useReducedMotion } from "framer-motion";
-import { Check, Coins, Footprints, MousePointerClick, Plus, RotateCcw, Send, ShieldCheck, Wallet } from "lucide-react";
+import { Check, Coins, MousePointerClick, Plus, RotateCcw, Send, ShieldCheck, Wallet } from "lucide-react";
+import { MarkIcon } from "@/components/Logo";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
 import { TokenIcon } from "@/components/ui/TokenIcon";
@@ -22,7 +23,7 @@ const STEPS = [
     stage: "Ascent",
     title: "Track your steps",
     body: "Upload your daily steps with a screenshot. Only verified activity counts.",
-    icon: Footprints,
+    icon: MarkIcon,
     tags: ["Daily goal", "Verified"],
     Visual: StepsVisual,
   },
@@ -315,7 +316,7 @@ function StepsVisual() {
                   transition={{ duration: 0.9 }}
                   onAnimationComplete={() => setBursts((b) => b.filter((x) => x !== id))}
                 >
-                  <Footprints className="h-3.5 w-3.5" />
+                  <MarkIcon className="h-3.5 w-3.5" />
                 </motion.span>
               ))}
             </AnimatePresence>

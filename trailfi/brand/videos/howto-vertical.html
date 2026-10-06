@@ -15,7 +15,7 @@ body{width:1080px;height:1920px}
 .scene{position:absolute;inset:0}
 .ring{border-radius:50%;display:grid;place-items:center}
 .cap{left:0;right:0;bottom:70px;text-align:center;font-size:44px;font-weight:500;color:rgba(255,255,255,.75)}
-.end{inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#060807}
+.end{inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#060807}
 .pill{display:inline-flex;align-items:center;gap:16px;border:2px solid rgba(196,251,109,.5);border-radius:999px;padding:20px 40px;font-size:44px;font-weight:700}
 .dot{width:16px;height:16px;border-radius:50%;background:#5dff9d}
 </style></head><body>
@@ -46,7 +46,7 @@ body{width:1080px;height:1920px}
   <!-- 3 Upload -->
   <div class="scene" id="s3" style="background:#060807;padding:110px 44px 0">
     <div style="display:flex;align-items:center;gap:14px;font-size:34px;font-weight:700">
-      <span style="width:52px;height:52px;border-radius:14px;background:#071d14;display:grid;place-items:center;border:1px solid rgba(196,251,109,.35)"><svg width="34" height="34" viewBox="0 0 32 32"><g fill="#c4fb6d" opacity=".7"><ellipse cx="11" cy="20.3" rx="2.9" ry="4.3" transform="rotate(-12 11 20.3)"/><circle cx="9.1" cy="14.2" r="1.05"/><circle cx="11.1" cy="13.5" r="1.15"/><circle cx="13" cy="14.1" r=".95"/></g><g fill="#5dff9d"><ellipse cx="20.8" cy="14.6" rx="2.9" ry="4.3" transform="rotate(12 20.8 14.6)"/><circle cx="19.3" cy="8.5" r="1.05"/><circle cx="21.3" cy="7.9" r="1.15"/><circle cx="23.2" cy="8.6" r=".95"/></g></svg></span>Step<span class="lime" style="margin-left:-14px">it</span>
+      <span style="width:52px;height:52px;border-radius:14px;background:#071d14;display:grid;place-items:center;border:1px solid rgba(196,251,109,.35)"><svg width="34" height="34" viewBox="-6 -70.5 404 404"><path d="M108.0 6.0L177.5 42.1L177.5 84.7L108.0 47.4ZM284.0 6.0L214.5 42.1L214.5 84.7L284.0 47.4ZM59.0 69.0L177.5 127.1L177.5 169.7L59.0 110.4ZM333.0 69.0L214.5 127.1L214.5 169.7L333.0 110.4ZM6.0 132.0L177.5 214.0L177.5 256.6L6.0 173.4ZM386.0 132.0L214.5 214.0L214.5 256.6L386.0 173.4Z" fill="#5dff9d" stroke="#5dff9d" stroke-width="12" stroke-linejoin="round"/></svg></span>Step<span class="lime" style="margin-left:-14px">it</span>
     </div>
     <div class="mono" style="margin-top:50px;font-size:20px;letter-spacing:5px;color:rgba(255,255,255,.45)">UPLOAD STEPS</div>
     <div style="margin-top:8px;font-size:46px;font-weight:700">Log your day</div>
@@ -69,7 +69,7 @@ body{width:1080px;height:1920px}
 
 <div class="abs cap" id="cap"></div>
 <div class="abs end" id="end">
-  <svg width="170" height="170" viewBox="0 0 32 32"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#5dff9d"/></linearGradient></defs><rect x=".5" y=".5" width="31" height="31" rx="9.5" fill="#071d14" stroke="rgba(196,251,109,.35)"/><g fill="url(#g)" opacity=".7"><ellipse cx="11" cy="20.3" rx="2.9" ry="4.3" transform="rotate(-12 11 20.3)"/><circle cx="9.1" cy="14.2" r="1.05"/><circle cx="11.1" cy="13.5" r="1.15"/><circle cx="13" cy="14.1" r=".95"/></g><g fill="url(#g)"><ellipse cx="20.8" cy="14.6" rx="2.9" ry="4.3" transform="rotate(12 20.8 14.6)"/><circle cx="19.3" cy="8.5" r="1.05"/><circle cx="21.3" cy="7.9" r="1.15"/><circle cx="23.2" cy="8.6" r=".95"/></g></svg>
+  <svg width="170" height="170" viewBox="0 0 32 32"><defs><linearGradient id="mg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#5dff9d"/></linearGradient></defs><rect x=".5" y=".5" width="31" height="31" rx="9.5" fill="#071d14" stroke="rgba(196,251,109,.35)"/><g transform="translate(6 9.29) scale(0.05102)"><path d="M108.0 6.0L177.5 42.1L177.5 84.7L108.0 47.4ZM284.0 6.0L214.5 42.1L214.5 84.7L284.0 47.4ZM59.0 69.0L177.5 127.1L177.5 169.7L59.0 110.4ZM333.0 69.0L214.5 127.1L214.5 169.7L333.0 110.4ZM6.0 132.0L177.5 214.0L177.5 256.6L6.0 173.4ZM386.0 132.0L214.5 214.0L214.5 256.6L386.0 173.4Z" fill="url(#mg)" stroke="url(#mg)" stroke-width="12" stroke-linejoin="round"/></g></svg>
   <div style="margin-top:40px;font-size:140px;font-weight:700;letter-spacing:-5px">Step<span class="lime">it</span></div>
   <div style="margin-top:20px;font-size:56px;font-weight:700;letter-spacing:-1px">Up to <span class="lime">$5 a day</span> in USDG</div>
   <div style="margin-top:14px;font-size:36px;color:rgba(255,255,255,.55)">for the steps you already walk</div>

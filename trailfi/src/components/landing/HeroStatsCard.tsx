@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Coins, Footprints, Mountain, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Coins, Mountain, Sparkles, Users } from "lucide-react";
+import { MarkIcon } from "@/components/Logo";
 import Link from "next/link";
 import { Badge } from "@/components/ui/Badge";
 import { ProgressRing } from "@/components/ui/ProgressRing";
@@ -75,7 +76,7 @@ function LiveCard() {
             <div>
               <div className="font-display text-[52px] font-bold leading-none tracking-tight tabular">{fmtSteps(steps)}</div>
               <div className="mt-2 flex items-center gap-1.5 text-sm text-white/60">
-                <Footprints className="h-4 w-4 text-lime-400" /> Steps logged today
+                <MarkIcon className="h-4 w-4 text-lime-400" /> Steps logged today
               </div>
             </div>
             <ProgressRing value={goalShare} size={104} stroke={9} id="hero-ring">
@@ -194,7 +195,7 @@ function LaunchCard({ maxDaily, maxSteps, walkers }: { maxDaily: number; maxStep
                         : "grid h-9 w-9 place-items-center rounded-full border border-dashed border-white/15 text-white/35"
                   }
                 >
-                  <Footprints className="h-3.5 w-3.5" />
+                  <MarkIcon className="h-3.5 w-3.5" />
                 </span>
                 <span className={i === today ? "font-mono text-[10px] text-lime-300" : "font-mono text-[10px] text-white/35"}>{d}</span>
               </div>

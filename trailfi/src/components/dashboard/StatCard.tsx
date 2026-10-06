@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { LucideIcon } from "lucide-react";
+import type { ComponentType } from "react";
 import { useCountUp } from "@/hooks/useCountUp";
 import { cn } from "@/lib/cn";
 import { TokenIcon } from "@/components/ui/TokenIcon";
@@ -23,7 +23,7 @@ export function StatCard({
   suffix?: string;
   decimals?: number;
   hint?: string;
-  icon: LucideIcon;
+  icon: ComponentType<{ className?: string }>;
   accent?: boolean;
   delay?: number;
 }) {

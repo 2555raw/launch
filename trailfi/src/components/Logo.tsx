@@ -50,3 +50,12 @@ export function Logo({ className }: { className?: string }) {
     </Link>
   );
 }
+
+/** The mark as a one-colour icon (takes the text colour), used wherever the site shows "steps". */
+export function MarkIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox={`-6 ${-(MARK_W - MARK_H) / 2 - 6} ${MARK_W + 12} ${MARK_W + 12}`} className={cn("h-4 w-4", className)} aria-hidden>
+      <path d={MARK_PATH} fill="currentColor" stroke="currentColor" strokeWidth={MARK_ROUND} strokeLinejoin="round" />
+    </svg>
+  );
+}

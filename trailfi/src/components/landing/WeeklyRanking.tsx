@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowRight, Crown, Footprints, Trophy } from "lucide-react";
+import { ArrowRight, Crown, Trophy } from "lucide-react";
+import { MarkIcon } from "@/components/Logo";
 import Link from "next/link";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -163,7 +164,7 @@ export function WeeklyRanking() {
                         <div className="h-full rounded-full bg-gradient-to-r from-lime-500/70 to-lime-300/70" style={{ width: `${(r.steps / leader) * 100}%` }} />
                       </div>
                       <span className="ml-auto flex items-center gap-2 font-mono text-[13.5px] tabular sm:ml-0 sm:w-28 sm:justify-end">
-                        <Footprints className="h-3.5 w-3.5 text-lime-400/80" /> {fmtSteps(r.steps)}
+                        <MarkIcon className="h-3.5 w-3.5 text-lime-400/80" /> {fmtSteps(r.steps)}
                       </span>
                     </div>
                   ))}

@@ -2,7 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowUpRight, Check, Footprints, Send } from "lucide-react";
+import { ArrowUpRight, Check, Send } from "lucide-react";
+import { MarkIcon } from "@/components/Logo";
 import { AddressAvatar } from "@/components/wallet/ConnectWallet";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { fmtAmount, fmtSteps } from "@/lib/format";
@@ -108,7 +109,7 @@ export function Leaderboard() {
                       </td>
                       <td className="table-cell">
                         <span className="inline-flex items-center gap-2 font-mono tabular">
-                          <Footprints className="h-3.5 w-3.5 text-lime-400/80" />
+                          <MarkIcon className="h-3.5 w-3.5 text-lime-400/80" />
                           {fmtSteps(r.steps)}
                         </span>
                       </td>

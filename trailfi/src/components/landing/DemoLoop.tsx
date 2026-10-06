@@ -1,9 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Camera, Check, Footprints, Upload, Wallet } from "lucide-react";
+import { Camera, Check, Upload, Wallet } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { LogoMark } from "@/components/Logo";
+import { LogoMark, MarkIcon } from "@/components/Logo";
 import { TokenIcon } from "@/components/ui/TokenIcon";
 import { cn } from "@/lib/cn";
 import { Reveal, SectionHeading } from "./Reveal";
@@ -11,7 +11,7 @@ import { Reveal, SectionHeading } from "./Reveal";
 const STEPS = 10_871;
 const LOOP = 15; // seconds
 const SCENES = [
-  { id: "walk", from: 0, to: 4, label: "Walk", body: "Your phone counts every step.", icon: Footprints },
+  { id: "walk", from: 0, to: 4, label: "Walk", body: "Your phone counts every step.", icon: MarkIcon },
   { id: "shot", from: 4, to: 6, label: "Screenshot", body: "Capture the day's steps and the date.", icon: Camera },
   { id: "upload", from: 6, to: 10, label: "Upload", body: "Send it to Stepit in a couple of taps.", icon: Upload },
   { id: "paid", from: 10, to: LOOP, label: "Get paid", body: "Once verified, USDG lands in your wallet.", icon: Wallet },

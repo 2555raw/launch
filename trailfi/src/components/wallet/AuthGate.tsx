@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, Footprints, HeartPulse, KeyRound, ShieldCheck, Upload, Wallet, Watch } from "lucide-react";
+import { Activity, Smartphone, HeartPulse, KeyRound, ShieldCheck, Upload, Wallet, Watch } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -119,7 +119,7 @@ const DAYS = [
 const APPS = [
   { name: "Apple Health", icon: HeartPulse, tone: "bg-rose-500/15 text-rose-300" },
   { name: "Google Fit", icon: Activity, tone: "bg-sky-500/15 text-sky-300" },
-  { name: "Samsung Health", icon: Footprints, tone: "bg-indigo-500/15 text-indigo-300" },
+  { name: "Samsung Health", icon: Smartphone, tone: "bg-indigo-500/15 text-indigo-300" },
   { name: "Fitbit / Garmin", icon: Watch, tone: "bg-teal-500/15 text-teal-300" },
 ];
 

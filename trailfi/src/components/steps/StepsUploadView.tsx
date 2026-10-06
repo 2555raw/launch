@@ -3,7 +3,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import confetti from "canvas-confetti";
 import { AnimatePresence, motion } from "framer-motion";
-import { CalendarDays, CheckCircle2, Footprints, Hourglass, ImagePlus, Info, ShieldCheck, Sparkles, Trash2, TrendingUp, Upload, X } from "lucide-react";
+import { CalendarDays, CheckCircle2, Hourglass, ImagePlus, Info, ShieldCheck, Sparkles, Trash2, TrendingUp, Upload, X } from "lucide-react";
+import { MarkIcon } from "@/components/Logo";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/Badge";
@@ -113,7 +114,7 @@ export function StepsUploadView() {
       <ScreenshotExample />
 
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Average steps · 7 days" value={summary.avgSteps7} decimals={0} hint={`${summary.daysLogged7} of 7 days logged`} icon={Footprints} />
+        <StatCard label="Average steps · 7 days" value={summary.avgSteps7} decimals={0} hint={`${summary.daysLogged7} of 7 days logged`} icon={MarkIcon} />
         <StatCard label="This week · estimate" value={summary.week7} prefix="$" suffix={token} hint="Days logged in the last 7" icon={CalendarDays} delay={0.05} />
         <StatCard label="In review · estimate" value={summary.inReview} prefix="$" suffix={token} hint="Waiting for the team" icon={Hourglass} delay={0.1} />
         <StatCard label="Verified · estimate" value={summary.verified} prefix="$" suffix={token} hint="Credited · request it from your dashboard" icon={CheckCircle2} delay={0.15} accent />
@@ -215,7 +216,7 @@ function UploadForm({ summary, logged, referralCode }: { summary: StepsResponse[
         <label className="block">
           <span className="label mb-2.5 block">Steps</span>
           <div className="relative">
-            <Footprints className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-lime-400/70" />
+            <MarkIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-lime-400/70" />
             <input
               type="number"
               inputMode="numeric"

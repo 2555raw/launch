@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   Copy,
   ExternalLink,
-  Footprints,
   Hourglass,
   Info,
   PlusCircle,
@@ -16,6 +15,7 @@ import {
   Sparkles,
   Wallet,
 } from "lucide-react";
+import { MarkIcon } from "@/components/Logo";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useSession } from "@/components/providers/SessionProvider";
@@ -257,7 +257,7 @@ export function DashboardView() {
             prefix="$"
             suffix={token}
             hint="All allocated rewards, excluding rejected"
-            icon={Footprints}
+            icon={MarkIcon}
             delay={0.15}
           />
         </div>
@@ -509,7 +509,7 @@ function ActivityModal({ open, onClose, entries }: { open: boolean; onClose: () 
             <li key={e.id} className="flex items-center justify-between gap-4 py-3">
               <div className="flex items-center gap-3">
                 <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/5 text-lime-300">
-                  <Footprints className="h-4 w-4" />
+                  <MarkIcon className="h-4 w-4" />
                 </div>
                 <div>
                   <div className="font-mono text-[15px] tabular">{fmtSteps(e.steps)} steps</div>

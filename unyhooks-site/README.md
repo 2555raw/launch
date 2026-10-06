@@ -240,14 +240,14 @@ headline, the glow on the water. Parchment sections read like a captain's chart.
 
 3D: `scene3d.js` (built from `src/scene3d.js` with three.js, `npm run build:3d`) draws three
 WebGL scenes on top of their 2D drawings: the hero's night sea (Gerstner swell, the moon and
-its glitter, a galleon on the horizon) with a brass hook floating in it where the `.uh-orb`
-box sits, the $UHOOKS doubloon turning in studio light, and the sea under the closing call
+its glitter, a galleon on the horizon) with a captain's hook floating over it where the `.uh-orb`
+box sits (steel hook, brass ferrule, riveted leather cup, lace ruffle and red sleeve), the $UHOOKS doubloon turning in studio light, and the sea under the closing call
 with the ship sailing across. A scene only draws while its canvas is on screen; the 2D
 drawing stays without WebGL, and with reduced motion one still frame is drawn.
 
-Type: **Grenze Gotisch** for headlines with the last words in gold **IM Fell English**
-italic, **Pirata One** for the wordmark, compass letters and numerals, **Spectral** for text,
-**Geist Mono** for addresses, code and labels. The landing's hero is a porthole on a night
+Type: **New Rocker** for headlines with the last words in gold **Pirata One**, **IM Fell
+English** for the landing's prose, **Pirata One** for the wordmark, compass letters and
+numerals, **Spectral** for the app's text, **Geist Mono** for addresses, code and labels. The landing's hero is a porthole on a night
 sea (moon, a ship riding the swell, a compass rose), the rail down the left is a rope the
 hook is let down as you scroll, the "map" section is parchment with rhumb lines and an X on
 the lock date, and a ship crosses the closing section. The mark is a pirate's hook on its cuff, drawn once as an SVG

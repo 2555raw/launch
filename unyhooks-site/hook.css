@@ -5,7 +5,7 @@
 .hk-hero { display: grid; gap: 10px; padding: 24px; }
 .hk-kicker { font-size: 13px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--pink); }
 .hk-hero h1 { font-family: var(--font-brand); font-size: clamp(40px, 7vw, 66px); line-height: 1.05; letter-spacing: .01em; font-weight: 400; overflow-wrap: anywhere; }
-.hk-hero h1 .hk-name { font-family: var(--font-accent); font-style: italic; font-weight: 400; }
+.hk-hero h1 .hk-name { font-family: var(--font-accent); font-style: normal; font-weight: 400; }
 .hk-name { font-size: .45em; font-weight: 600; letter-spacing: -.01em; color: var(--prose); }
 .hk-addr { font: 13px var(--font-mono); color: var(--prose); overflow-wrap: anywhere; }
 .hk-addr a, .hk-card a, .hk-check a { color: var(--pink); text-decoration: underline; text-underline-offset: 2px; }

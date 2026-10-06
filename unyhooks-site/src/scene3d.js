@@ -305,44 +305,88 @@ function sweep(curve, radius, steps, sides) {
 }
 
 function hookModel() {
+  // A captain's hook as it would be worn: a forged steel hook screwed into a
+  // brass ferrule, a stitched leather cup with brass rivets, and the cuff of a
+  // red coat with gold braid and a lace ruffle. The sleeve fades out below.
   const group = new THREE.Group();
-  const brass = new THREE.MeshPhysicalMaterial({ color: 0xF4C25A, metalness: 1, roughness: 0.17, clearcoat: 0.4, clearcoatRoughness: 0.15, envMapIntensity: 1.25 });
-  const bronze = new THREE.MeshPhysicalMaterial({ color: 0xB5782A, metalness: 1, roughness: 0.32, envMapIntensity: 1.1 });
-  const dark = new THREE.MeshPhysicalMaterial({ color: 0x5A3A12, metalness: 0.9, roughness: 0.45 });
+  const steel = new THREE.MeshPhysicalMaterial({ color: 0xE4E0D8, metalness: 1, roughness: 0.14, clearcoat: 0.6, clearcoatRoughness: 0.1, envMapIntensity: 1.3 });
+  const brass = new THREE.MeshPhysicalMaterial({ color: 0xE8B04B, metalness: 1, roughness: 0.22, envMapIntensity: 1.2 });
+  const leather = new THREE.MeshPhysicalMaterial({ color: 0x3B2416, roughness: 0.55, clearcoat: 0.35, clearcoatRoughness: 0.5, sheen: 0.4, sheenColor: 0x8a5a3a });
+  const fade = (() => {
+    const c = document.createElement('canvas'); c.width = 4; c.height = 256;
+    const g = c.getContext('2d'), gr = g.createLinearGradient(0, 256, 0, 0);
+    gr.addColorStop(0, '#000'); gr.addColorStop(0.55, '#fff'); gr.addColorStop(1, '#fff');
+    g.fillStyle = gr; g.fillRect(0, 0, 4, 256);
+    return new THREE.CanvasTexture(c);
+  })();
+  const velvet = new THREE.MeshPhysicalMaterial({ color: 0x8E1B1B, roughness: 0.75, sheen: 1, sheenRoughness: 0.45, sheenColor: 0xff7a6a, alphaMap: fade, transparent: true });
+  const lace = new THREE.MeshPhysicalMaterial({ color: 0xF4EFE4, roughness: 0.9, sheen: 0.6, sheenColor: 0xffffff, side: THREE.DoubleSide });
 
-  // shank up the left, over the top, down the right and in to a point
+  // the hook: up out of the ferrule, over, and down to a point turned back up
   const curve = new THREE.CatmullRomCurve3([
-    [0, -1.55, 0], [0, -0.6, 0], [0, 0.25, 0], [0.07, 0.72, 0], [0.5, 1.08, 0],
-    [0.98, 0.84, 0], [1.12, 0.32, 0], [0.96, -0.12, 0], [0.62, -0.36, 0], [0.36, -0.38, 0]
-  ].map((a) => new THREE.Vector3(...a)), false, 'centripetal');
-  const hook = new THREE.Mesh(sweep(curve, (u) => {
-    const base = 0.15;
-    if (u < 0.55) return base;
-    const t = (u - 0.55) / 0.45;
-    return base * Math.max(0.02, 1 - Math.pow(t, 1.6));
-  }, 320, 40), brass);
-  group.add(hook);
+    [0, -1.05, 0], [0, -0.3, 0], [0, 0.35, 0], [0.04, 0.82, 0], [0.3, 1.2, 0], [0.7, 1.3, 0],
+    [1.05, 1.06, 0], [1.16, 0.62, 0], [1.04, 0.2, 0], [0.8, -0.04, 0], [0.56, -0.05, 0], [0.44, 0.1, 0]
+  ].map((v) => new THREE.Vector3(...v)), false, 'centripetal');
+  group.add(new THREE.Mesh(sweep(curve, (u) => {
+    if (u < 0.5) return 0.115;
+    const t = (u - 0.5) / 0.5;
+    return 0.115 * Math.max(0.015, 1 - Math.pow(t, 1.35));
+  }, 360, 36), steel));
 
-  // the cuff: a bell turned on a lathe, a collar and a row of rivets
-  const bell = [
-    [0.0, -1.5], [0.17, -1.5], [0.23, -1.53], [0.25, -1.62], [0.22, -1.7], [0.26, -1.76],
-    [0.31, -1.82], [0.42, -2.04], [0.55, -2.3], [0.64, -2.42], [0.66, -2.48], [0.6, -2.53], [0.0, -2.53]
-  ].map(([r, y]) => new THREE.Vector2(r, y));
-  group.add(new THREE.Mesh(new THREE.LatheGeometry(bell, 96), bronze));
-  const collar = new THREE.Mesh(new THREE.TorusGeometry(0.255, 0.035, 16, 64), brass);
-  collar.rotation.x = Math.PI / 2; collar.position.y = -1.6;
-  group.add(collar);
-  const band = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.028, 12, 96), dark);
-  band.rotation.x = Math.PI / 2; band.position.y = -2.34;
-  group.add(band);
-  for (let i = 0; i < 10; i++) {
-    const a = (i / 10) * Math.PI * 2;
-    const r = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 8), brass);
-    r.position.set(Math.cos(a) * 0.5, -2.2, Math.sin(a) * 0.5);
-    group.add(r);
+  // brass ferrule and collar
+  const lathe = (pts, mat, seg = 96) => {
+    const m = new THREE.Mesh(new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, y)), seg), mat);
+    group.add(m);
+    return m;
+  };
+  lathe([[0.1, -0.95], [0.15, -0.98], [0.15, -1.12], [0.19, -1.16], [0.19, -1.24], [0.16, -1.27]], brass);
+
+  // the leather cup, flaring down to the cuff
+  const cupR = (y) => 0.17 + (Math.min(-1.27, Math.max(-2.05, y)) + 1.27) / (-0.78) * 0.3;
+  lathe([[0.16, -1.27], [0.2, -1.4], [0.29, -1.7], [0.42, -1.98], [0.47, -2.05], [0.47, -2.12], [0.44, -2.14]], leather);
+  for (let row = 0; row < 2; row++) {
+    const y = row ? -1.88 : -1.55;
+    const r = row ? 0.395 : 0.25;
+    const n = row ? 14 : 10;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + row * 0.2;
+      const rivet = new THREE.Mesh(new THREE.SphereGeometry(0.028, 12, 8), brass);
+      rivet.position.set(Math.cos(a) * (r + 0.012), y, Math.sin(a) * (r + 0.012));
+      group.add(rivet);
+    }
   }
-  // centre the model on the shank, sitting on its cuff
-  group.children.forEach((c) => c.position.x -= 0.5);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.47, 0.035, 16, 96), brass);
+  ring.rotation.x = Math.PI / 2; ring.position.y = -2.08;
+  group.add(ring);
+
+  // the lace ruffle: a frilled collar between the cup and the sleeve
+  const frill = new THREE.RingGeometry(0.4, 0.74, 200, 5);
+  const fp = frill.attributes.position;
+  for (let i = 0; i < fp.count; i++) {
+    const x = fp.getX(i), z = fp.getY(i), r = Math.hypot(x, z), a = Math.atan2(z, x);
+    const o = (r - 0.4) / 0.34;
+    // the lace droops over the sleeve and ripples in soft folds
+    fp.setXYZ(i, x * (1 - o * 0.12), -o * o * 0.34 + Math.sin(a * 26) * 0.05 * o + Math.sin(a * 9 + 1) * 0.025 * o, z * (1 - o * 0.12));
+  }
+  frill.computeVertexNormals();
+  const ruffle = new THREE.Mesh(frill, lace);
+  ruffle.position.y = -2.14;
+  group.add(ruffle);
+
+  // the coat sleeve with gold braid, fading away below
+  lathe([[0.62, -3.4], [0.6, -2.9], [0.58, -2.5], [0.56, -2.3], [0.5, -2.22], [0.36, -2.2]], velvet);
+  [[-2.36, 0.565], [-2.5, 0.582]].forEach(([y, r]) => {
+    const b = new THREE.Mesh(new THREE.TorusGeometry(r, 0.022, 10, 120), brass);
+    b.rotation.x = Math.PI / 2; b.position.y = y;
+    group.add(b);
+  });
+  [-0.35, 0, 0.35].forEach((a, i) => {
+    const btn = new THREE.Mesh(new THREE.SphereGeometry(0.05, 16, 12), brass);
+    btn.position.set(Math.sin(a + 0.4) * 0.6, -2.66 - i * 0.02, Math.cos(a + 0.4) * 0.6);
+    group.add(btn);
+  });
+
+  group.children.forEach((c) => { c.position.x -= 0.45; });
   return group;
 }
 
@@ -507,27 +551,12 @@ function seaScene(canvas, opts) {
   const ship = shipModel();
   scene.add(ship);
 
-  let hook = null, foam = null, warm = null;
+  let hook = null, warm = null;
   if (opts.hook) {
     hook = hookModel();
     scene.add(hook);
     warm = new THREE.PointLight(0xffa64a, 18, 30, 2);
     scene.add(warm);
-    foam = new THREE.Mesh(new THREE.RingGeometry(0.62, 1.3, 96, 2), new THREE.ShaderMaterial({
-      transparent: true, depthWrite: false, uniforms: { uTime: { value: 0 } },
-      vertexShader: 'varying vec2 vP; void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-      fragmentShader: /* glsl */`
-        uniform float uTime; varying vec2 vP;
-        void main() {
-          float r = length(vP);
-          float a = atan(vP.y, vP.x);
-          float band = smoothstep(0.64, 0.74, r) * smoothstep(1.28, 0.86, r);
-          float broken = 0.45 + 0.55 * sin(a * 11.0 + uTime * 1.3) * sin(a * 7.0 - uTime * 0.9 + r * 9.0);
-          gl_FragColor = vec4(vec3(0.78, 0.82, 0.86), 0.16 * band * clamp(broken, 0.0, 1.0));
-        }`
-    }));
-    foam.rotation.x = -Math.PI / 2;
-    scene.add(foam);
   }
 
   const ray = new THREE.Raycaster();
@@ -536,25 +565,23 @@ function seaScene(canvas, opts) {
   const place = () => {
     if (!hook || !anchor) return;
     // Put the hook where the page's box for it is: a point along the ray
-    // through the box's centre, far enough out that the cuff sits in the water.
+    // through the box's centre, hovering a little above the swell.
     const cr = canvas.getBoundingClientRect(), ar = anchor.getBoundingClientRect();
     const ndc = new THREE.Vector2(((ar.left + ar.width / 2 - cr.left) / cr.width) * 2 - 1, -(((ar.top + ar.height * 0.52 - cr.top) / cr.height) * 2 - 1));
     ray.setFromCamera(ndc, camera);
     const want = Math.min(ar.height, ar.width * 1.15) * 0.92 / cr.height;
-    // The hook is always about 3 m tall so the swell stays in proportion; the
-    // camera's height is what changes. At distance d the screen holds
-    // 2·d·tan(fov/2), so d = s/k, and for the hook's centre (1.45·s above the
-    // water) to sit on the ray through the box, the camera must be at
-    // 1.45·s + dy·d.
-    const k = (want * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / 3.9;
-    const s = 0.8;
+    // The model is 4.75 tall with its centre 0.98 below its origin, and it
+    // floats with its lowest point 0.8 above the water: its centre sits at
+    // 0.8 + 2.42·s. At distance d the screen holds 2·d·tan(fov/2), so d = s/k;
+    // the camera's height is what puts that centre on the ray through the box.
+    const k = (want * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / 4.75;
+    const s = 0.75;
     const d = s / k;
     const dir = ray.ray.direction;
-    camY = 1.45 * s + Math.max(0.01, -dir.y) * d;
+    camY = 0.8 + 2.42 * s + Math.max(0.01, -dir.y) * d;
     const p = new THREE.Vector3(camera.position.x + dir.x * d, 0, camera.position.z + dir.z * d);
     hook.userData.base = { x: p.x, z: p.z, s };
     hook.scale.setScalar(s);
-    foam.scale.setScalar(s * 1.05);
   };
 
   const draw = (t) => {
@@ -578,11 +605,9 @@ function seaScene(canvas, opts) {
     if (hook) {
       const b = hook.userData.base;
       const w = waveAt(b.x, b.z, t);
-      const bob = Math.sin(t * 0.7) * 0.06;
-      hook.position.set(b.x + w.x * 0.6, (2.05 + bob) * b.s + w.y, b.z + w.z * 0.6);
-      hook.rotation.set(Math.sin(t * 0.45) * 0.035, -0.35 + Math.sin(t * 0.22) * 0.55 + pointer.x * 0.35, Math.sin(t * 0.6) * 0.05);
-      foam.position.set(b.x + w.x * 0.6, w.y + 0.03, b.z + w.z * 0.6);
-      foam.material.uniforms.uTime.value = t;
+      const bob = Math.sin(t * 0.8) * 0.08 + w.y * 0.12;
+      hook.position.set(b.x, 0.8 + 3.4 * b.s + bob, b.z);
+      hook.rotation.set(0.06 + Math.sin(t * 0.45) * 0.03, -0.3 + Math.sin(t * 0.25) * 0.5 + pointer.x * 0.35, -0.05 + Math.sin(t * 0.6) * 0.04);
       warm.position.set(b.x - 2.5 * b.s, 2.2 * b.s + 1, b.z + 3 * b.s);
     }
     renderer.render(scene, camera);

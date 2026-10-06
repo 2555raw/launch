@@ -4,7 +4,7 @@
 .ln-head { max-width: 760px; }
 .ln-kicker { font-size: 13px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--pink); }
 .ln-head h1 { margin-top: 8px; font-size: clamp(30px, 4.4vw, 48px); line-height: 1.08; letter-spacing: -.04em; font-family: var(--font-display); font-weight: 300; }
-.ln-accent { font-family: var(--font-accent); font-style: italic; font-weight: 700; background: var(--pink-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.ln-accent { font-family: var(--font-accent); font-style: italic; font-weight: 400; font-size: 1.1em; background: var(--pink-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .ln-lead { margin-top: 14px; font-size: 17px; line-height: 1.6; color: var(--prose); }
 
 .ln-grid { display: grid; gap: 20px; align-items: start; }

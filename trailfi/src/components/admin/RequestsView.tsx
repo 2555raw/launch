@@ -14,6 +14,17 @@ import { fmtAmount, fmtDateTime, fmtSteps } from "@/lib/format";
 import type { Payout } from "./hooks";
 import { PageHeader } from "./PageHeader";
 import { PayoutModal } from "./PayoutModal";
+import { usePreparePayout } from "./usePreparePayout";
+
+interface Ready {
+  userId: string;
+  userShortId: number;
+  walletAddress: `0x${string}`;
+  amount: string;
+  steps: number;
+  days: number;
+  lastVerifiedAt: string | null;
+}
 
 /** Payout requests from walkers, with their full wallet address — visible only in the admin console. */
 export function RequestsView() {
@@ -23,19 +34,26 @@ export function RequestsView() {
     queryFn: () => api<{ payouts: Payout[] }>("/api/admin/payouts?status=requested"),
     refetchInterval: 20_000,
   });
+  const prepare = usePreparePayout(setOpen);
+  const ready = useQuery({
+    queryKey: ["admin", "payouts", "ready"],
+    queryFn: () => api<{ ready: Ready[] }>("/api/admin/payouts/ready"),
+    refetchInterval: 20_000,
+  });
+  const readyRows = ready.data?.ready ?? [];
   const rows = (data?.payouts ?? []).slice().sort((a, b) => (a.requestedAt ?? a.createdAt).localeCompare(b.requestedAt ?? b.createdAt));
 
   return (
     <div>
       <PageHeader
         label="Requests"
-        title="Payout requests"
-        description="Walkers who asked to be paid. Full wallet addresses are only shown here, to administrators."
+        title="Payouts to send"
+        description="Walkers who asked to be paid, and walkers with verified days you can pay right away. Full wallet addresses are only shown here, to administrators."
       />
       {isLoading && <Skeleton className="h-32" />}
       {!isLoading && rows.length === 0 && (
         <Card className="p-6">
-          <EmptyState title="No pending requests">When a walker presses Request payout in their dashboard, it appears here.</EmptyState>
+          <EmptyState title="No pending requests">When a walker presses Request payout in their dashboard, it appears here. Verified walkers you can pay now are listed below.</EmptyState>
         </Card>
       )}
       <div className="space-y-3">
@@ -77,6 +95,64 @@ export function RequestsView() {
                   </div>
                 </div>
                 <Button onClick={() => setOpen(p)} icon={<Send className="h-4 w-4" />}>
+                  Pay
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <div className="mt-10 mb-4">
+        <div className="label">Verified, not paid yet</div>
+        <p className="mt-1 text-[13px] text-white/50">Walkers whose screenshots you verified. Pay them now, no request needed.</p>
+      </div>
+      {ready.isLoading && <Skeleton className="h-24" />}
+      {!ready.isLoading && readyRows.length === 0 && (
+        <Card className="p-6">
+          <EmptyState title="Everyone is paid">When you verify a screenshot, the walker shows up here until you pay them.</EmptyState>
+        </Card>
+      )}
+      <div className="space-y-3">
+        {readyRows.map((r) => (
+          <Card key={r.userId} className="p-5 sm:p-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusBadge status="approved" />
+                  <span className="text-[12px] text-white/45">
+                    user #{r.userShortId} · {r.days} verified {r.days === 1 ? "day" : "days"}
+                    {r.lastVerifiedAt ? ` · last ${fmtDateTime(r.lastVerifiedAt)}` : ""}
+                  </span>
+                </div>
+                <div className="mt-3 flex items-center gap-3">
+                  <AddressAvatar address={r.walletAddress} className="h-9 w-9" />
+                  <div className="min-w-0">
+                    <div className="label !text-[9.5px]">Wallet to pay</div>
+                    <div className="break-all font-mono text-[13.5px] text-white">{r.walletAddress}</div>
+                  </div>
+                  <button
+                    className="shrink-0 rounded-lg border border-white/10 p-2 text-white/60 transition hover:border-lime-400/40 hover:text-lime-300"
+                    aria-label="Copy wallet"
+                    onClick={() => {
+                      void navigator.clipboard.writeText(r.walletAddress);
+                      toast.success("Wallet copied");
+                    }}
+                  >
+                    <Copy className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-6">
+                <div>
+                  <div className="label !text-[9.5px]">Steps</div>
+                  <div className="mt-1 font-mono text-lg tabular">{fmtSteps(r.steps)}</div>
+                </div>
+                <div>
+                  <div className="label !text-[9.5px]">To send</div>
+                  <div className="mt-1 font-display text-2xl font-bold text-lime-300 tabular">{fmtAmount(r.amount)}</div>
+                </div>
+                <Button onClick={() => prepare.mutate(r.userId)} disabled={prepare.isPending} icon={<Send className="h-4 w-4" />}>
                   Pay
                 </Button>
               </div>

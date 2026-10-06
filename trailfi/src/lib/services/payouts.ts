@@ -80,9 +80,32 @@ export async function listPayouts(opts: { userId?: string; status?: string; limi
  * prepares: no funds move until an authorised wallet signs the transfer.
  */
 export async function preparePayout(userId: string, actor: string): Promise<Payout> {
-  const user = await one<{ wallet_address: `0x${string}` }>("select wallet_address from users where id = $1", [userId]);
-  if (user) await assertHoldsPayoutToken(user.wallet_address, "walker");
+  // The admin decides to pay, so the USDG holding check (an anti bot filter for self requests) does not apply.
   return createPayout(userId, actor, "prepared");
+}
+
+export interface ReadyToPay {
+  userId: string;
+  userShortId: number;
+  walletAddress: `0x${string}`;
+  amount: string;
+  steps: number;
+  days: number;
+  lastVerifiedAt: string | null;
+}
+
+/** Walkers with verified rewards that nobody has asked for or prepared yet: the admin can pay them directly. */
+export async function readyToPay(): Promise<ReadyToPay[]> {
+  return query<ReadyToPay>(
+    `select u.id as "userId", u.short_id as "userShortId", u.wallet_address as "walletAddress",
+            sum(r.amount)::text as amount, sum(r.valid_steps)::int as steps, count(*)::int as days,
+            max(r.reviewed_at) as "lastVerifiedAt"
+       from rewards r join users u on u.id = r.user_id
+      where r.status = 'approved' and r.payout_id is null and u.status = 'active'
+        and not exists (select 1 from payouts p where p.user_id = u.id and p.status in ('requested', 'prepared', 'submitted'))
+      group by u.id, u.short_id, u.wallet_address
+      order by max(r.reviewed_at) desc nulls last`,
+  );
 }
 
 /** A walker asks to be paid their approved rewards. The owner pays it from the admin console. */

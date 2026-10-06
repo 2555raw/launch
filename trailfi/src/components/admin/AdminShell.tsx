@@ -14,7 +14,7 @@ import { useAdminMeta } from "./hooks";
 const MAIN = [
   { href: "/admin", label: "Overview", icon: BarChart3 },
   { href: "/admin/steps", label: "Photos to review", icon: Footprints },
-  { href: "/admin/requests", label: "Payout requests", icon: Inbox },
+  { href: "/admin/requests", label: "Pay walkers", icon: Inbox },
   { href: "/admin/settings", label: "Rates & settings", icon: Settings2 },
 ];
 const MORE = [

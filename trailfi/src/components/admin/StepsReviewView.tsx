@@ -11,8 +11,11 @@ import { EmptyState, Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/fetcher";
 import { TokenIcon } from "@/components/ui/TokenIcon";
-import { fmtAmount, fmtDate, fmtDateTime, fmtSteps, shortAddress } from "@/lib/format";
+import { fmtAmount, fmtDate, fmtDateTime, fmtSteps } from "@/lib/format";
+import type { Payout } from "./hooks";
 import { PageHeader } from "./PageHeader";
+import { PayoutModal } from "./PayoutModal";
+import { usePreparePayout } from "./usePreparePayout";
 
 interface Entry {
   id: string;
@@ -49,14 +52,22 @@ const proofUrl = (id: string) => `/api/admin/steps/${id}/proof`;
 export function StepsReviewView() {
   const qc = useQueryClient();
   const [zoom, setZoom] = useState<Entry | null>(null);
+  const [payout, setPayout] = useState<Payout | null>(null);
+  const prepare = usePreparePayout(setPayout);
   const { data, isLoading } = useQuery({ queryKey: ["admin", "steps"], queryFn: () => api<{ entries: Entry[]; tokenSymbol: string }>("/api/admin/steps") });
   const review = useMutation({
     mutationFn: (v: { id: string; decision: "verified" | "rejected"; note?: string }) =>
       api(`/api/admin/steps/${v.id}`, { method: "PATCH", json: { decision: v.decision, note: v.note } }),
     onSuccess: async (d, v) => {
       const reward = (d as { entry?: { reward?: number | null } }).entry?.reward;
+      const entry = data?.entries.find((x) => x.id === v.id);
       toast.success(v.decision === "verified" ? "Steps verified" : "Upload rejected", {
         description: v.decision === "verified" && reward ? `$${reward.toFixed(2)} credited to the walker.` : undefined,
+        duration: v.decision === "verified" ? 15_000 : undefined,
+        action:
+          v.decision === "verified" && reward && entry
+            ? { label: "Pay now", onClick: () => prepare.mutate(entry.userId) }
+            : undefined,
       });
       await qc.invalidateQueries({ queryKey: ["admin"] });
     },
@@ -125,8 +136,22 @@ export function StepsReviewView() {
               {e.photoMatch && <PhotoMatchWarning match={e.photoMatch} onCompare={() => setZoom(e)} />}
               <PayoutEstimate entry={e} token={data.tokenSymbol} />
               <Link href={`/admin/users/${e.userId}`} className="mt-3 text-[12.5px] text-white/50 hover:text-lime-300">
-                Walker #{e.userShortId} · <span className="font-mono">{shortAddress(e.walletAddress)}</span> · sent {fmtDateTime(e.createdAt)}
+                Walker #{e.userShortId} · sent {fmtDateTime(e.createdAt)}
               </Link>
+              <div className="mt-2 flex items-center gap-2 rounded-xl border border-white/[0.07] bg-white/[0.02] px-3 py-2">
+                <span className="label !text-[9px] shrink-0">Wallet</span>
+                <span className="min-w-0 flex-1 truncate font-mono text-[12px] text-white/75" title={e.walletAddress}>{e.walletAddress}</span>
+                <button
+                  className="shrink-0 text-white/50 transition hover:text-lime-300"
+                  aria-label="Copy wallet"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(e.walletAddress);
+                    toast.success("Wallet copied");
+                  }}
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+              </div>
               <div className="mt-auto grid grid-cols-2 gap-2 pt-5">
                 <button
                   className="inline-flex h-11 items-center justify-center gap-1.5 rounded-xl border border-lime-400/30 text-sm font-medium text-lime-300 transition hover:bg-lime-400/10 disabled:opacity-40"
@@ -148,6 +173,7 @@ export function StepsReviewView() {
         ))}
       </div>
 
+      <PayoutModal payout={payout} onClose={() => setPayout(null)} />
       <Modal
         open={Boolean(zoom)}
         onClose={() => setZoom(null)}

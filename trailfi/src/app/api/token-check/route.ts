@@ -4,7 +4,7 @@ import { checkPayoutToken } from "@/lib/services/gate";
 
 export const dynamic = "force-dynamic";
 
-/** Public: does this address hold enough USDG on Robinhood Chain to cash out? Balances are public on chain anyway. */
+/** Public: does this address hold enough USDG on Robinhood Chain (informational only). Balances are public on chain anyway. */
 export const GET = route(async (req) => {
   const address = new URL(req.url).searchParams.get("address") ?? "";
   if (!isAddress(address)) throw new HttpError(400, "Enter a valid wallet address (0x…).", "bad_address");

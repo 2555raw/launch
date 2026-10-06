@@ -137,8 +137,8 @@ export function Hero() {
               transition={{ delay: 1.15 }}
               className="mt-4 inline-flex items-center gap-2 text-[13.5px] text-white/65 transition hover:text-lime-300"
             >
-              <TokenIcon symbol="USDG" /> Free to join. Cashing out needs a little USDG.{" "}
-              <span className="text-lime-300 underline decoration-lime-400/40 underline-offset-4">How to get it</span>
+              <TokenIcon symbol="USDG" /> Free to join. Nothing to buy, nothing to hold.{" "}
+              <span className="text-lime-300 underline decoration-lime-400/40 underline-offset-4">What is USDG?</span>
             </motion.a>
 
             <motion.ul

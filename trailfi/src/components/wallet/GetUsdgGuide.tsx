@@ -95,16 +95,16 @@ export function GetUsdgGuide() {
           Get USDG <span className="text-lime-400">in 2 minutes.</span>
         </h1>
         <p className="mt-5 max-w-2xl text-[17px] leading-relaxed text-white/60">
-          Joining is free. To cash out, your wallet needs a little USDG on Robinhood Chain. Any amount works, even $1. It stays in your wallet:
-          Stepit only reads the balance and never asks to move it.
+          You don&apos;t need any USDG to join or to get paid: Stepit sends your rewards in USDG, a dollar stablecoin, to your
+          wallet on Robinhood Chain. This page shows how to check your balance and how to get more USDG if you ever want it.
         </p>
         <div className="mt-6 grid max-w-2xl gap-3 sm:grid-cols-2">
           {[
-            ["Keeps out bots", "Empty wallets are free to create by the hundred. Needing a little USDG to get paid makes farming rewards not worth it."],
-            ["Your wallet is ready", "It shows your wallet already holds USDG on Robinhood Chain, the same token and network your rewards are sent on."],
+            ["What it is", "USDG is a dollar stablecoin issued by Paxos: 1 USDG is meant to stay worth 1 US dollar."],
+            ["Where it lands", "Your rewards are sent to your wallet on Robinhood Chain, with a public transaction link for each payment."],
           ].map(([t, d]) => (
             <div key={t} className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-              <div className="text-[14px] font-semibold text-lime-300">Why: {t.toLowerCase()}</div>
+              <div className="text-[14px] font-semibold text-lime-300">{t}</div>
               <p className="mt-1 text-[13px] leading-relaxed text-white/55">{d}</p>
             </div>
           ))}
@@ -169,10 +169,10 @@ export function GetUsdgGuide() {
                 {result.ok ? <CheckCircle2 className="h-6 w-6 shrink-0 text-lime-300" /> : <XCircle className="h-6 w-6 shrink-0 text-amber-300" />}
                 <div>
                   <div className="font-semibold">
-                    {result.ok ? `You hold ${Number(result.balance).toLocaleString("en-US", { maximumFractionDigits: 2 })} ${result.symbol}. You're ready to cash out.` : `No ${result.symbol} on Robinhood Chain yet`}
+                    {result.ok ? `You hold ${Number(result.balance).toLocaleString("en-US", { maximumFractionDigits: 2 })} ${result.symbol}. ` : `No ${result.symbol} on Robinhood Chain yet`}
                   </div>
                   <div className="text-[13px] text-white/55">
-                    {result.ok ? "This wallet can cash out its rewards." : "You can still join and walk. Follow one of the routes below before you cash out."}
+                    {result.ok ? "Your Stepit rewards will be sent to this wallet." : "That's fine: you don't need any to join or get paid."}
                   </div>
                 </div>
               </div>

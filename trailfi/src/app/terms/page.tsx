@@ -8,7 +8,7 @@ export default function TermsPage() {
       <Section title="Eligibility and accounts">
         <p>
           You must be of legal age in your jurisdiction. Your account is identified by the public address of your wallet;
-          you are responsible for securing that wallet. Joining is free; to request a payout, the wallet must hold some USDG on Robinhood Chain.
+          you are responsible for securing that wallet. Joining is free and does not require holding any token.
           Stepit only reads that balance and never moves it.
         </p>
       </Section>

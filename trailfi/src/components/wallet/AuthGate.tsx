@@ -76,7 +76,7 @@ function ConnectToStart() {
         <div className="mt-9 flex flex-wrap items-center gap-4">
           <ConnectWallet size="lg" />
           <Link href="/get-usdg" className="flex items-center gap-2 text-[14px] text-white/60 transition hover:text-lime-300">
-            <TokenIcon symbol="USDG" /> Free to join. <span className="text-lime-300 underline decoration-lime-400/40 underline-offset-4">USDG for cashing out</span>
+            <TokenIcon symbol="USDG" /> Free to join. <span className="text-lime-300 underline decoration-lime-400/40 underline-offset-4">Paid in USDG</span>
           </Link>
         </div>
 

@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowUpRight, LayoutDashboard, Menu, X } from "lucide-react";
+import { ArrowUpRight, LayoutDashboard, Menu, Upload, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Logo, MarkIcon } from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 import { XLogo } from "@/components/ui/XLogo";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { cn } from "@/lib/cn";
@@ -115,7 +115,7 @@ export function Navbar() {
               onSteps ? "text-lime-300" : "text-white/75 hover:text-white",
             )}
           >
-            <MarkIcon className="h-4 w-4 text-lime-400" /> Upload steps
+            <Upload className="h-4 w-4 text-lime-400" /> Upload steps
           </Link>
           <div className="hidden sm:block">
             <ConnectWallet size="sm" className="!rounded-full" />
@@ -158,7 +158,7 @@ export function Navbar() {
             <div className="my-2 h-px bg-white/[0.06]" />
             <div className="grid grid-cols-2 gap-2 px-1">
               <Link href="/steps" className="flex items-center gap-2 rounded-2xl bg-white/[0.04] px-4 py-3 text-[14px] font-medium text-white/85">
-                <MarkIcon className="h-4 w-4 text-lime-400" /> Upload steps
+                <Upload className="h-4 w-4 text-lime-400" /> Upload steps
               </Link>
               <Link href="/dashboard" className="flex items-center gap-2 rounded-2xl bg-white/[0.04] px-4 py-3 text-[14px] font-medium text-white/85">
                 <LayoutDashboard className="h-4 w-4 text-lime-400" /> Dashboard

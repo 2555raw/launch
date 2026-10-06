@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowUpRight, LayoutDashboard, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, LayoutDashboard, ShieldCheck, Upload } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Logo, MarkIcon } from "@/components/Logo";
+import { Logo } from "@/components/Logo";
 import { useSession } from "@/components/providers/SessionProvider";
 import { XLogo } from "@/components/ui/XLogo";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
@@ -12,7 +12,7 @@ import { X_HANDLE, X_URL } from "@/lib/social";
 
 const APP = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/steps", label: "Upload steps", icon: MarkIcon },
+  { href: "/steps", label: "Upload steps", icon: Upload },
 ];
 const ADMIN = { href: "/admin", label: "Admin panel", icon: ShieldCheck };
 const SITE = [

@@ -140,7 +140,7 @@ body{width:1920px;height:1080px;position:relative}
 
 <script src="_anim.js"></script>
 <script>
-window.DURATION = 35;
+window.DURATION = 29;
 const BAR = 2.525, T0 = 2.03;
 const cut = (n) => T0 + n * BAR; // scene boundaries on the song's downbeats
 const P = "M108.0 6.0L177.5 42.1L177.5 84.7L108.0 47.4ZM284.0 6.0L214.5 42.1L214.5 84.7L284.0 47.4ZM59.0 69.0L177.5 127.1L177.5 169.7L59.0 110.4ZM333.0 69.0L214.5 127.1L214.5 169.7L333.0 110.4ZM6.0 132.0L177.5 214.0L177.5 256.6L6.0 173.4ZM386.0 132.0L214.5 214.0L214.5 256.6L386.0 173.4Z";
@@ -159,43 +159,46 @@ $("stackBot").innerHTML = [6, 7, 0, 1, 2, 3].map(mk).join("");
 let d = ""; for (let i = 0; i < 260; i++) { const x = (i * 97) % 1920, y = (i * 211) % 1080; d += `<span class="dot" style="left:${x}px;top:${y}px"></span>`; } $("dots").innerHTML = d;
 let r = ""; for (let gy = 0; gy < 5; gy++) for (let gx = 0; gx < 7; gx++) { const cx = 160 + gx * 360 + (gy % 2) * 180, cy = 120 + gy * 330; for (let k = 0; k < 24; k++) { const a = (k / 24) * Math.PI * 2; r += `<span class="dot rd" style="left:${cx + Math.cos(a) * 110}px;top:${cy + Math.sin(a) * 110}px;opacity:.25"></span>`; } r += `<span class="dot" style="left:${cx}px;top:${cy}px;width:10px;height:10px;opacity:.6"></span>`; } $("rings").innerHTML = r;
 
-const scenes = [[0, cut(0)], [cut(0), cut(1)], [cut(1), cut(2)], [cut(2), cut(3)], [cut(3), cut(4)], [cut(4), cut(6)], [cut(6), cut(7)], [cut(7), cut(8)], [cut(8), cut(9)], [cut(9), cut(10)], [cut(10), cut(11)], [cut(11), 35]];
+// Fast open: the intro scenes take half bars, then everything sits on whole bars.
+const HALF = BAR / 2;
+const S = [0, 1.0, T0, T0 + HALF, cut(1), cut(2), cut(4), cut(5), cut(6), cut(7), cut(8), cut(9), window.DURATION];
+const scenes = S.slice(0, -1).map((a, i) => [a, S[i + 1]]);
 const fmt = (n) => Math.round(n).toLocaleString("en-US");
 
 window.render = (t) => {
   scenes.forEach(([a, b], i) => set("s" + i, { opacity: String(win(t, a, b, 0.09)) }));
 
   // 0 · Meet
-  set("meet", { transform: `scale(${1.1 - 0.1 * prog(t, 0, 1.6)})`, opacity: String(prog(t, 0.1, 0.7)) });
+  set("meet", { transform: `scale(${1.1 - 0.1 * prog(t, 0, 0.8)})`, opacity: String(prog(t, 0.05, 0.35)) });
   set("aurora", { transform: `translate(${-120 + 160 * Math.sin(t * 0.9)}px, ${40 * Math.cos(t * 1.1)}px) scale(${0.9 + 0.15 * prog(t, 0, 2)})` });
 
   // 1 · lockup: tiers rise one by one, then the word slides in
-  const a1 = cut(0);
-  document.querySelectorAll("#lockmark .b").forEach((p, i) => { const q = prog(t, a1 + i * 0.12, a1 + i * 0.12 + 0.35); p.style.opacity = q; p.style.transform = `translateY(${(1 - q) * 30}px)`; });
-  set("lockword", { opacity: String(prog(t, a1 + 0.7, a1 + 1.1)), transform: `translateX(${(1 - prog(t, a1 + 0.7, a1 + 1.2)) * -40}px)` });
+  const a1 = S[1];
+  document.querySelectorAll("#lockmark .b").forEach((p, i) => { const q = prog(t, a1 + i * 0.06, a1 + i * 0.06 + 0.22); p.style.opacity = q; p.style.transform = `translateY(${(1 - q) * 30}px)`; });
+  set("lockword", { opacity: String(prog(t, a1 + 0.35, a1 + 0.6)), transform: `translateX(${(1 - prog(t, a1 + 0.35, a1 + 0.65)) * -40}px)` });
 
   // 2 · your steps: card stacks drift up
-  const a2 = cut(1);
-  set("stackTop", { transform: `translateY(${-560 + (t - a2) * 70}px)` });
-  set("stackBot", { transform: `translateY(${80 - (t - a2) * 70}px)` });
+  const a2 = S[2];
+  set("stackTop", { transform: `translateY(${-560 + (t - a2) * 150}px)` });
+  set("stackBot", { transform: `translateY(${80 - (t - a2) * 150}px)` });
   $("stackTop").querySelectorAll(".stepcard").forEach((c, i) => { c.style.top = i * 96 + "px"; c.style.transform = `scale(${0.9 + i * 0.02})`; c.style.opacity = 0.35 + i * 0.1; });
   $("stackBot").querySelectorAll(".stepcard").forEach((c, i) => { c.style.top = i * 96 + "px"; c.style.transform = `scale(${1 - i * 0.02})`; c.style.opacity = 1 - i * 0.12; });
-  set("your", { opacity: String(prog(t, a2, a2 + 0.3)) });
-  set("steps", { opacity: String(prog(t, a2 + 0.63, a2 + 0.9)) });
+  set("your", { opacity: String(prog(t, a2, a2 + 0.18)) });
+  set("steps", { opacity: String(prog(t, a2 + 0.32, a2 + 0.5)) });
 
   // 3 · Walk. Upload. Get paid. on the beats
-  const a3 = cut(2), beat = BAR / 4;
-  ["w1", "w2", "w3"].forEach((id, i) => { const q = prog(t, a3 + i * beat, a3 + i * beat + 0.22); set(id, { opacity: String(q), transform: `translateY(${(1 - q) * 30}px)` }); });
+  const a3 = S[3], beat = BAR / 4;
+  ["w1", "w2", "w3"].forEach((id, i) => { const q = prog(t, a3 + i * 0.36, a3 + i * 0.36 + 0.16); set(id, { opacity: String(q), transform: `translateY(${(1 - q) * 30}px)` }); });
 
   // 4 · Paid in USDG
-  const a4 = cut(3);
+  const a4 = S[4];
   set("u1", { opacity: String(prog(t, a4, a4 + 0.3)) });
   const qc = prog(t, a4 + 0.3, a4 + 0.75); set("ucoin", { opacity: String(qc), transform: `scale(${0.4 + 0.6 * qc}) rotate(${(1 - qc) * -90}deg)` });
   set("u2", { opacity: String(prog(t, a4 + 0.63, a4 + 0.95)) });
   document.querySelectorAll("#dots .dot").forEach((el, i) => { el.style.opacity = (0.08 + 0.35 * Math.max(0, Math.sin(t * 2.2 + i * 1.7))) * prog(t, a4, a4 + 0.8); });
 
   // 5 · Upload demo
-  const a5 = cut(4);
+  const a5 = S[5];
   const fly = prog(t, a5 + 0.2, a5 + 1.3);
   set("shot", { left: `${1500 - 640 * fly}px`, top: `${560 - 120 * fly}px`, transform: `rotate(${8 - 8 * fly}deg) scale(${1 - 0.35 * prog(t, a5 + 1.1, a5 + 1.5)})`, opacity: String(1 - prog(t, a5 + 1.35, a5 + 1.6)) });
   const drop = prog(t, a5 + 1.4, a5 + 1.7);
@@ -211,42 +214,42 @@ window.render = (t) => {
   const rw = prog(t, a5 + 3.9, a5 + 4.3); set("reward", { opacity: String(rw), transform: `translateY(${(1 - rw) * 16}px)` });
 
   // 6 · lime: checked, then typing
-  const a6 = cut(6);
+  const a6 = S[6];
   set("c1", { opacity: String(prog(t, a6, a6 + 0.3)) });
   const line = "Every payment on chain.", n = Math.floor(line.length * clamp((t - a6 - 0.6) / 1.2));
   $("c2").textContent = line.slice(0, Math.max(0, n));
   set("caret", { opacity: String(Math.floor(t * 3) % 2 === 0 || n < line.length ? 1 : 0) });
 
   // 7 · Dashboard counts up
-  const a7 = cut(7), c = prog(t, a7 + 0.2, a7 + 1.6);
+  const a7 = S[7], c = prog(t, a7 + 0.2, a7 + 1.6);
   $("n1").textContent = fmt(52480 * c); $("n2").textContent = (18.4 * c).toFixed(2); $("n3").textContent = String(Math.round(6 * c));
   ["d1", "d2", "d3"].forEach((id, i) => { const q = prog(t, a7 + i * 0.1, a7 + i * 0.1 + 0.4); set(id, { opacity: String(q), transform: `translateY(${(1 - q) * 30}px)` }); });
   const pr = prog(t, a7 + 1.3, a7 + 1.7); set("payrow", { opacity: String(pr), transform: `translateY(${(1 - pr) * 30}px)` });
 
   // 8 · Simple to start
-  const a8 = cut(8);
+  const a8 = S[8];
   set("simple", { opacity: String(prog(t, a8, a8 + 0.35)) });
   const ph = prog(t, a8 + 0.1, a8 + 0.8); set("phone", { transform: `translateY(${(1 - ph) * 200}px) rotate(${(1 - ph) * 6}deg)` });
   set("phoneBtn", { transform: `scale(${t > a8 + 1.6 && t < a8 + 1.8 ? 0.95 : 1})` });
 
   // 9 · Ranking tubes rise
-  const a9 = cut(9);
+  const a9 = S[9];
   [["t1", 520, 0.1], ["t2", 400, 0.2], ["t3", 300, 0.3]].forEach(([id, h, dl]) => set(id, { height: `${h * prog(t, a9 + dl, a9 + dl + 0.9)}px` }));
   set("you", { bottom: `${520 * prog(t, a9 + 0.1, a9 + 1.0) + 16}px`, opacity: String(prog(t, a9 + 0.9, a9 + 1.2)) });
   set("keep", { opacity: String(prog(t, a9 + 0.2, a9 + 0.55)) });
 
   // 10 · rings slowly turn, words on beats
-  const a10 = cut(10);
+  const a10 = S[10];
   set("rings", { transform: `scale(${1.1 - 0.08 * prog(t, a10, a10 + 2.5)}) rotate(${(t - a10) * 2}deg)` });
   set("y1", { opacity: String(prog(t, a10 + 0.1, a10 + 0.4)) });
   set("y2", { opacity: String(prog(t, a10 + 0.1 + beat * 2, a10 + 0.4 + beat * 2)) });
 
   // 11 · End card
-  const a11 = cut(11);
+  const a11 = S[11];
   document.querySelectorAll("#endmark .b").forEach((p, i) => { const q = prog(t, a11 + i * 0.1, a11 + i * 0.1 + 0.3); p.style.opacity = q; p.style.transform = `translateY(${(1 - q) * 24}px)`; });
   set("endsub", { opacity: String(prog(t, a11 + 0.8, a11 + 1.2)) });
   set("endurl", { opacity: String(prog(t, a11 + 1.1, a11 + 1.5)) });
-  set("s11", { opacity: String(win(t, a11, 35.6, 0.09) * (1 - prog(t, 34.2, 35))) });
+  set("s11", { opacity: String(win(t, a11, window.DURATION + 0.6, 0.09) * (1 - prog(t, window.DURATION - 0.8, window.DURATION))) });
 };
 window.render(0);
 </script></body></html>

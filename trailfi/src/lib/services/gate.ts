@@ -1,7 +1,6 @@
 import "server-only";
 import { formatUnits, parseUnits } from "viem";
 import { HttpError } from "@/lib/api";
-import { isAdminWallet } from "@/lib/auth/guard";
 import { publicClient } from "@/lib/web3/server";
 import { ERC20_ABI } from "@/lib/web3/tokens";
 import { getSettings } from "./settings";

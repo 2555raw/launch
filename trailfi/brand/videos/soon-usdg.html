@@ -1,18 +1,18 @@
 <!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
 body{width:1080px;height:1080px}
-/* Clouds from the header photo, graded like the site, drifting slowly */
-.sky{left:-60px;top:-60px;width:1200px;height:1200px;background:url(clouds-bg.jpg) center/cover no-repeat;filter:brightness(.95)}
-.skyshade{inset:0;background:radial-gradient(70% 70% at 50% 42%,rgba(5,8,7,.15) 30%,rgba(4,10,7,.75) 100%),rgba(11,42,28,.12)}
-.glow{left:50%;top:44%;width:1000px;height:1000px;margin:-500px 0 0 -500px;border-radius:50%;background:radial-gradient(circle,rgba(196,251,109,.18),transparent 62%)}
-.phone{left:50%;top:48px;width:380px;height:740px;margin-left:-190px;border-radius:66px;border:3px solid rgba(255,255,255,.16);background:#0b0c0d;padding:14px;box-shadow:0 50px 120px -40px rgba(0,0,0,.95)}
+/* Misty forest and river from the site header, graded dark, drifting slowly */
+.sky{left:-60px;top:-60px;width:1200px;height:1200px;background:url(../../public/images/forest-river.jpg) 50% 60%/cover no-repeat;filter:saturate(.9) brightness(.74)}
+.skyshade{inset:0;background:linear-gradient(0deg,rgba(5,7,11,.92) 0%,rgba(5,7,11,.55) 26%,transparent 50%),radial-gradient(70% 70% at 50% 42%,rgba(5,7,11,.2) 30%,rgba(5,7,11,.8) 100%),rgba(7,18,38,.18)}
+.glow{left:50%;top:44%;width:1000px;height:1000px;margin:-500px 0 0 -500px;border-radius:50%;background:radial-gradient(circle,rgba(77,148,255,.18),transparent 62%)}
+.phone{left:50%;top:48px;width:380px;height:740px;margin-left:-190px;border-radius:66px;border:3px solid rgba(255,255,255,.16);background:#0a0c12;padding:14px;box-shadow:0 50px 120px -40px rgba(0,0,0,.95)}
 .screen{position:relative;width:100%;height:100%;border-radius:54px;overflow:hidden;background:#000}
 .pane{position:absolute;inset:0;padding:84px 34px 0}
 .notch{position:absolute;left:50%;top:14px;width:124px;height:34px;margin-left:-62px;border-radius:20px;background:#000;z-index:5}
 .soon{left:0;right:0;top:822px;text-align:center}
-.word{font-size:180px;font-weight:700;letter-spacing:-6px;line-height:1;color:#c4fb6d;text-shadow:0 0 60px rgba(196,251,109,.35)}
+.word{font-size:180px;font-weight:700;letter-spacing:-6px;line-height:1;color:#4d94ff;text-shadow:0 0 60px rgba(77,148,255,.35)}
 .tag{margin-top:6px;display:flex;justify-content:center;align-items:center;gap:14px;font-size:34px;font-weight:700}
 .label{font-family:JB;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.45)}
-.fade{inset:0;background:#060807}
+.fade{inset:0;background:#05070b}
 </style></head><body>
 <div class="abs sky" id="sky"></div><div class="abs skyshade"></div>
 <div class="abs glow" id="glow"></div>
@@ -23,35 +23,35 @@ body{width:1080px;height:1080px}
   <div class="pane" id="p1" style="background:#000">
     <div style="text-align:center;font-size:20px;font-weight:700">Today</div>
     <div id="ring" style="margin:40px auto 0;width:210px;height:210px;border-radius:50%;display:grid;place-items:center"><div style="width:134px;height:134px;border-radius:50%;background:#000;display:grid;place-items:center">
-      <svg width="54" height="54" viewBox="-6 -70.5 404 404"><path id="mk1" fill="#fa114f" stroke="#fa114f" stroke-width="12" stroke-linejoin="round"/></svg>
+      <svg width="46" height="46" viewBox="0 0 514 514"><path id="mk1" fill="#fa114f"/></svg>
     </div></div>
     <div style="margin-top:46px;font-size:20px">Steps</div>
     <div class="mono" id="steps" style="font-size:64px;letter-spacing:-2px;color:#fff">0</div>
-    <div style="margin-top:20px;height:14px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden"><div id="bar" style="height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#84cc16,#c4fb6d)"></div></div>
+    <div style="margin-top:20px;height:14px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden"><div id="bar" style="height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#1f63e0,#4d94ff)"></div></div>
     <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:16px;color:rgba(255,255,255,.4)"><span>0</span><span>goal 10,000</span></div>
   </div>
 
-  <!-- 2 · Stepit upload -->
-  <div class="pane" id="p2" style="background:#060807">
-    <div style="display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700"><svg width="34" height="23" viewBox="-6 -6 404 275"><path id="mk2" fill="url(#lg)" stroke="url(#lg)" stroke-width="12" stroke-linejoin="round"/></svg>Step<span class="lime" style="margin-left:-10px">it</span></div>
+  <!-- 2 · Strydo upload -->
+  <div class="pane" id="p2" style="background:#05070b">
+    <div style="display:flex;align-items:center;gap:10px;font-size:22px;font-weight:700"><svg width="27" height="27" viewBox="0 0 514 514"><path id="mk2" fill="url(#lg)"/></svg>Stry<span class="accent" style="margin-left:-10px">do</span></div>
     <div class="label" style="margin-top:34px">Upload steps</div>
     <div style="font-size:30px;font-weight:700;margin-top:8px">Log your day</div>
     <div class="mono" style="margin-top:22px;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:16px 18px;font-size:28px">10,871</div>
-    <div id="attach" style="margin-top:16px;border:1px solid rgba(196,251,109,.35);background:rgba(196,251,109,.06);border-radius:16px;padding:12px;display:flex;align-items:center;gap:14px">
+    <div id="attach" style="margin-top:16px;border:1px solid rgba(77,148,255,.35);background:rgba(77,148,255,.06);border-radius:16px;padding:12px;display:flex;align-items:center;gap:14px">
       <div style="width:44px;height:64px;border-radius:8px;background:#000;border:1px solid rgba(255,255,255,.2);display:grid;place-items:center"><div style="width:20px;height:20px;border-radius:50%;border:3px solid #fa114f"></div></div>
-      <span style="font-size:17px;color:#d8ff9c">✓ Screenshot ready</span>
+      <span style="font-size:17px;color:#9cc2ff">✓ Screenshot ready</span>
     </div>
-    <div id="upbtn" style="margin-top:22px;height:62px;border-radius:16px;background:#c4fb6d;color:#060807;display:grid;place-items:center;font-size:20px;font-weight:700;overflow:hidden;position:relative">
-      <div id="upfill" style="position:absolute;left:0;top:0;bottom:0;width:0;background:#d8ff9c"></div><span id="uplabel" style="position:relative">Upload steps</span></div>
-    <div id="verified" style="margin-top:22px;text-align:center;font-family:JB;font-size:16px;letter-spacing:3px;color:#c4fb6d">✓ VERIFIED</div>
+    <div id="upbtn" style="margin-top:22px;height:62px;border-radius:16px;background:#4d94ff;color:#05070b;display:grid;place-items:center;font-size:20px;font-weight:700;overflow:hidden;position:relative">
+      <div id="upfill" style="position:absolute;left:0;top:0;bottom:0;width:0;background:#9cc2ff"></div><span id="uplabel" style="position:relative">Upload steps</span></div>
+    <div id="verified" style="margin-top:22px;text-align:center;font-family:JB;font-size:16px;letter-spacing:3px;color:#4d94ff">✓ VERIFIED</div>
   </div>
 
-  <!-- 3 · paid in USDG -->
-  <div class="pane" id="p3" style="background:#060807;text-align:center">
+  <!-- 3 · paid in ETH -->
+  <div class="pane" id="p3" style="background:#05070b;text-align:center">
     <div class="label" style="margin-top:40px">Paid to your wallet</div>
-    <img id="coin" src="../../public/tokens/usdg.png" style="margin:46px auto 0;display:block;width:150px;height:150px;border-radius:50%;box-shadow:0 0 70px rgba(196,251,109,.35)">
-    <div id="amt" style="margin-top:34px;font-size:64px;font-weight:700;letter-spacing:-2px;color:#d8ff9c">+0.00</div>
-    <div style="font-size:24px;font-weight:700;margin-top:2px">USDG</div>
+    <img id="coin" src="../../public/tokens/eth.svg" style="margin:46px auto 0;display:block;width:150px;height:150px;border-radius:50%;box-shadow:0 0 70px rgba(77,148,255,.35)">
+    <div id="amt" style="margin-top:34px;font-size:64px;font-weight:700;letter-spacing:-2px;color:#9cc2ff">$0.00</div>
+    <div style="font-size:24px;font-weight:700;margin-top:2px;color:rgba(255,255,255,.7)">paid in ETH</div>
     <div class="mono" style="margin-top:26px;font-size:15px;color:rgba(255,255,255,.45)">Robinhood Chain · tx ↗</div>
   </div>
 
@@ -60,12 +60,12 @@ body{width:1080px;height:1080px}
 
 <div class="abs soon" id="soon">
   <div class="word" id="word">SOON</div>
-  <div class="tag" id="tag"><svg width="48" height="32" viewBox="-6 -6 404 275"><path id="mk3" fill="url(#lg)" stroke="url(#lg)" stroke-width="12" stroke-linejoin="round"/></svg>Step<span class="lime" style="margin-left:-14px">it</span><span style="color:rgba(255,255,255,.45);font-weight:500;margin-left:8px">stepit.site</span></div>
+  <div class="tag" id="tag"><svg width="37" height="37" viewBox="0 0 514 514"><path id="mk3" fill="url(#lg)"/></svg>Stry<span class="accent" style="margin-left:-14px">do</span><span style="color:rgba(255,255,255,.45);font-weight:500;margin-left:8px">strydo.xyz</span></div>
 </div>
-<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#b2f047"/></linearGradient></defs></svg>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9cc2ff"/><stop offset="1" stop-color="#2f7bff"/></linearGradient></defs></svg>
 <div class="abs fade" id="fade"></div>
 <script src="_anim.js"></script><script>
-const MARK = "M108.0 6.0L177.5 42.1L177.5 84.7L108.0 47.4ZM284.0 6.0L214.5 42.1L214.5 84.7L284.0 47.4ZM59.0 69.0L177.5 127.1L177.5 169.7L59.0 110.4ZM333.0 69.0L214.5 127.1L214.5 169.7L333.0 110.4ZM6.0 132.0L177.5 214.0L177.5 256.6L6.0 173.4ZM386.0 132.0L214.5 214.0L214.5 256.6L386.0 173.4Z";
+const MARK = "M144 0L220 0A32 32 0 0 1 252 32L252 138A9 9 0 0 1 243 147L177 147A30 30 0 0 0 147 177L147 243A9 9 0 0 1 138 252L32 252A32 32 0 0 1 0 220L0 142A32 32 0 0 1 32 110L78 110A34 34 0 0 0 112 76L112 32A32 32 0 0 1 144 0ZM514 144L514 220A32 32 0 0 1 482 252L376 252A9 9 0 0 1 367 243L367 177A30 30 0 0 0 337 147L271 147A9 9 0 0 1 262 138L262 32A32 32 0 0 1 294 0L372 0A32 32 0 0 1 404 32L404 78A34 34 0 0 0 438 112L482 112A32 32 0 0 1 514 144ZM370 514L294 514A32 32 0 0 1 262 482L262 376A9 9 0 0 1 271 367L337 367A30 30 0 0 0 367 337L367 271A9 9 0 0 1 376 262L482 262A32 32 0 0 1 514 294L514 372A32 32 0 0 1 482 404L436 404A34 34 0 0 0 402 438L402 482A32 32 0 0 1 370 514ZM0 370L0 294A32 32 0 0 1 32 262L138 262A9 9 0 0 1 147 271L147 337A30 30 0 0 0 177 367L243 367A9 9 0 0 1 252 376L252 482A32 32 0 0 1 220 514L142 514A32 32 0 0 1 110 482L110 436A34 34 0 0 0 76 402L32 402A32 32 0 0 1 0 370Z";
 ["mk1", "mk2", "mk3"].forEach((id) => $(id).setAttribute("d", MARK));
 window.DURATION = 5.6;
 window.render = (t) => {
@@ -75,7 +75,7 @@ window.render = (t) => {
   $("steps").textContent = Math.round(10871 * k).toLocaleString("en-US");
   set("ring", { background: `conic-gradient(#fa114f ${k * 360}deg, rgba(250,17,79,.16) 0)` });
   set("bar", { width: `${Math.min(100, k * 108.7)}%` });
-  // screenshot flash, then the Stepit screen slides in
+  // screenshot flash, then the Strydo screen slides in
   set("flash", { opacity: t > 1.3 && t < 1.65 ? 0.9 * (1 - prog(t, 1.3, 1.65)) : 0 });
   const s2 = prog(t, 1.45, 1.75);
   set("p1", { transform: `translateX(${-40 * s2}%)`, opacity: 1 - s2 });
@@ -86,13 +86,13 @@ window.render = (t) => {
   set("upfill", { width: `${100 * prog(t, 2.1, 2.55)}%` });
   $("uplabel").textContent = t < 2.1 ? "Upload steps" : t < 2.55 ? "Uploading…" : "Sent";
   set("verified", { opacity: prog(t, 2.6, 2.75) });
-  // 3 · USDG lands
+  // 3 · ETH lands
   const s3 = prog(t, 2.9, 3.15);
   set("p2", { opacity: 1 - s3 });
   set("p3", { transform: `translateX(${100 - 100 * s3}%)` });
   const c = prog(t, 3.0, 3.35);
   set("coin", { transform: `scale(${0.3 + 0.7 * c}) rotate(${(1 - c) * -180}deg)`, opacity: c });
-  $("amt").textContent = "+" + (5 * prog(t, 3.1, 3.6)).toFixed(2);
+  $("amt").textContent = "$" + (5 * prog(t, 3.1, 3.6)).toFixed(2);
   // SOON
   set("glow", { transform: `scale(${1 + 0.1 * prog(t, 3.5, 4.0)})` });
   const w = prog(t, 3.55, 3.9);

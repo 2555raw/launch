@@ -6,23 +6,23 @@ body{width:1920px;height:1080px;position:relative}
 .big{font-weight:700;letter-spacing:-6px;line-height:1}
 .mid{font-weight:700;letter-spacing:-3px;line-height:1.05}
 .muted{color:rgba(255,255,255,.42)}
-.card{background:#0e1210;border:1px solid rgba(255,255,255,.09);border-radius:28px;box-shadow:0 40px 90px -30px rgba(0,0,0,.9)}
+.card{background:#0c1018;border:1px solid rgba(255,255,255,.09);border-radius:28px;box-shadow:0 40px 90px -30px rgba(0,0,0,.9)}
 .chip{display:inline-flex;align-items:center;gap:10px;border-radius:999px;font-family:JB;font-size:15px;letter-spacing:2px;text-transform:uppercase;padding:8px 16px}
 .label{font-family:JB;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.45)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;height:64px;padding:0 30px;border-radius:18px;background:#c4fb6d;color:#060807;font-weight:700;font-size:22px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:12px;height:64px;padding:0 30px;border-radius:18px;background:#4d94ff;color:#05070b;font-weight:700;font-size:22px}
 .cursor{position:absolute;width:34px;height:34px;z-index:20}
-.dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#c4fb6d}
-#aurora{position:absolute;width:1400px;height:900px;border-radius:50%;filter:blur(120px);background:radial-gradient(closest-side,rgba(196,251,109,.35),rgba(93,140,60,.12) 60%,transparent)}
+.dot{position:absolute;width:6px;height:6px;border-radius:50%;background:#4d94ff}
+#aurora{position:absolute;width:1400px;height:900px;border-radius:50%;filter:blur(120px);background:radial-gradient(closest-side,rgba(77,148,255,.35),rgba(31,99,224,.12) 60%,transparent)}
 .stepcard{position:absolute;width:300px;padding:18px 20px;display:flex;align-items:center;gap:14px}
 .stepcard img{width:40px;height:40px;border-radius:10px}
 .stepcard b{display:block;font-size:24px;letter-spacing:-.5px}
 .stepcard span{font-size:14px;color:rgba(255,255,255,.5)}
 .coin{width:120px;height:120px;border-radius:50%}
-.tube{position:absolute;bottom:0;width:120px;border-radius:24px 24px 0 0;background:linear-gradient(to top,#b2f047,#d8ff9c)}
+.tube{position:absolute;bottom:0;width:120px;border-radius:24px 24px 0 0;background:linear-gradient(to top,#2f7bff,#9cc2ff)}
 </style></head><body>
 
 <svg width="0" height="0" style="position:absolute"><defs>
-<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8ff9c"/><stop offset="1" stop-color="#b2f047"/></linearGradient>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9cc2ff"/><stop offset="1" stop-color="#2f7bff"/></linearGradient>
 </defs></svg>
 
 <!-- 0 · Meet -->
@@ -30,25 +30,25 @@ body{width:1920px;height:1080px;position:relative}
 
 <!-- 1 · Logo lockup -->
 <div class="scene" id="s1"><div style="display:flex;align-items:center;gap:60px">
-  <svg width="330" height="221" viewBox="-6 -6 404 275" id="lockmark"></svg>
-  <div class="big" id="lockword" style="font-size:200px">Step<span class="lime">it</span></div>
+  <svg width="257" height="257" viewBox="0 0 514 514" id="lockmark" style="overflow:visible"></svg>
+  <div class="big" id="lockword" style="font-size:200px">Stry<span class="accent">do</span></div>
 </div></div>
 
 <!-- 2 · your steps -->
 <div class="scene" id="s2">
   <div id="stackTop" class="abs" style="left:810px;top:0;width:300px;height:400px"></div>
-  <div class="mid" style="font-size:96px;position:relative;z-index:3"><span id="your">your</span> <span id="steps" class="lime">steps</span></div>
+  <div class="mid" style="font-size:96px;position:relative;z-index:3"><span id="your">your</span> <span id="steps" class="accent">steps</span></div>
   <div id="stackBot" class="abs" style="left:810px;top:640px;width:300px;height:440px"></div>
 </div>
 
 <!-- 3 · Walk. Upload. Get paid. -->
 <div class="scene" id="s3"><div class="big" style="font-size:150px;display:flex;gap:56px">
-  <span id="w1">Walk.</span><span id="w2">Upload.</span><span id="w3" class="lime">Get paid.</span></div></div>
+  <span id="w1">Walk.</span><span id="w2">Upload.</span><span id="w3" class="accent">Get paid.</span></div></div>
 
-<!-- 4 · in USDG -->
+<!-- 4 · in ETH -->
 <div class="scene" id="s4"><div id="dots" class="abs" style="inset:0"></div>
   <div class="big" style="font-size:150px;display:flex;align-items:center;gap:40px;position:relative">
-    <span id="u1">Paid in</span><img id="ucoin" class="coin" src="../../public/tokens/usdg.png"><span id="u2" class="lime">USDG</span></div></div>
+    <span id="u1">Paid in</span><img id="ucoin" class="coin" src="../../public/tokens/eth.svg"><span id="u2" class="accent">ETH</span></div></div>
 
 <!-- 5 · Upload demo -->
 <div class="scene" id="s5">
@@ -63,9 +63,9 @@ body{width:1920px;height:1080px;position:relative}
         <div id="status" class="chip" style="margin-left:auto;border:1px solid rgba(251,191,36,.4);color:#fde68a">In review</div>
       </div>
     </div>
-    <div style="margin-top:22px;height:10px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden"><div id="bar" style="height:100%;width:0;background:linear-gradient(90deg,#b2f047,#d8ff9c);border-radius:99px"></div></div>
+    <div style="margin-top:22px;height:10px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden"><div id="bar" style="height:100%;width:0;background:linear-gradient(90deg,#2f7bff,#9cc2ff);border-radius:99px"></div></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-top:26px">
-      <div id="reward" style="display:flex;align-items:center;gap:14px;opacity:0"><img src="../../public/tokens/usdg.png" style="width:44px;height:44px;border-radius:50%"><span class="mid lime" style="font-size:44px">+5.00 USDG</span></div>
+      <div id="reward" style="display:flex;align-items:center;gap:14px;opacity:0"><img src="../../public/tokens/eth.svg" style="width:44px;height:44px;border-radius:50%"><span class="mid accent" style="font-size:44px">+$5.00</span><span class="label" style="font-size:16px;align-self:flex-end;margin-bottom:8px">in ETH</span></div>
       <div class="btn" id="upBtn">Upload</div>
     </div>
   </div>
@@ -76,40 +76,40 @@ body{width:1920px;height:1080px;position:relative}
     <div style="display:flex;align-items:flex-end;gap:7px;height:110px;margin-top:14px">
       <i style="flex:1;height:40%;background:#fa114f;border-radius:4px"></i><i style="flex:1;height:65%;background:#fa114f;border-radius:4px"></i><i style="flex:1;height:30%;background:#fa114f;border-radius:4px"></i><i style="flex:1;height:85%;background:#fa114f;border-radius:4px"></i><i style="flex:1;height:100%;background:#fa114f;border-radius:4px"></i></div>
   </div>
-  <svg class="cursor" id="cur" viewBox="0 0 24 24"><path d="M4 2l16 9-7 2-3 7z" fill="#fff" stroke="#060807" stroke-width="1.5" stroke-linejoin="round"/></svg>
+  <svg class="cursor" id="cur" viewBox="0 0 24 24"><path d="M4 2l16 9-7 2-3 7z" fill="#fff" stroke="#05070b" stroke-width="1.5" stroke-linejoin="round"/></svg>
 </div>
 
-<!-- 6 · lime: checked / on chain -->
-<div class="scene" id="s6" style="background:#c4fb6d;color:#060807">
-  <div class="mid" style="font-size:110px;text-align:center"><div id="c1">Every photo checked.</div><div style="color:rgba(6,8,7,.45)"><span id="c2"></span><span id="caret" style="display:inline-block;width:6px;height:96px;background:#060807;vertical-align:-10px;margin-left:6px"></span></div></div>
+<!-- 6 · blue: checked / on chain -->
+<div class="scene" id="s6" style="background:#4d94ff;color:#05070b">
+  <div class="mid" style="font-size:110px;text-align:center"><div id="c1">Every photo checked.</div><div style="color:rgba(5,7,11,.45)"><span id="c2"></span><span id="caret" style="display:inline-block;width:6px;height:96px;background:#05070b;vertical-align:-10px;margin-left:6px"></span></div></div>
 </div>
 
 <!-- 7 · Dashboard -->
 <div class="scene" id="s7"><div style="width:1300px">
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:28px">
     <div class="card" style="padding:34px" id="d1"><div class="label">Steps this week</div><div class="mid" style="font-size:72px;margin-top:14px" id="n1">0</div></div>
-    <div class="card" style="padding:34px" id="d2"><div class="label">Earned</div><div class="mid lime" style="font-size:72px;margin-top:14px;display:flex;align-items:center;gap:14px"><span id="n2">0.00</span><img src="../../public/tokens/usdg.png" style="width:52px;height:52px;border-radius:50%"></div></div>
+    <div class="card" style="padding:34px" id="d2"><div class="label">Earned · in ETH</div><div class="mid accent" style="font-size:72px;margin-top:14px;display:flex;align-items:center;gap:14px"><span id="n2">$0.00</span><img src="../../public/tokens/eth.svg" style="width:52px;height:52px;border-radius:50%"></div></div>
     <div class="card" style="padding:34px" id="d3"><div class="label">Days walked</div><div class="mid" style="font-size:72px;margin-top:14px" id="n3">0</div></div>
   </div>
   <div class="card" id="payrow" style="margin-top:28px;padding:26px 34px;display:flex;align-items:center;gap:20px">
-    <div style="width:48px;height:48px;border-radius:50%;background:#c4fb6d;display:grid;place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#060807" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
-    <div><div style="font-size:28px;font-weight:700">+5.00 USDG sent to your wallet</div><div class="muted" style="font-size:18px;margin-top:4px">Robinhood Chain · 0x7a3f…91c2</div></div>
-    <div class="chip" style="margin-left:auto;border:1px solid rgba(196,251,109,.4);color:#d8ff9c">View tx ↗</div>
+    <div style="width:48px;height:48px;border-radius:50%;background:#4d94ff;display:grid;place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#05070b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+    <div><div style="font-size:28px;font-weight:700">+$5.00 in ETH sent to your wallet</div><div class="muted" style="font-size:18px;margin-top:4px">Robinhood Chain · 0x7a3f…91c2</div></div>
+    <div class="chip" style="margin-left:auto;border:1px solid rgba(77,148,255,.4);color:#9cc2ff">View tx ↗</div>
   </div>
 </div></div>
 
 <!-- 8 · Simple to start -->
 <div class="scene" id="s8" style="justify-content:flex-start">
   <div style="width:960px;display:flex;justify-content:center"><div class="big" style="font-size:120px" id="simple">Simple<br>to start.</div></div>
-  <div style="width:960px;height:1080px;background:#0e1210;display:flex;align-items:center;justify-content:center;position:relative">
-    <div id="phone" style="width:400px;height:820px;border-radius:64px;border:10px solid #1b221e;background:#060807;padding:70px 34px;position:relative">
-      <div style="position:absolute;left:50%;top:18px;transform:translateX(-50%);width:120px;height:32px;border-radius:20px;background:#1b221e"></div>
+  <div style="width:960px;height:1080px;background:#0c1018;display:flex;align-items:center;justify-content:center;position:relative">
+    <div id="phone" style="width:400px;height:820px;border-radius:64px;border:10px solid #1a2030;background:#05070b;padding:70px 34px;position:relative">
+      <div style="position:absolute;left:50%;top:18px;transform:translateX(-50%);width:120px;height:32px;border-radius:20px;background:#1a2030"></div>
       <div class="label">Good morning</div>
       <div class="mid" style="font-size:40px;margin-top:10px">Upload today&#39;s steps</div>
       <div style="display:flex;gap:10px;margin-top:28px">
         <img src="../../public/apps/apple-health.png" style="width:52px;height:52px;border-radius:13px"><img src="../../public/apps/google-fit.png" style="width:52px;height:52px;border-radius:13px"><img src="../../public/apps/samsung-health.png" style="width:52px;height:52px;border-radius:13px"><img src="../../public/apps/fitbit.png" style="width:52px;height:52px;border-radius:13px"><img src="../../public/apps/garmin-connect.png" style="width:52px;height:52px;border-radius:13px">
       </div>
-      <div style="margin-top:34px;height:220px;border:2px dashed rgba(196,251,109,.35);border-radius:24px;display:grid;place-items:center;color:rgba(255,255,255,.5);font-size:20px">Tap to choose a photo</div>
+      <div style="margin-top:34px;height:220px;border:2px dashed rgba(77,148,255,.35);border-radius:24px;display:grid;place-items:center;color:rgba(255,255,255,.5);font-size:20px">Tap to choose a photo</div>
       <div class="btn" id="phoneBtn" style="margin-top:34px;width:100%">Upload steps</div>
     </div>
   </div>
@@ -117,25 +117,25 @@ body{width:1920px;height:1080px;position:relative}
 
 <!-- 9 · Ranking -->
 <div class="scene" id="s9" style="justify-content:flex-start">
-  <div style="width:960px;height:1080px;background:#0e1210;position:relative">
+  <div style="width:960px;height:1080px;background:#0c1018;position:relative">
     <div class="label" style="position:absolute;left:120px;top:150px">Top walkers this week</div>
     <div style="position:absolute;left:150px;right:150px;bottom:180px;height:560px">
       <div class="tube" id="t2" style="left:40px;opacity:.55"></div><div class="tube" id="t1" style="left:300px"></div><div class="tube" id="t3" style="left:560px;opacity:.35"></div>
-      <div class="label" id="you" style="position:absolute;left:280px;color:#060807;background:#c4fb6d;padding:6px 14px;border-radius:99px;font-weight:700">You · #1</div>
+      <div class="label" id="you" style="position:absolute;left:280px;color:#05070b;background:#4d94ff;padding:6px 14px;border-radius:99px;font-weight:700">You · #1</div>
     </div>
   </div>
-  <div style="width:960px;display:flex;justify-content:center"><div class="big" style="font-size:120px" id="keep">Built to keep<br>you <span class="lime">moving.</span></div></div>
+  <div style="width:960px;display:flex;justify-content:center"><div class="big" style="font-size:120px" id="keep">Built to keep<br>you <span class="accent">moving.</span></div></div>
 </div>
 
 <!-- 10 · You walk. You earn. -->
 <div class="scene" id="s10"><div id="rings" class="abs" style="inset:-200px"></div>
-  <div class="big" style="font-size:150px;position:relative;text-shadow:0 0 60px #060807"><span id="y1">You walk.</span> <span id="y2" class="lime">You earn.</span></div></div>
+  <div class="big" style="font-size:150px;position:relative;text-shadow:0 0 60px #05070b"><span id="y1">You walk.</span> <span id="y2" class="accent">You earn.</span></div></div>
 
 <!-- 11 · End card -->
 <div class="scene" id="s11" style="flex-direction:column">
-  <div style="display:flex;align-items:center;gap:44px"><svg width="230" height="154" viewBox="-6 -6 404 275" id="endmark"></svg><div class="big" style="font-size:150px">Step<span class="lime">it</span></div></div>
+  <div style="display:flex;align-items:center;gap:44px"><svg width="179" height="179" viewBox="0 0 514 514" id="endmark" style="overflow:visible"></svg><div class="big" style="font-size:150px">Stry<span class="accent">do</span></div></div>
   <div class="label" id="endsub" style="margin-top:44px;font-size:20px">Walk to earn · Live on Robinhood Chain</div>
-  <div id="endurl" style="margin-top:22px;font-size:30px;font-weight:500;color:#d8ff9c">stepit.site</div>
+  <div id="endurl" style="margin-top:22px;font-size:30px;font-weight:500;color:#9cc2ff">strydo.xyz</div>
 </div>
 
 <script src="_anim.js"></script>
@@ -143,11 +143,12 @@ body{width:1920px;height:1080px;position:relative}
 window.DURATION = 29;
 const BAR = 2.525, T0 = 2.03;
 const cut = (n) => T0 + n * BAR; // scene boundaries on the song's downbeats
-const P = "M108.0 6.0L177.5 42.1L177.5 84.7L108.0 47.4ZM284.0 6.0L214.5 42.1L214.5 84.7L284.0 47.4ZM59.0 69.0L177.5 127.1L177.5 169.7L59.0 110.4ZM333.0 69.0L214.5 127.1L214.5 169.7L333.0 110.4ZM6.0 132.0L177.5 214.0L177.5 256.6L6.0 173.4ZM386.0 132.0L214.5 214.0L214.5 256.6L386.0 173.4Z";
+const P = "M144 0L220 0A32 32 0 0 1 252 32L252 138A9 9 0 0 1 243 147L177 147A30 30 0 0 0 147 177L147 243A9 9 0 0 1 138 252L32 252A32 32 0 0 1 0 220L0 142A32 32 0 0 1 32 110L78 110A34 34 0 0 0 112 76L112 32A32 32 0 0 1 144 0ZM514 144L514 220A32 32 0 0 1 482 252L376 252A9 9 0 0 1 367 243L367 177A30 30 0 0 0 337 147L271 147A9 9 0 0 1 262 138L262 32A32 32 0 0 1 294 0L372 0A32 32 0 0 1 404 32L404 78A34 34 0 0 0 438 112L482 112A32 32 0 0 1 514 144ZM370 514L294 514A32 32 0 0 1 262 482L262 376A9 9 0 0 1 271 367L337 367A30 30 0 0 0 367 337L367 271A9 9 0 0 1 376 262L482 262A32 32 0 0 1 514 294L514 372A32 32 0 0 1 482 404L436 404A34 34 0 0 0 402 438L402 482A32 32 0 0 1 370 514ZM0 370L0 294A32 32 0 0 1 32 262L138 262A9 9 0 0 1 147 271L147 337A30 30 0 0 0 177 367L243 367A9 9 0 0 1 252 376L252 482A32 32 0 0 1 220 514L142 514A32 32 0 0 1 110 482L110 436A34 34 0 0 0 76 402L32 402A32 32 0 0 1 0 370Z";
 const bars = P.match(/M[^Z]+Z/g);
 // Bottom tier first, like steps climbing.
-const order = [4, 5, 2, 3, 0, 1];
-for (const id of ["lockmark", "endmark"]) $(id).innerHTML = order.map((i) => `<path class="b" d="${bars[i]}" fill="url(#g)" stroke="url(#g)" stroke-width="12" stroke-linejoin="round"/>`).join("");
+const order = [0, 1, 2, 3];
+const DIR = [[-1, -1], [1, -1], [1, 1], [-1, 1]]; // top left, top right, bottom right, bottom left
+for (const id of ["lockmark", "endmark"]) $(id).innerHTML = order.map((i) => `<path class="b" d="${bars[i]}" fill="url(#g)"/>`).join("");
 
 // Step cards for the "your steps" stacks
 const apps = [["apple-health", "8,432"], ["google-fit", "6,104"], ["samsung-health", "12,050"], ["fitbit", "9,870"], ["garmin-connect", "7,215"], ["apple-health", "10,000"], ["google-fit", "4,980"], ["samsung-health", "11,342"]];
@@ -155,7 +156,7 @@ const mk = (i) => { const [a, n] = apps[i % apps.length]; return `<div class="ca
 $("stackTop").innerHTML = [0, 1, 2, 3, 4, 5].map(mk).join("");
 $("stackBot").innerHTML = [6, 7, 0, 1, 2, 3].map(mk).join("");
 
-// Dot field for USDG and rings for the finale
+// Dot field for ETH and rings for the finale
 let d = ""; for (let i = 0; i < 260; i++) { const x = (i * 97) % 1920, y = (i * 211) % 1080; d += `<span class="dot" style="left:${x}px;top:${y}px"></span>`; } $("dots").innerHTML = d;
 let r = ""; for (let gy = 0; gy < 5; gy++) for (let gx = 0; gx < 7; gx++) { const cx = 160 + gx * 360 + (gy % 2) * 180, cy = 120 + gy * 330; for (let k = 0; k < 24; k++) { const a = (k / 24) * Math.PI * 2; r += `<span class="dot rd" style="left:${cx + Math.cos(a) * 110}px;top:${cy + Math.sin(a) * 110}px;opacity:.25"></span>`; } r += `<span class="dot" style="left:${cx}px;top:${cy}px;width:10px;height:10px;opacity:.6"></span>`; } $("rings").innerHTML = r;
 
@@ -174,7 +175,7 @@ window.render = (t) => {
 
   // 1 · lockup: tiers rise one by one, then the word slides in
   const a1 = S[1];
-  document.querySelectorAll("#lockmark .b").forEach((p, i) => { const q = prog(t, a1 + i * 0.06, a1 + i * 0.06 + 0.22); p.style.opacity = q; p.style.transform = `translateY(${(1 - q) * 30}px)`; });
+  document.querySelectorAll("#lockmark .b").forEach((p, i) => { const q = prog(t, a1 + i * 0.06, a1 + i * 0.06 + 0.22); p.style.opacity = q; p.style.transform = `translate(${DIR[i][0] * (1 - q) * 70}px, ${DIR[i][1] * (1 - q) * 70}px)`; });
   set("lockword", { opacity: String(prog(t, a1 + 0.35, a1 + 0.6)), transform: `translateX(${(1 - prog(t, a1 + 0.35, a1 + 0.65)) * -40}px)` });
 
   // 2 · your steps: card stacks drift up
@@ -190,7 +191,7 @@ window.render = (t) => {
   const a3 = S[3], beat = BAR / 4;
   ["w1", "w2", "w3"].forEach((id, i) => { const q = prog(t, a3 + i * 0.36, a3 + i * 0.36 + 0.16); set(id, { opacity: String(q), transform: `translateY(${(1 - q) * 30}px)` }); });
 
-  // 4 · Paid in USDG
+  // 4 · Paid in ETH
   const a4 = S[4];
   set("u1", { opacity: String(prog(t, a4, a4 + 0.3)) });
   const qc = prog(t, a4 + 0.3, a4 + 0.75); set("ucoin", { opacity: String(qc), transform: `scale(${0.4 + 0.6 * qc}) rotate(${(1 - qc) * -90}deg)` });
@@ -210,10 +211,10 @@ window.render = (t) => {
   set("bar", { width: `${100 * prog(t, a5 + 2.7, a5 + 3.4)}%` });
   const ok = t > a5 + 3.75;
   const st = $("status"); st.textContent = ok ? "✓ Verified" : "In review";
-  st.style.borderColor = ok ? "rgba(196,251,109,.5)" : "rgba(251,191,36,.4)"; st.style.color = ok ? "#d8ff9c" : "#fde68a"; st.style.background = ok ? "rgba(196,251,109,.1)" : "transparent";
+  st.style.borderColor = ok ? "rgba(77,148,255,.5)" : "rgba(251,191,36,.4)"; st.style.color = ok ? "#9cc2ff" : "#fde68a"; st.style.background = ok ? "rgba(77,148,255,.1)" : "transparent";
   const rw = prog(t, a5 + 3.9, a5 + 4.3); set("reward", { opacity: String(rw), transform: `translateY(${(1 - rw) * 16}px)` });
 
-  // 6 · lime: checked, then typing
+  // 6 · blue: checked, then typing
   const a6 = S[6];
   set("c1", { opacity: String(prog(t, a6, a6 + 0.3)) });
   const line = "Every payment on chain.", n = Math.floor(line.length * clamp((t - a6 - 0.6) / 1.2));
@@ -222,7 +223,7 @@ window.render = (t) => {
 
   // 7 · Dashboard counts up
   const a7 = S[7], c = prog(t, a7 + 0.2, a7 + 1.6);
-  $("n1").textContent = fmt(52480 * c); $("n2").textContent = (18.4 * c).toFixed(2); $("n3").textContent = String(Math.round(6 * c));
+  $("n1").textContent = fmt(52480 * c); $("n2").textContent = "$" + (18.4 * c).toFixed(2); $("n3").textContent = String(Math.round(6 * c));
   ["d1", "d2", "d3"].forEach((id, i) => { const q = prog(t, a7 + i * 0.1, a7 + i * 0.1 + 0.4); set(id, { opacity: String(q), transform: `translateY(${(1 - q) * 30}px)` }); });
   const pr = prog(t, a7 + 1.3, a7 + 1.7); set("payrow", { opacity: String(pr), transform: `translateY(${(1 - pr) * 30}px)` });
 
@@ -246,7 +247,7 @@ window.render = (t) => {
 
   // 11 · End card
   const a11 = S[11];
-  document.querySelectorAll("#endmark .b").forEach((p, i) => { const q = prog(t, a11 + i * 0.1, a11 + i * 0.1 + 0.3); p.style.opacity = q; p.style.transform = `translateY(${(1 - q) * 24}px)`; });
+  document.querySelectorAll("#endmark .b").forEach((p, i) => { const q = prog(t, a11 + i * 0.1, a11 + i * 0.1 + 0.3); p.style.opacity = q; p.style.transform = `translate(${DIR[i][0] * (1 - q) * 60}px, ${DIR[i][1] * (1 - q) * 60}px)`; });
   set("endsub", { opacity: String(prog(t, a11 + 0.8, a11 + 1.2)) });
   set("endurl", { opacity: String(prog(t, a11 + 1.1, a11 + 1.5)) });
   set("s11", { opacity: String(win(t, a11, window.DURATION + 0.6, 0.09) * (1 - prog(t, window.DURATION - 0.8, window.DURATION))) });

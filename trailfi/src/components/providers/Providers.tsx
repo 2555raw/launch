@@ -10,6 +10,7 @@ import { WagmiProvider, useAccount, useSignMessage } from "wagmi";
 import { SIWE_STATEMENT } from "@/lib/auth/constants";
 import { makeWagmiConfig } from "@/lib/web3/wagmi";
 import { PAYOUT_CHAIN_ID, SUPPORTED_CHAINS } from "@/lib/web3/chains";
+import { InstallAppProvider, InstallBanner } from "./InstallApp";
 import { Notices } from "./Notices";
 import { SessionProvider, useSession } from "./SessionProvider";
 
@@ -141,7 +142,10 @@ export function Providers({ children }: { children: ReactNode }) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <SessionProvider>
-          <AuthBridge>{children}</AuthBridge>
+          <InstallAppProvider>
+            <AuthBridge>{children}</AuthBridge>
+            <InstallBanner />
+          </InstallAppProvider>
         </SessionProvider>
         <Toaster
           theme="dark"

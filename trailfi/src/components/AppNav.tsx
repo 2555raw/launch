@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { useSession } from "@/components/providers/SessionProvider";
 import { XLogo } from "@/components/ui/XLogo";
+import { InstallAppButton } from "@/components/providers/InstallApp";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { cn } from "@/lib/cn";
 import { X_HANDLE, X_URL } from "@/lib/social";
@@ -70,11 +71,14 @@ export function AppNav() {
           ))}
         </nav>
 
+        <div className="mt-auto px-1 pb-3">
+          <InstallAppButton />
+        </div>
         <a
           href={X_URL}
           target="_blank"
           rel="noreferrer"
-          className="mt-auto flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-[12.5px] text-white/60 transition hover:border-lime-400/30 hover:text-white"
+          className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-[12.5px] text-white/60 transition hover:border-lime-400/30 hover:text-white"
         >
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/[0.06] text-white">
             <XLogo className="h-3.5 w-3.5" />

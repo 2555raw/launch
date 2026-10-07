@@ -24,7 +24,8 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image" },
   // A new file name so browsers drop the cached footprints icon.
-  icons: { icon: "/stepit-icon.svg", apple: "/stepit-icon.svg" },
+  icons: { icon: "/stepit-icon.svg", apple: "/app/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "Stepit", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

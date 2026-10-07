@@ -1,5 +1,6 @@
 "use client";
 
+import { ReminderCard } from "./ReminderCard";
 import { sharePayout } from "@/components/providers/Notices";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import confetti from "canvas-confetti";
@@ -368,6 +369,7 @@ export function DashboardView() {
         </Card>
       </div>
 
+      <ReminderCard />
       <InviteCard referral={data.referral} bonus={settings.referralBonus} token={token} />
 
       {/* Reward allocations */}

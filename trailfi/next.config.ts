@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   // Images are served pre-sized from /public; resizing them on request used too much memory.
   images: { unoptimized: true },
   // PGlite ships a WASM build of Postgres; keep it (and the Postgres driver) out of the bundle.
-  serverExternalPackages: ["@electric-sql/pglite", "postgres"],
+  serverExternalPackages: ["@electric-sql/pglite", "postgres", "web-push"],
   // Migrations are read from disk at runtime by the embedded database.
   outputFileTracingIncludes: {
     "/api/**/*": ["./supabase/migrations/**/*"],

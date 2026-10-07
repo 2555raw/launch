@@ -1,0 +1,254 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="_base.css"><style>
+/* A clean product film in the style of a light "snapshot" reel: off-white canvas, faint grid, short captions,
+   a cursor and toasts driving real Strydo screens. Cuts land on the music (beat ≈ 0.906 s, first hit 3.34 s). */
+html,body{background:#f3f2ee;color:#0d0f14}
+body{width:1920px;height:1080px;position:relative}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(13,15,20,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(13,15,20,.045) 1px,transparent 1px);background-size:48px 48px}
+.cap{position:absolute;left:0;right:0;top:118px;text-align:center;font-size:66px;font-weight:500;letter-spacing:-1.6px;color:#0d0f14;white-space:nowrap}
+.cap b{font-weight:500;color:#2f7bff}
+.win{position:absolute;border-radius:18px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.04),0 40px 90px -30px rgba(13,15,20,.35),0 0 0 1px rgba(13,15,20,.08);overflow:hidden}
+.bar{height:44px;display:flex;align-items:center;gap:8px;padding:0 16px;background:#fafaf8;border-bottom:1px solid rgba(13,15,20,.08)}
+.bar i{width:12px;height:12px;border-radius:50%;background:#dcdcd6}
+.bar span{margin-left:16px;height:26px;flex:0 0 360px;border-radius:8px;background:#efeee9;font-family:JB;font-size:13px;color:#7a7c84;display:flex;align-items:center;padding:0 12px}
+.win img{display:block;width:100%}
+.toast{position:absolute;display:flex;align-items:center;gap:12px;padding:14px 22px 14px 16px;border-radius:999px;background:#fff;box-shadow:0 18px 40px -16px rgba(13,15,20,.3),0 0 0 1px rgba(13,15,20,.07);font-size:22px;font-weight:500;white-space:nowrap}
+.toast .ic{width:30px;height:30px;border-radius:50%;background:#2f7bff;display:grid;place-items:center}
+.cursor{position:absolute;width:34px;height:34px;z-index:40;filter:drop-shadow(0 4px 6px rgba(0,0,0,.25))}
+.phone{position:absolute;width:400px;height:820px;border-radius:64px;background:#0b0c0f;padding:14px;box-shadow:0 50px 90px -30px rgba(13,15,20,.45)}
+.screen{position:relative;width:100%;height:100%;border-radius:52px;background:#000;overflow:hidden;color:#fff;padding:86px 36px 0}
+.notch{position:absolute;left:50%;top:14px;width:120px;height:34px;margin-left:-60px;border-radius:20px;background:#0b0c0f}
+.card{position:absolute;border-radius:28px;background:#0a0d14;color:#fff;box-shadow:0 40px 90px -30px rgba(13,15,20,.45)}
+.label{font-family:JB;font-size:14px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.45)}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;font-family:JB;font-size:16px;letter-spacing:2px;text-transform:uppercase}
+.tile{position:absolute;border-radius:14px;overflow:hidden;box-shadow:0 24px 50px -24px rgba(13,15,20,.45),0 0 0 1px rgba(13,15,20,.08);background:#05070b}
+.tile img{display:block;width:100%}
+.fade{position:absolute;inset:0;background:#f3f2ee;z-index:80}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9cc2ff"/><stop offset="1" stop-color="#2f7bff"/></linearGradient><path id="mk"/></defs></svg>
+<div class="grid"></div>
+
+<!-- 0 · logo -->
+<div class="abs" id="ring" style="left:50%;top:50%;width:620px;height:620px;margin:-310px 0 0 -310px;border-radius:50%;border:1.5px solid rgba(13,15,20,.09)"></div>
+<div class="abs" id="intro" style="left:0;right:0;top:400px;text-align:center">
+  <svg width="150" height="150" viewBox="0 0 514 514"><use href="#mk" fill="url(#lg)"/></svg>
+  <div style="font-size:92px;font-weight:700;letter-spacing:-3px;margin-top:18px">Stry<span class="accent">do</span></div>
+</div>
+
+<div class="cap" id="cap"></div>
+
+<!-- 1 and 2 · phone counting steps, then the screenshot -->
+<div class="phone" id="phone" style="left:760px;top:250px"><div class="screen">
+  <div class="notch"></div>
+  <div style="text-align:center;font-size:22px;font-weight:700">Today</div>
+  <div id="ring2" style="margin:40px auto 0;width:220px;height:220px;border-radius:50%;display:grid;place-items:center"><div style="width:146px;height:146px;border-radius:50%;background:#000"></div></div>
+  <div style="margin-top:46px;font-size:22px">Steps</div>
+  <div class="mono" id="steps" style="font-size:70px;letter-spacing:-2px">0</div>
+  <div style="margin-top:12px;font-size:20px;color:rgba(255,255,255,.45)">Saturday, Oct 3</div>
+  <div id="flash" class="abs" style="inset:0;background:#fff;opacity:0"></div>
+</div></div>
+
+<!-- 3 · upload in the browser -->
+<div class="win" id="up" style="left:410px;top:250px;width:1100px">
+  <div class="bar"><i></i><i></i><i></i><span>strydo.xyz/steps</span></div>
+  <div style="background:#05070b;color:#fff;height:620px;padding:56px 70px;display:flex;gap:56px">
+    <div style="flex:1">
+      <div class="label">Upload steps</div>
+      <div style="font-size:46px;font-weight:700;letter-spacing:-1.5px;margin-top:12px">Log your day</div>
+      <div class="mono" style="margin-top:34px;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px 22px;font-size:34px">10,871</div>
+      <div id="att" style="margin-top:18px;border:1px solid rgba(77,148,255,.4);background:rgba(77,148,255,.08);border-radius:16px;padding:14px;display:flex;align-items:center;gap:16px">
+        <div style="width:48px;height:70px;border-radius:9px;background:#000;border:1px solid rgba(255,255,255,.2);display:grid;place-items:center"><div style="width:22px;height:22px;border-radius:50%;border:4px solid #fa114f"></div></div>
+        <span style="font-size:20px;color:#9cc2ff">✓ Screenshot ready</span>
+      </div>
+      <div id="btn" style="margin-top:26px;height:72px;border-radius:18px;background:#4d94ff;color:#05070b;display:grid;place-items:center;font-size:24px;font-weight:700;position:relative;overflow:hidden">
+        <div id="btnfill" style="position:absolute;left:0;top:0;bottom:0;width:0;background:#9cc2ff"></div><span id="btnl" style="position:relative">Upload steps</span></div>
+    </div>
+    <div style="width:330px;border-radius:24px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);padding:30px">
+      <div class="label">This week</div>
+      <div style="display:flex;align-items:flex-end;gap:12px;height:230px;margin-top:26px" id="bars"></div>
+      <div style="display:flex;gap:12px;margin-top:10px;font-family:JB;font-size:14px;color:rgba(255,255,255,.4)"><span style="flex:1;text-align:center">M</span><span style="flex:1;text-align:center">T</span><span style="flex:1;text-align:center">W</span><span style="flex:1;text-align:center">T</span><span style="flex:1;text-align:center">F</span><span style="flex:1;text-align:center">S</span><span style="flex:1;text-align:center">S</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 4 · reviewed -->
+<div class="card" id="rev" style="left:560px;top:300px;width:800px;padding:44px 50px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div class="label">Saturday, Oct 3</div>
+    <div class="pill" id="pending" style="border:1px solid rgba(250,204,21,.5);color:#fde68a">In review</div>
+  </div>
+  <div style="display:flex;gap:30px;margin-top:30px;align-items:center">
+    <div style="width:150px;height:230px;border-radius:20px;background:#000;border:1px solid rgba(255,255,255,.18);display:grid;place-items:center;flex:none"><div style="width:84px;height:84px;border-radius:50%;border:12px solid #fa114f"></div></div>
+    <div>
+      <div class="mono" style="font-size:84px;letter-spacing:-3px;line-height:1">10,871</div>
+      <div style="font-size:24px;color:rgba(255,255,255,.55);margin-top:10px">steps on the screenshot · steps entered match</div>
+      <div style="display:flex;gap:16px;margin-top:28px">
+        <div id="vbtn" style="padding:16px 30px;border-radius:14px;background:#4d94ff;color:#05070b;font-size:22px;font-weight:700">Verify</div>
+        <div style="padding:16px 30px;border-radius:14px;border:1px solid rgba(255,255,255,.18);font-size:22px;color:rgba(255,255,255,.6)">Reject</div>
+      </div>
+    </div>
+  </div>
+  <div class="pill" id="stamp" style="position:absolute;right:50px;top:40px;background:#4d94ff;color:#05070b;font-weight:700">✓ Verified</div>
+</div>
+
+<!-- 5 · paid in ETH -->
+<div class="abs" id="paid" style="left:0;right:0;top:300px;text-align:center">
+  <img id="coin" src="../../public/tokens/eth.svg" style="width:170px;height:170px;border-radius:50%;box-shadow:0 30px 70px -20px rgba(98,126,234,.7)">
+  <div id="amt" style="font-size:190px;font-weight:700;letter-spacing:-8px;line-height:1;margin-top:26px;color:#2f7bff">+$0.00</div>
+  <div style="font-size:34px;color:rgba(13,15,20,.55);margin-top:8px">paid in ETH on Robinhood Chain</div>
+</div>
+
+<!-- 6 · mosaic of the site -->
+<div class="abs" id="mosaic" style="left:0;top:0;width:1920px;height:1080px"></div>
+
+<!-- 7 · transparency -->
+<div class="win" id="tp" style="left:360px;top:250px;width:1200px">
+  <div class="bar"><i></i><i></i><i></i><span>strydo.xyz/transparency</span></div>
+  <div style="height:700px;overflow:hidden;background:#05070b"><img id="tpimg" src="shots/transparency.png" style="width:100%"></div>
+</div>
+
+<!-- toasts and cursor -->
+<div class="toast" id="t1"><div class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><span id="t1t"></span></div>
+<svg class="cursor" id="cur" viewBox="0 0 24 24"><path d="M4 2l16 10-7 1.6L9.6 21z" fill="#0d0f14" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>
+
+<!-- 8 · close -->
+<div class="abs" id="outro" style="left:0;right:0;top:330px;text-align:center">
+  <svg width="190" height="190" viewBox="0 0 514 514"><use href="#mk" fill="url(#lg)"/></svg>
+  <div style="font-size:110px;font-weight:700;letter-spacing:-4px;margin-top:20px">Stry<span class="accent">do</span></div>
+  <div id="tag" style="font-size:40px;color:rgba(13,15,20,.55);margin-top:10px">every stride pays you back.</div>
+</div>
+<div class="fade" id="fade"></div>
+
+<script src="_anim.js"></script><script>
+document.getElementById("mk").setAttribute("d", "M144 0L220 0A32 32 0 0 1 252 32L252 138A9 9 0 0 1 243 147L177 147A30 30 0 0 0 147 177L147 243A9 9 0 0 1 138 252L32 252A32 32 0 0 1 0 220L0 142A32 32 0 0 1 32 110L78 110A34 34 0 0 0 112 76L112 32A32 32 0 0 1 144 0ZM514 144L514 220A32 32 0 0 1 482 252L376 252A9 9 0 0 1 367 243L367 177A30 30 0 0 0 337 147L271 147A9 9 0 0 1 262 138L262 32A32 32 0 0 1 294 0L372 0A32 32 0 0 1 404 32L404 78A34 34 0 0 0 438 112L482 112A32 32 0 0 1 514 144ZM370 514L294 514A32 32 0 0 1 262 482L262 376A9 9 0 0 1 271 367L337 367A30 30 0 0 0 367 337L367 271A9 9 0 0 1 376 262L482 262A32 32 0 0 1 514 294L514 372A32 32 0 0 1 482 404L436 404A34 34 0 0 0 402 438L402 482A32 32 0 0 1 370 514ZM0 370L0 294A32 32 0 0 1 32 262L138 262A9 9 0 0 1 147 271L147 337A30 30 0 0 0 177 367L243 367A9 9 0 0 1 252 376L252 482A32 32 0 0 1 220 514L142 514A32 32 0 0 1 110 482L110 436A34 34 0 0 0 76 402L32 402A32 32 0 0 1 0 370Z");
+window.DURATION = 37;
+const S = [0, 3.34, 7.29, 11.47, 15.98, 20.27, 25.01, 29.51, 33.58, 37];
+const CAPS = ["", "start with a <b>walk</b>", "one <b>screenshot</b> a day", "upload it in <b>seconds</b>", "checked by a <b>real person</b>", "paid in <b>ETH</b>", "nothing to <b>install</b>", "every payout, <b>out in the open</b>", ""];
+const inS = (t, i) => t >= S[i] && t < S[i + 1];
+const enter = (t, i, d = 0.45) => prog(t, S[i], S[i] + d);
+const leave = (t, i, d = 0.3) => prog(t, S[i + 1] - d, S[i + 1]);
+const show = (id, o, tf = "") => set(id, { opacity: String(o), transform: tf, display: o > 0.001 ? "" : "none" });
+
+// week bars and mosaic tiles
+const hs = [62, 48, 30, 84, 70, 100, 40];
+$("bars").innerHTML = hs.map((h, i) => `<div style="flex:1;border-radius:8px;height:${h}%;background:${i === 5 ? "linear-gradient(to top,#2f7bff,#9cc2ff)" : "rgba(77,148,255,.28)"}"></div>`).join("");
+const SHOTS = ["hero", "how-it-works", "demo", "ranking", "rewards", "leaderboard", "faq", "transparency", "contact", "steps", "mobile", "hero"];
+const COLS = 4, TW = 560, TH = 350, GAP = 40; // rows start below the caption
+$("mosaic").innerHTML = SHOTS.map((s, i) => `<div class="tile" id="m${i}"><img src="shots/${s}.png"></div>`).join("");
+
+const cursorPath = (t) => {
+  // keyframes: [time, x, y, pressed]
+  const K = [[11.5, 1700, 900], [12.6, 1150, 760], [13.2, 960, 798], [13.5, 960, 798, 1], [13.75, 960, 798], [15.9, 1300, 980],
+             [16.1, 1400, 980], [17.0, 860, 652], [17.3, 860, 652, 1], [17.55, 860, 652], [20.2, 1500, 1000],
+             [29.6, 1650, 1000], [31.2, 1420, 900], [33.5, 1500, 1040]];
+  if (t < K[0][0] || t > K[K.length - 1][0]) return null;
+  for (let i = 0; i < K.length - 1; i++) {
+    const [a, x0, y0] = K[i], [b, x1, y1, p] = K[i + 1];
+    if (t >= a && t <= b) {
+      if (b - a > 3) return null; // long gaps between scenes: no cursor on screen
+      const k = ease((t - a) / (b - a));
+      return [x0 + (x1 - x0) * k, y0 + (y1 - y0) * k, K[i][3] || (p && k > 0.85)];
+    }
+  }
+  return null;
+};
+
+window.render = (t) => {
+  // caption
+  let ci = S.findIndex((s, i) => t >= s && t < S[i + 1]); if (ci < 0) ci = 8;
+  $("cap").innerHTML = CAPS[ci];
+  const cIn = enter(t, ci, 0.4), cOut = leave(t, ci, 0.25);
+  set("cap", { opacity: String(CAPS[ci] ? cIn * (1 - cOut) : 0), transform: `translateY(${(1 - cIn) * 26}px)` });
+
+  // 0 · intro
+  const a0 = prog(t, 0.2, 1.1), z0 = prog(t, 2.9, 3.34);
+  show("ring", (1 - z0) * prog(t, 0, 0.8), `scale(${0.85 + 0.15 * prog(t, 0, 1.4) + 0.5 * z0})`);
+  show("intro", a0 * (1 - z0), `translateY(${(1 - a0) * 30}px) scale(${1 + 0.15 * z0})`);
+
+  // 1 + 2 · phone
+  const ph = inS(t, 1) || inS(t, 2);
+  if (ph) {
+    const k = prog(t, 3.6, 6.8);
+    $("steps").textContent = Math.round(10871 * k).toLocaleString("en-US");
+    set("ring2", { background: `conic-gradient(#fa114f ${Math.min(360, k * 380)}deg, rgba(250,17,79,.18) 0)` });
+    const pin = enter(t, 1, 0.55);
+    const fly = prog(t, 9.4, 10.4), gone = leave(t, 2, 0.35);
+    show("phone", Math.min(pin, 1 - gone), `translate(${fly * 380}px, ${(1 - pin) * 120 + fly * 120}px) scale(${1 - fly * 0.42}) rotate(${fly * 6}deg)`);
+    set("flash", { opacity: String(t > 8.05 && t < 8.6 ? 0.95 * (1 - prog(t, 8.05, 8.6)) : 0) });
+  } else show("phone", 0);
+
+  // 3 · upload
+  if (inS(t, 3)) {
+    const w = enter(t, 3, 0.55), g = leave(t, 3);
+    show("up", w * (1 - g), `translateY(${(1 - w) * 90}px) scale(${0.96 + 0.04 * w})`);
+    set("att", { opacity: String(prog(t, 12.0, 12.4)) });
+    set("btnfill", { width: `${100 * prog(t, 13.5, 14.4)}%` });
+    $("btnl").textContent = t < 13.5 ? "Upload steps" : t < 14.4 ? "Uploading…" : "Uploaded · in review";
+    set("btn", { transform: `scale(${t > 13.45 && t < 13.62 ? 0.97 : 1})` });
+  } else show("up", 0);
+
+  // 4 · review
+  if (inS(t, 4)) {
+    const w = enter(t, 4, 0.5), g = leave(t, 4);
+    show("rev", w * (1 - g), `translateY(${(1 - w) * 70}px)`);
+    const st = prog(t, 17.4, 17.75);
+    set("pending", { opacity: String(1 - st) });
+    set("stamp", { opacity: String(st), transform: `scale(${1.6 - 0.6 * st}) rotate(${(1 - st) * -8}deg)` });
+    set("vbtn", { transform: `scale(${t > 17.25 && t < 17.42 ? 0.95 : 1})` });
+  } else show("rev", 0);
+
+  // 5 · paid
+  if (inS(t, 5)) {
+    const w = enter(t, 5, 0.5), g = leave(t, 5);
+    show("paid", w * (1 - g), `translateY(${(1 - w) * 50}px)`);
+    const c = prog(t, 20.4, 21.0);
+    set("coin", { transform: `scale(${0.4 + 0.6 * c}) rotate(${(1 - c) * -200}deg)`, opacity: String(c) });
+    $("amt").textContent = "+$" + (5 * prog(t, 20.9, 22.3)).toFixed(2);
+  } else show("paid", 0);
+
+  // 6 · mosaic
+  if (inS(t, 6)) {
+    const g = leave(t, 6, 0.35), drift = (t - S[6]) / (S[7] - S[6]);
+    show("mosaic", 1 - g, `translate(${-drift * 240}px, 0) scale(${1 + drift * 0.04})`);
+    set("mosaic", { transformOrigin: "50% 0" });
+    SHOTS.forEach((s, i) => {
+      const col = i % COLS, row = Math.floor(i / COLS);
+      const x = 120 + col * (TW + GAP) - (row % 2) * 160, y = 270 + row * (TH + GAP);
+      const k = prog(t, S[6] + 0.08 * i, S[6] + 0.08 * i + 0.6);
+      set("m" + i, { left: x + "px", top: y + "px", width: TW + "px", height: TH + "px", opacity: String(k), transform: `translateY(${(1 - k) * 60}px) scale(${0.92 + 0.08 * k})` });
+    });
+  } else show("mosaic", 0);
+
+  // 7 · transparency
+  if (inS(t, 7)) {
+    const w = enter(t, 7, 0.55), g = leave(t, 7);
+    show("tp", w * (1 - g), `translateY(${(1 - w) * 90}px) scale(${0.96 + 0.04 * w + 0.03 * prog(t, 30.2, 33.4)})`);
+    set("tpimg", { transform: `translateY(${-90 * prog(t, 30.4, 32.8)}px)` });
+  } else show("tp", 0);
+
+  // toasts
+  const toasts = [[8.25, 9.9, "Screenshot saved", 1180, 820], [14.45, 15.8, "Uploaded · in review", 1240, 900], [17.8, 19.9, "Steps verified", 1260, 860], [22.5, 24.7, "Sent to 0x7a3f…c21e", 1170, 880]];
+  let shown = false;
+  for (const [a, b, text, x, y] of toasts) {
+    if (t >= a && t < b) {
+      const k = prog(t, a, a + 0.35), o = 1 - prog(t, b - 0.3, b);
+      $("t1t").textContent = text;
+      set("t1", { left: x + "px", top: y + "px", opacity: String(k * o), transform: `translateY(${(1 - k) * 24}px) scale(${0.94 + 0.06 * k})`, display: "" });
+      shown = true;
+    }
+  }
+  if (!shown) set("t1", { display: "none" });
+
+  // cursor
+  const c = cursorPath(t);
+  if (c) set("cur", { display: "", left: c[0] + "px", top: c[1] + "px", transform: `scale(${c[2] ? 0.82 : 1})` });
+  else set("cur", { display: "none" });
+
+  // 8 · close
+  const o8 = prog(t, S[8] + 0.05, S[8] + 0.8);
+  show("outro", o8, `translateY(${(1 - o8) * 34}px) scale(${0.96 + 0.04 * o8})`);
+  set("tag", { opacity: String(prog(t, 34.7, 35.3)) });
+
+  set("fade", { opacity: String(t < 0.25 ? 1 - prog(t, 0, 0.25) : prog(t, 36.55, 37)) });
+};
+window.render(0);
+</script></body></html>

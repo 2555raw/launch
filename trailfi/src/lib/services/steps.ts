@@ -9,6 +9,7 @@ import { changedShare, photoFingerprint, SAME_PHOTO_MAX_CHANGED } from "@/lib/st
 import { checkStepSubmission, initialVerification, utcToday, type StepSource } from "@/lib/steps/validation";
 import { creditReferralBonus } from "./referrals";
 import { getSettings, toTiers } from "./settings";
+import { readScreenshot } from "./screenshotReader";
 
 export interface StepEntry {
   id: string;
@@ -126,7 +127,10 @@ export const manualStepsSchema = z.object({
 /** Browser upload with a screenshot. Always stored as unverified (or flagged) — never payable until reviewed. */
 export async function submitManualSteps(userId: string, input: unknown) {
   const { day, steps, proof } = manualStepsSchema.parse(input);
-  return insertEntry({ userId, day, steps, source: "manual_demo", proof });
+  const entry = await insertEntry({ userId, day, steps, source: "manual_demo", proof });
+  // Read the screenshot in the background; the upload itself doesn't wait for it.
+  void readScreenshot(entry.id);
+  return entry;
 }
 
 /**

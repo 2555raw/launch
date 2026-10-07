@@ -35,6 +35,11 @@ interface Entry {
   referralBonus: number;
   /** An earlier upload with the same (or near-identical) screenshot. */
   photoMatch: PhotoMatch | null;
+  /** What the automatic reading found in the screenshot; null until read (or when reading is off). */
+  ocrStatus: "match" | "mismatch" | "unreadable" | "error" | null;
+  ocrSteps: number | null;
+  ocrDay: string | null;
+  ocrNote: string | null;
 }
 
 interface PhotoMatch {
@@ -134,6 +139,7 @@ export function StepsReviewView() {
               </div>
               {otherFlags(e).length > 0 && <div className="mt-2 text-[12px] text-amber-200/80">{otherFlags(e).join(", ").replaceAll("_", " ")}</div>}
               {e.photoMatch && <PhotoMatchWarning match={e.photoMatch} onCompare={() => setZoom(e)} />}
+              <ScreenshotReading entry={e} />
               <PayoutEstimate entry={e} token={data.tokenSymbol} />
               <Link href={`/admin/users/${e.userId}`} className="mt-3 text-[12.5px] text-white/50 hover:text-lime-300">
                 Walker #{e.userShortId} · sent {fmtDateTime(e.createdAt)}
@@ -281,5 +287,41 @@ function ProofPane({ id, caption, warn }: { id: string; caption: string; warn?: 
         {caption}
       </figcaption>
     </figure>
+  );
+}
+
+/** The automatic reading of the screenshot: a quick match / mismatch signal before the admin looks closely. */
+function ScreenshotReading({ entry: e }: { entry: Entry }) {
+  if (!e.ocrStatus) return null;
+  const tone =
+    e.ocrStatus === "match"
+      ? "border-lime-400/30 bg-lime-400/[0.06] text-lime-200"
+      : e.ocrStatus === "mismatch"
+        ? "border-red-400/35 bg-red-500/[0.07] text-red-200"
+        : "border-white/10 bg-white/[0.03] text-white/60";
+  const title =
+    e.ocrStatus === "match"
+      ? "Photo matches"
+      : e.ocrStatus === "mismatch"
+        ? "Photo doesn't match"
+        : e.ocrStatus === "unreadable"
+          ? "Couldn't read the photo"
+          : "Not read automatically";
+  return (
+    <div className={cn("mt-3 rounded-xl border px-3 py-2.5 text-[12.5px]", tone)}>
+      <div className="flex items-center justify-between gap-3 font-medium">
+        <span>
+          {e.ocrStatus === "match" ? "✓ " : e.ocrStatus === "mismatch" ? "⚠ " : ""}
+          {title}
+        </span>
+        {e.ocrSteps !== null && (
+          <span className="font-mono text-[11.5px] opacity-80">
+            reads {fmtSteps(e.ocrSteps)}
+            {e.ocrDay ? ` · ${fmtDate(e.ocrDay, { month: "short", day: "numeric" })}` : ""}
+          </span>
+        )}
+      </div>
+      {e.ocrNote && <div className="mt-1 opacity-80">{e.ocrNote}</div>}
+    </div>
   );
 }

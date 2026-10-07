@@ -15,7 +15,7 @@ import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDate, fmtDateTime, fmtSteps, shortAddress } from "@/lib/format";
 import { PAYOUT_CHAIN_ID, explorerAddressUrl, explorerTxUrl } from "@/lib/web3/chains";
 import { CircleDollarSign, Coins, Hourglass, BadgeCheck } from "lucide-react";
-import type { Payout } from "./hooks";
+import { fmtPayoutAmount, type Payout } from "./hooks";
 import { PayoutModal } from "./PayoutModal";
 import { usePreparePayout } from "./usePreparePayout";
 
@@ -253,7 +253,7 @@ export function UserProfileView({ id }: { id: string }) {
                       <tr key={p.id} className="cursor-pointer border-t border-white/5 hover:bg-white/[0.03]" onClick={() => setPayout(p)}>
                         <td className="table-cell">{fmtDateTime(p.createdAt)}</td>
                         <td className="table-cell font-mono text-lime-300">
-                          {fmtAmount(p.amount)} {p.tokenSymbol}
+                          {fmtPayoutAmount(p)} {p.tokenSymbol}
                         </td>
                         <td className="table-cell">
                           <StatusBadge status={p.status} /> {p.simulated && <DemoBadge>sim</DemoBadge>}

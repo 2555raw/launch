@@ -4,6 +4,7 @@ import { HttpError } from "@/lib/api";
 import { audit } from "@/lib/audit";
 import { one, tx } from "@/lib/db";
 import { validateTiers, type RatePoint, type RewardConfig, type RewardTiers } from "@/lib/rewards/engine";
+import { NATIVE_DECIMALS, isNativeToken } from "@/lib/web3/tokens";
 
 export interface PlatformSettings {
   rewardPercent: number;
@@ -23,11 +24,11 @@ export interface PlatformSettings {
   tierCap: number;
   ratePoints: RatePoint[];
   referralBonus: number;
-  /** Most USDG creditable per UTC day by verifying uploads; 0 means no limit. */
+  /** Most dollars creditable per UTC day by verifying uploads; 0 means no limit. */
   dailyBudget: number;
   /** New wallets can't join while true. */
   signupsPaused: boolean;
-  /** USDG for the walker with the most verified steps each week; 0 turns the prize off. */
+  /** Dollars for the walker with the most verified steps each week; 0 turns the prize off. */
   weeklyPrize: number;
   /** The Stepit token contract address shown on the home page; empty hides it. */
   projectCa: string;
@@ -71,6 +72,7 @@ export const settingsSchema = z.object({
   stepCapMultiplier: z.number().min(1).max(10),
   distributionFrequency: z.enum(["daily", "weekly"]),
   payoutTokenSymbol: z.string().trim().min(1).max(12),
+  // A token contract, or the 0xEeee…EEeE stand in for native ETH.
   payoutTokenAddress: z.string().regex(/^0x[0-9a-fA-F]{40}$/, "must be a token contract address"),
   payoutTokenDecimals: z.number().int().min(0).max(36),
   estimatedDailyFees: z.number().min(0).max(1_000_000_000),
@@ -97,6 +99,10 @@ export async function updateSettings(input: unknown, actor: string): Promise<Pla
   const s = settingsSchema.parse(input);
   const tierErrors = validateTiers({ ...s, points: s.ratePoints });
   if (tierErrors.length) throw new HttpError(422, tierErrors.join("; "), "invalid_tiers");
+  // Native ETH amounts are wei: any other scale would send the wrong amount.
+  if (isNativeToken(s.payoutTokenAddress) && s.payoutTokenDecimals !== NATIVE_DECIMALS) {
+    throw new HttpError(422, `Native ETH uses ${NATIVE_DECIMALS} decimals.`, "invalid_decimals");
+  }
   const pending = await one<{ n: number }>("select count(*)::int as n from payouts where status in ('requested','prepared','submitted')");
   const current = await getSettings();
   const tokenChanged =

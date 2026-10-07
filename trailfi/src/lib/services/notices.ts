@@ -7,7 +7,11 @@ export interface Notice {
   id: string;
   day?: string;
   steps?: number;
+  /** Dollars credited for a verified day; for a paid notice, the amount in the token sent (ETH for native payouts). */
   amount?: string | null;
+  /** Paid notices: the dollar value of the payout and the token it was sent in. */
+  usdAmount?: string | null;
+  token?: string;
   note?: string | null;
   txUrl?: string | null;
 }
@@ -24,8 +28,9 @@ export async function unseenNotices(userId: string): Promise<Notice[]> {
         limit 10`,
       [userId],
     ),
-    query<{ id: string; amount: string; chainId: number; txHash: string | null; simulated: boolean }>(
-      `select id, amount::text as amount, chain_id as "chainId", tx_hash as "txHash", simulated
+    query<{ id: string; amount: string; usdAmount: string; token: string; chainId: number; txHash: string | null; simulated: boolean }>(
+      `select id, round(amount, token_decimals)::text as amount, round(coalesce(usd_amount, amount), 6)::text as "usdAmount",
+              token_symbol as token, chain_id as "chainId", tx_hash as "txHash", simulated
          from payouts where user_id = $1 and status = 'confirmed' and seen_at is null
         order by confirmed_at limit 5`,
       [userId],
@@ -44,6 +49,8 @@ export async function unseenNotices(userId: string): Promise<Notice[]> {
       kind: "paid" as const,
       id: p.id,
       amount: p.amount,
+      usdAmount: p.usdAmount,
+      token: p.token,
       txUrl: p.txHash && !p.simulated ? explorerTxUrl(p.chainId, p.txHash) : null,
     })),
   ];
@@ -62,10 +69,11 @@ export async function markNoticesSeen(userId: string, entryIds: string[], payout
 }
 
 /** Public facts about a confirmed payout for its share page: no wallet, just the amount and steps. */
-export async function getSharePayout(id: string): Promise<{ amount: string; steps: number; token: string } | null> {
+export async function getSharePayout(id: string): Promise<{ amount: string; usdAmount: string; steps: number; token: string } | null> {
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
-  const [row] = await query<{ amount: string; steps: number; token: string }>(
-    `select p.amount::text as amount, p.token_symbol as token,
+  const [row] = await query<{ amount: string; usdAmount: string; steps: number; token: string }>(
+    `select round(p.amount, p.token_decimals)::text as amount, round(coalesce(p.usd_amount, p.amount), 6)::text as "usdAmount",
+            p.token_symbol as token,
             (select coalesce(sum(r.valid_steps), 0)::int from rewards r where r.payout_id = p.id) as steps
        from payouts p where p.id = $1 and p.status = 'confirmed'`,
     [id],

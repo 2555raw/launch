@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { json, readJson, route } from "@/lib/api";
 import { requireAdmin } from "@/lib/auth/guard";
-import { cancelPayout, confirmOnChain, getPayout, markSubmitted, simulatePayout } from "@/lib/services/payouts";
+import { cancelPayout, confirmOnChain, getPayout, markSubmitted, requotePayout, simulatePayout } from "@/lib/services/payouts";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +18,7 @@ const actionSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("confirm") }),
   z.object({ action: z.literal("cancel") }),
   z.object({ action: z.literal("simulate") }),
+  z.object({ action: z.literal("requote") }),
 ]);
 
 /**
@@ -25,6 +26,7 @@ const actionSchema = z.discriminatedUnion("action", [
  *   prepared → submit (tx hash from the admin's wallet) → confirm (server checks the chain)
  *   prepared | failed → cancel
  *   prepared → simulate (demo mode only)
+ *   prepared → requote (native ETH only: new ETH amount for the same dollars at today's price)
  */
 export const PATCH = route<Ctx>(async (req, ctx) => {
   const admin = await requireAdmin();
@@ -42,5 +44,7 @@ export const PATCH = route<Ctx>(async (req, ctx) => {
       return json({ payout: await cancelPayout(id, actor) });
     case "simulate":
       return json({ payout: await simulatePayout(id, actor) });
+    case "requote":
+      return json({ payout: await requotePayout(id, actor) });
   }
 });

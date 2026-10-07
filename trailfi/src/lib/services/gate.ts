@@ -2,7 +2,7 @@ import "server-only";
 import { formatUnits, parseUnits } from "viem";
 import { HttpError } from "@/lib/api";
 import { publicClient } from "@/lib/web3/server";
-import { ERC20_ABI } from "@/lib/web3/tokens";
+import { ERC20_ABI, isNativeToken } from "@/lib/web3/tokens";
 import { getSettings } from "./settings";
 
 export interface TokenCheck {
@@ -23,12 +23,14 @@ export async function checkPayoutToken(address: `0x${string}`): Promise<TokenChe
   const min = parseUnits(process.env.MIN_TOKEN_TO_JOIN || "0", settings.payoutTokenDecimals);
   let balance: bigint;
   try {
-    balance = await publicClient().readContract({
-      address: settings.payoutTokenAddress,
-      abi: ERC20_ABI,
-      functionName: "balanceOf",
-      args: [address],
-    });
+    balance = isNativeToken(settings.payoutTokenAddress)
+      ? await publicClient().getBalance({ address })
+      : await publicClient().readContract({
+          address: settings.payoutTokenAddress,
+          abi: ERC20_ABI,
+          functionName: "balanceOf",
+          args: [address],
+        });
   } catch {
     throw new HttpError(503, `Could not check your ${settings.payoutTokenSymbol} balance right now. Please try again.`, "balance_unavailable");
   }

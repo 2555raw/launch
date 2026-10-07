@@ -81,7 +81,11 @@
         <div class="funds" id="funds">
           <div class="funds-head"><h3>Back it with your wallet</h3><span class="badge live">Recommended</span></div>
           <p id="f-text">Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word.</p>
-          <div class="field" id="f-asset-field" hidden style="margin:12px 0 0"><label for="f-asset">Asset to prove</label><select class="select" id="f-asset"></select></div>
+          <div class="field-row" id="f-asset-field" hidden style="margin:12px 0 0">
+            <div class="field"><label for="f-network">Network</label><select class="select" id="f-network"></select></div>
+            <div class="field"><label for="f-asset">Asset to prove</label><select class="select" id="f-asset"></select></div>
+          </div>
+          <p class="hint" id="f-testnet" hidden>This is a test network. Its coins have no value, and checkers will see the proof marked as testnet.</p>
           <div class="actions" style="margin-top:12px">
             <button class="btn btn-dark btn-sm" type="button" id="f-read">Read balance from wallet</button>
             <button class="btn btn-ghost btn-sm" type="button" id="f-clear" hidden>Type an amount instead</button>

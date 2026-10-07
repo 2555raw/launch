@@ -1,6 +1,7 @@
 // Verify page: checks a receipt from the link (#obx1_…) or pasted by hand.
 import { verify, decodeReceipt, RECEIPT_PREFIX, secondsLeft } from "./obscura.js";
-import { verifyFunds, CHAINS } from "./proof.js";
+import { verifyFunds, CHAINS, explorerTx, explorerAddress } from "./proof.js";
+import { checkAnchor } from "./anchor.js";
 
 const $ = (id) => document.getElementById(id);
 const ICONS = {
@@ -12,7 +13,8 @@ const ICONS = {
 };
 const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
-function row(state, title, detail) {
+// link: optional { href, text } shown after the detail, opening in a new tab.
+function row(state, title, detail, link) {
   const li = document.createElement("li");
   li.className = "check " + state;
   const icon = document.createElement("span");
@@ -24,6 +26,12 @@ function row(state, title, detail) {
   b.textContent = title;
   const p = document.createElement("span");
   p.textContent = detail;
+  if (link?.href) {
+    const a = document.createElement("a");
+    a.href = link.href; a.target = "_blank"; a.rel = "noopener";
+    a.textContent = link.text;
+    p.append(" ", a);
+  }
   body.append(b, p);
   li.append(icon, body);
   return li;
@@ -82,13 +90,15 @@ async function check(text, expected, stale) {
   if (left) list.push(row("time", `Valid until ${until}`, "The sender set this date when sealing it. It cannot be extended."));
 
   let verdict = sealOk ? "declared" : "fail";
+  // The anchor check runs alongside the wallet check; both only read the chain.
+  const anchoring = sealOk && r.anchor ? checkAnchor(r) : null;
   if (sealOk && r.proof) {
     checks.replaceChildren(...list, row("info", "Checking the wallet…", "Reading the balance from the blockchain."));
     const f = await verifyFunds(r);
     if (stale()) return;
     const chain = CHAINS[r.proof.chainId]?.name || `chain ${r.proof.chainId}`;
     list.push(f.signed
-      ? row("pass", `Signed by wallet ${short(r.proof.address)}`, "The owner of that address signed this exact bond and amount.")
+      ? row("pass", `Signed by wallet ${short(r.proof.address)}`, "The owner of that address signed this exact bond and amount.", { href: explorerAddress(r.proof.chainId, r.proof.address), text: "See the address" })
       : row("fail", "The wallet signature is not valid", "Someone other than the address owner made this proof, or it was edited."));
     if (f.signed) {
       if (f.onchain === "pass") list.push(row("pass", `Holds at least ${amount} on ${chain}`, f.heldAt === "block" ? `Confirmed on the blockchain at block ${Number(r.proof.block).toLocaleString("en-US")}.` : "Confirmed with the current balance (the node does not keep the older block)."));
@@ -96,9 +106,24 @@ async function check(text, expected, stale) {
       else if (f.onchain === "fail") list.push(row("fail", `Does not hold ${amount} on ${chain}`, f.heldAt === "latest" ? "The current balance is lower. The funds may have moved since the proof was made." : "The balance at that block was lower than claimed."));
       else list.push(row("warn", "Balance not checked", f.detail || "The blockchain could not be reached. Try again later."));
     }
-    verdict = f.signed && f.onchain === "pass" ? "proven" : f.signed && (f.onchain === "unreachable" || f.onchain === "unsupported") ? "signed" : "fail";
+    verdict = f.signed && f.onchain === "pass" ? (f.testnet ? "testnet" : "proven") : f.signed && (f.onchain === "unreachable" || f.onchain === "unsupported") ? "signed" : "fail";
+    if (f.testnet && f.signed) list.push(row("warn", "Test network", "Sepolia coins are free and have no value. This proof shows the tool works, not real funds."));
   } else if (sealOk) {
     list.push(row("warn", "Not backed by a wallet", "The sender typed this amount. It is not checked against any wallet."));
+  }
+
+  if (anchoring) {
+    checks.replaceChildren(...list, row("info", "Checking the anchor…", "Looking up the transaction on the blockchain."));
+    const a = await anchoring;
+    if (stale()) return;
+    const where = CHAINS[a.chainId]?.name || "the chain";
+    const tx = a.chainId && a.tx ? { href: explorerTx(a.chainId, a.tx), text: "See the transaction" } : null;
+    if (a.state === "pass") {
+      const when = a.time ? new Date(a.time * 1000).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : null;
+      list.push(row("pass", `Anchored on ${where}${when ? ` on ${when}` : ""}`, `The seal code is in block ${a.block.toLocaleString("en-US")}, sent by ${short(a.from)}. It existed from then on and cannot be backdated.`, tx));
+    } else if (a.state === "pending") list.push(row("warn", "Anchor not in a block yet", a.detail, tx));
+    else if (a.state === "unreachable") list.push(row("warn", "Anchor not checked", a.detail, tx));
+    else { list.push(row("fail", "The anchor does not match", a.detail, tx)); verdict = "fail"; }
   }
   checks.replaceChildren(...list);
 
@@ -106,6 +131,7 @@ async function check(text, expected, stale) {
   claim.className = "claim " + (verdict === "proven" ? "pass" : verdict === "fail" ? "fail" : "warn");
   claim.textContent = {
     proven: `Proven: at least ${amount}`,
+    testnet: `Testnet only: ${amount} in test coins`,
     signed: `Signed for ${amount}, balance not checked yet`,
     declared: `Declared: ${amount}`,
     fail: "Not valid",

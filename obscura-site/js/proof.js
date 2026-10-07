@@ -8,15 +8,48 @@
 // What the verifier learns: one address and that it held at least the amount.
 // Nothing about the holder's other addresses or bonds.
 
+// Every chain lists several public nodes. The first ones keep full history,
+// so a balance can be read at the exact block of the proof; the rest answer
+// for the current block when those are busy. All were checked to allow
+// requests from a browser page (CORS) without an API key.
 export const CHAINS = {
-  1: { key: "ethereum", name: "Ethereum", symbol: "ETH", decimals: 18, rpc: "https://ethereum-rpc.publicnode.com" },
-  8453: { key: "base", name: "Base", symbol: "ETH", decimals: 18, rpc: "https://base-rpc.publicnode.com" },
-  42161: { key: "arbitrum", name: "Arbitrum", symbol: "ETH", decimals: 18, rpc: "https://arbitrum-one-rpc.publicnode.com" },
-  10: { key: "optimism", name: "Optimism", symbol: "ETH", decimals: 18, rpc: "https://optimism-rpc.publicnode.com" },
-  137: { key: "polygon", name: "Polygon", symbol: "POL", decimals: 18, rpc: "https://polygon-bor-rpc.publicnode.com" },
-  56: { key: "bnb", name: "BNB Chain", symbol: "BNB", decimals: 18, rpc: "https://bsc-rpc.publicnode.com" },
-  11155111: { key: "sepolia", name: "Sepolia testnet", symbol: "ETH", decimals: 18, rpc: "https://ethereum-sepolia-rpc.publicnode.com" },
+  1: { key: "ethereum", name: "Ethereum", symbol: "ETH", decimals: 18, explorer: "https://etherscan.io",
+    rpcs: ["https://eth.drpc.org", "https://eth.meowrpc.com", "https://rpc.mevblocker.io", "https://ethereum-rpc.publicnode.com"] },
+  8453: { key: "base", name: "Base", symbol: "ETH", decimals: 18, explorer: "https://basescan.org",
+    rpcs: ["https://mainnet.base.org", "https://base.meowrpc.com", "https://base.drpc.org", "https://base-rpc.publicnode.com"] },
+  42161: { key: "arbitrum", name: "Arbitrum", symbol: "ETH", decimals: 18, explorer: "https://arbiscan.io",
+    rpcs: ["https://arbitrum.meowrpc.com", "https://arbitrum-one.public.blastapi.io", "https://arbitrum-one-rpc.publicnode.com"] },
+  10: { key: "optimism", name: "Optimism", symbol: "ETH", decimals: 18, explorer: "https://optimistic.etherscan.io",
+    rpcs: ["https://mainnet.optimism.io", "https://optimism.drpc.org", "https://optimism-rpc.publicnode.com"] },
+  137: { key: "polygon", name: "Polygon", symbol: "POL", decimals: 18, explorer: "https://polygonscan.com",
+    rpcs: ["https://polygon.drpc.org", "https://polygon-bor-rpc.publicnode.com"] },
+  56: { key: "bnb", name: "BNB Chain", symbol: "BNB", decimals: 18, explorer: "https://bscscan.com",
+    rpcs: ["https://bsc.meowrpc.com", "https://bsc-mainnet.public.blastapi.io", "https://bsc-rpc.publicnode.com"] },
+  11155111: { key: "sepolia", name: "Sepolia testnet", symbol: "ETH", decimals: 18, explorer: "https://sepolia.etherscan.io", testnet: true,
+    rpcs: ["https://ethereum-sepolia-rpc.publicnode.com", "https://sepolia.drpc.org"] },
 };
+
+// Wallet parameters for wallet_addEthereumChain, when a wallet does not know a chain yet.
+export function addChainParams(chainId) {
+  const c = CHAINS[chainId];
+  return { chainId: "0x" + chainId.toString(16), chainName: c.name,
+    nativeCurrency: { name: c.symbol, symbol: c.symbol, decimals: c.decimals },
+    rpcUrls: c.rpcs.slice(0, 2), blockExplorerUrls: [c.explorer] };
+}
+
+// Ask the wallet to move to a chain, adding it first if the wallet does not know it.
+export async function switchChain(provider, chainId) {
+  const hex = "0x" + chainId.toString(16);
+  try {
+    await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] });
+  } catch (err) {
+    if (err?.code !== 4902 && err?.data?.originalError?.code !== 4902) throw err;
+    await provider.request({ method: "wallet_addEthereumChain", params: [addChainParams(chainId)] });
+  }
+}
+
+export const explorerTx = (chainId, hash) => CHAINS[chainId] ? `${CHAINS[chainId].explorer}/tx/${hash}` : null;
+export const explorerAddress = (chainId, address) => CHAINS[chainId] ? `${CHAINS[chainId].explorer}/address/${address}` : null;
 
 // Tokens that can back a proof, per chain. Addresses and decimals were read
 // from each contract (symbol(), decimals()) before being listed here.
@@ -142,22 +175,34 @@ export async function signFunds(provider, { receipt, address, chainId, block, to
 }
 
 // ---------- verifier side ----------
-async function rpc(url, method, params) {
+async function rpcOnce(url, method, params) {
   const res = await fetch(url, {
     method: "POST",
-    signal: AbortSignal.timeout?.(10000),
+    signal: AbortSignal.timeout?.(8000),
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
   });
+  if (res.ok === false) throw new Error(`Node answered ${res.status}`);
   const body = await res.json();
   if (body.error) throw new Error(body.error.message || "RPC error");
   return body.result;
 }
 
+// Try each public node of the chain in turn: one busy or pruned node is not
+// a failed check. Takes a chain id or a single URL (kept for tests).
+export async function rpc(chain, method, params) {
+  const urls = typeof chain === "string" ? [chain] : (CHAINS[chain]?.rpcs || []);
+  let last = new Error("No node for this chain");
+  for (const url of urls) {
+    try { return await rpcOnce(url, method, params); } catch (err) { last = err; }
+  }
+  throw last;
+}
+
 // Returns each check separately so the page can say exactly what passed.
 export async function verifyFunds(receipt) {
   const p = receipt.proof;
-  const out = { signed: false, signer: null, onchain: "unchecked", heldAt: null, detail: "" };
+  const out = { signed: false, signer: null, onchain: "unchecked", heldAt: null, detail: "", testnet: false };
   if (!p || p.type !== "funds-v1") return out;
   // The proof sits outside the seal, so anyone can edit it: check its shape first.
   const wellFormed = typeof p.address === "string" && /^0x[0-9a-fA-F]{40}$/.test(p.address)
@@ -176,6 +221,7 @@ export async function verifyFunds(receipt) {
   if (!out.signed) return out;
 
   const chain = CHAINS[p.chainId];
+  if (chain?.testnet) out.testnet = true;
   if (!chain) { out.onchain = "unsupported"; out.detail = "Balances on this chain cannot be checked from this page."; return out; }
   // The sealed asset must name what the balance is read for: the chain, and the
   // chain's own coin or the listed token at that contract. Otherwise 10 POL
@@ -193,8 +239,8 @@ export async function verifyFunds(receipt) {
   try { need = parseUnits(receipt.asset.amount, decimals); } catch { out.onchain = "fail"; return out; }
 
   const balanceAt = async (tag) => p.token
-    ? BigInt(await rpc(chain.rpc, "eth_call", [{ to: p.token, data: balanceOfData(p.address) }, tag]))
-    : BigInt(await rpc(chain.rpc, "eth_getBalance", [p.address, tag]));
+    ? BigInt(await rpc(p.chainId, "eth_call", [{ to: p.token, data: balanceOfData(p.address) }, tag]))
+    : BigInt(await rpc(p.chainId, "eth_getBalance", [p.address, tag]));
   try {
     const wei = await balanceAt("0x" + Number(p.block).toString(16));
     out.onchain = wei >= need ? "pass" : "fail";

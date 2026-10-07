@@ -2,7 +2,8 @@
 import { cloak, seal, receive, encodeReceipt, verify, sealBackup, openBackup, BACKUP_PREFIX, secondsLeft } from "./obscura.js";
 import { toast, copy } from "./site.js";
 import { connection, openWallets, waitForConnection, onWalletChange } from "./wallet.js";
-import { readBalances, signFunds, floorAmount, parseUnits, formatUnits } from "./proof.js";
+import { readBalances, signFunds, floorAmount, parseUnits, formatUnits, CHAINS, switchChain, explorerTx } from "./proof.js";
+import { sendAnchor, normalizeAnchor } from "./anchor.js";
 import { renderShare, openShareDialog } from "./share.js";
 
 const STORE = "obscura.vault.v1";
@@ -79,10 +80,17 @@ function setFundsMode(f) {
   $("c-submit").textContent = on ? "Seal and sign with wallet" : "Seal bond";
   $("funds").classList.toggle("on", on);
   if (!on) {
+    $("f-testnet").hidden = true;
     $("f-text").textContent = "Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word.";
     return;
   }
   $("f-text").textContent = `${short(f.address)} on ${f.chain.name}, block ${f.block.toLocaleString("en-US")}. Pick what to prove.`;
+  $("f-testnet").hidden = !f.chain.testnet;
+  const net = $("f-network");
+  const ids = Object.keys(CHAINS).map(Number);
+  net.replaceChildren(...ids.map((id) => el("option", { value: String(id) }, CHAINS[id].name)),
+    ...(CHAINS[f.chainId] ? [] : [el("option", { value: String(f.chainId) }, f.chain.name + " (cannot be checked)")]));
+  net.value = String(f.chainId);
   const sel = $("f-asset");
   sel.replaceChildren(...f.assets.map((a, i) => el("option", { value: String(i) }, `${a.symbol} · ${formatUnits(a.wei, a.decimals, 4)}`)));
   sel.value = String(f.pick);
@@ -103,6 +111,24 @@ function applyPick() {
 }
 
 $("f-asset").addEventListener("change", () => { funds.pick = Number($("f-asset").value); applyPick(); });
+
+// Moving networks from here asks the wallet to switch, then reads again.
+let switching = false;
+$("f-network").addEventListener("change", async () => {
+  const target = Number($("f-network").value);
+  if (!funds || target === funds.chainId) return;
+  const back = String(funds.chainId);
+  switching = true;
+  try {
+    await switchChain(funds.provider, target);
+    await readFromWallet();
+  } catch (err) {
+    $("f-network").value = back;
+    toast(err?.code === 4001 ? "The network switch was declined in the wallet" : (err?.message || "The wallet did not switch network"));
+  } finally {
+    switching = false;
+  }
+});
 
 async function readFromWallet() {
   let conn = connection();
@@ -135,8 +161,9 @@ onWalletChange((c) => {
     toast("The wallet changed. Read the balance again to back the bond.");
     return;
   }
+  if (switching) return;
   c.provider.request({ method: "eth_chainId" }).then((id) => {
-    if (funds && Number(id) !== funds.chainId) { setFundsMode(null); toast("The wallet switched network. Read the balance again."); }
+    if (!switching && funds && Number(id) !== funds.chainId) { setFundsMode(null); toast("The wallet switched network. Read the balance again."); }
   }).catch(() => {});
 });
 $("f-clear").addEventListener("click", () => setFundsMode(null));
@@ -190,23 +217,28 @@ $("cloak-form").addEventListener("submit", async (e) => {
 });
 
 // ---------- vault ----------
-async function anchor(b) {
+async function anchor(b, btn) {
   const conn = connection();
   if (!conn) {
-    toast("Connect a wallet to anchor this commitment");
+    toast("Connect a wallet to anchor this seal code");
     return openWallets();
   }
+  if (btn.getAttribute("aria-busy") === "true") return;
+  btn.setAttribute("aria-busy", "true");
   try {
-    const hash = await conn.provider.request({
-      method: "eth_sendTransaction",
-      params: [{ from: conn.address, to: conn.address, value: "0x0", data: "0x" + b.commitment }],
+    const chainId = Number(await conn.provider.request({ method: "eth_chainId" }));
+    const name = CHAINS[chainId]?.name;
+    if (name) toast(`Anchoring on ${name}. Confirm in the wallet; you pay only the network fee.`);
+    const done = await sendAnchor(conn.provider, conn.address, b.commitment, {
+      onSent: (a) => { b.anchor = a; save(vault); btn.textContent = "Waiting for a block…"; },
     });
-    b.anchor = hash;
+    b.anchor = done;
     save(vault);
     renderVault();
-    toast("Anchored: " + hash.slice(0, 12) + "…");
+    toast(done.block ? `Anchored on ${CHAINS[done.chainId].name}, block ${done.block.toLocaleString("en-US")}` : "Sent. It will show as anchored once it is in a block.");
   } catch (err) {
     toast(err?.code === 4001 ? "Transaction was declined in the wallet" : (err?.message || "The wallet did not send the transaction"));
+    renderVault();
   }
 }
 
@@ -221,13 +253,14 @@ function renderVault() {
     const badge = el("span", { class: "badge " + b.status }, b.status === "sent" ? "Sent" : "Live");
     const meta = el("span", { class: "badge" }, b.asset.chain);
     const backed = el("span", { class: "badge" + (b.proof ? " live" : "") }, b.proof ? "Wallet-backed" : "Self-declared");
+    const anc = normalizeAnchor(b.anchor);
     const exp = expiryLabel(b.asset);
     const expBadge = exp ? [el("span", { class: "badge " + exp.cls }, exp.text)] : [];
     const actions = el("div", { class: "actions", style: "margin-top:4px" },
       el("button", { class: "btn btn-dark btn-sm", type: "button", onclick: () => openShareDialog(b, label(b)) }, "Share proof"),
       el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => copy(encodeReceipt(b), "Receipt copied") }, "Copy receipt"),
       el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => { $("t-bond").value = b.commitment; show("transfer"); } }, "Transfer"),
-      el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => anchor(b) }, b.anchor ? "Anchored" : "Anchor with wallet"),
+      ...(anc ? [] : [el("button", { class: "btn btn-light btn-sm", type: "button", onclick: (e) => anchor(b, e.currentTarget) }, "Anchor onchain")]),
       el("button", {
         class: "btn btn-ghost btn-sm", type: "button", onclick: (e) => {
           // Two steps instead of confirm(): the first press asks, the second removes.
@@ -249,9 +282,14 @@ function renderVault() {
     if (b.asset.note) extra.push(el("span", { class: "hint" }, "Note: " + b.asset.note));
     if (b.proof) extra.push(el("span", { class: "bond-meta" }, "Signed by ", el("span", { class: "mono" }, b.proof.address), ` at block ${Number(b.proof.block).toLocaleString("en-US")}`));
     if (b.prev) extra.push(el("span", { class: "bond-meta" }, "Re-sealed from ", el("span", { class: "mono" }, "0x" + b.prev.slice(0, 16) + "…")));
-    if (b.anchor) extra.push(el("span", { class: "bond-meta" }, "Anchor transaction ", el("span", { class: "mono" }, b.anchor)));
+    if (anc) {
+      const where = CHAINS[anc.chainId]?.name;
+      const link = anc.chainId && explorerTx(anc.chainId, anc.tx);
+      const txEl = link ? el("a", { class: "mono", href: link, target: "_blank", rel: "noopener" }, anc.tx.slice(0, 18) + "…") : el("span", { class: "mono" }, anc.tx);
+      extra.push(el("span", { class: "bond-meta" }, where ? `Anchored on ${where}${anc.block ? `, block ${anc.block.toLocaleString("en-US")}` : " (waiting for a block)"} · ` : "Anchor transaction ", txEl));
+    }
     list.append(el("div", { class: "bond" },
-      el("div", { class: "bond-top" }, el("span", { class: "bond-amt" }, label(b)), el("span", { style: "display:flex;gap:6px;flex-wrap:wrap" }, backed, ...expBadge, meta, badge)),
+      el("div", { class: "bond-top" }, el("span", { class: "bond-amt" }, label(b)), el("span", { style: "display:flex;gap:6px;flex-wrap:wrap" }, backed, ...(anc ? [el("span", { class: "badge live" }, "Anchored")] : []), ...expBadge, meta, badge)),
       el("span", { class: "bond-hash" }, "0x" + b.commitment),
       ...extra,
       actions,

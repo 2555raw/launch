@@ -1,5 +1,5 @@
 /* Obscura — a private vault, rendered as a calm white page.
-   Paper and steel from the vault photograph, ink for actions,
+   Paper and steel from the vault drawings, ink for actions,
    one blue for anything live, green only for a true proof. */
 
 @font-face {
@@ -192,13 +192,18 @@ p { text-wrap: pretty; }
 .hero-note { display: flex; align-items: center; gap: 10px; margin-top: 30px; font-size: var(--fs-small); color: var(--dim); }
 .hero-note .live { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); flex: 0 0 auto; }
 
-.vault { position: relative; border-radius: var(--r-xl); overflow: hidden; aspect-ratio: 4 / 5; background: var(--steel); box-shadow: var(--shadow-lg); }
-.vault img { width: 100%; height: 100%; object-fit: cover; }
+.vault { position: relative; border-radius: var(--r-xl); overflow: hidden; aspect-ratio: 4 / 5; background: #eef0f4; box-shadow: var(--shadow-lg); }
+.vault-art { display: block; width: 100%; height: 100%; }
+/* The drawing locks with the receipt: while it seals, the wheel turns and the
+   bolts draw back; when the seal lands, they slide home one after another. */
+.vault-art .wheel { transform: rotate(var(--turn, 0deg)); }
 @media (prefers-reduced-motion: no-preference) {
-  .vault img { transform: scale(1.06); animation: settle 2.4s var(--ease) .1s forwards; }
+  .vault-art { transform: scale(1.06); animation: settle 2.4s var(--ease) .1s forwards; }
+  .vault-art .wheel { transition: transform 1.2s var(--ease); }
+  .vault-art .bolt { transition: transform .45s var(--ease); transition-delay: calc(var(--k) * 28ms); }
+  .vault.unlocked .vault-art .bolt { transform: translateX(-34px); transition-delay: 0s; }
 }
 @keyframes settle { to { transform: scale(1); } }
-.vault::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 13, 18, 0) 50%, rgba(11, 13, 18, .28)); pointer-events: none; }
 .receipt {
   position: absolute; left: 22px; right: 22px; bottom: 22px; z-index: 1;
   padding: 20px 22px; border-radius: var(--r-lg);
@@ -535,6 +540,9 @@ details.raw summary:hover { color: var(--ink); }
 .check { display: grid; grid-template-columns: 28px 1fr; gap: 12px; align-items: start; padding: 14px 16px; border-radius: var(--r-md); background: var(--mist); }
 .check b { display: block; font-weight: 560; }
 .check span:not(.check-icon) { display: block; font-size: 14px; color: var(--dim); margin-top: 2px; }
+.check span a, .bond-meta a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; }
+.check span a:hover, .bond-meta a:hover { color: var(--ink); }
+#f-testnet { margin-top: 10px; color: var(--warn, #9a6200); }
 .check-icon { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: #fff; }
 .check-icon svg { width: 14px; height: 14px; }
 .check.pass .check-icon { background: var(--ok-soft); color: var(--ok); }
@@ -615,11 +623,11 @@ details.raw summary:hover { color: var(--ink); }
     .band-card { animation: card-up linear both; animation-timeline: view(); animation-range: entry 15% cover 32%; }
   }
   @supports not (animation-timeline: view()) {
-    .js .band:not(.in) .band-media img { clip-path: circle(22% at 52% 52%); }
+    .js .band:not(.in) .band-media img { clip-path: circle(16% at 66% 51%); }
     .band.in .band-media img { transition: clip-path 1.4s var(--ease); }
   }
 }
-@keyframes door { from { clip-path: circle(20% at 52% 52%); transform: scale(1.08); } to { clip-path: circle(80% at 52% 52%); transform: none; } }
+@keyframes door { from { clip-path: circle(14% at 66% 51%); transform: scale(1.08); } to { clip-path: circle(100% at 66% 51%); transform: none; } }
 @keyframes card-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: none; } }
 
 /* a hash that changes, visibly */
@@ -756,10 +764,10 @@ details.raw summary:hover { color: var(--ink); }
   .js .split-words.in .w > span { transform: none; }
 }
 
-/* the vault photo drifts behind the receipt as the page scrolls */
+/* the vault drawing drifts behind the receipt as the page scrolls */
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: scroll()) {
-    .vault picture { display: block; height: 100%; animation: drift linear both; animation-timeline: scroll(root); animation-range: 0 90vh; }
+    .vault .vault-art { animation: drift linear both; animation-timeline: scroll(root); animation-range: 0 90vh; }
     .vault .receipt { animation: card-in .9s var(--ease) .75s forwards, lift linear both; animation-timeline: auto, scroll(root); animation-range: normal, 0 90vh; }
   }
 }

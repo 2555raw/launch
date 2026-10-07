@@ -40,6 +40,9 @@ async function sealHero() {
   const a = heroAssets[heroIndex++ % heroAssets.length];
   const hash = await commit(a, randomBytes(SALT_BYTES), randomBytes(KEY_BYTES));
   const card = document.querySelector(".receipt");
+  const vault = document.querySelector(".vault");
+  vault?.classList.add("unlocked");
+  vault?.style.setProperty("--turn", `${heroIndex * 120}deg`);
   $("r-asset").textContent = `${Number(a.amount).toLocaleString("en-US")} ${a.symbol}`;
   $("r-chain").textContent = a.chain;
   card.classList.remove("sealed");
@@ -47,6 +50,7 @@ async function sealHero() {
   $("r-seal-text").textContent = "Sealing…";
   await scramble($("r-hash"), "0x" + hash, 1000);
   card.classList.remove("sealing");
+  vault?.classList.remove("unlocked");
   void card.offsetWidth; // restart the glint
   card.classList.add("sealed");
   $("r-seal-text").textContent = "Sealed locally";

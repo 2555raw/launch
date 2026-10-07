@@ -127,9 +127,11 @@ export async function verify(receipt, expected = null) {
 }
 
 export function encodeReceipt(receipt) {
-  const { v, asset, salt, key, commitment, proof } = receipt;
+  const { v, asset, salt, key, commitment, proof, anchor } = receipt;
   const body = { v, asset, salt, key, commitment };
   if (proof) body.proof = proof;
+  // Only anchors that name their chain can be checked, so only those travel.
+  if (anchor && typeof anchor === "object" && anchor.chainId && anchor.tx) body.anchor = { chainId: anchor.chainId, tx: anchor.tx };
   return RECEIPT_PREFIX + toBase64Url(enc.encode(JSON.stringify(body)));
 }
 

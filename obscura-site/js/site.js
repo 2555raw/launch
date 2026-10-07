@@ -27,14 +27,20 @@ if (navWrap) {
 // Highlight the nav link of the section in view.
 const links = [...document.querySelectorAll('.nav-links a[href^="#"]')];
 const sections = links.map((a) => document.querySelector(a.getAttribute("href"))).filter(Boolean);
-if (sections.length && "IntersectionObserver" in window) {
-  const spy = new IntersectionObserver((entries) => {
-    for (const e of entries) {
-      if (!e.isIntersecting) continue;
-      for (const a of links) a.setAttribute("aria-current", String(a.getAttribute("href") === "#" + e.target.id));
-    }
-  }, { rootMargin: "-45% 0px -50% 0px" });
-  sections.forEach((s) => spy.observe(s));
+// The current section is the last one whose top has passed 40% of the viewport,
+// so short sections near the end (the FAQ) still get their turn.
+if (sections.length) {
+  let ticking = false;
+  const spy = () => {
+    ticking = false;
+    const line = innerHeight * 0.4;
+    let current = null;
+    for (const sec of sections) if (sec.getBoundingClientRect().top <= line) current = sec;
+    if (current && current.getBoundingClientRect().bottom < 0) current = null;
+    for (const a of links) a.setAttribute("aria-current", String(!!current && a.getAttribute("href") === "#" + current.id));
+  };
+  addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(spy); } }, { passive: true });
+  spy();
 }
 
 const reveals = document.querySelectorAll(".reveal");

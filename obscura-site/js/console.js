@@ -53,11 +53,25 @@ function el(tag, attrs = {}, ...kids) {
 // ---------- tabs ----------
 const tabs = [...document.querySelectorAll(".tab")];
 function show(name) {
-  for (const t of tabs) t.setAttribute("aria-selected", String(t.dataset.tab === name));
+  document.querySelector(".toast")?.classList.remove("show"); // a toast belongs to the tab it came from
+  for (const t of tabs) {
+    const on = t.dataset.tab === name;
+    t.setAttribute("aria-selected", String(on));
+    t.tabIndex = on ? 0 : -1;
+  }
   for (const p of document.querySelectorAll(".panel")) p.classList.toggle("active", p.id === "panel-" + name);
   history.replaceState(null, "", "#" + name);
 }
 tabs.forEach((t) => t.addEventListener("click", () => show(t.dataset.tab)));
+// Arrow keys move between tabs, as screen-reader users expect from a tab list.
+tabs.forEach((t, i) => t.addEventListener("keydown", (e) => {
+  const step = { ArrowRight: 1, ArrowLeft: -1, Home: -i, End: tabs.length - 1 - i }[e.key];
+  if (step === undefined) return;
+  e.preventDefault();
+  const next = tabs[(i + step + tabs.length) % tabs.length];
+  show(next.dataset.tab);
+  next.focus();
+}));
 const start = location.hash.slice(1);
 if (tabs.some((t) => t.dataset.tab === start)) show(start);
 
@@ -81,7 +95,7 @@ function setFundsMode(f) {
   $("funds").classList.toggle("on", on);
   if (!on) {
     $("f-testnet").hidden = true;
-    $("f-text").textContent = "Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word.";
+    $("f-text").textContent = "Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word. The proof shows the signing address, so use a wallet that holds only what you want to show.";
     return;
   }
   $("f-text").textContent = `${short(f.address)} on ${f.chain.name}, block ${f.block.toLocaleString("en-US")}. Pick what to prove.`;
@@ -230,7 +244,7 @@ async function anchor(b, btn) {
     const name = CHAINS[chainId]?.name;
     if (name) toast(`Anchoring on ${name}. Confirm in the wallet; you pay only the network fee.`);
     const done = await sendAnchor(conn.provider, conn.address, b.commitment, {
-      onSent: (a) => { b.anchor = a; save(vault); btn.textContent = "Waiting for a block…"; },
+      onSent: (a) => { b.anchor = a; save(vault); renderVault(); toast("Sent. Waiting for it to land in a block…"); },
     });
     b.anchor = done;
     save(vault);
@@ -241,6 +255,15 @@ async function anchor(b, btn) {
     renderVault();
   }
 }
+
+// Close an open "More" menu on an outside click or Escape.
+document.addEventListener("click", (e) => {
+  for (const d of document.querySelectorAll("details.more[open]")) if (!d.contains(e.target)) d.open = false;
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  for (const d of document.querySelectorAll("details.more[open]")) { d.open = false; d.querySelector("summary").focus(); }
+});
 
 function renderVault() {
   const list = $("vault-list");
@@ -256,27 +279,33 @@ function renderVault() {
     const anc = normalizeAnchor(b.anchor);
     const exp = expiryLabel(b.asset);
     const expBadge = exp ? [el("span", { class: "badge " + exp.cls }, exp.text)] : [];
+    // One clear action; the rest wait behind "More".
+    const remove = el("button", {
+      class: "more-danger", type: "button", role: "menuitem", onclick: (e) => {
+        // Two steps instead of confirm(): the first press asks, the second removes.
+        const btn = e.currentTarget;
+        if (btn.dataset.armed !== "1") {
+          btn.dataset.armed = "1";
+          btn.textContent = "Press again to remove for good";
+          setTimeout(() => { if (btn.isConnected) { btn.dataset.armed = ""; btn.textContent = "Remove from this browser"; } }, 4000);
+          return toast(`Without a backup, ${label(b)} can never be opened again`);
+        }
+        vault = vault.filter((x) => x !== b);
+        save(vault);
+        renderVault();
+        toast(`${label(b)} removed from this browser`);
+      },
+    }, "Remove from this browser");
+    const more = el("details", { class: "more" },
+      el("summary", { class: "btn btn-light btn-sm" }, "More"),
+      el("div", { class: "more-menu", role: "menu" },
+        el("button", { type: "button", role: "menuitem", onclick: () => copy(encodeReceipt(b), "Receipt copied") }, "Copy receipt"),
+        el("button", { type: "button", role: "menuitem", onclick: () => { $("t-bond").value = b.commitment; show("transfer"); } }, "Transfer to someone"),
+        ...(anc ? [] : [el("button", { type: "button", role: "menuitem", onclick: (e) => { more.open = false; anchor(b, e.currentTarget); } }, "Anchor onchain")]),
+        remove));
     const actions = el("div", { class: "actions", style: "margin-top:4px" },
       el("button", { class: "btn btn-dark btn-sm", type: "button", onclick: () => openShareDialog(b, label(b)) }, "Share proof"),
-      el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => copy(encodeReceipt(b), "Receipt copied") }, "Copy receipt"),
-      el("button", { class: "btn btn-light btn-sm", type: "button", onclick: () => { $("t-bond").value = b.commitment; show("transfer"); } }, "Transfer"),
-      ...(anc ? [] : [el("button", { class: "btn btn-light btn-sm", type: "button", onclick: (e) => anchor(b, e.currentTarget) }, "Anchor onchain")]),
-      el("button", {
-        class: "btn btn-ghost btn-sm", type: "button", onclick: (e) => {
-          // Two steps instead of confirm(): the first press asks, the second removes.
-          const btn = e.currentTarget;
-          if (btn.dataset.armed !== "1") {
-            btn.dataset.armed = "1";
-            btn.textContent = "Press again to remove for good";
-            setTimeout(() => { if (btn.isConnected) { btn.dataset.armed = ""; btn.textContent = "Remove"; } }, 4000);
-            return toast(`Without a backup, ${label(b)} can never be opened again`);
-          }
-          vault = vault.filter((x) => x !== b);
-          save(vault);
-          renderVault();
-          toast(`${label(b)} removed from this browser`);
-        },
-      }, "Remove"),
+      more,
     );
     const extra = [];
     if (b.asset.note) extra.push(el("span", { class: "hint" }, "Note: " + b.asset.note));

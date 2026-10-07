@@ -58,22 +58,23 @@
   <div class="wrap">
     <div class="app-head">
       <h1>Verify a proof</h1>
-      <p>Someone sent you a proof link or a receipt. Your browser checks it here: nothing is sent to us.</p>
+      <p>Someone sent you a proof link or a receipt. Your browser checks it here. Nothing is sent to us; balance and anchor checks read a public blockchain node.</p>
     </div>
     <div class="panel active">
       <div class="box" id="v-result-box">
         <h2>Result</h2>
-        <p>Open a proof link, or paste a receipt below.</p>
+        <p id="v-intro">Open a proof link, or paste a receipt.</p>
         <div class="empty" id="v-empty">Waiting for a proof.</div>
         <div id="v-out" hidden>
-          <div class="claim" id="v-claim"></div>
+          <div class="claim" id="v-claim" role="status" aria-live="polite"></div>
           <ul class="checks" id="v-checks"></ul>
           <p class="hint" id="v-note"></p>
+          <p class="v-own">Want to prove a holding of your own? <a href="console.html">Make a proof</a> in under a minute, no account.</p>
         </div>
       </div>
       <form class="box soft" id="verify-form" autocomplete="off">
         <h2>Check a receipt by hand</h2>
-        <p>Paste the receipt you were given. The link does this for you.</p>
+        <p id="v-form-lead">Paste the receipt you were given. A proof link does this for you.</p>
         <div class="field"><label for="v-receipt">Receipt</label><textarea class="textarea" id="v-receipt" placeholder="obx1_…" required></textarea></div>
         <div class="field">
           <label for="v-commit">Seal code you expect <span class="opt">(optional)</span></label>

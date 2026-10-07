@@ -8,6 +8,7 @@ const ICONS = {
   pass: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
   fail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 7v6M12 17h.01"/></svg>',
+  get tick() { return this.pass; },
   info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M7 12h10"/></svg>',
   time: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2"/></svg>',
 };
@@ -54,6 +55,7 @@ async function run(text, expected) {
 // stale() turns true once a newer check has started; this one then stops writing.
 async function check(text, expected, stale) {
   $("v-empty").hidden = true;
+  $("v-intro").hidden = true;
   $("v-out").hidden = false;
   const checks = $("v-checks");
   checks.replaceChildren(row("info", "Checking…", "Recomputing the seal in your browser."));
@@ -73,7 +75,8 @@ async function check(text, expected, stale) {
   const sealOk = await verify(r, expected || null);
   if (stale()) return;
   const list = [sealOk
-    ? row("pass", "The seal matches", expected ? "The receipt opens exactly the seal code you expected." : "Nothing in the receipt was changed.")
+    // Green is earned by a wallet-backed proof; a typed amount only gets a neutral tick.
+    ? row(r.proof ? "pass" : "tick", "The seal matches", expected ? "The receipt opens exactly the seal code you expected." : "Nothing in the receipt was changed.")
     : row("fail", "The seal does not match", expected ? "This receipt is not the bond with that seal code." : "The receipt was edited or damaged.")];
 
   // Expiry is sealed in, so it is only trusted once the seal matches.
@@ -109,7 +112,8 @@ async function check(text, expected, stale) {
     verdict = f.signed && f.onchain === "pass" ? (f.testnet ? "testnet" : "proven") : f.signed && (f.onchain === "unreachable" || f.onchain === "unsupported") ? "signed" : "fail";
     if (f.testnet && f.signed) list.push(row("warn", "Test network", "Sepolia coins are free and have no value. This proof shows the tool works, not real funds."));
   } else if (sealOk) {
-    list.push(row("warn", "Not backed by a wallet", "The sender typed this amount. It is not checked against any wallet."));
+    // Put the caveat first: the seal only says the receipt was not edited.
+    list.unshift(row("warn", "Not backed by a wallet", "The sender typed this amount. Nobody has checked that they hold it."));
   }
 
   if (anchoring) {
@@ -133,10 +137,12 @@ async function check(text, expected, stale) {
     proven: `Proven: at least ${amount}`,
     testnet: `Testnet only: ${amount} in test coins`,
     signed: `Signed for ${amount}, balance not checked yet`,
-    declared: `Declared: ${amount}`,
+    declared: `Not proven: the sender says ${amount}`,
     fail: "Not valid",
   }[verdict];
-  $("v-note").textContent = verdict === "fail" ? "" : "You learn this one bond and nothing else about the sender's wallet.";
+  $("v-note").textContent = verdict === "fail" ? ""
+    : r.proof ? "You learn this one bond and the address that signed it. Nothing about the sender's other bonds."
+    : "You learn this one bond and nothing else about the sender.";
 }
 
 $("verify-form").addEventListener("submit", (e) => {

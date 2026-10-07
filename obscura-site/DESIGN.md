@@ -17,6 +17,9 @@ colors:
   ok-soft: "#e8f6ee"
   bad: "#c62f2f"
   bad-soft: "#fdeeee"
+  warn: "#9a5b00"
+  warn-soft: "#fff7e6"
+  warn-line: "#f3d9a6"
 typography:
   display:
     fontFamily: "Host Grotesk, Host Grotesk Fallback, system-ui, sans-serif"
@@ -135,9 +138,9 @@ components:
 
 **Creative North Star: "The Quiet Vault"**
 
-Obscura is a private-banking vault rendered as a calm white product page. The material comes from the vault photographs: paper white, cool steel greys, and near-black ink. Real safe-deposit boxes carry the metaphor. The mechanism is shown live: a commitment hash that recomputes in the browser and appears in the one signal blue. Everything else stays quiet so the hash and the proof can be the only things that announce themselves.
+Obscura is a private-banking vault rendered as a calm white product page. The material comes from the vault drawings: paper white, cool steel greys, and near-black ink. A drawn vault door and a wall of safe-deposit boxes carry the metaphor; the door locks in step with the live receipt. The mechanism is shown live: a commitment hash that recomputes in the browser and appears in the one signal blue. Everything else stays quiet so the hash and the proof can be the only things that announce themselves.
 
-Density is low and the pacing is generous. Sections sit on a 1180px rail with large vertical breaks, and lists are ruled with hairlines instead of being boxed into cards. Controls are pills, media get large soft radii, and depth is a few low ambient shadows under floating things such as the nav, the receipt, dialogs and the photograph. The world turns down the category's dark neon crypto page and the icon-card feature grid.
+Density is low and the pacing is generous. Sections sit on a 1180px rail with large vertical breaks, and lists are ruled with hairlines instead of being boxed into cards. Controls are pills, media get large soft radii, and depth is a few low ambient shadows under floating things such as the nav, the receipt, dialogs and the vault drawing. The world turns down the category's dark neon crypto page and the icon-card feature grid.
 
 The same world carries into the app pages (console, verify, terms, declined) and into the explainer films, which reuse the same type pairing and roles.
 
@@ -147,7 +150,7 @@ The same world carries into the app pages (console, verify, terms, declined) and
 - Green appears only on a true proof. Red appears only for exposure and failure.
 - Host Grotesk for every word; JetBrains Mono only for hashes, bytes and addresses.
 - Pill controls, hairline-ruled lists, large radii on media and containers.
-- Real photographs credited in place, never illustrations or stock icons.
+- Flat vector drawings made for the site (paper, steel, ink, one blue), never photographs, stock illustration or icon packs.
 
 ## Colors
 
@@ -160,7 +163,7 @@ A near-monochrome paper-and-steel palette, with one blue as its live signal and 
 ### Neutral
 - **Paper** (paper): page ground, cards, dialogs, inputs, and the text on ink surfaces.
 - **Mist** (mist): first tonal step. Used for hover fills, the active nav pill, selected film chapters, the demo output pane, soft buttons, the tab track, badges and status notes, and the declined page's background.
-- **Steel** (steel): second tonal step. Used for the soft-button hover, the photo placeholder and the "sent" badge.
+- **Steel** (steel): second tonal step. Used for the soft-button hover, the drawing background and the "sent" badge.
 - **Ink** (ink): all headings and body text, primary buttons, the brand mark, the active chapter number, the closing band and toasts. Text selection inverts to ink.
 - **Ink Secondary** (ink-2): long-form reading text in prose, terms and status notes, and field labels.
 - **Dim** (dim): leads, captions, meta, inactive nav and tabs, and table headers.
@@ -171,6 +174,7 @@ A near-monochrome paper-and-steel palette, with one blue as its live signal and 
 ### Semantic
 - **Proof Green** (ok) on **Proof Wash** (ok-soft): only the TRUE verdict of a verification.
 - **Exposure Red** (bad) on **Exposure Wash** (bad-soft): the "Anyone can see" column in the leak table, the FALSE verdict, and invalid fields.
+- **Caution Amber** (warn) on **Caution Wash** (warn-soft, stroked warn-line): things that need the holder's attention but are not failures: the backup banner, "Not proven" and "balance not checked" verdicts, testnet notes. A typed, unbacked amount is never green: its seal tick is ink on steel.
 
 ### Named Rules
 **The One Signal Rule.** Blue means live, computed or detected. If an element is not changing, verified or found in the browser right now, it is not blue. Actions are ink, not blue.
@@ -203,23 +207,23 @@ A near-monochrome paper-and-steel palette, with one blue as its live signal and 
 
 Content sits on a centered rail of 1180px, with a 16px gutter on mobile and a 32px gutter from 720px up. Sections are separated by a fluid section space (88px to 148px). The hero and two-column sections use asymmetric grids: the hero is 1.04fr to 0.96fr, split sections are 0.9fr to 1.1fr, and the films section is 0.82fr to 1.5fr. Section heads are capped at 640px with a 48px gap below.
 
-The nav floats 12px from the top as a pill. Below 960px its links collapse into a drawer. Grids drop to a single column at about 860 to 900px. The wallet strip goes from 8 across, to 4 across (1100px), to 2 across (560px), and keeps its hairline dividers at every step. App pages start 128px down and use a pill tab bar with two-column panels. A tall vault photograph with an overlaid receipt card is the hero's media pattern, and a full-bleed photo band with a floating white card is used mid-page.
+The nav floats 12px from the top as a pill. Below 960px its links collapse into a drawer. Grids drop to a single column at about 860 to 900px. The wallet strip goes from 8 across, to 4 across (1100px), to 2 across (560px), and keeps its hairline dividers at every step. App pages start 128px down and use a pill tab bar with two-column panels. A tall vault-door drawing (inline SVG) with an overlaid receipt card is the hero's media pattern, and a full-bleed band of drawn safe-deposit boxes with a floating white card is used mid-page (the card drops below the drawing on phones).
 
 ## Elevation & Depth
 
-The system is tonal first. Paper, mist and steel separate surfaces, and hairlines separate rows. Shadows are low, ink-tinted and ambient, and only things that float over other content use them: the nav, the receipt over the photograph, the band card, dialogs, toasts, the active tab and the dark button.
+The system is tonal first. Paper, mist and steel separate surfaces, and hairlines separate rows. Shadows are low, ink-tinted and ambient, and only things that float over other content use them: the nav, the receipt over the drawing, the band card, dialogs, toasts, the active tab and the dark button.
 
 ### Shadow Vocabulary
 - **Rest** (`0 1px 2px rgba(11,13,18,.05), 0 6px 14px -8px rgba(11,13,18,.14)`): the nav pill, the drawer, the dark button, the active tab.
 - **Lift** (`0 2px 4px rgba(11,13,18,.04), 0 24px 48px -28px rgba(11,13,18,.30)`): the receipt card and toasts.
-- **Float** (`0 4px 10px rgba(11,13,18,.05), 0 40px 80px -40px rgba(11,13,18,.38)`): the vault photograph, the band card, dialogs and the declined-page card.
+- **Float** (`0 4px 10px rgba(11,13,18,.05), 0 40px 80px -40px rgba(11,13,18,.38)`): the vault drawing, the band card, dialogs and the declined-page card.
 
 ### Named Rules
 **The Float-Only Shadow Rule.** A shadow means the surface floats over something. Inline containers such as boxes, bonds, the explorer and the demo use a 1px hairline border instead, and never a shadow.
 
 ## Shapes
 
-Corners are generous and step with scale: 10px, then 14px (fields, wallet items, drawer links), 20px (receipt, chapters, bonds, status notes, verdicts), and 28px (photographs, the player, the demo, boxes, dialogs, the closing band). Every interactive control (buttons, nav, tabs, badges, the file-picker button and toasts) is a full pill. Strokes are 1px hairlines at rest and 1.5px on focus and invalid fields, drawn as inset box-shadows so geometry doesn't shift. Status dots are 8px circles with a 3 to 4px wash halo. Photographs are always clipped to the large radius.
+Corners are generous and step with scale: 10px, then 14px (fields, wallet items, drawer links), 20px (receipt, chapters, bonds, status notes, verdicts), and 28px (drawings, the player, the demo, boxes, dialogs, the closing band). Every interactive control (buttons, nav, tabs, badges, the file-picker button and toasts) is a full pill. Strokes are 1px hairlines at rest and 1.5px on focus and invalid fields, drawn as inset box-shadows so geometry doesn't shift. Status dots are 8px circles with a 3 to 4px wash halo. Drawings are always clipped to the large radius.
 
 ## Components
 
@@ -230,7 +234,7 @@ Calm, weighted pills that lift on hover and press slightly on click.
 - **Light (secondary):** paper fill with an inset 1px line-2 stroke. On hover the stroke darkens to dim-2 and the Rest shadow is added.
 - **Soft:** mist fill, turning steel on hover, for in-context utility actions.
 - **Ghost (on ink only):** transparent with a translucent white stroke that turns solid white on hover. Only for the dark closing band.
-- **Motion:** -1px lift with a spring ease (cubic-bezier(.34,1.32,.64,1)); scale .97 on press; opacity .5 when disabled or busy.
+- **Motion:** -1px lift with a fast ease-out that does not overshoot (cubic-bezier(.22,1,.36,1)); scale .97 on press; opacity .5 when disabled or busy.
 
 ### Badges
 - **Style:** pill, 12px at weight 560, mist background with dim text. The live variant is accent-soft with accent text, and the sent variant is steel. A "Proposed" pill marks figures that are not final.
@@ -259,7 +263,7 @@ A paper sheet card (560px max, 28px radius, Float shadow) over a 42% ink backdro
 A list of chapters next to a 16:9 player framed in line-2 with a 28px radius. Each chapter is a 20px-radius row with a numbered circle that inverts to ink when current, and a 2px progress line that fills in ink along the bottom of the current chapter. The round controls are 40px ink circles at 82% opacity.
 
 ### Receipt
-A frosted paper card (94%, 12px blur, Lift shadow) over the bottom of the vault photograph. It shows the amount at 22px weight 600, the commitment in accent mono, and a hairline-ruled footer of meta in dim. The photo credit is a small ink pill in the corner.
+A frosted paper card (94%, 12px blur, Lift shadow) over the bottom of the vault drawing. It shows the amount at 22px weight 600, the seal code in accent mono, and a hairline-ruled footer of meta in dim. While it seals, the door's wheel turns a third and its bolts draw back; when the seal lands the bolts slide home one after another.
 
 ## Do's and Don'ts
 
@@ -268,7 +272,7 @@ A frosted paper card (94%, 12px blur, Lift shadow) over the bottom of the vault 
 - **Do** use ink pills for the primary action and paper pills with a line-2 stroke for the secondary one.
 - **Do** separate list content with 1px hairlines (#e4e7ec) instead of wrapping each item in a card.
 - **Do** set every hash, key, salt and address in JetBrains Mono, and every other word in Host Grotesk.
-- **Do** credit real photographs in place with a small ink pill, and clip them to the 28px radius.
+- **Do** draw new imagery as flat SVG in the palette, and clip it to the 28px radius.
 - **Do** use tabular figures for amounts, times and token figures.
 
 ### Don't:

@@ -147,6 +147,15 @@ if (player && chapters.length) {
 }
 
 // ---------- demo: same maths as the console, recomputed on every keystroke ----------
+// Screen readers hear one short line, a moment after typing stops.
+let announceTimer;
+const live = Object.assign(document.createElement("span"), { className: "sr-only" });
+live.setAttribute("aria-live", "polite");
+document.body.append(live);
+function announce(text) {
+  clearTimeout(announceTimer);
+  announceTimer = setTimeout(() => { live.textContent = ""; live.textContent = text; }, 700);
+}
 let salt = randomBytes(SALT_BYTES);
 let key = randomBytes(KEY_BYTES);
 
@@ -157,6 +166,7 @@ async function renderDemo() {
   try {
     const asset = { amount: amount.value, symbol: $("d-symbol").value, chain: $("d-chain").value };
     scramble($("d-commit"), "0x" + (await commit(asset, salt, key)), 420);
+    announce("Seal code changed");
     amount.removeAttribute("aria-invalid");
   } catch (e) {
     $("d-commit")._scramble = ($("d-commit")._scramble || 0) + 1; // stop a scramble still landing

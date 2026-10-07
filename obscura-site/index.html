@@ -64,7 +64,7 @@
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <h1 class="hero-title"><span class="line"><span>Prove one holding.</span></span> <span class="line"><span>Hide the rest.</span></span></h1>
-      <p class="lead hero-in" style="--d:.42s">Obscura seals an asset into a single hash that only your receipt can open. Hand it on, or prove it to one counterparty, without exposing the wallet behind it.</p>
+      <p class="lead hero-in" style="--d:.42s">Send one link. The other side sees “holds at least 2.5 ETH, signed by the wallet, checked on the blockchain”, and none of your other holdings.</p>
       <div class="cta-row hero-in" style="--d:.54s">
         <a class="btn btn-dark btn-arrow" href="console.html">Launch app<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
         <a class="btn btn-light" href="#story">
@@ -80,7 +80,7 @@
       <div class="receipt" aria-live="off">
         <div class="receipt-top"><b id="r-asset" class="num">2.5 ETH</b><span id="r-chain">ethereum</span></div>
         <div class="receipt-hash" id="r-hash">0x…</div>
-        <div class="receipt-foot"><span>SHA-256 · salt 16 B · key 32 B</span><span class="seal" id="r-seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path class="shackle" d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span id="r-seal-text">Sealed locally</span></span></div>
+        <div class="receipt-foot"><span>Sealed in this browser · SHA-256</span><span class="seal" id="r-seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path class="shackle" d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span id="r-seal-text">Sealed locally</span></span></div>
       </div>
     </figure>
   </div>
@@ -118,7 +118,7 @@
               <div class="st-wait"><span class="st-spin"></span>Opening the link…</div>
               <div class="st-proof"><span class="st-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span><div><b>At least 2.5 ETH</b><span>Signed and checked on chain</span></div></div>
               <div class="st-hidden"><span></span><span></span><span></span></div>
-              <p class="st-phone-foot">Nothing else about your wallet.</p>
+              <p class="st-phone-foot">None of your other bonds.</p>
             </div>
           </div>
         </div>
@@ -153,7 +153,7 @@
     <div class="wrap">
       <div class="wallets-head">
         <h2 id="wallets-title">Connect the wallet you already use</h2>
-        <p class="small">Optional. Only needed to anchor a commitment onchain.</p>
+        <p class="small">No wallet needed to try it. Connect one to sign a proof, so the other side can check the balance on the blockchain. Your keys never leave the wallet.</p>
       </div>
       <div class="wallet-row" id="wallet-row">
         <button class="wallet-tile" style="--i:1" type="button" data-wallet="metamask"><img src="assets/wallets/metamask.svg" alt="" width="40" height="40">MetaMask<span class="tag"></span></button>
@@ -206,7 +206,7 @@
         <ol class="chapters">
           <li><button class="chapter" type="button" data-src="assets/video/cloak.mp4" data-poster="assets/video/cloak.jpg">
             <span class="chapter-n">1</span>
-            <span><h3>Cloak</h3><p>SHA-256 over the asset, a 16-byte salt and a 32-byte key. The chain sees 32 bytes.</p></span>
+            <span><h3>Seal</h3><p>SHA-256 over the asset, a 16-byte salt and a 32-byte key. The chain sees 32 bytes.</p></span>
             <time datetime="PT15S">0:15</time>
             <span class="chapter-progress" aria-hidden="true"><i></i></span>
           </button></li>
@@ -251,7 +251,7 @@
     <div class="wrap">
       <div class="section-head reveal">
         <h2 id="demo-title">Try it. Nothing leaves this page.</h2>
-        <p class="lead">Change the amount and watch the commitment change completely. Same maths as the console.</p>
+        <p class="lead">Change the amount and watch the seal code change completely. Same maths as the console.</p>
       </div>
       <div class="demo reveal">
         <form class="demo-in" autocomplete="off" onsubmit="return false">
@@ -267,7 +267,7 @@
           <button class="btn btn-soft btn-sm" id="d-reroll" type="button">Draw a new salt and key</button>
         </form>
         <div class="demo-out">
-          <div class="kv" aria-live="polite">
+          <div class="kv">
             <div class="kv-row"><span class="k">Salt, 16 bytes</span><span class="v" id="d-salt">…</span></div>
             <div class="kv-row"><span class="k">Key, 32 bytes</span><span class="v" id="d-key">…</span></div>
             <div class="kv-row"><span class="k">Seal code, the only thing the chain sees</span><span class="v big" id="d-commit">…</span></div>
@@ -300,7 +300,7 @@
         <dl class="sheet" aria-describedby="token-status">
           <div class="sheet-row"><dt>Fee<span class="proposed">Proposed</span></dt><dd class="val">0.30%</dd><dd><p>Taken from each swap that buys $OBX in its pool, paid in $OBX.</p></dd></div>
           <div class="sheet-row"><dt>Split<span class="proposed">Proposed</span></dt><dd class="val">80 / 20</dd><dd><p>80% of every fee is burned. 20% goes to the prover fund.</p></dd></div>
-          <div class="sheet-row"><dt>Gate<span class="proposed">Proposed</span></dt><dd class="val">Hold</dd><dd><p>The bond NFT mints only to wallets holding $OBX. It carries the commitment and nothing else.</p></dd></div>
+          <div class="sheet-row"><dt>Gate<span class="proposed">Proposed</span></dt><dd class="val">Hold</dd><dd><p>The bond NFT mints only to wallets holding $OBX. It carries the seal code and nothing else.</p></dd></div>
         </dl>
         <div class="status">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
@@ -324,11 +324,11 @@
         </details>
         <details>
           <summary>What does a counterparty learn when I prove a bond?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
-          <p>The contents of that one receipt and whether it matches the commitment they expect. Nothing about your other bonds or your wallet.</p>
+          <p>The asset and amount in that one proof, and that it was sealed and not edited. Nothing about your other bonds. If the proof is backed by a wallet, they also see that wallet’s address, and anything public about it. To keep the rest private, back the proof with a wallet that holds only what you want to show.</p>
         </details>
         <details>
           <summary>Do I need to connect a wallet?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
-          <p>Only to anchor a commitment onchain, which sends a transaction to yourself with the 32-byte hash as data. Everything else works without one.</p>
+          <p>Not to try it. Sealing, the vault, transfers and checking proofs all work without one. A wallet does two things: it signs a proof so the other side can check the balance on the blockchain, and it can anchor a seal code onchain with a transaction to yourself. Obscura never asks for your keys or a token approval.</p>
         </details>
         <details>
           <summary>Is $OBX live?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
@@ -342,7 +342,7 @@
     <section class="closing reveal" aria-labelledby="closing-title">
       <div>
         <h2 id="closing-title">Seal your first bond in under a minute.</h2>
-        <p>No account and no server. Pick an asset, cloak it, and keep the receipt.</p>
+        <p>No account and no server. Pick an asset, seal it, and keep the receipt.</p>
       </div>
       <div class="cta-row">
         <a class="btn btn-light" href="console.html">Launch app</a>

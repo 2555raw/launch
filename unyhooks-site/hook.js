@@ -151,9 +151,15 @@
     /* actions */
     const page = window.location.href;
     const shareText = token ? `$${token.symbol} on ${NET.name}${locks.length ? ', liquidity locked' : ''}. Checked on chain with @${C.CONFIG.X_HANDLE || 'UnyHooks'}` : `A Uniswap V4 hook on ${NET.name}, checked with @${C.CONFIG.X_HANDLE || 'UnyHooks'}`;
+    // Trade right here when the pool pairs the token with ETH; otherwise send
+    // people to Uniswap's own app.
+    const tradeHere = !!(token && main && window.UnySwap && live && state.liquidity > 0n && window.UnySwap.mount($('#swap'), { key: main.key, token }));
+    $('#swap').hidden = !tradeHere;
     $('#actions').hidden = false;
     $('#actions').innerHTML = `
-      ${token ? `<a class="uh-btn uh-btn-pink uh-btn-sm" href="${esc(C.uniswapSwap(token.address))}" target="_blank" rel="noopener">Buy $${esc(token.symbol)}</a>` : ''}
+      ${token ? (tradeHere
+        ? `<a class="uh-btn uh-btn-pink uh-btn-sm" href="#swap" data-to-swap>Buy $${esc(token.symbol)}</a>`
+        : `<a class="uh-btn uh-btn-pink uh-btn-sm" href="${esc(C.uniswapSwap(token.address))}" target="_blank" rel="noopener">Buy $${esc(token.symbol)}</a>`) : ''}
       <a class="uh-btn uh-btn-ghost uh-btn-sm" href="https://x.com/intent/post?${new URLSearchParams({ text: shareText, url: page })}" target="_blank" rel="noopener">Share on X</a>
       <button class="uh-btn uh-btn-ghost uh-btn-sm" type="button" data-copy="${esc(page)}">Copy link</button>
       ${main ? `<a class="hk-link" href="${esc(C.dexscreenerPool(main.id))}" target="_blank" rel="noopener">DexScreener</a>` : ''}`;
@@ -262,6 +268,9 @@
   };
 
   document.addEventListener('click', async (e) => {
+    // the short /h/0x… links carry <base href="/">, so #swap would leave the page
+    const to = e.target.closest('[data-to-swap]');
+    if (to) { e.preventDefault(); $('#swap').scrollIntoView({ behavior: 'smooth', block: 'center' }); $('#swap input').focus({ preventScroll: true }); return; }
     const b = e.target.closest('[data-copy]');
     if (!b) return;
     try { await navigator.clipboard.writeText(b.dataset.copy); const t = b.textContent; b.textContent = 'Copied'; setTimeout(() => { b.textContent = t; }, 1400); } catch (_) { /* no clipboard */ }

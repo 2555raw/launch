@@ -345,6 +345,14 @@
             <li>the price from the pool, and USD figures from DexScreener once it lists the pool.</li>
           </ul>
           <p>Anyone can open it, without a wallet.</p>
+          <h2 id="public-page-trade">Buying and selling on the page</h2>
+          <p>When the pool pairs the token with ETH, the page has a trade panel. It swaps through Uniswap's Universal Router on Robinhood Chain, in the token's own pool, so the pool's hook applies exactly as it would from any other app.</p>
+          <ul>
+            <li>The price comes from Uniswap's Quoter before anything is signed, with the minimum you accept after slippage (0.5%, 1% or 3%).</li>
+            <li>If the hook would refuse the trade, the panel says why first: a buy over the launch cap, or a wallet still in its cooldown.</li>
+            <li>The trade is dry-run before your wallet is asked to sign it.</li>
+            <li>Buying is one transaction. The first sale also asks for two approvals (the token to Permit2, then Permit2 to the router), as on Uniswap's own app; later sales are one transaction.</li>
+          </ul>
         </article>
 
         <!-- ===== Recipes ===== -->

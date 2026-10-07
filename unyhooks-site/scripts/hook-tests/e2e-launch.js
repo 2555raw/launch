@@ -170,7 +170,8 @@ async function fresh2(page, rec, _) {
   check('what the hook does, from its settings', /0\.1/.test(await page.textContent('#does')));
   await wait(() => /Locked until .* \d+d \d+h left/.test(document.querySelector('.hk-lock-time').textContent));
   check('the lock has a live countdown', true, await page.textContent('.hk-lock-time'));
-  check('buy button goes to Uniswap with the token', (await page.getAttribute('#actions a:has-text("Buy $PINK")', 'href')).includes(`outputCurrency=${L.token}`));
+  // an ETH pool is traded right on the page (e2e-swap.js covers the trades)
+  check('buy button opens the trade panel on the page', (await page.getAttribute('#actions a:has-text("Buy $PINK")', 'href')) === '#swap' && await page.isVisible('#swap'));
   if (SHOTS) {
     await page.screenshot({ path: path.join(SHOTS, 'hook-page.png'), fullPage: true });
     await page.setViewportSize({ width: 390, height: 844 });

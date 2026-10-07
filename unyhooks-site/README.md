@@ -238,6 +238,15 @@ headline, the glow on the water. Parchment sections read like a captain's chart.
 | `--parch` / `--parch-ink` | `#F2E4C4` / `#24180A` | chart sections |
 | `--ok` / `--red` | `#5FD3A6` / `#E5624B` | live, locked, done / cannon fire, refusals |
 
+Trading: `swap.js` puts a buy/sell panel on a token's public page when its pool pairs it
+with ETH. It quotes through Uniswap's Quoter, swaps through the Universal Router
+(`V4_SWAP` with `SWAP_EXACT_IN_SINGLE`, `SETTLE_ALL`, `TAKE_ALL`), dry-runs before the
+wallet signs, and explains hook refusals (launch cap, cooldown) in words. Sales go through
+Permit2. Covered by `scripts/hook-tests/e2e-swap.js` against Robinhood Chain's own router
+and quoter code.
+
+The server compresses text (Brotli or gzip) and the landing loads its 3D after first paint.
+
 3D: `scene3d.js` (built from `src/scene3d.js` with three.js, `npm run build:3d`) draws three
 WebGL scenes on top of their 2D drawings: the hero's night sea (Gerstner swell, the moon and
 its glitter, a galleon on the horizon) with a captain's hook rising half out of the water where the `.uh-orb`

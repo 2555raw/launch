@@ -32,6 +32,8 @@ window.UNYHOOKS = {
     stateView:   '0xf3334192d15450cdd385c8b70e03f9a6bd9e673b',
     positionManager: '0x58daec3116aae6d93017baaea7749052e8a04fa7',   // Uniswap V4 positions (adding liquidity)
     permit2:     '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+    universalRouter: '0x8876789976decbfcbbbe364623c63652db8c0904',   // swaps from the token pages
+    quoter:      '0x8dc178efb8111bb0973dd9d722ebeff267c98f94',   // prices a swap before it is sent
     // The standard CREATE2 deployer (Arachnid's deterministic deployment
     // proxy). Hooks go through it so they can land on an address whose low
     // bits match their permissions.

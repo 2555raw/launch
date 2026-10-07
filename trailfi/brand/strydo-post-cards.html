@@ -1,0 +1,188 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:SG;font-weight:500;src:url(../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-500-normal.woff2)}
+@font-face{font-family:SG;font-weight:700;src:url(../node_modules/@fontsource/space-grotesk/files/space-grotesk-latin-700-normal.woff2)}
+@font-face{font-family:JB;font-weight:500;src:url(../node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1600px;height:900px;overflow:hidden;background:#05070b;color:#fff;font-family:SG;position:relative}
+.v{display:none;position:absolute;inset:0}
+body[data-v="counter"] #counter,body[data-v="routine"] #routine,body[data-v="nothing"] #nothing,body[data-v="moments"] #moments,
+body[data-v="outside"] #outside,body[data-v="board"] #board,body[data-v="apps"] #apps,body[data-v="friend"] #friend,body[data-v="keys"] #keys{display:block}
+.abs{position:absolute}
+.clouds{position:absolute;inset:0;background:url(../public/images/forest-river.jpg) center 40%/cover no-repeat;filter:saturate(.7) brightness(.55)}
+.shade{position:absolute;inset:0;background:radial-gradient(80% 80% at 50% 45%,rgba(5,7,11,.3),rgba(5,7,11,.88))}
+.lime{color:#4d94ff}
+.soft{color:#9cc2ff}
+.dim{color:rgba(255,255,255,.4)}
+.mono{font-family:JB}
+.label{font-family:JB;font-size:18px;letter-spacing:4px;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.h{font-weight:700;letter-spacing:-3px;line-height:1.02}
+.brand{position:absolute;left:70px;bottom:56px;display:flex;align-items:center;gap:14px;font-size:30px;font-weight:700}
+.card{background:rgba(9,12,18,.74);border:1px solid rgba(255,255,255,.1);border-radius:36px;backdrop-filter:blur(14px);box-shadow:0 40px 90px -30px rgba(0,0,0,.9)}
+.hot{border-color:rgba(77,148,255,.45);background:rgba(77,148,255,.07)}
+.coin{border-radius:50%;box-shadow:0 0 50px rgba(77,148,255,.35)}
+.ico{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9cc2ff"/><stop offset="1" stop-color="#2f7bff"/></linearGradient>
+<path id="m" d="M144 0L220 0A32 32 0 0 1 252 32L252 138A9 9 0 0 1 243 147L177 147A30 30 0 0 0 147 177L147 243A9 9 0 0 1 138 252L32 252A32 32 0 0 1 0 220L0 142A32 32 0 0 1 32 110L78 110A34 34 0 0 0 112 76L112 32A32 32 0 0 1 144 0ZM514 144L514 220A32 32 0 0 1 482 252L376 252A9 9 0 0 1 367 243L367 177A30 30 0 0 0 337 147L271 147A9 9 0 0 1 262 138L262 32A32 32 0 0 1 294 0L372 0A32 32 0 0 1 404 32L404 78A34 34 0 0 0 438 112L482 112A32 32 0 0 1 514 144ZM370 514L294 514A32 32 0 0 1 262 482L262 376A9 9 0 0 1 271 367L337 367A30 30 0 0 0 367 337L367 271A9 9 0 0 1 376 262L482 262A32 32 0 0 1 514 294L514 372A32 32 0 0 1 482 404L436 404A34 34 0 0 0 402 438L402 482A32 32 0 0 1 370 514ZM0 370L0 294A32 32 0 0 1 32 262L138 262A9 9 0 0 1 147 271L147 337A30 30 0 0 0 177 367L243 367A9 9 0 0 1 252 376L252 482A32 32 0 0 1 220 514L142 514A32 32 0 0 1 110 482L110 436A34 34 0 0 0 76 402L32 402A32 32 0 0 1 0 370Z"/>
+<g id="brandmark"><use href="#m" fill="url(#lg)"/></g></defs></svg>
+
+<!-- 1 · Your step counter has been working for free -->
+<div class="v" id="counter"><div class="clouds"></div><div class="shade"></div>
+  <div class="abs" style="left:0;right:0;top:120px;text-align:center">
+    <div class="label">Steps your phone counted today</div>
+    <div class="h" style="font-size:300px;letter-spacing:-14px;line-height:1;margin-top:18px">8,412</div>
+    <div style="margin-top:34px;display:inline-flex;align-items:center;gap:26px;font-size:46px;font-weight:700">
+      <span class="dim">Paid to you:</span>
+      <span class="mono" style="color:#ff6b6b;text-decoration:line-through;text-decoration-thickness:5px">$0.00</span>
+    </div>
+    <div style="margin-top:44px;display:flex;justify-content:center;align-items:center;gap:20px;font-size:78px" class="h lime">
+      <img class="coin" src="../public/tokens/eth.svg" style="width:78px;height:78px">Not anymore.
+    </div>
+  </div>
+  <div class="brand"><svg width="40" height="40" viewBox="0 0 514 514"><use href="#brandmark"/></svg><b style="font-weight:700">Stry<span class="lime">do</span></b></div>
+</div>
+
+<!-- 2 · One screenshot a day -->
+<div class="v" id="routine"><div class="clouds"></div><div class="shade"></div>
+  <div class="abs" style="left:80px;top:90px">
+    <div class="h" style="font-size:110px;letter-spacing:-5px">One screenshot a day.</div>
+    <div class="h dim" style="font-size:64px;margin-top:14px">That's the whole routine.</div>
+  </div>
+  <div class="abs" id="week" style="left:80px;right:80px;top:420px;display:grid;grid-template-columns:repeat(7,1fr);gap:20px"></div>
+  <div class="brand"><svg width="40" height="40" viewBox="0 0 514 514"><use href="#brandmark"/></svg><b style="font-weight:700">Stry<span class="lime">do</span></b></div>
+  <div class="abs" style="right:80px;bottom:56px;display:flex;align-items:center;gap:14px;font-size:28px;color:rgba(255,255,255,.7)"><img class="coin" src="../public/tokens/eth.svg" style="width:40px;height:40px">ETH once it's reviewed</div>
+</div>
+
+<!-- 3 · No wearable. No subscription. No new habit. -->
+<div class="v" id="nothing"><div class="clouds"></div><div class="shade"></div>
+  <div class="abs" style="left:110px;top:120px">
+    <div class="label">What you need for Strydo</div>
+    <div style="margin-top:34px;display:flex;flex-direction:column;gap:14px">
+      <div class="h dim" style="font-size:96px;text-decoration:line-through;text-decoration-color:#4d94ff;text-decoration-thickness:6px">A smartwatch</div>
+      <div class="h dim" style="font-size:96px;text-decoration:line-through;text-decoration-color:#4d94ff;text-decoration-thickness:6px">A subscription</div>
+      <div class="h dim" style="font-size:96px;text-decoration:line-through;text-decoration-color:#4d94ff;text-decoration-thickness:6px">A new habit</div>
+    </div>
+    <div class="h lime" style="font-size:96px;margin-top:40px">Just your phone.</div>
+  </div>
+  <div class="abs card" style="right:140px;top:170px;width:330px;height:560px;border-radius:56px;padding:12px;transform:rotate(6deg)">
+    <div style="width:100%;height:100%;border-radius:46px;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px">
+      <div style="width:170px;height:170px;border-radius:50%;background:conic-gradient(#4d94ff 280deg,rgba(77,148,255,.15) 0);display:grid;place-items:center"><div style="width:120px;height:120px;border-radius:50%;background:#000"></div></div>
+      <div class="mono" style="font-size:52px;letter-spacing:-2px">9,206</div>
+      <div class="dim" style="font-size:20px">steps, already counted</div>
+    </div>
+  </div>
+  <div class="brand" style="left:auto;right:80px"><svg width="40" height="40" viewBox="0 0 514 514"><use href="#brandmark"/></svg><b style="font-weight:700">Stry<span class="lime">do</span></b></div>
+</div>
+
+<!-- 4 · Dog walks. Grocery runs. Pacing on long calls. -->
+<div class="v" id="moments"><div class="clouds"></div><div class="shade"></div>
+  <div class="abs" style="left:80px;top:150px;width:720px">
+    <div class="h" style="font-size:88px">Dog walks.<br>Grocery runs.<br>Pacing on calls.</div>
+    <div class="h lime" style="font-size:88px;margin-top:26px">It all counts.</div>
+  </div>
+  <div class="abs card" style="right:80px;top:110px;width:600px;padding:44px 50px">
+    <div class="label">Today</div>
+    <div id="lines" style="margin-top:22px"></div>
+    <div style="border-top:2px dashed rgba(255,255,255,.18);margin-top:20px;padding-top:24px;display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:34px;font-weight:700">Total</span><span class="mono soft" style="font-size:52px">8,362</span>
+    </div>
+    <div class="mono lime" style="margin-top:14px;font-size:18px;letter-spacing:3px;text-align:right">✓ COUNTED ON STRYDO</div>
+  </div>
+  <div class="brand"><svg width="40" height="40" viewBox="0 0 514 514"><use href="#brandmark"/></svg><b style="font-weight:700">Stry<span class="lime">do</span></b></div>
+</div>
+
+<!-- 5 · Outside was always free -->
+<div class="v" id="outside">
+  <div class="abs" style="inset:0;background:url(../public/images/forest-stream.webp) center 55%/cover no-repeat;filter:saturate(.75) brightness(.62)"></div>
+  <div class="abs" style="inset:0;background:linear-gradient(0deg,rgba(5,7,11,.92),rgba(5,7,11,.15) 60%),linear-gradient(90deg,rgba(5,7,11,.5),transparent 60%)"></div>
+  <div class="abs" style="left:80px;bottom:150px">
+    <div class="h" style="font-size:118px;letter-spacing:-5px">Outside was always free.</div>
+    <div class="h lime" style="font-size:118px;letter-spacing:-5px;margin-top:6px">Now it pays you back.</div>
+  </div>
+  <div class="brand"><svg width="40" height="40" viewBox="0 0 514 514"><use href="#brandmark"/></svg><b style="font-weight:700">Stry<span class="lime">do</span></b></div>
+</div>
+
+<!-- 6 · Weekly leaderboard -->
+<div class="v" id="board"><div class="clouds"></div><div class="shade"></div>
+  <div class="abs" style="left:80px;top:150px;width:620px">
+    <div class="label">Weekly leaderboard</div>
+    <div class="h" style="font-size:110px;margin-top:20px;letter-spacing:-5px">Top walker takes <span class="lime">$50</span>.</div>
+    <div style="font-size:32px;margin-top:30px;color:rgba(255,255,255,.6)">Paid in ETH. Resets every Monday.</div>
+  </div>
+  <div class="abs card" style="right:90px;top:130px;width:700px;padding:36px">
+    <div class="hot" style="border:1px solid rgba(77,148,255,.45);border-radius:24px;padding:26px 28px;display:flex;align-items:center;gap:24px">
+      <svg width="64" height="64" viewBox="0 0 24 24" class="ico" style="color:#4d94ff"><path d="M10 14.66V17a1 1 0 0 1-1 1 2 2 0 0 0-2 2v2"/><path d="M14 14.66V17a1 1 0 0 0 1 1 2 2 0 0 1 2 2v2"/><path d="M17.916 10H19.5A2.5 2.5 0 0 0 22 7.5V5a1 1 0 0 0-1-1h-3"/><path d="M4 22h16"/><path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z"/><path d="M6.084 10H4.5A2.5 2.5 0 0 1 2 7.5V5a1 1 0 0 1 1-1h3"/></svg>
+      <div style="flex:1"><div class="mono lime" style="font-size:22px">#1</div><div style="font-size:44px;font-weight:700">Could be you</div></div>
+      <div style="display:flex;align-items:center;gap:12px;font-size:38px;font-weight:700" class="soft"><img class="coin" src="../public/tokens/eth.svg" style="width:46px;height:46px">$50</div>
+    </div>
+    <div id="rows"></div>
+  </div>
+  <div class="brand"><svg width="40" height="40" viewBox="0 0 514 514"><use href="#brandmark"/></svg><b style="font-weight:700">Stry<span class="lime">do</span></b></div>
+</div>
+
+<!-- 7 · If it counts steps, it works with Strydo -->
+<div class="v" id="apps"><div class="clouds"></div><div class="shade"></div>
+  <div class="abs" style="left:0;right:0;top:120px;text-align:center">
+    <div class="h" style="font-size:100px;letter-spacing:-4px">If it counts steps,</div>
+    <div class="h lime" style="font-size:100px;letter-spacing:-4px">it works with Strydo.</div>
+  </div>
+  <div class="abs" id="appsrow" style="left:0;right:0;top:470px;display:flex;justify-content:center;gap:46px"></div>
+  <div class="brand" style="left:50%;transform:translateX(-50%)"><svg width="40" height="40" viewBox="0 0 514 514"><use href="#brandmark"/></svg><b style="font-weight:700">Stry<span class="lime">do</span></b></div>
+</div>
+
+<!-- 8 · Bring a friend -->
+<div class="v" id="friend"><div class="clouds"></div><div class="shade"></div>
+  <div class="abs" style="left:0;right:0;top:90px;text-align:center">
+    <div class="h" style="font-size:104px;letter-spacing:-4px">Bring a friend.</div>
+    <div class="h lime" style="font-size:104px;letter-spacing:-4px">You both get a bonus.</div>
+  </div>
+  <div class="abs" style="left:0;right:0;top:420px;display:flex;justify-content:center;align-items:center;gap:0">
+    <div class="card" style="width:400px;padding:34px;text-align:center">
+      <div style="margin:0 auto;width:110px;height:110px;border-radius:50%;background:rgba(255,255,255,.06);display:grid;place-items:center"><svg width="60" height="60" viewBox="0 0 24 24" class="ico" style="color:#fff"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div style="font-size:36px;font-weight:700;margin-top:18px">You</div>
+      <div class="mono lime" style="font-size:26px;margin-top:8px">+ bonus in ETH</div>
+    </div>
+    <div style="width:200px;height:4px;background:repeating-linear-gradient(90deg,#4d94ff 0 16px,transparent 16px 28px);position:relative"><div class="mono" style="position:absolute;left:50%;top:-58px;transform:translateX(-50%);white-space:nowrap;font-size:18px;color:rgba(255,255,255,.5)">invite link</div></div>
+    <div class="card hot" style="width:400px;padding:34px;text-align:center">
+      <div style="margin:0 auto;width:110px;height:110px;border-radius:50%;background:rgba(77,148,255,.12);display:grid;place-items:center"><svg width="60" height="60" viewBox="0 0 24 24" class="ico" style="color:#4d94ff"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div style="font-size:36px;font-weight:700;margin-top:18px">Your friend</div>
+      <div class="mono lime" style="font-size:26px;margin-top:8px">+ bonus in ETH</div>
+    </div>
+  </div>
+  <div class="abs" style="left:0;right:0;bottom:140px;text-align:center;font-size:26px;color:rgba(255,255,255,.5)">Once their first day is verified</div>
+  <div class="brand"><svg width="40" height="40" viewBox="0 0 514 514"><use href="#brandmark"/></svg><b style="font-weight:700">Stry<span class="lime">do</span></b></div>
+</div>
+
+<!-- 9 · 2,000 steps looking for your keys -->
+<div class="v" id="keys"><div class="clouds"></div><div class="shade"></div>
+  <svg class="abs ico" width="520" height="520" viewBox="0 0 24 24" style="right:70px;top:150px;color:rgba(77,148,255,.9);stroke-width:1.4;transform:rotate(-18deg);filter:drop-shadow(0 0 40px rgba(77,148,255,.35))"><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>
+  <div class="abs" style="left:90px;top:120px">
+    <div class="h soft" style="font-size:250px;letter-spacing:-12px;line-height:1">2,000</div>
+    <div class="h" style="font-size:70px;margin-top:10px">steps looking for your keys.</div>
+    <div class="h lime" style="font-size:100px;margin-top:60px;letter-spacing:-4px">At least log them.</div>
+  </div>
+  <div class="brand"><svg width="40" height="40" viewBox="0 0 514 514"><use href="#brandmark"/></svg><b style="font-weight:700">Stry<span class="lime">do</span></b></div>
+</div>
+
+<script>
+document.body.dataset.v = location.hash.slice(1) || "counter";
+const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+document.getElementById("week").innerHTML = days.map((d, i) => {
+  const today = i === 6;
+  return `<div class="card ${today ? "hot" : ""}" style="border-radius:26px;padding:22px 16px;text-align:center">
+    <div class="mono" style="font-size:20px;color:${today ? "#4d94ff" : "rgba(255,255,255,.5)"}">${d}</div>
+    <div style="margin:18px auto 0;width:70px;height:120px;border-radius:14px;background:#000;border:2px solid rgba(255,255,255,.18);display:grid;place-items:center">
+      <div style="width:38px;height:38px;border-radius:50%;border:5px solid #fa114f"></div></div>
+    <div style="margin-top:18px;font-size:34px;font-weight:700;color:#4d94ff">✓</div></div>`;
+}).join("");
+const lines = [["Dog walk", "2,140"], ["Grocery run", "1,860"], ["Pacing on calls", "3,050"], ["Walk home", "1,312"]];
+document.getElementById("lines").innerHTML = lines.map(([k, v]) =>
+  `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;font-size:32px"><span style="color:rgba(255,255,255,.8)">${k}</span><span class="mono">${v}</span></div>`).join("");
+document.getElementById("rows").innerHTML = [2, 3, 4].map((n) =>
+  `<div style="display:flex;align-items:center;gap:24px;padding:22px 28px;border-bottom:1px solid rgba(255,255,255,.07)"><span class="mono dim" style="font-size:22px;width:64px">#${n}</span><span style="flex:1;height:16px;border-radius:99px;background:rgba(255,255,255,.07)"></span><span class="mono dim" style="font-size:24px">open</span></div>`).join("");
+const apps = [["apple-health", "Apple Health"], ["google-fit", "Google Fit"], ["samsung-health", "Samsung Health"], ["fitbit", "Fitbit"], ["garmin-connect", "Garmin"]];
+document.getElementById("appsrow").innerHTML = apps.map(([f, n]) =>
+  `<div style="text-align:center;width:200px"><img src="../public/apps/${f}.png" style="width:150px;height:150px;border-radius:36px;box-shadow:0 30px 60px -20px rgba(0,0,0,.9)"><div style="margin-top:20px;font-size:26px;color:rgba(255,255,255,.75)">${n}</div></div>`).join("");
+</script>
+</body></html>

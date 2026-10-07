@@ -181,7 +181,9 @@ function snapshot() {
 
 const page = new URL('../public/index.html', import.meta.url);
 http.createServer((req, res) => {
-  if (req.url === '/api/state') {
+  if (req.url === '/health') {
+    res.writeHead(feed.price ? 200 : 503).end(feed.price ? 'ok' : 'waiting for price');
+  } else if (req.url === '/api/state') {
     res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store' });
     res.end(JSON.stringify(snapshot()));
   } else if (req.url === '/' || req.url === '/index.html') {

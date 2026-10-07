@@ -32,6 +32,15 @@ node src/backtest.mjs 24  # ... o las últimas 24 h
 
 La cuenta simulada se guarda en `data/state.json`. Bórralo para empezar de cero.
 
+## Tenerlo funcionando 24/7 en Railway
+
+`railway.json` ya trae el comando de arranque, el healthcheck (`/health`) y el reinicio automático. En Railway:
+
+1. Crea un servicio desde el repo `2555raw/launch` y pon como **Root Directory** `/btc-bot`.
+2. Añade un **volumen** montado en `/data` y la variable `STATE_FILE=/data/state.json`, para que la cuenta simulada no se borre en cada despliegue.
+3. Región: Europa (`europe-west4`). Los servidores de Polymarket están en Londres, así que cuanto más cerca, menos retraso.
+4. Genera un dominio y ábrelo desde el iPad o el móvil.
+
 ## Qué mercados entiende
 
 | Tipo | Ejemplo | Cómo se resuelve | Modelo |

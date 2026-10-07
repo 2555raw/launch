@@ -1,0 +1,41 @@
+{
+  "channel_name": "Pequeños Curiosos",
+  "language": "es",
+  "audience": "niños de 3 a 6 años y sus papás",
+  "voice": {
+    "edge_voice": "es-MX-DaliaNeural",
+    "edge_rate": "-8%",
+    "elevenlabs_voice_id": "EXAVITQu4vr4xnSDxMaL"
+  },
+  "mascot": "Lulú, una lechucita redonda color lila con ojos grandes, gafas redondas amarillas y una bufanda naranja. Es amable, curiosa y siempre sonríe.",
+  "style": "Ilustración vectorial plana estilo libro infantil: formas redondeadas y simples, colores pastel brillantes y alegres, contornos suaves, fondos limpios, nada aterrador ni violento.",
+  "series": [
+    {
+      "id": "animales",
+      "name": "Animales del Mundo con Lulú",
+      "brief": "Cada episodio presenta UN animal: cómo se ve, qué sonido hace, dónde vive, qué come y un dato sorprendente. Termina con una pregunta para que el niño responda en voz alta."
+    },
+    {
+      "id": "colores",
+      "name": "Aprendo Colores, Formas y Números",
+      "brief": "Cada episodio enseña UN concepto básico (un color, una forma o contar del 1 al 10) con objetos cotidianos, repetición y pausas para que el niño participe."
+    },
+    {
+      "id": "cuentos",
+      "name": "Cuentos para Dormir",
+      "brief": "Un cuento original, tranquilo y tierno con una enseñanza suave (compartir, la valentía, la amistad). Ritmo lento, frases cortas y final feliz y relajante."
+    },
+    {
+      "id": "porque",
+      "name": "¿Por qué...? Preguntas Curiosas",
+      "brief": "Responde UNA pregunta típica de niño (¿por qué el cielo es azul?, ¿por qué llueve?) con explicaciones muy simples, ejemplos y una mini actividad para hacer en casa."
+    }
+  ],
+  "scenes_per_video": 12,
+  "make_short": true,
+  "publish_mode": "private",
+  "publish_hour_utc": 15,
+  "category_id": "27",
+  "default_tags": ["videos para niños", "aprender jugando", "educación infantil", "dibujos animados en español", "preescolar"],
+  "contains_synthetic_media": false
+}

@@ -1,0 +1,94 @@
+# Makes and uploads one episode of the kids' channel (kids-channel/) on a schedule.
+#
+# Scheduled runs only fire from the repository's default branch, so this file has to be merged
+# there before the cron below does anything. "Run workflow" in the Actions tab works from any branch.
+#
+# Secrets (Settings > Secrets and variables > Actions):
+#   ANTHROPIC_API_KEY                               required: script, review and illustrations
+#   YT_CLIENT_ID, YT_CLIENT_SECRET, YT_REFRESH_TOKEN required to upload (tools/get_youtube_token.py)
+#   ELEVENLABS_API_KEY                              optional: more natural voice than the free one
+#   OPENAI_API_KEY                                  optional: image-model art instead of vector art
+name: Kids channel episode
+
+on:
+  schedule:
+    - cron: "17 13 * * 1,3,5"   # Mon, Wed, Fri 13:17 UTC
+  workflow_dispatch:
+    inputs:
+      series:
+        description: "Series id from canal.json (empty = next in rotation)"
+        required: false
+        default: ""
+      mode:
+        description: "private (you review first), scheduled, or public"
+        required: false
+        default: ""
+        type: choice
+        options: ["", private, scheduled, public]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kids-channel
+  cancel-in-progress: false
+
+jobs:
+  episode:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: kids-channel
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: kids-channel/requirements.txt
+
+      - name: Install ffmpeg and cairo
+        run: sudo apt-get update -q && sudo apt-get install -y -q ffmpeg libcairo2
+
+      - run: pip install -r requirements.txt
+
+      - name: Make and upload the episode
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+          YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+          YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+          SERIES: ${{ inputs.series }}
+          MODE: ${{ inputs.mode }}
+        run: |
+          args=()
+          if [ -n "$SERIES" ]; then args+=(--series "$SERIES"); fi
+          if [ -n "$MODE" ]; then args+=(--mode "$MODE"); fi
+          python -m pipeline "${args[@]}"
+
+      - name: Keep the rendered files for 14 days
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: episode-${{ github.run_number }}
+          path: |
+            kids-channel/output/*/video.mp4
+            kids-channel/output/*/short.mp4
+            kids-channel/output/*/thumbnail.jpg
+            kids-channel/output/*/episode.json
+            kids-channel/output/*/description.txt
+            kids-channel/output/*/result.json
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Record the episode so topics never repeat
+        run: |
+          git config user.name "kids-channel-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/history.json
+          git diff --cached --quiet || git commit -m "Record episode: $(python -c "import json;print(json.load(open('state/history.json'))['episodes'][-1]['title'])")"
+          git push

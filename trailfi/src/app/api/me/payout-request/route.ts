@@ -9,5 +9,19 @@ export const POST = route(async () => {
   const me = await requireUser();
   rateLimit(`payout-request:${me.id}`, 5, 60_000);
   const payout = await requestPayout(me.id, me.wallet_address);
-  return json({ payout: { id: payout.id, amount: payout.amount, tokenSymbol: payout.tokenSymbol, steps: payout.steps, status: payout.status } }, 201);
+  // amount is in the payout token (ETH for native payouts, quoted again when it is sent); usdAmount is the dollars owed.
+  return json(
+    {
+      payout: {
+        id: payout.id,
+        amount: payout.amount,
+        usdAmount: payout.usdAmount,
+        ethUsdPrice: payout.ethUsdPrice,
+        tokenSymbol: payout.tokenSymbol,
+        steps: payout.steps,
+        status: payout.status,
+      },
+    },
+    201,
+  );
 });

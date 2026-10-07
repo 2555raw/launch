@@ -4,16 +4,18 @@ import { one, query } from "@/lib/db";
 import { env } from "@/lib/env";
 import { formatUnits } from "viem";
 import { publicClient } from "@/lib/web3/server";
-import { ERC20_ABI } from "@/lib/web3/tokens";
+import { ERC20_ABI, isNativeToken } from "@/lib/web3/tokens";
+import { getEthUsdPrice } from "./ethPrice";
 import { getSettings } from "./settings";
 
 const tokenCheckCache = new Map<string, { ok: boolean; at: number }>();
 
 /**
- * Whether the configured payout token is a contract on the payout network.
+ * Whether the configured payout token is a contract on the payout network (native ETH always is ready).
  * Catches a token address left over from another chain before anyone tries to pay with it.
  */
 export async function payoutTokenReady(address: `0x${string}`): Promise<boolean> {
+  if (isNativeToken(address)) return true;
   const key = address.toLowerCase();
   const hit = tokenCheckCache.get(key);
   if (hit && Date.now() - hit.at < 5 * 60_000) return hit.ok;
@@ -28,15 +30,26 @@ export async function payoutTokenReady(address: `0x${string}`): Promise<boolean>
   return ok;
 }
 
-/** Payout token held across the configured payout wallets. */
+/** Payout token held across the configured payout wallets, in whole tokens (ETH for native payouts). */
 async function payoutWalletBalance(token: `0x${string}`, decimals: number): Promise<number | null> {
   try {
     const balances = await Promise.all(
       env.payoutWallets.map((w) =>
-        publicClient().readContract({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [w as `0x${string}`] }),
+        isNativeToken(token)
+          ? publicClient().getBalance({ address: w as `0x${string}` })
+          : publicClient().readContract({ address: token, abi: ERC20_ABI, functionName: "balanceOf", args: [w as `0x${string}`] }),
       ),
     );
     return Number(formatUnits(balances.reduce((a, b) => a + b, 0n), decimals));
+  } catch {
+    return null;
+  }
+}
+
+/** The current ETH price for the admin's estimates, or null when it can't be read (never throws). */
+async function ethUsdPriceOrNull(): Promise<number | null> {
+  try {
+    return (await getEthUsdPrice()).price;
   } catch {
     return null;
   }
@@ -60,8 +73,9 @@ export async function publicStats() {
        select d.day::text as day, coalesce(sum(p.steps), 0)::int as steps
          from days d left join per p on p.day = d.day group by d.day order by d.day`,
     ),
+    // In dollars: native ETH payouts count at the dollar value they were quoted for.
     one<{ total: number; count: number }>(
-      `select coalesce(sum(amount), 0)::float8 as total, count(*)::int as count
+      `select coalesce(sum(coalesce(usd_amount, amount)), 0)::float8 as total, count(*)::int as count
          from payouts where status = 'confirmed' and not simulated`,
     ),
     getSettings(),
@@ -116,14 +130,18 @@ export async function platformOverview() {
     one<{ n: number }>("select count(*)::int as n from step_entries where verification in ('flagged', 'unverified')"),
     getSettings(),
   ]);
-  const [subscribers, creditedToday, payoutBalance] = await Promise.all([
+  const native = isNativeToken(settings.payoutTokenAddress);
+  const [subscribers, creditedToday, tokenBalance, ethUsdPrice] = await Promise.all([
     one<{ n: number }>("select count(*)::int as n from newsletter_subscribers"),
     one<{ total: number }>(
       `select coalesce(sum(amount), 0)::float8 as total from rewards
         where status <> 'rejected' and reviewed_at >= (now() at time zone 'utc')::date`,
     ),
     payoutWalletBalance(settings.payoutTokenAddress, settings.payoutTokenDecimals),
+    native ? ethUsdPriceOrNull() : Promise.resolve(null),
   ]);
+  // Owed amounts are dollars, so the balance is compared in dollars too: ETH is valued at the current price.
+  const payoutBalance = !native ? tokenBalance : tokenBalance !== null && ethUsdPrice !== null ? tokenBalance * ethUsdPrice : null;
   return {
     tokenReady: await payoutTokenReady(settings.payoutTokenAddress),
     users: totals,
@@ -137,7 +155,11 @@ export async function platformOverview() {
     payoutWallets: env.payoutWallets,
     demoMode: env.demoMode,
     creditedToday: creditedToday?.total ?? 0,
-    /** USDG held by the payout wallets, null when the chain can't be read. */
+    /** Dollar value held by the payout wallets, null when the chain (or, for ETH, the price) can't be read. */
     payoutBalance,
+    /** The same balance in the payout token itself (ETH for native payouts). */
+    payoutTokenBalance: tokenBalance,
+    /** Current ETH/USD price when paying in native ETH, null otherwise or when no source answers. */
+    ethUsdPrice,
   };
 }

@@ -11,7 +11,7 @@ import { EmptyState, Skeleton } from "@/components/ui/Skeleton";
 import { AddressAvatar } from "@/components/wallet/ConnectWallet";
 import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDateTime, fmtSteps } from "@/lib/format";
-import type { Payout } from "./hooks";
+import { fmtPayoutAmount, type Payout } from "./hooks";
 import { PageHeader } from "./PageHeader";
 import { BatchPayoutModal, type BatchItem } from "./BatchPayoutModal";
 import { PayoutModal } from "./PayoutModal";
@@ -109,7 +109,7 @@ export function RequestsView() {
                 <div>
                   <div className="label !text-[9.5px]">To send</div>
                   <div className="mt-1 font-display text-2xl font-bold text-lime-300 tabular">
-                    {fmtAmount(p.amount)} <span className="text-sm text-white/50">{p.tokenSymbol}</span>
+                    {fmtPayoutAmount(p)} <span className="text-sm text-white/50">{p.tokenSymbol}</span>
                   </div>
                 </div>
                 <Button onClick={() => setOpen(p)} icon={<Send className="h-4 w-4" />}>

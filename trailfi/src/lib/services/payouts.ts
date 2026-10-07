@@ -8,7 +8,8 @@ import { one, query, tx } from "@/lib/db";
 import { env } from "@/lib/env";
 import { PAYOUT_CHAIN_ID } from "@/lib/web3/chains";
 import { publicClient } from "@/lib/web3/server";
-import { ERC20_ABI } from "@/lib/web3/tokens";
+import { ERC20_ABI, NATIVE_DECIMALS, isNativeToken, nativeTransferProblem, usdToWei, weiToEth } from "@/lib/web3/tokens";
+import { getEthUsdPrice } from "./ethPrice";
 import { getSettings } from "./settings";
 
 export interface Payout {
@@ -16,8 +17,15 @@ export interface Payout {
   userId: string;
   userShortId: number;
   walletAddress: `0x${string}`;
+  /** Token quantity to send: dollars for a stablecoin, ETH for native payouts. */
   amount: string;
   amountUnits: string;
+  /** The dollar value the payout stands for (equal to amount for a stablecoin). */
+  usdAmount: string;
+  /** ETH/USD price the native amount was quoted at; null for ERC20 payouts. */
+  ethUsdPrice: string | null;
+  /** When the native amount was quoted; null for ERC20 payouts. */
+  quotedAt: string | null;
   tokenSymbol: string;
   tokenAddress: `0x${string}`;
   tokenDecimals: number;
@@ -37,8 +45,10 @@ export interface Payout {
   requestedAt: string | null;
 }
 
+// amount is stored with 18 decimals; round() keeps each token's own scale in the text ("4.610000" for USDG).
 const COLUMNS = `p.id, p.user_id as "userId", u.short_id as "userShortId", p.wallet_address as "walletAddress",
-  p.amount::text as amount, p.token_symbol as "tokenSymbol", p.token_address as "tokenAddress",
+  round(p.amount, p.token_decimals)::text as amount, round(coalesce(p.usd_amount, p.amount), 6)::text as "usdAmount",
+  p.eth_usd_price::text as "ethUsdPrice", p.quoted_at as "quotedAt", p.token_symbol as "tokenSymbol", p.token_address as "tokenAddress",
   p.token_decimals as "tokenDecimals", p.chain_id as "chainId", p.status, p.simulated, p.tx_hash as "txHash",
   p.from_address as "fromAddress", p.gas_used as "gasUsed", p.error, p.prepared_by as "preparedBy",
   p.created_at as "createdAt", p.submitted_at as "submittedAt", p.confirmed_at as "confirmedAt",
@@ -111,8 +121,23 @@ export async function requestPayout(userId: string, wallet: string): Promise<Pay
   return createPayout(userId, wallet, "requested");
 }
 
+/** A native payout's ETH amount for a dollar total at a price: rounded down to the wei. */
+export function quoteNative(usd: string, price: number): { amount: string; ethUsdPrice: string } {
+  const ethUsdPrice = price.toFixed(2);
+  const wei = usdToWei(usd, ethUsdPrice);
+  if (wei <= 0n) throw new HttpError(409, "This amount is too small to send in ETH.", "too_small");
+  return { amount: weiToEth(wei), ethUsdPrice };
+}
+
 async function createPayout(userId: string, actor: string, status: "prepared" | "requested"): Promise<Payout> {
   const settings = await getSettings();
+  // Rewards are dollars; a native payout sends their value in ETH at the current price.
+  // The price is fetched before the transaction, and a failure stops everything.
+  const native = isNativeToken(settings.payoutTokenAddress);
+  if (native && settings.payoutTokenDecimals !== NATIVE_DECIMALS) {
+    throw new HttpError(409, `Native ETH payouts need ${NATIVE_DECIMALS} decimals. Fix the payout token in Settings.`, "invalid_decimals");
+  }
+  const price = native ? (await getEthUsdPrice()).price : null;
   const id = await tx(async (q) => {
     const [user] = await q.query<{ wallet_address: string; status: string }>(
       "select wallet_address, status from users where id = $1 for update",
@@ -141,17 +166,66 @@ async function createPayout(userId: string, actor: string, status: "prepared" | 
       "select sum(amount)::text as total from rewards where id = any($1::uuid[])",
       [rewards.map((r) => r.id)],
     );
+    const quote = price !== null ? quoteNative(total, price) : null;
     const [payout] = await q.query<{ id: string }>(
-      `insert into payouts (user_id, wallet_address, amount, token_symbol, token_address, token_decimals, chain_id, prepared_by, status, requested_at)
-       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, case when $9 = 'requested' then now() end) returning id`,
-      [userId, user.wallet_address, total, settings.payoutTokenSymbol, settings.payoutTokenAddress, settings.payoutTokenDecimals, PAYOUT_CHAIN_ID, actor, status],
+      `insert into payouts (user_id, wallet_address, amount, token_symbol, token_address, token_decimals, chain_id, prepared_by, status, requested_at,
+                            usd_amount, eth_usd_price, quoted_at)
+       values ($1, $2, $3, $4, $5, $6, $7, $8, $9, case when $9 = 'requested' then now() end,
+               $10, $11, case when $11::numeric is not null then now() end) returning id`,
+      [
+        userId,
+        user.wallet_address,
+        quote ? quote.amount : total,
+        settings.payoutTokenSymbol,
+        settings.payoutTokenAddress,
+        settings.payoutTokenDecimals,
+        PAYOUT_CHAIN_ID,
+        actor,
+        status,
+        quote ? total : null,
+        quote ? quote.ethUsdPrice : null,
+      ],
     );
     await q.query("update rewards set status = 'processing', payout_id = $2 where id = any($1::uuid[])", [
       rewards.map((r) => r.id),
       payout.id,
     ]);
-    await audit(actor, status === "requested" ? "payout.requested" : "payout.prepare", "payout", payout.id, { userId, amount: total, rewards: rewards.length }, q);
+    await audit(
+      actor,
+      status === "requested" ? "payout.requested" : "payout.prepare",
+      "payout",
+      payout.id,
+      { userId, amount: quote ? quote.amount : total, usdAmount: total, ethUsdPrice: quote?.ethUsdPrice ?? null, rewards: rewards.length },
+      q,
+    );
     return payout.id;
+  });
+  return getPayout(id);
+}
+
+/**
+ * Refreshes the ETH amount of a native payout that has not been sent yet, at the
+ * current price. The dollar value stays the same; only the quantity of ETH moves.
+ */
+export async function requotePayout(id: string, actor: string): Promise<Payout> {
+  const current = await getPayout(id);
+  if (!isNativeToken(current.tokenAddress)) throw new HttpError(409, "Only payouts in ETH are quoted at a price.", "not_native");
+  if (current.status !== "requested" && current.status !== "prepared") {
+    throw new HttpError(409, "Only a requested or prepared payout can get a new price.", "bad_state");
+  }
+  const { price, source } = await getEthUsdPrice();
+  const quote = quoteNative(current.usdAmount, price);
+  const row = await one<{ id: string }>(
+    `update payouts set amount = $2, eth_usd_price = $3, quoted_at = now()
+      where id = $1 and status in ('requested', 'prepared') and usd_amount is not null returning id`,
+    [id, quote.amount, quote.ethUsdPrice],
+  );
+  if (!row) throw new HttpError(409, "Only a requested or prepared payout can get a new price.", "bad_state");
+  await audit(actor, "payout.requote", "payout", id, {
+    usdAmount: current.usdAmount,
+    from: { amount: current.amount, ethUsdPrice: current.ethUsdPrice },
+    to: { amount: quote.amount, ethUsdPrice: quote.ethUsdPrice },
+    source,
   });
   return getPayout(id);
 }
@@ -180,7 +254,8 @@ export async function markSubmitted(id: string, input: unknown, actor: string): 
 /**
  * Verifies the transfer on-chain from the server's own RPC before marking the
  * payout confirmed: successful receipt, right token contract, an authorised
- * sender, the user's address as recipient and the exact amount.
+ * sender, the user's address as recipient and the exact amount. For native ETH
+ * the transaction itself is checked: sender, recipient, value in wei and chain.
  */
 export async function confirmOnChain(id: string, actor: string): Promise<{ payout: Payout; pending: boolean }> {
   const payout = await getPayout(id);
@@ -211,6 +286,31 @@ export async function confirmOnChain(id: string, actor: string): Promise<{ payou
 
   if (receipt.status !== "success") return fail("Transaction reverted on-chain. No funds moved.", true);
 
+  if (isNativeToken(payout.tokenAddress)) {
+    // Native ETH has no Transfer log: the transaction itself is the transfer.
+    let sent;
+    try {
+      sent = await client.getTransaction({ hash: payout.txHash as Hash });
+    } catch {
+      return { payout, pending: true };
+    }
+    const problem = nativeTransferProblem(
+      { from: sent.from, to: sent.to, value: sent.value, chainId: sent.chainId },
+      {
+        walletAddress: payout.walletAddress,
+        amountUnits: payout.amountUnits,
+        fromAddress: payout.fromAddress,
+        chainId: payout.chainId,
+        payoutWallets: env.payoutWallets,
+      },
+    );
+    if (problem) {
+      // Same rule as below: something went out that isn't this payout, so keep the rewards locked for a person to check.
+      return fail(`Transaction found but it does not match this payout (${problem}). Review manually.`, false);
+    }
+    return markConfirmed(id, actor, payout.txHash, receipt.gasUsed, receipt.blockNumber);
+  }
+
   const expected = BigInt(payout.amountUnits);
   const match = receipt.logs.some((log) => {
     if (log.address.toLowerCase() !== payout.tokenAddress.toLowerCase()) return false;
@@ -233,13 +333,17 @@ export async function confirmOnChain(id: string, actor: string): Promise<{ payou
     return fail("Transaction found but it does not match this payout (token, sender, recipient or amount). Review manually.", false);
   }
 
+  return markConfirmed(id, actor, payout.txHash, receipt.gasUsed, receipt.blockNumber);
+}
+
+async function markConfirmed(id: string, actor: string, txHash: string, gasUsed: bigint, block: bigint) {
   await tx(async (q) => {
     await q.query(
       "update payouts set status = 'confirmed', confirmed_at = now(), gas_used = $2, error = null where id = $1",
-      [id, receipt.gasUsed.toString()],
+      [id, gasUsed.toString()],
     );
     await q.query("update rewards set status = 'paid' where payout_id = $1", [id]);
-    await audit(actor, "payout.confirmed", "payout", id, { txHash: payout.txHash, block: receipt.blockNumber.toString() }, q);
+    await audit(actor, "payout.confirmed", "payout", id, { txHash, block: block.toString() }, q);
   });
   return { payout: await getPayout(id), pending: false };
 }
@@ -274,10 +378,24 @@ export async function simulatePayout(id: string, actor: string): Promise<Payout>
   return getPayout(id);
 }
 
-/** Public feed: confirmed payouts with shortened wallets — never the full address. */
+/**
+ * Public feed: confirmed payouts with shortened wallets — never the full address.
+ * amount is in the token sent (ETH for native payouts); usdAmount is its dollar value.
+ */
 export async function publicPayouts(limit = 12) {
-  const rows = await query<{ wallet: string; amount: string; token: string; steps: number; paidAt: string; chainId: number; txHash: string | null; simulated: boolean }>(
-    `select p.wallet_address as wallet, p.amount::text as amount, p.token_symbol as token,
+  const rows = await query<{
+    wallet: string;
+    amount: string;
+    usdAmount: string;
+    token: string;
+    steps: number;
+    paidAt: string;
+    chainId: number;
+    txHash: string | null;
+    simulated: boolean;
+  }>(
+    `select p.wallet_address as wallet, round(p.amount, p.token_decimals)::text as amount,
+       round(coalesce(p.usd_amount, p.amount), 6)::text as "usdAmount", p.token_symbol as token,
        (select coalesce(sum(r.valid_steps), 0)::int from rewards r where r.payout_id = p.id) as steps,
        coalesce(p.confirmed_at, p.created_at) as "paidAt", p.chain_id as "chainId", p.tx_hash as "txHash", p.simulated
      from payouts p where p.status = 'confirmed' order by coalesce(p.confirmed_at, p.created_at) desc limit $1`,
@@ -286,6 +404,7 @@ export async function publicPayouts(limit = 12) {
   return rows.map((r) => ({
     wallet: `${r.wallet.slice(0, 6)}…${r.wallet.slice(-4)}`,
     amount: r.amount,
+    usdAmount: r.usdAmount,
     token: r.token,
     steps: Number(r.steps),
     paidAt: r.paidAt,

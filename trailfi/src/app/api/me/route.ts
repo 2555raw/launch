@@ -38,6 +38,8 @@ export const GET = route(async () => {
       payouts: payouts.map((p) => ({
         id: p.id,
         amount: p.amount,
+        usdAmount: p.usdAmount,
+        ethUsdPrice: p.ethUsdPrice,
         tokenSymbol: p.tokenSymbol,
         chainId: p.chainId,
         status: p.status,

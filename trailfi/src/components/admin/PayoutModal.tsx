@@ -7,7 +7,16 @@ import { AlertTriangle, Check, CheckCircle2, Copy, ExternalLink, Fuel, Loader2, 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { formatEther, formatUnits, type Hash } from "viem";
-import { useAccount, useEstimateFeesPerGas, usePublicClient, useReadContract, useSwitchChain, useWriteContract } from "wagmi";
+import {
+  useAccount,
+  useBalance,
+  useEstimateFeesPerGas,
+  usePublicClient,
+  useReadContract,
+  useSendTransaction,
+  useSwitchChain,
+  useWriteContract,
+} from "wagmi";
 import { StatusBadge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -16,13 +25,14 @@ import { cn } from "@/lib/cn";
 import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDateTime, shortAddress } from "@/lib/format";
 import { SUPPORTED_CHAINS, explorerAddressUrl, explorerTxUrl } from "@/lib/web3/chains";
-import { ERC20_ABI } from "@/lib/web3/tokens";
-import { useAdminMeta, type Payout } from "./hooks";
+import { ERC20_ABI, fmtEth, isNativeToken } from "@/lib/web3/tokens";
+import { NATIVE_GAS_MARGIN_WEI, needsRequote, payoutAmountText, requotePayout, useAdminMeta, type Payout } from "./hooks";
 
-type Phase = "idle" | "signing" | "submitting" | "mining" | "verifying";
+type Phase = "idle" | "quoting" | "signing" | "submitting" | "mining" | "verifying";
 
 const PHASE_LABEL: Record<Phase, string> = {
   idle: "",
+  quoting: "Getting the current ETH price…",
   signing: "Waiting for your signature in the wallet…",
   submitting: "Recording the transaction…",
   mining: "Waiting for onchain confirmation…",
@@ -54,20 +64,44 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
   const { switchChainAsync, isPending: switching } = useSwitchChain();
   const publicClient = usePublicClient({ chainId: payout?.chainId });
   const { writeContractAsync } = useWriteContract();
+  const { sendTransactionAsync } = useSendTransaction();
   const { data: fees } = useEstimateFeesPerGas({ chainId: payout?.chainId, query: { enabled: Boolean(payout) } });
 
+  // Native ETH is a plain value transfer to the walker; any other token is an ERC20 transfer.
+  const native = isNativeToken(payout?.tokenAddress);
   const authorised = Boolean(address && meta?.payoutWallets.includes(address.toLowerCase()));
   const onRightChain = walletChainId === payout?.chainId;
   const amountUnits = payout ? BigInt(payout.amountUnits) : 0n;
 
-  const { data: balance } = useReadContract({
+  const { data: tokenBalance } = useReadContract({
     address: payout?.tokenAddress,
     abi: ERC20_ABI,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
     chainId: payout?.chainId,
-    query: { enabled: Boolean(payout && address) },
+    query: { enabled: Boolean(payout && address && !native) },
   });
+  const { data: nativeBalance } = useBalance({
+    address,
+    chainId: payout?.chainId,
+    query: { enabled: Boolean(payout && address && native) },
+  });
+  const balance = native ? nativeBalance?.value : tokenBalance;
+
+  // A stale ETH price is refreshed as soon as the dialog opens, so the amount reviewed is the one signed.
+  const [quoting, setQuoting] = useState(false);
+  useEffect(() => {
+    if (!initial || !needsRequote(initial)) return;
+    let cancelled = false;
+    setQuoting(true);
+    requotePayout(initial.id)
+      .then((p) => !cancelled && setPayout(p))
+      .catch((e: Error) => !cancelled && toast.error("Couldn't refresh the ETH price", { description: e.message }))
+      .finally(() => !cancelled && setQuoting(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [initial]);
 
   const [gas, setGas] = useState<{ units: bigint; cost: bigint } | null | "error">(null);
   useEffect(() => {
@@ -76,14 +110,16 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
     if (!payout || !publicClient || !(payout.status === "prepared" || payout.status === "requested")) return;
     const from = (address ?? meta?.payoutWallets[0]) as `0x${string}` | undefined;
     if (!from) return;
-    publicClient
-      .estimateContractGas({
-        address: payout.tokenAddress,
-        abi: ERC20_ABI,
-        functionName: "transfer",
-        args: [payout.walletAddress, BigInt(payout.amountUnits)],
-        account: from,
-      })
+    const estimate = isNativeToken(payout.tokenAddress)
+      ? publicClient.estimateGas({ account: from, to: payout.walletAddress, value: BigInt(payout.amountUnits) })
+      : publicClient.estimateContractGas({
+          address: payout.tokenAddress,
+          abi: ERC20_ABI,
+          functionName: "transfer",
+          args: [payout.walletAddress, BigInt(payout.amountUnits)],
+          account: from,
+        });
+    estimate
       .then((units) => {
         if (cancelled) return;
         const price = fees?.maxFeePerGas ?? fees?.gasPrice ?? 0n;
@@ -118,7 +154,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
       if (body.payout.status === "confirmed") {
         setSuccess(true);
         confetti({ particleCount: 90, spread: 70, origin: { y: 0.45 }, colors: ["#c4fb6d", "#b2f047", "#ffffff"] });
-        toast.success("Payment confirmed onchain", { description: `${fmtAmount(body.payout.amount)} ${body.payout.tokenSymbol} sent.` });
+        toast.success("Payment confirmed onchain", { description: `${payoutAmountText(body.payout)} sent.` });
       } else {
         toast.error("Payout failed verification", { description: body.payout.error });
       }
@@ -131,14 +167,24 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
     if (!payout || !address || !publicClient) return;
     let hash: Hash | undefined;
     try {
+      let p = payout;
+      if (needsRequote(p)) {
+        // The price is over ten minutes old: quote again so the ETH sent matches the dollars owed.
+        setPhase("quoting");
+        p = await requotePayout(p.id);
+        setPayout(p);
+        toast.message("ETH price refreshed", { description: `${payoutAmountText(p)}. Check the amount in your wallet.` });
+      }
       setPhase("signing");
-      hash = await writeContractAsync({
-        address: payout.tokenAddress,
-        abi: ERC20_ABI,
-        functionName: "transfer",
-        args: [payout.walletAddress, amountUnits],
-        chainId: payout.chainId,
-      });
+      hash = isNativeToken(p.tokenAddress)
+        ? await sendTransactionAsync({ to: p.walletAddress, value: BigInt(p.amountUnits), chainId: p.chainId })
+        : await writeContractAsync({
+            address: p.tokenAddress,
+            abi: ERC20_ABI,
+            functionName: "transfer",
+            args: [p.walletAddress, BigInt(p.amountUnits)],
+            chainId: p.chainId,
+          });
       setPhase("submitting");
       const { payout: submitted } = await api<{ payout: Payout }>(`/api/admin/payouts/${payout.id}`, {
         method: "PATCH",
@@ -174,10 +220,20 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
   };
 
   const busy = phase !== "idle";
-  const insufficient = balance !== undefined && balance < amountUnits;
+  // Paying in ETH spends gas from the same balance: keep a margin (at least twice the estimate) on top of the amount.
+  const gasMargin = !native ? 0n : gas && gas !== "error" && gas.cost * 2n > NATIVE_GAS_MARGIN_WEI ? gas.cost * 2n : NATIVE_GAS_MARGIN_WEI;
+  const insufficient = balance !== undefined && balance < amountUnits + gasMargin;
   const tokenReady = meta?.tokenReady !== false;
   const canSend =
-    (payout?.status === "prepared" || payout?.status === "requested") && tokenReady && isConnected && authorised && onRightChain && confirmed && !busy && !insufficient;
+    (payout?.status === "prepared" || payout?.status === "requested") &&
+    tokenReady &&
+    isConnected &&
+    authorised &&
+    onRightChain &&
+    confirmed &&
+    !busy &&
+    !quoting &&
+    !insufficient;
   const txUrl = payout?.txHash ? explorerTxUrl(payout.chainId, payout.txHash) : null;
 
   return (
@@ -203,7 +259,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
               </motion.div>
               <h3 className="mt-6 font-display text-2xl font-bold">{payout.simulated ? "Payout simulated" : "Payment confirmed"}</h3>
               <p className="mt-2 text-white/60">
-                {fmtAmount(payout.amount)} {payout.tokenSymbol} → <span className="font-mono">{shortAddress(payout.walletAddress)}</span>
+                {payoutAmountText(payout)} → <span className="font-mono">{shortAddress(payout.walletAddress)}</span>
               </p>
               {txUrl && (
                 <a href={txUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1.5 font-mono text-sm text-lime-300 hover:underline">
@@ -225,10 +281,19 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                   <StatusBadge status={payout.status} />
                 </div>
                 <div className="mt-2 font-display text-4xl font-bold text-lime-300 tabular">
-                  {fmtAmount(payout.amount)} <span className="text-xl text-white/60">{payout.tokenSymbol}</span>
+                  {native ? fmtEth(payout.amount) : fmtAmount(payout.amount)} <span className="text-xl text-white/60">{payout.tokenSymbol}</span>
                 </div>
+                {native && (
+                  <div className="mt-1 text-[13px] text-white/70">
+                    ≈ ${fmtAmount(payout.usdAmount)}
+                    {payout.ethUsdPrice && <> at ${fmtAmount(payout.ethUsdPrice)}/{payout.tokenSymbol}</>}
+                    {payout.quotedAt && <span className="text-white/40"> · priced {fmtDateTime(payout.quotedAt)}</span>}
+                    {quoting && <span className="text-white/40"> · refreshing the price…</span>}
+                  </div>
+                )}
                 <div className="mt-1 font-mono text-[11px] text-white/40">
-                  {payout.amountUnits} base units · {payout.rewardCount} reward{payout.rewardCount === 1 ? "" : "s"} · user #{payout.userShortId}
+                  {payout.amountUnits} {native ? "wei" : "base units"} · {payout.rewardCount} reward{payout.rewardCount === 1 ? "" : "s"} · user #
+                  {payout.userShortId}
                 </div>
               </div>
 
@@ -249,15 +314,21 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                   </div>
                 </Row>
                 <Row k="Token">
-                  <a
-                    href={explorerAddressUrl(payout.chainId, payout.tokenAddress) ?? "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 hover:text-lime-300"
-                  >
-                    {payout.tokenSymbol} <span className="font-mono text-[12px] text-white/45">{shortAddress(payout.tokenAddress)}</span>
-                    <ExternalLink className="h-3 w-3" />
-                  </a>
+                  {native ? (
+                    <span>
+                      {payout.tokenSymbol} <span className="text-[12px] text-white/45">native coin, sent as a plain transfer</span>
+                    </span>
+                  ) : (
+                    <a
+                      href={explorerAddressUrl(payout.chainId, payout.tokenAddress) ?? "#"}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 hover:text-lime-300"
+                    >
+                      {payout.tokenSymbol} <span className="font-mono text-[12px] text-white/45">{shortAddress(payout.tokenAddress)}</span>
+                      <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
                 </Row>
                 <Row k="Network">
                   {chain?.name ?? payout.chainId}
@@ -325,7 +396,15 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
                         {balance !== undefined && (
                           <Check2
                             ok={!insufficient}
-                            text={`Balance ${fmtAmount(formatUnits(balance, payout.tokenDecimals))} ${payout.tokenSymbol}${insufficient ? " · insufficient" : ""}`}
+                            text={
+                              native
+                                ? `Balance ${fmtEth(formatEther(balance))} ${payout.tokenSymbol}${
+                                    insufficient
+                                      ? ` · insufficient: needs ${fmtEth(formatEther(amountUnits + gasMargin))} ${payout.tokenSymbol}, the payout plus a little ETH for gas`
+                                      : " · covers the payout and gas"
+                                  }`
+                                : `Balance ${fmtAmount(formatUnits(balance, payout.tokenDecimals))} ${payout.tokenSymbol}${insufficient ? " · insufficient" : ""}`
+                            }
                           />
                         )}
                       </>
@@ -352,7 +431,7 @@ export function PayoutModal({ payout: initial, onClose }: { payout: Payout | nul
 
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <Button className="flex-1" disabled={!canSend} loading={busy} onClick={send} icon={<ShieldCheck className="h-4 w-4" />}>
-                      Sign &amp; send {fmtAmount(payout.amount)} {payout.tokenSymbol}
+                      Sign &amp; send {native ? fmtEth(payout.amount) : fmtAmount(payout.amount)} {payout.tokenSymbol}
                     </Button>
                     <Button variant="ghost" disabled={busy} onClick={() => act("cancel")}>
                       {payout.status === "requested" ? "Reject request" : "Cancel payout"}

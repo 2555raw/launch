@@ -8,9 +8,9 @@ import { Card } from "@/components/ui/Card";
 import { EmptyState, Skeleton } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/cn";
 import { api } from "@/lib/fetcher";
-import { fmtAmount, fmtDateTime, shortAddress } from "@/lib/format";
+import { fmtDateTime, shortAddress } from "@/lib/format";
 import { SUPPORTED_CHAINS, explorerTxUrl } from "@/lib/web3/chains";
-import type { Payout } from "./hooks";
+import { fmtPayoutAmount, type Payout } from "./hooks";
 import { PageHeader } from "./PageHeader";
 import { PayoutModal } from "./PayoutModal";
 
@@ -75,7 +75,7 @@ export function PayoutsView() {
                     <td className="table-cell text-white/60">#{p.userShortId}</td>
                     <td className="table-cell font-mono text-[13px]">{shortAddress(p.walletAddress, 8, 6)}</td>
                     <td className="table-cell font-mono text-lime-300">
-                      {fmtAmount(p.amount)} <span className="text-white/35">{p.tokenSymbol}</span>
+                      {fmtPayoutAmount(p)} <span className="text-white/35">{p.tokenSymbol}</span>
                     </td>
                     <td className="table-cell text-[13px]">{SUPPORTED_CHAINS[p.chainId]?.name ?? p.chainId}</td>
                     <td className="table-cell">

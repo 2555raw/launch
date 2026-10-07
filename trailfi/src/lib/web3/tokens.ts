@@ -1,4 +1,7 @@
 import { arbitrum, base, baseSepolia, mainnet, optimism, polygon, robinhood, sepolia } from "viem/chains";
+import { NATIVE_DECIMALS, NATIVE_TOKEN_ADDRESS } from "./native";
+
+export { NATIVE_DECIMALS, NATIVE_TOKEN_ADDRESS, fmtEth, isNativeToken, nativeTransferProblem, usdToWei, weiToEth } from "./native";
 
 export interface PayoutToken {
   symbol: string;
@@ -6,10 +9,14 @@ export interface PayoutToken {
   decimals: number;
 }
 
-/** Well-known stablecoins per chain, offered as presets in the admin settings. */
+/** Payout tokens offered as presets in the admin settings, per chain. */
 export const KNOWN_TOKENS: Record<number, PayoutToken[]> = {
-  // Robinhood Chain's dollar is USDG (Paxos Global Dollar); USDC bridged in arrives as USDG.
-  [robinhood.id]: [{ symbol: "USDG", address: "0x5fc5360d0400a0fd4f2af552add042d716f1d168", decimals: 6 }],
+  // Robinhood Chain pays in its native ETH: rewards stay in dollars and each payout is converted at a quoted
+  // ETH price. USDG (Paxos Global Dollar, where bridged USDC arrives) stays available as a dollar stablecoin.
+  [robinhood.id]: [
+    { symbol: "ETH", address: NATIVE_TOKEN_ADDRESS, decimals: NATIVE_DECIMALS },
+    { symbol: "USDG", address: "0x5fc5360d0400a0fd4f2af552add042d716f1d168", decimals: 6 },
+  ],
   [mainnet.id]: [
     { symbol: "USDC", address: "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", decimals: 6 },
     { symbol: "USDT", address: "0xdac17f958d2ee523a2206206994597c13d831ec7", decimals: 6 },

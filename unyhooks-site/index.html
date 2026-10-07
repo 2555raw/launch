@@ -450,6 +450,21 @@
 <script src="app.js"></script>
 <script src="token.js"></script>
 <script src="landing.js"></script>
-<script type="module" src="scene3d.js"></script>
+<script>
+  // The 3D scenes load after the page has painted, and not at all when the
+  // visitor has asked to save data or is on a very slow connection: the 2D
+  // drawings stay in their place.
+  (function () {
+    var c = navigator.connection || {};
+    if (c.saveData || /(^|-)2g$/.test(c.effectiveType || '')) return;
+    var go = function () {
+      var s = document.createElement('script');
+      s.type = 'module'; s.src = 'scene3d.js';
+      document.body.appendChild(s);
+    };
+    var later = function () { ('requestIdleCallback' in window) ? requestIdleCallback(go, { timeout: 1500 }) : setTimeout(go, 200); };
+    if (document.readyState === 'complete') later(); else window.addEventListener('load', later);
+  })();
+</script>
 </body>
 </html>

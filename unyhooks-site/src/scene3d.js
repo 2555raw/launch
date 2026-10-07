@@ -947,31 +947,42 @@ function webgl() {
   } catch (_) { return false; }
 }
 
-if (webgl()) {
-  document.querySelectorAll('canvas[data-scene]').forEach((canvas) => {
-    try {
-      const kind = canvas.dataset.scene;
-      if (kind === 'hero') {
-        seaScene(canvas, {
-          hook: true,
-          anchor: document.querySelector(canvas.dataset.anchor || '.uh-orb'),
-          cam: [0, 1.9, 8], look: [0, 1.25, -10],
-          ship: (t) => ({ x: 22 + Math.sin(t * 0.03) * 5, z: -160, heading: 2.6, scale: 1.1 })
-        });
-      } else if (kind === 'sea') {
-        seaScene(canvas, {
-          fov: 38,
-          cam: [0, 2.2, 8], look: [-3.5, 6.4, -10],
-          ship: (t) => ({ x: ((t * 1.4 + 40) % 140) - 70, z: -72, heading: 0, scale: 1 })
-        });
-      } else if (kind === 'coin') {
-        coinScene(canvas);
-      } else if (kind === 'broadside') {
-        broadsideScene(canvas);
-      }
-    } catch (err) {
-      // leave the 2D drawing in place
-      console.warn('3D scene unavailable:', err && err.message);
+// Each scene is built only when its canvas comes within a screen of view, so
+// the page's first paint never waits on the scenes further down.
+const start = (canvas) => {
+  try {
+    const kind = canvas.dataset.scene;
+    if (kind === 'hero') {
+      seaScene(canvas, {
+        hook: true,
+        anchor: document.querySelector(canvas.dataset.anchor || '.uh-orb'),
+        cam: [0, 1.9, 8], look: [0, 1.25, -10],
+        ship: (t) => ({ x: 22 + Math.sin(t * 0.03) * 5, z: -160, heading: 2.6, scale: 1.1 })
+      });
+    } else if (kind === 'sea') {
+      seaScene(canvas, {
+        fov: 38,
+        cam: [0, 2.2, 8], look: [-3.5, 6.4, -10],
+        ship: (t) => ({ x: ((t * 1.4 + 40) % 140) - 70, z: -72, heading: 0, scale: 1 })
+      });
+    } else if (kind === 'coin') {
+      coinScene(canvas);
+    } else if (kind === 'broadside') {
+      broadsideScene(canvas);
     }
-  });
+  } catch (err) {
+    // leave the 2D drawing in place
+    console.warn('3D scene unavailable:', err && err.message);
+  }
+};
+
+if (webgl()) {
+  const near = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      near.unobserve(e.target);
+      start(e.target);
+    });
+  }, { rootMargin: '100% 0px' });
+  document.querySelectorAll('canvas[data-scene]').forEach((c) => near.observe(c));
 }

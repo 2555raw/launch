@@ -15,6 +15,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 const B = require('./builder.js');
 
 const ROOT = __dirname;
@@ -44,6 +45,38 @@ const TYPES = {
   '.ico': 'image/x-icon',
   '.txt': 'text/plain; charset=utf-8'
 };
+// Text is sent compressed (Brotli, else gzip) when the browser accepts it.
+// Static files are compressed once and kept, keyed by path and mtime.
+const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.json', '.svg', '.txt']);
+const packed = new Map();
+function encodingFor(req) {
+  const acc = String(req.headers['accept-encoding'] || '');
+  return /\bbr\b/.test(acc) ? 'br' : /\bgzip\b/.test(acc) ? 'gzip' : null;
+}
+function compress(buf, enc) {
+  return enc === 'br'
+    ? zlib.brotliCompressSync(buf, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 9, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: buf.length } })
+    : zlib.gzipSync(buf, { level: 9 });
+}
+function sendBody(req, res, status, headers, body, ext, cacheKey) {
+  const enc = COMPRESSIBLE.has(ext) && body.length > 1024 ? encodingFor(req) : null;
+  if (enc) {
+    let out;
+    if (cacheKey) {
+      const key = `${enc}:${cacheKey}`;
+      out = packed.get(key);
+      if (!out) { out = compress(Buffer.from(body), enc); packed.set(key, out); }
+    } else {
+      out = compress(Buffer.from(body), enc);
+    }
+    headers = { ...headers, 'content-encoding': enc, 'content-length': out.length };
+    body = out;
+  }
+  if (COMPRESSIBLE.has(ext)) headers = { ...headers, vary: 'Accept-Encoding' };
+  res.writeHead(status, headers);
+  res.end(body);
+}
+
 // Only the site itself is public: not the server, the scripts or installed packages.
 const PRIVATE = /^\/(node_modules|scripts|\.)|^\/(server\.js|package(-lock)?\.json|README\.md)$/;
 
@@ -57,8 +90,7 @@ function serveFile(req, res) {
     return fs.readFile(path.join(ROOT, 'hook.html'), 'utf8', (err, html) => {
       if (err) return send(res, 404, 'text/plain; charset=utf-8', 'Not found');
       const page = absoluteMeta(html.replace('<head>', `<head>\n  <base href="/">\n  <meta property="og:url" content="h/${short[1]}">`), req);
-      res.writeHead(200, { 'content-type': TYPES['.html'], 'cache-control': 'no-cache', 'x-content-type-options': 'nosniff' });
-      res.end(page);
+      sendBody(req, res, 200, { 'content-type': TYPES['.html'], 'cache-control': 'no-cache', 'x-content-type-options': 'nosniff' }, page, '.html');
     });
   }
   if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
@@ -67,17 +99,17 @@ function serveFile(req, res) {
   const file = path.join(ROOT, path.normalize(rel));
   if (!file.startsWith(ROOT + path.sep)) return send(res, 403, 'text/plain; charset=utf-8', 'Forbidden');
 
-  fs.readFile(file, (err, body) => {
-    if (err) return send(res, 404, 'text/plain; charset=utf-8', 'Not found');
+  fs.stat(file, (serr, st) => fs.readFile(file, (err, body) => {
+    if (err || serr) return send(res, 404, 'text/plain; charset=utf-8', 'Not found');
     const ext = path.extname(file).toLowerCase();
+    // HTML is rewritten per request (absolute share-card URLs), so it is not cached
     if (ext === '.html') body = absoluteMeta(body.toString('utf8'), req);
-    res.writeHead(200, {
+    sendBody(req, res, 200, {
       'content-type': TYPES[ext] || 'application/octet-stream',
       'cache-control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
       'x-content-type-options': 'nosniff'
-    });
-    res.end(body);
-  });
+    }, body, ext, ext === '.html' ? null : `${file}:${st.mtimeMs}`);
+  }));
 }
 
 // Social cards need absolute URLs. The pages say og.png; the server knows its host.

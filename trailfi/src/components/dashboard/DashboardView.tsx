@@ -160,7 +160,7 @@ export function DashboardView() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div>
           <div className="label">Dashboard · member #{data.user.shortId}</div>
-          <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Good to see you on the trail.</h1>
+          <h1 className="mt-2 font-display text-3xl font-bold tracking-tight sm:text-4xl">Good to see you back.</h1>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <div className="glass flex items-center gap-3 rounded-2xl py-2 pl-2.5 pr-3">

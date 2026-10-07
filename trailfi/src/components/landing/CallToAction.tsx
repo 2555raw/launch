@@ -22,9 +22,9 @@ export function CallToAction() {
             <div className="absolute inset-0 bg-gradient-to-r from-ink-950/95 via-ink-950/75 to-ink-950/25" />
           </div>
           <div className="px-7 py-16 sm:px-14 sm:py-24">
-            <div className="label !text-lime-300">Walk. Explore. Earn.</div>
+            <div className="label !text-lime-300">Walk. Upload. Earn.</div>
             <h2 className="mt-4 max-w-2xl font-display text-4xl font-bold leading-[1.02] tracking-[-0.02em] sm:text-6xl">
-              The trail is open. Your next step counts.
+              Lace up. Your next walk counts.
             </h2>
             <p className="mt-5 max-w-lg text-[17px] text-white/70">
               Connect your wallet, reach your daily goal, and get rewarded for staying active in the real world.

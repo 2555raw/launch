@@ -11,7 +11,7 @@ import { Reveal, SectionHeading } from "./Reveal";
 const STEPS = [
   {
     n: "01",
-    stage: "Trailhead",
+    stage: "Start",
     title: "Connect your wallet",
     body: "Pick your wallet and sign one free message to prove it is yours.",
     icon: Wallet,
@@ -20,7 +20,7 @@ const STEPS = [
   },
   {
     n: "02",
-    stage: "Ascent",
+    stage: "Stride",
     title: "Track your steps",
     body: "Upload your daily steps with a screenshot. Only verified activity counts.",
     icon: MarkIcon,
@@ -29,7 +29,7 @@ const STEPS = [
   },
   {
     n: "03",
-    stage: "Summit",
+    stage: "Payout",
     title: "Earn rewards",
     body: "Each verified day pays in ETH. Request a payout and it lands in your wallet after review.",
     icon: Coins,
@@ -48,7 +48,7 @@ export function HowItWorks() {
       <div className="pointer-events-none absolute left-1/2 top-0 h-[480px] w-[900px] -translate-x-1/2 rounded-full bg-forest-600/20 blur-[120px]" />
 
       <div className="container relative">
-        <SectionHeading index="01" label="How it works" title="From trailhead to payout" accent="in three steps.">
+        <SectionHeading index="01" label="How it works" title="From first stride to payout" accent="in three steps.">
           No lockups, no staking, nothing to buy. Walk, upload your steps, and collect your share.
         </SectionHeading>
 

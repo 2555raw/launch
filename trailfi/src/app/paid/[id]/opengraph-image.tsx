@@ -9,7 +9,7 @@ export const contentType = "image/png";
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [p, { eth, fonts }] = await Promise.all([getSharePayout(id), ogAssets()]);
-  const amount = p ? `+$${Number(p.usdAmount).toFixed(2)}` : "+ETH";
+  const amount = p ? `+$${Number(p.usdAmount).toFixed(2)}` : "Paid";
   const steps = p ? `for ${p.steps.toLocaleString("en-US")} verified steps` : "for walking";
 
   return new ImageResponse(
@@ -43,7 +43,8 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           <div style={{ display: "flex", alignItems: "center", gap: 24, marginTop: 6 }}>
             <div style={{ display: "flex", fontSize: 168, fontWeight: 700, lineHeight: 1, letterSpacing: -6, color: "#4d94ff" }}>{amount}</div>
             {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <img src={eth} width={92} height={92} />
+            <div style={{ display: "flex", fontSize: 44, fontWeight: 500, color: "rgba(255,255,255,0.7)" }}>in</div>
+            <img src={eth} width={72} height={72} />
             <div style={{ display: "flex", fontSize: 54, fontWeight: 700, color: "#ffffff" }}>ETH</div>
           </div>
           <div style={{ display: "flex", fontSize: 32, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 14 }}>{steps}</div>

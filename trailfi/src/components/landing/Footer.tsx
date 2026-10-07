@@ -16,6 +16,7 @@ const COLUMNS = [
       { href: "/#rewards", label: "Rewards" },
       { href: "/#ranking", label: "Ranking" },
       { href: "/#leaderboard", label: "Payouts" },
+      { href: "/transparency", label: "Transparency" },
       { href: "/#faq", label: "FAQ" },
     ],
   },
@@ -120,7 +121,7 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-1">
             <FooterHeading>Newsletter</FooterHeading>
             <p className="mt-6 text-[15px] leading-relaxed text-white/60">
-              Subscribe for launch news, new trails and payout updates.
+              Subscribe for launch news, new features and payout updates.
             </p>
             <NewsletterForm />
           </div>
@@ -146,15 +147,20 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Engraved landscape: two hikers crossing below the range */}
-      <div className="pointer-events-none relative -mt-[17%] aspect-[1600/520] min-h-[260px] w-full max-sm:-mt-10">
+      {/* The river at the foot of the page, fading up into the footer, with the name carved across it */}
+      <div className="pointer-events-none relative mt-12 h-[220px] w-full overflow-hidden sm:h-[300px]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/footer-forest.svg"
-          alt="A pine forest with a river winding out of it"
-          className="absolute inset-0 h-full w-full object-cover object-[50%_100%]"
+          src="/images/forest-river-1280.webp"
+          alt="A river running through a misty pine forest"
+          className="absolute inset-0 h-full w-full object-cover object-[50%_78%] opacity-90"
           loading="lazy"
         />
+        <div className="absolute inset-0 bg-forest-950/30" />
+        <div className="absolute inset-0 bg-gradient-to-b from-ink-950 via-ink-950/40 to-ink-950/10" />
+        <div className="absolute inset-x-0 bottom-[-0.18em] select-none text-center font-display text-[24vw] font-bold leading-none tracking-[-0.05em] text-lime-200/[0.13] sm:text-[19vw]">
+          Strydo
+        </div>
       </div>
     </footer>
   );
@@ -184,7 +190,7 @@ function NewsletterForm() {
           await api("/api/newsletter", { method: "POST", json: { email } });
           setDone(true);
           setEmail("");
-          toast.success("You're on the list", { description: "We'll write when there's news on the trail." });
+          toast.success("You're on the list", { description: "We'll write when there's news." });
         } catch (err) {
           toast.error((err as Error).message);
         } finally {

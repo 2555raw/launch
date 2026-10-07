@@ -51,6 +51,9 @@ export function Leaderboard() {
           <Reveal className="flex items-center gap-2 lg:pb-3">
             <span className="h-1.5 w-1.5 animate-pulse-dot rounded-full bg-neon" />
             <span className="label">Live</span>
+            <a href="/transparency" className="ml-4 text-[13.5px] text-lime-300 transition hover:text-lime-200">
+              See every payout →
+            </a>
           </Reveal>
         </div>
 

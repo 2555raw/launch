@@ -9,7 +9,7 @@ export const contentType = "image/png";
 const LIME = "#4d94ff";
 
 export default async function Image() {
-  const { eth, fonts } = await ogAssets();
+  const { eth, forest, fonts } = await ogAssets();
   return new ImageResponse(
     (
       <div
@@ -20,12 +20,26 @@ export default async function Image() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "0 72px",
+          position: "relative",
           background: "#05070b",
-          backgroundImage: "radial-gradient(circle at 82% 45%, rgba(77,148,255,0.16), transparent 52%)",
           fontFamily: "Space Grotesk",
           color: "#ffffff",
         }}
       >
+        {/* The forest river from the home page, darkened so the text stays readable */}
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
+        <img src={forest} width={1200} height={630} style={{ position: "absolute", left: 0, top: 0, width: 1200, height: 630, objectFit: "cover" }} />
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: 1200,
+            height: 630,
+            display: "flex",
+            backgroundImage: "linear-gradient(90deg, rgba(5,7,11,0.92) 0%, rgba(5,7,11,0.72) 55%, rgba(5,7,11,0.45) 100%)",
+          }}
+        />
         <div style={{ display: "flex", flexDirection: "column", height: "100%", justifyContent: "space-between", padding: "64px 0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
             {/* eslint-disable-next-line jsx-a11y/alt-text */}

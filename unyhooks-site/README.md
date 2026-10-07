@@ -250,8 +250,10 @@ The server compresses text (Brotli or gzip) and the landing loads its 3D after f
 3D: `scene3d.js` (built from `src/scene3d.js` with three.js, `npm run build:3d`) draws three
 WebGL scenes on top of their 2D drawings: the hero's night sea (Gerstner swell, the moon and
 its glitter, a galleon on the horizon) with a captain's hook rising half out of the water where the `.uh-orb`
-box sits (polished steel hook, brass ferrule, leather cup with a brass band and rivets), the $UHOOKS doubloon turning in studio light, a broadside of two bronze cannons on a
-deck that fire as their block scrolls into view (fuse sparks, muzzle flash, recoil, smoke,
+box sits (polished steel hook, brass ferrule, leather cup with a brass band and rivets), the $UHOOKS doubloon turning in studio light, a broadside of two cast-iron cannons on a
+gun deck (planked bulwark with open ports, breeching ropes, shot stacked in pyramids, a
+bucket, a cask, a coiled rope, the mainmast and its shrouds, moonlight shadows and a
+hanging lantern) that fire as their block scrolls into view (fuse sparks, muzzle flash, recoil, smoke,
 the ball over the sea, and a shake of the page), and the sea under the closing call
 with the ship sailing across. A scene only draws while its canvas is on screen; the 2D
 drawing stays without WebGL, and with reduced motion one still frame is drawn.

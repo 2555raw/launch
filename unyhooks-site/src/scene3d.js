@@ -701,71 +701,164 @@ function smokeTexture() {
   return new THREE.CanvasTexture(c);
 }
 
-function plankTexture() {
-  const c = document.createElement('canvas');
-  c.width = 1024; c.height = 512;
-  const g = c.getContext('2d');
-  for (let i = 0; i < 8; i++) {
-    const y = i * 64, tone = 38 + Math.random() * 14;
-    g.fillStyle = `rgb(${tone + 22},${tone + 6},${tone - 10})`;
-    g.fillRect(0, y, 1024, 64);
-    for (let k = 0; k < 60; k++) {
-      g.strokeStyle = `rgba(0,0,0,${0.05 + Math.random() * 0.08})`;
-      g.beginPath(); const yy = y + Math.random() * 64; g.moveTo(0, yy); g.bezierCurveTo(300, yy + 3, 700, yy - 3, 1024, yy + 1); g.stroke();
+// Canvas textures for the gun deck. Each returns a colour map and a matching
+// grey map for bump and roughness, so the grain catches the light.
+function woodTextures({ w = 1024, h = 512, boards = 8, base = [96, 62, 36], seams = true, nails = true, vertical = false } = {}) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const b = document.createElement('canvas'); b.width = w; b.height = h;
+  const g = c.getContext('2d'), gb = b.getContext('2d');
+  const bh = h / boards;
+  for (let i = 0; i < boards; i++) {
+    const y = i * bh, k = 0.78 + Math.random() * 0.35;
+    const [r, gg, bb] = base.map((v) => Math.round(v * k));
+    g.fillStyle = `rgb(${r},${gg},${bb})`; g.fillRect(0, y, w, bh);
+    const tone = 115 + Math.round(Math.random() * 25);
+    gb.fillStyle = `rgb(${tone},${tone},${tone})`; gb.fillRect(0, y, w, bh);
+    // grain: long wavy streaks, now and then a knot
+    for (let n = 0; n < 90; n++) {
+      const yy = y + Math.random() * bh, dark = Math.random() < 0.6;
+      g.strokeStyle = dark ? `rgba(20,10,4,${0.06 + Math.random() * 0.12})` : `rgba(255,220,170,${0.03 + Math.random() * 0.05})`;
+      gb.strokeStyle = dark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.12)';
+      g.lineWidth = gb.lineWidth = 0.6 + Math.random() * 1.6;
+      const ph = Math.random() * 6, amp = 1 + Math.random() * 3;
+      [g, gb].forEach((x) => { x.beginPath(); x.moveTo(0, yy); for (let xx = 0; xx <= w; xx += 32) x.lineTo(xx, yy + Math.sin(xx / 90 + ph) * amp); x.stroke(); });
     }
-    g.fillStyle = 'rgba(0,0,0,0.6)'; g.fillRect(0, y, 1024, 3);
-    const cut = Math.random() * 900;
-    g.fillRect(cut, y, 3, 64);
-    g.fillStyle = 'rgba(30,20,10,0.9)';
-    [cut - 14, cut + 17].forEach((x) => { g.beginPath(); g.arc(x, y + 20, 3, 0, 7); g.arc(x, y + 44, 3, 0, 7); g.fill(); });
+    if (Math.random() < 0.5) {
+      const kx = Math.random() * w, ky = y + bh * (0.3 + Math.random() * 0.4), rx = 9 + Math.random() * 8, ry = 4 + Math.random() * 3;
+      [g, gb].forEach((x, j) => { x.fillStyle = j ? 'rgba(0,0,0,0.35)' : 'rgba(30,15,6,0.55)'; x.beginPath(); x.ellipse(kx, ky, rx, ry, 0, 0, 7); x.fill(); });
+    }
+    if (seams) {
+      [g, gb].forEach((x) => { x.fillStyle = 'rgba(0,0,0,0.85)'; x.fillRect(0, y, w, 3); });
+      const cut = Math.random() * (w - 100) + 50;
+      [g, gb].forEach((x) => x.fillRect(cut, y, 3, bh));
+      if (nails) {
+        [cut - 16, cut + 19].forEach((x) => [0.3, 0.7].forEach((f) => {
+          g.fillStyle = 'rgba(15,12,10,0.95)'; g.beginPath(); g.arc(x, y + bh * f, 3.2, 0, 7); g.fill();
+          gb.fillStyle = '#000'; gb.beginPath(); gb.arc(x, y + bh * f, 3.2, 0, 7); gb.fill();
+        }));
+      }
+    }
+  }
+  // grime and wear
+  for (let n = 0; n < 40; n++) {
+    const x = Math.random() * w, y = Math.random() * h, r = 20 + Math.random() * 80;
+    const gr = g.createRadialGradient(x, y, 0, x, y, r);
+    gr.addColorStop(0, `rgba(10,6,3,${0.08 + Math.random() * 0.12})`); gr.addColorStop(1, 'rgba(10,6,3,0)');
+    g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  const tex = (cv, srgb) => {
+    const t = new THREE.CanvasTexture(cv);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+    if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+    if (vertical) { t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; }
+    return t;
+  };
+  return { map: tex(c, true), bump: tex(b, false) };
+}
+
+// cast iron: mottled, a little rust in the low spots
+function ironTextures() {
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  const r = document.createElement('canvas'); r.width = r.height = 512;
+  const g = c.getContext('2d'), gr = r.getContext('2d');
+  g.fillStyle = '#26272a'; g.fillRect(0, 0, 512, 512);
+  gr.fillStyle = '#9a9a9a'; gr.fillRect(0, 0, 512, 512);
+  for (let i = 0; i < 2600; i++) {
+    const x = Math.random() * 512, y = Math.random() * 512, s = 1 + Math.random() * 6;
+    const rust = Math.random() < 0.12, light = Math.random() < 0.5;
+    g.fillStyle = rust ? `rgba(${110 + Math.random() * 40},${50 + Math.random() * 20},20,${0.08 + Math.random() * 0.15})` : (light ? `rgba(90,90,95,${0.05 + Math.random() * 0.08})` : `rgba(0,0,0,${0.05 + Math.random() * 0.08})`);
+    g.beginPath(); g.arc(x, y, s, 0, 7); g.fill();
+    gr.fillStyle = rust || light ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)';
+    gr.beginPath(); gr.arc(x, y, s, 0, 7); gr.fill();
+  }
+  const t = (cv, srgb) => { const x = new THREE.CanvasTexture(cv); x.wrapS = x.wrapT = THREE.RepeatWrapping; if (srgb) x.colorSpace = THREE.SRGBColorSpace; return x; };
+  return { map: t(c, true), rough: t(r, false) };
+}
+
+// laid hemp: a light rope with dark diagonal lays
+function ropeTexture() {
+  const c = document.createElement('canvas'); c.width = 64; c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#8c6b42'; g.fillRect(0, 0, 64, 256);
+  for (let y = -64; y < 320; y += 16) {
+    g.strokeStyle = 'rgba(40,24,10,0.55)'; g.lineWidth = 5;
+    g.beginPath(); g.moveTo(0, y); g.lineTo(64, y + 32); g.stroke();
+    g.strokeStyle = 'rgba(255,225,170,0.25)'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(0, y + 6); g.lineTo(64, y + 38); g.stroke();
   }
   const t = new THREE.CanvasTexture(c);
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
 
-function cannonModel(studio) {
+// the materials the deck is built from
+function deckKit(studio) {
+  const woodT = woodTextures({ base: [104, 70, 42] });
+  const carT = woodTextures({ w: 512, h: 256, boards: 2, base: [92, 52, 28], nails: false });
+  const ironT = ironTextures();
+  const rope = ropeTexture();
+  return {
+    deckWood: woodT,
+    carriage: new THREE.MeshStandardMaterial({ map: carT.map, bumpMap: carT.bump, bumpScale: 1, roughness: 0.9 }),
+    iron: new THREE.MeshStandardMaterial({ map: ironT.map, roughnessMap: ironT.rough, roughness: 0.75, metalness: 0.85, bumpMap: ironT.rough, bumpScale: 0.6, envMap: studio, envMapIntensity: 0.55 }),
+    darkIron: new THREE.MeshStandardMaterial({ color: 0x141416, metalness: 0.8, roughness: 0.6, envMap: studio, envMapIntensity: 0.4 }),
+    rope: (len) => { const t = rope.clone(); t.needsUpdate = true; t.repeat.set(1, Math.max(1, len * 6)); return new THREE.MeshStandardMaterial({ map: t, roughness: 0.95 }); }
+  };
+}
+
+function cannonModel(kit) {
   const g = new THREE.Group();
-  const bronze = new THREE.MeshPhysicalMaterial({ color: 0xC58A3E, metalness: 1, roughness: 0.3, clearcoat: 0.3, envMap: studio, envMapIntensity: 1.5 });
-  const iron = new THREE.MeshStandardMaterial({ color: 0x1c1c1f, metalness: 0.8, roughness: 0.5, envMap: studio });
-  const wood = new THREE.MeshStandardMaterial({ color: 0x5a341c, roughness: 0.8 });
-  // the barrel: knob, breech, reinforce rings, a long chase and the muzzle swell
+  // the barrel, cast iron: button, breech ring, reinforces, a long chase, the muzzle swell
   const prof = [
-    [0, -0.55], [0.07, -0.54], [0.09, -0.5], [0.07, -0.45], [0.05, -0.42], [0.09, -0.38], [0.26, -0.33], [0.32, -0.25],
-    [0.33, -0.12], [0.36, -0.1], [0.36, 0.0], [0.32, 0.02], [0.31, 0.5], [0.34, 0.52], [0.34, 0.6], [0.29, 0.62],
-    [0.25, 1.7], [0.28, 1.72], [0.28, 1.78], [0.25, 1.8], [0.27, 1.95], [0.31, 2.02], [0.31, 2.1], [0.16, 2.1], [0.15, 2.0]
+    [0, -0.62], [0.06, -0.62], [0.085, -0.58], [0.08, -0.53], [0.045, -0.5], [0.05, -0.46], [0.14, -0.44], [0.25, -0.38], [0.31, -0.3],
+    [0.33, -0.2], [0.355, -0.18], [0.355, -0.08], [0.33, -0.06], [0.32, 0.45], [0.34, 0.47], [0.34, 0.56], [0.3, 0.58],
+    [0.255, 1.62], [0.275, 1.64], [0.275, 1.7], [0.255, 1.72], [0.25, 1.86], [0.29, 1.96], [0.305, 2.02], [0.305, 2.08], [0.17, 2.08], [0.16, 2.0]
   ].map(([r, y]) => new THREE.Vector2(r, y));
-  const barrel = new THREE.Mesh(new THREE.LatheGeometry(prof, 96), bronze);
-  const bore = new THREE.Mesh(new THREE.CircleGeometry(0.15, 32), new THREE.MeshBasicMaterial({ color: 0x050302 }));
+  const barrel = new THREE.Mesh(new THREE.LatheGeometry(prof, 72), kit.iron);
+  const bore = new THREE.Mesh(new THREE.CircleGeometry(0.16, 32), new THREE.MeshBasicMaterial({ color: 0x030202 }));
   bore.rotation.x = -Math.PI / 2; bore.position.y = 2.0;
-  const trunnion = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.86, 24), bronze);
-  trunnion.rotation.z = Math.PI / 2; trunnion.position.y = 0.55;
+  const trunnion = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.9, 20), kit.iron);
+  trunnion.rotation.z = Math.PI / 2; trunnion.position.y = 0.52;
+  const vent = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.05, 12), kit.darkIron); // the touch hole's patch
+  vent.position.set(-0.33, -0.2, 0); vent.rotation.z = Math.PI / 2;
   const gun = new THREE.Group();
-  gun.add(barrel, bore, trunnion);
-  gun.rotation.z = -Math.PI / 2 + 0.06; // lie along +x, nose up a touch
-  gun.position.set(-0.5, 0.92, 0);
+  gun.add(barrel, bore, trunnion, vent);
+  gun.rotation.z = -Math.PI / 2 + 0.05; // lies along +x, nose up a touch
+  gun.position.set(-0.5, 0.86, 0);
   g.add(gun);
-  // the carriage: two cheeks, an axle and four wheels
+  // the carriage: stepped cheeks, a transom, axletrees, four solid trucks, iron caps
   const cheek = new THREE.Shape();
-  cheek.moveTo(-1.1, 0); cheek.lineTo(0.6, 0); cheek.lineTo(0.6, 0.62); cheek.lineTo(0.15, 0.62); cheek.lineTo(0.15, 0.5);
-  cheek.lineTo(-0.25, 0.5); cheek.lineTo(-0.25, 0.38); cheek.lineTo(-0.7, 0.38); cheek.lineTo(-0.7, 0.26); cheek.lineTo(-1.1, 0.26);
-  [-0.38, 0.38].forEach((z) => {
-    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(cheek, { depth: 0.12, bevelEnabled: true, bevelSize: 0.015, bevelThickness: 0.015, bevelSegments: 2 }), wood);
-    m.position.set(0, 0.24, z - 0.06);
+  cheek.moveTo(-1.15, 0); cheek.lineTo(0.62, 0); cheek.lineTo(0.62, 0.58); cheek.lineTo(0.16, 0.58); cheek.lineTo(0.16, 0.47);
+  cheek.lineTo(-0.26, 0.47); cheek.lineTo(-0.26, 0.36); cheek.lineTo(-0.7, 0.36); cheek.lineTo(-0.7, 0.25); cheek.lineTo(-1.15, 0.25);
+  [-0.36, 0.36].forEach((z) => {
+    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(cheek, { depth: 0.13, bevelEnabled: true, bevelSize: 0.012, bevelThickness: 0.012, bevelSegments: 1 }), kit.carriage);
+    m.position.set(0, 0.2, z - 0.065);
     g.add(m);
+    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.03, 0.16), kit.darkIron); // cap-square over the trunnion
+    cap.position.set(0.04, 0.8, z);
+    g.add(cap);
+    [-0.9, -0.45, 0.4].forEach((x) => { const bolt = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), kit.darkIron); bolt.position.set(x, 0.33, z + (z > 0 ? 0.08 : -0.08)); g.add(bolt); });
   });
-  [[-0.85, 0.2], [0.35, 0.24]].forEach(([x, r]) => {
-    [-0.5, 0.5].forEach((z) => {
-      const w = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.12, 32), wood);
+  const transom = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.18, 0.62), kit.carriage);
+  transom.position.set(0.45, 0.3, 0); g.add(transom);
+  const quoin = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.1, 0.3), kit.carriage); // the wedge under the breech
+  quoin.position.set(-0.92, 0.5, 0); quoin.rotation.z = 0.12; g.add(quoin);
+  [[-0.82, 0.18], [0.34, 0.21]].forEach(([x, r]) => {
+    const axle = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 1.06), kit.carriage);
+    axle.position.set(x, r, 0); g.add(axle);
+    [-0.48, 0.48].forEach((z) => {
+      const w = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.11, 28), kit.carriage);
       w.rotation.x = Math.PI / 2; w.position.set(x, r, z);
-      const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.14, 16), iron);
-      hub.rotation.x = Math.PI / 2; hub.position.copy(w.position);
-      g.add(w, hub);
+      const hoop = new THREE.Mesh(new THREE.TorusGeometry(r - 0.01, 0.012, 6, 28), kit.darkIron);
+      hoop.position.set(x, r, z + (z > 0 ? 0.056 : -0.056));
+      const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.16, 10), kit.darkIron);
+      pin.rotation.x = Math.PI / 2; pin.position.set(x, r, z + (z > 0 ? 0.04 : -0.04));
+      g.add(w, hoop, pin);
     });
   });
+  g.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
   const touch = new THREE.Object3D(); // the touch hole, where the fuse burns
-  touch.position.set(-0.2, 0.3, 0);
+  touch.position.set(-0.36, -0.2, 0);
   gun.add(touch);
   const muzzle = new THREE.Object3D();
   muzzle.position.set(0, 2.15, 0);
@@ -791,33 +884,161 @@ function broadsideScene(canvas) {
   moon.position.copy(MOON_DIR).multiplyScalar(50);
   scene.add(moon);
 
-  // the deck and the bulwark with two gun ports
-  const planks = plankTexture();
-  planks.repeat.set(3, 3);
-  const deck = new THREE.Mesh(new THREE.PlaneGeometry(10, 9), new THREE.MeshStandardMaterial({ map: planks, roughness: 0.75 }));
-  deck.rotation.x = -Math.PI / 2; deck.position.set(-3.3, 0, -1);
+  // real shadows: the moon over the rail, cast across the deck
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  moon.intensity = 1.7;
+  moon.castShadow = true;
+  moon.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048);
+  Object.assign(moon.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7, near: 1, far: 120 });
+  moon.shadow.bias = -0.0004;
+  moon.shadow.normalBias = 0.02;
+  moon.position.copy(MOON_DIR).multiplyScalar(40).add(new THREE.Vector3(0, 0, -1));
+  moon.target.position.set(0, 0, -1);
+  scene.add(moon.target);
+
+  const kit = deckKit(studio);
+  const shadowy = (m) => { m.castShadow = true; m.receiveShadow = true; return m; };
+
+  // the deck: weathered planks, nailed, a little worn
+  kit.deckWood.map.repeat.set(2.2, 4.5);
+  kit.deckWood.bump.repeat.set(2.2, 4.5);
+  const deck = new THREE.Mesh(new THREE.PlaneGeometry(10, 9), new THREE.MeshStandardMaterial({ map: kit.deckWood.map, bumpMap: kit.deckWood.bump, bumpScale: 0.8, roughness: 0.97, metalness: 0 }));
+  deck.rotation.x = -Math.PI / 2; deck.position.set(-3.25, 0, -1);
+  deck.receiveShadow = true;
   scene.add(deck);
-  const rail = new THREE.MeshStandardMaterial({ color: 0x4a2b16, roughness: 0.7 });
-  // the hull's side, dropping to the sea below the bulwark
-  const side = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.4, 9.2), rail);
-  side.position.set(1.8, -1.6, -1);
+
+  // the bulwark: planked, two gun ports with their lids hauled up, a rail on top
+  const wallT = woodTextures({ base: [78, 46, 26], boards: 6 });
+  const wallMat = new THREE.MeshStandardMaterial({ map: wallT.map, bumpMap: wallT.bump, bumpScale: 1, roughness: 0.93 });
+  const X = 1.75, T = 0.22, Z0 = -5.5, Z1 = 3.5;
+  const PORTS = [0, -2.2].map((pz) => [pz - 0.5, pz + 0.5]);
+  const slab = (y0, y1, z0, z1) => {
+    const geo = new THREE.BoxGeometry(T, y1 - y0, z1 - z0);
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) * (z1 - z0)) / 3, (uv.getY(i) * (y1 - y0)) / 1.6);
+    const m = shadowy(new THREE.Mesh(geo, wallMat));
+    m.position.set(X, (y0 + y1) / 2, (z0 + z1) / 2);
+    scene.add(m);
+  };
+  slab(0, 0.5, Z0, Z1);
+  slab(1.36, 1.62, Z0, Z1);
+  let zz = Z0;
+  [...PORTS].sort((p, q) => p[0] - q[0]).forEach(([p0, p1]) => { slab(0.5, 1.36, zz, p0); zz = p1; });
+  slab(0.5, 1.36, zz, Z1);
+  const railCap = shadowy(new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.1, Z1 - Z0 + 0.2), kit.carriage));
+  railCap.position.set(X, 1.67, (Z0 + Z1) / 2);
+  scene.add(railCap);
+  // the hull's side below, outboard
+  const side = shadowy(new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.4, Z1 - Z0), wallMat));
+  side.position.set(X + 0.02, -1.7, (Z0 + Z1) / 2);
   scene.add(side);
-  const wall = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.5, 9), rail);
-  wall.position.set(1.75, 0.25, -1); scene.add(wall);
-  const top = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.12, 9.2), rail);
-  top.position.set(1.75, 1.45, -1); scene.add(top);
-  [-4.6, -2.2, 0.0, 2.2].forEach((z) => {
-    const post = new THREE.Mesh(new THREE.BoxGeometry(0.25, 1.0, 0.6), rail);
-    post.position.set(1.75, 0.95, z + 1.1 - 1); scene.add(post);
+  // knees inside the bulwark, between the guns
+  [-4.4, -1.1, 1.1, 2.9].forEach((kz) => {
+    const knee = new THREE.Shape();
+    knee.moveTo(0, 0); knee.lineTo(0, 1.25); knee.lineTo(-0.16, 1.25); knee.quadraticCurveTo(-0.18, 0.35, -0.55, 0.16); knee.lineTo(-0.55, 0);
+    const m = shadowy(new THREE.Mesh(new THREE.ExtrudeGeometry(knee, { depth: 0.14, bevelEnabled: false }), kit.carriage));
+    m.position.set(X - T / 2, 0, kz - 0.07);
+    scene.add(m);
+  });
+  // port lids, hinged at the top and hauled open
+  PORTS.forEach(([p0, p1]) => {
+    const lid = new THREE.Group();
+    const board = shadowy(new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.86, 1.04), wallMat));
+    board.position.y = -0.43;
+    lid.add(board);
+    lid.position.set(X + T / 2 + 0.04, 1.38, (p0 + p1) / 2);
+    lid.rotation.z = 1.05;
+    scene.add(lid);
+  });
+  // ring bolts, and the breeching rope that stops each gun's recoil
+  PORTS.forEach(([p0, p1]) => {
+    const gz = (p0 + p1) / 2;
+    [-0.75, 0.75].forEach((dz) => {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.013, 8, 16), kit.darkIron);
+      ring.position.set(X - T / 2 - 0.02, 0.7, gz + dz); ring.rotation.y = Math.PI / 2;
+      scene.add(ring);
+    });
+    const path = new THREE.CatmullRomCurve3([
+      [X - 0.15, 0.7, gz - 0.75], [0.9, 0.62, gz - 0.62], [-0.2, 0.78, gz - 0.34], [-0.62, 0.86, gz - 0.06],
+      [-0.66, 0.86, gz + 0.06], [-0.2, 0.78, gz + 0.34], [0.9, 0.62, gz + 0.62], [X - 0.15, 0.7, gz + 0.75]
+    ].map((v) => new THREE.Vector3(...v)));
+    scene.add(shadowy(new THREE.Mesh(new THREE.TubeGeometry(path, 80, 0.028, 8, false), kit.rope(path.getLength()))));
   });
 
-  // a lantern on the rail, swinging a little
-  const lamp = new THREE.PointLight(0xffa850, 14, 14, 2);
-  lamp.position.set(1.0, 2.0, -2.6); scene.add(lamp);
-  const lampGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTexture('rgba(255,210,140,1)', 'rgba(255,140,40,0.35)'), blending: THREE.AdditiveBlending, depthWrite: false }));
-  lampGlow.scale.setScalar(0.9); lampGlow.position.copy(lamp.position); scene.add(lampGlow);
+  // stores on deck: shot stacked in pyramids, a bucket, a cask, a coil of rope
+  const shot = new THREE.SphereGeometry(0.11, 16, 12);
+  const pyramid = (cx, cz) => {
+    for (let layer = 0, n = 3; n > 0; layer++, n--) {
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          const m = shadowy(new THREE.Mesh(shot, kit.iron));
+          m.position.set(cx + (i - (n - 1) / 2) * 0.22, 0.11 + layer * 0.155, cz + (j - (n - 1) / 2) * 0.22);
+          scene.add(m);
+        }
+      }
+    }
+  };
+  pyramid(-0.35, -1.1);
+  pyramid(-0.4, 1.2);
+  const staves = woodTextures({ w: 512, h: 256, boards: 10, base: [110, 72, 40], nails: false, vertical: true });
+  const staveMat = new THREE.MeshStandardMaterial({ map: staves.map, bumpMap: staves.bump, bumpScale: 2, roughness: 0.85, side: THREE.DoubleSide });
+  const bucket = shadowy(new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.17, 0.36, 24, 1, true), staveMat));
+  bucket.position.set(-1.45, 0.18, -0.95);
+  scene.add(bucket);
+  const bucketWater = new THREE.Mesh(new THREE.CircleGeometry(0.2, 24), new THREE.MeshStandardMaterial({ color: 0x0a1418, metalness: 0.2, roughness: 0.1 }));
+  bucketWater.rotation.x = -Math.PI / 2; bucketWater.position.set(-1.45, 0.3, -0.95);
+  scene.add(bucketWater);
+  [0.08, 0.28].forEach((y) => {
+    const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.2 - y * 0.08, 0.012, 6, 24), kit.darkIron);
+    hoop.rotation.x = Math.PI / 2; hoop.position.set(-1.45, y, -0.95);
+    scene.add(hoop);
+  });
+  const caskProf = [[0, 0], [0.3, 0], [0.36, 0.2], [0.39, 0.45], [0.36, 0.7], [0.3, 0.9], [0, 0.9]].map(([r, y]) => new THREE.Vector2(r, y));
+  const cask = shadowy(new THREE.Mesh(new THREE.LatheGeometry(caskProf, 28), staveMat));
+  cask.position.set(-2.1, 0, -3.3);
+  scene.add(cask);
+  [0.12, 0.3, 0.6, 0.78].forEach((y) => {
+    const r = y < 0.45 ? 0.3 + (y / 0.45) * 0.09 : 0.39 - ((y - 0.45) / 0.45) * 0.09;
+    const hoop = new THREE.Mesh(new THREE.TorusGeometry(r + 0.005, 0.015, 6, 28), kit.darkIron);
+    hoop.rotation.x = Math.PI / 2; hoop.position.set(-2.1, y, -3.3);
+    scene.add(hoop);
+  });
+  const coilPts = [];
+  for (let i = 0; i <= 260; i++) { const a = i * 0.21, r = 0.1 + i * 0.0011; coilPts.push(new THREE.Vector3(Math.cos(a) * r, 0.03, Math.sin(a) * r)); }
+  const coil = new THREE.CatmullRomCurve3(coilPts);
+  const coilMesh = shadowy(new THREE.Mesh(new THREE.TubeGeometry(coil, 600, 0.026, 6, false), kit.rope(coil.getLength())));
+  coilMesh.position.set(-1.6, 0, 1.0);
+  scene.add(coilMesh);
 
-  const guns = [cannonModel(studio), cannonModel(studio)];
+  // the mainmast behind, and its shrouds running down to the side
+  const mast = shadowy(new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.38, 20, 24), kit.carriage));
+  mast.position.set(-2.8, 10, -4.6);
+  scene.add(mast);
+  [-5.4, -4.7, -4.0].forEach((sz, i) => {
+    const line = new THREE.LineCurve3(new THREE.Vector3(X, 1.7, sz - 0.6), new THREE.Vector3(-2.6, 14, -4.6 + i * 0.12));
+    scene.add(new THREE.Mesh(new THREE.TubeGeometry(line, 4, 0.02, 6, false), kit.rope(16)));
+  });
+
+  // a lantern hung from the rail, its flame flickering
+  const lantern = new THREE.Group();
+  const glass = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.15), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.6, 1.5, 0.55) }));
+  const cage = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.24, 0.18), new THREE.MeshStandardMaterial({ color: 0x1a1a1c, metalness: 0.7, roughness: 0.5, transparent: true, opacity: 0.35 }));
+  const capTop = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.1, 4), kit.darkIron);
+  capTop.position.y = 0.17; capTop.rotation.y = Math.PI / 4;
+  lantern.add(glass, cage, capTop);
+  lantern.position.set(1.42, 1.48, -1.1);
+  scene.add(lantern);
+  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.03, 0.03), kit.darkIron);
+  arm.position.set(1.55, 1.72, -1.1);
+  scene.add(arm);
+
+  const lamp = new THREE.PointLight(0xffa850, 12, 10, 2);
+  lamp.position.set(1.42, 1.48, -1.1); scene.add(lamp);
+  const lampGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTexture('rgba(255,210,140,1)', 'rgba(255,140,40,0.35)'), blending: THREE.AdditiveBlending, depthWrite: false }));
+  lampGlow.scale.setScalar(0.7); lampGlow.position.copy(lamp.position); scene.add(lampGlow);
+
+  const guns = [cannonModel(kit), cannonModel(kit)];
   guns[0].group.position.set(0.55, 0, 0.0);
   guns[1].group.position.set(0.55, 0, -2.2);
   guns.forEach((c) => scene.add(c.group));
@@ -885,8 +1106,9 @@ function broadsideScene(canvas) {
     camera.lookAt(wide ? 2.6 : 1.4, 0.9, -1.2);
     water.material.uniforms.uTime.value = t;
     sky.material.uniforms.uTime.value = t;
-    lamp.intensity = 13 + Math.sin(t * 9) * 1.2 + Math.sin(t * 23) * 0.6;
-    lampGlow.position.set(1.0 + Math.sin(t * 1.3) * 0.05, 2.0, -2.6);
+    lamp.intensity = 12 + Math.sin(t * 9) * 1.1 + Math.sin(t * 23) * 0.6;
+    lantern.rotation.z = Math.sin(t * 1.1) * 0.06;
+    lampGlow.position.set(1.42 + Math.sin(t * 1.1) * 0.02, 1.48, -1.1);
 
     // the fuses fizz, then the guns fire one after the other
     if (timeline !== null) {

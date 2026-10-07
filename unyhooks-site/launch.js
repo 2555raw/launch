@@ -78,7 +78,7 @@
     $('#ln-go').textContent = `Launch ${f.symbol ? `$${f.symbol}` : 'token'}`;
     const keep = 100 - (f.share || 0);
     $('#ln-keep').textContent = keep > 0 ? `${big(f.supplyNum * keep / 100)} ${sym} (${Number(keep.toFixed(2))}%) go to your wallet.` : 'All of it goes into the pool: a fair launch.';
-    $('#ln-bal').textContent = balance === null ? '' : `You have ${small(Number(ethers.formatEther(balance)))} ETH.`;
+    $('#ln-bal').textContent = `Any amount from 0.0001 ETH.${balance === null ? '' : ` You have ${small(Number(ethers.formatEther(balance)))} ETH.`}`;
     $('#ln-bal').className = `ln-hint${balance !== null && f.eth + GAS_ROOM > balance ? ' is-bad' : ''}`;
 
     // The biggest buy against a full-range pool of `eth` moves the price by about ((x + b) / x)^2.
@@ -103,6 +103,15 @@
     $('#ln-summary').innerHTML = rows.map(([k, v, bigRow]) => `<div${bigRow ? ' class="ln-big"' : ''}><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('');
     return f;
   };
+  // Until the biggest buy is set by hand, it follows the pool: a fifth of its ETH.
+  let maxBuyTouched = false, ethTouched = false;
+  $('#ln-maxbuy').addEventListener('input', () => { maxBuyTouched = true; });
+  $('#ln-eth').addEventListener('input', () => {
+    ethTouched = true;
+    if (maxBuyTouched) return;
+    const eth = Number(decimal(val('#ln-eth')));
+    if (eth > 0) $('#ln-maxbuy').value = String(Number((eth / 5).toPrecision(2)));
+  });
   $('#launch-form').addEventListener('input', refresh);
   $('#launch-form').addEventListener('change', refresh);
 
@@ -115,6 +124,15 @@
     chip.innerHTML = `<code>${esc(short(session.address))}</code>`;
     chip.title = session.address;
     try { balance = await session.browser.getBalance(session.address); } catch (_) { /* later */ }
+    // The suggested amount doesn't fit the wallet: suggest what does.
+    if (balance !== null && !ethTouched) {
+      const room = Number(ethers.formatEther(balance - GAS_ROOM));
+      if (room >= 0.0001 && Number(decimal(val('#ln-eth'))) > room) {
+        const fit = String(Math.floor(room * 10000) / 10000);
+        $('#ln-eth').value = fit;
+        if (!maxBuyTouched) $('#ln-maxbuy').value = String(Number((Number(fit) / 5).toPrecision(2)));
+      }
+    }
     refresh();
   };
   const connect = async () => {
@@ -155,7 +173,7 @@
       if (!session.signer) await connect();
       balance = await session.browser.getBalance(session.address);
       refresh();
-      if (balance < f.eth + GAS_ROOM) throw new Error(`Not enough ETH on ${NET.name}: the pool needs ${small(f.ethNum)} ETH plus a little for gas.`);
+      if (balance < f.eth + GAS_ROOM) throw new Error(`Not enough ETH on ${NET.name}: you have ${small(Number(ethers.formatEther(balance)))} ETH and this pool needs ${small(f.ethNum)} ETH plus a little for gas. Put less ETH in the pool, anything from 0.0001 ETH works.`);
 
       const files = K.files(net, f.hook.source);
       const job = {

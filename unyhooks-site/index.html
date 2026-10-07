@@ -22,6 +22,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&family=Geist+Mono:wght@400;500&family=Pirata+One&display=swap">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // Decide before the first paint whether the hero will be 3D, so the 2D
+    // drawing never flashes up first. Skipped when saving data or on 2G.
+    (function () {
+      var c = navigator.connection || {};
+      if (c.saveData || /(^|-)2g$/.test(c.effectiveType || '')) return;
+      if (!('WebGLRenderingContext' in window)) return;
+      document.documentElement.classList.add('uh-3d-on');
+    })();
+  </script>
+  <link rel="modulepreload" href="scene3d.js">
 </head>
 <body>
 <div class="uh" id="top">
@@ -57,9 +68,9 @@
         <span>Uny<b>Hooks</b></span>
       </a>
       <div class="uh-links" id="navlinks">
-        <a data-scroll="react" href="#react">See it react</a>
+        <a data-scroll="react" href="#react">How it works</a>
         <a data-scroll="hooks" href="#hooks">Hooks</a>
-        <a data-scroll="limits" href="#limits">The Code</a>
+        <a data-scroll="limits" href="#limits">Limits</a>
         <a data-scroll="token" href="#token" class="uh-link-token">$UHOOKS</a>
         <a data-scroll="faq" href="#faq">FAQ</a>
         <a data-link="app" href="#">Builder</a>
@@ -83,14 +94,12 @@
         <div class="uh-3d-shade" aria-hidden="true"></div>
         <div class="uh-hero-copy">
           <a class="uh-built" href="https://docs.uniswap.org/contracts/v4/overview" target="_blank" rel="noopener"><img src="uniswap.png" alt="" width="22" height="22">Built on <b>Uniswap V4</b><span>·</span>Robinhood Chain</a>
-          <h1 class="uh-h1">Pools that keep<br><span class="uh-pink">the Code.</span></h1>
-          <p class="uh-lead"><b>Launch a token. Write its rules. Sign once.</b>The rules live in a Uniswap V4 hook, written before the pool opens. Caps on early buys, a fee on every swap, liquidity locked until a date. The launcher can't change them afterwards. Neither can we.</p>
+          <h1 class="uh-h1">Launch a token with the rules built in</h1>
+          <p class="uh-lead">Your token, its Uniswap V4 pool, a cap on buys for the first hour and a lock on the liquidity, all created in one transaction on Robinhood Chain. Once it is live nobody can change those rules, you included.</p>
           <div class="uh-actions">
-            <a class="uh-btn uh-btn-pink" href="#react" data-scroll="react">Watch a hook react <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-            <a class="uh-btn uh-btn-ghost" data-link="docs" href="#">Read the docs</a>
-            <a class="uh-btn uh-btn-ghost" data-link="x" href="#" target="_blank" rel="noopener"><svg aria-hidden="true"><use href="#uh-x"/></svg>Follow on X</a>
+            <a class="uh-btn uh-btn-pink" href="launch.html">Launch a token</a>
+            <a class="uh-btn uh-btn-ghost" href="#react" data-scroll="react">See how it works</a>
           </div>
-          <div class="uh-steps"><span>Launch a token</span><i>→</i><span>Write its rules</span><i>→</i><span>Sign once</span></div>
         </div>
 
         <div class="uh-orb" aria-hidden="true">
@@ -146,25 +155,16 @@
               <g class="uh-wave uh-wave-fore"><path d="M0 540q35 -7 70 0t70 0t70 0t70 0t70 0t70 0t70 0t70 0t70 0t70 0t70 0t70 0t70 0t70 0t70 0t70 0V600H0Z" fill="#05080F" stroke="#E8B04B" stroke-opacity=".2"/></g>
             </g>
           </svg>
-          <div class="uh-tag uh-tag-a"><b>Armed</b><span>when <em>buy &gt; 0.1 ETH</em><br>then <em>refuse</em></span></div>
-          <div class="uh-tag uh-tag-b is-fired"><b>Rule fired</b><span>when <em>60 min since launch</em><br>then <em>lift the cap</em></span></div>
         </div>
       </div>
 
-      <div class="uh-guarantees uh-rise">
-        <div><h3>Sells are never blocked</h3><p>Launch limits only apply to buys, and only for their window.</p></div>
-        <div><h3>Liquidity can't leave early</h3><p>The lock returns it only after the date. The date can only move later.</p></div>
-        <div><h3>No one can mint more</h3><p>A launched token has a fixed supply and no owner.</p></div>
-        <div><h3>Every contract is public</h3><p>Token, hook and lock are published on Sourcify.</p></div>
-      </div>
     </section>
 
-    <div class="uh-broadside" aria-label="Every rule fires on every swap">
+    <div class="uh-broadside" aria-label="The hook runs on every swap">
       <canvas class="uh-3d" data-scene="broadside" aria-hidden="true"></canvas>
       <div class="uh-broadside-flash" aria-hidden="true"></div>
       <div class="uh-wrap uh-broadside-copy">
-        <p class="uh-eyebrow">Broadside</p>
-        <p class="uh-broadside-line">Every rule fires<br>on <span class="uh-pink">every swap.</span></p>
+        <p class="uh-broadside-line">The hook runs<br>on every swap.</p>
       </div>
     </div>
 
@@ -173,9 +173,8 @@
     <section class="uh-sec" id="react">
       <div class="uh-wrap">
         <div class="uh-rise">
-          <p class="uh-eyebrow">See it react</p>
-          <h2 class="uh-h2">Pick a hook. Fire a <span class="uh-pink">cannon.</span></h2>
-          <p class="uh-sub">Each hook is a short list of rules. These are three of the hooks UnyHooks writes, with the settings a launch would use. Press an event and watch the pool's rules respond.</p>
+          <h2 class="uh-h2">See what a hook does</h2>
+          <p class="uh-sub">Three hooks UnyHooks can write, with the settings a launch would use. Press an event on the left to see which rule fires and what happens to the pool.</p>
         </div>
         <div class="uh-sim uh-rise" id="sim">
           <div class="uh-sim-top">
@@ -205,8 +204,7 @@
       <svg class="uh-map-rose" aria-hidden="true"><use href="#uh-rose"/></svg>
       <div class="uh-wrap">
         <div class="uh-rise">
-          <p class="uh-eyebrow">The map</p>
-          <h2 class="uh-h2">A launch is a promise. A hook makes it <span class="uh-pink">code.</span></h2>
+          <h2 class="uh-h2">Why put the rules in a hook</h2>
           <p class="uh-sub">Most launches ask buyers to trust the launcher: that the liquidity stays, that snipers get stopped, that the supply is what it says. With a hook, each of those is a rule the pool enforces on every trade.</p>
         </div>
         <div class="uh-timeline">
@@ -215,21 +213,19 @@
           <div class="uh-tl uh-rise"><small>03</small><h3>After the window</h3><p>Trading is open. The pool's fees keep going to whoever added the liquidity.</p></div>
           <div class="uh-tl uh-tl-x uh-rise"><small>04 · X marks the spot</small><h3>The lock date</h3><p>Only then can the liquidity come back to its owner. A lock set to forever never opens.</p></div>
         </div>
-        <p class="uh-statement uh-rise">Tokens put rules in the asset. Hooks put rules in the <span class="uh-pink">pool.</span></p>
       </div>
     </section>
 
     <section class="uh-sec" id="born">
       <div class="uh-wrap">
         <div class="uh-rise">
-          <p class="uh-eyebrow">Coin, ship and chest</p>
-          <h2 class="uh-h2">Three things, one <span class="uh-pink">signature.</span></h2>
+          <h2 class="uh-h2">What a launch creates</h2>
           <p class="uh-sub">The launcher signs once. No presale and no hidden allocation: whatever share of the supply doesn't go into the pool goes visibly to the launcher's wallet.</p>
         </div>
         <div class="uh-cards">
-          <article class="uh-card uh-rise"><span class="uh-ico"><svg><use href="#i-coin"/></svg></span><h3>The coin</h3><p>Your token. Fixed supply, minted once. No owner, no mint function, no tax, no blocklist. The default is 1,000,000,000.</p></article>
-          <article class="uh-card uh-rise"><span class="uh-ico"><svg><use href="#i-ship"/></svg></span><h3>The ship</h3><p>Your pool: a Uniswap V4 pool against ETH, with a launch-protection hook and a full-range position from the ETH you add.</p></article>
-          <article class="uh-card uh-rise"><span class="uh-ico"><svg><use href="#i-chest"/></svg></span><h3>The chest</h3><p>Your lock. The position goes into it for 30 days, a year or forever. Trading fees still go to you.</p></article>
+          <article class="uh-card uh-rise"><span class="uh-ico"><svg><use href="#i-coin"/></svg></span><h3>The token</h3><p>Fixed supply, minted once. No owner, no mint function, no tax, no blocklist. The default is 1,000,000,000.</p></article>
+          <article class="uh-card uh-rise"><span class="uh-ico"><svg><use href="#i-ship"/></svg></span><h3>The pool</h3><p>A Uniswap V4 pool against ETH, with a launch-protection hook and a full-range position from the ETH you add.</p></article>
+          <article class="uh-card uh-rise"><span class="uh-ico"><svg><use href="#i-chest"/></svg></span><h3>The lock</h3><p>The position goes into a lock for 30 days, a year or forever. Trading fees still go to you.</p></article>
         </div>
         <div class="uh-actions uh-rise"><a class="uh-btn uh-btn-pink" href="launch.html">Launch a token</a><a class="uh-btn uh-btn-ghost" href="docs.html#launch">How launching works</a></div>
       </div>
@@ -238,9 +234,8 @@
     <section class="uh-sec" id="hooks" style="padding-top:40px">
       <div class="uh-wrap">
         <div class="uh-rise">
-          <p class="uh-eyebrow">Ship's articles</p>
-          <h2 class="uh-h2">Every crew sailed under <span class="uh-pink">articles.</span></h2>
-          <p class="uh-sub">Pirate crews signed written rules before they left port. A hook is the same for a pool: the pool calls its hook on every swap. The hook reads the trade and the clock, then lets it through, refuses it, or takes its fee. You describe the rules in plain words; UnyHooks writes the Solidity.</p>
+          <h2 class="uh-h2">Write your own hook</h2>
+          <p class="uh-sub">The pool calls its hook on every swap. The hook checks the trade and the time, then lets it through, refuses it or takes a fee. Describe what you want in plain words and UnyHooks writes the Solidity.</p>
         </div>
         <div class="uh-syntax uh-rise">
           <b>when</b> &lt;condition&gt;&nbsp;&nbsp; <b>then</b> &lt;action&gt;&nbsp;&nbsp; <span>[for &lt;window&gt;]</span>
@@ -265,7 +260,7 @@
           <article class="uh-card uh-rise"><span class="uh-mono-tag">DynamicFeeHook</span><p>The fee rises when the price moves fast and falls back when it calms.</p></article>
           <article class="uh-card uh-rise"><span class="uh-mono-tag">TradingHoursHook</span><p>The pool only trades inside a daily window, optionally weekdays only.</p></article>
         </div>
-        <p class="uh-callout uh-rise"><b>Hooks enforce; they do not decide.</b> A hook can refuse a trade or take its fee inside it. It cannot move anyone's tokens outside the trade.</p>
+        <p class="uh-callout uh-rise">A hook can refuse a trade or take a fee from it. It can't move anyone's tokens outside the trade.</p>
         <h3 class="uh-subhead uh-rise">What each setting means</h3>
         <dl class="uh-table uh-rise">
           <div><dt>FEE_BPS · recipient</dt><dd>The share of each swap and where it goes. Set once.</dd></div>
@@ -281,14 +276,13 @@
     <section class="uh-sec" id="limits">
       <div class="uh-wrap">
         <div class="uh-rise">
-          <p class="uh-eyebrow">The Code</p>
-          <h2 class="uh-h2">Three articles no captain <span class="uh-pink">can break.</span></h2>
-          <p class="uh-sub">They are not options and not promises. They follow from how the contracts are written.</p>
+          <h2 class="uh-h2">What a launcher can't do</h2>
+          <p class="uh-sub">These aren't settings. They come from how the contracts are written.</p>
         </div>
         <div class="uh-limits">
-          <article class="uh-limit uh-rise"><span>I</span><h3>Raid the chest</h3><p>Locked liquidity has no early exit. The position comes back only after the date.</p></article>
-          <article class="uh-limit uh-rise"><span>II</span><h3>Strike more coins</h3><p>The token has no owner and no mint function. The supply is what it was at launch.</p></article>
-          <article class="uh-limit uh-rise"><span>III</span><h3>Keep you aboard</h3><p>Sells are never blocked. Launch protection only limits buys, and only for its stated window.</p></article>
+          <article class="uh-limit uh-rise"><span>I</span><h3>Pull the locked liquidity</h3><p>The lock has no early exit. The position comes back only after the date.</p></article>
+          <article class="uh-limit uh-rise"><span>II</span><h3>Mint more tokens</h3><p>The token has no owner and no mint function. The supply is what it was at launch.</p></article>
+          <article class="uh-limit uh-rise"><span>III</span><h3>Block sells</h3><p>Launch protection only limits buys, and only for its stated window.</p></article>
         </div>
       </div>
     </section>
@@ -298,7 +292,6 @@
       <div class="uh-wrap">
         <div class="uh-panel uh-token uh-rise">
           <div class="uh-token-copy">
-            <p class="uh-eyebrow">The treasure</p>
             <h2 class="uh-token-name">$UHOOKS</h2>
             <p class="uh-sub">The native token of UnyHooks, on Robinhood Chain.</p>
 
@@ -380,8 +373,7 @@
     <section class="uh-sec" id="faq">
       <div class="uh-wrap uh-faq">
         <div class="uh-rise">
-          <p class="uh-eyebrow">FAQ</p>
-          <h2 class="uh-h2">Questions from <span class="uh-pink">the crew.</span></h2>
+          <h2 class="uh-h2">FAQ</h2>
         </div>
         <div class="uh-qs uh-rise">
           <details class="uh-q">
@@ -416,8 +408,7 @@
       <canvas class="uh-3d uh-3d-sea" data-scene="sea" aria-hidden="true"></canvas>
       <div class="uh-close-glow"></div>
       <div class="uh-wrap uh-rise">
-        <p class="uh-eyebrow">Set sail</p>
-        <h2 class="uh-h2">Rules belong in the <span class="uh-pink">pool.</span></h2>
+        <h2 class="uh-h2">Launch your token</h2>
         <p class="uh-sub">Launch a token with its pool, buy limits and lock in one transaction, or describe your own hook and deploy it from your wallet.</p>
         <div class="uh-actions">
           <a class="uh-btn uh-btn-pink" href="launch.html">Launch a token</a>
@@ -451,19 +442,16 @@
 <script src="token.js"></script>
 <script src="landing.js"></script>
 <script>
-  // The 3D scenes load after the page has painted, and not at all when the
-  // visitor has asked to save data or is on a very slow connection: the 2D
-  // drawings stay in their place.
+  // The 3D scenes start loading as soon as the page is parsed (the bundle was
+  // preloaded from the head). If it never runs, the 2D hero drawing comes back.
   (function () {
-    var c = navigator.connection || {};
-    if (c.saveData || /(^|-)2g$/.test(c.effectiveType || '')) return;
-    var go = function () {
-      var s = document.createElement('script');
-      s.type = 'module'; s.src = 'scene3d.js';
-      document.body.appendChild(s);
-    };
-    var later = function () { ('requestIdleCallback' in window) ? requestIdleCallback(go, { timeout: 1500 }) : setTimeout(go, 200); };
-    if (document.readyState === 'complete') later(); else window.addEventListener('load', later);
+    var root = document.documentElement;
+    if (!root.classList.contains('uh-3d-on')) return;
+    var s = document.createElement('script');
+    s.type = 'module'; s.src = 'scene3d.js';
+    s.onerror = function () { root.classList.remove('uh-3d-on'); };
+    document.body.appendChild(s);
+    setTimeout(function () { if (!window.__uh3d) root.classList.remove('uh-3d-on'); }, 12000);
   })();
 </script>
 </body>

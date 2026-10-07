@@ -108,6 +108,7 @@ const check = (n, c, x = '') => { results.push(!!c); console.log(`${c ? 'PASS' :
   await page.click('#swap [data-el=go]');
   await wait(() => /Buy \$SEADOG/.test(document.querySelector('#swap [data-el=go]').textContent));
   check('connecting turns the button into Buy', true, await page.textContent('#swap [data-el=go]'));
+  await wait(() => /Balance: .* ETH/.test(document.querySelector('#swap [data-el=bal]').textContent)).catch(() => {});
   check('ETH balance shown', /Balance: .* ETH/.test(await page.textContent('#swap [data-el=bal]')), await page.textContent('#swap [data-el=bal]'));
 
   // over the launch cap: the quote explains it before anything is signed

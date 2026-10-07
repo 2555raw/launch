@@ -1162,10 +1162,18 @@ function broadsideScene(canvas) {
 
 /* ---------- start ---------- */
 
+// No GPU (a software renderer) would make every frame cost the whole page,
+// so those visitors keep the 2D drawings. ?3d=force overrides it.
 function webgl() {
   try {
     const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
+    const gl = c.getContext('webgl2') || c.getContext('webgl');
+    if (!gl) return false;
+    if (/[?&]3d=force/.test(location.search)) return true;
+    const info = gl.getExtension('WEBGL_debug_renderer_info');
+    const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+    gl.getExtension('WEBGL_lose_context')?.loseContext();
+    return !/swiftshader|llvmpipe|softpipe|software/i.test(name);
   } catch (_) { return false; }
 }
 
@@ -1193,12 +1201,19 @@ const start = (canvas) => {
       broadsideScene(canvas);
     }
   } catch (err) {
-    // leave the 2D drawing in place
+    // put the 2D drawing back
     console.warn('3D scene unavailable:', err && err.message);
+    if (canvas.dataset.scene === 'hero') no3d();
   }
 };
 
-if (webgl()) {
+// The page hides the 2D hero drawing from the first paint when it expects 3D
+// (html.uh-3d-on); without WebGL, or if the hero scene fails, it comes back.
+function no3d() { document.documentElement.classList.remove('uh-3d-on'); }
+window.__uh3d = true;
+
+if (!webgl()) no3d();
+else {
   const near = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
       if (!e.isIntersecting) return;

@@ -99,3 +99,17 @@ How many steps did you walk today? 👇
 ```
 
 Launch day order: 1 (pin it) → 3 → 4 → 6 → 5 → 7 → 8 → 9 → 10. Use 2 the day before.
+
+---
+
+# Everyday tweets (images in `tweets/`, made from `tweet-cards-2.html`)
+
+1 · `stepit-counter.png`: Your step counter has been working for free. / Not anymore. 📱
+2 · `stepit-routine.png`: One screenshot a day. That's the whole routine. 📸 / USDG lands in your wallet once it's reviewed.
+3 · `stepit-nothing.png`: No wearable. No subscription. No new habit. / Just the steps your phone already counted. 👀
+4 · `stepit-moments.png`: Dog walks. Grocery runs. Pacing on long calls. / Stepit counts all of it. 🐕
+5 · `stepit-outside.png`: Outside was always free. / Now it pays you back. 🌲
+6 · `stepit-board.png`: This week's leaderboard is open. 🏆 / Top walker takes $50 in USDG. / stepit.site
+7 · `stepit-apps.png`: Apple Health, Google Fit, Samsung Health. / If it counts steps, it works with Stepit. / stepit.site
+8 · `stepit-friend.png`: Bring a friend to Stepit. 🤝 / You both get a bonus once their first day is verified. / stepit.site
+9 · `stepit-keys.png`: Walked 2,000 steps looking for your keys? / At least log them. 😅 / stepit.site

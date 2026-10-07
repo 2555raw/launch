@@ -9,7 +9,7 @@ export const contentType = "image/png";
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [p, { eth, fonts }] = await Promise.all([getSharePayout(id), ogAssets()]);
-  const amount = p ? `+$${Number(p.amount).toFixed(2)}` : "+ETH";
+  const amount = p ? `+$${Number(p.usdAmount).toFixed(2)}` : "+ETH";
   const steps = p ? `for ${p.steps.toLocaleString("en-US")} verified steps` : "for walking";
 
   return new ImageResponse(

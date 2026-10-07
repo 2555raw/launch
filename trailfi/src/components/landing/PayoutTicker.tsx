@@ -9,6 +9,7 @@ import { fmtAmount } from "@/lib/format";
 interface PublicPayout {
   wallet: string;
   amount: string;
+  usdAmount?: string;
   token: string;
   paidAt: string;
   txUrl: string | null;
@@ -58,7 +59,7 @@ export function PayoutTicker() {
             <span className="font-mono">{p.wallet}</span>
             <span>got paid</span>
             <span className="flex items-center gap-1 font-mono font-semibold text-lime-300">
-              +{fmtAmount(p.amount)} <TokenIcon symbol={p.token} className="h-3.5 w-3.5" />
+              +${fmtAmount(p.usdAmount ?? p.amount)} <span className="font-sans font-normal text-white/45">in</span> <TokenIcon symbol={p.token} className="h-3.5 w-3.5" />
             </span>
             <span className="text-white/35">{ago(p.paidAt)}</span>
             {p.txUrl && <ArrowUpRight className="h-3.5 w-3.5 text-white/35" />}

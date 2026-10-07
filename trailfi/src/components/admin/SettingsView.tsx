@@ -77,7 +77,7 @@ export function SettingsView() {
           <div>
             <div className="grid grid-cols-[1fr_1fr_auto] gap-3 px-1 pb-2">
               <span className="label !text-[10px]">Steps</span>
-              <span className="label !text-[10px]">Pays ({form.payoutTokenSymbol})</span>
+              <span className="label !text-[10px]">Pays ($)</span>
               <span className="w-9" />
             </div>
             <div className="space-y-2">
@@ -135,13 +135,13 @@ export function SettingsView() {
               <input type="number" className="input font-mono" min={1000} max={100000} step={500} value={form.dailyStepGoal} onChange={(e) => set("dailyStepGoal", Number(e.target.value))} />
             </Field>
             <Field
-              label={`Referral bonus, each (${form.payoutTokenSymbol})`}
+              label="Referral bonus, each ($)"
               hint="Paid to the walker and to the friend who invited them when the walker's first photo is verified. 0 turns it off."
             >
               <input type="number" className="input font-mono" min={0} step={0.25} value={form.referralBonus} onChange={(e) => set("referralBonus", Number(e.target.value))} />
             </Field>
             <Field
-              label={`Weekly prize (${form.payoutTokenSymbol})`}
+              label="Weekly prize ($)"
               hint="For the walker with the most verified steps each week (Monday to Sunday, UTC). You award it from Pay walkers. 0 turns it off."
             >
               <input type="number" className="input font-mono" min={0} step={5} value={form.weeklyPrize} onChange={(e) => set("weeklyPrize", Number(e.target.value))} />
@@ -166,7 +166,7 @@ export function SettingsView() {
           <CardHeader label="Spending" title="Limits" />
           <div className="grid gap-5 sm:grid-cols-2">
             <Field
-              label={`Daily budget (${form.payoutTokenSymbol})`}
+              label="Daily budget ($)"
               hint="Most you can credit per day (UTC) by verifying photos, referral bonuses included. Verifying stops at the limit. 0 means no limit."
             >
               <input type="number" className="input font-mono" min={0} step={10} value={form.dailyBudget} onChange={(e) => set("dailyBudget", Number(e.target.value))} />
@@ -227,7 +227,7 @@ export function SettingsView() {
             <CardHeader label="Live example" title="What a day earns" />
             <dl className="mt-5 space-y-3 text-sm">
               {example.map((x) => (
-                <Line key={x.steps} k={`${x.steps.toLocaleString()} steps`} v={`${fmtAmount(x.amount)} ${form.payoutTokenSymbol}`} accent={x.amount > 0} />
+                <Line key={x.steps} k={`${x.steps.toLocaleString()} steps`} v={`$${fmtAmount(x.amount)}`} accent={x.amount > 0} />
               ))}
             </dl>
           </Card>

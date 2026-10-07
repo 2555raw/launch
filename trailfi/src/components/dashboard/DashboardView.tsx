@@ -65,6 +65,7 @@ interface MeResponse {
   payouts: Array<{
     id: string;
     amount: string;
+    usdAmount?: string;
     tokenSymbol: string;
     chainId: number;
     status: string;
@@ -238,7 +239,7 @@ export function DashboardView() {
             label="Estimated today"
             value={Number(today.amount)}
             prefix="$"
-            suffix={token}
+            
             hint={today.eligible ? "Projection · not guaranteed" : "Reach the goal to be eligible"}
             icon={Sparkles}
             accent
@@ -247,17 +248,17 @@ export function DashboardView() {
             label="Pending rewards"
             value={summary.pending + summary.approved + summary.processing}
             prefix="$"
-            suffix={token}
+            
             hint={`${fmtAmount(summary.approved)} approved · ${fmtAmount(summary.processing)} in payment`}
             icon={Hourglass}
             delay={0.05}
           />
-          <StatCard label="Rewards paid" value={summary.paid} prefix="$" suffix={token} hint="Sent to your wallet" icon={Wallet} delay={0.1} />
+          <StatCard label="Rewards paid" value={summary.paid} prefix="$" hint="Sent to your wallet" icon={Wallet} delay={0.1} />
           <StatCard
             label="Total earned"
             value={summary.total}
             prefix="$"
-            suffix={token}
+            
             hint="All allocated rewards, excluding rejected"
             icon={MarkIcon}
             delay={0.15}
@@ -314,9 +315,9 @@ export function DashboardView() {
                       <tr key={p.id} className="border-b border-white/5 last:border-0">
                         <td className="table-cell">{fmtDateTime(p.confirmedAt ?? p.createdAt)}</td>
                         <td className="table-cell font-mono text-lime-300">
-                          {fmtAmount(p.amount)}{" "}
-                          <span className="inline-flex items-center gap-1 text-white/40">
-                            <TokenIcon symbol={p.tokenSymbol} /> {p.tokenSymbol}
+                          ${fmtAmount(p.usdAmount ?? p.amount)}{" "}
+                          <span className="inline-flex items-center gap-1 text-white/40" title={`${p.amount} ${p.tokenSymbol}`}>
+                            in <TokenIcon symbol={p.tokenSymbol} /> {p.tokenSymbol}
                           </span>
                         </td>
                         <td className="table-cell">
@@ -325,7 +326,7 @@ export function DashboardView() {
                             {p.simulated && <DemoBadge>simulated</DemoBadge>}
                             {p.status === "confirmed" && !p.simulated && (
                               <button
-                                onClick={() => sharePayout(p.id, p.amount, data.referral.code)}
+                                onClick={() => sharePayout(p.id, p.usdAmount ?? p.amount, data.referral.code)}
                                 className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 text-[11px] text-white/60 transition hover:border-lime-400/40 hover:text-lime-300"
                                 title="Share on X"
                               >
@@ -401,10 +402,7 @@ export function DashboardView() {
                     </td>
                     <td className="table-cell font-mono">{r.kind === "referral" ? <span className="font-sans text-lime-300">Referral bonus</span> : r.kind === "prize" ? <span className="font-sans text-lime-300">🏆 Weekly prize</span> : fmtSteps(r.validSteps)}</td>
                     <td className="table-cell font-mono text-lime-300">
-                      {fmtAmount(r.amount)}{" "}
-                      <span className="inline-flex items-center gap-1 text-white/40">
-                        <TokenIcon symbol={r.tokenSymbol} /> {r.tokenSymbol}
-                      </span>
+                      ${fmtAmount(r.amount)}
                     </td>
                     <td className="table-cell">
                       <StatusBadge status={r.status} />
@@ -433,10 +431,10 @@ function RequestBanner({
 }) {
   const qc = useQueryClient();
   const request = useMutation({
-    mutationFn: () => api<{ payout: { amount: string; steps: number } }>("/api/me/payout-request", { method: "POST" }),
+    mutationFn: () => api<{ payout: { amount: string; usdAmount?: string; steps: number } }>("/api/me/payout-request", { method: "POST" }),
     onSuccess: async ({ payout }) => {
       await qc.invalidateQueries({ queryKey: ["me"] });
-      toast.success("Payout requested", { description: `${fmtAmount(payout.amount)} ${token} · the team will send it to your wallet.` });
+      toast.success("Payout requested", { description: `$${fmtAmount(payout.usdAmount ?? payout.amount)} in ${token} · the team will send it to your wallet.` });
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -451,9 +449,9 @@ function RequestBanner({
           <div>
             <div className="label !text-amber-200/80">Payout requested</div>
             <div className="mt-1 font-display text-xl font-bold tabular">
-              {fmtAmount(openRequest.amount)}{" "}
+              ${fmtAmount(openRequest.usdAmount ?? openRequest.amount)}{" "}
               <span className="inline-flex items-center gap-1.5 text-base text-white/50">
-                <TokenIcon symbol={openRequest.tokenSymbol} className="h-5 w-5" /> {openRequest.tokenSymbol}
+                in <TokenIcon symbol={openRequest.tokenSymbol} className="h-5 w-5" /> {openRequest.tokenSymbol}
               </span>
             </div>
             <div className="text-[12.5px] text-white/50">The team will send it to your wallet soon.</div>

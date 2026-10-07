@@ -12,6 +12,7 @@ interface Notice {
   day?: string;
   steps?: number;
   amount?: string | null;
+  usdAmount?: string | null;
   note?: string | null;
   txUrl?: string | null;
 }
@@ -57,10 +58,10 @@ export function Notices() {
                 duration: 12_000,
               });
             } else {
-              toast.success(`You got paid $${Number(n.amount).toFixed(2)} in ETH`, {
+              toast.success(`You got paid $${Number(n.usdAmount ?? n.amount).toFixed(2)} in ETH`, {
                 description: "It's in your wallet on Robinhood Chain.",
                 duration: 15_000,
-                action: { label: "Share on X", onClick: () => sharePayout(n.id, n.amount ?? "0", referralCode) },
+                action: { label: "Share on X", onClick: () => sharePayout(n.id, n.usdAmount ?? n.amount ?? "0", referralCode) },
               });
             }
           }, i * 600);

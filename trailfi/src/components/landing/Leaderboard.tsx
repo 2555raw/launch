@@ -13,6 +13,7 @@ import { TokenIcon } from "@/components/ui/TokenIcon";
 interface PublicPayout {
   wallet: string;
   amount: string;
+  usdAmount?: string;
   token: string;
   steps: number;
   paidAt: string;
@@ -114,9 +115,9 @@ export function Leaderboard() {
                         </span>
                       </td>
                       <td className="table-cell text-right font-mono text-lime-300 tabular">
-                        +{fmtAmount(r.amount)}{" "}
-                        <span className="inline-flex items-center gap-1 text-white/40">
-                          <TokenIcon symbol={r.token} /> {r.token}
+                        +${fmtAmount(r.usdAmount ?? r.amount)}{" "}
+                        <span className="inline-flex items-center gap-1 text-white/40" title={`${r.amount} ${r.token}`}>
+                          in <TokenIcon symbol={r.token} /> {r.token}
                         </span>
                       </td>
                       <td className="table-cell text-right text-[12.5px] text-white/45">{ago(r.paidAt)}</td>

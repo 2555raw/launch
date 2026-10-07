@@ -1,0 +1,50 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&family=Geist+Mono:wght@400;500&family=Pirata+One&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { width: 1500px; height: 500px; overflow: hidden; background: #070B14 url(x-header-bg.png) center / 1500px 500px no-repeat; font-family: 'Source Serif 4', Georgia, serif; color: #F3EAD7; position: relative; }
+  /* darken the left so the panels sit on calm water */
+  body::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 11, 20, .62) 0%, rgba(7, 11, 20, .35) 38%, rgba(7, 11, 20, 0) 62%); }
+  .card { position: absolute; border-radius: 14px; background: rgba(10, 16, 30, .84); border: 1px solid rgba(243, 234, 215, .12); box-shadow: 0 30px 60px -20px rgba(0, 0, 0, .85), 0 0 0 1px rgba(0, 0, 0, .35); backdrop-filter: blur(10px); padding: 20px 22px; }
+  .head { display: flex; align-items: center; justify-content: space-between; }
+  .title { font: 600 19px/1.2 'Source Serif 4', serif; letter-spacing: -.01em; }
+  .muted { color: #8E8572; font: 400 12.5px 'Source Serif 4', serif; }
+  .tag { font: 500 11px 'Geist Mono', monospace; color: #E8B04B; border: 1px solid rgba(232, 176, 75, .4); border-radius: 6px; padding: 3px 7px; }
+  dl { margin-top: 14px; display: grid; gap: 0; }
+  dl div { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0; border-top: 1px solid rgba(243, 234, 215, .07); }
+  dl div:first-child { border-top: 0; }
+  dt { color: #A99F8A; font-size: 14px; }
+  dd { font: 600 14px 'Source Serif 4', serif; color: #F3EAD7; }
+  dd.big { font-size: 19px; }
+  .btn { margin-top: 14px; height: 40px; border-radius: 10px; background: #E8B04B; border: 1px solid #B9852C; color: #1A1206; font: 600 14.5px 'Source Serif 4', serif; display: flex; align-items: center; justify-content: center; }
+  .rule { margin-top: 10px; padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(243, 234, 215, .09); background: rgba(255, 255, 255, .02); font: 400 12.5px/1.5 'Geist Mono', monospace; color: #CFC6B2; }
+  .rule b { color: #E8B04B; font-weight: 500; }
+  .rule i { font-style: normal; color: #E07A5F; }
+  .rule small { display: block; margin-top: 3px; font: 400 11.5px 'Source Serif 4', serif; color: #8E8572; }
+  .rule.ok { border-color: rgba(120, 200, 150, .35); }
+  .rule.ok small { color: #7DC795; }
+  .a { left: 196px; top: 52px; width: 318px; }
+  .b { left: 540px; top: 104px; width: 300px; }
+  .url { position: absolute; right: 34px; bottom: 26px; font: 500 13px 'Geist Mono', monospace; color: rgba(243, 234, 215, .7); letter-spacing: .02em; }
+</style></head>
+<body>
+  <div class="card a">
+    <div class="head"><span class="title">Launch $PIRATE</span><span class="tag">1 signature</span></div>
+    <dl>
+      <div><dt>Starting market cap</dt><dd class="big">0.01 ETH</dd></div>
+      <div><dt>In the pool</dt><dd>1B PIRATE + 0.01 ETH</dd></div>
+      <div><dt>Protection</dt><dd>60 min, 0.002 ETH max buy</dd></div>
+      <div><dt>Liquidity</dt><dd>locked 90 days</dd></div>
+      <div><dt>Pool fee</dt><dd>1%, to you</dd></div>
+    </dl>
+    <div class="btn">Launch $PIRATE</div>
+  </div>
+  <div class="card b">
+    <div class="head"><span class="title">LaunchGuardHook</span><span class="tag">live</span></div>
+    <div class="rule"><b>when</b> buy &gt; 0.002 ETH <b>and</b> under 60 min <b>then</b> <i>refuse</i><small>A sniper tried to buy 2 ETH · refused</small></div>
+    <div class="rule"><b>when</b> same wallet within 30 s <b>then</b> <i>refuse</i><small>Rule 2 · armed</small></div>
+    <div class="rule ok"><b>when</b> before the lock date <b>then</b> keep the liquidity<small>Locked until Jan 2027</small></div>
+  </div>
+  <div class="url">unyhooks.xyz</div>
+</body></html>

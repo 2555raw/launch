@@ -3,23 +3,21 @@
 <head>
   <meta charset="utf-8">
   <title>UnyHooks social card</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&family=Geist+Mono:wght@400;500&family=Pirata+One&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&family=Geist+Mono:wght@400;500&family=Pirata+One&display=swap">
   <link rel="stylesheet" href="../../styles.css">
   <style>
-    /* 1200×630, the size X, Telegram and Discord use for link previews. */
+    /* 1200×630, the size X, Telegram and Discord use for link previews. The
+       background is a still of the landing's 3D sea (hero.jpg). */
     html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #070B14; }
-    .uh { width: 1200px; height: 630px; position: relative; overflow: hidden; display: grid; grid-template-columns: 1.08fr .92fr; gap: 10px; align-items: center; padding: 0 30px 0 70px; box-sizing: border-box; }
-    .uh::before { height: 630px; -webkit-mask-image: none; mask-image: none; }
-    .c-copy { position: relative; }
-    .c-copy .uh-brand { font-size: 40px; gap: 12px; }
-    .c-copy .uh-mark { width: 50px; height: 50px; }
-    .c-copy h1 { margin: 30px 0 0; font: 700 74px/1 var(--font-display); letter-spacing: -.01em; }
-    .c-copy h1 .uh-pink { font-size: 1.02em; }
-    .c-copy p { margin: 22px 0 0; font-size: 21px; line-height: 1.45; color: var(--prose); max-width: 520px; }
-    .uh-chips { margin-top: 26px; }
-    .uh-chips span { font-size: 13px; }
-    .uh-orb { max-width: 500px; }
-    .uh-float, .uh-spin-slow, .uh-twinkle { animation: none !important; }
+    .uh { width: 1200px; height: 630px; position: relative; overflow: hidden; box-sizing: border-box; padding: 0 0 0 76px; display: flex; align-items: center;
+      background: url(../../hero.jpg) right center / cover no-repeat; }
+    .uh::before { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 11, 20, .86) 0%, rgba(7, 11, 20, .6) 40%, rgba(7, 11, 20, 0) 64%); }
+    .c-copy { position: relative; max-width: 600px; }
+    .c-copy .uh-brand { font-size: 38px; gap: 12px; }
+    .c-copy .uh-mark { width: 46px; height: 46px; }
+    .c-copy h1 { margin: 34px 0 0; font: 600 66px/1.04 var(--font-display); font-variation-settings: 'opsz' 60; letter-spacing: -.022em; color: var(--ink); text-wrap: balance; }
+    .c-copy p { margin: 22px 0 0; font-size: 21px; line-height: 1.5; color: var(--prose); max-width: 520px; }
+    .c-meta { margin-top: 28px; font: 500 14px var(--font-mono); color: rgba(243, 234, 215, .6); letter-spacing: .02em; }
   </style>
 </head>
 <body>
@@ -66,46 +64,11 @@
     </defs>
   </svg>
   <div class="c-copy">
-    <span class="uh-brand"><svg class="uh-mark"><use href="#uh-mark"/></svg><span>Uny<b>Hooks</b></span></span>
-    <h1>Pools that keep<br><span class="uh-pink">the Code.</span></h1>
-    <p>Build Uniswap V4 hooks by describing them, or launch a token with buy limits and locked liquidity in one transaction.</p>
-    <div class="uh-steps"><span>Robinhood Chain</span><i>·</i><span>Uniswap V4</span><i>·</i><span>One transaction</span></div>
+    <span class="uh-brand"><svg class="uh-mark" aria-hidden="true"><use href="#uh-mark"/></svg><span>Uny<b>Hooks</b></span></span>
+    <h1>Launch a token with the rules built in</h1>
+    <p>Capped buys at launch and locked liquidity, set in one transaction. Nobody can change them after.</p>
+    <div class="c-meta">Uniswap V4 · Robinhood Chain · unyhooks.xyz</div>
   </div>
-  <div class="uh-orb" aria-hidden="true">
-          <svg viewBox="0 0 560 600">
-            <defs>
-              <radialGradient id="orb-glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#E8B04B" stop-opacity=".32"/><stop offset=".55" stop-color="#7A4E10" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
-              <linearGradient id="orb-metal" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2B1903"/><stop offset=".14" stop-color="#8C5A14"/><stop offset=".3" stop-color="#E6AE4E"/><stop offset=".42" stop-color="#FFF4D2"/><stop offset=".52" stop-color="#F0C46A"/><stop offset=".7" stop-color="#A86C17"/><stop offset=".86" stop-color="#5A3708"/><stop offset="1" stop-color="#2B1903"/></linearGradient>
-              <linearGradient id="orb-sheen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF8E6" stop-opacity=".55"/><stop offset=".45" stop-color="#FFF8E6" stop-opacity="0"/></linearGradient>
-              <linearGradient id="orb-cuff" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1E1203"/><stop offset=".25" stop-color="#7A4E10"/><stop offset=".45" stop-color="#E8B04B"/><stop offset=".55" stop-color="#F7D78C"/><stop offset=".75" stop-color="#7A4E10"/><stop offset="1" stop-color="#1E1203"/></linearGradient>
-              <radialGradient id="orb-floor" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#E8B04B" stop-opacity=".35"/><stop offset="1" stop-color="#E8B04B" stop-opacity="0"/></radialGradient>
-              <filter id="orb-blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
-            </defs>
-            <circle cx="280" cy="300" r="260" fill="url(#orb-glow)"/>
-            <circle cx="280" cy="300" r="258" fill="none" stroke="rgba(232,196,120,.14)"/>
-            <circle cx="280" cy="300" r="206" fill="none" stroke="rgba(232,196,120,.1)"/>
-            <g class="uh-spin-slow"><circle cx="280" cy="300" r="232" fill="none" stroke="rgba(232,196,120,.18)" stroke-dasharray="2 14"/></g>
-            <g fill="#F3E6C8"><circle class="uh-twinkle" cx="92" cy="140" r="1.6"/><circle cx="470" cy="90" r="1.2"/><circle class="uh-twinkle" cx="500" cy="420" r="1.4" style="animation-delay:1.4s"/><circle cx="70" cy="420" r="1"/><circle class="uh-twinkle" cx="300" cy="40" r="1.2" style="animation-delay:.7s"/></g>
-            <ellipse cx="284" cy="548" rx="150" ry="20" fill="url(#orb-floor)"/>
-            <g class="uh-float">
-              <g transform="translate(82 18) scale(6.4)">
-                <path d="M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z" fill="#000" opacity=".55" filter="url(#orb-blur)" transform="translate(1.2 1.6)"/>
-                <path d="M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z" fill="url(#orb-metal)"/>
-                <path d="M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z" fill="url(#orb-sheen)"/>
-                <path d="M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z" fill="none" stroke="#FFE7A8" stroke-opacity=".35" stroke-width=".22"/>
-                <path d="M24.9 58V27.2A11.1 11.1 0 0 1 46.3 23.4" fill="none" stroke="#FFFDF4" stroke-opacity=".85" stroke-width=".55" stroke-linecap="round"/>
-                <path d="M47 33C46 37.4 43.2 40.6 39.6 42.4" fill="none" stroke="#FFF4D2" stroke-opacity=".5" stroke-width=".4" stroke-linecap="round"/>
-                <rect x="18.6" y="58.2" width="12.8" height="5" rx="1.5" fill="url(#orb-cuff)"/>
-                <path d="M18 63h14l6.2 12.6a1.6 1.6 0 0 1-1.4 2.4H13.2a1.6 1.6 0 0 1-1.4-2.4z" fill="url(#orb-cuff)"/>
-                <path d="M15.6 70.5h18.8" stroke="#2B1903" stroke-opacity=".55" stroke-width=".7"/>
-                <path d="M15.4 71h19.2" stroke="#FBE7B0" stroke-opacity=".35" stroke-width=".35"/>
-                <g fill="#FFF1C4"><circle cx="15.4" cy="74.6" r=".6"/><circle cx="34.6" cy="74.6" r=".6"/></g>
-              </g>
-            </g>
-          </svg>
-          <div class="uh-tag uh-tag-a"><b>Armed</b><span>when <em>buy &gt; 0.1 ETH</em><br>then <em>refuse</em></span></div>
-          <div class="uh-tag uh-tag-b is-fired"><b>Rule fired</b><span>when <em>60 min since launch</em><br>then <em>lift the cap</em></span></div>
-        </div>
 </div>
 </body>
 </html>

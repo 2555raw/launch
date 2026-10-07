@@ -1,78 +1,99 @@
-# Stepit · tweets ready to post (@HelloStepit)
+# Stepit · launch tweet pack (@HelloStepit)
 
-Videos: `videos/stepit-teaser-square.mp4` (1:1), `videos/stepit-howto-vertical.mp4` (9:16), `stepit-demo-15s.mp4` (16:9).
+Slogan: **Your steps. Your rewards. Your adventure.**
+Replace `CA_HERE` with the contract address before posting.
+Media paths are relative to `brand/`.
 
-## 1 · Launch (with stepit-teaser-square.mp4)
+## 1 · Pinned launch tweet
+Media: `videos/stepit-launch-film.mp4`
+```
 Stepit is live 👟
+Your steps. Your rewards. Your adventure.
 
-Walk. Screenshot your steps. Upload. Get paid in USDG on Robinhood Chain.
+CA: CA_HERE
+stepit.site
+```
 
-Up to $5 a day for the steps you already walk.
+## 2 · Teaser
+Media: `videos/stepit-soon-usdg-x.mp4`
+```
+Steps in. USDG out. 👟
+
+CA: CA_HERE
+stepit.site
+```
+
+## 3 · Gym
+Media: `videos/stepit-short-gym.mp4`
+```
+Gyms charge you to move.
+We pay you. 👟
+
+CA: CA_HERE
+stepit.site
+```
+
+## 4 · 6,000 steps
+Media: `videos/stepit-short-zero.mp4`
+```
+You walked 6,000 steps today.
+You got paid nothing.
+That changes now. 👀
+
+CA: CA_HERE
+stepit.site
+```
+
+## 5 · Touch grass
+Media: `videos/stepit-short-grass.mp4`
+```
+Touch grass. Get paid. 🌱
+
+CA: CA_HERE
+stepit.site
+```
+
+## 6 · How it works
+Media: `tweets/stepit-how.png`
+```
+Walk. Screenshot. Get paid in USDG.
+That's it. That's the app. 👟
 
 stepit.site
+```
 
-## 2 · Hook
-You walk ~8,000 steps a day anyway.
-
-Might as well get paid for them.
-
-stepit.site 👟
-
-## 3 · How it works, thread (first tweet with stepit-howto-vertical.mp4)
-1/ How Stepit works, in 4 steps 🧵
-
-2/ Walk. Your phone already counts every step: Apple Health, Google Fit, Samsung Health, Fitbit, Garmin.
-
-3/ Screenshot the day's steps with the date, and upload it on stepit.site. The team checks every screenshot by hand.
-
-4/ Get paid in USDG, the dollar stablecoin on Robinhood Chain. Request a payout whenever you like. Every payment is public onchain.
+## 7 · Weekly prize
+Media: `videos/stepit-site-scroll.mp4`
+```
+Most steps this week wins $50 in USDG 🏆
+Ranking resets every Monday.
 
 stepit.site
+```
 
-## 4 · Referrals
-Invite a friend to Stepit 🤝
+## 8 · Free to join
+Media: `tweets/stepit-gym.png`
+```
+Free to join.
+Nothing to buy, nothing to hold.
+Just walk. 👟
 
-When their first walk is verified, you both get a bonus in USDG.
+stepit.site
+```
 
-Your invite link is in your dashboard 👉 stepit.site/dashboard
+## 9 · Safety
+No media.
+```
+No seed phrase. No approvals. No gas.
+One free signature and you're in. 🔒
 
-## 5 · Weekly ranking
-The weekly ranking is live 🏆
+stepit.site
+```
 
-Most verified steps from Monday to Sunday.
-
-Who's taking #1 this week?
-
-stepit.site/#ranking
-
-## 6 · Trust
-No seed phrase. No token approvals. No gas to join.
-
-You sign one free message to prove the wallet is yours. That's it.
-
-Every payout is on Robinhood Chain for anyone to check 🔍
-
-## 7 · Get USDG
-New to USDG? Get some in 2 minutes:
-
-• Robinhood app: buy USDG → Send → Robinhood Chain
-• USDC on Base or Arbitrum: bridge it with Across, it lands as USDG
-
-Full guide 👉 stepit.site/get-usdg
-
-## 8 · Engagement
+## 10 · Engagement
+No media.
+```
 How many steps did you walk today? 👇
+```
 
-Drop your number.
-
-## 9 · Daily reminder
-Today closes at 00:00 UTC ⏳
-
-Upload today's steps before it does 👉 stepit.site/steps
-
-## 10 · Weekend
-Weekend walk plan? 🏔️
-
-Every step counts. Literally.
-
-stepit.site
+Launch day order: 1 (pin it) → 3 → 4 → 6 → 5 → 7 → 8 → 9 → 10. Use 2 the day before.

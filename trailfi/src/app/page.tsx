@@ -1,3 +1,4 @@
+import { PayoutTicker } from "@/components/landing/PayoutTicker";
 import { CallToAction } from "@/components/landing/CallToAction";
 import { DemoLoop } from "@/components/landing/DemoLoop";
 import { Faq } from "@/components/landing/Faq";
@@ -15,6 +16,7 @@ export default function HomePage() {
       <Navbar />
       <main>
         <Hero />
+        <PayoutTicker />
         <DemoLoop />
         <HowItWorks />
         <RewardsSection />

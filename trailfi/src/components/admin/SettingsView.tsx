@@ -140,6 +140,12 @@ export function SettingsView() {
             >
               <input type="number" className="input font-mono" min={0} step={0.25} value={form.referralBonus} onChange={(e) => set("referralBonus", Number(e.target.value))} />
             </Field>
+            <Field
+              label={`Weekly prize (${form.payoutTokenSymbol})`}
+              hint="For the walker with the most verified steps each week (Monday to Sunday, UTC). You award it from Pay walkers. 0 turns it off."
+            >
+              <input type="number" className="input font-mono" min={0} step={5} value={form.weeklyPrize} onChange={(e) => set("weeklyPrize", Number(e.target.value))} />
+            </Field>
           </div>
           <p className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.05] p-4 text-[12.5px] text-lime-100/80">
             Walkers see the daily maximum (the last milestone) on the home page and what each verified day earns. Verifying a

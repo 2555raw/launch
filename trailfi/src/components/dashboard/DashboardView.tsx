@@ -1,5 +1,6 @@
 "use client";
 
+import { sharePayout } from "@/components/providers/Notices";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
@@ -321,6 +322,15 @@ export function DashboardView() {
                           <div className="flex items-center gap-2">
                             <StatusBadge status={p.status} />
                             {p.simulated && <DemoBadge>simulated</DemoBadge>}
+                            {p.status === "confirmed" && !p.simulated && (
+                              <button
+                                onClick={() => sharePayout(p.id, p.amount, data.referral.code)}
+                                className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2 py-0.5 text-[11px] text-white/60 transition hover:border-lime-400/40 hover:text-lime-300"
+                                title="Share on X"
+                              >
+                                <XLogo className="h-2.5 w-2.5" /> Share
+                              </button>
+                            )}
                           </div>
                         </td>
                         <td className="table-cell text-right">
@@ -387,7 +397,7 @@ export function DashboardView() {
                       {fmtDate(r.periodStart)}
                       {r.periodEnd !== r.periodStart && ` to ${fmtDate(r.periodEnd)}`}
                     </td>
-                    <td className="table-cell font-mono">{r.kind === "referral" ? <span className="font-sans text-lime-300">Referral bonus</span> : fmtSteps(r.validSteps)}</td>
+                    <td className="table-cell font-mono">{r.kind === "referral" ? <span className="font-sans text-lime-300">Referral bonus</span> : r.kind === "prize" ? <span className="font-sans text-lime-300">🏆 Weekly prize</span> : fmtSteps(r.validSteps)}</td>
                     <td className="table-cell font-mono text-lime-300">
                       {fmtAmount(r.amount)}{" "}
                       <span className="inline-flex items-center gap-1 text-white/40">

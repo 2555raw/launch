@@ -96,7 +96,7 @@ export interface ReadyToPay {
 export async function readyToPay(): Promise<ReadyToPay[]> {
   return query<ReadyToPay>(
     `select u.id as "userId", u.short_id as "userShortId", u.wallet_address as "walletAddress",
-            sum(r.amount)::text as amount, sum(r.valid_steps)::int as steps, count(*)::int as days,
+            sum(r.amount)::text as amount, sum(r.valid_steps)::int as steps, (count(*) filter (where r.kind = 'steps'))::int as days,
             max(r.reviewed_at) as "lastVerifiedAt"
        from rewards r join users u on u.id = r.user_id
       where r.status = 'approved' and r.payout_id is null and u.status = 'active'

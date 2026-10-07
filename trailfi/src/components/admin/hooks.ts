@@ -31,6 +31,7 @@ export interface AdminOverview {
     referralBonus: number;
     dailyBudget: number;
     signupsPaused: boolean;
+    weeklyPrize: number;
     updatedBy: string | null;
     updatedAt: string;
   };

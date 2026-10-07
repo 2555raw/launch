@@ -20,6 +20,10 @@ const QUESTIONS = [
     a: "No. Joining, walking and getting paid are all free. You don\'t need to buy or hold any token: your rewards arrive in your wallet as USDG, a dollar stablecoin, on Robinhood Chain.",
   },
   {
+    q: "Is there a weekly prize?",
+    a: "Yes. Every week (Monday to Sunday, UTC) the walker with the most verified steps wins a bonus of $50 in USDG, on top of their daily pay. The weekly ranking shows who is in front.",
+  },
+  {
     q: "How are my steps verified?",
     a: "You upload your daily total with a screenshot from your phone's health app, and the team checks that the date and the steps match before the day counts. Duplicates, future dates and implausible numbers are rejected.",
   },

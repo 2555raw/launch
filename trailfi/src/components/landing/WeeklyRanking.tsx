@@ -7,6 +7,7 @@ import { MarkIcon } from "@/components/Logo";
 import Link from "next/link";
 import { useState } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
+import { TokenIcon } from "@/components/ui/TokenIcon";
 import { AddressAvatar } from "@/components/wallet/ConnectWallet";
 import { cn } from "@/lib/cn";
 import { fmtSteps } from "@/lib/format";
@@ -25,6 +26,8 @@ interface Ranking {
   walkers: number;
   rows: Row[];
   me: Row | null;
+  prize: number;
+  prizeAwarded: boolean;
 }
 
 const fmtDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
@@ -87,7 +90,30 @@ export function WeeklyRanking() {
           </Reveal>
         </div>
 
-        <Reveal delay={0.1} className="mt-12">
+        {data && data.prize > 0 && (
+          <Reveal className="mt-10">
+            <div className="flex flex-col items-start justify-between gap-4 rounded-3xl border border-lime-400/35 bg-gradient-to-r from-lime-400/[0.12] via-lime-400/[0.05] to-transparent p-5 sm:flex-row sm:items-center sm:p-6">
+              <div className="flex items-center gap-4">
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-lime-400 text-ink-950">
+                  <Trophy className="h-6 w-6" />
+                </span>
+                <div>
+                  <div className="font-display text-xl font-bold sm:text-2xl">
+                    Most steps this week wins <span className="text-lime-300">${data.prize % 1 ? data.prize.toFixed(2) : data.prize}</span>
+                  </div>
+                  <div className="text-[13.5px] text-white/55">
+                    Every Monday the walker with the most verified steps gets a bonus in USDG, on top of their daily pay.
+                  </div>
+                </div>
+              </div>
+              <span className="flex items-center gap-2 whitespace-nowrap font-mono text-[12px] uppercase tracking-[0.14em] text-lime-300">
+                <TokenIcon symbol="USDG" /> {week === "this" ? resetsIn() : data.prizeAwarded ? "Prize awarded" : "Winner being paid"}
+              </span>
+            </div>
+          </Reveal>
+        )}
+
+        <Reveal delay={0.1} className="mt-8">
           {isLoading ? (
             <div className="grid gap-4 md:grid-cols-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -132,6 +158,11 @@ export function WeeklyRanking() {
                       </span>
                       {r.you && <span className="rounded-full bg-lime-400 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-ink-950">You</span>}
                     </div>
+                    {r.rank === 1 && data && data.prize > 0 && (
+                      <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-lime-400 px-2.5 py-1 font-mono text-[11px] font-bold uppercase text-ink-950">
+                        <Trophy className="h-3.5 w-3.5" /> {week === "this" ? "On track for" : "Won"} ${data.prize % 1 ? data.prize.toFixed(2) : data.prize}
+                      </div>
+                    )}
                     <div className="mt-5 flex items-center gap-3">
                       <AddressAvatar address={r.wallet.replace("…", "0")} className="h-10 w-10" />
                       <span className="font-mono text-[14px] text-white/85">{r.wallet}</span>

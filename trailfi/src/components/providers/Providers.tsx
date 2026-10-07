@@ -10,6 +10,7 @@ import { WagmiProvider, useAccount, useSignMessage } from "wagmi";
 import { SIWE_STATEMENT } from "@/lib/auth/constants";
 import { makeWagmiConfig } from "@/lib/web3/wagmi";
 import { PAYOUT_CHAIN_ID, SUPPORTED_CHAINS } from "@/lib/web3/chains";
+import { Notices } from "./Notices";
 import { SessionProvider, useSession } from "./SessionProvider";
 
 const Disclaimer: DisclaimerComponent = ({ Text }) => (
@@ -114,6 +115,7 @@ function AuthBridge({ children }: { children: ReactNode }) {
         appInfo={{ appName: "Stepit", disclaimer: Disclaimer, learnMoreUrl: "/docs" }}
       >
         {children}
+        <Notices />
       </RainbowKitProvider>
     </SignInContext.Provider>
   );

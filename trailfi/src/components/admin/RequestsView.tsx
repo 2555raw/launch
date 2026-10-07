@@ -1,7 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { Copy, Send } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { Copy, Send, Trophy } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { StatusBadge } from "@/components/ui/Badge";
@@ -103,6 +103,8 @@ export function RequestsView() {
         ))}
       </div>
 
+      <PrizeCard />
+
       <div className="mt-10 mb-4">
         <div className="label">Verified, not paid yet</div>
         <p className="mt-1 text-[13px] text-white/50">Walkers whose screenshots you verified. Pay them now, no request needed.</p>
@@ -162,5 +164,64 @@ export function RequestsView() {
       </div>
       <PayoutModal payout={open} onClose={() => setOpen(null)} />
     </div>
+  );
+}
+
+interface PrizeStatus {
+  weekStart: string;
+  weekEnd: string;
+  prize: number;
+  winner: { userId: string; userShortId: number; walletAddress: string; steps: number } | null;
+  awarded: boolean;
+}
+
+const fmtWeekDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+
+/** Last week's #1 walker: award the weekly prize, then pay it from the list below like any other reward. */
+function PrizeCard() {
+  const qc = useQueryClient();
+  const { data } = useQuery({ queryKey: ["admin", "prize"], queryFn: () => api<PrizeStatus>("/api/admin/prize") });
+  const award = useMutation({
+    mutationFn: () => api<PrizeStatus>("/api/admin/prize", { method: "POST" }),
+    onSuccess: async () => {
+      toast.success("Weekly prize credited", { description: "It's in the list below, ready to pay." });
+      await qc.invalidateQueries({ queryKey: ["admin"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  if (!data || data.prize <= 0) return null;
+  return (
+    <Card className="mt-10 border-lime-400/30 p-5 sm:p-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex min-w-0 items-center gap-4">
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-lime-400 text-ink-950">
+            <Trophy className="h-6 w-6" />
+          </span>
+          <div className="min-w-0">
+            <div className="label !text-[9.5px]">
+              Weekly prize · {fmtWeekDay(data.weekStart)} to {fmtWeekDay(data.weekEnd)}
+            </div>
+            {data.winner ? (
+              <>
+                <div className="mt-1 font-display text-lg font-bold">
+                  Walker #{data.winner.userShortId} · {fmtSteps(data.winner.steps)} steps
+                </div>
+                <div className="break-all font-mono text-[12.5px] text-white/60">{data.winner.walletAddress}</div>
+              </>
+            ) : (
+              <div className="mt-1 text-[14px] text-white/55">No verified steps last week, so no winner.</div>
+            )}
+          </div>
+        </div>
+        {data.winner &&
+          (data.awarded ? (
+            <span className="rounded-full border border-lime-400/40 px-3 py-1.5 font-mono text-[11px] uppercase tracking-wider text-lime-300">Awarded</span>
+          ) : (
+            <Button onClick={() => award.mutate()} disabled={award.isPending} icon={<Trophy className="h-4 w-4" />}>
+              Award ${data.prize % 1 ? data.prize.toFixed(2) : data.prize}
+            </Button>
+          ))}
+      </div>
+    </Card>
   );
 }

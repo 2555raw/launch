@@ -8,6 +8,8 @@ import { useSession } from "@/components/providers/SessionProvider";
 import { InstallAppButton } from "@/components/providers/InstallApp";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { cn } from "@/lib/cn";
+import { XLogo } from "@/components/ui/XLogo";
+import { X_HANDLE, X_URL } from "@/lib/social";
 
 const APP = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -72,6 +74,20 @@ export function AppNav() {
         <div className="mt-auto px-1 pb-3">
           <InstallAppButton />
         </div>
+        <a
+          href={X_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-3 text-[12.5px] text-white/60 transition hover:border-lime-400/30 hover:text-white"
+        >
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/[0.06] text-white">
+            <XLogo className="h-3.5 w-3.5" />
+          </span>
+          <span className="leading-tight">
+            Follow us on X
+            <span className="block text-[11.5px] text-white/40">@{X_HANDLE}</span>
+          </span>
+        </a>
       </aside>
 
       <header className="sticky top-0 z-30 border-b border-white/[0.07] bg-ink-950/80 backdrop-blur-xl lg:ml-64">

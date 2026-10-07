@@ -1,7 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { LayoutDashboard, Menu, Upload, X } from "lucide-react";
+import { ArrowUpRight, LayoutDashboard, Menu, Upload, X } from "lucide-react";
+import { XLogo } from "@/components/ui/XLogo";
+import { X_HANDLE, X_URL } from "@/lib/social";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -97,6 +99,15 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-1.5">
+          <a
+            href={X_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Strydo on X"
+            className="hidden h-9 w-9 place-items-center rounded-full border border-white/10 text-white/80 transition hover:border-lime-400/40 hover:bg-white/[0.06] hover:text-lime-300 sm:grid"
+          >
+            <XLogo className="h-[15px] w-[15px]" />
+          </a>
           <Link
             href="/steps"
             className={cn(
@@ -153,6 +164,17 @@ export function Navbar() {
                 <LayoutDashboard className="h-4 w-4 text-lime-400" /> Dashboard
               </Link>
             </div>
+            <a
+              href={X_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 flex items-center justify-between rounded-2xl px-4 py-3 text-[14px] text-white/60 hover:bg-white/[0.05]"
+            >
+              <span className="flex items-center gap-2">
+                <XLogo className="h-3.5 w-3.5" /> Follow @{X_HANDLE}
+              </span>
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
             <div className="p-1 pt-2 sm:hidden">
               <ConnectWallet className="w-full" />
             </div>

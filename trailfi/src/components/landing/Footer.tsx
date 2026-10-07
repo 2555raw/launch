@@ -6,6 +6,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { LogoMark } from "@/components/Logo";
 import { api } from "@/lib/fetcher";
+import { X_URL } from "@/lib/social";
 import { ContractAddress } from "./ContractAddress";
 
 const COLUMNS = [
@@ -40,8 +41,9 @@ const COLUMNS = [
 
 const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "HeyStrydo@gmail.com";
 
-/** Each profile gets an icon once its link is configured. */
+/** X always shows; the other profiles get an icon once their link is configured. */
 const SOCIALS = [
+  { label: "X", href: X_URL, icon: XIcon },
   { label: "Telegram", href: process.env.NEXT_PUBLIC_TELEGRAM_URL, icon: TelegramIcon },
   { label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, icon: InstagramIcon },
   { label: "Discord", href: process.env.NEXT_PUBLIC_DISCORD_URL, icon: DiscordIcon },
@@ -219,6 +221,14 @@ function NewsletterForm() {
         <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
       </button>
     </form>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
+      <path d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.77L17.75 3Zm-1.08 16.2h1.7L7.4 4.7H5.57l11.1 14.5Z" />
+    </svg>
   );
 }
 

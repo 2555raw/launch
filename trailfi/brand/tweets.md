@@ -7,10 +7,10 @@ Media paths are relative to `brand/`.
 ## 1 · Pinned launch tweet
 Media: `videos/stepit-launch-film.mp4`
 ```
-Stepit is live 👟
-Your steps. Your rewards. Your adventure.
+Your steps. Your rewards. Your adventure. 👟
 
-Walk, screenshot your steps and upload them. We review each day and pay you in USDG on Robinhood Chain. Free to join.
+Walk. Screenshot. Get paid in USDG.
+Free to join.
 
 CA: CA_HERE
 stepit.site

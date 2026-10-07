@@ -13,6 +13,7 @@ import { api } from "@/lib/fetcher";
 import { fmtAmount, fmtDateTime, fmtSteps } from "@/lib/format";
 import type { Payout } from "./hooks";
 import { PageHeader } from "./PageHeader";
+import { BatchPayoutModal, type BatchItem } from "./BatchPayoutModal";
 import { PayoutModal } from "./PayoutModal";
 import { usePreparePayout } from "./usePreparePayout";
 
@@ -41,6 +42,7 @@ export function RequestsView() {
     refetchInterval: 20_000,
   });
   const readyRows = ready.data?.ready ?? [];
+  const [batchOpen, setBatchOpen] = useState(false);
   const rows = (data?.payouts ?? []).slice().sort((a, b) => (a.requestedAt ?? a.createdAt).localeCompare(b.requestedAt ?? b.createdAt));
 
   return (
@@ -50,6 +52,22 @@ export function RequestsView() {
         title="Payouts to send"
         description="Walkers who asked to be paid, and walkers with verified days you can pay right away. Full wallet addresses are only shown here, to administrators."
       />
+      {(rows.length + readyRows.length > 1) && (
+        <div className="mb-5 flex flex-col items-start justify-between gap-3 rounded-3xl border border-lime-400/30 bg-lime-400/[0.06] p-5 sm:flex-row sm:items-center">
+          <div>
+            <div className="font-display text-lg font-bold">
+              {rows.length + readyRows.length} walkers to pay ·{" "}
+              <span className="text-lime-300">
+                {fmtAmount([...rows.map((p) => Number(p.amount)), ...readyRows.map((r) => Number(r.amount))].reduce((a, b) => a + b, 0))}
+              </span>
+            </div>
+            <div className="text-[13px] text-white/55">Send them all in one go: you approve each transfer in your wallet, back to back.</div>
+          </div>
+          <Button onClick={() => setBatchOpen(true)} icon={<Send className="h-4 w-4" />}>
+            Pay all
+          </Button>
+        </div>
+      )}
       {isLoading && <Skeleton className="h-32" />}
       {!isLoading && rows.length === 0 && (
         <Card className="p-6">
@@ -163,6 +181,14 @@ export function RequestsView() {
         ))}
       </div>
       <PayoutModal payout={open} onClose={() => setOpen(null)} />
+      <BatchPayoutModal
+        open={batchOpen}
+        onClose={() => setBatchOpen(false)}
+        items={[
+          ...rows.map<BatchItem>((p) => ({ key: p.id, userShortId: p.userShortId, walletAddress: p.walletAddress, amount: p.amount, payout: p })),
+          ...readyRows.map<BatchItem>((r) => ({ key: r.userId, userShortId: r.userShortId, walletAddress: r.walletAddress, amount: r.amount, userId: r.userId })),
+        ]}
+      />
     </div>
   );
 }

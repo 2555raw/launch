@@ -69,7 +69,9 @@ const MARK = "M144 0L220 0A32 32 0 0 1 252 32L252 138A9 9 0 0 1 243 147L177 147A
 ["mk1", "mk2", "mk3"].forEach((id) => $(id).setAttribute("d", MARK));
 window.DURATION = 5.6;
 window.render = (t) => {
-  set("sky", { transform: `translate(${-30 * (t / window.DURATION)}px, ${10 * Math.sin(t * 0.6)}px) scale(${1.02 + 0.03 * (t / window.DURATION)})` });
+  // #gif keeps the photo still so the GIF only stores what changes
+  if (location.hash === "#gif") set("sky", { transform: "translate(-15px, 0) scale(1.035)" });
+  else set("sky", { transform: `translate(${-30 * (t / window.DURATION)}px, ${10 * Math.sin(t * 0.6)}px) scale(${1.02 + 0.03 * (t / window.DURATION)})` });
   // 1 · steps race up
   const k = prog(t, 0.1, 1.2);
   $("steps").textContent = Math.round(10871 * k).toLocaleString("en-US");

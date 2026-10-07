@@ -109,7 +109,9 @@ window.render = (t) => {
     el.style.transform = `scale(${0.7 + f.depth * 0.5})`;
     el.style.filter = f.depth < 0.6 ? "blur(2px)" : "none";
   });
-  set("sky", { transform: `translate(${-30 * (t / window.DURATION)}px, ${10 * Math.sin(t * 0.6)}px) scale(${1.02 + 0.03 * (t / window.DURATION)})` });
+  // #gif keeps the photo still so the GIF only stores what changes
+  if (location.hash === "#gif") set("sky", { transform: "translate(-15px, 0) scale(1.035)" });
+  else set("sky", { transform: `translate(${-30 * (t / window.DURATION)}px, ${10 * Math.sin(t * 0.6)}px) scale(${1.02 + 0.03 * (t / window.DURATION)})` });
   // 1 · steps race up
   const k = prog(t, 0.1, 1.2);
   $("steps").textContent = Math.round(10871 * k).toLocaleString("en-US");

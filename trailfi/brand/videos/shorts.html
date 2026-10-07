@@ -63,7 +63,7 @@ body[data-v="gym"] #gym,body[data-v="zero"] #zero,body[data-v="grass"] #grass{di
   <div class="abs" id="tcount" style="right:90px;top:120px;text-align:right">
     <div class="label">Steps today</div>
     <div class="mono" id="tsteps" style="font-size:72px;color:#fff">0</div>
-    <div class="mono accent" id="tusdg" style="font-size:40px;margin-top:6px">$0.00</div><div class="label" style="margin-top:4px">paid in ETH</div>
+    <div class="mono accent" id="tusd" style="font-size:40px;margin-top:6px">$0.00</div><div class="label" style="margin-top:4px">paid in ETH</div>
   </div>
   <div class="brand" id="tbrand" style="left:90px;bottom:60px"><svg width="47" height="47" viewBox="0 0 514 514"><use href="#m" fill="url(#lg)"/></svg>Stry<span class="accent" style="margin-left:-14px">do</span></div>
 </div>
@@ -117,7 +117,7 @@ window.render = (t) => {
     set("t3", { opacity: prog(t, 2.0, 2.4) });
     const k = prog(t, 0.5, 4.5);
     $("tsteps").textContent = Math.round(10871 * k).toLocaleString("en-US");
-    $("tusdg").textContent = "$" + (5 * k).toFixed(2);
+    $("tusd").textContent = "$" + (5 * k).toFixed(2);
     set("tcount", { opacity: prog(t, 0.4, 0.8) });
     set("tbrand", { opacity: prog(t, 4.6, 5.0) });
   }

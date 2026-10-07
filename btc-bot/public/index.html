@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BTC Bot · simulación</title>
+<style>
+  :root {
+    --bg: #0d1117; --panel: #161b22; --line: #30363d; --text: #e6edf3; --muted: #8b949e;
+    --up: #3fb950; --down: #f85149; --accent: #d29922; --blue: #58a6ff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 16px; margin: 0; }
+  .badge { background: var(--accent); color: #000; font-weight: 700; font-size: 11px; padding: 2px 8px; border-radius: 99px; letter-spacing: .04em; }
+  .muted { color: var(--muted); }
+  main { padding: 16px; display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; min-width: 0; }
+  .span-12 { grid-column: span 12; } .span-8 { grid-column: span 8; } .span-4 { grid-column: span 4; } .span-6 { grid-column: span 6; }
+  @media (max-width: 900px) { .span-8, .span-4, .span-6 { grid-column: span 12; } }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; font-weight: 600; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; }
+  .stat .v { font-size: 22px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .stat .k { font-size: 12px; color: var(--muted); }
+  .big { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  canvas { width: 100%; height: 140px; display: block; }
+  .scroll { overflow-x: auto; max-height: 460px; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; position: sticky; top: 0; background: var(--panel); }
+  td.q { white-space: normal; min-width: 180px; }
+  .pos { color: var(--up); } .neg { color: var(--down); }
+  .hot { background: rgba(63, 185, 80, .12); }
+  .tag { font-size: 11px; padding: 1px 6px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); }
+  pre { margin: 0; font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); white-space: pre-wrap; max-height: 260px; overflow: auto; }
+  .warn { color: var(--accent); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>BTC Bot</h1>
+  <span class="badge">SIMULACIÓN · SIN DINERO REAL</span>
+  <span class="muted" id="status">conectando…</span>
+</header>
+<main>
+  <section class="card span-8">
+    <h2>BTC/USDT (Binance)</h2>
+    <div class="big" id="price">–</div>
+    <div class="muted" id="priceMeta">–</div>
+    <canvas id="chart" width="800" height="140"></canvas>
+  </section>
+  <section class="card span-4">
+    <h2>Cuenta simulada</h2>
+    <div class="stats" id="stats"></div>
+  </section>
+
+  <section class="card span-12">
+    <h2>Mercados en vivo <span class="muted" id="mcount"></span></h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Mercado</th><th>Tipo</th><th>Cierra en</th><th>Referencia</th><th>Modelo ↑</th><th>Compra ↑</th><th>Ventaja ↑</th><th>Compra ↓</th><th>Ventaja ↓</th><th>Estado</th></tr></thead>
+        <tbody id="markets"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card span-6">
+    <h2>Posiciones abiertas</h2>
+    <div class="scroll"><table><thead><tr><th>Mercado</th><th>Lado</th><th>Acciones</th><th>Precio</th><th>Modelo</th><th>Cierra en</th></tr></thead><tbody id="open"></tbody></table></div>
+  </section>
+  <section class="card span-6">
+    <h2>Historial</h2>
+    <div class="scroll"><table><thead><tr><th>Mercado</th><th>Lado</th><th>Coste</th><th>Resultado</th><th>P&amp;L</th></tr></thead><tbody id="closed"></tbody></table></div>
+  </section>
+
+  <section class="card span-12">
+    <h2>Registro</h2>
+    <pre id="log"></pre>
+    <p class="warn">Las compras se simulan al precio del libro en ese momento, sin latencia ni competencia. En real, los fills serían peores.</p>
+  </section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const usd = (x) => (x < 0 ? '-$' : '$') + Math.abs(x).toFixed(2);
+const pct = (x) => x == null ? '–' : (x * 100).toFixed(1) + '%';
+const cents = (x) => x == null ? '–' : (x * 100).toFixed(1) + '¢';
+const signed = (x) => x == null ? '–' : `<span class="${x >= 0 ? 'pos' : 'neg'}">${x >= 0 ? '+' : ''}${(x * 100).toFixed(1)}¢</span>`;
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const left = (s) => s < 0 ? 'cerrado' : s >= 3600 ? `${Math.floor(s / 3600)}h ${Math.floor(s % 3600 / 60)}m` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+const KIND = { twap: 'TWAP', candle: 'vela 1h', above: 'encima de' };
+
+function drawChart(points) {
+  const c = $('chart'), ctx = c.getContext('2d');
+  const w = c.width = c.clientWidth * devicePixelRatio, h = c.height = c.clientHeight * devicePixelRatio;
+  ctx.clearRect(0, 0, w, h);
+  if (points.length < 2) return;
+  const ys = points.map((p) => p[1]);
+  const lo = Math.min(...ys), hi = Math.max(...ys), pad = (hi - lo) * 0.1 || 1;
+  const x0 = points[0][0], x1 = points[points.length - 1][0];
+  const X = (t) => (t - x0) / (x1 - x0 || 1) * w, Y = (v) => h - (v - lo + pad) / (hi - lo + 2 * pad) * h;
+  ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--blue');
+  ctx.lineWidth = 2 * devicePixelRatio;
+  ctx.beginPath();
+  points.forEach(([t, v], i) => i ? ctx.lineTo(X(t), Y(v)) : ctx.moveTo(X(t), Y(v)));
+  ctx.stroke();
+  ctx.fillStyle = '#8b949e'; ctx.font = `${11 * devicePixelRatio}px sans-serif`;
+  ctx.fillText(hi.toFixed(0), 4, 12 * devicePixelRatio); ctx.fillText(lo.toFixed(0), 4, h - 4);
+}
+
+function render(s) {
+  $('status').textContent = `escaneando ${s.scanned.count} mercados BTC · actualizado ${new Date(s.now).toLocaleTimeString()}`;
+  $('price').textContent = s.btc.price ? '$' + s.btc.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '–';
+  $('priceMeta').textContent = `fuente: ${s.btc.source} · hace ${s.btc.ageMs} ms · volatilidad anual usada: ${(s.btc.sigmaAnnual * 100).toFixed(0)}%`;
+  drawChart(s.chart);
+
+  const a = s.account;
+  const pnl = a.equity - a.startBankroll;
+  $('stats').innerHTML = [
+    ['Capital', usd(a.equity)],
+    ['Inicial', usd(a.startBankroll)],
+    ['P&L', `<span class="${pnl >= 0 ? 'pos' : 'neg'}">${usd(pnl)}</span>`],
+    ['Efectivo', usd(a.cash)],
+    ['En juego', usd(a.atRisk)],
+    ['Operaciones', `${a.trades} <span class="muted" style="font-size:13px">${a.wins}G / ${a.losses}P</span>`],
+    ['Comisiones', usd(a.fees)],
+    ['P&L esperado', usd(a.expectedOnClosed)],
+  ].map(([k, v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+
+  $('mcount').textContent = `(${s.markets.length})`;
+  $('markets').innerHTML = s.markets.map((m) => {
+    const [up, dn] = m.sides || [];
+    const hot = m.status === 'COMPRADO' || (m.sides || []).some((x) => x && x.edge >= s.config.minEdge);
+    return `<tr class="${hot ? 'hot' : ''}">
+      <td class="q">${esc(m.question)}</td>
+      <td><span class="tag">${esc(m.label)} · ${KIND[m.kind]}</span></td>
+      <td>${left(m.secondsLeft)}</td>
+      <td>${m.K ? '$' + m.K.toFixed(2) : '–'}</td>
+      <td>${pct(m.prob)}</td>
+      <td>${cents(up?.ask)}</td><td>${signed(up?.edge)}</td>
+      <td>${cents(dn?.ask)}</td><td>${signed(dn?.edge)}</td>
+      <td class="muted">${esc(m.status)}</td></tr>`;
+  }).join('') || '<tr><td colspan="10" class="muted">Buscando mercados…</td></tr>';
+
+  $('open').innerHTML = s.open.map((p) => `<tr>
+    <td class="q">${esc(p.question)}</td><td>${esc(p.outcome)}</td><td>${p.shares}</td>
+    <td>${cents(p.avgPrice)}</td><td>${pct(p.prob)}</td><td>${left(Math.round((p.end - s.now) / 1000))}</td></tr>`).join('')
+    || '<tr><td colspan="6" class="muted">Ninguna</td></tr>';
+
+  $('closed').innerHTML = s.closed.map((p) => `<tr>
+    <td class="q">${esc(p.question)}</td><td>${esc(p.outcome)}</td><td>${usd(p.cost + p.fees)}</td>
+    <td>${p.side === p.winner ? 'gana' : 'pierde'} <span class="muted">(${esc(p.method)})</span></td>
+    <td class="${p.pnl >= 0 ? 'pos' : 'neg'}">${usd(p.pnl)}</td></tr>`).join('')
+    || '<tr><td colspan="5" class="muted">Todavía nada</td></tr>';
+
+  $('log').textContent = s.log.join('\n');
+}
+
+async function loop() {
+  try {
+    render(await (await fetch('/api/state', { cache: 'no-store' })).json());
+  } catch {
+    $('status').textContent = 'sin conexión con el bot';
+  }
+  setTimeout(loop, 1000);
+}
+loop();
+</script>
+</body>
+</html>

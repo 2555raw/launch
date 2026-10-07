@@ -1,0 +1,15 @@
+{
+  "name": "btc-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Paper-trading scanner: Binance BTC price vs Polymarket BTC markets.",
+  "type": "module",
+  "scripts": {
+    "start": "node src/bot.mjs",
+    "test": "node --test",
+    "backtest": "node src/backtest.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

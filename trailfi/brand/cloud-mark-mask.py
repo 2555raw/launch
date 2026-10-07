@@ -29,30 +29,40 @@ def smooth(e0, e1, x):
 # squashed a touch and leaned with the wind like a real cloud bank.
 MASK = sys.argv[8]
 k = W / 514
-mk = Image.open(MASK).convert("L").resize((int(W), int(W * 0.9)), Image.LANCZOS).rotate(-4, resample=Image.BICUBIC, expand=True)
+mk = Image.open(MASK).convert("L").resize((int(W), int(W * 0.9)), Image.LANCZOS)
+# Widen the slits between the four pieces so they survive as clear sky once the edges turn to vapour.
+from PIL import ImageFilter
+mk = mk.filter(ImageFilter.MinFilter(9)).rotate(-4, resample=Image.BICUBIC, expand=True)
 m = Image.new("L", (W_, H_), 0)
 m.paste(mk, (int(CX - mk.width / 2), int(CY - mk.height / 2)))
 mask = np.asarray(m).astype(np.float32) / 255
 
 # Wind: stretch and tear the shape sideways with large, soft warps, then let fine noise fray the edges.
-wx = fractal([14, 40], [0.7, 1.0]) * 6 + 3 * np.sin(yy / 19.0)
+wx = fractal([14, 40], [0.7, 1.0]) * 5 + 2.5 * np.sin(yy / 23.0)
 wy = fractal([14, 40], [0.7, 1.0]) * 3
 mask = nd.map_coordinates(mask, [yy + wy, xx + wx], order=1)
 fray = fractal([2, 6, 16], [0.35, 0.7, 1.0])
-mask = nd.gaussian_filter(mask, 2.6)
+mask = nd.gaussian_filter(mask, 3.0)
 mask = smooth(0.05, 0.95, mask + 0.45 * fray * mask * (1 - mask) * 4)   # wispy, uneven edges
-mask = nd.gaussian_filter(mask, 1.8)
+mask = nd.gaussian_filter(mask, 2.4)
 
 # Density varies like real vapour: thick in places, almost gone in others, fading toward the outer tips.
 density = smooth(-1.4, 1.2, fractal([5, 14, 40], [0.4, 0.7, 1.0]))
 ends = np.exp(-(((xx - CX) / (W * 0.7)) ** 2))
-amount = STRENGTH * mask * (0.6 + 0.4 * density) * (0.75 + 0.25 * ends)
+amount = STRENGTH * mask * (0.5 + 0.5 * density) * (0.75 + 0.25 * ends)
 
 # Cloud colour and texture come from the photo's own brightest cloud; gaps get a touch of the thinner, darker sky.
 lum = img.mean(axis=2)
 cloud_col = np.percentile(img.reshape(-1, 3)[lum.reshape(-1) > np.percentile(lum, 97)], 60, axis=0)
 texture = (fractal([1.5, 4], [0.5, 1.0]) * 0.02)[..., None]
-cloud = np.clip(cloud_col + texture, 0, 1)
+# Real clouds are lit from above: billows catch light on top and fall into grey shadow underneath,
+# with big soft swirls of brighter and darker vapour across the whole formation.
+soft = nd.gaussian_filter(mask, 9)
+underside = np.clip(soft - nd.shift(soft, (-16, 0), order=1, mode="nearest"), 0, 1)
+topside = np.clip(soft - nd.shift(soft, (16, 0), order=1, mode="nearest"), 0, 1)
+swirl = fractal([8, 22, 60], [0.4, 0.7, 1.0])
+shade = np.clip(0.9 + 0.08 * swirl - 0.55 * underside + 0.3 * topside, 0.7, 1.08)[..., None]
+cloud = np.clip(cloud_col * shade + texture, 0, 1)
 out = img + (cloud - img) * amount[..., None]
 
 halo = np.clip(nd.gaussian_filter(nd.grey_dilation(mask, size=(int(18 * k) | 1,) * 2), 4) - mask, 0, 1)

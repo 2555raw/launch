@@ -1,5 +1,5 @@
 """The profile picture: the mark glowing in electric blue inside dark storm clouds, filled with the clouds' own
-texture and with frayed, vapour like edges, the same treatment the Stepit picture had."""
+texture and with soft, misty edges, the same treatment the Stepit picture had."""
 import sys
 import numpy as np
 from PIL import Image
@@ -29,12 +29,13 @@ mask = np.zeros((H, W), np.float32)
 o = (SIZE - mw) // 2
 mask[o:o + mw, o:o + mw] = mk
 yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
-wx, wy = fractal([6, 18], [0.6, 1.0]) * 3, fractal([6, 18], [0.6, 1.0]) * 3
+# Soft, misty edges like vapour (not torn paper): a gentle warp, a wide feather and patchy density.
+wx, wy = fractal([10, 30], [0.6, 1.0]) * 4, fractal([10, 30], [0.6, 1.0]) * 4
 mask = nd.map_coordinates(mask, [yy + wy, xx + wx], order=1)
-fray = fractal([1.5, 4, 10], [0.4, 0.7, 1.0])
-mask = nd.gaussian_filter(mask, 2.2)
-mask = np.clip((mask - 0.5) * 1.6 + 0.5 + 0.18 * fray * (mask * (1 - mask) * 4), 0, 1)
-mask = nd.gaussian_filter(mask, 1.2)
+mask = nd.gaussian_filter(mask, 5.5)
+density = np.clip(0.82 + 0.18 * fractal([6, 20], [0.5, 1.0]), 0.55, 1.0)
+mask = np.clip((mask - 0.5) * 1.25 + 0.5, 0, 1) * density
+mist = nd.gaussian_filter(mask, 14) * 0.35
 
 # Fill: electric blue lit by the cloud texture underneath, brighter in the thick parts.
 tex = np.clip(lum / max(lum[mask > 0.5].mean(), 1e-3), 0.55, 1.6)[..., None]
@@ -45,7 +46,7 @@ fill = np.clip(deep + (light - deep) * t, 0, 1) * np.clip(0.7 + 0.35 * tex, 0, 1
 # Glow: a soft blue light spilling into the clouds around the mark.
 glow = nd.gaussian_filter(mask, 26) * 0.55 + nd.gaussian_filter(mask, 70) * 0.35
 out = sky + np.array([0.18, 0.48, 1.0]) * glow[..., None] * 0.9
-out = out + (fill - out) * mask[..., None]
+out = out + (fill - out) * np.clip(mask + mist * (1 - mask), 0, 1)[..., None]
 img = Image.fromarray((np.clip(out, 0, 1) * 255).astype(np.uint8))
 img.resize((800, 800), Image.LANCZOS).save(OUT)
 print("ok")

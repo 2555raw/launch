@@ -69,7 +69,7 @@
 
 /* reading column */
 .dc-page { padding-top: 12px; }
-.dc-page h1 { margin-top: 16px; font-family: var(--font-display); font-size: clamp(34px, 4.4vw, 46px); line-height: 1.1; letter-spacing: -.01em; font-weight: 800; }
+.dc-page h1 { margin-top: 16px; font-family: var(--font-display); font-size: clamp(34px, 4.4vw, 46px); line-height: 1.1; letter-spacing: -.01em; font-weight: 700; }
 .dc-page h2 { margin-top: 52px; font-size: 30px; line-height: 1.2; letter-spacing: -.03em; font-weight: 700; scroll-margin-top: 88px; }
 .dc-page p, .dc-page li { font-size: 16px; line-height: 1.75; color: #DCD2BE; }
 .dc-page p { margin-top: 18px; }

@@ -2,6 +2,8 @@
    numbers, the 24h line and its tooltip, the no-pool and offline states.
    Serve the site on :8765 first. */
 const { chromium } = require('playwright');
+// Waits poll on a timer, not on animation frames: the landing's WebGL scenes
+// can starve requestAnimationFrame in a software-rendered test browser.
 const B = 'http://localhost:8765/';
 const out = []; const ok = (n, c, x = '') => out.push(`${c ? 'PASS' : 'FAIL'}  ${n}${x ? '  — ' + x : ''}`);
 const CA = '0x1111111111111111111111111111111111111111';
@@ -9,6 +11,9 @@ const withCA = async (r) => { const body = (await (await r.fetch()).text()).repl
 (async () => {
   const b = await chromium.launch();
   let ctx = await b.newContext({ viewport: { width: 1440, height: 900 } }); let p = await ctx.newPage();
+  // Only the site and the stand-ins below: fonts and CDNs are not needed, and
+  // without a network they can hang and keep the page from going idle.
+  await ctx.route((u) => !u.href.startsWith(B), (r) => r.abort());
   await ctx.route(B + 'config.js', withCA);
   await ctx.route(/api\.dexscreener\.com/, r => r.fulfill({ contentType: 'application/json', body: JSON.stringify([
     { url: 'https://dexscreener.com/robinhood/0xaa', pairAddress: '0x' + 'aa'.repeat(32), priceUsd: '0.00042', marketCap: 420000, liquidity: { usd: 88000 }, volume: { h24: 12345 }, priceChange: { h24: 12.5 } },
@@ -18,7 +23,7 @@ const withCA = async (r) => { const body = (await (await r.fetch()).text()).repl
   await ctx.route(/api\.geckoterminal\.com/, r => { gUrl = r.request().url(); r.fulfill({ contentType: 'application/json', body: JSON.stringify({ data: { attributes: { ohlcv_list: Array.from({ length: 24 }, (_, i) => [now - i * 3600, 0, 0, 0, 0.00042 * (1 - i * 0.004 + Math.sin(i) * 0.01), 10]) } } }) }); });
   await ctx.route(/blockscout/, r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ holders_count: '1234' }) }));
   await p.goto(B + 'index.html', { waitUntil: 'networkidle' });
-  await p.waitForFunction(() => document.querySelectorAll('#mk-spark path').length === 2);
+  await p.waitForFunction(() => document.querySelectorAll('#mk-spark path').length === 2, null, { polling: 200 });
   ok('most liquid pair chosen', gUrl.includes('0x' + 'aa'.repeat(32)), gUrl.slice(0, 120));
   ok('24h line drawn with area + line', true);
   ok('price', (await p.textContent('#mk-price')) === '$0.00042');
@@ -32,7 +37,7 @@ const withCA = async (r) => { const body = (await (await r.fetch()).text()).repl
   await p.waitForTimeout(900);
   const bx = await p.$eval('#mk-spark', e => { const r = e.getBoundingClientRect(); return { x: r.x + r.width * 0.5, y: r.y + r.height / 2 }; });
   await p.mouse.move(bx.x, bx.y);
-  await p.waitForFunction(() => /\$0\.000/.test(document.querySelector('#mk-tip').textContent), null, { timeout: 3000 }).catch(() => {});
+  await p.waitForFunction(() => /\$0\.000/.test(document.querySelector('#mk-tip').textContent), null, { timeout: 3000, polling: 100 }).catch(() => {});
   ok('hover tooltip with time and price', /\$0\.000/.test(await p.textContent('#mk-tip')), await p.textContent('#mk-tip'));
   await p.screenshot({ path: require('path').join(__dirname, 'market.png') });
   await p.setViewportSize({ width: 390, height: 844 }); await p.waitForTimeout(200);
@@ -41,10 +46,12 @@ const withCA = async (r) => { const body = (await (await r.fetch()).text()).repl
   await ctx.close();
 
   ctx = await b.newContext(); p = await ctx.newPage();
+  await ctx.route((u) => !u.href.startsWith(B), (r) => r.abort());
   await ctx.route(B + 'config.js', withCA);
   await ctx.route(/api\.dexscreener\.com/, r => r.fulfill({ contentType: 'application/json', body: '[]' }));
   await ctx.route(/blockscout|geckoterminal/, r => r.abort());
-  await p.goto(B + 'index.html', { waitUntil: 'networkidle' }); await p.waitForTimeout(800);
-  ok('no pools yet: friendly message, buy still available', (await p.textContent('#mk-price')) === 'Not trading yet' && (await p.textContent('#mk-updated')).includes('first pool') && await p.isVisible('#mk-buy'));
+  await p.goto(B + 'index.html', { waitUntil: 'networkidle' });
+  await p.waitForFunction(() => document.querySelector('#mk-price').textContent === 'Not trading yet', null, { timeout: 8000, polling: 200 }).catch(() => {});
+  ok('no pools yet: friendly message, buy still available', (await p.textContent('#mk-price')) === 'Not trading yet' && (await p.textContent('#mk-updated')).includes('first pool') && await p.isVisible('#mk-buy'), [await p.textContent('#mk-price'), await p.textContent('#mk-updated'), await p.isVisible('#mk-buy')].join(' | '));
   console.log(out.join('\n')); await b.close();
 })();

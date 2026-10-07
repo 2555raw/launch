@@ -247,9 +247,11 @@ the ball over the sea, and a shake of the page), and the sea under the closing c
 with the ship sailing across. A scene only draws while its canvas is on screen; the 2D
 drawing stays without WebGL, and with reduced motion one still frame is drawn.
 
-Type: **Playfair Display** for headlines with the last words in gold italic, **Lora** for
-text, **Pirata One** for the wordmark and numerals, **Geist Mono** for addresses, code and
-labels. The landing's hero is a porthole on a night
+Type: **Zilla Slab** for headlines (the last words in gold, same face), **Source Serif 4**
+for text, **Pirata One** for the wordmark, **Geist Mono** for addresses and code. Labels are
+plain sentence case. Every page's title is just "UnyHooks". The hero carries a "Built on
+Uniswap V4" badge with Uniswap's mark (`uniswap.png`, from Uniswap's own interface repo);
+the 3D doubloon has the hook and $UHOOKS on its front and the same mark struck on its back. The landing's hero is a porthole on a night
 sea (moon, a ship riding the swell, a compass rose), the rail down the left is a rope the
 hook is let down as you scroll, the "map" section is parchment with rhumb lines and an X on
 the lock date, and a ship crosses the closing section. The mark is a pirate's hook on its cuff, drawn once as an SVG

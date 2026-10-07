@@ -407,31 +407,68 @@ function shipModel() {
 
 /* ---------- the coin ---------- */
 
-function coinFaceTexture() {
+// One face of the doubloon as a bump map: grey is the field, white is raised.
+// The front carries the hook and "$UHOOKS"; the back, Uniswap's unicorn.
+function coinFaceTexture(side) {
   const c = document.createElement('canvas');
   c.width = c.height = 1024;
   const g = c.getContext('2d');
-  g.fillStyle = '#808080'; g.fillRect(0, 0, 1024, 1024);
-  g.translate(512, 512);
-  // raised rim, a beaded ring, the hook, the legend
-  g.strokeStyle = '#fff'; g.lineWidth = 44; g.beginPath(); g.arc(0, 0, 470, 0, Math.PI * 2); g.stroke();
-  g.fillStyle = '#e6e6e6';
-  for (let i = 0; i < 72; i++) { const a = (i / 72) * Math.PI * 2; g.beginPath(); g.arc(Math.cos(a) * 405, Math.sin(a) * 405, 9, 0, Math.PI * 2); g.fill(); }
-  g.save(); g.scale(6.2, 6.2); g.translate(-30.5, -46);
-  g.fillStyle = '#fff';
-  g.fill(new Path2D('M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z'));
-  g.fill(new Path2D('M18 63h14l6.2 12.6a1.6 1.6 0 0 1-1.4 2.4H13.2a1.6 1.6 0 0 1-1.4-2.4z'));
-  g.restore();
-  g.font = '700 64px Georgia, serif'; g.fillStyle = '#f2f2f2'; g.textAlign = 'center'; g.textBaseline = 'middle';
-  const word = 'UNYHOOKS · ROBINHOOD CHAIN · ';
-  for (let i = 0; i < word.length; i++) {
-    const a = -Math.PI / 2 + ((i - word.length / 2) / word.length) * Math.PI * 2;
-    g.save(); g.rotate(a + Math.PI / 2); g.translate(0, -335); g.fillText(word[i], 0, 0); g.restore();
-  }
   const t = new THREE.CanvasTexture(c);
   t.anisotropy = 8;
   t.center.set(0.5, 0.5);
   t.rotation = Math.PI / 2;
+  const legend = (word, r, size) => {
+    g.font = `700 ${size}px Georgia, serif`; g.fillStyle = '#f2f2f2'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (let i = 0; i < word.length; i++) {
+      const a = -Math.PI / 2 + ((i - word.length / 2) / word.length) * Math.PI * 2;
+      g.save(); g.rotate(a + Math.PI / 2); g.translate(0, -r); g.fillText(word[i], 0, 0); g.restore();
+    }
+  };
+  // letters along the top arc only, centred, `span` degrees wide
+  const arc = (word, r, size, span) => {
+    g.font = `700 ${size}px Georgia, serif`; g.fillStyle = '#f2f2f2'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    const step = (span / Math.max(1, word.length - 1)) * Math.PI / 180;
+    for (let i = 0; i < word.length; i++) {
+      const a = (i - (word.length - 1) / 2) * step;
+      g.save(); g.rotate(a); g.translate(0, -r); g.fillText(word[i], 0, 0); g.restore();
+    }
+  };
+  g.fillStyle = '#808080'; g.fillRect(0, 0, 1024, 1024);
+  g.translate(512, 512);
+  // raised rim and a beaded ring on both faces
+  g.strokeStyle = '#fff'; g.lineWidth = 44; g.beginPath(); g.arc(0, 0, 470, 0, Math.PI * 2); g.stroke();
+  g.fillStyle = '#e6e6e6';
+  for (let i = 0; i < 72; i++) { const a = (i / 72) * Math.PI * 2; g.beginPath(); g.arc(Math.cos(a) * 405, Math.sin(a) * 405, 9, 0, Math.PI * 2); g.fill(); }
+  if (side === 'front') {
+    g.save(); g.scale(4.4, 4.4); g.translate(-30.5, -60);
+    g.fillStyle = '#fff';
+    g.fill(new Path2D('M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z'));
+    g.fill(new Path2D('M18 63h14l6.2 12.6a1.6 1.6 0 0 1-1.4 2.4H13.2a1.6 1.6 0 0 1-1.4-2.4z'));
+    g.restore();
+    g.font = '700 92px Georgia, serif'; g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('$UHOOKS', 0, 215);
+    arc('ROBINHOOD CHAIN', 335, 52, 120);
+  } else {
+    legend('BUILT ON UNISWAP V4 · BUILT ON UNISWAP V4 · ', 335, 46);
+    // Uniswap's mark, struck in relief: its pink pixels become raised metal
+    const img = new Image();
+    img.onload = () => {
+      const k = document.createElement('canvas');
+      k.width = k.height = 256;
+      const kg = k.getContext('2d');
+      kg.drawImage(img, 0, 0, 256, 256);
+      const d = kg.getImageData(0, 0, 256, 256);
+      for (let i = 0; i < d.data.length; i += 4) {
+        const [r, gg, b] = [d.data[i], d.data[i + 1], d.data[i + 2]];
+        const pink = r > 170 && gg < 140 && b > 120 ? Math.min(1, (r - gg) / 200) : 0;
+        d.data[i] = d.data[i + 1] = d.data[i + 2] = 255; d.data[i + 3] = Math.round(pink * 255);
+      }
+      kg.putImageData(d, 0, 0);
+      g.drawImage(k, -270, -270, 540, 540);
+      t.needsUpdate = true;
+    };
+    img.src = new URL('uniswap.png', document.baseURI).href;
+  }
   return t;
 }
 
@@ -446,10 +483,11 @@ function coinEdgeTexture() {
 }
 
 function coinModel() {
-  const face = coinFaceTexture();
+  const front = coinFaceTexture('front');
+  const back = coinFaceTexture('back');
   const edge = coinEdgeTexture();
   const gold = (bump, scale) => new THREE.MeshPhysicalMaterial({ color: 0xF0B848, metalness: 1, roughness: 0.24, bumpMap: bump, bumpScale: scale, clearcoat: 0.5, clearcoatRoughness: 0.2, envMapIntensity: 1.4 });
-  const coin = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 0.16, 160, 1), [gold(edge, 0.8), gold(face, 1.6), gold(face, 1.6)]);
+  const coin = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 0.16, 160, 1), [gold(edge, 0.8), gold(front, 1.6), gold(back, 1.6)]);
   coin.rotation.x = Math.PI / 2;
   const g = new THREE.Group();
   g.add(coin);

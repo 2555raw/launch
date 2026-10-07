@@ -63,7 +63,7 @@
     const active = sideLinks.find((a) => a.dataset.page === page);
     active?.closest('details')?.setAttribute('open', '');
     crumb.textContent = title;
-    document.title = `${title} · UnyHooks Docs`;
+    document.title = 'UnyHooks';
 
     const heads = $$('h2[id]', art);
     toc.innerHTML = heads.map((h) => `<a href="#${h.id}" data-to="${h.id}">${h.textContent}</a>`).join('');

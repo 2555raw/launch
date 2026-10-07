@@ -123,7 +123,7 @@
     /* title */
     const title = token ? `$${token.symbol}` : known ? known.contract : 'Uniswap V4 hook';
     $('#title').innerHTML = `${esc(title)}${token && token.name && token.name !== token.symbol ? ` <span class="hk-name">${esc(token.name)}</span>` : ''}`;
-    document.title = `${title} · UnyHooks`;
+    document.title = 'UnyHooks';
     $('#kicker').innerHTML = `${launch ? 'Launched with UnyHooks' : known ? `${esc(B.RECIPES[known.recipe].title)} hook` : 'Uniswap V4 hook'} on ${esc(NET.name)}`;
     if (token) $('#addr').innerHTML = `Token ${link('address', token.address, token.address)} <button type="button" class="hk-copy" data-copy="${esc(token.address)}">Copy</button>`;
 

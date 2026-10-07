@@ -110,12 +110,18 @@ function ConnectToStart() {
 }
 
 const GOAL = 10_000;
-const TUBE_MAX = 12_000;
-const DAYS = [
-  { day: "Mon", steps: 8432, status: "Paid", earned: "4.61" },
-  { day: "Tue", steps: 6104, status: "Verified" },
-  { day: "Wed", steps: 3210, status: "In review" },
-];
+/** A sample week, priced with the live rates (about $1 per 1,500 steps, $5 from 10,000). */
+const WEEK = [
+  { day: "Mon", steps: 8432, amount: 4.61, status: "paid" },
+  { day: "Tue", steps: 11250, amount: 5, status: "paid" },
+  { day: "Wed", steps: 6104, amount: 4.03, status: "verified" },
+  { day: "Thu", steps: 3210, amount: 2.14, status: "review" },
+] as const;
+const STATUS = {
+  paid: { label: "Paid", cls: "bg-lime-400 text-ink-950" },
+  verified: { label: "Verified", cls: "border border-lime-400/40 text-lime-300" },
+  review: { label: "In review", cls: "border border-amber-400/35 text-amber-200/90" },
+} as const;
 const APPS = [
   { name: "Apple Health", icon: "/apps/apple-health.png" },
   { name: "Google Fit", icon: "/apps/google-fit.png" },
@@ -124,75 +130,70 @@ const APPS = [
   { name: "Garmin", icon: "/apps/garmin-connect.png" },
 ];
 
-/** A sample week as a walker sees it: each day fills towards the 10,000 step goal. */
+/** A sample week as a walker sees it: what each day paid, and the week's total in USDG. */
 function ExampleCard() {
+  const earned = WEEK.filter((d) => d.status !== "review").reduce((t, d) => t + d.amount, 0);
+  const steps = WEEK.reduce((t, d) => t + d.steps, 0);
   return (
-    <div className="relative mx-auto w-full max-w-[460px] rounded-[30px] border border-white/[0.09] bg-ink-900/70 p-7 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-xl">
-      {/* Corner ticks */}
-      {["left-3 top-3 border-l border-t", "right-3 top-3 border-r border-t", "bottom-3 left-3 border-b border-l", "bottom-3 right-3 border-b border-r"].map((c) => (
-        <span key={c} className={cn("pointer-events-none absolute h-3.5 w-3.5 border-white/25", c)} />
-      ))}
-      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-lime-400/10 blur-3xl" />
+    <div className="relative mx-auto w-full max-w-[460px] overflow-hidden rounded-[30px] border border-white/[0.09] bg-ink-900/70 p-7 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+      <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-lime-400/15 blur-3xl" />
 
       <div className="relative flex items-center justify-between font-mono text-[10.5px] uppercase tracking-[0.18em] text-white/45">
-        <span>Example</span>
-        <span>Goal · 10,000 steps</span>
+        <span>Example week</span>
+        <span className="flex items-center gap-1.5">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-lime-400" /> Robinhood Chain
+        </span>
       </div>
 
-      <div className="relative mt-12 flex gap-3">
-        {/* Scale */}
-        <div className="relative h-[200px] w-8 shrink-0 font-mono text-[10px] text-white/35">
-          {[GOAL, 5000].map((v) => (
-            <span key={v} className="absolute left-0 -translate-y-1/2" style={{ bottom: `${(v / TUBE_MAX) * 100}%` }}>
-              {v / 1000}K
-            </span>
-          ))}
+      {/* Week total */}
+      <div className="relative mt-6 flex items-end justify-between gap-4">
+        <div>
+          <div className="text-[13px] text-white/50">Earned this week</div>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-1 flex items-center gap-2.5 font-display text-[44px] font-bold leading-none tracking-tight text-lime-300"
+          >
+            +{earned.toFixed(2)} <TokenIcon symbol="USDG" className="h-8 w-8" />
+          </motion.div>
         </div>
+        <div className="text-right font-mono text-[12px] leading-relaxed text-white/45">
+          {steps.toLocaleString("en-US")} steps
+          <br />
+          {WEEK.length} uploads
+        </div>
+      </div>
 
-        <div className="grid flex-1 grid-cols-3 gap-4">
-          {DAYS.map((d, i) => (
-            <div key={d.day} className="flex flex-col items-center">
-              <div className="relative h-[200px] w-[58px]">
-                {d.earned && (
-                  <motion.span
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.3 }}
-                    className="absolute -top-9 left-1/2 flex -translate-x-1/4 items-center gap-1.5 whitespace-nowrap rounded-full border border-lime-400/50 bg-ink-950 px-2.5 py-1 font-mono text-[11px] text-lime-300 shadow-glow"
-                  >
-                    +${d.earned} <TokenIcon symbol="USDG" className="h-3.5 w-3.5" />
-                  </motion.span>
-                )}
-                <div className="absolute inset-0 overflow-hidden rounded-full border border-white/10 bg-white/[0.03] shadow-[inset_0_2px_12px_rgba(0,0,0,0.5)]">
-                  {[GOAL, 5000].map((v) => (
-                    <span key={v} className="absolute inset-x-0 h-px bg-white/10" style={{ bottom: `${(v / TUBE_MAX) * 100}%` }} />
-                  ))}
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: `${(d.steps / TUBE_MAX) * 100}%` }}
-                    transition={{ delay: 0.3 + i * 0.15, duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
-                    className={cn(
-                      "absolute inset-x-1.5 bottom-1.5 rounded-full",
-                      d.status === "In review" ? "bg-gradient-to-t from-lime-500/40 to-lime-300/40" : "bg-gradient-to-t from-lime-500 to-lime-300",
-                    )}
-                  />
-                  <span className="absolute left-3 top-3 h-10 w-1.5 rounded-full bg-white/10" />
-                </div>
-              </div>
-              <div className="mt-4 text-[14px] font-medium">{d.day}</div>
-              <div className="font-mono text-[12.5px] text-white/55">{d.steps.toLocaleString("en-US")}</div>
-              <span
-                className={cn(
-                  "mt-2.5 whitespace-nowrap rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider sm:px-2.5 sm:text-[10.5px]",
-                  d.status === "In review" ? "border-amber-400/30 text-amber-200/80" : "border-lime-400/35 text-lime-300",
-                )}
-              >
-                {d.status}
+      {/* Days */}
+      <ul className="relative mt-6 space-y-2.5">
+        {WEEK.map((d, i) => (
+          <motion.li
+            key={d.day}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 + i * 0.1 }}
+            className="rounded-2xl border border-white/[0.07] bg-white/[0.025] px-4 py-3"
+          >
+            <div className="flex items-center gap-3">
+              <span className="w-9 font-display text-[15px] font-semibold">{d.day}</span>
+              <span className="font-mono text-[13px] text-white/70">{d.steps.toLocaleString("en-US")}</span>
+              <span className="ml-auto font-mono text-[13px] text-lime-300/90">${d.amount.toFixed(2)}</span>
+              <span className={cn("w-[78px] rounded-full py-0.5 text-center font-mono text-[10px] uppercase tracking-wider", STATUS[d.status].cls)}>
+                {STATUS[d.status].label}
               </span>
             </div>
-          ))}
-        </div>
-      </div>
+            <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.min(100, (d.steps / GOAL) * 100)}%` }}
+                transition={{ delay: 0.45 + i * 0.1, duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                className={cn("h-full rounded-full", d.status === "review" ? "bg-amber-300/50" : "bg-gradient-to-r from-lime-500 to-lime-300")}
+              />
+            </div>
+          </motion.li>
+        ))}
+      </ul>
 
       <div className="relative mt-8 border-t border-white/[0.07] pt-5">
         <div className="font-mono text-[10.5px] uppercase tracking-[0.18em] text-white/45">Screenshot from</div>

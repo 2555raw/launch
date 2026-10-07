@@ -146,6 +146,16 @@ export function SettingsView() {
             >
               <input type="number" className="input font-mono" min={0} step={5} value={form.weeklyPrize} onChange={(e) => set("weeklyPrize", Number(e.target.value))} />
             </Field>
+            <Field label="Stepit CA" hint="The token contract address. It shows on the home page with a copy button as soon as you save. Leave it empty to hide it.">
+              <input
+                className="input font-mono"
+                placeholder="Paste the contract address"
+                spellCheck={false}
+                autoComplete="off"
+                value={form.projectCa}
+                onChange={(e) => set("projectCa", e.target.value.trim())}
+              />
+            </Field>
           </div>
           <p className="rounded-2xl border border-lime-400/20 bg-lime-400/[0.05] p-4 text-[12.5px] text-lime-100/80">
             Walkers see the daily maximum (the last milestone) on the home page and what each verified day earns. Verifying a

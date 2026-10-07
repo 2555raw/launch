@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { LogoMark } from "@/components/Logo";
 import { api } from "@/lib/fetcher";
 import { X_URL } from "@/lib/social";
+import { ContractAddress } from "./ContractAddress";
 
 const COLUMNS = [
   {
@@ -72,6 +73,7 @@ export function Footer() {
             <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-white/60">
               Every step counts. Walk, upload your steps and get paid in USDG.
             </p>
+            <ContractAddress className="mt-5" />
             <ul className="mt-6 space-y-3 text-[14.5px] text-white/75">
               <li>
                 <a href={`mailto:${CONTACT_EMAIL}`} className="flex items-center gap-3 transition hover:text-lime-300">

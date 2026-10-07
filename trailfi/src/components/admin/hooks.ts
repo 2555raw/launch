@@ -32,6 +32,7 @@ export interface AdminOverview {
     dailyBudget: number;
     signupsPaused: boolean;
     weeklyPrize: number;
+    projectCa: string;
     updatedBy: string | null;
     updatedAt: string;
   };

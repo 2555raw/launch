@@ -8,6 +8,7 @@ import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { TokenIcon } from "@/components/ui/TokenIcon";
 import { XLogo } from "@/components/ui/XLogo";
 import { X_HANDLE, X_URL } from "@/lib/social";
+import { ContractAddress } from "./ContractAddress";
 import { fmtSteps } from "@/lib/format";
 import { HeroStatsCard } from "./HeroStatsCard";
 import { usePublicStats } from "./usePublicStats";
@@ -140,6 +141,7 @@ export function Hero() {
               <TokenIcon symbol="USDG" /> Free to join. Nothing to buy, nothing to hold.{" "}
               <span className="text-lime-300 underline decoration-lime-400/40 underline-offset-4">What is USDG?</span>
             </motion.a>
+            <ContractAddress className="mt-5" />
 
             <motion.ul
               initial={{ opacity: 0 }}

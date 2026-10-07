@@ -29,6 +29,8 @@ export interface PlatformSettings {
   signupsPaused: boolean;
   /** USDG for the walker with the most verified steps each week; 0 turns the prize off. */
   weeklyPrize: number;
+  /** The Stepit token contract address shown on the home page; empty hides it. */
+  projectCa: string;
   updatedBy: string | null;
   updatedAt: string;
 }
@@ -39,7 +41,7 @@ const SELECT = `select reward_percent::float8 as "rewardPercent", daily_step_goa
   payout_token_address as "payoutTokenAddress", payout_token_decimals as "payoutTokenDecimals",
   estimated_daily_fees::float8 as "estimatedDailyFees", redistribute_excess as "redistributeExcess",
   tier_min as "tierMin", tier_avg::float8 as "tierAvg", tier_threshold as "tierThreshold", tier_max::float8 as "tierMax", tier_cap as "tierCap", rate_points as "ratePoints", referral_bonus::float8 as "referralBonus",
-  daily_budget::float8 as "dailyBudget", signups_paused as "signupsPaused", weekly_prize::float8 as "weeklyPrize",
+  daily_budget::float8 as "dailyBudget", signups_paused as "signupsPaused", weekly_prize::float8 as "weeklyPrize", project_ca as "projectCa",
   updated_by as "updatedBy", updated_at as "updatedAt" from platform_settings where id = 1`;
 
 export async function getSettings(): Promise<PlatformSettings> {
@@ -82,6 +84,12 @@ export const settingsSchema = z.object({
   dailyBudget: z.number().min(0).max(10_000_000).default(0),
   signupsPaused: z.boolean().default(false),
   weeklyPrize: z.number().min(0).max(100_000).default(50),
+  projectCa: z
+    .string()
+    .trim()
+    .max(100)
+    .regex(/^[A-Za-z0-9]*$/, "the contract address can only have letters and numbers")
+    .default(""),
   ratePoints: z.array(z.tuple([z.number().int().min(0).max(500000), z.number().min(0).max(1_000_000)])).min(2).max(12),
 });
 
@@ -104,7 +112,7 @@ export async function updateSettings(input: unknown, actor: string): Promise<Pla
         step_cap_multiplier = $4, distribution_frequency = $5, payout_token_symbol = $6, payout_token_address = $7,
         payout_token_decimals = $8, estimated_daily_fees = $9, redistribute_excess = $10, updated_by = $11, updated_at = now(),
         tier_min = $12, tier_avg = $13, tier_threshold = $14, tier_max = $15, tier_cap = $16, rate_points = $17::jsonb, referral_bonus = $18,
-        daily_budget = $19, signups_paused = $20, weekly_prize = $21
+        daily_budget = $19, signups_paused = $20, weekly_prize = $21, project_ca = $22
        where id = 1`,
       [
         s.rewardPercent,
@@ -128,6 +136,7 @@ export async function updateSettings(input: unknown, actor: string): Promise<Pla
         s.dailyBudget,
         s.signupsPaused,
         s.weeklyPrize,
+        s.projectCa,
       ],
     );
     await audit(actor, "settings.update", "platform_settings", "1", { before: current, after: s }, q);

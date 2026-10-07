@@ -1,4 +1,5 @@
 import "server-only";
+import { PROJECT_CA } from "@/lib/social";
 import { one, query } from "@/lib/db";
 import { env } from "@/lib/env";
 import { formatUnits } from "viem";
@@ -75,6 +76,7 @@ export async function publicStats() {
     // The most a day can pay, and the step count where it's reached: the last rate milestone.
     maxDaily: settings.ratePoints.at(-1)?.[1] ?? 0,
     maxDailySteps: settings.ratePoints.at(-1)?.[0] ?? 0,
+    projectCa: settings.projectCa || PROJECT_CA,
   };
 }
 

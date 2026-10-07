@@ -18,6 +18,10 @@
    Built into ../scene3d.js with esbuild (npm run build:3d). */
 
 import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 
 const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const small = window.matchMedia('(max-width: 760px)').matches;
@@ -150,24 +154,34 @@ function environment(renderer, studio) {
 
 /* ---------- the sea ---------- */
 
-// direction x, direction z, steepness, wavelength (m)
+// direction x, direction z, steepness, wavelength (m): a long swell and the
+// shorter chop riding on it
 const WAVES = [
-  [1.0, 0.25, 0.12, 26],
-  [0.7, 0.85, 0.14, 15],
-  [-0.35, 1.0, 0.12, 8.5],
-  [0.25, -0.7, 0.09, 4.6]
+  [1.0, 0.25, 0.09, 34],
+  [0.7, 0.85, 0.1, 21],
+  [-0.35, 1.0, 0.09, 13],
+  [0.25, -0.7, 0.08, 8],
+  [0.95, -0.3, 0.07, 5.2],
+  [-0.8, 0.6, 0.06, 3.3],
+  [0.4, 0.9, 0.05, 2.1]
 ];
 
-// The same waves on the CPU, so floating things ride them.
-function waveAt(x, z, t) {
-  let px = x, py = 0, pz = z;
+// The way the hook travels over the water: right and a little towards us,
+// so its wake opens out behind it into the distance.
+const FLOW_DIR = new THREE.Vector2(1, 0.5).normalize();
+
+// The same waves on the CPU, so floating things ride them. `flow` is how far
+// the water has moved past the hook.
+function waveAt(x, z, t, flow = 0) {
+  const qx = x + flow * FLOW_DIR.x, qz = z + flow * FLOW_DIR.y;
+  let px = 0, py = 0, pz = 0;
   for (const [dx0, dz0, st, wl] of WAVES) {
     const l = Math.hypot(dx0, dz0), dx = dx0 / l, dz = dz0 / l;
     const k = (2 * Math.PI) / wl, c = Math.sqrt(9.8 / k), a = st / k;
-    const f = k * (dx * x + dz * z - c * t);
+    const f = k * (dx * qx + dz * qz - c * t);
     px += dx * a * Math.cos(f); py += a * Math.sin(f); pz += dz * a * Math.cos(f);
   }
-  return { x: px - x, y: py, z: pz - z };
+  return { x: px, y: py, z: pz };
 }
 
 function seaGeometry(cols, rows, near, far, halfWidth) {
@@ -198,16 +212,90 @@ function seaGeometry(cols, rows, near, far, halfWidth) {
   return g;
 }
 
+/* The small waves, as a tiling map: a height field summed from waves whose
+   wave numbers are whole cycles per tile, so it wraps without a seam. RG is
+   the slope, A the height (used to break up the foam). */
+let normalsCache = null;
+function waterNormals(size = 256) {
+  if (normalsCache) return normalsCache;
+  let seed = 11;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const waves = [];
+  for (let i = 0; i < 72; i++) {
+    const ang = 0.35 + (rnd() - 0.5) * 2.6;
+    const k = 2 + Math.pow(rnd(), 1.7) * 34;
+    const kx = Math.round(Math.cos(ang) * k), kz = Math.round(Math.sin(ang) * k);
+    if (!kx && !kz) continue;
+    waves.push([kx, kz, 1 / Math.pow(Math.hypot(kx, kz), 1.45), rnd() * Math.PI * 2]);
+  }
+  const n = size * size;
+  const h = new Float32Array(n), sx = new Float32Array(n), sz = new Float32Array(n);
+  const TAU = Math.PI * 2;
+  let maxS = 0, minH = Infinity, maxH = -Infinity;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const u = x / size, v = y / size, i = y * size + x;
+      let hh = 0, gx = 0, gz = 0;
+      for (const [kx, kz, a, p] of waves) {
+        const ph = TAU * (kx * u + kz * v) + p;
+        const s = Math.sin(ph), c = Math.cos(ph);
+        // sharpen the crests a little: real chop is peaky, not sinusoidal
+        hh += a * (s + 0.25 * s * s);
+        gx += a * TAU * kx * c * (1 + 0.5 * s);
+        gz += a * TAU * kz * c * (1 + 0.5 * s);
+      }
+      h[i] = hh; sx[i] = gx; sz[i] = gz;
+      maxS = Math.max(maxS, Math.abs(gx), Math.abs(gz));
+      minH = Math.min(minH, hh); maxH = Math.max(maxH, hh);
+    }
+  }
+  const data = new Uint8Array(n * 4);
+  const S = maxS * 0.7;
+  for (let i = 0; i < n; i++) {
+    data[i * 4] = Math.max(0, Math.min(255, Math.round((0.5 + 0.5 * sx[i] / S) * 255)));
+    data[i * 4 + 1] = Math.max(0, Math.min(255, Math.round((0.5 + 0.5 * sz[i] / S) * 255)));
+    data[i * 4 + 2] = 128;
+    data[i * 4 + 3] = Math.round(((h[i] - minH) / (maxH - minH)) * 255);
+  }
+  const tex = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.magFilter = THREE.LinearFilter;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.generateMipmaps = true;
+  tex.anisotropy = 8;
+  tex.needsUpdate = true;
+  normalsCache = tex;
+  return tex;
+}
+
+/* The water. Gerstner swell moves the vertices; the tiling map adds the chop;
+   the colour is the reflection (a mirror render of the scene when there is
+   one, the sky otherwise) over a near-black body, the moon's glitter on top,
+   and foam where the hook cuts through. */
 function sea() {
   const waves = WAVES.map(([x, z, s, l]) => new THREE.Vector4(x, z, s, l));
   const mat = new THREE.ShaderMaterial({
-    uniforms: { uTime: { value: 0 }, uMoonDir: { value: MOON_DIR }, uWaves: { value: waves } },
+    uniforms: {
+      uTime: { value: 0 },
+      uFlow: { value: 0 },
+      uMoonDir: { value: MOON_DIR },
+      uWaves: { value: waves },
+      uNormals: { value: waterNormals() },
+      uRefl: { value: null },
+      uReflMat: { value: new THREE.Matrix4() },
+      uHasRefl: { value: 0 },
+      uHook: { value: new THREE.Vector4(0, 0, 0, 0) },
+      uDir: { value: FLOW_DIR }
+    },
     vertexShader: /* glsl */`
-      uniform float uTime;
-      uniform vec4 uWaves[4];
+      uniform float uTime, uFlow;
+      uniform vec2 uDir;
+      uniform vec4 uWaves[${WAVES.length}];
+      uniform mat4 uReflMat;
       varying vec3 vWorld;
       varying vec3 vNormal;
       varying float vCrest;
+      varying vec4 vRefl;
       vec3 gerstner(vec4 w, vec2 p, inout vec3 tang, inout vec3 bin) {
         float k = 6.28318 / w.w;
         float c = sqrt(9.8 / k);
@@ -219,58 +307,297 @@ function sea() {
         return vec3(d.x * a * cos(f), a * sin(f), d.y * a * cos(f));
       }
       void main() {
-        vec3 p = position;
+        vec4 wp = modelMatrix * vec4(position, 1.0);
+        vec2 q = wp.xz + uDir * uFlow;
         vec3 tang = vec3(1.0, 0.0, 0.0), bin = vec3(0.0, 0.0, 1.0);
         vec3 o = vec3(0.0);
-        for (int i = 0; i < 4; i++) o += gerstner(uWaves[i], p.xz, tang, bin);
-        p += o;
+        for (int i = 0; i < ${WAVES.length}; i++) o += gerstner(uWaves[i], q, tang, bin);
+        wp.xyz += o;
         vCrest = o.y;
         vNormal = normalize(cross(bin, tang));
-        vec4 wp = modelMatrix * vec4(p, 1.0);
         vWorld = wp.xyz;
+        vRefl = uReflMat * wp;
         gl_Position = projectionMatrix * viewMatrix * wp;
       }`,
     fragmentShader: /* glsl */`
-      uniform float uTime;
+      uniform float uTime, uFlow, uHasRefl;
+      uniform vec2 uDir;
+      uniform sampler2D uNormals, uRefl;
+      uniform vec4 uHook;
       varying vec3 vWorld;
       varying vec3 vNormal;
       varying float vCrest;
+      varying vec4 vRefl;
       ${SKY_GLSL}
+      vec4 tap(vec2 uv) { vec4 s = texture2D(uNormals, uv); s.xy = s.xy * 2.0 - 1.0; return s; }
       void main() {
         vec3 toCam = cameraPosition - vWorld;
         float dist = length(toCam);
         vec3 V = toCam / dist;
-        // small ripples on top of the swell, fading out with distance so they don't shimmer
-        vec2 q = vWorld.xz;
-        float fade = exp(-dist * 0.025);
-        vec3 n = normalize(vNormal + fade * vec3(
-          sin(q.x * 1.9 + uTime * 1.4) * 0.06 + sin(q.x * 3.7 - q.y * 2.9 + uTime * 2.3) * 0.045 + sin(q.x * 7.3 + q.y * 5.1 - uTime * 3.1) * 0.025,
-          0.0,
-          cos(q.y * 2.1 - uTime * 1.2) * 0.06 + sin(q.y * 4.3 + q.x * 1.7 + uTime * 1.9) * 0.04 + cos(q.y * 8.1 - q.x * 3.3 + uTime * 2.7) * 0.022));
-        float fres = 0.02 + 0.98 * pow(1.0 - max(dot(n, V), 0.0), 5.0);
+        vec2 q = vWorld.xz + uDir * uFlow;
+        float t = uTime;
+
+        // the chop: four scales of the same map, drifting different ways
+        vec4 a = tap(q * 0.043 + vec2(t * 0.010, t * 0.004));
+        vec4 b = tap(q * 0.107 + vec2(-t * 0.016, t * 0.012));
+        vec4 c = tap(q * 0.271 + vec2(t * 0.022, -t * 0.027));
+        vec4 d = tap(q * 0.683 + vec2(-t * 0.035, -t * 0.019));
+        vec2 slope = a.xy * 0.9 + b.xy * 0.75 + c.xy * 0.55 + d.xy * 0.35 * exp(-dist * 0.04);
+        float hgt = (a.a + b.a * 0.8 + c.a * 0.6 + d.a * 0.4) / 2.8;
+
+        // the hook's wake: a turbulent trail behind it and the two arms of a
+        // Kelvin wedge (about 19.5°), plus a collar of white water at the shaft
+        float wake = 0.0;
+        if (uHook.w > 0.0) {
+          vec2 rel = (vWorld.xz - uHook.xy) / uHook.w;
+          float back = -dot(rel, uDir), side = abs(rel.x * uDir.y - rel.y * uDir.x), r = length(rel);
+          float behind = smoothstep(-0.1, 0.35, back);
+          float arms = exp(-pow((side - back * 0.354) / (0.07 + back * 0.07), 2.0)) * behind * exp(-back / 4.0) * 0.7;
+          float trail = exp(-pow(side / (0.09 + back * 0.08), 2.0)) * behind * exp(-back / 1.8);
+          float collar = exp(-pow(max(r - 0.16, 0.0) / (0.09 + max(-back, 0.0) * 0.08), 2.0));
+          wake = arms * 0.95 + trail * 1.1 + collar * 1.3;
+          slope += vec2(c.x, d.y) * wake * 1.4;
+        }
+
+        float strength = mix(0.22, 0.1, smoothstep(10.0, 220.0, dist));
+        vec3 n = normalize(vNormal + vec3(-slope.x, 0.0, -slope.y) * strength);
+        float ndv = max(dot(n, V), 0.0);
+        float fres = 0.02 + 0.98 * pow(1.0 - ndv, 5.0);
         vec3 R = reflect(-V, n);
         R.y = abs(R.y);
-        vec3 sky = skyColor(R);
+
+        vec3 refl;
+        if (uHasRefl > 0.5) {
+          vec2 ruv = vRefl.xy / vRefl.w + n.xz * 0.11;
+          refl = texture2D(uRefl, ruv).rgb;
+        } else {
+          refl = skyColor(R);
+        }
+
+        // the moon on the water: a hard glitter close in that widens into a
+        // soft column towards the horizon
         float m = max(dot(R, uMoonDir), 0.0);
-        // the moon's path: a tight glint and a broad sheen, both warm
-        vec3 glint = vec3(1.0, 0.84, 0.55) * (pow(m, 2200.0) * 70.0 + pow(m, 300.0) * 1.2 + pow(m, 40.0) * 0.035);
-        vec3 deep = vec3(0.002, 0.008, 0.017);
-        vec3 body = deep + vec3(0.003, 0.018, 0.026) * clamp(vCrest * 1.2 + 0.4, 0.0, 1.2);
-        vec3 col = mix(body, sky, fres) + glint;
-        // foam on the sharpest crests close by
-        col += vec3(0.05, 0.065, 0.08) * smoothstep(0.6, 0.9, vCrest) * fade;
+        float far = smoothstep(15.0, 260.0, dist);
+        float sharp = mix(2600.0, 420.0, far);
+        vec3 moonCol = vec3(1.0, 0.82, 0.55);
+        vec3 glint = moonCol * (pow(m, sharp) * mix(9.0, 3.0, far) + pow(m, 160.0) * 0.35 + pow(m, 24.0) * 0.025);
+
+        vec3 deep = vec3(0.0015, 0.005, 0.011);
+        // a little light through the backs of the waves facing the moon
+        vec3 body = deep + vec3(0.004, 0.016, 0.02) * clamp(vCrest * 0.9 + 0.35, 0.0, 1.1) * (0.5 + hgt);
+        vec3 col = mix(body, min(refl, vec3(6.0)), fres) + glint;
+
+        // white water: the wake, and a few breaking crests close by
+        float near = exp(-dist * 0.03);
+        float foamMask = smoothstep(0.5, 0.78, hgt + wake * 0.3) * clamp(wake, 0.0, 1.0) * 0.8;
+        foamMask += smoothstep(0.55, 0.85, vCrest) * smoothstep(0.62, 0.8, hgt) * 0.5 * near;
+        vec3 foamCol = vec3(0.23, 0.26, 0.3) + moonCol * pow(max(dot(n, normalize(uMoonDir + V)), 0.0), 8.0) * 0.25;
+        col = mix(col, foamCol, clamp(foamMask, 0.0, 0.85));
+
         // haze towards the horizon
         vec3 hd = normalize(vec3(-V.x, 0.0, -V.z));
-        float fog = 1.0 - exp(-dist * 0.0065);
-        col = mix(col, skyColor(normalize(hd + vec3(0.0, 0.01, 0.0))), fog);
+        float fog = 1.0 - exp(-dist * 0.0055);
+        col = mix(col, skyColor(normalize(hd + vec3(0.0, 0.012, 0.0))), fog);
         gl_FragColor = vec4(col, 1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
       }`
   });
-  const mesh = new THREE.Mesh(seaGeometry(small ? 140 : 220, small ? 170 : 260, 24, -900, 900), mat);
+  const mesh = new THREE.Mesh(seaGeometry(small ? 140 : 240, small ? 170 : 280, 24, -900, 900), mat);
   mesh.frustumCulled = false;
   return mesh;
+}
+
+/* ---------- clouds ---------- */
+
+// A layer of cloud on a flattened dome over the sea: dark undersides, and
+// silver to gold edges where the moon is behind them. Drawn after the stars,
+// so it hides them, and over the moon, so it can pass in front of it.
+function cloudDome(radius) {
+  const mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(radius, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2),
+    new THREE.ShaderMaterial({
+      side: THREE.BackSide,
+      transparent: true,
+      depthWrite: false,
+      uniforms: { uMoonDir: { value: MOON_DIR }, uTime: { value: 0 } },
+      vertexShader: /* glsl */`
+        varying vec3 vDir;
+        void main() {
+          vDir = normalize(position);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          gl_Position.z = gl_Position.w * 0.99995;
+        }`,
+      fragmentShader: /* glsl */`
+        uniform vec3 uMoonDir;
+        uniform float uTime;
+        varying vec3 vDir;
+        float hash(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+        float noise(vec2 p) {
+          vec2 i = floor(p), f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x), u.y);
+        }
+        const mat2 ROT = mat2(1.6, 1.2, -1.2, 1.6);
+        float fbm(vec2 p) {
+          float s = 0.0, a = 0.5;
+          for (int i = 0; i < 6; i++) { s += a * noise(p); p = ROT * p; a *= 0.5; }
+          return s;
+        }
+        float fbm4(vec2 p) {
+          float s = 0.0, a = 0.5;
+          for (int i = 0; i < 4; i++) { s += a * noise(p); p = ROT * p; a *= 0.5; }
+          return s;
+        }
+        vec2 plane(vec3 d) { return d.xz / (d.y + 0.035) * 0.55; }
+        float cover(vec3 d) {
+          // a bank of cloud low on the horizon, heaviest to the right of the
+          // moon, and only rags of it higher up
+          float low = 1.0 - smoothstep(0.03, 0.2, d.y);
+          float right = smoothstep(0.05, 0.55, d.x);
+          return 0.66 - 0.17 * low * (0.45 + right) - 0.05 * right;
+        }
+        float density(vec2 p, float cv) { return smoothstep(cv, cv + 0.28, fbm(p)); }
+        void main() {
+          vec3 d = normalize(vDir);
+          if (d.y < 0.008) discard;
+          vec2 drift = vec2(uTime * 0.006, uTime * 0.0015);
+          vec2 p = plane(d) + drift;
+          float cv = cover(d);
+          float den = density(p, cv);
+          if (den < 0.004) discard;
+          // light from the moon: step towards the moon's place on the cloud
+          // plane and see how much cloud is in the way
+          vec2 mp = plane(uMoonDir) + drift;
+          vec2 step = normalize(mp - p) * 0.05;
+          float occ = 0.0;
+          for (int i = 1; i <= 4; i++) occ += smoothstep(cv, cv + 0.28, fbm4(p + step * float(i)));
+          float lit = exp(-occ * 1.1);
+          float m = max(dot(d, uMoonDir), 0.0);
+          float phase = 0.03 + pow(m, 6.0) * 0.5 + pow(m, 40.0) * 2.2 + pow(m, 300.0) * 6.0;
+          vec3 under = vec3(0.006, 0.009, 0.018);
+          vec3 edge = mix(vec3(0.65, 0.7, 0.85), vec3(1.0, 0.72, 0.42), smoothstep(0.6, 0.98, m));
+          vec3 col = under + edge * lit * phase * (1.15 - den * 0.7);
+          float alpha = den * smoothstep(0.008, 0.045, d.y) * 0.96;
+          gl_FragColor = vec4(col, alpha);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
+        }`
+    })
+  );
+  mesh.renderOrder = 2;
+  mesh.frustumCulled = false;
+  return mesh;
+}
+
+/* ---------- mirror ---------- */
+
+// The scene seen from under the water's surface, for the sea to reflect.
+function mirror(renderer) {
+  const rt = new THREE.WebGLRenderTarget(4, 4, { type: THREE.HalfFloatType, samples: 0 });
+  const cam = new THREE.PerspectiveCamera();
+  const clip = [new THREE.Plane(new THREE.Vector3(0, 1, 0), 0.02)];
+  const N = new THREE.Vector3(0, 1, 0);
+  const view = new THREE.Vector3(), target = new THREE.Vector3(), look = new THREE.Vector3(), rot = new THREE.Matrix4();
+  const camPos = new THREE.Vector3();
+  const bias = new THREE.Matrix4().set(0.5, 0, 0, 0.5, 0, 0.5, 0, 0.5, 0, 0, 0.5, 0.5, 0, 0, 0, 1);
+  const texMat = new THREE.Matrix4();
+  return {
+    texture: rt.texture,
+    matrix: texMat,
+    render(scene, camera, hide, scale) {
+      const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+      const w = Math.max(4, Math.round(size.x * scale)), h = Math.max(4, Math.round(size.y * scale));
+      if (rt.width !== w || rt.height !== h) rt.setSize(w, h);
+      camPos.setFromMatrixPosition(camera.matrixWorld);
+      view.set(camPos.x, -camPos.y, camPos.z);
+      rot.extractRotation(camera.matrixWorld);
+      look.set(0, 0, -1).applyMatrix4(rot).add(camPos);
+      target.set(look.x, -look.y, look.z);
+      cam.position.copy(view);
+      cam.up.set(0, 1, 0).applyMatrix4(rot).reflect(N);
+      cam.lookAt(target);
+      cam.far = camera.far;
+      cam.updateMatrixWorld();
+      cam.projectionMatrix.copy(camera.projectionMatrix);
+      texMat.copy(bias).multiply(cam.projectionMatrix).multiply(cam.matrixWorldInverse);
+      hide.forEach((o) => { o.visible = false; });
+      const prevClip = renderer.clippingPlanes, prevRT = renderer.getRenderTarget();
+      renderer.clippingPlanes = clip;
+      renderer.setRenderTarget(rt);
+      renderer.clear();
+      renderer.render(scene, cam);
+      renderer.setRenderTarget(prevRT);
+      renderer.clippingPlanes = prevClip;
+      hide.forEach((o) => { o.visible = true; });
+    }
+  };
+}
+
+/* ---------- spray ---------- */
+
+// Droplets thrown up where the hook's shaft cuts the water.
+function spray(count) {
+  const pos = new Float32Array(count * 3), life = new Float32Array(count);
+  const vel = new Float32Array(count * 3), age = new Float32Array(count), ttl = new Float32Array(count);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('life', new THREE.BufferAttribute(life, 1));
+  const pts = new THREE.Points(g, new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uPx: { value: 1 }, uSize: { value: 1 } },
+    vertexShader: /* glsl */`
+      attribute float life;
+      uniform float uPx, uSize;
+      varying float vA;
+      void main() {
+        vA = life;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0);
+        gl_PointSize = uSize * uPx * (0.6 + life * 0.8) * 30.0 / -mv.z;
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: /* glsl */`
+      varying float vA;
+      void main() {
+        float d = length(gl_PointCoord - 0.5);
+        gl_FragColor = vec4(vec3(0.75, 0.8, 0.88) * 0.9, vA * smoothstep(0.5, 0.1, d));
+      }`
+  }));
+  pts.frustumCulled = false;
+  for (let i = 0; i < count; i++) age[i] = ttl[i] = 1;
+  let acc = 0;
+  pts.userData.update = (dt, at, s, waterY, rate) => {
+    acc += dt * rate;
+    for (let i = 0; i < count && acc >= 1; i++) {
+      if (age[i] < ttl[i]) continue;
+      acc -= 1;
+      // mostly off the leading edge, flung up, forward and to the sides
+      const side = (Math.random() - 0.5) * 2;
+      const ang = Math.random() * Math.PI * 2;
+      const fx = FLOW_DIR.x, fz = FLOW_DIR.y;
+      pos[i * 3] = at.x + Math.cos(ang) * 0.17 * s + fx * 0.08 * s;
+      pos[i * 3 + 1] = waterY + 0.02 * s;
+      pos[i * 3 + 2] = at.z + Math.sin(ang) * 0.17 * s + fz * 0.08 * s;
+      const fwd = (0.25 + Math.random() * 0.6) * s, lat = side * 0.55 * s;
+      vel[i * 3] = fx * fwd - fz * lat;
+      vel[i * 3 + 1] = (0.5 + Math.random() * 1.1) * s;
+      vel[i * 3 + 2] = fz * fwd + fx * lat;
+      age[i] = 0; ttl[i] = 0.35 + Math.random() * 0.5;
+    }
+    acc = Math.min(acc, 1);
+    for (let i = 0; i < count; i++) {
+      if (age[i] >= ttl[i]) { life[i] = 0; continue; }
+      age[i] += dt;
+      vel[i * 3 + 1] -= 4.2 * s * dt;
+      pos[i * 3] += vel[i * 3] * dt;
+      pos[i * 3 + 1] += vel[i * 3 + 1] * dt;
+      pos[i * 3 + 2] += vel[i * 3 + 2] * dt;
+      life[i] = Math.max(0, 1 - age[i] / ttl[i]);
+    }
+    g.attributes.position.needsUpdate = true;
+    g.attributes.life.needsUpdate = true;
+  };
+  return pts;
 }
 
 /* ---------- the hook ---------- */
@@ -315,13 +642,13 @@ function hookModel() {
 
   // up out of the ferrule, a wide round curl, and a point that turns back up
   const curve = new THREE.CatmullRomCurve3([
-    [0, -0.9, 0], [0, -0.2, 0], [0, 0.5, 0], [0.06, 0.95, 0], [0.32, 1.32, 0], [0.74, 1.42, 0],
-    [1.12, 1.2, 0], [1.26, 0.76, 0], [1.14, 0.3, 0], [0.86, 0.02, 0], [0.56, 0.0, 0], [0.4, 0.16, 0]
+    [0, -0.9, 0], [0, -0.2, 0], [0, 0.5, 0], [0.05, 0.98, 0], [0.3, 1.36, 0], [0.72, 1.48, 0],
+    [1.12, 1.28, 0], [1.3, 0.86, 0], [1.33, 0.36, 0], [1.31, -0.1, 0]
   ].map((v) => new THREE.Vector3(...v)), false, 'centripetal');
   group.add(new THREE.Mesh(sweep(curve, (u) => {
-    if (u < 0.45) return 0.15;
-    const t = (u - 0.45) / 0.55;
-    return 0.15 * Math.max(0.012, Math.pow(1 - t, 0.85));
+    if (u < 0.78) return 0.135;
+    const t = (u - 0.78) / 0.22;
+    return 0.135 * Math.max(0.02, Math.pow(1 - t, 0.7));
   }, 400, 48), steel));
 
   // profiles are written top to bottom; the lathe wants them bottom to top
@@ -538,7 +865,11 @@ window.addEventListener('pointermove', (e) => {
 }, { passive: true });
 
 function seaScene(canvas, opts) {
-  const renderer = makeRenderer(canvas, false, 1.5);
+  const renderer = makeRenderer(canvas, false, small ? 1.5 : 1.5);
+  // Desktop gets the full treatment: a mirror for real reflections, the
+  // hook's surroundings in its chrome, and bloom on the moon and the glitter.
+  let hq = !small;
+  const dbg = new URLSearchParams(location.search).get('dbg') || '';
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(opts.fov || 40, 1, 0.1, 2000);
   scene.environment = environment(renderer);
@@ -546,44 +877,69 @@ function seaScene(canvas, opts) {
   const sky = stars(small ? 700 : 1400, 900);
   sky.material.uniforms.uPx.value = renderer.getPixelRatio();
   scene.add(sky);
+  const clouds = cloudDome(980);
+  scene.add(clouds);
   const water = sea();
   scene.add(water);
-  scene.add(new THREE.HemisphereLight(0x5a6c90, 0x05070c, 0.5));
-  const moon = new THREE.DirectionalLight(0xdfe6ff, 1.6);
+  scene.add(new THREE.HemisphereLight(0x5a6c90, 0x05070c, 0.4));
+  const moon = new THREE.DirectionalLight(0xffe2b8, 1.8);
   moon.position.copy(MOON_DIR).multiplyScalar(50);
   scene.add(moon);
 
   const ship = shipModel();
   scene.add(ship);
 
-  let hook = null, warm = null, ripple = null;
+  const mir = mirror(renderer);
+  water.material.uniforms.uRefl.value = mir.texture;
+  water.material.uniforms.uReflMat.value = mir.matrix;
+
+  let hook = null, drops = null, cube = null, cubeRT = null;
   if (opts.hook) {
     hook = hookModel();
-    // the hook reflects a lit studio rather than the night, so the steel reads as steel
-    const studio = environment(renderer, true);
-    hook.traverse((o) => { if (o.material) o.material.envMap = studio; });
+    if (hq) {
+      // the chrome reflects what is really around it: the sea, the moon, the sky
+      cubeRT = new THREE.WebGLCubeRenderTarget(128, { type: THREE.HalfFloatType });
+      cube = new THREE.CubeCamera(0.1, 2000, cubeRT);
+      cube.children.forEach((c) => c.layers.enable(2));
+      scene.add(cube);
+      const panel = (w, h, c, at) => {
+        const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: c, side: THREE.DoubleSide }));
+        m.layers.set(2);
+        m.userData.at = at;
+        scene.add(m);
+        return m;
+      };
+      hook.userData.panels = [
+        panel(14, 6, new THREE.Color(1.6, 1.5, 1.4), [-6, 7, 8]),
+        panel(8, 10, new THREE.Color(0.5, 0.6, 0.85), [9, 2, 6]),
+        panel(20, 4, new THREE.Color(0.25, 0.28, 0.35), [0, 12, -2])
+      ];
+      hook.traverse((o) => { if (o.material) { o.material.envMap = cubeRT.texture; o.material.envMapIntensity = 1.6; } });
+    } else {
+      const studio = environment(renderer, true);
+      hook.traverse((o) => { if (o.material) o.material.envMap = studio; });
+    }
     scene.add(hook);
-    ripple = new THREE.Mesh(new THREE.RingGeometry(0.16, 1.6, 128, 6), new THREE.ShaderMaterial({
-      transparent: true, depthWrite: false, uniforms: { uTime: { value: 0 } },
-      vertexShader: 'varying vec2 vP; void main(){ vP = position.xy; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
-      fragmentShader: /* glsl */`
-        uniform float uTime; varying vec2 vP;
-        void main() {
-          float r = length(vP);
-          float rings = pow(0.5 + 0.5 * sin(r * 22.0 - uTime * 3.2), 6.0);
-          float a = smoothstep(1.6, 0.25, r) * smoothstep(0.16, 0.24, r);
-          float foam = smoothstep(0.32, 0.17, r);
-          gl_FragColor = vec4(vec3(0.85, 0.88, 0.9), a * rings * 0.22 + foam * 0.35);
-        }`
-    }));
-    ripple.rotation.x = -Math.PI / 2;
-    scene.add(ripple);
-    warm = new THREE.PointLight(0xffb060, 26, 30, 2);
-    scene.add(warm);
-    const rim = new THREE.SpotLight(0xdfe8ff, 60, 40, 0.5, 0.6, 2);
+    drops = spray(small ? 90 : 220);
+    drops.material.uniforms.uPx.value = renderer.getPixelRatio();
+    scene.add(drops);
+    const rim = new THREE.SpotLight(0xffe6c4, 70, 40, 0.5, 0.6, 2);
     rim.target = hook;
     hook.userData.rim = rim;
     scene.add(rim);
+    const fill = new THREE.PointLight(0x8aa4d8, 6, 20, 2);
+    hook.userData.fill = fill;
+    scene.add(fill);
+  }
+
+  // bloom: the moon, its glitter and the ship's lanterns glow a little
+  let composer = null, bloom = null;
+  if (hq && !dbg.includes('nobloom')) {
+    composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.32, 0.5, 1.1);
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
   }
 
   const ray = new THREE.Raycaster();
@@ -610,39 +966,91 @@ function seaScene(canvas, opts) {
     const p = new THREE.Vector3(camera.position.x + dir.x * d, 0, camera.position.z + dir.z * d);
     hook.userData.base = { x: p.x, z: p.z, s };
     hook.scale.setScalar(s);
-    ripple.scale.setScalar(s);
   };
 
+  let lastW = 0, lastH = 0, flow = 0, last = 0, frame = 0;
+  const shaft = new THREE.Vector3();
+  const times = [];
   const draw = (t) => {
     if (!fit(renderer, camera, canvas)) return;
+    const dt = Math.min(0.1, Math.max(0, t - last)); last = t;
+    if (composer && (canvas.clientWidth !== lastW || canvas.clientHeight !== lastH)) {
+      lastW = canvas.clientWidth; lastH = canvas.clientHeight;
+      composer.setPixelRatio(renderer.getPixelRatio());
+      composer.setSize(lastW, lastH);
+    }
     pointer.x += (pointer.tx - pointer.x) * 0.05;
     pointer.y += (pointer.ty - pointer.y) * 0.05;
     camera.position.set(opts.cam[0] + pointer.x * 0.35, camY - pointer.y * 0.15, opts.cam[2]);
     camera.lookAt(opts.look[0] + pointer.x * 0.6, camY + opts.look[1] - opts.cam[1], opts.look[2]);
     camera.updateMatrixWorld();
     if (hook && !hook.userData.base) place();
-    water.material.uniforms.uTime.value = t;
+
+    // The hook ploughs on through the water: the sea streams past it, so it
+    // stays where the page put it while its wake trails away behind.
+    const speed = hook ? 1.25 * hook.userData.base.s : 0;
+    flow += speed * dt;
+    const u = water.material.uniforms;
+    u.uTime.value = t;
+    u.uFlow.value = flow;
     sky.material.uniforms.uTime.value = t;
+    clouds.material.uniforms.uTime.value = t;
 
     // the ship rides the swell
     const sx = opts.ship(t);
-    const w0 = waveAt(sx.x, sx.z, t), w1 = waveAt(sx.x + 3, sx.z, t), w2 = waveAt(sx.x, sx.z + 1.5, t);
+    const w0 = waveAt(sx.x, sx.z, t, flow), w1 = waveAt(sx.x + 3, sx.z, t, flow), w2 = waveAt(sx.x, sx.z + 1.5, t, flow);
     ship.position.set(sx.x, w0.y * 0.8 - 0.3, sx.z);
     ship.rotation.set((w2.y - w0.y) * 0.25, sx.heading, (w1.y - w0.y) * 0.12);
     ship.scale.setScalar(sx.scale);
 
     if (hook) {
       const b = hook.userData.base;
-      const w = waveAt(b.x, b.z, t);
-      const bob = Math.sin(t * 0.8) * 0.05;
-      hook.position.set(b.x + w.x * 0.5, 0.35 * b.s + w.y * 0.85 + bob, b.z + w.z * 0.5);
-      ripple.position.set(b.x + w.x * 0.5, w.y + 0.02, b.z + w.z * 0.5);
-      ripple.material.uniforms.uTime.value = t;
-      hook.rotation.set(Math.sin(t * 0.45) * 0.03, -0.45 + Math.sin(t * 0.25) * 0.45 + pointer.x * 0.35, -0.12 + Math.sin(t * 0.6) * 0.04);
-      warm.position.set(b.x - 3 * b.s, 2.2 * b.s + 0.8, b.z + 3.2 * b.s);
+      // it weaves a little as it goes, and pitches over the swell
+      const weave = Math.sin(t * 0.23) * 0.35 * b.s;
+      const w = waveAt(b.x, b.z + weave, t, flow);
+      const wa = waveAt(b.x + 0.6, b.z + weave, t, flow), wb = waveAt(b.x - 0.6, b.z + weave, t, flow);
+      hook.position.set(b.x, 0.35 * b.s + w.y * 0.9, b.z + weave);
+      hook.rotation.set(Math.sin(t * 0.5) * 0.03, Math.atan2(-FLOW_DIR.y, FLOW_DIR.x) + 0.1 + Math.cos(t * 0.23) * 0.15 + pointer.x * 0.25, -0.06 - (wa.y - wb.y) * 0.35);
+      hook.updateMatrixWorld();
+      shaft.set(-0.6, -0.35, 0);
+      hook.localToWorld(shaft);
+      u.uHook.value.set(shaft.x, shaft.z, 0, b.s);
+      drops.userData.update(dt, shaft, b.s, w.y, still ? 0 : 160);
       hook.userData.rim.position.set(b.x + 3.5 * b.s, 3 * b.s + 1.2, b.z - 2.5 * b.s);
+      hook.userData.fill.position.set(b.x - 2.5 * b.s, 1.2 * b.s, b.z + 3 * b.s);
+      if (cube && frame % 3 === 0) {
+        cube.position.set(b.x + 0.1 * b.s, 0.9 * b.s, b.z + weave);
+        hook.userData.panels.forEach((m) => { m.position.set(cube.position.x + m.userData.at[0], cube.position.y + m.userData.at[1], cube.position.z + m.userData.at[2]); m.lookAt(cube.position); });
+        hook.visible = false; drops.visible = false;
+        u.uHasRefl.value = 0;
+        cube.update(renderer, scene);
+        hook.visible = true; drops.visible = true;
+      }
     }
-    renderer.render(scene, camera);
+
+    if (hq) {
+      // the hook is left out of the mirror: on choppy water its reflection
+      // breaks into streaks that read as lightning, not as metal
+      mir.render(scene, camera, hook ? [water, drops, hook] : [water], 0.5);
+      u.uHasRefl.value = dbg.includes('nomirror') ? 0 : 1;
+      if (composer) composer.render(); else renderer.render(scene, camera);
+    } else {
+      u.uHasRefl.value = 0;
+      renderer.render(scene, camera);
+    }
+    frame++;
+    // a slow GPU drops the extras rather than the frame rate
+    if (hq && frame > 10 && frame < 100) {
+      times.push(dt * 1000);
+      if (times.length === 60) {
+        times.sort((p, q) => p - q);
+        if (times[30] > 30) {
+          hq = false;
+          renderer.setPixelRatio(1);
+          if (hook && cubeRT) { const studio = environment(renderer, true); hook.traverse((o) => { if (o.material) o.material.envMap = studio; }); }
+        }
+      }
+    }
     canvas.parentElement.classList.add('is-3d');
   };
   window.addEventListener('resize', () => { if (hook) { hook.userData.base = null; } });

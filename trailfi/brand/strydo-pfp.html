@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:800px;height:800px;overflow:hidden;background:#05070b;position:relative}
+.photo{position:absolute;inset:-20px;background:url(../public/images/forest-river.jpg) no-repeat;background-size:auto 1300px;background-position:-520px -60px;filter:saturate(.6) brightness(.62) blur(1px)}
+.tint{position:absolute;inset:0;background:radial-gradient(60% 60% at 50% 50%,rgba(7,18,38,.15),rgba(5,7,11,.75)),rgba(7,18,38,.25)}
+.glow{position:absolute;left:50%;top:50%;width:640px;height:640px;margin:-320px 0 0 -320px;border-radius:50%;background:radial-gradient(circle,rgba(47,123,255,.35),transparent 62%)}
+.mark{position:absolute;left:50%;top:50%;width:400px;height:400px;margin:-200px 0 0 -200px;filter:drop-shadow(0 0 40px rgba(77,148,255,.55))}
+body.flat .photo,body.flat .tint{display:none}
+body.flat{background:radial-gradient(70% 70% at 50% 40%,#0b1b36,#05070b)}
+</style></head><body><svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9cc2ff"/><stop offset="1" stop-color="#2f7bff"/></linearGradient><path id="m" d="M144 0L220 0A32 32 0 0 1 252 32L252 138A9 9 0 0 1 243 147L177 147A30 30 0 0 0 147 177L147 243A9 9 0 0 1 138 252L32 252A32 32 0 0 1 0 220L0 142A32 32 0 0 1 32 110L78 110A34 34 0 0 0 112 76L112 32A32 32 0 0 1 144 0ZM514 144L514 220A32 32 0 0 1 482 252L376 252A9 9 0 0 1 367 243L367 177A30 30 0 0 0 337 147L271 147A9 9 0 0 1 262 138L262 32A32 32 0 0 1 294 0L372 0A32 32 0 0 1 404 32L404 78A34 34 0 0 0 438 112L482 112A32 32 0 0 1 514 144ZM370 514L294 514A32 32 0 0 1 262 482L262 376A9 9 0 0 1 271 367L337 367A30 30 0 0 0 367 337L367 271A9 9 0 0 1 376 262L482 262A32 32 0 0 1 514 294L514 372A32 32 0 0 1 482 404L436 404A34 34 0 0 0 402 438L402 482A32 32 0 0 1 370 514ZM0 370L0 294A32 32 0 0 1 32 262L138 262A9 9 0 0 1 147 271L147 337A30 30 0 0 0 177 367L243 367A9 9 0 0 1 252 376L252 482A32 32 0 0 1 220 514L142 514A32 32 0 0 1 110 482L110 436A34 34 0 0 0 76 402L32 402A32 32 0 0 1 0 370Z"/></defs></svg>
+<div class="photo"></div><div class="tint"></div><div class="glow"></div>
+<svg class="mark" viewBox="0 0 514 514"><use href="#m" fill="url(#lg)"/></svg>
+<script>if(location.hash==="#flat")document.body.classList.add("flat")</script>
+</body></html>

@@ -32,6 +32,7 @@ export class PaperAccount {
       id: `${market.id}-${Date.now()}`,
       marketId: market.id,
       slug: market.slug,
+      eventSlug: market.eventSlug,
       question: market.question,
       kind: market.kind,
       label: market.label,

@@ -8,7 +8,7 @@ const parse = (s) => (typeof s === 'string' ? JSON.parse(s) : s);
 //   twap   - "Up or Down" 5m/15m/4h: Chainlink TWAP at the end vs at the start
 //   candle - "Up or Down" hourly: Binance 1h candle close vs its open
 //   above  - "Bitcoin above X": Binance 1h candle close vs a fixed strike
-export function parseMarket(m) {
+export function parseMarket(m, eventSlug) {
   if (!m.active || m.closed || !m.acceptingOrders || !m.enableOrderBook) return null;
   const tokens = parse(m.clobTokenIds);
   const outcomes = parse(m.outcomes);
@@ -17,6 +17,7 @@ export function parseMarket(m) {
   const base = {
     id: m.id,
     slug: m.slug,
+    eventSlug,
     question: m.question,
     end: Date.parse(m.endDate),
     tokens,
@@ -55,7 +56,7 @@ export async function discoverMarkets() {
     const events = await getJson(`${config.gamma}/events?${new URLSearchParams({ ...q, offset: String(offset) })}`);
     for (const e of events) {
       for (const m of e.markets || []) {
-        const spec = parseMarket(m);
+        const spec = parseMarket(m, e.slug);
         if (spec && spec.end > now) markets.push(spec); else skipped++;
       }
     }
@@ -89,8 +90,10 @@ export async function fetchBooks(tokenIds) {
 }
 
 // Index of the winning outcome once Polymarket has resolved the market, else null.
-export async function fetchResolution(slug) {
-  const [m] = await getJson(`${config.gamma}/markets?slug=${encodeURIComponent(slug)}`);
+export async function fetchResolution(eventSlug, slug) {
+  // /markets?slug= hides closed markets; the event lookup still returns them.
+  const events = await getJson(`${config.gamma}/events?slug=${encodeURIComponent(eventSlug)}`);
+  const m = events[0]?.markets?.find((x) => x.slug === slug);
   if (!m?.closed) return null;
   const prices = parse(m.outcomePrices).map(Number);
   if (prices[0] === 1 && prices[1] === 0) return 0;

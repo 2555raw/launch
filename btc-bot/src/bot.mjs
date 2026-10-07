@@ -139,7 +139,7 @@ async function settle() {
   const now = Date.now();
   for (const pos of [...account.state.open]) {
     if (now < pos.end + 5000) continue;
-    let winner = await fetchResolution(pos.slug).catch(() => null);
+    let winner = await fetchResolution(pos.eventSlug ?? pos.slug, pos.slug).catch(() => null);
     let method = 'polymarket';
     if (winner === null && now > pos.end + config.settleFallbackMs) {
       winner = await estimateWinner(pos);

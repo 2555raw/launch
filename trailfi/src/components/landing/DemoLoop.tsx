@@ -15,8 +15,8 @@ const SPEED = 1.25;
 const SCENES = [
   { id: "walk", from: 0, to: 4, label: "Walk", body: "Your phone counts every step.", icon: MarkIcon },
   { id: "shot", from: 4, to: 6, label: "Screenshot", body: "Capture the day's steps and the date.", icon: Camera },
-  { id: "upload", from: 6, to: 10, label: "Upload", body: "Send it to Stepit in a couple of taps.", icon: Upload },
-  { id: "paid", from: 10, to: LOOP, label: "Get paid", body: "Once verified, USDG lands in your wallet.", icon: Wallet },
+  { id: "upload", from: 6, to: 10, label: "Upload", body: "Send it to Strydo in a couple of taps.", icon: Upload },
+  { id: "paid", from: 10, to: LOOP, label: "Get paid", body: "Once verified, ETH lands in your wallet.", icon: Wallet },
 ] as const;
 
 /** Seconds into the loop; pauses while the demo is off screen. */
@@ -203,7 +203,7 @@ function UploadScreen({ t }: { t: number }) {
     <div className="h-full bg-ink-950 px-4 pt-12 text-white">
       <div className="flex items-center gap-2 text-[13px] font-bold">
         <LogoMark className="h-6 w-6" />
-        Step<span className="-ml-2 text-lime-400">it</span>
+        Stry<span className="-ml-2 text-lime-400">do</span>
       </div>
       <div className="mt-5 font-mono text-[9px] uppercase tracking-[0.18em] text-white/45">Upload steps</div>
       <div className="mt-1 text-[18px] font-bold">Log your day</div>
@@ -266,7 +266,7 @@ function PaidScreen({ t }: { t: number }) {
         {paid && (
           <motion.div key="amount" initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", stiffness: 220, damping: 18 }} className="mt-10 flex flex-col items-center">
             <div className="relative">
-              <TokenIcon symbol="USDG" className="!h-16 !w-16" />
+              <TokenIcon symbol="ETH" className="!h-16 !w-16" />
               {Array.from({ length: 10 }).map((_, i) => (
                 <motion.span
                   key={i}
@@ -278,7 +278,7 @@ function PaidScreen({ t }: { t: number }) {
               ))}
             </div>
             <div className="mt-5 font-display text-[44px] font-bold leading-none text-lime-300">+$5.00</div>
-            <div className="mt-1.5 text-[13px] text-white/60">USDG received</div>
+            <div className="mt-1.5 text-[13px] text-white/60">ETH received</div>
           </motion.div>
         )}
       </AnimatePresence>

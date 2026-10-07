@@ -13,22 +13,22 @@ import { TokenIcon } from "@/components/ui/TokenIcon";
 const FLOW = [
   { k: "You walk and upload", sub: "a screenshot of the day's steps" },
   { k: "The team verifies it", sub: "the date and the steps must match" },
-  { k: "USDG goes to your wallet", sub: "request a payout whenever you like", accent: true },
+  { k: "ETH goes to your wallet", sub: "request a payout whenever you like", accent: true },
 ];
 
 export function RewardsSection() {
   const { data } = usePublicStats();
   const today = data?.today ?? { walkers: 0, steps: 0, goalMet: 0 };
   const goalShare = today.walkers ? today.goalMet / today.walkers : 0;
-  const token = data?.tokenSymbol ?? "USDG";
+  const token = data?.tokenSymbol ?? "ETH";
 
   return (
     <section id="rewards" className="relative scroll-mt-24 overflow-hidden py-28 sm:py-36">
       <div className="pointer-events-none absolute right-0 top-1/3 h-[520px] w-[520px] rounded-full bg-lime-400/[0.07] blur-[140px]" />
       <div className="container relative grid items-center gap-16 lg:grid-cols-2">
         <div>
-          <SectionHeading index="02" label="Rewards" title="Real dollars," accent="for every verified day.">
-            Every day you upload your steps and the team verifies your screenshot pays in USDG, the dollar stablecoin
+          <SectionHeading index="03" label="Rewards" title="Real dollars," accent="for every verified day.">
+            Every day you upload your steps and the team verifies your screenshot earns a dollar amount, paid out in ETH
             on Robinhood Chain. The more you walk, the more that day pays.
           </SectionHeading>
 
@@ -55,7 +55,7 @@ export function RewardsSection() {
             ))}
             <p className="flex gap-2 pt-2 text-[13px] leading-relaxed text-white/45">
               <Info className="mt-0.5 h-4 w-4 shrink-0" />
-              Upload your screenshot, we review it, then the payment lands in your wallet. Amounts follow Stepit&apos;s current
+              Upload your screenshot, we review it, then the payment lands in your wallet. Amounts follow Strydo&apos;s current
               rates, which can change, and days that aren&apos;t verified don&apos;t pay.
             </p>
           </Reveal>
@@ -68,7 +68,7 @@ export function RewardsSection() {
             <div className="relative">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="label">Stepit · live</div>
+                  <div className="label">Strydo · live</div>
                   <h3 className="mt-2 font-display text-3xl font-bold tracking-tight">The community today</h3>
                 </div>
                 <span className="flex items-center gap-1.5 rounded-full border border-lime-400/30 bg-lime-400/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-widest text-lime-300">

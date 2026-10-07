@@ -15,7 +15,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="relative overflow-hidden lg:pl-64">
         <div
           className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[460px] bg-cover bg-center opacity-[0.16]"
-          style={{ backgroundImage: "url(/images/hero-trail-1280.webp)" }}
+          style={{ backgroundImage: "url(/images/forest-river-1280.webp)" }}
         />
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[460px] bg-gradient-to-b from-ink-950/40 via-ink-950/80 to-ink-950" />
         <main className="relative mx-auto max-w-[1240px] px-4 pb-24 pt-8 sm:px-8 lg:pt-10">{children}</main>

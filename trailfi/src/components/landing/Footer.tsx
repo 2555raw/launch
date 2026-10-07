@@ -6,12 +6,11 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { LogoMark } from "@/components/Logo";
 import { api } from "@/lib/fetcher";
-import { X_URL } from "@/lib/social";
 import { ContractAddress } from "./ContractAddress";
 
 const COLUMNS = [
   {
-    title: "Stepit",
+    title: "Strydo",
     links: [
       { href: "/#how-it-works", label: "How it works" },
       { href: "/#rewards", label: "Rewards" },
@@ -24,7 +23,6 @@ const COLUMNS = [
     title: "Walkers",
     links: [
       { href: "/steps", label: "Upload steps" },
-      { href: "/get-usdg", label: "Get USDG" },
       { href: "/dashboard", label: "Dashboard" },
       { href: "/docs", label: "Documentation" },
     ],
@@ -32,7 +30,7 @@ const COLUMNS = [
   {
     title: "Help & Support",
     links: [
-      { href: "/about", label: "About Stepit" },
+      { href: "/about", label: "About Strydo" },
       { href: "/contact", label: "Contact us" },
       { href: "/#faq", label: "FAQs" },
     ],
@@ -41,9 +39,8 @@ const COLUMNS = [
 
 const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "helloStepIT@outlook.com";
 
-/** X always shows; the other profiles get an icon once their link is configured. */
+/** Each profile gets an icon once its link is configured. */
 const SOCIALS = [
-  { label: "X", href: X_URL, icon: XIcon },
   { label: "Telegram", href: process.env.NEXT_PUBLIC_TELEGRAM_URL, icon: TelegramIcon },
   { label: "Instagram", href: process.env.NEXT_PUBLIC_INSTAGRAM_URL, icon: InstagramIcon },
   { label: "Discord", href: process.env.NEXT_PUBLIC_DISCORD_URL, icon: DiscordIcon },
@@ -64,14 +61,14 @@ export function Footer() {
       <div className="container relative z-10 pt-20 sm:pt-24">
         <div className="grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-[1.35fr_1fr_1fr_1.1fr_1.45fr] lg:gap-10">
           <div className="col-span-2 lg:col-span-1">
-            <Link href="/" className="inline-flex items-center gap-3" aria-label="Stepit home">
+            <Link href="/" className="inline-flex items-center gap-3" aria-label="Strydo home">
               <LogoMark className="h-11 w-11" />
               <span className="font-display text-[34px] font-bold leading-none tracking-tight">
-                Step<span className="text-lime-400">it</span>
+                Stry<span className="text-lime-400">do</span>
               </span>
             </Link>
             <p className="mt-5 max-w-xs text-[15px] leading-relaxed text-white/60">
-              Every step counts. Walk, upload your steps and get paid in USDG.
+              Every step counts. Walk, upload your steps and get paid in ETH.
             </p>
             <ContractAddress className="mt-5" />
             <ul className="mt-6 space-y-3 text-[14.5px] text-white/75">
@@ -131,7 +128,7 @@ export function Footer() {
 
         <div className="relative z-10 mt-14 flex flex-col-reverse gap-4 text-[13.5px] sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-md text-xs leading-relaxed text-white/40">
-            © {new Date().getFullYear()} Stepit.
+            © {new Date().getFullYear()} Strydo.
           </p>
           <nav className="flex items-center gap-4 text-white/85" aria-label="Legal">
             <Link href="/privacy" className="transition hover:text-lime-300">
@@ -153,8 +150,8 @@ export function Footer() {
       <div className="pointer-events-none relative -mt-[17%] aspect-[1600/520] min-h-[260px] w-full max-sm:-mt-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/images/footer-trail.svg"
-          alt="Two hikers with backpacks and trekking poles crossing a grassland below the mountains"
+          src="/images/footer-forest.svg"
+          alt="A pine forest with a river winding out of it"
           className="absolute inset-0 h-full w-full object-cover object-[50%_100%]"
           loading="lazy"
         />
@@ -216,14 +213,6 @@ function NewsletterForm() {
         <ArrowRight className="h-5 w-5" strokeWidth={1.5} />
       </button>
     </form>
-  );
-}
-
-function XIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-6 w-6" fill="currentColor" aria-hidden>
-      <path d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.77L17.75 3Zm-1.08 16.2h1.7L7.4 4.7H5.57l11.1 14.5Z" />
-    </svg>
   );
 }
 

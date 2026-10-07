@@ -31,9 +31,9 @@ const STEPS = [
     n: "03",
     stage: "Summit",
     title: "Earn rewards",
-    body: "Each verified day pays in USDG. Request a payout and it lands in your wallet after review.",
+    body: "Each verified day pays in ETH. Request a payout and it lands in your wallet after review.",
     icon: Coins,
-    tags: ["Stablecoin", "Onchain"],
+    tags: ["ETH", "Onchain"],
     Visual: PayoutVisual,
   },
 ];
@@ -56,7 +56,7 @@ export function HowItWorks() {
         <div ref={rail} className="relative mt-16 hidden h-10 md:block" aria-hidden>
           <div className="absolute left-[16.66%] right-[16.66%] top-1/2 h-px -translate-y-1/2 bg-white/10" />
           <motion.div
-            className="absolute left-[16.66%] right-[16.66%] top-1/2 h-px origin-left -translate-y-1/2 bg-gradient-to-r from-lime-400 via-lime-300 to-neon shadow-[0_0_12px_rgba(196,251,109,0.7)]"
+            className="absolute left-[16.66%] right-[16.66%] top-1/2 h-px origin-left -translate-y-1/2 bg-gradient-to-r from-lime-400 via-lime-300 to-neon shadow-[0_0_12px_rgba(77,148,255,0.7)]"
             initial={{ scaleX: 0 }}
             animate={{ scaleX: railIn ? 1 : 0 }}
             transition={{ duration: 1.6, ease: [0.65, 0, 0.35, 1] }}
@@ -92,7 +92,7 @@ function StepCard({ step: s }: { step: (typeof STEPS)[number] }) {
   // Soft lime spotlight that follows the cursor; the card itself stays still.
   const mx = useMotionValue(-400);
   const my = useMotionValue(-400);
-  const spotlight = useMotionTemplate`radial-gradient(340px circle at ${mx}px ${my}px, rgba(196,251,109,0.10), transparent 70%)`;
+  const spotlight = useMotionTemplate`radial-gradient(340px circle at ${mx}px ${my}px, rgba(77,148,255,0.10), transparent 70%)`;
 
   return (
     <motion.div
@@ -113,7 +113,7 @@ function StepCard({ step: s }: { step: (typeof STEPS)[number] }) {
         <s.Visual />
 
         <div className="relative mt-7 flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-xl border border-lime-400/25 bg-forest-800/80 text-lime-300 shadow-[0_0_24px_-6px_rgba(178,240,71,0.6)] transition duration-500 ">
+          <div className="grid h-10 w-10 place-items-center rounded-xl border border-lime-400/25 bg-forest-800/80 text-lime-300 shadow-[0_0_24px_-6px_rgba(47,123,255,0.6)] transition duration-500 ">
             <s.icon className="h-[18px] w-[18px]" />
           </div>
           <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-lime-400">
@@ -387,7 +387,7 @@ function PayoutVisual() {
                 <span
                   className={cn(
                     "relative grid h-6 w-6 shrink-0 place-items-center rounded-full border transition duration-500",
-                    ok ? "border-lime-400 bg-lime-400 text-ink-950 shadow-[0_0_14px_rgba(196,251,109,0.55)]" : "border-white/15 text-transparent",
+                    ok ? "border-lime-400 bg-lime-400 text-ink-950 shadow-[0_0_14px_rgba(77,148,255,0.55)]" : "border-white/15 text-transparent",
                   )}
                 >
                   <Check className="h-3.5 w-3.5" strokeWidth={3} />
@@ -409,7 +409,7 @@ function PayoutVisual() {
                 className="flex items-center justify-between rounded-xl border border-lime-400/25 bg-lime-400/[0.06] px-3 py-2"
               >
                 <span className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-lime-300">
-                  <TokenIcon className="h-3.5 w-3.5" /> Paid in USDG
+                  <TokenIcon className="h-3.5 w-3.5" /> Paid in ETH
                 </span>
                 <button type="button" onClick={run} className="flex items-center gap-1 font-mono text-[10px] uppercase tracking-widest text-white/50 hover:text-lime-300">
                   <RotateCcw className="h-3 w-3" /> Again

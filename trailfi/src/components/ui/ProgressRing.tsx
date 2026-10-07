@@ -25,9 +25,9 @@ export function ProgressRing({
       <svg width={size} height={size} className="-rotate-90" aria-hidden>
         <defs>
           <linearGradient id={`${id}-grad`} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#d8ff9c" />
-            <stop offset="60%" stopColor="#b2f047" />
-            <stop offset="100%" stopColor="#b2f047" />
+            <stop offset="0%" stopColor="#9cc2ff" />
+            <stop offset="60%" stopColor="#2f7bff" />
+            <stop offset="100%" stopColor="#2f7bff" />
           </linearGradient>
           <filter id={`${id}-glow`} x="-50%" y="-50%" width="200%" height="200%">
             <feGaussianBlur stdDeviation="3" result="b" />

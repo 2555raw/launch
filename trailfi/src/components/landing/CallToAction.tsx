@@ -3,8 +3,6 @@ import Image from "next/image";
 import { ConnectWallet } from "@/components/wallet/ConnectWallet";
 import { ButtonLink } from "@/components/ui/Button";
 import { TokenIcon } from "@/components/ui/TokenIcon";
-import { XLogo } from "@/components/ui/XLogo";
-import { X_HANDLE, X_URL } from "@/lib/social";
 import { Reveal } from "./Reveal";
 
 export function CallToAction() {
@@ -15,8 +13,8 @@ export function CallToAction() {
           {/* The photo is clipped on its own layer, so menus opened inside the card (like the wallet menu) can spill out. */}
           <div className="grain absolute inset-0 -z-10 overflow-hidden rounded-[36px]">
             <Image
-              src="/images/trail-valley.webp"
-              alt="Hiker with a yellow backpack walking through an alpine valley"
+              src="/images/forest-stream.webp"
+              alt="A river running through a dark green forest"
               fill
               sizes="(min-width: 1280px) 1240px, 100vw"
               className="object-cover object-[center_35%]"
@@ -36,20 +34,12 @@ export function CallToAction() {
               <ButtonLink href="/dashboard" variant="secondary" size="lg">
                 Open dashboard
               </ButtonLink>
-              <a
-                href={X_URL}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-14 items-center justify-center gap-2.5 rounded-2xl border border-white/15 bg-black/50 px-6 text-[15px] font-semibold backdrop-blur-md transition hover:border-lime-400/40 hover:text-lime-300"
-              >
-                <XLogo className="h-4 w-4" /> Follow @{X_HANDLE}
-              </a>
             </div>
             <ol className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
               {[
                 { icon: Upload, title: "Upload your steps", sub: "A screenshot from your health app" },
                 { icon: ShieldCheck, title: "Get verified", sub: "The team checks every upload" },
-                { icon: Coins, title: "Get paid", sub: "In USDG on Robinhood Chain" },
+                { icon: Coins, title: "Get paid", sub: "In ETH on Robinhood Chain" },
               ].map((s, i) => (
                 <li
                   key={s.title}

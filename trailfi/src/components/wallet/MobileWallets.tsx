@@ -42,7 +42,7 @@ export function useNeedsWalletApp() {
 export function MobileWalletSheet({ open, onClose, openConnectModal }: { open: boolean; onClose: () => void; openConnectModal?: () => void }) {
   const url = typeof window === "undefined" ? "" : window.location.href;
   return (
-    <Modal open={open} onClose={onClose} title="Open in your wallet" subtitle="Your wallet app has its own browser. Stepit opens there and connects in one tap.">
+    <Modal open={open} onClose={onClose} title="Open in your wallet" subtitle="Your wallet app has its own browser. Strydo opens there and connects in one tap.">
       <div className="space-y-2">
         {APPS.map((a) => (
           <a

@@ -48,12 +48,12 @@ export const POST = route(async (req) => {
   if (!ok) throw new HttpError(401, "Signature does not match the wallet.", "bad_signature");
   // While sign-ups are paused only existing walkers (and admins) get in.
   if ((await getSettings()).signupsPaused && !isAdminWallet(parsed.address) && !(await walletHasAccount(parsed.address))) {
-    throw new HttpError(403, "New sign-ups are paused for now. Follow @HelloStepit on X to hear when they reopen.", "signups_paused");
+    throw new HttpError(403, "New sign-ups are paused for now. Follow @HelloStrydo on X to hear when they reopen.", "signups_paused");
   }
 
   const user = await upsertOnLogin(parsed.address);
   // A first sign-in through someone's invite link links the two walkers.
-  if (user.isNew) await linkReferral(user.id, (await cookies()).get("stepit_ref")?.value);
+  if (user.isNew) await linkReferral(user.id, (await cookies()).get("strydo_ref")?.value);
   if (user.status !== "active") throw new HttpError(403, "This account is suspended.", "suspended");
   await createSession({ userId: user.id, address: user.walletAddress, role: user.role });
   return json({ user: { id: user.id, walletAddress: user.walletAddress, role: user.role } });

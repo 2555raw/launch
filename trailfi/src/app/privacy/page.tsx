@@ -4,7 +4,7 @@ export const metadata = { title: "Privacy Policy" };
 
 export default function PrivacyPage() {
   return (
-    <InfoPage label="Legal" title="Privacy Policy" intro="What Stepit stores, why, and what it never touches. Last updated October 5, 2026.">
+    <InfoPage label="Legal" title="Privacy Policy" intro="What Strydo stores, why, and what it never touches. Last updated October 5, 2026.">
       <Section title="What we store">
         <ul>
           <li>Your public wallet address, to identify you and send rewards.</li>
@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         </ul>
       </Section>
       <Section title="Who sees your screenshots">
-        <p>Only the Stepit team, to verify your uploads. Screenshots are never shown publicly.</p>
+        <p>Only the Strydo team, to verify your uploads. Screenshots are never shown publicly.</p>
       </Section>
       <Section title="What we never store">
         <p>

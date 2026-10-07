@@ -84,7 +84,7 @@ export async function sendDueReminders(now = new Date()) {
   );
   if (!subs.length) return { sent: 0 };
   const { publicKey, privateKey } = await vapidKeys();
-  webpush.setVapidDetails(process.env.NEXT_PUBLIC_APP_URL || "https://stepit.site", publicKey, privateKey);
+  webpush.setVapidDetails(process.env.NEXT_PUBLIC_APP_URL || "https://strydo.xyz", publicKey, privateKey);
   let sent = 0;
   for (const s of subs) {
     const local = localNow(s.timezone, now);

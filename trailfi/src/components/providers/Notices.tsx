@@ -21,7 +21,7 @@ const fmtDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-
 /** Opens an X post with the payout's share card; the link carries the walker's invite code. */
 export function sharePayout(id: string, amount: string, referralCode?: string | null) {
   const url = `${window.location.origin}/paid/${id}${referralCode ? `?ref=${referralCode}` : ""}`;
-  window.open(xIntent(`I just got paid ${Number(amount).toFixed(2)} USDG for walking 👟 Touch grass, get paid:`, url), "_blank", "noopener,noreferrer");
+  window.open(xIntent(`I just got paid $${Number(amount).toFixed(2)} in ETH for walking 👟 Walk, get paid:`, url), "_blank", "noopener,noreferrer");
 }
 
 /**
@@ -47,7 +47,7 @@ export function Notices() {
           setTimeout(() => {
             if (n.kind === "verified") {
               toast.success(`Your steps for ${fmtDay(n.day!)} are verified`, {
-                description: n.amount ? `+${Number(n.amount).toFixed(2)} USDG credited to your balance.` : `${n.steps?.toLocaleString("en-US")} steps counted.`,
+                description: n.amount ? `+$${Number(n.amount).toFixed(2)} credited to your balance.` : `${n.steps?.toLocaleString("en-US")} steps counted.`,
                 duration: 10_000,
                 action: { label: "Dashboard", onClick: () => window.location.assign("/dashboard") },
               });
@@ -57,7 +57,7 @@ export function Notices() {
                 duration: 12_000,
               });
             } else {
-              toast.success(`You got paid ${Number(n.amount).toFixed(2)} USDG`, {
+              toast.success(`You got paid $${Number(n.amount).toFixed(2)} in ETH`, {
                 description: "It's in your wallet on Robinhood Chain.",
                 duration: 15_000,
                 action: { label: "Share on X", onClick: () => sharePayout(n.id, n.amount ?? "0", referralCode) },

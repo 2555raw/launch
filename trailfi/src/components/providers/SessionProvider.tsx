@@ -55,8 +55,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     if (!data || mismatch || accountStatus !== "connected" || !chainId || chainId === PAYOUT_CHAIN_ID || askedChain.current) return;
     askedChain.current = true;
     try {
-      if (sessionStorage.getItem("stepit:chain-asked")) return;
-      sessionStorage.setItem("stepit:chain-asked", "1");
+      if (sessionStorage.getItem("strydo:chain-asked")) return;
+      sessionStorage.setItem("strydo:chain-asked", "1");
     } catch {
       /* storage unavailable: ask anyway */
     }

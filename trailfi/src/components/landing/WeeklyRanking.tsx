@@ -68,7 +68,7 @@ export function WeeklyRanking() {
     <section id="ranking" className="relative scroll-mt-24 py-28 sm:py-36">
       <div className="container">
         <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-          <SectionHeading index="03" label="Ranking" title="Top walkers" accent="this week.">
+          <SectionHeading index="02" label="Ranking" title="Top walkers" accent="this week.">
             Ranked by verified steps from Monday to Sunday. Only the first and last characters of each wallet are shown.
           </SectionHeading>
           <Reveal className="flex flex-col items-start gap-3 lg:items-end lg:pb-3">
@@ -102,12 +102,12 @@ export function WeeklyRanking() {
                     Most steps this week wins <span className="text-lime-300">${data.prize % 1 ? data.prize.toFixed(2) : data.prize}</span>
                   </div>
                   <div className="text-[13.5px] text-white/55">
-                    Every Monday the walker with the most verified steps gets a bonus in USDG, on top of their daily pay.
+                    Every Monday the walker with the most verified steps gets a bonus paid in ETH, on top of their daily pay.
                   </div>
                 </div>
               </div>
               <span className="flex items-center gap-2 whitespace-nowrap font-mono text-[12px] uppercase tracking-[0.14em] text-lime-300">
-                <TokenIcon symbol="USDG" /> {week === "this" ? resetsIn() : data.prizeAwarded ? "Prize awarded" : "Winner being paid"}
+                <TokenIcon symbol="ETH" /> {week === "this" ? resetsIn() : data.prizeAwarded ? "Prize awarded" : "Winner being paid"}
               </span>
             </div>
           </Reveal>

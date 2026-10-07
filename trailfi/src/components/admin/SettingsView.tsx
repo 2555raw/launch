@@ -146,7 +146,7 @@ export function SettingsView() {
             >
               <input type="number" className="input font-mono" min={0} step={5} value={form.weeklyPrize} onChange={(e) => set("weeklyPrize", Number(e.target.value))} />
             </Field>
-            <Field label="Stepit CA" hint="The token contract address. It shows on the home page with a copy button as soon as you save. Leave it empty to hide it.">
+            <Field label="Strydo CA" hint="The token contract address. It shows on the home page with a copy button as soon as you save. Leave it empty to hide it.">
               <input
                 className="input font-mono"
                 placeholder="Paste the contract address"

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/cn";
 import { usePublicStats } from "./usePublicStats";
 
-/** The Stepit token contract address with a copy button. Hidden until the admin sets one. */
+/** The Strydo token contract address with a copy button. Hidden until the admin sets one. */
 export function ContractAddress({ className }: { className?: string }) {
   const { data } = usePublicStats();
   const [copied, setCopied] = useState(false);

@@ -39,7 +39,7 @@ export function StepsChart({ data, goal, height = 200 }: { data: DayPoint[]; goa
                 transition={{ delay: i * 0.03, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                 className={cn(
                   "min-h-[3px] w-full rounded-md transition group-hover:brightness-125",
-                  met ? "bg-gradient-to-t from-lime-600 to-lime-300 shadow-[0_0_14px_-2px_rgba(178,240,71,0.5)]" : "bg-white/15",
+                  met ? "bg-gradient-to-t from-lime-600 to-lime-300 shadow-[0_0_14px_-2px_rgba(47,123,255,0.5)]" : "bg-white/15",
                   pending && "opacity-60 [background-image:repeating-linear-gradient(45deg,rgba(255,255,255,0.12)_0_4px,transparent_4px_8px)]",
                 )}
               />

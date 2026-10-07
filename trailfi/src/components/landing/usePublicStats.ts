@@ -12,7 +12,7 @@ export interface PublicStats {
   tokenSymbol: string;
   maxDaily: number;
   maxDailySteps: number;
-  /** The Stepit token contract address; empty until the admin sets it. */
+  /** The Strydo token contract address; empty until the admin sets it. */
   projectCa: string;
 }
 

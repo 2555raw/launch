@@ -17,6 +17,10 @@ const nextConfig: NextConfig = {
     config.plugins.push(new webpack.IgnorePlugin({ resourceRegExp: /^@x402\// }));
     return config;
   },
+  // The USDG guide is gone since payouts moved to ETH; old links land on the FAQ.
+  async redirects() {
+    return [{ source: "/get-usdg", destination: "/#faq", permanent: false }];
+  },
   async headers() {
     return [
       {

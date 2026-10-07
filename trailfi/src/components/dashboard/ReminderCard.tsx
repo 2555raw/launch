@@ -96,9 +96,9 @@ export function ReminderCard() {
           <div className="font-display text-lg font-semibold">Daily reminder</div>
           <div className="text-[13px] text-white/55">
             {support === "needs-install"
-              ? "On iPhone, add Stepit to your Home Screen first, then turn reminders on from the app."
+              ? "On iPhone, add Strydo to your Home Screen first, then turn reminders on from the app."
               : support === "blocked"
-                ? "Notifications are blocked for Stepit. Allow them in your browser settings to get reminders."
+                ? "Notifications are blocked for Strydo. Allow them in your browser settings to get reminders."
                 : enabled
                   ? "On: a notification at 7 pm on days you haven't uploaded yet."
                   : "Get a notification at 7 pm on days you haven't uploaded your steps yet."}

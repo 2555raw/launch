@@ -2,13 +2,13 @@ import { ImageResponse } from "next/og";
 import { OG_LOGO, OG_SIZE, ogAssets } from "@/lib/og";
 import { getShareEntry } from "@/lib/services/steps";
 
-export const alt = "Steps walked on Stepit";
+export const alt = "Steps walked on Strydo";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 
 export default async function Image({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [entry, { usdg, fonts }] = await Promise.all([getShareEntry(id), ogAssets()]);
+  const [entry, { eth, fonts }] = await Promise.all([getShareEntry(id), ogAssets()]);
   const steps = entry ? entry.steps.toLocaleString("en-US") : "Every step";
   const day = entry
     ? new Date(`${entry.day}T00:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" })
@@ -24,8 +24,8 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "64px 72px",
-          background: "#060807",
-          backgroundImage: "radial-gradient(circle at 85% 0%, rgba(178,240,71,0.28), transparent 55%)",
+          background: "#05070b",
+          backgroundImage: "radial-gradient(circle at 85% 0%, rgba(47,123,255,0.28), transparent 55%)",
           fontFamily: "Space Grotesk",
           color: "#ffffff",
         }}
@@ -34,7 +34,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           {/* eslint-disable-next-line jsx-a11y/alt-text */}
           <img src={OG_LOGO} width={64} height={64} />
           <div style={{ display: "flex", fontSize: 40, fontWeight: 700, letterSpacing: -1 }}>
-            Step<span style={{ color: "#c4fb6d" }}>it</span>
+            Stry<span style={{ color: "#4d94ff" }}>do</span>
           </div>
         </div>
 
@@ -43,7 +43,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             I walked
           </div>
           <div style={{ display: "flex", alignItems: "baseline", gap: 24, marginTop: 6 }}>
-            <div style={{ display: "flex", fontSize: 168, fontWeight: 700, lineHeight: 1, letterSpacing: -6, color: "#c4fb6d" }}>{steps}</div>
+            <div style={{ display: "flex", fontSize: 168, fontWeight: 700, lineHeight: 1, letterSpacing: -6, color: "#4d94ff" }}>{steps}</div>
             <div style={{ display: "flex", fontSize: 54, fontWeight: 700, color: "#ffffff" }}>steps</div>
           </div>
           <div style={{ display: "flex", fontSize: 32, fontWeight: 500, color: "rgba(255,255,255,0.7)", marginTop: 14 }}>on {day}</div>
@@ -53,8 +53,8 @@ export default async function Image({ params }: { params: Promise<{ id: string }
           <div style={{ display: "flex", alignItems: "center", gap: 14, fontSize: 28, fontWeight: 500, color: "rgba(255,255,255,0.75)" }}>
             Walk. Upload. Earn
             {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <img src={usdg} width={34} height={34} />
-            USDG
+            <img src={eth} width={34} height={34} />
+            ETH
           </div>
           <div
             style={{
@@ -63,13 +63,13 @@ export default async function Image({ params }: { params: Promise<{ id: string }
               gap: 12,
               padding: "14px 26px",
               borderRadius: 999,
-              border: "2px solid rgba(196,251,109,0.45)",
+              border: "2px solid rgba(77,148,255,0.45)",
               fontSize: 28,
               fontWeight: 700,
             }}
           >
-            <div style={{ display: "flex", width: 12, height: 12, borderRadius: 999, background: "#b2f047" }} />
-            stepit.site
+            <div style={{ display: "flex", width: 12, height: 12, borderRadius: 999, background: "#2f7bff" }} />
+            strydo.xyz
           </div>
         </div>
       </div>

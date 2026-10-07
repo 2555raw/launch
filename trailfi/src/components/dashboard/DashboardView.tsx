@@ -84,7 +84,7 @@ const SOURCE_LABEL: Record<string, string> = {
 };
 
 function celebrate() {
-  const colors = ["#c4fb6d", "#b2f047", "#ffffff", "#d8ff9c"];
+  const colors = ["#4d94ff", "#2f7bff", "#ffffff", "#9cc2ff"];
   confetti({ particleCount: 120, spread: 75, origin: { y: 0.35 }, colors, scalar: 0.9 });
   setTimeout(() => confetti({ particleCount: 60, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors }), 220);
   setTimeout(() => confetti({ particleCount: 60, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors }), 380);
@@ -294,7 +294,7 @@ export function DashboardView() {
           </div>
           {data.payouts.length === 0 ? (
             <div className="px-6 pb-6">
-              <EmptyState title="No payments yet">Approved rewards are bundled and sent to your wallet by the Stepit team.</EmptyState>
+              <EmptyState title="No payments yet">Approved rewards are bundled and sent to your wallet by the Strydo team.</EmptyState>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -438,10 +438,7 @@ function RequestBanner({
       await qc.invalidateQueries({ queryKey: ["me"] });
       toast.success("Payout requested", { description: `${fmtAmount(payout.amount)} ${token} · the team will send it to your wallet.` });
     },
-    onError: (err: Error & { code?: string }) =>
-      err.code === "token_required"
-        ? toast.error(err.message, { duration: 12_000, action: { label: "Get USDG", onClick: () => window.location.assign("/get-usdg") } })
-        : toast.error(err.message),
+    onError: (err: Error) => toast.error(err.message),
   });
 
   if (openRequest) {
@@ -545,7 +542,7 @@ function ActivityModal({ open, onClose, entries }: { open: boolean; onClose: () 
 }
 
 function InviteCard({ referral, bonus, token }: { referral: MeResponse["referral"]; bonus: number; token: string }) {
-  const tweet = `I'm walking and earning ${token} with @Stepit 🥾 Upload your daily steps, get verified, get paid. Join me:`;
+  const tweet = `I'm walking and earning ${token} with @Strydo 🥾 Upload your daily steps, get verified, get paid. Join me:`;
   return (
     <Card className="relative overflow-hidden p-6 sm:p-7">
       <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-lime-400/15 blur-3xl" />

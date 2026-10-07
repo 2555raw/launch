@@ -1,5 +1,5 @@
 /**
- * Stepit reward engine — pure functions, no I/O.
+ * Strydo reward engine — pure functions, no I/O.
  *
  * How a distribution works:
  *   1. pool = eligibleFees × rewardPercent / 100
@@ -199,7 +199,7 @@ export function estimateDailyReward(input: {
 }
 
 /**
- * Tiered daily reward — the rates Stepit actually pays. Private: only the
+ * Tiered daily reward — the rates Strydo actually pays. Private: only the
  * admin API returns the tier settings; walkers only see amounts.
  *   steps < min                 → 0
  *   min ≤ steps < threshold     → avg × 0.85 … avg × 1.15, rising with steps

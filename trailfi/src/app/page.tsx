@@ -17,10 +17,10 @@ export default function HomePage() {
       <main>
         <Hero />
         <PayoutTicker />
-        <DemoLoop />
         <HowItWorks />
-        <RewardsSection />
+        <DemoLoop />
         <WeeklyRanking />
+        <RewardsSection />
         <Leaderboard />
         <Faq />
         <CallToAction />

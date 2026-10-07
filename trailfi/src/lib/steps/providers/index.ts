@@ -17,7 +17,7 @@ export const STEP_PROVIDERS: Record<StepSource, StepProvider> = {
     label: "Apple Health",
     status: "companion-app",
     description:
-      "Read with HealthKit (HKStatisticsQuery, stepCount) in the Stepit iOS companion app and posted to the signed ingest endpoint.",
+      "Read with HealthKit (HKStatisticsQuery, stepCount) in the Strydo iOS companion app and posted to the signed ingest endpoint.",
     trusted: true,
   },
   health_connect: {
@@ -25,7 +25,7 @@ export const STEP_PROVIDERS: Record<StepSource, StepProvider> = {
     label: "Google Health Connect",
     status: "companion-app",
     description:
-      "Read with the Health Connect API (StepsRecord aggregate) in the Stepit Android companion app and posted to the signed ingest endpoint.",
+      "Read with the Health Connect API (StepsRecord aggregate) in the Strydo Android companion app and posted to the signed ingest endpoint.",
     trusted: true,
   },
   fitness_api: {

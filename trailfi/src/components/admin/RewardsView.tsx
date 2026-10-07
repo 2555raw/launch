@@ -137,7 +137,7 @@ export function RewardsView() {
               </label>
             </div>
             <label className="block">
-              <span className="label mb-2 block">Token fees collected ({settings?.payoutTokenSymbol ?? "USDG"}, for the record)</span>
+              <span className="label mb-2 block">Token fees collected ({settings?.payoutTokenSymbol ?? "ETH"}, for the record)</span>
               <input type="number" min={0} step="0.01" className="input font-mono" value={fees} onChange={(e) => setFees(e.target.value)} />
             </label>
             {settings && (

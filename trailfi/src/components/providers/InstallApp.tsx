@@ -10,7 +10,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 interface InstallState {
-  /** True when Stepit already runs as an installed app. */
+  /** True when Strydo already runs as an installed app. */
   installed: boolean;
   /** True when the browser can install it, or it's an iPhone/iPad where we show the steps. */
   available: boolean;
@@ -64,7 +64,7 @@ export function InstallAppProvider({ children }: { children: ReactNode }) {
   return (
     <InstallContext.Provider value={{ installed, available: !installed && (Boolean(prompt) || ios), install }}>
       {children}
-      <Modal open={iosHelp} onClose={() => setIosHelp(false)} title="Add Stepit to your Home Screen" subtitle="It opens full screen like an app, and can remind you to upload your steps.">
+      <Modal open={iosHelp} onClose={() => setIosHelp(false)} title="Add Strydo to your Home Screen" subtitle="It opens full screen like an app, and can remind you to upload your steps.">
         <ol className="space-y-3 text-[14.5px] text-white/80">
           <li className="flex items-center gap-3">
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-lime-400 font-bold text-ink-950">1</span>
@@ -81,7 +81,7 @@ export function InstallAppProvider({ children }: { children: ReactNode }) {
           <li className="flex items-center gap-3">
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-lime-400 font-bold text-ink-950">3</span>
             <span>
-              Tap <b>Add</b>, then open Stepit from your Home Screen.
+              Tap <b>Add</b>, then open Strydo from your Home Screen.
             </span>
           </li>
         </ol>
@@ -107,13 +107,13 @@ export function InstallAppButton({ className }: { className?: string }) {
   );
 }
 
-/** One-time banner on phones offering to install Stepit. Dismissal is remembered on the device. */
+/** One-time banner on phones offering to install Strydo. Dismissal is remembered on the device. */
 export function InstallBanner() {
   const { available, install } = useInstallApp();
   const [hidden, setHidden] = useState(true);
   useEffect(() => {
     try {
-      setHidden(localStorage.getItem("stepit:install-dismissed") === "1");
+      setHidden(localStorage.getItem("strydo:install-dismissed") === "1");
     } catch {
       setHidden(false);
     }
@@ -122,7 +122,7 @@ export function InstallBanner() {
   const dismiss = () => {
     setHidden(true);
     try {
-      localStorage.setItem("stepit:install-dismissed", "1");
+      localStorage.setItem("strydo:install-dismissed", "1");
     } catch {
       /* storage unavailable */
     }
@@ -132,7 +132,7 @@ export function InstallBanner() {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/app/icon-192.png" alt="" className="h-11 w-11 rounded-xl" />
       <div className="min-w-0 flex-1">
-        <div className="text-[14px] font-semibold">Get the Stepit app</div>
+        <div className="text-[14px] font-semibold">Get the Strydo app</div>
         <div className="text-[12px] text-white/55">Opens full screen, with daily reminders.</div>
       </div>
       <button onClick={install} className="rounded-xl bg-lime-400 px-3.5 py-2 text-[13px] font-semibold text-ink-950">

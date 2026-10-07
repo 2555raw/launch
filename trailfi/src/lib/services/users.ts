@@ -23,7 +23,7 @@ export interface UserRow {
 const USER_COLUMNS = `id, short_id as "shortId", wallet_address as "walletAddress", role, status,
   payout_consent_at as "payoutConsentAt", created_at as "createdAt", last_login_at as "lastLoginAt"`;
 
-/** Whether this wallet already has a Stepit account. */
+/** Whether this wallet already has a Strydo account. */
 export async function walletHasAccount(address: string): Promise<boolean> {
   return Boolean(await one("select 1 from users where wallet_address = $1", [address.toLowerCase()]));
 }

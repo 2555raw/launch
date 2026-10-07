@@ -1,4 +1,4 @@
-// Stepit service worker: makes the site installable and shows daily step reminders.
+// Strydo service worker: makes the site installable and shows daily step reminders.
 // It does not cache pages, so the app always shows live data.
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
@@ -12,11 +12,11 @@ self.addEventListener("push", (event) => {
     data = { body: event.data ? event.data.text() : "" };
   }
   event.waitUntil(
-    self.registration.showNotification(data.title || "Stepit", {
+    self.registration.showNotification(data.title || "Strydo", {
       body: data.body || "Upload today's steps before the day ends.",
       icon: "/app/icon-192.png",
       badge: "/app/badge-96.png",
-      tag: data.tag || "stepit-reminder",
+      tag: data.tag || "strydo-reminder",
       data: { url: data.url || "/steps" },
     }),
   );

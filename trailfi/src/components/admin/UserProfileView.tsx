@@ -68,7 +68,7 @@ export function UserProfileView({ id }: { id: string }) {
   if (isLoading || !data) return <Skeleton className="h-96" />;
 
   const { user, summary } = data;
-  const token = data.rewards[0]?.tokenSymbol ?? "USDG";
+  const token = data.rewards[0]?.tokenSymbol ?? "ETH";
   const openPayout = data.payouts.find((p) => p.status === "prepared" || p.status === "submitted");
 
   return (

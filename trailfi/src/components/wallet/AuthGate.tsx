@@ -38,7 +38,7 @@ export function AuthGate({ children, title, description }: { children: ReactNode
 const STEPS = [
   { n: 1, label: "Connect", icon: <Wallet className="h-4 w-4" /> },
   { n: 2, label: "Upload a screenshot", icon: <Upload className="h-4 w-4" /> },
-  { n: 3, label: "Get paid in USDG", icon: <TokenIcon symbol="USDG" className="h-4 w-4" /> },
+  { n: 3, label: "Get paid in ETH", icon: <TokenIcon symbol="ETH" className="h-4 w-4" /> },
 ];
 
 function ConnectToStart() {
@@ -57,7 +57,7 @@ function ConnectToStart() {
         </h1>
         <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-white/60">
           Your wallet is your account. Sign a short message to prove it&apos;s yours. It&apos;s free, moves no money and
-          needs no email or password. Your USDG is sent to this wallet on Robinhood Chain.
+          needs no email or password. Your ETH is sent to this wallet on Robinhood Chain.
         </p>
 
         <ol className="mt-8 flex flex-wrap gap-2.5">
@@ -75,9 +75,9 @@ function ConnectToStart() {
 
         <div className="mt-9 flex flex-wrap items-center gap-4">
           <ConnectWallet size="lg" />
-          <Link href="/get-usdg" className="flex items-center gap-2 text-[14px] text-white/60 transition hover:text-lime-300">
-            <TokenIcon symbol="USDG" /> Free to join. <span className="text-lime-300 underline decoration-lime-400/40 underline-offset-4">Paid in USDG</span>
-          </Link>
+          <span className="flex items-center gap-2 text-[14px] text-white/60">
+            <TokenIcon symbol="ETH" /> Free to join. <span className="text-lime-300">Paid in ETH</span>
+          </span>
         </div>
 
         <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-[14px]">
@@ -130,7 +130,7 @@ const APPS = [
   { name: "Garmin", icon: "/apps/garmin-connect.png" },
 ];
 
-/** A sample week as a walker sees it: what each day paid, and the week's total in USDG. */
+/** A sample week as a walker sees it: what each day paid, and the week's total. */
 function ExampleCard() {
   const earned = WEEK.filter((d) => d.status !== "review").reduce((t, d) => t + d.amount, 0);
   const steps = WEEK.reduce((t, d) => t + d.steps, 0);
@@ -155,7 +155,7 @@ function ExampleCard() {
             transition={{ delay: 0.2 }}
             className="mt-1 flex items-center gap-2.5 font-display text-[44px] font-bold leading-none tracking-tight text-lime-300"
           >
-            +{earned.toFixed(2)} <TokenIcon symbol="USDG" className="h-8 w-8" />
+            +{earned.toFixed(2)} <TokenIcon symbol="ETH" className="h-8 w-8" />
           </motion.div>
         </div>
         <div className="text-right font-mono text-[12px] leading-relaxed text-white/45">

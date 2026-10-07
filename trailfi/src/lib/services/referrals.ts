@@ -77,6 +77,6 @@ export async function referralInfo(userId: string) {
             (select coalesce(sum(amount), 0)::float8 from rewards where user_id = $1 and kind = 'referral') as earned`,
     [userId],
   );
-  const base = env.appUrl || "https://stepit.site";
+  const base = env.appUrl || "https://strydo.xyz";
   return { code, link: `${base}/?ref=${code}`, ...(stats ?? { invited: 0, rewarded: 0, earned: 0 }) };
 }

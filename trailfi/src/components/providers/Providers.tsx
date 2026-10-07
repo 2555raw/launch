@@ -16,23 +16,23 @@ import { SessionProvider, useSession } from "./SessionProvider";
 
 const Disclaimer: DisclaimerComponent = ({ Text }) => (
   <Text>
-    Stepit only reads your <strong>public address</strong>, which is used to identify you and to send your rewards.
+    Strydo only reads your <strong>public address</strong>, which is used to identify you and to send your rewards.
     You will sign a free message to verify ownership. No transaction, no gas, no token approvals. We will never ask
     for your seed phrase or private key.
   </Text>
 );
 
 const theme = darkTheme({
-  accentColor: "#c4fb6d",
-  accentColorForeground: "#06140c",
+  accentColor: "#4d94ff",
+  accentColorForeground: "#060e1c",
   borderRadius: "large",
   overlayBlur: "small",
   fontStack: "system",
 });
-theme.colors.modalBackground = "#0b100d";
+theme.colors.modalBackground = "#0a0e15";
 theme.colors.modalBorder = "rgba(255,255,255,0.08)";
-theme.colors.profileForeground = "#0b100d";
-theme.colors.connectButtonBackground = "#0b100d";
+theme.colors.profileForeground = "#0a0e15";
+theme.colors.connectButtonBackground = "#0a0e15";
 
 interface SignInState {
   /** Asks the wallet for the one free sign-in signature and opens a session. */
@@ -113,7 +113,7 @@ function AuthBridge({ children }: { children: ReactNode }) {
         modalSize="compact"
         locale="en-US"
         initialChain={PAYOUT_CHAIN_ID}
-        appInfo={{ appName: "Stepit", disclaimer: Disclaimer, learnMoreUrl: "/docs" }}
+        appInfo={{ appName: "Strydo", disclaimer: Disclaimer, learnMoreUrl: "/docs" }}
       >
         {children}
         <Notices />
@@ -126,9 +126,9 @@ function AuthBridge({ children }: { children: ReactNode }) {
 function useReferralCapture() {
   useEffect(() => {
     const code = new URLSearchParams(window.location.search).get("ref")?.trim().toUpperCase();
-    if (!code || !/^[A-Z2-9]{7}$/.test(code) || document.cookie.includes("stepit_ref=")) return;
+    if (!code || !/^[A-Z2-9]{7}$/.test(code) || document.cookie.includes("strydo_ref=")) return;
     const secure = window.location.protocol === "https:" ? "; Secure" : "";
-    document.cookie = `stepit_ref=${code}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax${secure}`;
+    document.cookie = `strydo_ref=${code}; Max-Age=${60 * 60 * 24 * 30}; Path=/; SameSite=Lax${secure}`;
   }, []);
 }
 

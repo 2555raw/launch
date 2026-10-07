@@ -8,4 +8,4 @@ export const SESSION_TTL_SECONDS = 60 * 60 * 24 * 30;
  * any sign-in message whose statement differs.
  */
 export const SIWE_STATEMENT =
-  "Sign in to Stepit. This free signature only proves you own this address: it is not a transaction and gives no permission to move funds. I agree that Stepit uses this public address to identify me and to send my rewards.";
+  "Sign in to Strydo. This free signature only proves you own this address: it is not a transaction and gives no permission to move funds. I agree that Strydo uses this public address to identify me and to send my rewards.";

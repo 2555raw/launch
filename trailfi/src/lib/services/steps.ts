@@ -171,7 +171,7 @@ export async function ingestProviderSteps(input: unknown) {
   const user = await one<{ id: string; status: string }>("select id, status from users where wallet_address = $1", [
     body.wallet.toLowerCase(),
   ]);
-  if (!user) throw new HttpError(404, "No Stepit account for this wallet.", "unknown_wallet");
+  if (!user) throw new HttpError(404, "No Strydo account for this wallet.", "unknown_wallet");
   if (user.status !== "active") throw new HttpError(403, "Account suspended.", "suspended");
 
   const results: Array<{ externalId: string; ok: boolean; id?: string; verification?: string; error?: string }> = [];

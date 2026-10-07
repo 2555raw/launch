@@ -4,8 +4,8 @@
 
 :root {
   color-scheme: dark;
-  --lime: 196 251 109;
-  --neon: 178 240 71;
+  --lime: 77 148 255;
+  --neon: 47 123 255;
 }
 
 @layer base {
@@ -21,7 +21,7 @@
   }
   ::selection {
     background: rgb(var(--lime) / 0.85);
-    color: #06140c;
+    color: #060e1c;
   }
   :focus-visible {
     outline: 2px solid rgb(var(--lime));

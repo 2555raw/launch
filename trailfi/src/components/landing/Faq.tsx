@@ -9,7 +9,7 @@ import { Reveal, SectionHeading } from "./Reveal";
 const QUESTIONS = [
   {
     q: "Where do the rewards come from?",
-    a: "Stepit pays them in USDG, the dollar stablecoin issued by Paxos, from its rewards wallet on Robinhood Chain. Each verified day pays according to your steps, up to the daily maximum shown on the home page. Every payment is public onchain.",
+    a: "Strydo pays them in ETH from its rewards wallet on Robinhood Chain. Rewards are counted in dollars and sent as ETH at the price of the day the payout is sent. Each verified day pays according to your steps, up to the daily maximum shown on the home page. Every payment is public onchain.",
   },
   {
     q: "How much will I earn?",
@@ -17,11 +17,11 @@ const QUESTIONS = [
   },
   {
     q: "Do I need to buy anything?",
-    a: "No. Joining, walking and getting paid are all free. You don\'t need to buy or hold any token: your rewards arrive in your wallet as USDG, a dollar stablecoin, on Robinhood Chain.",
+    a: "No. Joining, walking and getting paid are all free. You don\'t need to buy or hold any token: your rewards arrive in your wallet as ETH on Robinhood Chain.",
   },
   {
     q: "Is there a weekly prize?",
-    a: "Yes. Every week (Monday to Sunday, UTC) the walker with the most verified steps wins a bonus of $50 in USDG, on top of their daily pay. The weekly ranking shows who is in front.",
+    a: "Yes. Every week (Monday to Sunday, UTC) the walker with the most verified steps wins a bonus of $50 paid in ETH, on top of their daily pay. The weekly ranking shows who is in front.",
   },
   {
     q: "How are my steps verified?",
@@ -29,7 +29,7 @@ const QUESTIONS = [
   },
   {
     q: "Which wallet do I need?",
-    a: "Phantom, MetaMask, Coinbase Wallet or Rabby. Stepit runs on Robinhood Chain, an Ethereum layer 2, and rewards are sent to your wallet there.",
+    a: "Phantom, MetaMask, Coinbase Wallet or Rabby. Strydo runs on Robinhood Chain, an Ethereum layer 2, and rewards are sent to your wallet there.",
   },
   {
     q: "When do I get paid?",
@@ -37,7 +37,7 @@ const QUESTIONS = [
   },
   {
     q: "Is it safe to connect my wallet?",
-    a: "Stepit only reads your public address and asks for one free signature to prove it is yours. It never asks for your seed phrase or private key, and never requests token approvals.",
+    a: "Strydo only reads your public address and asks for one free signature to prove it is yours. It never asks for your seed phrase or private key, and never requests token approvals.",
   },
 ];
 

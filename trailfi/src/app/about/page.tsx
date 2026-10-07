@@ -5,15 +5,15 @@ export const metadata = { title: "About" };
 export default function AboutPage() {
   return (
     <InfoPage
-      label="About Stepit"
+      label="About Strydo"
       title="Built for people who'd rather be outside."
-      intro="Stepit is a Web3 platform that rewards verified real world activity. Walk, hike and explore, and get paid in USDG in your own wallet."
+      intro="Strydo is a Web3 platform that rewards verified real world activity. Walk, hike and explore, and get paid in ETH in your own wallet."
     >
-      <Section title="Why Stepit">
+      <Section title="Why Strydo">
         <p>
-          Most move to earn projects paid people in a token that only had value while new users kept buying it. Stepit
-          does the opposite: rewards are paid in <strong>USDG</strong>, a dollar stablecoin issued by Paxos, so a dollar
-          earned is a dollar in your wallet.
+          Most move to earn projects paid people in a token that only had value while new users kept buying it. Strydo
+          does the opposite: every verified day earns a dollar amount, paid in <strong>ETH</strong>, so what you earn
+          is worth something real the day it lands in your wallet.
         </p>
       </Section>
       <Section title="Principles">

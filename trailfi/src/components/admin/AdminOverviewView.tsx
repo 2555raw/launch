@@ -35,7 +35,7 @@ export function AdminOverviewView() {
     <div>
       <PageHeader
         label="Overview"
-        title="Today on Stepit"
+        title="Today on Strydo"
         action={
           <a
             href="/api/admin/newsletter"

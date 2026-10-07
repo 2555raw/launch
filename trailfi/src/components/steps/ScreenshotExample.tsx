@@ -13,7 +13,7 @@ function Marker({ n, className }: { n: number; className: string }) {
   return (
     <span
       className={cn(
-        "absolute z-10 grid h-6 w-6 place-items-center rounded-full bg-lime-400 font-mono text-[11px] font-bold text-ink-950 shadow-[0_0_0_4px_rgba(196,251,109,0.25)]",
+        "absolute z-10 grid h-6 w-6 place-items-center rounded-full bg-lime-400 font-mono text-[11px] font-bold text-ink-950 shadow-[0_0_0_4px_rgba(77,148,255,0.25)]",
         className,
       )}
     >
@@ -55,11 +55,11 @@ function FitnessScreen() {
     <Phone dark>
       <div className="px-3">
         <div className="flex items-center justify-between text-[11px]">
-          <span className="text-[#a6ff00]">‹</span>
+          <span className="text-[#3d8bff]">‹</span>
           <Mark n={1} markerClass="-bottom-7 left-1/2 -translate-x-1/2">
             <span className="text-[11.5px] font-semibold">Saturday, Oct 3, 2026</span>
           </Mark>
-          <span className="h-3 w-3 rounded-[3px] border border-[#a6ff00]" />
+          <span className="h-3 w-3 rounded-[3px] border border-[#3d8bff]" />
         </div>
         <div className="mt-8 flex justify-between px-1">
           {days.map((d, i) => (

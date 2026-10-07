@@ -73,7 +73,7 @@ async function compressScreenshot(file: File): Promise<string> {
 }
 
 function celebrate() {
-  const colors = ["#c4fb6d", "#b2f047", "#ffffff", "#d8ff9c"];
+  const colors = ["#4d94ff", "#2f7bff", "#ffffff", "#9cc2ff"];
   confetti({ particleCount: 110, spread: 75, origin: { y: 0.4 }, colors, scalar: 0.9 });
 }
 
@@ -362,7 +362,7 @@ function AverageCard({ summary }: { summary: StepsResponse["summary"] }) {
       </div>
       <div className="relative mt-8 flex gap-1.5">
         {Array.from({ length: 7 }, (_, i) => (
-          <div key={i} className={cn("h-2 flex-1 rounded-full", i < summary.daysLogged7 ? "bg-lime-400 shadow-[0_0_10px_rgba(196,251,109,0.5)]" : "bg-white/10")} />
+          <div key={i} className={cn("h-2 flex-1 rounded-full", i < summary.daysLogged7 ? "bg-lime-400 shadow-[0_0_10px_rgba(77,148,255,0.5)]" : "bg-white/10")} />
         ))}
       </div>
       <div className="relative mt-2 text-[12px] text-white/45">{summary.daysLogged7} of the last 7 days uploaded</div>
@@ -388,7 +388,7 @@ function AverageCard({ summary }: { summary: StepsResponse["summary"] }) {
 function ShareOnX({ entry, referralCode, label }: { entry: Entry; referralCode: string; label?: string }) {
   const share = () => {
     const url = `${window.location.origin}/share/${entry.id}?ref=${referralCode}`;
-    const text = `I walked ${fmtSteps(entry.steps)} steps on ${fmtDate(entry.day, { month: "short", day: "numeric" })} with Stepit. Walk, upload your steps and earn USDG 👟`;
+    const text = `I walked ${fmtSteps(entry.steps)} steps on ${fmtDate(entry.day, { month: "short", day: "numeric" })} with Strydo. Walk, upload your steps and earn ETH 👟`;
     window.open(xIntent(text, url), "_blank", "noopener,noreferrer");
   };
   return (

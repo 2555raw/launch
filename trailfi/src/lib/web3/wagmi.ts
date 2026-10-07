@@ -28,7 +28,7 @@ export function makeWagmiConfig(): Config {
           { groupName: "More", wallets: [walletConnectWallet, rainbowWallet, injectedWallet] },
         ]
       : [{ groupName: "Browser wallets", wallets: [phantomWallet, metaMaskWallet, coinbaseWallet, rabbyWallet, injectedWallet] }],
-    { appName: "Stepit", projectId: projectId || "trailfi-local-no-walletconnect" },
+    { appName: "Strydo", projectId: projectId || "trailfi-local-no-walletconnect" },
   );
 
   // Walkers only sign a message, so any common network is fine for connecting. Robinhood Chain

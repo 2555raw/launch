@@ -12,6 +12,9 @@ import { X_HANDLE, X_URL } from "@/lib/social";
 import { ContractAddress } from "./ContractAddress";
 import { usePublicStats } from "./usePublicStats";
 
+/** Below this many walkers the hero shows what you can earn rather than community totals. */
+const LIVE_FROM_WALKERS = 25;
+
 function HeroBackground() {
   // Art direction: a landscape crop for wide screens, a portrait crop centred on the walker for phones.
   // The WebP files are pre-sized, so the server never has to resize images on the fly.
@@ -58,12 +61,22 @@ export function Hero() {
   const max = stats?.maxDaily ? `$${Number.isInteger(stats.maxDaily) ? stats.maxDaily : stats.maxDaily.toFixed(2)}` : "$5";
   const maxSteps = stats?.maxDailySteps ? fmtSteps(stats.maxDailySteps) : "10,000";
 
-  const strip = [
-    { label: "Walkers", value: stats ? stats.walkers.toLocaleString("en-US") : "·" },
-    { label: "Steps today", value: stats ? fmtSteps(stats.today.steps) : "·" },
-    { label: "Paid to walkers", value: stats ? `$${stats.paid.total.toFixed(2)}` : "·" },
-    { label: "Today closes in", value: countdown ?? "·" },
-  ];
+  // Until the community is big enough for live totals to mean something, the strip shows what a walker can
+  // earn instead of a row of zeros. It switches to the live figures on its own once real activity comes in.
+  const live = Boolean(stats && (stats.walkers >= LIVE_FROM_WALKERS || stats.paid.total > 0));
+  const strip = live
+    ? [
+        { label: "Walkers", value: stats!.walkers.toLocaleString("en-US") },
+        { label: "Steps today", value: fmtSteps(stats!.today.steps) },
+        { label: "Paid to walkers", value: `$${stats!.paid.total.toFixed(2)}` },
+        { label: "Today closes in", value: countdown ?? "·" },
+      ]
+    : [
+        { label: "Earn up to", value: `${max} a day` },
+        { label: "Max from", value: `${maxSteps} steps` },
+        { label: "Weekly prize", value: "$50" },
+        { label: "Today closes in", value: countdown ?? "·" },
+      ];
 
   return (
     <section id="home" ref={ref} className="grain relative isolate flex min-h-[100svh] flex-col overflow-hidden">

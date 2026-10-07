@@ -38,7 +38,7 @@ const COLUMNS = [
   },
 ];
 
-const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "helloStepIT@outlook.com";
+const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "HeyStrydo@gmail.com";
 
 /** Each profile gets an icon once its link is configured. */
 const SOCIALS = [

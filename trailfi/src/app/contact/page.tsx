@@ -3,7 +3,7 @@ import { InfoPage, Section } from "@/components/info/InfoPage";
 
 export const metadata = { title: "Contact" };
 
-const CONTACT = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "helloStepIT@outlook.com";
+const CONTACT = process.env.NEXT_PUBLIC_CONTACT_EMAIL || "HeyStrydo@gmail.com";
 const SECURITY = process.env.NEXT_PUBLIC_SECURITY_EMAIL || CONTACT;
 
 export default function ContactPage() {

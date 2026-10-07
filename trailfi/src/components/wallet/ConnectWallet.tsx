@@ -67,7 +67,21 @@ export function ConnectWallet({ size = "md", className, label = "Connect Wallet"
 
 function AccountMenu({ address, chainName, size, className }: { address: string; chainName: string; size: "sm" | "md" | "lg"; className?: string }) {
   const [open, setOpen] = useState(false);
+  // Which way the menu opens, picked from the room around the button so it never runs off screen.
+  const [place, setPlace] = useState<{ alignLeft: boolean; up: boolean }>({ alignLeft: false, up: false });
   const ref = useRef<HTMLDivElement>(null);
+  const toggle = () => {
+    const r = ref.current?.getBoundingClientRect();
+    if (r && !open) {
+      const menuW = 256 + 8;
+      const menuH = 300;
+      setPlace({
+        alignLeft: r.right < menuW && window.innerWidth - r.left >= menuW,
+        up: window.innerHeight - r.bottom < menuH && r.top > menuH,
+      });
+    }
+    setOpen((o) => !o);
+  };
   const { disconnect } = useDisconnect();
   const { user, signOut } = useSession();
 
@@ -83,7 +97,7 @@ function AccountMenu({ address, chainName, size, className }: { address: string;
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ type: "spring", stiffness: 380, damping: 22 }}
-        onClick={() => setOpen((o) => !o)}
+        onClick={toggle}
         className={cn(
           "glass flex items-center gap-2.5 rounded-2xl pl-2.5 pr-3 font-mono text-[13px] transition hover:border-lime-400/40",
           size === "sm" ? "h-9" : size === "lg" ? "h-14" : "h-11",
@@ -102,11 +116,15 @@ function AccountMenu({ address, chainName, size, className }: { address: string;
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.97 }}
+            initial={{ opacity: 0, y: place.up ? 6 : -6, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.97 }}
+            exit={{ opacity: 0, y: place.up ? 6 : -6, scale: 0.97 }}
             transition={{ duration: 0.16 }}
-            className="glass-strong absolute right-0 top-[calc(100%+8px)] z-50 w-64 overflow-hidden rounded-2xl p-1.5"
+            className={cn(
+              "glass-strong absolute z-50 w-64 max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl !bg-ink-900/95 p-1.5",
+              place.alignLeft ? "left-0" : "right-0",
+              place.up ? "bottom-[calc(100%+8px)]" : "top-[calc(100%+8px)]",
+            )}
           >
             <div className="px-3 pb-2.5 pt-2">
               <div className="label !text-[10px]">Connected · {chainName}</div>

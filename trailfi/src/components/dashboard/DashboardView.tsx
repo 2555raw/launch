@@ -473,9 +473,9 @@ function RequestBanner({
           <div>
             <div className="label !text-lime-300/80">Ready to request</div>
             <div className="mt-1 font-display text-2xl font-bold text-lime-300 tabular">
-              {fmtAmount(summary.approved)}{" "}
+              ${fmtAmount(summary.approved)}{" "}
               <span className="inline-flex items-center gap-1.5 text-base text-white/50">
-                <TokenIcon symbol={token} className="h-5 w-5" /> {token}
+                in <TokenIcon symbol={token} className="h-5 w-5" /> {token}
               </span>
             </div>
             <div className="text-[12.5px] text-white/50">Approved rewards, paid to your connected wallet.</div>

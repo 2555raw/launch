@@ -155,8 +155,11 @@ function ExampleCard() {
             transition={{ delay: 0.2 }}
             className="mt-1 flex items-center gap-2.5 font-display text-[44px] font-bold leading-none tracking-tight text-lime-300"
           >
-            +{earned.toFixed(2)} <TokenIcon symbol="ETH" className="h-8 w-8" />
+            +${earned.toFixed(2)}
           </motion.div>
+          <div className="mt-2 flex items-center gap-1.5 text-[12.5px] text-white/50">
+            <TokenIcon symbol="ETH" className="h-3.5 w-3.5" /> paid in ETH
+          </div>
         </div>
         <div className="text-right font-mono text-[12px] leading-relaxed text-white/45">
           {steps.toLocaleString("en-US")} steps

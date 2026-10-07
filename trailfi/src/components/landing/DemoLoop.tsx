@@ -278,7 +278,7 @@ function PaidScreen({ t }: { t: number }) {
               ))}
             </div>
             <div className="mt-5 font-display text-[44px] font-bold leading-none text-lime-300">+$5.00</div>
-            <div className="mt-1.5 text-[13px] text-white/60">ETH received</div>
+            <div className="mt-1.5 text-[13px] text-white/60">paid in ETH</div>
           </motion.div>
         )}
       </AnimatePresence>

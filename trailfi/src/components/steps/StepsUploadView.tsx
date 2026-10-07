@@ -357,7 +357,7 @@ function AverageCard({ summary }: { summary: StepsResponse["summary"] }) {
         </div>
         <div className="mt-2 flex items-center gap-1.5 text-sm text-white/50">
           {has && <TokenIcon symbol={summary.tokenSymbol} />}
-          {has ? `${summary.tokenSymbol} per day · last 7 days` : "Upload your first day to see it"}
+          {has ? `a day, paid in ${summary.tokenSymbol} · last 7 days` : "Upload your first day to see it"}
         </div>
       </div>
       <div className="relative mt-8 flex gap-1.5">
@@ -456,7 +456,7 @@ function History({ steps, token, referralCode }: { steps: Entry[]; token: string
                   <td className={cn("table-cell text-right font-mono", e.estimate > 0 ? "text-lime-300" : "text-white/30")}>
                     ${fmtAmount(e.estimate)}{" "}
                     <span className="inline-flex items-center gap-1 text-white/35">
-                      <TokenIcon symbol={token} className="h-3.5 w-3.5" /> {token}
+                      in <TokenIcon symbol={token} className="h-3.5 w-3.5" /> {token}
                     </span>
                   </td>
                   <td className="table-cell whitespace-nowrap text-right">

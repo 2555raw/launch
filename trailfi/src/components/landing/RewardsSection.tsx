@@ -55,8 +55,8 @@ export function RewardsSection() {
             ))}
             <p className="flex gap-2 pt-2 text-[13px] leading-relaxed text-white/45">
               <Info className="mt-0.5 h-4 w-4 shrink-0" />
-              Every day is reviewed before it pays. Amounts follow Stepit&apos;s current rates, which can change, and days that
-              aren&apos;t verified don&apos;t pay.
+              Upload your screenshot, we review it, then the payment lands in your wallet. Amounts follow Stepit&apos;s current
+              rates, which can change, and days that aren&apos;t verified don&apos;t pay.
             </p>
           </Reveal>
         </div>

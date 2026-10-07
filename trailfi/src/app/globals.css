@@ -16,6 +16,8 @@
   body {
     @apply bg-ink-950 font-sans text-white antialiased;
     text-rendering: optimizeLegibility;
+    /* Nothing should ever scroll the page sideways; clip keeps sticky headers working. */
+    overflow-x: clip;
   }
   ::selection {
     background: rgb(var(--lime) / 0.85);

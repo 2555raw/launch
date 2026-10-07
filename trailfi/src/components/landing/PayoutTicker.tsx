@@ -42,7 +42,7 @@ export function PayoutTicker() {
   const loop = Array.from({ length: Math.max(2, Math.ceil(8 / rows.length)) }, () => rows).flat();
 
   return (
-    <div className="relative border-y border-white/[0.06] bg-ink-950/80 py-3 backdrop-blur" aria-label="Latest payouts">
+    <div className="relative overflow-hidden border-y border-white/[0.06] bg-ink-950/80 py-3 backdrop-blur" aria-label="Latest payouts">
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-ink-950 to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-ink-950 to-transparent" />
       <div className="flex w-max animate-marquee gap-3 hover:[animation-play-state:paused]">

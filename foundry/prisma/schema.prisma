@@ -1,0 +1,332 @@
+// FOUNDRY data model.
+//
+// Hot gameplay state lives in Redis and is flushed here every few seconds; this
+// schema is the durable copy plus everything that must never be lost (accounts,
+// wallets, launches, on-chain transactions).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PLAYER
+  ADMIN
+}
+
+enum ProjectStatus {
+  DRAFT      // configured, countdown not started, game playable in warm-up
+  ACTIVE     // countdown running, every action counts
+  FROZEN     // countdown over, game read-only, final numbers being computed
+  FINALIZED  // final supply computed and locked
+  MINTING    // on-chain steps in progress
+  LAUNCHED   // token exists on-chain, burn executed
+  FAILED     // an on-chain step failed; can be retried from the admin panel
+}
+
+enum TxKind {
+  CREATE_MINT
+  MINT_SUPPLY
+  BURN
+  REVOKE_MINT_AUTHORITY
+  CLAIM_TRANSFER
+  AIRDROP
+}
+
+enum TxStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String?
+  role         Role      @default(PLAYER)
+  createdAt    DateTime  @default(now())
+  lastSeenAt   DateTime  @default(now())
+
+  wallets      Wallet[]
+  sessions     AuthSession[]
+  games        GameSession[]
+  stats        PlayerStats?
+  achievements PlayerAchievement[]
+  claims       BlockchainTransaction[]
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String
+  address   String   @unique
+  chain     String   @default("solana")
+  verifiedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AuthSession {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  userAgent String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// One commodity token launch. Only one project is "current" at a time; older
+/// projects stay as public pages.
+model Project {
+  id        String        @id @default(cuid())
+  slug      String        @unique
+  name      String
+  symbol    String
+  commodity String        @default("GOLD")
+  status    ProjectStatus @default(DRAFT)
+  isCurrent Boolean       @default(false)
+
+  // --- tokenomics (admin-configurable) ---
+  initialSupply       Float   @default(1000000000)
+  maxBurnPercent      Float   @default(40)
+  burnFormula         String  @default("linear") // linear | asymptotic
+  burnRate            Float   @default(0.0001)   // burned tokens per unit of burn power (linear)
+  burnHalfLife        Float   @default(5000000000) // burn power at which asymptotic reaches half of max
+  communityAllocationPercent Float @default(10)  // % of final supply claimable by players, pro rata to burn power
+  decimals            Int     @default(6)
+  revokeMintAuthority Boolean @default(true)
+
+  // --- gameplay multipliers ---
+  clickMultiplier     Float @default(1)
+  cursorMultiplier    Float @default(1)
+  generatorMultiplier Float @default(1)
+  maxClicksPerSecond  Float @default(12)
+  offlineCapHours     Float @default(8)
+
+  // --- launch timing ---
+  launchDurationHours Float     @default(168)
+  startedAt           DateTime?
+  endsAt              DateTime?
+  frozenAt            DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions    GameSession[]
+  globalStats GlobalStats?
+  token       Token?
+  launch      Launch?
+  burnEvents  BurnEvent[]
+  transactions BlockchainTransaction[]
+}
+
+/// A player's live progress inside one project.
+model GameSession {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String
+
+  balance          Float @default(0)   // spendable units
+  totalProduced    Float @default(0)   // all-time units produced (clicks + generators)
+  totalClicks      Float @default(0)   // accepted clicks
+  rejectedClicks   Float @default(0)   // clicks dropped by anti-cheat
+  burnPower        Float @default(0)   // all-time burn contribution
+  productionPerSec Float @default(0)   // cached, derived from generators + upgrades
+  clickPower       Float @default(1)   // cached
+  burnMultiplier   Float @default(1)   // cached, from upgrades
+  suspicion        Int   @default(0)   // anti-cheat strikes
+
+  lastSyncAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project    Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  generators PlayerGenerator[]
+  upgrades   PlayerUpgrade[]
+  clickBatches ClickBatch[]
+
+  @@unique([userId, projectId])
+  @@index([projectId, burnPower])
+}
+
+/// Aggregated click log. Individual clicks are never stored; each row is one
+/// validated batch from the client.
+model ClickBatch {
+  id          String   @id @default(cuid())
+  sessionId   String
+  reported    Int
+  accepted    Int
+  windowStart DateTime
+  windowEnd   DateTime
+  createdAt   DateTime @default(now())
+  session     GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId, createdAt])
+}
+
+/// Catalog rows mirror src/lib/content/*.ts and are upserted on boot so the
+/// database can be queried/joined without the application code.
+model Generator {
+  id            String @id
+  name          String
+  category      String
+  baseCost      Float
+  baseProduction Float
+  burnWeight    Float
+  unlockAt      Float
+  sortOrder     Int
+  owned         PlayerGenerator[]
+}
+
+model Upgrade {
+  id          String @id
+  name        String
+  description String
+  cost        Float
+  effect      String
+  sortOrder   Int
+  owned       PlayerUpgrade[]
+}
+
+model Achievement {
+  id          String @id
+  name        String
+  description String
+  kind        String
+  threshold   Float
+  sortOrder   Int
+  unlocked    PlayerAchievement[]
+}
+
+model PlayerGenerator {
+  sessionId   String
+  generatorId String
+  count       Int @default(0)
+  level       Int @default(1)
+  session     GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  generator   Generator   @relation(fields: [generatorId], references: [id])
+
+  @@id([sessionId, generatorId])
+}
+
+model PlayerUpgrade {
+  sessionId  String
+  upgradeId  String
+  boughtAt   DateTime @default(now())
+  session    GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  upgrade    Upgrade     @relation(fields: [upgradeId], references: [id])
+
+  @@id([sessionId, upgradeId])
+}
+
+model PlayerAchievement {
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+
+  @@id([userId, achievementId])
+}
+
+/// Lifetime totals per user across every project.
+model PlayerStats {
+  userId         String @id
+  lifetimeClicks Float  @default(0)
+  lifetimeProduced Float @default(0)
+  lifetimeBurnPower Float @default(0)
+  launchesJoined Int    @default(0)
+  updatedAt      DateTime @updatedAt
+  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Community totals for a project. Redis holds the live copy; this row is
+/// flushed periodically and is the value of record once the project freezes.
+model GlobalStats {
+  projectId        String @id
+  totalClicks      Float  @default(0)
+  totalProduced    Float  @default(0)
+  totalBurnPower   Float  @default(0)
+  productionPerSec Float  @default(0)
+  players          Int    @default(0)
+  burnedSupply     Float  @default(0)
+  updatedAt        DateTime @updatedAt
+  project          Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+/// Snapshots of the burn figure over time, for the chart and the audit trail.
+model BurnEvent {
+  id            String   @id @default(cuid())
+  projectId     String
+  totalBurnPower Float
+  burnedSupply  Float
+  burnPercent   Float
+  reason        String   // tick | freeze | finalize | onchain
+  createdAt     DateTime @default(now())
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+/// The frozen final numbers and the on-chain progress of a launch.
+model Launch {
+  projectId      String   @id
+  finalBurnPower Float
+  initialSupply  Float
+  burnedSupply   Float
+  finalSupply    Float
+  burnPercent    Float
+  communityAllocation Float @default(0)
+  step           String   @default("FINALIZED") // FINALIZED | MINT_CREATED | SUPPLY_MINTED | BURNED | AUTHORITY_REVOKED | DONE
+  error          String?
+  finalizedAt    DateTime @default(now())
+  launchedAt     DateTime?
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Token {
+  projectId     String  @id
+  mintAddress   String  @unique
+  name          String
+  symbol        String
+  decimals      Int
+  cluster       String
+  creator       String  // launch authority public key
+  treasuryAta   String
+  initialSupply Float
+  burnedSupply  Float
+  finalSupply   Float
+  mintTx        String?
+  burnTx        String?
+  revokeTx      String?
+  createdAt     DateTime @default(now())
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model BlockchainTransaction {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String?
+  kind      TxKind
+  status    TxStatus @default(PENDING)
+  signature String?  @unique
+  cluster   String
+  amount    Float?
+  detail    String?
+  error     String?
+  createdAt DateTime @default(now())
+  confirmedAt DateTime?
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User?   @relation(fields: [userId], references: [id])
+
+  @@index([projectId, kind])
+  @@index([userId, kind])
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="512" height="512">
+<defs>
+<radialGradient id="f" cx="38%" cy="32%" r="75%"><stop offset="0%" stop-color="#ffc9a3"/><stop offset="55%" stop-color="#d97a3f"/><stop offset="100%" stop-color="#7a3a15"/></radialGradient>
+<linearGradient id="r" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ffc9a3"/><stop offset="50%" stop-color="#7a3a15"/><stop offset="100%" stop-color="#ffc9a3"/></linearGradient>
+</defs>
+<circle cx="100" cy="100" r="96" fill="url(#r)"/>
+<circle cx="100" cy="100" r="88" fill="url(#f)"/>
+<circle cx="100" cy="100" r="80" fill="none" stroke="#4a2109" stroke-opacity="0.5" stroke-width="1.5" stroke-dasharray="3 4"/>
+<circle cx="100" cy="100" r="58" fill="none" stroke="#4a2109" stroke-opacity="0.45" stroke-width="2"/>
+<text x="100" y="118" text-anchor="middle" font-family="Rajdhani, Arial, sans-serif" font-weight="700" font-size="56" fill="#4a2109" fill-opacity="0.9">Cu</text>
+<ellipse cx="72" cy="60" rx="30" ry="14" fill="#fff" opacity="0.18" transform="rotate(-25 72 60)"/>
+</svg>

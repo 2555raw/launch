@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: 245 184 52;
+  --brand-soft: 255 221 128;
+  --brand-deep: 158 108 12;
+  --coin-light: #ffe98a;
+  --coin-mid: #f2b734;
+  --coin-dark: #9c6a0c;
+  --coin-rim: #5e3d05;
+  --coin-text: #5e3d05;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: #07090d;
+  background-image:
+    radial-gradient(1200px 600px at 50% -10%, rgb(var(--brand) / 0.10), transparent 60%),
+    linear-gradient(180deg, #0a0d13 0%, #07090d 100%);
+  background-attachment: fixed;
+}
+
+::selection { background: rgb(var(--brand) / 0.35); }
+
+@layer components {
+  .panel {
+    @apply rounded-xl border border-white/[0.06] bg-ink-900/80 shadow-panel backdrop-blur-sm;
+  }
+  .panel-head {
+    @apply flex items-center justify-between border-b border-white/[0.06] px-4 py-2.5 font-display text-xs font-semibold uppercase tracking-[0.2em] text-slate-400;
+  }
+  .label {
+    @apply font-display text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500;
+  }
+  .num {
+    @apply font-mono tabular-nums;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md border border-white/10 bg-ink-700 px-3 py-1.5 font-display text-sm font-semibold uppercase tracking-wider text-slate-100 transition hover:border-white/20 hover:bg-ink-600 disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .btn-brand {
+    @apply btn border-brand/40 bg-brand/15 text-brand-soft hover:bg-brand/25 hover:border-brand/60;
+  }
+  .btn-burn {
+    @apply btn border-burn/40 bg-burn/15 text-red-200 hover:bg-burn/25;
+  }
+  .input {
+    @apply w-full rounded-md border border-white/10 bg-ink-950/70 px-3 py-2 font-mono text-sm text-slate-100 outline-none placeholder:text-slate-600 focus:border-brand/50;
+  }
+  .chip {
+    @apply rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-mono text-[11px] text-slate-300;
+  }
+}
+
+/* --- burn bar ------------------------------------------------------------ */
+.burn-bar {
+  position: relative;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #151b26, #0d1118);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+.burn-bar > .fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff3b3b 0%, #ff6a1f 45%, #ffb347 100%);
+  background-size: 200% 100%;
+  animation: burnflow 2.2s linear infinite;
+  box-shadow: 0 0 18px rgba(255, 106, 31, 0.6);
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.burn-bar > .cap {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.35);
+}
+@keyframes burnflow {
+  0% { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* --- coin ---------------------------------------------------------------- */
+.coin-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+.coin-halo {
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, rgb(var(--brand) / 0) 0deg, rgb(var(--brand) / 0.35) 20deg, rgb(var(--brand) / 0) 40deg, rgb(var(--brand) / 0) 80deg, rgb(var(--brand) / 0.3) 100deg, rgb(var(--brand) / 0) 120deg, rgb(var(--brand) / 0) 170deg, rgb(var(--brand) / 0.35) 190deg, rgb(var(--brand) / 0) 210deg, rgb(var(--brand) / 0) 260deg, rgb(var(--brand) / 0.3) 280deg, rgb(var(--brand) / 0) 300deg);
+  filter: blur(14px);
+  animation: spinSlow 40s linear infinite;
+  z-index: -1;
+}
+.coin-btn {
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 90ms ease-out, filter 120ms ease-out;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.6)) drop-shadow(0 0 30px rgb(var(--brand) / 0.25));
+  touch-action: manipulation;
+}
+.coin-btn:hover { transform: scale(1.025); }
+.coin-btn:active, .coin-btn.pressed { transform: scale(0.94); }
+.float-num {
+  position: absolute;
+  pointer-events: none;
+  font-family: "Rajdhani", sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  color: rgb(var(--brand-soft));
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  animation: floatUp 1s ease-out forwards;
+  z-index: 5;
+  white-space: nowrap;
+}
+.spark {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgb(var(--brand-soft));
+  box-shadow: 0 0 8px rgb(var(--brand));
+  pointer-events: none;
+  animation: spark 0.7s ease-out forwards;
+}
+@keyframes spark {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+@keyframes spinSlow { to { transform: rotate(360deg); } }
+
+/* --- world rows ---------------------------------------------------------- */
+.world-row {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  min-height: 84px;
+}
+.world-row::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 10px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 14px, transparent 14px 28px);
+  animation: conveyor 1.6s linear infinite;
+  opacity: 0.6;
+}
+@keyframes conveyor { to { background-position: 28px 0; } }
+.world-icon {
+  animation: bob 2.4s ease-in-out infinite;
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* --- ticker -------------------------------------------------------------- */
+.ticker-mask {
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+
+/* --- scrollbars ---------------------------------------------------------- */
+.scroll-thin::-webkit-scrollbar { width: 8px; }
+.scroll-thin::-webkit-scrollbar-track { background: transparent; }
+.scroll-thin::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.08); border-radius: 8px; }
+
+/* wallet adapter modal, re-skinned to the theme */
+.wallet-adapter-button { font-family: "Rajdhani", sans-serif !important; text-transform: uppercase; letter-spacing: 0.08em; }
+.wallet-adapter-button-trigger { background: rgb(var(--brand) / 0.15) !important; border: 1px solid rgb(var(--brand) / 0.4) !important; color: rgb(var(--brand-soft)) !important; height: 36px !important; border-radius: 6px !important; font-size: 13px !important; }
+.wallet-adapter-modal-wrapper { background: #0c1017 !important; border: 1px solid rgba(255,255,255,0.08); }
+.wallet-adapter-modal-button-close { background: #1a2231 !important; }
+.wallet-adapter-modal-list .wallet-adapter-button:hover { background: #1a2231 !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .coin-halo, .world-row::after, .world-icon, .burn-bar > .fill { animation: none; }
+}

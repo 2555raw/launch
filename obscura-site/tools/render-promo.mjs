@@ -1,4 +1,5 @@
-// Renders tools/promo.html into assets/social/heldat-promo.mp4 (1920x1080, 30 fps).
+// Renders tools/promo.html into assets/social/heldat-promo.mp4 (1920x1080, 30 fps),
+// with the soundtrack from tools/promo-audio.mjs.
 //
 //   python3 -m http.server 8766    (from obscura-site/)
 //   BASE=http://localhost:8766/ node tools/render-promo.mjs [--stills 1,3.2,8.5]
@@ -41,8 +42,12 @@ for (let i = 0; i < total; i++) {
 }
 await browser.close();
 
+// the soundtrack is synthesized to the same timeline (tools/promo-audio.mjs)
+const wav = join(frames, "sound.wav");
+execFileSync(process.execPath, [join(root, "tools", "promo-audio.mjs"), wav]);
 const out = join(root, "assets", "social", "heldat-promo.mp4");
-execFileSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-framerate", String(FPS), "-i", join(frames, "%04d.png"),
-  "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p", "-movflags", "+faststart", out]);
+execFileSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-framerate", String(FPS), "-i", join(frames, "%04d.png"), "-i", wav,
+  "-af", "highpass=f=30,loudnorm=I=-15:TP=-1.5:LRA=11", "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p",
+  "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-shortest", "-movflags", "+faststart", out]);
 rmSync(frames, { recursive: true, force: true });
 console.log(`assets/social/heldat-promo.mp4: ${(statSync(out).size / 1e6).toFixed(2)} MB, ${duration} s`);

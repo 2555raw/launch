@@ -505,6 +505,8 @@ p { text-wrap: pretty; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
 .hint { font-size: 13.5px; color: var(--dim); line-height: 1.5; }
+.text-btn { padding: 0; border: 0; background: none; font: inherit; color: var(--accent); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.text-btn:hover { color: var(--ink); }
 input[type="file"] { font-size: 14px; color: var(--dim); }
 input[type="file"]::file-selector-button { margin-right: 12px; padding: 8px 14px; border: 0; border-radius: var(--r-pill); background: var(--mist); color: var(--ink); font: inherit; font-weight: 500; cursor: pointer; }
 .check { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; cursor: pointer; }

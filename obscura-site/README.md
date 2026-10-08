@@ -126,6 +126,16 @@ deploys (otherwise they live in memory until the next restart).
 `../obscura-contracts/` holds the $HELD token and the bond NFT (Solidity, OpenZeppelin 5, Hardhat tests).
 They are not deployed and not audited; see its README for the parameters and a deploy checklist.
 
+## Short links
+
+`/p/<id>#<key>` (js/shortlink.js, server.js). The browser encrypts the receipt with a fresh
+128-bit AES-GCM key and posts only the ciphertext to `POST /api/link`; the server answers with an
+8-character id and keeps one file per link in `DATA_DIR/links` (memory when there is no volume),
+until a day after the proof expires and 400 days at most. `/p/<id>` redirects to
+`/verify.html?s=<id>`; the browser keeps the `#<key>`, which never reaches the server, and the
+verify page fetches `GET /api/link/<id>` and decrypts it. At most 60 new links an hour per address.
+The full `#obx1_…` link is still offered and works without the server.
+
 ## Live deploy
 
 Served from Railway, project `protective-nature`, service `launch`, at

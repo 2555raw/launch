@@ -99,6 +99,7 @@
       <li>We count visits anonymously: each page view or action (for example “a proof was sealed” or “a proof was verified”) adds one to a daily total. Nothing else is sent with it: no cookie, no IP address, no device details, and never a receipt, an amount, an address or a passphrase.</li>
       <li>Your browser stores these things locally: your acceptance of these terms, your vault of receipts, your theme, which wallet you last connected, and, if you install the app, a copy of the site's files for offline use. None of it is sent to us.</li>
       <li>Checking a balance, a proof or an anchor reads public blockchain nodes (for example drpc.org, tenderly.co, blastapi.io, publicnode.com, mainnet.base.org) directly from your browser. Those nodes see the address being checked and your IP address, as with any wallet.</li>
+      <li>Short proof links (heldat.xyz/p/…): your browser encrypts the proof before it is sent, and we store only that encrypted copy. The key to open it is the part of the link after the #, which browsers never send to us, so we cannot read it. It is deleted a day after the proof expires, and after 400 days at most. The full link works without storing anything.</li>
       <li>Fonts, images and films are served from this site. Links to wallets and to X take you to those services, which have their own policies.</li>
     </ul>
     <p class="updated" style="margin-top:32px">This page is a template for a self-custody tool and should be reviewed by a lawyer for your jurisdiction before launch.</p>

@@ -9,7 +9,7 @@ const CORE = [
   "styles.css", "manifest.webmanifest",
   "js/site.js", "js/terms.js", "js/wallet.js", "js/home.js", "js/console.js", "js/verify.js",
   "js/obscura.js", "js/proof.js", "js/kinds.js", "js/solana.js", "js/check.js", "js/anchor.js",
-  "js/share.js", "js/card.js", "js/mark.js",
+  "js/share.js", "js/shortlink.js", "js/card.js", "js/mark.js",
   "assets/vendor/ethers.min.js", "assets/vendor/qrcode.mjs", "assets/vendor/noble-ed25519.mjs",
   "assets/fonts/host-grotesk-latin.woff2", "assets/fonts/jetbrains-mono-latin.woff2",
   "assets/favicon.svg", "assets/logo.svg", "assets/icons/icon-192.png",

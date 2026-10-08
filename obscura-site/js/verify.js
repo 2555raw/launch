@@ -5,6 +5,7 @@ import { checkProof, ensName } from "./check.js";
 import { saveCard } from "./card.js";
 import { track } from "./site.js";
 import { checkAnchor } from "./anchor.js";
+import { openShortLink } from "./shortlink.js";
 
 const $ = (id) => document.getElementById(id);
 const ICONS = {
@@ -178,10 +179,38 @@ $("verify-form").addEventListener("submit", (e) => {
 function fromLink() {
   let text = location.hash.slice(1);
   try { text = decodeURIComponent(text); } catch { /* keep it as it came */ }
-  if (!text.startsWith(RECEIPT_PREFIX)) return;
+  const shortId = new URLSearchParams(location.search).get("s");
+  if (!text.startsWith(RECEIPT_PREFIX)) { if (shortId) fromShort(shortId, text); return; }
   $("v-receipt").value = text;
   $("v-commit").value = "";
   run(text, "");
+}
+
+// A short link (/p/<id>#<key>) lands here as ?s=<id>#<key>: fetch the sealed
+// receipt, open it with the key from the link, then check it like any other.
+async function fromShort(id, key) {
+  const mine = ++runId;
+  $("v-empty").hidden = true;
+  $("v-intro").hidden = true;
+  $("v-out").hidden = false;
+  $("v-checks").replaceChildren(row("info", "Opening the link…", "Decrypting the proof in your browser."));
+  $("v-claim").className = "claim";
+  $("v-claim").textContent = "";
+  try {
+    const text = await openShortLink(id, key);
+    if (mine !== runId) return;
+    $("v-receipt").value = text;
+    $("v-commit").value = "";
+    run(text, "");
+  } catch (err) {
+    if (mine !== runId) return;
+    $("v-checks").replaceChildren(err.gone
+      ? row("fail", "This link has expired or was removed", "Ask the sender for a new one.")
+      : row("fail", "This link could not be opened", "Part of it may be missing, or the connection failed. Ask the sender for the link again."));
+    $("v-claim").className = "claim fail";
+    $("v-claim").textContent = "Not valid";
+    $("v-note").textContent = "";
+  }
 }
 addEventListener("hashchange", fromLink);
 fromLink();

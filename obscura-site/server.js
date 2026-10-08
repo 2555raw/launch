@@ -3,7 +3,8 @@
 // No dependencies. Supports HTTP Range requests, which Safari needs before it
 // will play the films, and keeps every request inside this folder.
 import http from "node:http";
-import { createReadStream, readFileSync, statSync, writeFileSync } from "node:fs";
+import { createReadStream, mkdirSync, readFileSync, readdirSync, statSync, unlinkSync, writeFileSync } from "node:fs";
+import { randomBytes } from "node:crypto";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -61,6 +62,63 @@ function lastDays(n) {
   return { days: Object.fromEntries(days.map((d) => [d, stats[d]])), totals };
 }
 
+// ---------- short proof links ----------
+// /p/<id>#<key>. The browser encrypts the receipt with a key that stays after
+// the # (never sent here) and posts only the ciphertext, which is all we keep:
+// one small file per link in DATA_DIR/links, or memory when there is no volume.
+const LINKS = process.env.DATA_DIR ? join(process.env.DATA_DIR, "links") : null;
+const memLinks = new Map();
+if (LINKS) {
+  try { mkdirSync(LINKS, { recursive: true }); console.log(`Short links kept in ${LINKS}`); }
+  catch (err) { console.log(`Short links in memory only: ${err.code || err.message}`); }
+}
+const LINK_ID = /^[A-Za-z0-9]{8}$/;
+const LINK_CT = /^[A-Za-z0-9_-]{40,16000}$/;
+const DAY = 86400;
+function newLinkId() {
+  const A = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let id = "";
+  while (id.length < 8) for (const b of randomBytes(12)) if (b < 248 && id.length < 8) id += A[b % 62]; // no modulo bias
+  return id;
+}
+function putLink(id, rec) {
+  if (memLinks.size + 1 > 200_000) throw new Error("full");
+  if (LINKS) { try { writeFileSync(join(LINKS, id + ".json"), JSON.stringify(rec), { flag: "wx" }); return; } catch (err) { if (err.code === "EEXIST") throw err; } }
+  if (memLinks.has(id)) throw Object.assign(new Error("exists"), { code: "EEXIST" });
+  memLinks.set(id, rec);
+}
+function getLink(id) {
+  let rec = memLinks.get(id);
+  if (!rec && LINKS) { try { rec = JSON.parse(readFileSync(join(LINKS, id + ".json"), "utf8")); } catch { rec = null; } }
+  if (rec && rec.until < Date.now() / 1000) { dropLink(id); return null; }
+  return rec;
+}
+function dropLink(id) {
+  memLinks.delete(id);
+  if (LINKS) try { unlinkSync(join(LINKS, id + ".json")); } catch { /* already gone */ }
+}
+// Once a day, forget links whose proof has expired.
+setInterval(() => {
+  const now = Date.now() / 1000;
+  for (const [id, rec] of memLinks) if (rec.until < now) memLinks.delete(id);
+  if (LINKS) try { for (const f of readdirSync(LINKS)) if (f.endsWith(".json")) getLink(f.slice(0, -5)); } catch { /* no folder */ }
+}, DAY * 1000).unref();
+// At most 60 new links an hour from one address.
+const linkHits = new Map();
+function linkAllowed(req) {
+  const ip = String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || "?";
+  const now = Date.now(), recent = (linkHits.get(ip) || []).filter((t) => now - t < 3600_000);
+  if (recent.length >= 60) { linkHits.set(ip, recent); return false; }
+  recent.push(now); linkHits.set(ip, recent);
+  if (linkHits.size > 50_000) linkHits.clear();
+  return true;
+}
+function json(res, status, body) {
+  const buf = Buffer.from(JSON.stringify(body));
+  res.writeHead(status, { "content-type": "application/json; charset=utf-8", "content-length": buf.length, "cache-control": "no-store", "x-content-type-options": "nosniff" });
+  res.end(buf);
+}
+
 http.createServer((req, res) => {
   let rel;
   try { rel = decodeURIComponent(new URL(req.url, "http://x").pathname); } catch { rel = "/"; }
@@ -73,6 +131,42 @@ http.createServer((req, res) => {
       res.end();
     });
     return;
+  }
+  if (rel === "/api/link" && req.method === "POST") {
+    if (!linkAllowed(req)) return json(res, 429, { error: "Too many links from this address. Try again later." });
+    let body = "";
+    req.on("data", (c) => { body += c; if (body.length > 20_000) { json(res, 413, { error: "Too large" }); req.destroy(); } });
+    req.on("end", () => {
+      if (res.writableEnded) return;
+      let ct, expires;
+      try { ({ ct, expires } = JSON.parse(body)); } catch { return json(res, 400, { error: "Bad request" }); }
+      if (typeof ct !== "string" || !LINK_CT.test(ct)) return json(res, 400, { error: "Bad request" });
+      const now = Math.floor(Date.now() / 1000);
+      // Kept until the proof expires (a day of grace), and never more than 400 days.
+      let until = now + 365 * DAY;
+      if (Number.isSafeInteger(expires) && expires > now) until = expires + DAY;
+      until = Math.min(until, now + 400 * DAY);
+      for (let tries = 0; tries < 5; tries++) {
+        const id = newLinkId();
+        try { putLink(id, { ct, until, made: now }); return json(res, 201, { id }); }
+        catch (err) { if (err.code !== "EEXIST") return json(res, 503, { error: "Short links are not available right now" }); }
+      }
+      return json(res, 503, { error: "Short links are not available right now" });
+    });
+    return;
+  }
+  if (rel.startsWith("/api/link/") && (req.method === "GET" || req.method === "HEAD")) {
+    const id = rel.slice(10);
+    const rec = LINK_ID.test(id) ? getLink(id) : null;
+    return rec ? json(res, 200, { ct: rec.ct }) : json(res, 404, { error: "Not found" });
+  }
+  // /p/<id>#<key> → /verify.html?s=<id>#<key>. The browser carries the #key over
+  // the redirect by itself; it never reaches this server.
+  if (rel.startsWith("/p/")) {
+    const id = rel.slice(3).replace(/\/$/, "");
+    if (!LINK_ID.test(id)) return notFound(res);
+    res.writeHead(302, { location: `/verify.html?s=${id}`, "cache-control": "no-store", "referrer-policy": "no-referrer" });
+    return res.end();
   }
   if (rel === "/api/stats") {
     // With STATS_KEY set, the numbers need ?key=…; without it they are public.

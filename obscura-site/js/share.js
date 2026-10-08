@@ -7,6 +7,7 @@ import { encodeReceipt } from "./obscura.js";
 import { copy, toast, track } from "./site.js";
 import { saveCard } from "./card.js";
 import { CHAINS } from "./proof.js";
+import { createShortLink } from "./shortlink.js";
 
 export function proofLink(receipt) {
   const url = new URL("verify.html", location.href);
@@ -37,7 +38,8 @@ export function cardFor(receipt, link) {
 }
 
 export function renderShare(container, receipt) {
-  const link = proofLink(receipt);
+  const full = proofLink(receipt);
+  let link = full; // swapped for the short link once the server has it
   container.replaceChildren();
 
   const row = document.createElement("div");
@@ -74,23 +76,48 @@ export function renderShare(container, receipt) {
 
   const qr = document.createElement("figure");
   qr.className = "qr";
-  try {
-    qr.innerHTML = qrSvg(link);
-    qr.querySelector("svg").setAttribute("role", "img");
-    qr.querySelector("svg").setAttribute("aria-label", "QR code of the proof link");
-  } catch {
-    qr.textContent = "This proof is too long for a QR code. Share the link instead.";
-  }
   const cap = document.createElement("figcaption");
   cap.textContent = "Scan with a phone camera to open the proof.";
-  qr.append(cap);
+  const drawQr = () => {
+    try {
+      qr.innerHTML = qrSvg(link);
+      qr.querySelector("svg").setAttribute("role", "img");
+      qr.querySelector("svg").setAttribute("aria-label", "QR code of the proof link");
+    } catch {
+      qr.textContent = "This proof is too long for a QR code. Share the link instead.";
+    }
+    qr.append(cap);
+  };
+  drawQr();
+
+  // The short link: the receipt is encrypted here and the key stays in the link,
+  // so the server keeps only what it cannot read. If it fails, the full link stays.
+  const alt = document.createElement("p");
+  alt.className = "hint";
+  alt.hidden = true;
+  const fullBtn = document.createElement("button");
+  fullBtn.type = "button";
+  fullBtn.className = "text-btn";
+  fullBtn.textContent = "Copy the full link";
+  fullBtn.addEventListener("click", () => copy(full, "Full link copied. It works even without heldat.xyz"));
+  alt.append("Short link, encrypted before it leaves this browser. ", fullBtn, " (longer, works without our server).");
+  input.value = "Making a short link…";
+  createShortLink(encodeReceipt(receipt), { expires: receipt.asset?.expires })
+    .then((s) => { link = s; })
+    .catch(() => { /* keep the full link */ })
+    .finally(() => {
+      if (!container.isConnected) return;
+      input.value = link;
+      alt.hidden = link === full;
+      drawQr();
+    });
 
   const warn = document.createElement("p");
   warn.className = "hint";
   warn.textContent = "Whoever has this link can see this one bond. Send it only to the person who needs to check it.";
 
-  container.append(row, qr, warn);
-  return link;
+  container.append(row, alt, qr, warn);
+  return full;
 }
 
 export function openShareDialog(receipt, label) {

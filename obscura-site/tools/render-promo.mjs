@@ -47,7 +47,7 @@ const wav = join(frames, "sound.wav");
 execFileSync(process.execPath, [join(root, "tools", "promo-audio.mjs"), wav]);
 const out = join(root, "assets", "social", "heldat-promo.mp4");
 execFileSync("ffmpeg", ["-hide_banner", "-loglevel", "error", "-y", "-framerate", String(FPS), "-i", join(frames, "%04d.png"), "-i", wav,
-  "-af", "highpass=f=30,loudnorm=I=-15:TP=-1.5:LRA=11", "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p",
+  "-af", "highpass=f=30,loudnorm=I=-14:TP=-1.5:LRA=9", "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-pix_fmt", "yuv420p",
   "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-shortest", "-movflags", "+faststart", out]);
 rmSync(frames, { recursive: true, force: true });
 console.log(`assets/social/heldat-promo.mp4: ${(statSync(out).size / 1e6).toFixed(2)} MB, ${duration} s`);

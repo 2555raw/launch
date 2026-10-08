@@ -1,6 +1,7 @@
 // Synthesizes the soundtrack for tools/promo.html: our own music and sound
 // effects, timed to the film's scenes, so there is nothing to license.
-// 120 BPM in A minor: a pad on Am–F–C–G, bass and drums from "This is HeldAt",
+// 138 BPM in A minor, driving from the first second: a pumping pad on Am–F–C–G,
+// off-beat bass, four-on-the-floor drums with a drop on "Nothing else.",
 // a key click per typed letter, whooshes on cuts, UI clicks and pops, a hit on
 // the burst and a last chord that rings out.
 //
@@ -9,7 +10,9 @@ import { writeFileSync } from "node:fs";
 
 const SR = 44100, DUR = 30.5, N = Math.ceil(SR * DUR);
 const L = new Float32Array(N), R = new Float32Array(N), FX = new Float32Array(N); // FX: sent to the reverb
-const BEAT = 0.5, GRID = 0.1; // beats fall on 0.1 + k * 0.5 s
+const BEAT = 60 / 138, GRID = 0.1, BAR2 = 8 * BEAT; // beats fall on 0.1 + k * BEAT
+// the pad ducks on every kick, the pumping sound of the style
+const duck = (t) => { if (!drums(t)) return 1; const ph = ((t - GRID) % BEAT + BEAT) % BEAT; return 0.45 + 0.55 * (1 - Math.exp(-ph * 9)); };
 
 const hz = (midi) => 440 * 2 ** ((midi - 69) / 12);
 let seed = 12345;
@@ -37,40 +40,39 @@ const saw = (ph) => 2 * (ph - Math.floor(ph + 0.5));
 
 // ---------- pad: Am – F – C – G, two seconds each ----------
 const CHORDS = [[57, 60, 64, 69], [53, 57, 60, 65], [55, 60, 64, 67], [55, 59, 62, 67]];
-for (let c = 0, t = 0; t < 27.6; c++, t += 2) {
+for (let c = 0, t = 0; t < 27.6; c++, t += BAR2) {
   const notes = CHORDS[c % 4];
-  const len = Math.min(2.4, 27.9 - t);
-  let lvl = 0.05;
-  if (t < 2) lvl = 0.035;
+  const len = Math.min(BAR2 + 0.4, 27.9 - t);
+  const lvl = 0.05;
   notes.forEach((m, j) => {
     for (const det of [-0.08, 0.08]) {
       const f = hz(m) * (1 + det / 100 * 1.5);
-      voice(t, len, (x) => lvl * env(x, 0.35, len, 0.5) * saw(f * x + j * 0.13), { pan: det * 5, send: 0.25, cutoff: 1400 });
+      voice(t, len, (x) => lvl * duck(t + x) * env(x, 0.2, len, 0.4) * saw(f * x + j * 0.13), { pan: det * 5, send: 0.25, cutoff: 1600 });
     }
   });
 }
 
 // ---------- drums and bass ----------
-const drums = (t) => (t >= 2.1 && t < 19.6) || (t >= 22.0 && t < 26.4);
-const full = (t) => (t >= 6.8 && t < 19.6) || (t >= 22.0 && t < 26.4);
+function drums(t) { return (t >= 0.1 && t < 19.6) || (t >= 22.0 && t < 26.4); }
+const full = (t) => (t >= 2.1 && t < 19.6) || (t >= 22.0 && t < 26.4);
 const ROOTS = [45, 41, 48, 43]; // A2 F2 C3 G2
 for (let k = 0; ; k++) {
   const t = GRID + k * BEAT;
   if (t > 27) break;
   if (drums(t)) {
     // kick: a falling sine
-    voice(t, 0.38, (x) => 0.55 * Math.exp(-x * 9) * Math.sin(2 * Math.PI * (45 * x + (105 / 18) * (1 - Math.exp(-x * 18)))));
+    voice(t, 0.32, (x) => (t < 2.1 ? 0.4 : 0.55) * Math.exp(-x * 10) * Math.sin(2 * Math.PI * (45 * x + (105 / 18) * (1 - Math.exp(-x * 18)))));
     if (full(t)) {
-      // hat on the off-beat
-      voice(t + BEAT / 2, 0.06, (x) => 0.07 * Math.exp(-x * 70) * rnd(), { pan: 0.3 });
+      // open hat on the off-beat, closed sixteenths around it
+      voice(t + BEAT / 2, 0.08, (x) => 0.055 * Math.exp(-x * 45) * rnd(), { pan: 0.3, cutoff: 9000 });
+      for (const q of [1, 3]) voice(t + q * BEAT / 4, 0.03, (x) => 0.022 * Math.exp(-x * 150) * rnd(), { pan: -0.25, cutoff: 9000 });
       // clap on 2 and 4
       if (k % 2 === 1) voice(t, 0.2, (x) => 0.16 * Math.exp(-x * 22) * rnd(), { send: 0.4, cutoff: 3500 });
     }
     // bass: eighths on the chord's root
-    const root = ROOTS[Math.floor((t) / 2) % 4];
-    for (const off of [0, BEAT / 2]) {
-      voice(t + off, 0.22, (x) => 0.16 * Math.exp(-x * 9) * (Math.sin(2 * Math.PI * hz(root) * x) + 0.3 * saw(hz(root) * x)), { cutoff: 600 });
-    }
+    // bass on the off-beat, between the kicks
+    const root = ROOTS[Math.floor(t / BAR2) % 4];
+    if (full(t)) voice(t + BEAT / 2, 0.19, (x) => 0.2 * Math.exp(-x * 10) * (Math.sin(2 * Math.PI * hz(root) * x) + 0.35 * saw(hz(root) * x)), { cutoff: 700 });
   }
 }
 
@@ -87,8 +89,11 @@ for (const [t0, cps, n] of typing) {
 for (const cut of [2.1, 4.6, 6.8, 10.4, 13.4, 16.4, 19.6, 22.0, 25.6, 27.6]) {
   const d = 0.42;
   let lp = 0;
-  voice(cut - d, d + 0.05, (x) => { const k = Math.min(1, x / d); lp += (0.04 + 0.4 * k) * (rnd() - lp); return 0.16 * k * k * lp * 3; }, { send: 0.3 });
+  voice(cut - d, d + 0.05, (x) => { const k = Math.min(1, x / d); lp += (0.04 + 0.4 * k) * (rnd() - lp); return 0.08 * k * k * lp * 3; }, { send: 0.3 });
 }
+
+// ---------- a riser into the beat's return after "Nothing else." ----------
+{ let lp = 0; voice(20.6, 1.4, (x) => { const k = x / 1.4; lp += (0.02 + 0.3 * k) * (rnd() - lp); return 0.2 * k ** 2 * lp * 3; }, { send: 0.4 }); }
 
 // ---------- UI sounds ----------
 const blip = (t, f0, f1, amp = 0.2, d = 0.12) => voice(t, d, (x) => amp * Math.exp(-x * 28) * Math.sin(2 * Math.PI * (f0 * x + (f1 - f0) * x * x / (2 * d))), { send: 0.35 });
@@ -108,8 +113,8 @@ voice(26.45, 1.6, (x) => 0.7 * Math.exp(-x * 3) * Math.sin(2 * Math.PI * (38 * x
 voice(26.45, 0.8, (x) => 0.35 * Math.exp(-x * 7) * rnd(), { send: 0.8, cutoff: 2500 });
 
 // ---------- end: one chord that rings out ----------
-for (const [m, a] of [[57, 0.07], [64, 0.06], [69, 0.06], [71, 0.04], [76, 0.05]]) {
-  voice(27.6, 2.9, (x) => a * Math.exp(-x * 1.1) * (Math.sin(2 * Math.PI * hz(m) * x) + 0.25 * Math.sin(2 * Math.PI * 2 * hz(m) * x)), { send: 0.6, pan: (m - 66) / 30 });
+for (const [m, a] of [[45, 0.12], [57, 0.14], [64, 0.12], [69, 0.12], [71, 0.08], [76, 0.1]]) {
+  voice(27.6, 2.9, (x) => a * Math.exp(-x * 0.8) * (Math.sin(2 * Math.PI * hz(m) * x) + 0.25 * Math.sin(2 * Math.PI * 2 * hz(m) * x)), { send: 0.6, pan: (m - 66) / 30 });
 }
 
 // ---------- reverb: a few feedback delays on the send bus ----------

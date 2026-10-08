@@ -1,10 +1,9 @@
 // Builds x-header4.png: the night scene (the hook, the ship, the moon) as a halftone dot field.
-// node brand/x-header4.js   (needs Playwright; reads x-header3-bg.png, and mark.d.txt for the wordmark)
+// node brand/x-header4.js   (needs Playwright; reads x-header3-bg.png)
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const fs = require('fs'), path = require('path');
 const D = __dirname;
 const bg = 'data:image/png;base64,' + fs.readFileSync(path.join(D, 'x-header3-bg.png')).toString('base64');
-const mark = fs.readFileSync(path.join(D, 'mark.d.txt'), 'utf8').trim();
 const html = `<!doctype html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@600&display=swap" rel="stylesheet">
 <style>*{margin:0}body{width:1500px;height:500px;overflow:hidden;background:#070B14;position:relative}
@@ -12,7 +11,7 @@ canvas{position:absolute;inset:0;width:1500px;height:500px}
 .wm{position:absolute;right:58px;bottom:46px;display:flex;align-items:center;gap:14px;font:600 44px 'Geist',sans-serif;letter-spacing:-.03em;color:#fff}
 .wm svg{width:46px;height:46px}.wm em{font-style:normal;color:#E8B04B}</style></head><body>
 <canvas id="c" width="3000" height="1000"></canvas>
-<div class="wm"><svg viewBox="-18 -18 3036 3036"><path fill="#E8B04B" fill-rule="evenodd" d="${mark}"/></svg><span>Uny<em>Hooks</em></span></div>
+<div class="wm"><span>Uny<em>Hooks</em></span></div>
 <script>
 const W = 3000, H = 1000, STEP = 9;
 const img = new Image();

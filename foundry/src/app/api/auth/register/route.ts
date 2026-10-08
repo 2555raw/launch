@@ -7,7 +7,7 @@ import { rateLimit } from "@/server/redis";
 export const dynamic = "force-dynamic";
 
 const schema = z.object({
-  username: z.string().trim().min(3).max(20).regex(/^[a-zA-Z0-9_]+$/, "letters, numbers and _ only"),
+  username: z.string().trim().min(3).max(24).regex(/^[a-zA-Z0-9_ ]+$/, "letters, numbers, spaces and _ only"),
   password: z.string().min(8).max(200),
 });
 

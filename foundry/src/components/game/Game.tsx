@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useGame } from "@/hooks/useGame";
 import { useGlobal } from "@/hooks/useGlobal";
@@ -9,7 +9,8 @@ import { themeFor } from "@/lib/content/commodities";
 import { fmt, fmtFull } from "@/lib/format";
 import type { PublicUser } from "@/lib/types";
 import { AchievementsPanel } from "./AchievementsPanel";
-import { AuthPanel } from "./AuthPanel";
+import { AuthPanel, SecureAccount } from "./AuthPanel";
+import { api } from "@/lib/api";
 import { Deposit } from "./Deposit";
 import { LaunchStrip } from "./LaunchStrip";
 import { Leaderboard } from "./Leaderboard";
@@ -45,6 +46,17 @@ export function Game() {
   const [statsTab, setStatsTab] = useState<"numbers" | "achievements" | "leaderboard">("numbers");
   useTheme(global?.commodity);
 
+  // Walk straight in: no account yet -> create a guest foundry and start playing.
+  const guestTried = useRef(false);
+  const [guestError, setGuestError] = useState<string | null>(null);
+  useEffect(() => {
+    if (user !== null || guestTried.current) return;
+    guestTried.current = true;
+    api<{ user: PublicUser }>("/api/auth/guest", { method: "POST" })
+      .then((r) => setUser(r.user))
+      .catch((e) => setGuestError((e as Error).message));
+  }, [user, setUser]);
+
   useEffect(() => {
     if (!global) return;
     const closed = !(global.status === "DRAFT" || global.status === "ACTIVE") || (global.status === "ACTIVE" && global.endsAt !== null && serverNow() >= global.endsAt);
@@ -63,48 +75,16 @@ export function Game() {
     return (
       <div>
         <TopBar user={null} symbol={global?.symbol} />
-        <div className="mx-auto max-w-6xl px-4 pb-10 pt-4">
-          <LaunchStrip global={global} serverNow={serverNow} connected={connected} />
-          <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-            <div className="space-y-6">
-              <div>
-                <div className="label text-ember">Community-priced token launch</div>
-                <h1 className="mt-2 font-display text-5xl font-bold leading-[0.95] text-slate-50 md:text-6xl">
-                  The supply of <span className="text-brand-soft">${symbol}</span> is decided by the people who play.
-                </h1>
-                <p className="mt-4 max-w-xl text-lg text-slate-400">
-                  Extract from the deposit, hire cursors, build mines, rigs and refineries. All production becomes burn power, and the community&apos;s burn power removes tokens from the launch supply through a published formula.
-                  When the window closes, the final supply is locked, minted on Solana, and the burn is executed on-chain.
-                </p>
-                <ul className="mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-3">
-                  {[
-                    ["Server-validated", "No client numbers are trusted. Click caps, re-priced purchases, locked ledger at freeze."],
-                    ["On-chain result", "Token-2022 mint with metadata, supply minted, burn executed, mint authority revoked."],
-                    ["Your keys stay yours", "Wallet linking is a signed message. Never a seed phrase, never a private key."],
-                  ].map(([t, d]) => (
-                    <li key={t} className="rounded-md border border-white/[0.06] bg-ink-900/70 px-3 py-2">
-                      <div className="font-display font-bold text-slate-100">{t}</div>
-                      <div className="text-xs text-slate-500">{d}</div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                <Hero label="Initial supply" value={global ? fmtFull(global.initialSupply) : "…"} />
-                <Hero label="Burned so far" value={global ? fmtFull(global.burnedSupply) : "…"} tone="text-red-300" />
-                <Hero label="Current supply" value={global ? fmtFull(global.finalSupply) : "…"} tone="text-brand-soft" />
-              </div>
-              <div className="hidden max-w-[280px] opacity-90 lg:block">
-                <Deposit theme={theme} symbol={symbol} clickPower={1} onClick={() => {}} disabled />
-              </div>
+        <div className="grid min-h-[60vh] place-items-center text-slate-400">
+          {guestError ? (
+            <div className="panel max-w-md p-5 text-center">
+              <div className="font-display text-lg font-bold text-red-300">Could not open a foundry</div>
+              <p className="mt-1 text-sm">{guestError}</p>
+              <div className="mt-4"><AuthPanel onUser={onUser} loginOnly /></div>
             </div>
-            <div className="space-y-4">
-              <AuthPanel onUser={onUser} />
-              <p className="text-center text-xs text-slate-500">
-                Gameplay is off-chain and validated server-side. Only the launch goes on Solana. <Link href="/docs" className="underline">Read the docs</Link>.
-              </p>
-            </div>
-          </div>
+          ) : (
+            "Preparing your foundry…"
+          )}
         </div>
       </div>
     );
@@ -201,9 +181,10 @@ export function Game() {
                 </div>
                 <div className="panel p-4">
                   <div className="label mb-2">Account</div>
-                  <div className="text-sm text-slate-300">Signed in as <b>{user.username}</b></div>
-                  <button className="btn mt-2" onClick={logout}>Sign out</button>
+                  <div className="mb-2 text-sm text-slate-300">Playing as <b>{user.username}</b>{!user.hasPassword && user.wallets.length === 0 && <span className="text-slate-500"> (guest)</span>}</div>
+                  {!user.hasPassword ? <SecureAccount user={user} onUser={onUser} /> : <button className="btn" onClick={logout}>Sign out</button>}
                 </div>
+                <AuthPanel onUser={onUser} loginOnly />
                 <div className="panel p-4 text-sm text-slate-400">
                   Your progress is saved on the server every few seconds. Generators keep producing while you are away, up to the offline cap set by the project.
                 </div>
@@ -282,14 +263,5 @@ function NewsBox({ global }: { global: Parameters<typeof NewsTicker>[0]["global"
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex justify-between gap-3 border-b border-white/[0.04] py-1"><span className="text-slate-500">{k}</span><span className="num text-slate-200">{v}</span></div>
-  );
-}
-
-function Hero({ label, value, tone = "text-slate-100" }: { label: string; value: string; tone?: string }) {
-  return (
-    <div className="panel px-3 py-3">
-      <div className="label">{label}</div>
-      <div className={`num font-display text-xl font-bold md:text-2xl ${tone}`}>{value}</div>
-    </div>
   );
 }

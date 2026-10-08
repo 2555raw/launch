@@ -9,5 +9,6 @@ export interface PublicUser {
   id: string;
   username: string;
   role: string;
+  hasPassword: boolean;
   wallets: string[];
 }

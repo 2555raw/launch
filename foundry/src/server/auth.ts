@@ -112,6 +112,6 @@ export async function verifyWalletSignature(address: string, nonce: string, sign
   }
 }
 
-export function publicUser(u: { id: string; username: string; role: string; wallets: { address: string }[] }) {
-  return { id: u.id, username: u.username, role: u.role, wallets: u.wallets.map((w) => w.address) };
+export function publicUser(u: { id: string; username: string; role: string; passwordHash?: string | null; wallets: { address: string }[] }) {
+  return { id: u.id, username: u.username, role: u.role, hasPassword: !!u.passwordHash, wallets: u.wallets.map((w) => w.address) };
 }

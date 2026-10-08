@@ -26,7 +26,11 @@ export function TopBar({ user, onLogout, symbol, slug }: { user: PublicUser | nu
       {user && (
         <span className="ml-1 flex items-center gap-2 border-l border-white/10 pl-3 text-sm">
           <span className="font-display font-semibold text-slate-200">{user.username}</span>
-          {onLogout && <button onClick={onLogout} className="text-xs text-slate-500 hover:text-slate-200">sign out</button>}
+          {onLogout && (user.hasPassword || user.wallets.length > 0 ? (
+            <button onClick={onLogout} className="text-xs text-slate-500 hover:text-slate-200">sign out</button>
+          ) : (
+            <span className="text-xs text-slate-500" title="Secure this account from Options to keep it">guest</span>
+          ))}
         </span>
       )}
     </header>

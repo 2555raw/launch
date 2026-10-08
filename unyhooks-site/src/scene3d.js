@@ -218,10 +218,10 @@ function seaGeometry(cols, rows, near, far, halfWidth) {
 
 /* The small waves, as a tiling map: a height field summed from waves whose
    wave numbers are whole cycles per tile, so it wraps without a seam. RG is
-   the slope, A the height (used to break up the foam). */
-let normalsCache = null;
-function waterNormals(size = 256) {
-  if (normalsCache) return normalsCache;
+   the slope, A the height (used to break up the foam). It is drawn once on
+   the GPU into a render target, so building it never blocks the page. */
+function waterNormals(renderer, size = 256) {
+  if (renderer.userData?.normals) return renderer.userData.normals;
   let seed = 11;
   const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
   const waves = [];
@@ -232,51 +232,50 @@ function waterNormals(size = 256) {
     if (!kx && !kz) continue;
     waves.push([kx, kz, 1 / Math.pow(Math.hypot(kx, kz), 1.45), rnd() * Math.PI * 2]);
   }
-  const n = size * size;
-  const h = new Float32Array(n), sx = new Float32Array(n), sz = new Float32Array(n);
-  const TAU = Math.PI * 2;
-  let maxS = 0, minH = Infinity, maxH = -Infinity;
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const u = x / size, v = y / size, i = y * size + x;
-      let hh = 0, gx = 0, gz = 0;
-      for (const [kx, kz, a, p] of waves) {
-        const ph = TAU * (kx * u + kz * v) + p;
-        const s = Math.sin(ph), c = Math.cos(ph);
-        // sharpen the crests a little: real chop is peaky, not sinusoidal
+  const f = (x) => x.toFixed(6);
+  // the slope scale and height range of this set of waves, measured once
+  const S = 34.1314, MIN_H = -1.741, MAX_H = 2.8598;
+  const rt = new THREE.WebGLRenderTarget(size, size, {
+    wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping,
+    magFilter: THREE.LinearFilter, minFilter: THREE.LinearMipmapLinearFilter,
+    generateMipmaps: true, depthBuffer: false
+  });
+  rt.texture.anisotropy = 8;
+  const mat = new THREE.ShaderMaterial({
+    vertexShader: 'void main() { gl_Position = vec4(position.xy, 0.0, 1.0); }',
+    fragmentShader: /* glsl */`
+      precision highp float;
+      float hh = 0.0, gx = 0.0, gz = 0.0;
+      vec2 uv;
+      void w(float kx, float kz, float a, float p) {
+        float ph = 6.2831853 * (kx * uv.x + kz * uv.y) + p;
+        float s = sin(ph), c = cos(ph);
         hh += a * (s + 0.25 * s * s);
-        gx += a * TAU * kx * c * (1 + 0.5 * s);
-        gz += a * TAU * kz * c * (1 + 0.5 * s);
+        gx += a * 6.2831853 * kx * c * (1.0 + 0.5 * s);
+        gz += a * 6.2831853 * kz * c * (1.0 + 0.5 * s);
       }
-      h[i] = hh; sx[i] = gx; sz[i] = gz;
-      maxS = Math.max(maxS, Math.abs(gx), Math.abs(gz));
-      minH = Math.min(minH, hh); maxH = Math.max(maxH, hh);
-    }
-  }
-  const data = new Uint8Array(n * 4);
-  const S = maxS * 0.7;
-  for (let i = 0; i < n; i++) {
-    data[i * 4] = Math.max(0, Math.min(255, Math.round((0.5 + 0.5 * sx[i] / S) * 255)));
-    data[i * 4 + 1] = Math.max(0, Math.min(255, Math.round((0.5 + 0.5 * sz[i] / S) * 255)));
-    data[i * 4 + 2] = 128;
-    data[i * 4 + 3] = Math.round(((h[i] - minH) / (maxH - minH)) * 255);
-  }
-  const tex = new THREE.DataTexture(data, size, size, THREE.RGBAFormat);
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  tex.magFilter = THREE.LinearFilter;
-  tex.minFilter = THREE.LinearMipmapLinearFilter;
-  tex.generateMipmaps = true;
-  tex.anisotropy = 8;
-  tex.needsUpdate = true;
-  normalsCache = tex;
-  return tex;
+      void main() {
+        uv = (gl_FragCoord.xy - 0.5) / ${size}.0;
+        ${waves.map(([kx, kz, a, p]) => `w(${f(kx)}, ${f(kz)}, ${f(a)}, ${f(p)});`).join(' ')}
+        gl_FragColor = vec4(clamp(0.5 + 0.5 * gx / ${S}, 0.0, 1.0), clamp(0.5 + 0.5 * gz / ${S}, 0.0, 1.0), 0.5, (hh - (${MIN_H})) / (${MAX_H} - (${MIN_H})));
+      }`
+  });
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+  quad.frustumCulled = false;
+  const prev = renderer.getRenderTarget();
+  renderer.setRenderTarget(rt);
+  renderer.render(quad, new THREE.Camera());
+  renderer.setRenderTarget(prev);
+  mat.dispose(); quad.geometry.dispose();
+  renderer.userData = { ...(renderer.userData || {}), normals: rt.texture };
+  return rt.texture;
 }
 
 /* The water. Gerstner swell moves the vertices; the tiling map adds the chop;
    the colour is the reflection (a mirror render of the scene when there is
    one, the sky otherwise) over a near-black body, the moon's glitter on top,
    and foam where the hook cuts through. */
-function sea() {
+function sea(renderer) {
   const waves = WAVES.map(([x, z, s, l]) => new THREE.Vector4(x, z, s, l));
   const mat = new THREE.ShaderMaterial({
     uniforms: {
@@ -285,7 +284,7 @@ function sea() {
       uMoonDir: { value: MOON_DIR },
       uDawn: DAWN,
       uWaves: { value: waves },
-      uNormals: { value: waterNormals() },
+      uNormals: { value: waterNormals(renderer) },
       uRefl: { value: null },
       uReflMat: { value: new THREE.Matrix4() },
       uHasRefl: { value: 0 },
@@ -385,7 +384,7 @@ function sea() {
         float far = smoothstep(15.0, 260.0, dist);
         float sharp = mix(2600.0, 420.0, far);
         vec3 moonCol = mix(vec3(1.0, 0.82, 0.55), vec3(1.0, 0.6, 0.3), uDawn);
-        vec3 glint = moonCol * (pow(m, sharp) * mix(9.0, 3.0, far) + pow(m, 160.0) * 0.35 + pow(m, 24.0) * 0.025);
+        vec3 glint = moonCol * (pow(m, sharp) * mix(6.5, 2.2, far) + pow(m, 160.0) * 0.26 + pow(m, 24.0) * 0.02);
 
         vec3 deep = mix(vec3(0.0015, 0.005, 0.011), vec3(0.012, 0.02, 0.035), uDawn);
         // a little light through the backs of the waves facing the moon
@@ -446,12 +445,12 @@ function cloudDome(radius) {
         const mat2 ROT = mat2(1.6, 1.2, -1.2, 1.6);
         float fbm(vec2 p) {
           float s = 0.0, a = 0.5;
-          for (int i = 0; i < 6; i++) { s += a * noise(p); p = ROT * p; a *= 0.5; }
+          for (int i = 0; i < 5; i++) { s += a * noise(p); p = ROT * p; a *= 0.5; }
           return s;
         }
         float fbm4(vec2 p) {
           float s = 0.0, a = 0.5;
-          for (int i = 0; i < 4; i++) { s += a * noise(p); p = ROT * p; a *= 0.5; }
+          for (int i = 0; i < 3; i++) { s += a * noise(p); p = ROT * p; a *= 0.5; }
           return s;
         }
         vec2 plane(vec3 d) { return d.xz / (d.y + 0.035) * 0.55; }
@@ -476,7 +475,7 @@ function cloudDome(radius) {
           vec2 mp = plane(uMoonDir) + drift;
           vec2 step = normalize(mp - p) * 0.05;
           float occ = 0.0;
-          for (int i = 1; i <= 4; i++) occ += smoothstep(cv, cv + 0.28, fbm4(p + step * float(i)));
+          for (int i = 1; i <= 3; i++) occ += smoothstep(cv, cv + 0.28, fbm4(p + step * float(i))) * 1.33;
           float lit = exp(-occ * 1.1);
           float m = max(dot(d, uMoonDir), 0.0);
           float phase = 0.03 + uDawn * 0.12 + pow(m, 6.0) * 0.5 + pow(m, 40.0) * 2.2 + pow(m, 300.0) * 6.0;
@@ -510,6 +509,7 @@ function mirror(renderer) {
   return {
     texture: rt.texture,
     matrix: texMat,
+    clip,
     render(scene, camera, hide, scale) {
       const size = renderer.getDrawingBufferSize(new THREE.Vector2());
       const w = Math.max(4, Math.round(size.x * scale)), h = Math.max(4, Math.round(size.y * scale));
@@ -832,9 +832,10 @@ function coinModel() {
 
 function makeRenderer(canvas, alpha, maxRatio) {
   const r = new THREE.WebGLRenderer({ canvas, antialias: true, alpha, powerPreference: 'high-performance' });
+  if (softwareGL(r.getContext())) { r.dispose(); throw new Error('software renderer'); }
   r.setPixelRatio(Math.min(window.devicePixelRatio || 1, maxRatio));
   r.toneMapping = THREE.ACESFilmicToneMapping;
-  r.toneMappingExposure = 0.95;
+  r.toneMappingExposure = 0.8;
   return r;
 }
 
@@ -908,7 +909,7 @@ function storyScene(canvas) {
   scene.add(sky);
   const clouds = cloudDome(980);
   scene.add(clouds);
-  const water = sea();
+  const water = sea(renderer);
   scene.add(water);
   const hemi = new THREE.HemisphereLight(0x5a6c90, 0x05070c, 0.4);
   scene.add(hemi);
@@ -955,7 +956,7 @@ function storyScene(canvas) {
   const drops = spray(small ? 90 : 220);
   drops.material.uniforms.uPx.value = renderer.getPixelRatio();
   scene.add(drops);
-  const rim = new THREE.SpotLight(0xffe6c4, 70, 40, 0.5, 0.6, 2);
+  const rim = new THREE.SpotLight(0xffe6c4, 45, 40, 0.5, 0.6, 2);
   rim.position.set(3.5 * S, 3 * S + 1.2, -2.5 * S);
   rim.target = hook;
   scene.add(rim);
@@ -967,7 +968,7 @@ function storyScene(canvas) {
   if (hq && !dbg.includes('nobloom')) {
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    composer.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.32, 0.5, 1.1));
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.2, 0.45, 1.2));
     composer.addPass(new OutputPass());
   }
 
@@ -1006,6 +1007,8 @@ function storyScene(canvas) {
   const shaft = new THREE.Vector3(), top = new THREE.Vector3(), wakePt = new THREE.Vector3();
   const u = water.material.uniforms;
   let flow = 0, last = 0, frame = 0, lastW = 0, lastH = 0;
+  // 2: everything, 1: no bloom and a lower resolution, 0: no mirror or live chrome
+  let level = hq ? 2 : 0, settled = false, stage = 0, cubeFrame = 0, measured = 0;
   const times = [];
   let smoothX = null;
 
@@ -1013,7 +1016,7 @@ function storyScene(canvas) {
     const w = canvas.clientWidth, h = canvas.clientHeight;
     if (!w || !h) return;
     // keep the drawing buffer to a sane size on very large screens
-    const ratio = Math.min(window.devicePixelRatio || 1, hq ? 1.5 : 1.25, Math.sqrt((hq ? 2.6e6 : 1.4e6) / (w * h)));
+    const ratio = Math.min(window.devicePixelRatio || 1, level > 1 ? 1.3 : 1, Math.sqrt((level > 1 ? 2.0e6 : 1.2e6) / (w * h)));
     if (Math.abs(renderer.getPixelRatio() - ratio) > 0.01) renderer.setPixelRatio(ratio);
     fit(renderer, camera, canvas);
     if (composer && (w !== lastW || h !== lastH || composer._ratio !== ratio)) {
@@ -1069,7 +1072,7 @@ function storyScene(canvas) {
     u.uHook.value.set(shaft.x, shaft.z, 0, S);
     drops.userData.update(dt, shaft, S, wv.y, still ? 0 : 160);
 
-    if (cube && hq && frame % 3 === 0) {
+    if (cube && hq && stage >= 3 && (cubeFrame++ % 45 === 0)) {
       cube.position.set(0.1 * S, 0.9 * S, weave);
       hook.visible = false; drops.visible = false;
       u.uHasRefl.value = 0;
@@ -1077,12 +1080,12 @@ function storyScene(canvas) {
       hook.visible = true; drops.visible = true;
     }
 
-    if (hq) {
+    if (hq && stage >= 1) {
       // the hook is left out of the mirror: on choppy water its reflection
       // breaks into streaks that read as lightning, not as metal
-      mir.render(scene, camera, [water, drops, hook], 0.5);
+      mir.render(scene, camera, [water, drops, hook], level > 1 ? 0.4 : 0.3);
       u.uHasRefl.value = dbg.includes('nomirror') ? 0 : 1;
-      if (composer) composer.render(); else renderer.render(scene, camera);
+      if (composer && level > 1 && stage >= 2) composer.render(); else renderer.render(scene, camera);
     } else {
       u.uHasRefl.value = 0;
       renderer.render(scene, camera);
@@ -1110,24 +1113,29 @@ function storyScene(canvas) {
     }
 
     frame++;
-    // a slow GPU drops the extras rather than the frame rate
-    if (hq && frame > 10 && frame < 100) {
+    // A slow GPU steps down rather than stutter: first the bloom and part of
+    // the resolution, then the mirror and the live chrome.
+    if (stage >= 3 && ++measured > 20 && level > 0 && !settled && !still) {
       times.push(dt * 1000);
-      if (times.length === 60) {
+      if (times.length === 40) {
         times.sort((p, q) => p - q);
-        if (times[30] > 30) {
-          hq = false;
-          if (cubeRT) { const env = studio(); hook.traverse((o) => { if (o.material) o.material.envMap = env; }); }
-          panels.forEach((m) => scene.remove(m));
-        }
+        if (times[20] > 21) {
+          level--;
+          if (level === 0) {
+            hq = false;
+            if (cubeRT) { const env = studio(); hook.traverse((o) => { if (o.material) o.material.envMap = env; }); }
+            panels.forEach((m) => scene.remove(m));
+          }
+        } else settled = true;
+        times.length = 0;
       }
     }
     document.documentElement.classList.add('is-3d');
   };
 
   // draw while any chapter is on screen; the page's solid sections cover it
-  let visible = 0, raf = 0;
-  const t0 = performance.now();
+  let visible = 0, raf = 0, ready = false;
+  let t0 = performance.now();
   const tick = (now) => {
     raf = 0;
     draw((now - t0) / 1000);
@@ -1136,13 +1144,40 @@ function storyScene(canvas) {
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => { e.target._on = e.isIntersecting; });
     visible = chapters.filter((c) => c._on).length;
-    if (visible > 0 && !raf) raf = requestAnimationFrame(tick);
+    if (ready && visible > 0 && !raf) raf = requestAnimationFrame(tick);
     if (!visible) labels.forEach((el) => { el.style.opacity = '0'; });
   });
   chapters.forEach((c) => io.observe(c));
   // reduced motion: one still per scroll position
-  if (still) window.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(tick); }, { passive: true });
-  draw(0);
+  if (still) window.addEventListener('scroll', () => { if (ready && !raf) raf = requestAnimationFrame(tick); }, { passive: true });
+  // Compile every shader before the first frame, off the main thread where
+  // the browser can, so starting the scene never freezes the page. Until then
+  // the page shows a still of this same shot.
+  // Then the extras come in one at a time, each compiled before it is used:
+  // the mirror (its clipped variants of every material), the bloom, and last
+  // the live chrome reflections.
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const extras = async () => {
+    if (!hq) return;
+    await wait(300);
+    if (renderer.compileAsync) {
+      renderer.clippingPlanes = mir.clip;
+      try { await renderer.compileAsync(scene, camera); } finally { renderer.clippingPlanes = []; }
+    }
+    stage = 1;
+    await wait(500);
+    stage = 2;
+    await wait(700);
+    stage = 3;
+  };
+  const go = () => {
+    ready = true;
+    t0 = performance.now();
+    if (!raf) raf = requestAnimationFrame(tick);
+    extras().catch(() => { stage = 3; });
+  };
+  fit(renderer, camera, canvas);
+  if (renderer.compileAsync) renderer.compileAsync(scene, camera).then(go, go); else go();
 }
 
 function coinScene(canvas) {
@@ -1174,18 +1209,16 @@ function coinScene(canvas) {
 /* ---------- start ---------- */
 
 // No GPU (a software renderer) would make every frame cost the whole page,
-// so those visitors keep the 2D drawings. ?3d=force overrides it.
+// so those visitors keep the still. Checked on the scene's own context, so no
+// extra one is created just to ask. ?3d=force overrides it.
 function webgl() {
-  try {
-    const c = document.createElement('canvas');
-    const gl = c.getContext('webgl2') || c.getContext('webgl');
-    if (!gl) return false;
-    if (/[?&]3d=force/.test(location.search)) return true;
-    const info = gl.getExtension('WEBGL_debug_renderer_info');
-    const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
-    gl.getExtension('WEBGL_lose_context')?.loseContext();
-    return !/swiftshader|llvmpipe|softpipe|software/i.test(name);
-  } catch (_) { return false; }
+  return 'WebGL2RenderingContext' in window || 'WebGLRenderingContext' in window;
+}
+function softwareGL(gl) {
+  if (/[?&]3d=force/.test(location.search)) return false;
+  const info = gl.getExtension('WEBGL_debug_renderer_info');
+  const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : '';
+  return /swiftshader|llvmpipe|softpipe|software/i.test(name);
 }
 
 // Each scene is built only when its canvas comes within a screen of view, so
@@ -1193,7 +1226,12 @@ function webgl() {
 const start = (canvas) => {
   try {
     const kind = canvas.dataset.scene;
-    if (kind === 'story') storyScene(canvas);
+    if (kind === 'story') {
+      // after the page has loaded and gone quiet: the still covers until then
+      const run = () => { try { storyScene(canvas); } catch (err) { console.warn('3D scene unavailable:', err && err.message); no3d(); } };
+      const idle = () => ('requestIdleCallback' in window ? requestIdleCallback(run, { timeout: 1200 }) : setTimeout(run, 50));
+      if (document.readyState === 'complete') idle(); else window.addEventListener('load', idle, { once: true });
+    }
     else if (kind === 'coin') coinScene(canvas);
   } catch (err) {
     // put the still back

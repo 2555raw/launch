@@ -508,8 +508,10 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .uh-stage { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: #070B14; }
 .uh-stage-3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; opacity: 0; transition: opacity 1.4s ease; }
 html.is-3d .uh-stage-3d { opacity: 1; }
-.uh-stage-still { position: absolute; inset: 0; display: none; background: #070B14 url(hero.jpg) 72% 40% / cover no-repeat; }
-html:not(.uh-3d-on):not(.is-3d) .uh-stage-still { display: block; }
+/* a still of the opening shot: shown at once, while the 3D compiles behind it,
+   and kept for good without WebGL */
+.uh-stage-still { position: absolute; inset: 0; background: #070B14 url(hero.jpg) center / cover no-repeat; }
+@media (max-aspect-ratio: 1/1) { .uh-stage-still { background-image: url(hero-m.jpg); } }
 .uh-stage-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 11, 20, .72) 0%, rgba(7, 11, 20, .4) 34%, rgba(7, 11, 20, 0) 58%); }
 @media (max-width: 899px) { .uh-stage-shade { background: linear-gradient(180deg, rgba(7, 11, 20, 0) 30%, rgba(7, 11, 20, .55) 58%, rgba(7, 11, 20, .85) 100%); } }
 main, .uh-foot { position: relative; z-index: 1; }

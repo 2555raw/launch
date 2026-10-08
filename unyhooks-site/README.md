@@ -258,8 +258,11 @@ for the closing call. Scrolling blends between them; `[data-label3d]` labels are
 points in the scene. The product sections (simulation, hooks, limits, $UHOOKS, FAQ) are solid
 and cover the sea while you read them, and the scene stops drawing. Phones get a lighter
 version (no mirror, bloom or cube map) and their own framing; a slow GPU drops to that on its
-own. Without WebGL, on a software renderer or with data saver, the page shows a still of the
-scene (`hero.jpg`). The $UHOOKS coin is a second, small scene.
+own. The page first shows a still of the opening shot (`hero.jpg`, `hero-m.jpg` on phones);
+the scene starts once the page has loaded, compiles its shaders before its first frame, and
+brings in the mirror, the bloom and the live chrome one at a time, so entering never freezes.
+The chop map is drawn on the GPU. Without WebGL, on a software renderer or with data saver,
+the still stays. The $UHOOKS coin is a second, small scene.
 
 Type: **Source Serif 4** for headlines and text, **Geist** for the wordmark, **Geist Mono** for
 addresses, code and labels. Every page's title is just "UnyHooks". The hero carries a "Built

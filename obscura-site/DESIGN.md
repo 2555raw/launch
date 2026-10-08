@@ -341,7 +341,7 @@ The system is tonal first: ground, paper, mist and steel separate surfaces, and 
 
 ## Shapes
 
-Corners are generous and step with scale: 10px, 14px (fields, wallet items, menus), 20px (hero cards, facts, bonds, status notes, verdicts, the FAQ frame on night), and 28px (the bond grid, the player, the demo, boxes, dialogs, the story stage, the closing band). Every interactive control (buttons, nav, tabs, badges, the chip, the theme button, toasts) is a full pill; the side rail is a 30px-radius column of 42px circles. Strokes are 1px hairlines at rest and 1.5px on focus and invalid fields, drawn as inset box-shadows so geometry doesn't shift. Status dots are 6 to 8px circles with a 3 to 4px halo. The hero field is squares, not circles. The mark is round-capped strokes (6.4 on the 100 grid) with filled joints.
+Corners are generous and step with scale: 10px, 14px (fields, wallet items, menus), 20px (hero cards, facts, bonds, status notes, verdicts, the FAQ frame on night), and 28px (the bond grid, the player, the demo, boxes, dialogs, the story stage, the closing band). Every interactive control (buttons, nav, tabs, badges, the chip, the theme button, toasts) is a full pill; the side rail is an 18px-radius column of 40px square keys with an 11px radius. Strokes are 1px hairlines at rest and 1.5px on focus and invalid fields, drawn as inset box-shadows so geometry doesn't shift. Status dots are 6 to 8px circles with a 3 to 4px halo. The hero field is squares, not circles. The mark is round-capped strokes (6.4 on the 100 grid) with filled joints.
 
 ## Components
 

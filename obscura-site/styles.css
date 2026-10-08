@@ -243,7 +243,7 @@ p { text-wrap: pretty; }
 .nav-wrap { transition: opacity .3s var(--ease), transform .45s var(--ease); }
 /* how far down the page you are, as a hairline on the rail's right edge */
 .side-rail::after { content: ""; position: absolute; right: 3px; top: 22px; bottom: 22px; width: 2px; border-radius: 2px; background: var(--line); }
-.side-rail::before { content: ""; position: absolute; z-index: 1; right: 3px; top: 22px; width: 2px; border-radius: 2px; height: calc((100% - 44px) * var(--read, 0)); background: var(--accent); opacity: .85; transition: height .15s linear; }
+.side-rail::before { content: ""; position: absolute; z-index: 1; right: 3px; top: 22px; bottom: 22px; width: 2px; border-radius: 2px; background: var(--accent); opacity: .85; transform: scaleY(var(--read, 0)); transform-origin: top; transition: transform .15s linear; }
 .side-item {
   position: relative; width: 40px; height: 40px; border: 0; border-radius: 11px; cursor: pointer;
   display: grid; place-items: center; background: transparent; color: var(--dim-2);

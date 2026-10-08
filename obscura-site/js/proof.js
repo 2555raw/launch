@@ -14,19 +14,19 @@
 // requests from a browser page (CORS) without an API key.
 export const CHAINS = {
   1: { key: "ethereum", name: "Ethereum", symbol: "ETH", decimals: 18, explorer: "https://etherscan.io",
-    rpcs: ["https://eth.drpc.org", "https://eth.meowrpc.com", "https://rpc.mevblocker.io", "https://ethereum-rpc.publicnode.com"] },
+    rpcs: ["https://eth.drpc.org", "https://mainnet.gateway.tenderly.co", "https://rpc.mevblocker.io", "https://eth.meowrpc.com", "https://ethereum-rpc.publicnode.com"] },
   8453: { key: "base", name: "Base", symbol: "ETH", decimals: 18, explorer: "https://basescan.org",
-    rpcs: ["https://mainnet.base.org", "https://base.meowrpc.com", "https://base.drpc.org", "https://base-rpc.publicnode.com"] },
+    rpcs: ["https://mainnet.base.org", "https://base.drpc.org", "https://base.gateway.tenderly.co", "https://base.meowrpc.com", "https://base-rpc.publicnode.com"] },
   42161: { key: "arbitrum", name: "Arbitrum", symbol: "ETH", decimals: 18, explorer: "https://arbiscan.io",
-    rpcs: ["https://arbitrum.meowrpc.com", "https://arbitrum-one.public.blastapi.io", "https://arbitrum-one-rpc.publicnode.com"] },
+    rpcs: ["https://arbitrum-one.public.blastapi.io", "https://arbitrum.gateway.tenderly.co", "https://arbitrum.meowrpc.com", "https://arbitrum-one-rpc.publicnode.com"] },
   10: { key: "optimism", name: "Optimism", symbol: "ETH", decimals: 18, explorer: "https://optimistic.etherscan.io",
-    rpcs: ["https://mainnet.optimism.io", "https://optimism.drpc.org", "https://optimism-rpc.publicnode.com"] },
+    rpcs: ["https://mainnet.optimism.io", "https://optimism.drpc.org", "https://optimism.gateway.tenderly.co", "https://optimism-rpc.publicnode.com"] },
   137: { key: "polygon", name: "Polygon", symbol: "POL", decimals: 18, explorer: "https://polygonscan.com",
-    rpcs: ["https://polygon.drpc.org", "https://polygon-bor-rpc.publicnode.com"] },
+    rpcs: ["https://polygon.drpc.org", "https://polygon.gateway.tenderly.co", "https://polygon-bor-rpc.publicnode.com"] },
   56: { key: "bnb", name: "BNB Chain", symbol: "BNB", decimals: 18, explorer: "https://bscscan.com",
-    rpcs: ["https://bsc.meowrpc.com", "https://bsc-mainnet.public.blastapi.io", "https://bsc-rpc.publicnode.com"] },
+    rpcs: ["https://bsc-mainnet.public.blastapi.io", "https://bsc.drpc.org", "https://bsc.meowrpc.com", "https://bsc-rpc.publicnode.com"] },
   11155111: { key: "sepolia", name: "Sepolia testnet", symbol: "ETH", decimals: 18, explorer: "https://sepolia.etherscan.io", testnet: true,
-    rpcs: ["https://ethereum-sepolia-rpc.publicnode.com", "https://sepolia.drpc.org"] },
+    rpcs: ["https://sepolia.gateway.tenderly.co", "https://ethereum-sepolia-rpc.publicnode.com"] },
 };
 
 // Wallet parameters for wallet_addEthereumChain, when a wallet does not know a chain yet.

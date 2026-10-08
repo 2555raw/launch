@@ -165,6 +165,22 @@ async function fresh2(page, rec, _) {
   check('all liquidity shown as locked, with the date', checks.some((c) => c.startsWith('is-ok') && /All of the pool's liquidity is locked until/.test(c)));
   check('launch protection on, with a countdown', checks.some((c) => /Launch protection on, \d+:\d\d left/.test(c)));
   check('who launched it, in one transaction', checks.some((c) => /Launched by/.test(c) && /one transaction/.test(c)));
+  // The safety check (check.html) gives the launched token a clean bill: the
+  // UnyHooks token byte for byte, its pool locked, launched in one transaction.
+  {
+    const ck = await page.context().newPage();
+    await ck.goto(SITE + 'check.html?q=' + L.token, { waitUntil: 'networkidle' });
+    await ck.waitForFunction(() => !document.querySelector('#verdict').hidden, null, { timeout: 120000 });
+    const verdict = (await ck.textContent('#verdict')).replace(/\s+/g, ' ');
+    const cks = await ck.$$eval('.hk-check', (cs) => cs.map((c) => `${c.className.replace('hk-check ', '')}: ${c.textContent.trim()}`));
+    check('check: the launched token looks clean', /PINK: Looks clean/.test(verdict), verdict.slice(0, 80));
+    check('check: UnyHooks token, liquidity locked, launched with UnyHooks', cks.some((c) => /^is-ok.*UnyHooks token, checked byte for byte/.test(c)) && cks.some((c) => /^is-ok.*liquidity is locked/.test(c)) && cks.some((c) => /^is-ok.*Launched with UnyHooks/.test(c)), cks.join(' | ').slice(0, 300));
+    check('check: its pool and hook rules are listed', /Launch protection hook/i.test(await ck.textContent('#pools')), (await ck.textContent('#pools')).replace(/\s+/g, ' ').slice(0, 160));
+    await ck.goto(SITE + 'check.html?q=' + rec.address, { waitUntil: 'networkidle' });
+    await ck.waitForURL(/hook\.html\?a=/, { timeout: 30000 }).catch(() => {});
+    check('check: a hook address opens its public page', /hook\.html\?a=/.test(ck.url()));
+    await ck.close();
+  }
   const stats = await page.textContent('#stats');
   check('market cap and ETH in the pool from the chain', /Market cap1\.111\d* ETH/.test(stats) && /ETH in the poolabout (0\.999\d*|1)(?!\d)/.test(stats), stats.replace(/\s+/g, ' '));
   check('what the hook does, from its settings', /0\.1/.test(await page.textContent('#does')));
@@ -260,6 +276,17 @@ async function fresh2(page, rec, _) {
   await wait(() => /back in your wallet/.test(document.querySelector('#msg').textContent));
   check('after the date, "Take back" returns the position', (await posm.ownerOf(rec2.launch.tokenId)) === me);
   if (SHOTS) await page.screenshot({ path: path.join(SHOTS, 'hooks-locks.png'), fullPage: true });
+
+  // The server's index of launches (server/launch-index.js) finds both, each
+  // checked byte for byte against UnyToken, the first with its lock.
+  process.env.UNYHOOKS_START_BLOCK = '0';
+  const { createIndex } = require('../../server/launch-index.js');
+  const ix = createIndex({ rpcUrl: RPC, chainId: Number((await local.getNetwork()).chainId), poolManager: ADDR.pm, dataDir: require('fs').mkdtempSync(require('path').join(require('os').tmpdir(), 'uh-idx-')) });
+  await ix.update();
+  const sum = ix.summary();
+  check('the launch index finds both launches', sum.stats.launches === 2, JSON.stringify(sum.stats));
+  check('one launched with a lock, newest first', sum.stats.locked === 1 && sum.latest[0].lock === null && sum.latest[1].lock !== null, sum.latest.map((x) => `${x.symbol}:${x.lock ? 'locked' : 'open'}`).join(' '));
+  check('the ETH each launch paired is counted', sum.stats.ethPaired > 0, String(sum.stats.ethPaired));
 
   const failed = results.filter((r) => !r).length;
   console.log(`\n${results.length - failed}/${results.length} passed${errors.length ? `  page errors: ${errors.join(' | ')}` : ''}`);

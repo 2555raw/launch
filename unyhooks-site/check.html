@@ -4,11 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>UnyHooks</title>
-  <meta name="description" content="A Uniswap V4 hook on Robinhood Chain: what it does, its published source, its pool and whether its liquidity is locked.">
+  <meta name="description" content="Check any token on Robinhood Chain before you buy: its owner, its source, its Uniswap V4 pools and hooks, and whether the liquidity is locked.">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="UnyHooks">
-  <meta property="og:title" content="A token launched with UnyHooks">
-  <meta property="og:description" content="Launch protection, published source and locked liquidity, checked on chain. See the pool live.">
+  <meta property="og:title" content="Check a token on Robinhood Chain">
+  <meta property="og:description" content="Owner, source, pools, hooks and locked liquidity, read live from the chain.">
   <meta property="og:image" content="og.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="build.css">
   <link rel="stylesheet" href="hooks.css">
   <link rel="stylesheet" href="hook.css">
+  <link rel="stylesheet" href="check.css">
 </head>
 <body>
 <div class="uh uh-build">
@@ -42,50 +43,35 @@
       <span>Uny<b>Hooks</b></span>
     </a>
     <div class="bd-top-right">
-      <a class="bd-toplink" href="check.html">Check a token</a>
+      <a class="bd-toplink" href="check.html" aria-current="page">Check a token</a>
       <a class="bd-toplink" href="launch.html">Launch a token</a>
       <a class="bd-toplink" data-link="app" href="build.html">Builder</a>
     </div>
   </header>
 
   <main class="hk-main" id="main">
-    <section class="bd-card hk-hero" id="hero">
-      <p class="hk-kicker" id="kicker">Uniswap V4 hook on <span data-net="name">Robinhood Chain</span></p>
-      <h1 id="title">Reading the chain…</h1>
-      <p class="hk-addr" id="addr"></p>
-      <div class="hk-price" id="price" hidden></div>
-      <div class="hk-actions" id="actions" hidden></div>
+    <section class="bd-card hk-hero ck-hero">
+      <p class="hk-kicker">Safety check on <span data-net="name">Robinhood Chain</span></p>
+      <h1>Check a token before you buy</h1>
+      <p class="ck-lead">Paste a token, a hook or a Uniswap V4 pool ID. Everything is read live from the chain: who controls the token, whether its code is public, which hooks run on its pools and whether the liquidity is locked.</p>
+      <form class="ck-form" id="form" autocomplete="off">
+        <input id="q" name="q" inputmode="text" spellcheck="false" placeholder="0x… token, hook or pool ID" aria-label="Token, hook or pool ID">
+        <button class="uh-btn uh-btn-pink" type="submit">Check</button>
+      </form>
     </section>
 
-    <section class="bd-card hk-swap" id="swap" aria-label="Trade" hidden></section>
+    <section class="bd-card hk-card ck-verdict" id="verdict" hidden></section>
     <section class="hk-checks" id="checks" aria-label="Checks" hidden></section>
-
-    <section class="bd-card hk-card" id="stats-card" hidden>
-      <h2>Market</h2>
-      <dl class="hk-stats" id="stats"></dl>
-      <p class="hk-note" id="stats-note"></p>
-    </section>
-
-    <section class="bd-card hk-card" id="does-card" hidden>
-      <h2>What the hook does</h2>
-      <ul class="mh-does" id="does"></ul>
-      <p class="hk-note">Every swap in the pool goes through this contract. These rules are read from the contract itself, not from a database.</p>
-    </section>
-
-    <section class="bd-card hk-card" id="locks-card" hidden>
-      <h2>Liquidity</h2>
-      <div id="locks"></div>
-    </section>
-
-    <section class="bd-card hk-card" id="contracts-card" hidden>
-      <h2>Contracts</h2>
-      <dl class="hk-contracts" id="contracts"></dl>
+    <section class="bd-card hk-card" id="pools-card" hidden>
+      <h2>Uniswap V4 pools</h2>
+      <div id="pools"></div>
     </section>
 
     <p class="dp-msg" id="msg" role="status" aria-live="polite"></p>
-    <p class="hk-fine">Everything on this page is read live from <span data-net="name">Robinhood Chain</span>, Sourcify and DexScreener. UnyHooks contracts are not audited. Do your own research before you buy.</p>
+    <p class="hk-fine">Read live from <span data-net="name">Robinhood Chain</span> and Sourcify. Only Uniswap V4 pools are checked. A clean result is not a guarantee: a token can still lose value. Do your own research before you buy.</p>
   </main>
 </div>
+
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script src="builder.js"></script>
@@ -94,7 +80,6 @@
 <script src="wallet.js"></script>
 <script src="pool-math.js"></script>
 <script src="chain.js"></script>
-<script src="swap.js"></script>
-<script src="hook.js"></script>
+<script src="check.js"></script>
 </body>
 </html>

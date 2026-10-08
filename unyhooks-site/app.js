@@ -18,7 +18,8 @@
     signin: CONFIG.SIGNIN_URL || 'app.html',
     docs: CONFIG.DOCS_URL,
     site: CONFIG.SITE_URL,
-    x:    `https://x.com/${CONFIG.X_HANDLE}`
+    x:    `https://x.com/${CONFIG.X_HANDLE}`,
+    source: CONFIG.SOURCE_URL || '#'
   };
   $$('[data-link]').forEach((a) => { a.href = HREFS[a.dataset.link] || '#'; });
   $$('[data-handle]').forEach((el) => { el.textContent = `@${CONFIG.X_HANDLE}`; });

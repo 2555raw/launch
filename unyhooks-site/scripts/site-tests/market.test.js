@@ -53,5 +53,26 @@ const withCA = async (r) => { const body = (await (await r.fetch()).text()).repl
   await p.goto(B + 'index.html', { waitUntil: 'networkidle' });
   await p.waitForFunction(() => document.querySelector('#mk-price').textContent === 'Not trading yet', null, { timeout: 8000, polling: 200 }).catch(() => {});
   ok('no pools yet: friendly message, buy still available', (await p.textContent('#mk-price')) === 'Not trading yet' && (await p.textContent('#mk-updated')).includes('first pool') && await p.isVisible('#mk-buy'), [await p.textContent('#mk-price'), await p.textContent('#mk-updated'), await p.isVisible('#mk-buy')].join(' | '));
+  // "Live on Robinhood Chain", from the server's launch index
+  ok('no launch index (static host): the live section stays hidden', !(await p.isVisible('#live')));
+  await ctx.close();
+  const LIVE = { ready: true, updatedAt: new Date().toISOString(), block: 1, stats: { launches: 2, ethPaired: 1.25, locked: 1, lockedForever: 0, swaps: 31 },
+    latest: [{ symbol: 'PINK', name: 'Pink Moon', hook: '0x' + '22'.repeat(20), eth: '1', lock: '0x' + '33'.repeat(20), unlockAt: '1830000000', forever: false, time: Math.floor(Date.now() / 1000) - 7200 },
+      { symbol: 'SEADOG', name: 'Sea Dog', hook: '0x' + '44'.repeat(20), eth: '0.25', lock: null, unlockAt: '0', forever: false, time: Math.floor(Date.now() / 1000) - 3 * 86400 }] };
+  for (const [label, data] of [['with launches', LIVE], ['none yet', { ...LIVE, stats: { launches: 0, ethPaired: 0, locked: 0, lockedForever: 0, swaps: 0 }, latest: [] }]]) {
+    ctx = await b.newContext(); p = await ctx.newPage();
+    await ctx.route((u) => !u.href.startsWith(B), (r) => r.abort());
+    await ctx.route(B + 'api/launches', (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(data) }));
+    await p.goto(B + 'index.html', { waitUntil: 'networkidle' });
+    await p.waitForFunction(() => !document.querySelector('#live').hidden, null, { timeout: 8000, polling: 200 }).catch(() => {});
+    const txt = (await p.textContent('#live')).replace(/\s+/g, ' ');
+    if (label === 'with launches') {
+      ok('live: stats and the newest launches', /Tokens launched\s*2/.test(txt) && /1\.25 ETH/.test(txt) && /1 of 2/.test(txt) && /\$PINK/.test(txt) && /Locked until/.test(txt) && /No lock/.test(txt) && /2 h ago/.test(txt), txt.slice(0, 220));
+      ok('live: each launch links to its public page', (await p.getAttribute('.uh-live-item', 'href')).includes('hook.html?a=0x2222'));
+    } else {
+      ok('live: none yet says so, with a way to launch', /No launches yet/.test(txt) && !(await p.isVisible('#lv-stats')) && await p.isVisible('.uh-live-empty .uh-btn'), txt.slice(0, 160));
+    }
+    await ctx.close();
+  }
   console.log(out.join('\n')); await b.close();
 })();

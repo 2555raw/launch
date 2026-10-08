@@ -17,6 +17,7 @@ const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
 const B = require('./builder.js');
+const { createIndex } = require('./server/launch-index.js');
 
 const ROOT = __dirname;
 const PORT = process.env.PORT || 8080;
@@ -78,7 +79,7 @@ function sendBody(req, res, status, headers, body, ext, cacheKey) {
 }
 
 // Only the site itself is public: not the server, the scripts or installed packages.
-const PRIVATE = /^\/(node_modules|scripts|\.)|^\/(server\.js|package(-lock)?\.json|README\.md)$/;
+const PRIVATE = /^\/(node_modules|scripts|server|\.)|^\/(server\.js|package(-lock)?\.json|README\.md)$/;
 
 function serveFile(req, res) {
   let rel;
@@ -99,6 +100,30 @@ function serveFile(req, res) {
   const file = path.join(ROOT, path.normalize(rel));
   if (!file.startsWith(ROOT + path.sep)) return send(res, 403, 'text/plain; charset=utf-8', 'Forbidden');
 
+  // Video is sent in byte ranges when asked: Safari won't play it otherwise.
+  const ext0 = path.extname(file).toLowerCase();
+  if ((ext0 === '.mp4' || ext0 === '.webm') && req.headers.range) {
+    return fs.stat(file, (serr, st) => {
+      if (serr) return send(res, 404, 'text/plain; charset=utf-8', 'Not found');
+      const m = String(req.headers.range).match(/^bytes=(\d*)-(\d*)$/);
+      let start = m && m[1] !== '' ? Number(m[1]) : null;
+      let end = m && m[2] !== '' ? Number(m[2]) : null;
+      if (start === null && end !== null) { start = Math.max(0, st.size - end); end = st.size - 1; }
+      if (start === null) start = 0;
+      if (end === null || end >= st.size) end = st.size - 1;
+      if (!m || start > end || start >= st.size) {
+        res.writeHead(416, { 'content-range': `bytes */${st.size}` });
+        return res.end();
+      }
+      res.writeHead(206, {
+        'content-type': TYPES[ext0], 'content-length': end - start + 1, 'content-range': `bytes ${start}-${end}/${st.size}`,
+        'accept-ranges': 'bytes', 'cache-control': 'public, max-age=3600', 'x-content-type-options': 'nosniff'
+      });
+      if (req.method === 'HEAD') return res.end();
+      fs.createReadStream(file, { start, end }).pipe(res);
+    });
+  }
+
   fs.stat(file, (serr, st) => fs.readFile(file, (err, body) => {
     if (err || serr) return send(res, 404, 'text/plain; charset=utf-8', 'Not found');
     const ext = path.extname(file).toLowerCase();
@@ -107,7 +132,8 @@ function serveFile(req, res) {
     sendBody(req, res, 200, {
       'content-type': TYPES[ext] || 'application/octet-stream',
       'cache-control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
-      'x-content-type-options': 'nosniff'
+      'x-content-type-options': 'nosniff',
+      ...(ext === '.mp4' || ext === '.webm' ? { 'accept-ranges': 'bytes' } : {})
     }, body, ext, ext === '.html' ? null : `${file}:${st.mtimeMs}`);
   }));
 }
@@ -294,12 +320,24 @@ const server = http.createServer((req, res) => {
     if (req.method !== 'POST') return json(res, 405, { error: 'method_not_allowed' }, cors);
     return chat(req, res, cors);
   }
-  if (url.pathname === '/healthz') return json(res, 200, { ok: true, ai: !!client });
+  if (url.pathname === '/healthz') return json(res, 200, { ok: true, ai: !!client, launches: launches ? launches.summary().ready : false });
+  if (url.pathname === '/api/launches') {
+    if (!launches) return json(res, 503, { error: 'off' });
+    return json(res, 200, launches.summary(), { 'cache-control': 'public, max-age=60', 'access-control-allow-origin': '*' });
+  }
   if (req.method !== 'GET' && req.method !== 'HEAD') return send(res, 405, 'text/plain; charset=utf-8', 'Method not allowed');
   return serveFile(req, res);
 });
 
+// Launches made with UnyHooks, read from the chain (server/launch-index.js).
+// UNYHOOKS_INDEX=off turns it off.
+let launches = null;
+
 if (require.main === module) {
+  if (process.env.UNYHOOKS_INDEX !== 'off') {
+    launches = createIndex({ log: (m) => console.log(m) });
+    launches.start();
+  }
   server.listen(PORT, () => console.log(`UnyHooks on :${PORT} (AI chat ${client ? `on, ${MODEL}` : 'off: set ANTHROPIC_API_KEY'})`));
 }
 

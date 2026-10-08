@@ -1,0 +1,26 @@
+/* UnyHooks — check.html, the token safety check. Builds on hook.css. */
+
+.ck-lead { max-width: 640px; color: var(--prose); font-size: 16px; line-height: 1.6; }
+.ck-form { display: flex; gap: 8px; margin-top: 6px; }
+.ck-form input { flex: 1; min-width: 0; height: 48px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--line-hi); background: #070B14; color: var(--ink); font: 500 14px var(--font-mono); }
+.ck-form input:focus { outline: none; border-color: var(--pink-line); }
+@media (max-width: 520px) { .ck-form { flex-direction: column; } .ck-form .uh-btn { width: 100%; } }
+
+.ck-verdict { grid-template-columns: auto 1fr; align-items: center; gap: 6px 16px; }
+.ck-verdict .ck-badge { grid-row: span 2; width: 52px; height: 52px; border-radius: 14px; display: grid; place-items: center; font: 700 22px var(--font-body); color: #0A0E14; }
+.ck-verdict h2 { font: 600 24px/1.2 var(--font-display); letter-spacing: -.01em; }
+.ck-verdict p { color: var(--prose); }
+.ck-verdict.is-ok .ck-badge { background: var(--ok); }
+.ck-verdict.is-warn .ck-badge { background: #D98A00; }
+.ck-verdict.is-bad .ck-badge { background: #E2614B; }
+
+.hk-check.is-bad { border-color: rgba(226, 97, 75, .45); background: rgba(226, 97, 75, .08); }
+.hk-check.is-bad .hk-dot { background: #E2614B; }
+.hk-check.is-bad .hk-dot::before { content: '×'; }
+
+.ck-pool { display: grid; gap: 6px; padding: 14px 0; border-top: 1px solid var(--line); }
+.ck-pool:first-child { border-top: 0; padding-top: 0; }
+.ck-pool-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; }
+.ck-pool-head b { font-size: 16px; }
+.ck-pool ul { margin: 0; padding-left: 18px; color: var(--prose); font-size: 14px; line-height: 1.6; }
+.ck-pool a { color: var(--pink); text-decoration: underline; text-underline-offset: 2px; }

@@ -16,6 +16,8 @@ build.html   the builder: chat, settings, the contract and its Foundry script, a
 launch.html  launch a token in one signature: token, protected pool, liquidity and a lock
 hook.html    a hook's public page (hook.html?a=0x…, or /h/0x… with server.js): what it does,
              published source, token check, locked liquidity, live price, buy and share
+check.html   safety check for any token, hook or pool ID: owner, upgradeable proxy, rule-changing
+             functions, published source, its V4 pools and hooks, locked liquidity, one verdict
 hooks.html   My hooks: hooks and pools from this browser, live price and liquidity, published
              source, follow a hook by address, add a pool by ID, create pools, add liquidity,
              lock positions, collect locked fees, take positions back after the date
@@ -49,7 +51,9 @@ signin.js    sign-in message (EIP-4361) for app.html
 styles.css / build.css / docs.css / app.css / hooks.css / launch.css / hook.css
              design system and per-page layout
 
-server.js    serves the site, POST /api/chat (Claude), absolute og:image URLs, /healthz
+server.js    serves the site, POST /api/chat (Claude), GET /api/launches, absolute og:image
+             URLs, /healthz
+server/launch-index.js   the launches made with UnyHooks, indexed from the chain (below)
 og.png       the 1200×630 link-preview image
 media/       videos for posting: unyhooks-launch.mp4 (1080p, 31 s), unyhooks-launch-vertical.mp4
              (1080×1920), unyhooks-checks.mp4 (1080×1080, 16 s), unyhooks-launch.gif,
@@ -78,7 +82,12 @@ the AI chat, which quietly falls back to the built-in reader. Wallets need http(
 ### Deploying on Railway
 
 Point a service at this folder (`unyhooks-site/`). Railway runs `npm start` and sets `PORT`.
-Add `ANTHROPIC_API_KEY` as a variable to turn the AI chat on. `/healthz` reports whether it is on.
+Add `ANTHROPIC_API_KEY` as a variable to turn the AI chat on. `/healthz` reports whether it is on
+(`ai`) and whether the launch index has read the chain (`launches`).
+
+Optional variables: `UNYHOOKS_MODEL` (default `claude-opus-5-5`), `UNYHOOKS_DATA_DIR` (where the
+launch index keeps its state; defaults to the service's Railway volume when it has one),
+`UNYHOOKS_INDEX=off` (no launch index), `UNYHOOKS_START_BLOCK` (where the index starts reading).
 
 ## The builder
 
@@ -165,6 +174,21 @@ In `config.js`, each checked against the chain itself:
 
 The Uniswap app links use `chain=robinhood` and `NATIVE` for ETH, read from the app's own chain
 list and link builder.
+
+The public RPC is not an archive node and limits log queries: with a contract address, 10 million
+blocks and 10,000 logs per query; without one, 30,000 blocks. So every lookup in the pages names a
+contract (`chain.js` `allLogs` refuses one that doesn't and halves a slice that holds too many
+logs): a pool's locks come from the PoolManager's `ModifyLiquidity` events (the PositionManager
+uses the token ID as the salt), and a launch from its pool's `Initialize` event and that
+transaction's receipt. Reads go out four at a time and are retried, because the RPC turns away
+bursts without CORS headers.
+
+The only query without an address is the server's launch index (`server/launch-index.js`): every
+launch emits `Launched` from its own fresh launcher, so it walks the chain in 30,000-block windows
+from the block the launch kit went live (80,300,000, 5 Oct 2026), then keeps up every 3 minutes.
+A launch counts only when its token's code hash is UnyToken's (and its lock's, LiquidityLock's).
+The landing's "Live on Robinhood Chain" reads it from `/api/launches`; on a static host the section
+stays hidden.
 
 ## Checks
 
@@ -258,10 +282,14 @@ for the closing call. Scrolling blends between them; `[data-label3d]` labels are
 points in the scene. The product sections (simulation, hooks, limits, $UHOOKS, FAQ) are solid
 and cover the sea while you read them, and the scene stops drawing. Phones get a lighter
 version (no mirror, bloom or cube map) and their own framing; a slow GPU drops to that on its
-own. The page first shows a still of the opening shot (`hero.jpg`, `hero-m.jpg` on phones);
+own. Low-end phones (2 GB of memory or 4 cores or fewer) and browsers without WebGL or a GPU get
+a looping video of the opening shot instead (`media/sea-portrait` / `sea-landscape`, `.mp4` and
+`.webm`, rendered from the scene itself by `scripts/media/render-sea.js`); so does a device where
+even the lightest version runs under about 22 fps. The page first shows a still of the opening
+shot (`hero.jpg`, `hero-m.jpg` on phones);
 the scene starts once the page has loaded, compiles its shaders before its first frame, and
 brings in the mirror, the bloom and the live chrome one at a time, so entering never freezes.
-The chop map is drawn on the GPU. Without WebGL, on a software renderer or with data saver,
+The chop map is drawn on the GPU. With data saver or reduced motion,
 the still stays. The $UHOOKS coin is a second, small scene.
 
 Type: **Source Serif 4** for headlines and text, **Geist** for the wordmark, **Geist Mono** for

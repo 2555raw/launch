@@ -23,16 +23,22 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400&family=Geist:wght@500;600;700&family=Geist+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="styles.css">
   <script>
-    // Decide before the first paint whether the hero will be 3D, so the 2D
-    // drawing never flashes up first. Skipped when saving data or on 2G.
+    // Decide before the first paint how the sea is shown: the live 3D scene,
+    // a looping video of it (low-end phones, no WebGL), or a still (data
+    // saver, 2G, reduced motion).
     (function () {
-      var c = navigator.connection || {};
+      var root = document.documentElement, c = navigator.connection || {};
       if (c.saveData || /(^|-)2g$/.test(c.effectiveType || '')) return;
-      if (!('WebGLRenderingContext' in window)) return;
-      document.documentElement.classList.add('uh-3d-on');
+      var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var phone = window.matchMedia('(max-width: 760px)').matches;
+      var weak = (navigator.deviceMemory && navigator.deviceMemory <= 2) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4);
+      if (!('WebGLRenderingContext' in window) || (phone && weak)) { if (!still) root.classList.add('uh-video'); return; }
+      root.classList.add('uh-3d-on');
+      var l = document.createElement('link');
+      l.rel = 'modulepreload'; l.href = 'scene3d.js';
+      document.head.appendChild(l);
     })();
   </script>
-  <link rel="modulepreload" href="scene3d.js">
   <link rel="preload" as="image" href="hero.jpg" media="(min-aspect-ratio: 1/1)">
   <link rel="preload" as="image" href="hero-m.jpg" media="(max-aspect-ratio: 1/1)">
 </head>
@@ -63,6 +69,7 @@
        [data-shot] chapter below is a camera shot of it. -->
   <div class="uh-stage" aria-hidden="true">
     <div class="uh-stage-still"></div>
+    <video class="uh-stage-video" muted loop playsinline preload="none" disableremoteplayback></video>
     <canvas class="uh-stage-3d" data-scene="story"></canvas>
     <div class="uh-stage-shade"></div>
   </div>
@@ -79,6 +86,7 @@
         <a data-scroll="limits" href="#limits">Limits</a>
         <a data-scroll="token" href="#token" class="uh-link-token">$UHOOKS</a>
         <a data-scroll="faq" href="#faq">FAQ</a>
+        <a href="check.html">Check a token</a>
         <a data-link="app" href="#">Builder</a>
         <a data-link="docs" href="#">Docs</a>
       </div>
@@ -144,6 +152,21 @@
 
     <div class="uh-fade uh-fade-in" aria-hidden="true"></div>
     <div class="uh-ticker" aria-label="Example rules"><div class="uh-ticker-track" id="ticker"></div></div>
+
+    <section class="uh-sec uh-solid uh-live" id="live" hidden>
+      <div class="uh-wrap">
+        <h2 class="uh-h2">Live on Robinhood Chain</h2>
+        <p class="uh-sub">Read from the chain every few minutes. A launch only counts once its token is checked, byte for byte, against the UnyHooks token.</p>
+        <dl class="uh-stats uh-live-stats" id="lv-stats" hidden>
+          <div><dt>Tokens launched</dt><dd id="lv-launches">0</dd></div>
+          <div><dt>ETH paired at launch</dt><dd id="lv-eth">0</dd></div>
+          <div><dt>Launched with a lock</dt><dd id="lv-locked">0</dd></div>
+          <div><dt>Swaps through their hooks</dt><dd id="lv-swaps">0</dd></div>
+        </dl>
+        <div class="uh-live-list" id="lv-list"></div>
+        <p class="uh-live-foot"><a href="check.html">Check any token on Robinhood Chain</a><span id="lv-time"></span></p>
+      </div>
+    </section>
 
     <section class="uh-sec uh-solid" id="react">
       <div class="uh-wrap">
@@ -229,6 +252,16 @@
           <article class="uh-limit uh-rise"><span>01</span><h3>Pull the locked liquidity</h3><p>The lock has no early exit. The position comes back only after the date.</p></article>
           <article class="uh-limit uh-rise"><span>02</span><h3>Mint more tokens</h3><p>The token has no owner and no mint function. The supply is what it was at launch.</p></article>
           <article class="uh-limit uh-rise"><span>03</span><h3>Block sells</h3><p>Launch protection only limits buys, and only for its stated window.</p></article>
+        </div>
+
+        <div class="uh-proof uh-rise">
+          <h3 class="uh-subhead">Check it yourself</h3>
+          <ul>
+            <li><b>Published source.</b> Every token, hook and lock is sent to <a href="https://sourcify.dev" target="_blank" rel="noopener">Sourcify</a> as it is deployed, so anyone can read the exact code that runs.</li>
+            <li><b>Byte-for-byte checks.</b> Each token page and the <a href="check.html">safety check</a> compare the token's and the lock's code with UnyHooks' own, so a copycat can't pass for one.</li>
+            <li><b>Open code.</b> The site and the contracts it deploys are <a data-link="source" href="#" target="_blank" rel="noopener">on GitHub</a>.</li>
+            <li><b>Not audited yet.</b> No outside firm has reviewed these contracts. Until one does, read the code or start small.</li>
+          </ul>
         </div>
       </div>
     </section>
@@ -369,7 +402,9 @@
     <div class="uh-foot-links">
       <a data-link="docs" href="#">Docs</a>
       <a href="launch.html">Launch a token</a>
+      <a href="check.html">Check a token</a>
       <a data-link="app" href="#" data-host>Builder</a>
+      <a data-link="source" href="#" target="_blank" rel="noopener">Source</a>
       <a data-link="x" href="#" target="_blank" rel="noopener"><svg width="14" height="14" aria-hidden="true"><use href="#uh-x"/></svg><span data-handle>@UnyHooks</span></a>
     </div>
   </footer>
@@ -381,16 +416,28 @@
 <script src="token.js"></script>
 <script src="landing.js"></script>
 <script>
-  // The 3D scenes start loading as soon as the page is parsed (the bundle was
-  // preloaded from the head). If it never runs, the 2D hero drawing comes back.
+  // The 3D scene starts loading as soon as the page is parsed (the bundle was
+  // preloaded from the head). The video takes over when the device was judged
+  // too weak for it, or when the 3D can't run (no GPU, too slow, failed).
   (function () {
     var root = document.documentElement;
+    var video = function () {
+      var v = document.querySelector('.uh-stage-video');
+      if (!v || v.getAttribute('src') || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      root.classList.add('uh-video');
+      var ext = v.canPlayType('video/mp4; codecs="avc1.42E01E"') ? 'mp4' : 'webm';
+      v.src = 'media/sea-' + (window.matchMedia('(max-aspect-ratio: 1/1)').matches ? 'portrait' : 'landscape') + '.' + ext;
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    };
+    window.addEventListener('uh-3d-off', video);
+    if (root.classList.contains('uh-video')) { video(); return; }
     if (!root.classList.contains('uh-3d-on')) return;
     var s = document.createElement('script');
     s.type = 'module'; s.src = 'scene3d.js';
-    s.onerror = function () { root.classList.remove('uh-3d-on'); };
+    s.onerror = function () { root.classList.remove('uh-3d-on'); video(); };
     document.body.appendChild(s);
-    setTimeout(function () { if (!window.__uh3d) root.classList.remove('uh-3d-on'); }, 12000);
+    setTimeout(function () { if (!window.__uh3d) { root.classList.remove('uh-3d-on'); video(); } }, 12000);
   })();
 </script>
 </body>

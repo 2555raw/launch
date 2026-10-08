@@ -496,6 +496,34 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 .uh-foot-links a { display: inline-flex; align-items: center; gap: 6px; color: var(--prose); }
 .uh-foot-links a:hover { color: var(--pink-hi); }
 
+/* ---------- check it yourself ---------- */
+
+.uh-proof { margin-top: 56px; }
+.uh-proof .uh-subhead { margin-top: 0; }
+.uh-proof ul { display: grid; gap: 12px; margin: 18px 0 0; padding: 0; list-style: none; }
+@media (min-width: 900px) { .uh-proof ul { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.uh-proof li { padding: 18px 20px; border-radius: 14px; border: 1px solid var(--line); background: var(--card-2); font: 15.5px/1.6 var(--font-prose); color: var(--prose); }
+.uh-proof li b { display: block; margin-bottom: 4px; font: 600 16px var(--font-display); color: var(--ink); }
+.uh-proof a { color: var(--pink); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ---------- live launches ---------- */
+
+.uh-live-stats { margin-top: 40px; }
+.uh-live-list { display: grid; gap: 12px; margin-top: 16px; }
+@media (min-width: 720px) { .uh-live-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1060px) { .uh-live-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.uh-live-item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 16px 18px; border-radius: 14px; background: var(--card-2); border: 1px solid var(--line); transition: border-color .15s ease; }
+.uh-live-item:hover { border-color: var(--pink-line); }
+.uh-live-item b { font: 600 18px var(--font-display); color: var(--ink); }
+.uh-live-item small { justify-self: end; align-self: center; color: var(--muted); font-size: 12.5px; }
+.uh-live-name { grid-column: 1 / -1; color: var(--prose); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.uh-live-meta { grid-column: 1 / -1; font: 500 12.5px var(--font-mono); color: var(--prose); }
+.uh-live-meta .is-locked { color: var(--ok, #5FD3A6); }
+.uh-live-meta .is-open { color: var(--muted); }
+.uh-live-empty { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; padding: 22px 24px; border-radius: 14px; border: 1px dashed var(--line-hi); color: var(--prose); }
+.uh-live-foot { margin-top: 18px; font-size: 14px; color: var(--muted); }
+.uh-live-foot a { color: var(--pink); text-decoration: underline; text-underline-offset: 3px; }
+
 /* ---------- 3D (scene3d.js) ---------- */
 
 .uh-3d { position: absolute; display: block; pointer-events: none; opacity: 0; transition: opacity 1.2s ease; }
@@ -512,6 +540,10 @@ html.is-3d .uh-stage-3d { opacity: 1; }
    and kept for good without WebGL */
 .uh-stage-still { position: absolute; inset: 0; background: #070B14 url(hero.jpg) center / cover no-repeat; }
 @media (max-aspect-ratio: 1/1) { .uh-stage-still { background-image: url(hero-m.jpg); } }
+/* the looping video of the same shot, for devices the live scene would choke */
+.uh-stage-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 1s ease; }
+html.uh-video .uh-stage-video { opacity: 1; }
+html.uh-video .uh-stage-3d { display: none; }
 .uh-stage-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7, 11, 20, .72) 0%, rgba(7, 11, 20, .4) 34%, rgba(7, 11, 20, 0) 58%); }
 @media (max-width: 899px) { .uh-stage-shade { background: linear-gradient(180deg, rgba(7, 11, 20, 0) 30%, rgba(7, 11, 20, .55) 58%, rgba(7, 11, 20, .85) 100%); } }
 main, .uh-foot { position: relative; z-index: 1; }

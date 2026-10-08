@@ -347,6 +347,14 @@
             <li>The trade is dry-run before your wallet is asked to sign it.</li>
             <li>Buying is one transaction. The first sale also asks for two approvals (the token to Permit2, then Permit2 to the router), as on Uniswap's own app; later sales are one transaction.</li>
           </ul>
+          <h2 id="public-page-check">Checking any token</h2>
+          <p><a href="check.html">check.html</a> checks any token on Robinhood Chain, made with UnyHooks or not. Paste a token, a hook or a pool ID; a hook opens its public page. For a token it reads:</p>
+          <ul>
+            <li>whether it is an UnyHooks token, by its code hash; otherwise its owner, whether it is an upgradeable proxy (EIP-1967), and whether its code has functions to mint, pause, block wallets, change fees, cap transactions or switch trading;</li>
+            <li>whether its source is published on Sourcify;</li>
+            <li>its Uniswap V4 pools, the hook on each and what that hook does, and how much of the liquidity sits in genuine locks.</li>
+          </ul>
+          <p>It ends with one verdict: looks clean, be careful, or high risk. A clean result is not a guarantee, and pools on Uniswap V2 or V3 are not checked.</p>
         </article>
 
         <!-- ===== Recipes ===== -->

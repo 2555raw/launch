@@ -6,6 +6,9 @@
      is a simulation of what the deployed contracts do, not a live pool.
    - the line down the left edge: a dot per section, a gold fill and the hook
      following the scroll
+   - "Live on Robinhood Chain": the launches made with UnyHooks, from the
+     server's index of the chain (/api/launches, server/launch-index.js). On a
+     host without that server the section stays hidden.
 
    With prefers-reduced-motion the hook stays put and nothing animates. */
 
@@ -14,6 +17,45 @@
 
   const $ = (sel) => document.querySelector(sel);
   const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- live launches ---------- */
+
+  const live = $('#live');
+  if (live && window.fetch) {
+    const esc = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const num = (n, d = 0) => Number(n).toLocaleString('en-US', { maximumFractionDigits: d });
+    const ago = (t) => {
+      const s = Math.max(0, Date.now() / 1000 - t);
+      return s < 3600 ? `${Math.max(1, Math.round(s / 60))} min ago` : s < 86400 ? `${Math.round(s / 3600)} h ago` : `${Math.round(s / 86400)} d ago`;
+    };
+    const date = (t) => new Date(t * 1000).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    const lockText = (x) => (!x.lock ? 'No lock' : x.forever ? 'Locked forever' : `Locked until ${date(Number(x.unlockAt))}`);
+    const page = (hook) => `hook.html?a=${encodeURIComponent(hook)}`;
+    fetch('/api/launches', { headers: { accept: 'application/json' } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!d || !d.ready) return;
+        const S = d.stats;
+        if (S.launches > 0) {
+          $('#lv-launches').textContent = num(S.launches);
+          $('#lv-eth').textContent = `${num(S.ethPaired, 3)} ETH`;
+          $('#lv-locked').textContent = `${num(S.locked)} of ${num(S.launches)}`;
+          $('#lv-swaps').textContent = num(S.swaps);
+          $('#lv-stats').hidden = false;
+          $('#lv-list').innerHTML = d.latest.map((x) => `
+            <a class="uh-live-item" href="${esc(page(x.hook))}">
+              <b>$${esc(x.symbol)}</b><span class="uh-live-name">${esc(x.name || '')}</span>
+              <span class="uh-live-meta">${esc(num(x.eth, 3))} ETH · <span class="${x.lock ? 'is-locked' : 'is-open'}">${esc(lockText(x))}</span></span>
+              <small>${x.time ? esc(ago(x.time)) : ''}</small>
+            </a>`).join('');
+        } else {
+          $('#lv-list').innerHTML = '<div class="uh-live-empty"><p>No launches yet. The first one shows up here a few minutes after it happens.</p><a class="uh-btn uh-btn-pink uh-btn-sm" href="launch.html">Launch a token</a></div>';
+        }
+        if (d.updatedAt) $('#lv-time').textContent = ` · updated ${ago(Date.parse(d.updatedAt) / 1000)}`;
+        live.hidden = false;
+      })
+      .catch(() => {});
+  }
 
   /* ---------- the rules ticker ---------- */
 
@@ -200,6 +242,8 @@
       const y = still ? 0 : at(window.scrollY);
       rail.style.setProperty('--rail-y', `${y.toFixed(1)}px`);
       sections.forEach((s, i) => {
+        dots[i].hidden = s.hidden;
+        if (s.hidden) return;
         const top = s.getBoundingClientRect().top + window.scrollY;
         const dy = at(top - window.innerHeight * 0.4);
         dots[i].style.top = `${dy + 4}px`;

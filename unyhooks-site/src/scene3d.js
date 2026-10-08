@@ -898,7 +898,8 @@ const ease = (t) => t * t * (3 - 2 * t);
 
 function storyScene(canvas) {
   const renderer = makeRenderer(canvas, false, 1.5);
-  let hq = !small;
+  // ?hq=1 keeps the full treatment on a narrow screen (rendering the video)
+  let hq = !small || /[?&]hq=1/.test(location.search);
   const dbg = new URLSearchParams(location.search).get('dbg') || '';
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 2000);
@@ -1008,7 +1009,7 @@ function storyScene(canvas) {
   const u = water.material.uniforms;
   let flow = 0, last = 0, frame = 0, lastW = 0, lastH = 0;
   // 2: everything, 1: no bloom and a lower resolution, 0: no mirror or live chrome
-  let level = hq ? 2 : 0, settled = false, stage = 0, cubeFrame = 0, measured = 0;
+  let level = hq ? 2 : 0, settled = false, stage = 0, cubeFrame = 0, measured = 0, slowCount = 0, gaveUp = false;
   const times = [];
   let smoothX = null;
 
@@ -1115,6 +1116,16 @@ function storyScene(canvas) {
     frame++;
     // A slow GPU steps down rather than stutter: first the bloom and part of
     // the resolution, then the mirror and the live chrome.
+    if (!hq && !gaveUp && !still && ++slowCount > 30) {
+      // the lightest version: if even this can't keep up, the video takes over
+      times.push(dt * 1000);
+      if (times.length === 40) {
+        times.sort((p, q) => p - q);
+        if (times[20] > 45) { gaveUp = true; visible = 0; no3d(); }
+        times.length = 0;
+        slowCount = -1e9;
+      }
+    }
     if (stage >= 3 && ++measured > 20 && level > 0 && !settled && !still) {
       times.push(dt * 1000);
       if (times.length === 40) {
@@ -1139,12 +1150,12 @@ function storyScene(canvas) {
   const tick = (now) => {
     raf = 0;
     draw((now - t0) / 1000);
-    if (visible > 0 && !still) raf = requestAnimationFrame(tick);
+    if (visible > 0 && !still && !gaveUp) raf = requestAnimationFrame(tick);
   };
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => { e.target._on = e.isIntersecting; });
     visible = chapters.filter((c) => c._on).length;
-    if (ready && visible > 0 && !raf) raf = requestAnimationFrame(tick);
+    if (ready && visible > 0 && !raf && !gaveUp) raf = requestAnimationFrame(tick);
     if (!visible) labels.forEach((el) => { el.style.opacity = '0'; });
   });
   chapters.forEach((c) => io.observe(c));
@@ -1173,9 +1184,24 @@ function storyScene(canvas) {
   const go = () => {
     ready = true;
     t0 = performance.now();
+    if (rendering) return;
     if (!raf) raf = requestAnimationFrame(tick);
     extras().catch(() => { stage = 3; });
   };
+  // ?render=1: no loop; scripts/media/render-sea.js asks for each frame at a
+  // fixed time step and records the still frames into the fallback video.
+  const rendering = /[?&]render=1/.test(location.search);
+  if (rendering) {
+    window.__uhFrame = (t) => { draw(t); return true; };
+    window.__uhReady = (async () => {
+      if (hq && renderer.compileAsync) {
+        renderer.clippingPlanes = mir.clip;
+        try { await renderer.compileAsync(scene, camera); } finally { renderer.clippingPlanes = []; }
+      }
+      stage = 3; settled = true;
+      return true;
+    })();
+  }
   fit(renderer, camera, canvas);
   if (renderer.compileAsync) renderer.compileAsync(scene, camera).then(go, go); else go();
 }
@@ -1242,7 +1268,10 @@ const start = (canvas) => {
 
 // The page hides the still of the sea from the first paint when it expects 3D
 // (html.uh-3d-on); without WebGL, or if the story scene fails, it comes back.
-function no3d() { document.documentElement.classList.remove('uh-3d-on'); }
+function no3d() {
+  document.documentElement.classList.remove('uh-3d-on', 'is-3d');
+  window.dispatchEvent(new Event('uh-3d-off'));
+}
 window.__uh3d = true;
 
 if (!webgl()) no3d();

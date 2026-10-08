@@ -10,7 +10,7 @@ const res = []; const ok = (n, c, x = '') => res.push(`${c ? 'PASS' : 'FAIL'}  $
   // Only the site itself: fonts and CDNs are not needed here, and without a
   // network they can hang and keep the page from ever going idle.
   await ctx.route((u) => !u.href.startsWith(B), (r) => r.abort());
-  const errs = []; const watch = p => { p.on('pageerror', e => errs.push(e.message)); p.on('response', r => { if (r.url().startsWith(B) && r.status() >= 400 && !r.url().endsWith('/api/chat')) errs.push('404 ' + r.url()); }); };
+  const errs = []; const watch = p => { p.on('pageerror', e => errs.push(e.message)); p.on('response', r => { if (r.url().startsWith(B) && r.status() >= 400 && !/\/api\/(chat|launches)$/.test(r.url())) errs.push('404 ' + r.url()); }); };
   let p = await ctx.newPage(); watch(p); await p.setViewportSize({ width: 1440, height: 900 });
 
   // landing hand-off

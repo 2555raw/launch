@@ -11,6 +11,8 @@ window.UNYHOOKS = {
   DOCS_URL: 'docs.html',
   SITE_URL: 'index.html',
   X_HANDLE: 'UnyHooks',       // without the @
+  // The site's and the contracts' source: the branch the live site is deployed from.
+  SOURCE_URL: 'https://github.com/2555raw/launch/tree/claude/practical-thompson-2y8mnc/unyhooks-site',
 
   CONTRACT: '',               // the $UHOOKS address on Robinhood Chain
   BUY_URL:  '',               // where "Buy $UHOOKS" goes; empty uses the DexScreener pair page

@@ -39,6 +39,7 @@
   const PM_ABI = [
     'function initialize((address currency0, address currency1, uint24 fee, int24 tickSpacing, address hooks) key, uint160 sqrtPriceX96) returns (int24 tick)',
     'event Initialize(bytes32 indexed id, address indexed currency0, address indexed currency1, uint24 fee, int24 tickSpacing, address hooks, uint160 sqrtPriceX96, int24 tick)',
+    'event ModifyLiquidity(bytes32 indexed id, address indexed sender, int24 tickLower, int24 tickUpper, int256 liquidityDelta, bytes32 salt)',
     'error PoolAlreadyInitialized()',
     'error PoolNotInitialized()',
     'error CurrenciesOutOfOrderOrEqual(address currency0, address currency1)',
@@ -78,9 +79,31 @@
   /* ---------- reading the chain ---------- */
 
   let publicReader = null;
+  // The public RPC turns away bursts, and its refusals carry no CORS headers,
+  // so the browser only sees a failed request. Reads go out a few at a time,
+  // and one that fails in transit is tried again after a short wait.
+  class PoliteProvider extends ethers.JsonRpcProvider {
+    constructor(...args) { super(...args); this.active = 0; this.waiting = []; }
+    async _send(payload) {
+      while (this.active >= 4) await new Promise((r) => this.waiting.push(r));
+      this.active++;
+      try {
+        for (let i = 0; ; i++) {
+          try { return await super._send(payload); } catch (err) {
+            if (i >= 4) throw err;
+            await new Promise((r) => setTimeout(r, 250 * 2 ** i + Math.random() * 250));
+          }
+        }
+      } finally {
+        this.active--;
+        const next = this.waiting.shift();
+        if (next) next();
+      }
+    }
+  }
   const reader = () => session.browser
     || publicReader
-    || (publicReader = new ethers.JsonRpcProvider(NET.rpcUrl, Number(NET.chainId), { staticNetwork: true }));
+    || (publicReader = new PoliteProvider(NET.rpcUrl, Number(NET.chainId), { staticNetwork: true }));
 
   const tokenCache = new Map();
   // { address, symbol, decimals }. ETH is the zero address. decimals() is required, symbol() is not.
@@ -113,15 +136,27 @@
     return { id, sqrtPriceX96: slot.sqrtPriceX96, tick: Number(slot.tick), lpFee: Number(slot.lpFee), liquidity };
   };
 
-  // Logs over the whole chain. The public RPC answers at most 10 million blocks
-  // per query, so it asks in slices.
+  // Logs over the whole chain. Robinhood Chain's public RPC only answers
+  // queries filtered by contract address, over at most 10 million blocks and
+  // 10,000 logs each, so every caller names a contract and this asks in
+  // slices, halving any slice that holds too many logs.
   const allLogs = async (filter) => {
+    if (!filter.address) throw new Error('allLogs needs a contract address');
     const p = reader();
     const latest = await p.getBlockNumber();
     const span = 10_000_000;
+    const slice = async (fromBlock, toBlock) => {
+      try {
+        return await p.getLogs({ ...filter, fromBlock, toBlock });
+      } catch (err) {
+        if (toBlock - fromBlock < 1000 || !/exceeds|too many|limit/i.test(String(err && (err.message || err.shortMessage)))) throw err;
+        const mid = Math.floor((fromBlock + toBlock) / 2);
+        return [...await slice(fromBlock, mid), ...await slice(mid + 1, toBlock)];
+      }
+    };
     const slices = [];
     for (let to = latest; to > 0; to -= span) slices.push([Math.max(0, to - span + 1), to]);
-    const logs = (await Promise.all(slices.map(([fromBlock, toBlock]) => p.getLogs({ ...filter, fromBlock, toBlock })))).flat();
+    const logs = (await Promise.all(slices.map(([fromBlock, toBlock]) => slice(fromBlock, toBlock)))).flat();
     return logs.sort((x, y) => x.blockNumber - y.blockNumber || x.index - y.index);
   };
 
@@ -163,37 +198,50 @@
     return { address: ethers.getAddress(address), owner, unlockAt, genuine, forever: unlockAt === (kit().MAX_UINT256 || -1n) };
   };
 
-  // Positions of a pool held by genuine locks: Locked events give candidates,
-  // the PositionManager's ownerOf and the lock's code confirm them.
+  // Positions of a pool held by genuine locks. The PoolManager logs every
+  // position change with the PositionManager's token ID as its salt, so the
+  // pool's own ModifyLiquidity events list its positions; ownerOf and the
+  // owner's code say which ones sit in a lock.
   const locksForPool = async (poolIdHex) => {
-    const iface = new ethers.Interface(LOCK_ABI);
-    const logs = await allLogs({ topics: [iface.getEvent('Locked').topicHash, poolIdHex] });
-    const seen = new Map();
-    for (const l of logs) {
-      const ev = iface.parseLog(l);
-      seen.set(`${l.address.toLowerCase()}:${ev.args.tokenId}`, { lock: ethers.getAddress(l.address), tokenId: ev.args.tokenId });
-    }
+    const pm = new ethers.Interface(PM_ABI);
+    const logs = await allLogs({ address: NET.poolManager, topics: [pm.getEvent('ModifyLiquidity').topicHash, poolIdHex, ethers.zeroPadValue(NET.positionManager, 32)] });
+    const ids = [...new Set(logs.map((l) => BigInt(pm.parseLog(l).args.salt)))];
     const posm = new ethers.Contract(NET.positionManager, POSITIONS_READ_ABI, reader());
+    const owners = new Map();
     const out = [];
-    for (const c of seen.values()) {
+    for (const tokenId of ids) {
       try {
-        if ((await posm.ownerOf(c.tokenId)) !== c.lock) continue;
-        const info = await lockInfo(c.lock);
-        if (!info.genuine) continue;
-        out.push({ ...info, tokenId: c.tokenId.toString(), liquidity: await posm.getPositionLiquidity(c.tokenId) });
-      } catch (_) { /* burned or not a lock */ }
+        const owner = await posm.ownerOf(tokenId);
+        if (!owners.has(owner)) owners.set(owner, await isGenuine('lock', owner));
+        if (!owners.get(owner)) continue;
+        const liquidity = await posm.getPositionLiquidity(tokenId);
+        if (liquidity === 0n) continue;
+        out.push({ ...await lockInfo(owner), tokenId: tokenId.toString(), liquidity });
+      } catch (_) { /* burned */ }
     }
     return out;
   };
 
-  // The Launched event for a hook, if it was launched with UnyLaunch.
-  const launchOf = async (hook) => {
+  // The Launched event for a hook, if it was launched with UnyLaunch. The
+  // launch's pool (ETH against the hook's token) is found through the
+  // PoolManager's Initialize event; the Launched event is in the same
+  // transaction's receipt.
+  const launchOf = async (hook, token) => {
     if (!kit().LAUNCHED) return null;
+    if (!token) token = await new ethers.Contract(hook, ['function token() view returns (address)'], reader()).token().catch(() => null);
+    if (!token) return null;
+    const pm = new ethers.Interface(PM_ABI);
     const iface = new ethers.Interface([kit().LAUNCHED]);
-    const logs = await allLogs({ topics: [iface.getEvent('Launched').topicHash, null, null, ethers.zeroPadValue(hook, 32)] });
-    if (!logs.length) return null;
-    const ev = iface.parseLog(logs[0]).args;
-    return { creator: ev.creator, token: ev.token, hook: ev.hook, poolId: ev.poolId, tokenId: ev.tokenId.toString(), lock: BigInt(ev.lock) === 0n ? null : ev.lock, tx: logs[0].transactionHash, launcher: logs[0].address, block: logs[0].blockNumber };
+    const topic = iface.getEvent('Launched').topicHash;
+    const inits = await allLogs({ address: NET.poolManager, topics: [pm.getEvent('Initialize').topicHash, null, ethers.ZeroHash, ethers.zeroPadValue(token, 32)] });
+    for (const init of inits) {
+      const receipt = await reader().getTransactionReceipt(init.transactionHash);
+      const log = receipt && receipt.logs.find((l) => l.topics[0] === topic && BigInt(l.topics[3]) === BigInt(hook));
+      if (!log) continue;
+      const ev = iface.parseLog(log).args;
+      return { creator: ev.creator, token: ev.token, hook: ev.hook, poolId: ev.poolId, tokenId: ev.tokenId.toString(), lock: BigInt(ev.lock) === 0n ? null : ev.lock, tx: log.transactionHash, launcher: log.address, block: log.blockNumber };
+    }
+    return null;
   };
 
   /* ---------- recognising a hook ---------- */

@@ -978,7 +978,10 @@ function storyScene(canvas) {
   const chapters = [...document.querySelectorAll('[data-shot]')];
   const labels = [...document.querySelectorAll('[data-label3d]')];
   const portrait = () => canvas.clientHeight > canvas.clientWidth * 1.05;
+  // ?cam=x,y,z,lx,ly,lz: a fixed camera, for rendering stills (brand images)
+  const camParam = (new URLSearchParams(location.search).get('cam') || '').split(',').map(Number);
   const shotFor = (name) => {
+    if (camParam.length === 6 && camParam.every(Number.isFinite)) return { pos: V3(camParam.slice(0, 3)), look: V3(camParam.slice(3)), dawn: 0 };
     const s = SHOTS[name] || SHOTS.hero;
     if (portrait() && s.portrait) return { pos: V3(s.portrait.pos), look: V3(s.portrait.look), dawn: s.dawn };
     const pos = V3(s.pos), look = V3(s.look);

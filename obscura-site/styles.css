@@ -590,7 +590,8 @@ input[type="file"]::file-selector-button { margin-right: 12px; padding: 8px 14px
 .foot-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 24px; }
 .foot-status { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--dim); }
 .foot-status .live { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
-.foot-cols { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 32px; }
+/* Community is wider: it holds the full email address */
+.foot-cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(max-content, 1.5fr) minmax(0, 1fr); gap: 32px; }
 .foot-h { font-size: 13px; font-weight: 560; color: var(--ink); margin-bottom: 12px; }
 .foot-cols a { display: flex; align-items: center; gap: 8px; width: fit-content; min-height: 40px; padding: 0; color: var(--dim); font-size: 15px; transition: color .2s; }
 .foot-cols a:hover { color: var(--ink); }
@@ -608,6 +609,8 @@ input[type="file"]::file-selector-button { margin-right: 12px; padding: 8px 14px
 @media (max-width: 640px) {
   .footer { margin-top: 88px; padding-top: 56px; }
   .foot-cols { grid-template-columns: 1fr 1fr; gap: 28px 24px; }
+  .foot-cols > .foot-community { grid-column: 1 / -1; order: 3; }
+  .foot-cols > div:last-child { order: 2; }
   .foot-mark, .foot-dots { margin-top: 40px; }
 }
 

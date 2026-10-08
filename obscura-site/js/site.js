@@ -176,6 +176,14 @@ if ("IntersectionObserver" in window) {
 }
 
 let toastTimer;
+// The contact address also lands on the clipboard: many browsers have no mail app set up.
+document.addEventListener("click", (e) => {
+  const a = e.target.closest?.('a[href^="mailto:"]');
+  if (!a) return;
+  const address = a.getAttribute("href").slice(7);
+  navigator.clipboard?.writeText(address).then(() => toast(`Copied ${address}`), () => {});
+});
+
 export function toast(text) {
   let el = document.querySelector(".toast");
   if (!el) {

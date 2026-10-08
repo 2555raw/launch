@@ -480,6 +480,10 @@ model Project {
   network       String
   totalSupply   String
   decimals      Int
+  /// revoke mint authority / disable minting after the initial supply is minted
+  fixedSupply   Boolean       @default(true)
+  /// Solana only: revoke the freeze authority at creation
+  revokeFreeze  Boolean       @default(true)
   status        ProjectStatus @default(DRAFT)
   failureReason String?
   metadataUri   String?

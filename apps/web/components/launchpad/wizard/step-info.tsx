@@ -87,6 +87,8 @@ export function StepInfo({
         chain,
         totalSupply: form.totalSupply,
         decimals: form.decimals,
+        fixedSupply,
+        revokeFreeze: chain === 'SOLANA' ? revokeFreeze : true,
       };
       if (project) return (await api<{ project: ProjectDTO }>(`/launchpad/projects/${project.id}`, { method: 'PATCH', json: body })).project;
       return (await api<{ project: ProjectDTO }>('/launchpad/projects', { method: 'POST', json: body })).project;

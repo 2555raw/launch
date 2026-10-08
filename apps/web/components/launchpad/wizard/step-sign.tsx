@@ -78,7 +78,7 @@ export function StepSign({ project, fixedSupply, revokeFreeze, prepared, onPrepa
   const current = prepared && prepared.project.id === project.id ? prepared : null;
   const explorerTx = (sig: string) => (sol ? solanaExplorerTxUrl(sig, SOLANA_NETWORK) : robinhoodExplorerTxUrl(sig, ROBINHOOD_CHAIN_NETWORK));
 
-  // Resume: the metadata URI is not part of the project DTO, so re-run prepare (idempotent) after a refresh.
+  // Resume after a refresh: the DTO now carries metadataUri, but re-running prepare (idempotent) also refreshes the linked-wallet list.
   useEffect(() => {
     if (current || preparing.current || project.status === 'PUBLISHED' || project.status === 'VERIFYING') return;
     preparing.current = true;

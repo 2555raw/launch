@@ -11,7 +11,7 @@ import { validateTokenInput } from '@launch/solana';
 import type { ProjectStatus } from '@launch/types';
 import { audit } from '../lib/audit.js';
 import { requireAuth } from '../lib/auth.js';
-import { networkFor } from '../lib/chains.js';
+import { explorerTx, networkFor } from '../lib/chains.js';
 import { HttpError, badRequest, notFound } from '../lib/errors.js';
 import { projectToDTO, slugify, verifyAndPublish } from '../services/launchpad.service.js';
 import { refreshTokenMetrics } from '../services/metrics.service.js';
@@ -28,6 +28,8 @@ const ProjectSchema = z.object({
   chain: z.enum(['SOLANA', 'ROBINHOOD']),
   totalSupply: z.string().regex(/^\d{1,30}$/, 'Whole number'),
   decimals: z.number().int().min(0).max(18),
+  fixedSupply: z.boolean().default(true),
+  revokeFreeze: z.boolean().default(true),
 });
 const SubmitSchema = z.object({ signature: z.string().min(10).max(140), address: z.string().min(10).max(64) });
 const ALLOWED_LOGO = new Map([
@@ -50,8 +52,9 @@ export async function registerLaunchpadRoutes(app: FastifyInstance, uploadsDir: 
   app.get('/launchpad/projects', async (request) => {
     const q = request.query as { sort?: string; chain?: string; q?: string; cursor?: string; limit?: string; status?: string };
     const take = Math.min(60, Math.max(1, Number(q.limit ?? 24)));
+    const mine = request.auth && q.status && q.status !== 'PUBLISHED';
     const where: Prisma.ProjectWhereInput = {
-      status: 'PUBLISHED',
+      ...(mine ? { status: q.status as 'DRAFT', creatorUserId: request.auth!.sub } : { status: 'PUBLISHED' }),
       ...(q.chain === 'SOLANA' || q.chain === 'ROBINHOOD' ? { chain: q.chain } : {}),
       ...(q.q ? { OR: [{ name: { contains: q.q, mode: 'insensitive' } }, { symbol: { contains: q.q, mode: 'insensitive' } }, { token: { address: { contains: q.q } } }] } : {}),
     };
@@ -83,7 +86,7 @@ export async function registerLaunchpadRoutes(app: FastifyInstance, uploadsDir: 
     if (!p) throw notFound('Project not found');
     if (p.status !== 'PUBLISHED' && p.creatorUserId !== request.auth?.sub && !['ADMIN', 'MODERATOR'].includes(request.auth?.role ?? '')) throw notFound('Project not found');
     const transactions = p.token ? await db.transaction.findMany({ where: { asset: p.token.address }, orderBy: { createdAt: 'desc' }, take: 20 }) : [];
-    return { project: await projectToDTO(app, p, true), transactions: transactions.map((t) => ({ id: t.id, kind: t.kind, signature: t.signature, status: t.status, fromAddress: t.fromAddress, toAddress: t.toAddress, amount: t.amount, confirmedAt: t.confirmedAt?.toISOString() ?? null, createdAt: t.createdAt.toISOString() })) };
+    return { project: await projectToDTO(app, p, true), transactions: transactions.map((t) => ({ id: t.id, kind: t.kind, chain: t.chain, network: t.network, signature: t.signature, status: t.status, fromAddress: t.fromAddress, toAddress: t.toAddress, amount: t.amount, explorerUrl: explorerTx(t.chain, t.network, t.signature), confirmedAt: t.confirmedAt?.toISOString() ?? null, createdAt: t.createdAt.toISOString() })) };
   });
 
   app.post('/launchpad/projects/:slug/refresh-metrics', { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } }, async (request) => {
@@ -202,7 +205,6 @@ export async function registerLaunchpadRoutes(app: FastifyInstance, uploadsDir: 
   app.get('/transactions', async (request) => {
     const auth = requireAuth(request);
     const rows = await db.transaction.findMany({ where: { userId: auth.sub }, orderBy: { createdAt: 'desc' }, take: 100 });
-    const { explorerTx } = await import('../lib/chains.js');
     return { items: rows.map((t) => ({ id: t.id, chain: t.chain, network: t.network, signature: t.signature, kind: t.kind, status: t.status, fromAddress: t.fromAddress, toAddress: t.toAddress, amount: t.amount, asset: t.asset, explorerUrl: explorerTx(t.chain, t.network, t.signature), confirmedAt: t.confirmedAt?.toISOString() ?? null, createdAt: t.createdAt.toISOString() })) };
   });
 }

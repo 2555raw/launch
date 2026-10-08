@@ -50,7 +50,11 @@ export async function projectToDTO(app: FastifyInstance, p: Project & { creator:
     network: p.network,
     totalSupply: p.totalSupply,
     decimals: p.decimals,
+    fixedSupply: p.fixedSupply,
+    revokeFreeze: p.revokeFreeze,
     status: p.status,
+    failureReason: p.failureReason,
+    metadataUri: p.metadataUri,
     creator: p.creator,
     token: p.token ? tokenToDTO(p.token, metrics) : null,
     createdAt: p.createdAt.toISOString(),
@@ -94,6 +98,7 @@ export async function verifyAndPublish(app: FastifyInstance, project: Project, u
       if (v.decimals !== project.decimals) throw new HttpError(400, 'DECIMALS_MISMATCH', `On-chain decimals ${v.decimals} differ from project ${project.decimals}`);
       if (v.supply !== expectedRaw) throw new HttpError(400, 'SUPPLY_MISMATCH', `On-chain supply ${v.supply} differs from project ${expectedRaw}`);
       if (v.symbol && v.symbol !== project.symbol) throw new HttpError(400, 'SYMBOL_MISMATCH', `On-chain symbol ${v.symbol} differs from project ${project.symbol}`);
+      if (project.fixedSupply && v.mintAuthority !== null) throw new HttpError(400, 'MINT_AUTHORITY_NOT_REVOKED', 'The project promises a fixed supply but the mint authority is still active');
       await db.$transaction(async (tx) => {
         await tx.token.create({
           data: { projectId: project.id, chain: 'SOLANA', network: env.SOLANA_NETWORK, address: v.mint, creatorWallet: v.feePayer, createTxSignature: v.signature, decimals: v.decimals, supply: v.supply.toString(), tokenProgram: v.tokenProgram, metadataUri: v.uri, mintAuthorityRevoked: v.mintAuthority === null, verifiedAt: new Date() },
@@ -115,6 +120,7 @@ export async function verifyAndPublish(app: FastifyInstance, project: Project, u
       if (v.decimals !== project.decimals) throw new HttpError(400, 'DECIMALS_MISMATCH', `On-chain decimals ${v.decimals} differ from project ${project.decimals}`);
       if (v.totalSupply !== expectedRaw) throw new HttpError(400, 'SUPPLY_MISMATCH', `On-chain supply ${v.totalSupply} differs from project ${expectedRaw}`);
       if (v.symbol !== project.symbol) throw new HttpError(400, 'SYMBOL_MISMATCH', `On-chain symbol ${v.symbol} differs from project ${project.symbol}`);
+      if (project.fixedSupply && v.mintingDisabled !== true) throw new HttpError(400, 'MINTING_NOT_DISABLED', 'The project promises a fixed supply but minting is still enabled on the contract');
       await db.$transaction(async (tx) => {
         await tx.token.create({
           data: { projectId: project.id, chain: 'ROBINHOOD', network: env.ROBINHOOD_CHAIN_NETWORK, address: v.address.toLowerCase(), creatorWallet: v.deployer.toLowerCase(), createTxSignature: v.txHash, decimals: v.decimals, supply: v.totalSupply.toString(), tokenProgram: 'ERC20', metadataUri: project.metadataUri, mintAuthorityRevoked: v.mintingDisabled === true, verifiedAt: new Date() },

@@ -243,7 +243,11 @@ export interface ProjectDTO {
   network: string;
   totalSupply: string;
   decimals: number;
+  fixedSupply: boolean;
+  revokeFreeze: boolean;
   status: ProjectStatus;
+  failureReason: string | null;
+  metadataUri: string | null;
   creator: { id: string; username: string };
   token: TokenDTO | null;
   createdAt: string;

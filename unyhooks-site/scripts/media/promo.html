@@ -1,0 +1,446 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>*{margin:0}body{background:#000;width:1440px;height:1080px;overflow:hidden}canvas{display:block}</style>
+</head><body>
+<canvas id="c" width="1440" height="1080"></canvas>
+<script>
+/* UnyHooks promo: a 20.5 s motion piece cut to a fixed soundtrack.
+   draw(t) paints the frame at time t (seconds); render-promo.js steps it
+   at 23.976 fps and muxes the frames with the audio. */
+const W = 1440, H = 1080;
+const C = document.getElementById('c');
+let X = C.getContext('2d');
+const NAVY = '#0B1222', NAVY_HI = '#1B2844', DEEP = '#04070E', SLATE = '#2E3A58';
+const GOLD = '#E8B04B', PALE = '#F7D78C', CREAM = '#F3EAD7', BRONZE = '#A86F18';
+const FONT = "'Geist', sans-serif";
+
+const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, u) => a + (b - a) * u;
+const eo = (u) => 1 - Math.pow(1 - clamp(u), 3);
+const ei = (u) => Math.pow(clamp(u), 3);
+const eio = (u) => { u = clamp(u); return u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2; };
+const prog = (lt, a, b) => clamp((lt - a) / (b - a));
+function rng(seed) { let s = seed >>> 0 || 1; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+const off = (w = W, h = H) => { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
+
+/* ---------- pixel icons ---------- */
+const PAL = { k: '#05080F', y: GOLD, Y: PALE, o: BRONZE, w: CREAM, s: '#9AA6BC', S: '#DCE3EE', b: '#3E64B8', B: '#7FA2EE',
+  p: '#8FA6D8', P: '#D2DDF5', q: '#4E5F92', G: '#5FD3A6', n: '#7A4E1E', r: '#F0715A' };
+const ICONS = {
+  coin: ['....kkkkkk....', '..kkYYYYYYkk..', '.kYYyyyyyyyok.', '.kYykkyykkyok.', 'kYyykyyyykyyok', 'kYyykyyyykyyok', 'kYyykyyyykyyok', 'kYyykyyyykyyok', 'kYyyykkkkyyyok', 'kYyyyyyyyyyook', '.kyyyyyyyyook.', '.kyoooooooook.', '..kkooooookk..', '....kkkkkk....'],
+  lock: ['...kkkkkk...', '..kSSSSSSk..', '.kSkkkkkkSk.', '.kSk....kSk.', '.ksk....ksk.', 'kkkkkkkkkkkk', 'kYyyyyyyyyok', 'kYyyykkyyyok', 'kYyyykkyyyok', 'kYyyyykyyyok', 'kYyyyyyyyyok', 'kyoooooooook', 'kkkkkkkkkkkk'],
+  shield: ['kkkkkkkkkkkk', 'kBBBBBBBBBbk', 'kBbbbbbbbwbk', 'kBbbbbbbwwbk', 'kBbbbbbwwbbk', 'kBwbbbwwbbbk', 'kBwwbwwbbbbk', 'kBbwwwbbbbbk', 'kBbbwbbbbbbk', '.kBbbbbbbbk.', '.kBbbbbbbbk.', '..kBbbbbbk..', '...kBbbbk...', '....kkkk....'],
+  hook: ['...kkkk...', '..kSssSk..', '..ks..sk..', '..kSssSk..', '...kSk....', '...kSk....', '...kSk....', '...kSk....', '...kSk....', '...kSk..k.', '...kSk.kSk', '...kSk.kSk', '...kSkkSsk', '...kSSSsk.', '....kssk..', '.....kk...'],
+  eth: ['....kk....', '...kPPk...', '...kPpk...', '..kPPppk..', '..kPpppk..', '.kPPppppk.', '.kPpppqqk.', 'kPppppqqqk', '.kkppqqkk.', 'kPPkkkkqqk', '.kPPppqqk.', '..kPpqqk..', '...kpqk...', '....kk....'],
+  ship: ['......k.........', '.....kwk...k....', '.....kwwk.kwk...', '....kwwwk.kwwk..', '....kwwwwkkwwwk.', '...kwwwwwkkwwwk.', '...kkkkkkkkkkkk.', '......k...k.....', 'kkkkkkkkkkkkkkkk', 'knnnnnnnnnnnnnyk', '.knnnnnnnnnnnnk.', '..knnnnnnnnnnk..', '...kkkkkkkkkk...'],
+  anchor: ['.....kkkk.....', '....kSssSk....', '....ks..sk....', '.....kSSk.....', '..kkkkSSkkkk..', '..kSSSSSSSSk..', '..kkkkSSkkkk..', '.....kSSk.....', '.....kSSk.....', '.....kSSk.....', 'kk...kSSk...kk', 'kSk..kSSk..kSk', '.kSk.kSSk.kSk.', '..kSkkSSkkSk..', '...kSSSSSSk...', '....kkkkkk....'],
+  key: ['.kkkkk..........', 'kYyyyok.........', 'kyk.kyokkkkkkkk.', 'ky...yYyyyyyyyyk', 'kyk.kyokkkkykkyk', 'kYyyyok....k..k.', '.kkkkk..........'],
+  chart: ['.........kkk..', '.........kGk..', '.........kGk..', '......kkkkGk..', '......kGkkGk..', '......kGkkGk..', '...kkkkGkkGk..', '...kGkkGkkGk..', '...kGkkGkkGk..', 'kkkkGkkGkkGk..', 'kGkkGkkGkkGk..', 'kkkkkkkkkkkk..'],
+  wallet: ['..kkkkkkkkkk..', '.kwwwwwwwwwwk.', 'kkkkkkkkkkkkkk', 'koooooooookkkk', 'kooooooookyyyk', 'kooooooookyYyk', 'kooooooookyyyk', 'koooooooookkkk', 'kooooooooooook', 'kooooooooooook', 'kkkkkkkkkkkkkk'],
+  moon: ['....kkkkk...', '..kkPPPk....', '.kPPPk......', '.kPPk.......', 'kPPk........', 'kPPk........', 'kPPk........', 'kPPPk......k', '.kPPPPkkkPk.', '..kPPPPPPPk.', '...kkPPPkk..', '.....kkk....'],
+  badge: ['....kkkk....', '..kkyyyykk..', '.kyyyyyywyk.', '.kyyyyywwyk.', 'kyywyywwyyyk', 'kyywwwwyyyyk', 'kyyywwyyyyyk', 'kyyyyyyyyyok', '.kyyyyyyyok.', '.kyyyyyyook.', '..kkooookk..', '....kkkk....']
+};
+const RING = ['coin', 'lock', 'ship', 'chart', 'key', 'shield', 'moon', 'anchor', 'wallet', 'eth', 'hook', 'badge'];
+const iconCache = {};
+function icon(name, mode = 'color', tint) {
+  const key = name + mode + (tint || '');
+  if (iconCache[key]) return iconCache[key];
+  const rows = ICONS[name], w = Math.max(...rows.map((r) => r.length)), h = rows.length;
+  const c = off(w, h), g = c.getContext('2d');
+  rows.forEach((r, y) => [...r].forEach((ch, x) => {
+    if (ch === '.') return;
+    let col = PAL[ch];
+    if (mode === 'sil') col = tint || DEEP;
+    if (mode === 'outline') { if (ch !== 'k') return; col = tint || CREAM; }
+    if (mode === 'grey') { const v = parseInt(col.slice(1, 3), 16) * .3 + parseInt(col.slice(3, 5), 16) * .55 + parseInt(col.slice(5, 7), 16) * .15; const m = Math.round(70 + v * .35); col = `rgb(${m},${m + 4},${m + 14})`; }
+    if (mode === 'flash') { col = ch === 'k' ? BRONZE : PALE; }
+    g.fillStyle = col; g.fillRect(x, y, 1, 1);
+  }));
+  return (iconCache[key] = c);
+}
+function drawIcon(name, cx, cy, px, rot = 0, mode, alpha = 1, sx = 1, tint) {
+  const im = icon(name, mode, tint);
+  X.save(); X.globalAlpha *= alpha; X.translate(cx, cy); X.rotate(rot); X.scale(sx, 1);
+  X.imageSmoothingEnabled = false;
+  X.drawImage(im, -im.width * px / 2, -im.height * px / 2, im.width * px, im.height * px);
+  X.restore();
+}
+
+/* ---------- backgrounds, grain, text ---------- */
+function bgPaper(light = 1) {
+  X.fillStyle = NAVY; X.fillRect(0, 0, W, H);
+  const g = X.createRadialGradient(W * .5, H * .45, 60, W * .5, H * .5, W * .75);
+  g.addColorStop(0, `rgba(43,62,102,${.75 * light})`); g.addColorStop(1, 'rgba(11,18,34,0)');
+  X.fillStyle = g; X.fillRect(0, 0, W, H);
+}
+function bgDeep(warm = 0) {
+  X.fillStyle = DEEP; X.fillRect(0, 0, W, H);
+  if (warm > 0) { X.fillStyle = `rgba(70,46,24,${warm})`; X.fillRect(0, 0, W, H); }
+}
+function vignette(a = .55, inner = .35) {
+  const g = X.createRadialGradient(W / 2, H / 2, W * inner, W / 2, H / 2, W * .78);
+  g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(0,0,0,${a})`);
+  X.fillStyle = g; X.fillRect(0, 0, W, H);
+}
+const GRAIN = [0, 1, 2, 3, 4, 5].map((i) => {
+  const c = off(720, 540), g = c.getContext('2d'), d = g.createImageData(720, 540), r = rng(77 + i * 991);
+  for (let k = 0; k < d.data.length; k += 4) { const v = r() * 255; d.data[k] = d.data[k + 1] = d.data[k + 2] = v; d.data[k + 3] = 255; }
+  g.putImageData(d, 0, 0); return c;
+});
+function grain(f, a = .07) { X.save(); X.globalAlpha = a; X.globalCompositeOperation = 'overlay'; X.drawImage(GRAIN[f % 6], 0, 0, W, H); X.restore(); }
+function txt(s, x, y, size = 34, col = CREAM, opt = {}) {
+  X.save(); X.font = `${opt.weight || 600} ${size}px ${FONT}`; X.textAlign = opt.align || 'left'; X.textBaseline = 'middle';
+  X.globalAlpha *= opt.alpha == null ? 1 : opt.alpha; X.fillStyle = col;
+  if (opt.ls) X.letterSpacing = opt.ls + 'px';
+  X.fillText(s, x, y); X.restore();
+  X.font = `${opt.weight || 600} ${size}px ${FONT}`; return X.measureText(s).width;
+}
+function cursor(x, y, lt, h = 40, col = CREAM) { if (Math.floor(lt * 3.2) % 2 === 0) { X.fillStyle = col; X.fillRect(x, y - h / 2, 5, h); } }
+function blurred(px, fn) {
+  if (px <= .2) return fn();
+  const c = off(), g = c.getContext('2d'), keep = X; X = g; fn(); X = keep;
+  X.save(); X.filter = `blur(${px}px)`; X.drawImage(c, 0, 0); X.restore();
+}
+
+/* ---------- shapes ---------- */
+function star4(cx, cy, R, w, inner, outer, rot = 0, alpha = 1, sy = 1) {
+  X.save(); X.translate(cx, cy); X.rotate(rot); X.scale(1, sy); X.globalAlpha *= alpha;
+  const g = X.createRadialGradient(0, 0, 0, 0, 0, R); g.addColorStop(0, inner); g.addColorStop(1, outer);
+  X.fillStyle = g; X.beginPath();
+  X.moveTo(0, -R); X.quadraticCurveTo(w * .12, -w * .12, w, 0); X.quadraticCurveTo(w * .12, w * .12, 0, R);
+  X.quadraticCurveTo(-w * .12, w * .12, -w, 0); X.quadraticCurveTo(-w * .12, -w * .12, 0, -R); X.fill(); X.restore();
+}
+const HOOK = new Path2D('M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z M19 58.5h12v4.5H19z M18 63h14l6.2 12.6a1.6 1.6 0 0 1-1.4 2.4H13.2a1.6 1.6 0 0 1-1.4-2.4z');
+// the hook as a glowing heat silhouette (the figure in the black scenes)
+function hookGlow(cx, cy, s, rot = 0, mode = 'heat', alpha = 1) {
+  X.save(); X.globalAlpha *= alpha; X.translate(cx, cy); X.rotate(rot); X.scale(s, s); X.translate(-32, -45);
+  if (mode === 'heat') {
+    const g = X.createLinearGradient(20, 5, 40, 80);
+    g.addColorStop(0, '#B4461A'); g.addColorStop(.3, '#E8862C'); g.addColorStop(.6, GOLD); g.addColorStop(.85, PALE); g.addColorStop(1, '#FFF8E6');
+    X.save(); X.filter = `blur(${Math.max(4, s * 1.4)}px)`; X.globalAlpha *= .55; X.fillStyle = '#E8862C'; X.fill(HOOK); X.restore();
+    X.filter = `blur(${Math.max(1, s * .12)}px)`; X.fillStyle = g; X.fill(HOOK);
+    const h = X.createRadialGradient(30, 30, 2, 30, 30, 30); h.addColorStop(0, 'rgba(255,240,200,.35)'); h.addColorStop(1, 'rgba(255,240,200,0)');
+    X.fillStyle = h; X.fill(HOOK);
+  } else {
+    X.filter = `blur(${Math.max(1, s * .1)}px)`; X.fillStyle = '#060A14'; X.fill(HOOK);
+    X.lineWidth = .9; X.strokeStyle = 'rgba(232,176,75,.55)'; X.stroke(HOOK);
+  }
+  X.restore();
+}
+function scribble(seed, x, y, w, h, p, col = CREAM, lw = 3, alpha = 1, pts = 9) {
+  if (p <= 0) return;
+  const r = rng(seed), P = [];
+  for (let i = 0; i < pts; i++) P.push([x + (i / (pts - 1)) * w + (r() - .5) * w * .25, y + (r() - .5) * h]);
+  X.save(); X.globalAlpha *= alpha; X.strokeStyle = col; X.lineWidth = lw; X.lineCap = 'round'; X.lineJoin = 'round'; X.beginPath();
+  const n = Math.max(2, Math.floor(p * 60));
+  for (let i = 0; i <= n; i++) {
+    const u = (i / 60) * (pts - 1), k = Math.min(pts - 2, Math.floor(u)), f = u - k;
+    const a = P[Math.max(0, k - 1)], b = P[k], c = P[k + 1], d = P[Math.min(pts - 1, k + 2)];
+    const cr = (p0, p1, p2, p3) => .5 * ((2 * p1) + (-p0 + p2) * f + (2 * p0 - 5 * p1 + 4 * p2 - p3) * f * f + (-p0 + 3 * p1 - 3 * p2 + p3) * f * f * f);
+    const px = cr(a[0], b[0], c[0], d[0]), py = cr(a[1], b[1], c[1], d[1]);
+    i ? X.lineTo(px, py) : X.moveTo(px, py);
+  }
+  X.stroke(); X.restore();
+}
+function blob(x, y, r, seed, col = '#010206', alpha = 1) {
+  const R = rng(seed); X.save(); X.globalAlpha *= alpha; X.fillStyle = col; X.filter = 'blur(2px)'; X.beginPath();
+  for (let i = 0; i <= 24; i++) { const a = i / 24 * Math.PI * 2, rr = r * (.82 + R() * .3); i ? X.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr) : X.moveTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); }
+  X.fill(); X.restore();
+}
+function smear(pts, w, alpha = .8) {
+  X.save(); X.lineCap = 'round'; X.filter = 'blur(3px)';
+  for (let i = 1; i < pts.length; i++) { X.globalAlpha = alpha * (i / pts.length); X.strokeStyle = '#010206'; X.lineWidth = w * (i / pts.length); X.beginPath(); X.moveTo(...pts[i - 1]); X.lineTo(...pts[i]); X.stroke(); }
+  X.restore();
+}
+function burst(x, y, p, size = 120) {
+  if (p <= 0 || p >= 1) return;
+  X.save(); const a = 1 - p;
+  const g = X.createRadialGradient(x, y, 0, x, y, size * (.6 + p));
+  g.addColorStop(0, `rgba(255,236,190,${.9 * a})`); g.addColorStop(.4, `rgba(232,150,60,${.6 * a})`); g.addColorStop(1, 'rgba(232,120,40,0)');
+  X.fillStyle = g; X.fillRect(x - size * 2, y - size * 2, size * 4, size * 4);
+  X.strokeStyle = `rgba(247,215,140,${a})`; X.lineWidth = 5; X.lineCap = 'round';
+  for (let i = 0; i < 8; i++) { const an = i / 8 * Math.PI * 2 + .3, r0 = size * (.5 + p * .8), r1 = r0 + size * .35; X.beginPath(); X.moveTo(x + Math.cos(an) * r0, y + Math.sin(an) * r0); X.lineTo(x + Math.cos(an) * r1, y + Math.sin(an) * r1); X.stroke(); }
+  X.restore();
+}
+function streaks(seed, n, y0, y1, p, col = PALE, alpha = .7) {
+  const r = rng(seed); X.save(); X.strokeStyle = col; X.lineCap = 'round';
+  for (let i = 0; i < n; i++) { const y = lerp(y0, y1, r()), x = r() * W, l = 120 + r() * 380; X.globalAlpha = alpha * (1 - p) * (.4 + r() * .6); X.lineWidth = 2 + r() * 3; X.beginPath(); X.moveTo(x - p * 600, y); X.lineTo(x - p * 600 + l, y); X.stroke(); }
+  X.restore();
+}
+// the ring of icons (the "everything" scenes)
+function ring(lt, spin, zoom = 1, cx = W / 2, cy = H / 2, scatter = 0, px = 6, flashes = {}) {
+  const items = RING.map((n, i) => {
+    const a = i / RING.length * Math.PI * 2 + spin;
+    const r = rng(i * 31 + 5), sx = (r() - .5) * 2, sy = (r() - .5) * 2;
+    let x = cx + Math.cos(a) * W * .27 * zoom, y = cy + Math.sin(a) * H * .29 * zoom;
+    x += sx * scatter * W * .45; y += sy * scatter * H * .4;
+    return { n, x, y, rot: Math.sin(a * 2 + lt) * .12, i };
+  }).sort((a, b) => a.y - b.y);
+  for (const it of items) drawIcon(it.n, it.x, it.y, px * zoom * (1 - scatter * .35), it.rot, flashes[it.n] ? 'flash' : 'color');
+  return items;
+}
+
+/* ---------- the cut ---------- */
+const SENT = 'how do you launch a token people can trust?';
+const S = [
+  // 0: flash, the first word huge
+  [0, .08, (lt) => {
+    X.fillStyle = GOLD; X.fillRect(0, 0, W, H);
+    X.save(); X.translate(150, H * 1.02); X.scale(1, 2.7); txt('how', 0, -150, 330, DEEP, { weight: 800 }); X.restore();
+    X.setLineDash([22, 14]); X.strokeStyle = DEEP; X.lineWidth = 3; X.beginPath(); X.moveTo(0, H - 18); X.lineTo(W, H - 18); X.stroke(); X.setLineDash([]);
+  }],
+  // 1: the question slides through big, pixelates, breaks into dashes
+  [.08, .72, (lt) => {
+    bgPaper(.9);
+    lt = Math.max(0, lt - .09);
+    const x = 360 - ei(lt / .5) * 1900, y = H * .45;
+    const draw = () => {
+      X.setLineDash([22, 14]); X.strokeStyle = 'rgba(232,176,75,.7)'; X.lineWidth = 3;
+      for (const yy of [y - 120, y + 95]) { X.beginPath(); X.moveTo(-40 + (x % 36), yy); X.lineTo(W, yy); X.stroke(); }
+      X.setLineDash([]);
+      const w1 = txt('how ', x, y, 200, CREAM, { weight: 700 });
+      txt('do you launch a token', x + w1, y, 200, 'rgba(243,234,215,.55)', { weight: 700 });
+    };
+    if (lt < .3) draw();
+    else if (lt < .45) { const c = off(W / 12, H / 12), g = c.getContext('2d'), keep = X; const big = off(); X = big.getContext('2d'); draw(); X = keep; g.drawImage(big, 0, 0, c.width, c.height); X.imageSmoothingEnabled = false; X.drawImage(c, 0, 0, W, H); X.imageSmoothingEnabled = true; }
+    else blurred(4, () => { const r = rng(9); X.fillStyle = 'rgba(243,234,215,.7)'; for (let i = 0; i < 16; i++) { const xx = 300 + i * 52 + r() * 20; X.fillRect(xx, y - 4, 18 + r() * 40, 8); } X.fillRect(1010, y - 30, 8, 18); X.fillRect(1010, y + 4, 8, 22); });
+    vignette(.5);
+  }],
+  // 2: the question typed small, with scribbles
+  [.72, 2.0, (lt, t) => {
+    bgPaper(1);
+    const words = SENT.split(' '), times = [.11, .11, .11, .11, .45, .61, .78, .95, 1.12];
+    let s = ''; words.forEach((w, i) => { if (lt >= times[i] && i < 8) s += (s ? ' ' : '') + w; });
+    const x0 = lt < .28 ? W * .53 : 60, y0 = lt < .28 ? H * .3 : H * .5;
+    txt(s, x0, y0, 42, CREAM);
+    const sc = (a, b) => prog(lt, a, b);
+    blurred(5, () => scribble(11, W * .62, H * .12, 380, 220, sc(.0, .2), CREAM, 7, (1 - sc(.25, .4)) * .5));
+    scribble(12, W * .52, H * .55, 300, 160, sc(.08, .25), CREAM, 3, 1 - sc(.3, .38));
+    scribble(13, 70, H * .62, 420, 120, sc(.28, .45), CREAM, 3, 1 - sc(.48, .55));
+    scribble(14, 640, H * .48, 90, 120, sc(.45, .55), PALE, 3, 1 - sc(.6, .66));
+    scribble(15, 760, H * .5, 220, 110, sc(.6, .75), CREAM, 3.5, 1 - sc(.8, .88), 7);
+    if (lt > .78 && lt < 1.0) { X.fillStyle = CREAM; const p = prog(lt, .78, .88); X.fillRect(60, H * .5 - 280 * p, 4, 270 * p); }
+    vignette(.45);
+  }],
+  // 3: flash with a star
+  [2.0, 2.12, (lt) => blurred(7, () => {
+    X.fillStyle = PALE; X.fillRect(0, 0, W, H);
+    star4(W * .32, H * .5, 520, 260, '#FFFBEF', 'rgba(232,176,75,.2)', .1);
+    X.strokeStyle = 'rgba(255,255,255,.7)'; X.lineWidth = 14; for (let i = 0; i < 6; i++) { X.beginPath(); X.moveTo(W * .1 + i * 90, H * .3 + i * 40); X.lineTo(W * .7 + i * 60, H * .15 + i * 50); X.stroke(); }
+    txt(SENT, 40, H * .5, 30, 'rgba(11,18,34,.5)');
+    drawIcon('lock', W * .44, H * .38, 4); drawIcon('ship', W * .7, H * .45, 4);
+  })],
+  // 4: the full question, a star at the edge, icons floating; the light closes in on "you"
+  [2.12, 3.82, (lt) => {
+    bgPaper(1);
+    const sx = lerp(W * .25, W * .015, eo(lt / .25)), R = lerp(470, 600, eo(lt / .4));
+    star4(sx, H * .5, R, 230, '#FFF6DC', 'rgba(232,176,75,.35)', 0, 1);
+    const fade = 1 - prog(lt, 1.25, 1.45);
+    const bob = (k) => Math.sin(lt * 3 + k) * 6;
+    drawIcon('lock', W * .43, H * .3 + bob(1), 6, -.25, 'color', fade);
+    drawIcon('chart', W * .6, H * .3 + bob(2), 6, .15, 'color', fade);
+    drawIcon('coin', W * .56, H * .62 + bob(3), 6, 0, 'color', fade, Math.abs(Math.cos(lt * 4)) * .8 + .2);
+    drawIcon('ship', W * .63, H * .78 + bob(4), 6, -.1, 'color', fade);
+    if (lt < .15) { scribble(21, W * .3, H * .2, 500, 300, lt / .15, CREAM, 3, 1 - lt / .15); }
+    const hl = lt > 1.3;
+    const words = SENT.split(' '); let x = W * .5 - txt(SENT, -9999, 0, 42) / 2;
+    words.forEach((w, i) => { const isYou = i === 2; const ww = txt(w + ' ', x, H * .5, 42, CREAM, { alpha: hl ? (isYou ? 1 : .5) : 1 }); x += ww; });
+    const v = prog(lt, .7, 1.6); vignette(.55 + v * .4, .35 - v * .2);
+    if (lt > 1.35) { const p = prog(lt, 1.35, 1.7), g = X.createRadialGradient(W * .5, H * .5, 0, W * .5, H * .5, lerp(260, 640, p)); g.addColorStop(0, `rgba(240,190,110,${.5 * p})`); g.addColorStop(1, 'rgba(232,176,75,0)'); X.fillStyle = g; X.fillRect(0, 0, W, H); }
+  }],
+  // 5: into the dark, blurred
+  [3.82, 4.05, (lt) => { bgDeep(); blurred(16, () => { txt('you dont.', 140, H * .5, 42, CREAM); X.fillStyle = 'rgba(232,140,50,.8)'; X.fillRect(200, H * .5 - 10, 500 * (1 - lt / .23), 20); hookGlow(W * .72, H * .62, 13 + lt * 8, -.1, 'heat', .7); }); }],
+  // 6: the glowing hook; "you dont." … "you just show"
+  [4.05, 5.92, (lt) => {
+    bgDeep(prog(lt, 1.5, 1.87) * .55);
+    const sp = rng(3); for (let i = 0; i < 6; i++) { X.fillStyle = `rgba(247,215,140,${.25 + sp() * .3})`; X.beginPath(); X.arc(sp() * W, (sp() * H - lt * 30 * (1 + sp())) % H, 2 + sp() * 2, 0, 7); X.fill(); }
+    hookGlow(W * .72, H * .66, 14.5 * (1 + Math.sin(lt * 1.5) * .008), -.08 + Math.sin(lt * .8) * .015);
+    let s = 'you dont.'; if (lt > 1.2) s = 'you'; if (lt > 1.37) s = 'you just';
+    const w = txt(s, 140, H * .5, 42, CREAM);
+    if (lt > 1.53) txt(' show', 140 + w, H * .5, 42, CREAM, { alpha: .45 });
+    if (lt < .4) cursor(560, H * .5, lt, 36, 'rgba(243,234,215,.7)');
+    vignette(.5);
+  }],
+  // 7: the light comes up; the hook goes dark; "you just show it."
+  [5.92, 6.28, (lt) => {
+    X.fillStyle = lerpColor(SLATE, '#46557A', prog(lt, 0, .1)); X.fillRect(0, 0, W, H);
+    const g = X.createLinearGradient(W * .3, 0, W * .42, 0); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.5, 'rgba(220,230,255,.25)'); g.addColorStop(1, 'rgba(255,255,255,0)'); X.fillStyle = g; X.fillRect(0, 0, W, H);
+    if (lt < .1) hookGlow(W * .72, H * .66, 14.5, -.08, 'heat', 1 - lt / .1);
+    hookGlow(W * .72, H * .66, 14.5, -.08, 'dark', prog(lt, 0, .1));
+    txt('you just show it.', 140, H * .5, 42, lt < .08 ? 'rgba(243,234,215,.5)' : CREAM);
+    vignette(.4);
+  }],
+  // 8: a hot band, 9: the icons, grey and blurred
+  [6.28, 6.45, () => { const g = X.createLinearGradient(0, 0, 0, H); g.addColorStop(0, DEEP); g.addColorStop(.6, '#120A06'); g.addColorStop(.8, BRONZE); g.addColorStop(.9, GOLD); g.addColorStop(1, PALE); X.fillStyle = g; X.fillRect(0, 0, W, H); }],
+  [6.45, 6.62, () => { X.fillStyle = '#3A4560'; X.fillRect(0, 0, W, H); blurred(9, () => { drawIcon('wallet', W * .38, H * .5, 14, -.1, 'grey'); drawIcon('coin', W * .62, H * .45, 13, .1, 'grey'); drawIcon('ship', W * .5, H * .6, 12, 0, 'grey'); }); }],
+  // 10: everything, in a ring; an ink blot runs around it and sets things off
+  [6.62, 8.28, (lt) => {
+    bgPaper(1);
+    const zoom = 1 + lt * .04 + ei(prog(lt, 1.35, 1.66)) * .55;
+    const fl = { coin: lt > .5 && lt < .7, ship: lt > .72 && lt < .95, anchor: lt > 1.15 && lt < 1.35 };
+    const items = ring(lt, lt * .35 + ei(prog(lt, 1.35, 1.66)) * .8, zoom, W / 2, H / 2, 0, 12, fl);
+    const at = (n) => items.find((i) => i.n === n);
+    // the blot's path: centre → coin → ship → anchor
+    const path = [[W * .5, H * .5], [at('coin').x, at('coin').y], [at('ship').x, at('ship').y], [at('anchor').x, at('anchor').y], [W * .5, H * .45]];
+    const tt = [0, .5, .72, 1.15, 1.5], seg = tt.findIndex((v, i) => lt < (tt[i + 1] ?? 99));
+    const u = eio(prog(lt, tt[seg], tt[seg + 1] ?? tt[seg] + 1));
+    const A = path[seg], B = path[Math.min(path.length - 1, seg + 1)], bx = lerp(A[0], B[0], u), by = lerp(A[1], B[1], u);
+    const trail = []; for (let k = 6; k >= 0; k--) { const uu = Math.max(0, u - k * .07); trail.push([lerp(A[0], B[0], uu), lerp(A[1], B[1], uu)]); }
+    smear(trail, 26, .7); blob(bx, by, 22 + Math.sin(lt * 9) * 3, 41 + seg);
+    burst(at('coin').x, at('coin').y, prog(lt, .5, .78), 110 * zoom);
+    burst(at('ship').x, at('ship').y, prog(lt, .72, 1.0), 120 * zoom);
+    burst(at('anchor').x, at('anchor').y, prog(lt, 1.15, 1.4), 100 * zoom);
+    vignette(.5);
+  }],
+  // 11: "capped." with the shield and a star
+  [8.28, 9.1, (lt) => {
+    bgDeep();
+    if (lt < .17) blurred(5, () => {
+      drawIcon('shield', W * .32, H * .5, 16, -.2);
+      star4(W * .37, H * .38, 170, 70, '#FFF1C9', 'rgba(232,176,75,.4)', .3);
+      scribble(31, W * .4, H * .42, 220, 200, 1, CREAM, 5); X.fillStyle = CREAM; X.fillRect(W * .5, H * .47, 150, 50);
+    });
+    else {
+      const flat = ei(prog(lt, .68, .82));
+      const rot = lerp(-.26, -1.3, flat), px = lerp(lerp(20, 23, eo(prog(lt, .17, .4))), 25, flat);
+      drawIcon('shield', lerp(W * .3, W * .26, flat), lerp(H * .52, H * .56, flat), px, rot, 'color', 1, lerp(1, .35, flat));
+      star4(lerp(W * .34, W * .32, flat), lerp(H * .32, H * .44, flat), lerp(200, 230, flat), 60, '#FFF1C9', 'rgba(232,176,75,.35)', .2 + lt * .2, 1, lerp(1, .5, flat));
+      const w = txt('capped.', W * .58, H * .5, 64, CREAM, { weight: 700 });
+      cursor(W * .58 + w + 30, H * .5, lt, 62);
+    }
+    vignette(.5);
+  }],
+  // 12: the icons in a row, sliding with the motion
+  [9.1, 9.78, (lt) => {
+    bgPaper(1);
+    const row = ['anchor', 'hook', 'chart', 'wallet', 'coin', 'key', 'ship', 'badge'], sh = 260 - eo(lt / .68) * 620;
+    streaks(51, 8, H * .25, H * .75, lt / .68, PALE, .6);
+    row.forEach((n, i) => drawIcon(n, sh + i * 380, H * .5 + Math.sin(i * 2) * 40, 16, Math.sin(i) * .12));
+    vignette(.5);
+  }],
+  // 13: a gold sweep, 14: "locked." with the lock and a ribbon
+  [9.78, 9.95, (lt) => { bgDeep(); blurred(12, () => { X.fillStyle = 'rgba(232,176,75,.7)'; X.save(); X.translate(W * .5, H * .5); X.rotate(-.5); X.fillRect(-W, -60 + lt * 200, W * 2, 260); X.restore(); drawIcon('lock', W * .45, H * .48, 18, -.4); }); }],
+  [9.95, 10.45, (lt) => {
+    bgDeep();
+    const p = eo(lt / .4);
+    X.save(); X.fillStyle = GOLD; X.beginPath(); X.moveTo(0, H * .95); X.lineTo(W * .1, H * .85); X.lineTo(W * .32 + p * W * .7, H * .62 - p * H * .9); X.lineTo(W * .27 + p * W * .7, H * .52 - p * H * .9); X.lineTo(W * .08, H * .75); X.lineTo(0, H * .82); X.fill(); X.restore();
+    drawIcon('lock', W * .24, H * .5, 19, -.3 + lt * .1);
+    const w = txt('locked.', W * .47, H * .5, 64, CREAM, { weight: 700 });
+    cursor(W * .47 + w + 30, H * .5, lt, 62);
+    vignette(.5);
+  }],
+  // 15: the icons up close
+  [10.45, 10.98, (lt) => {
+    bgPaper(1);
+    const z = 1 + lt * .5, sh = -lt * 90;
+    streaks(61, 5, H * .3, H * .7, lt / .53, PALE, .4);
+    if (lt < .17) { drawIcon('wallet', W * .25 + sh, H * .52, 9 * z, -.1); drawIcon('chart', W * .5 + sh, H * .5, 9 * z, .05); drawIcon('ship', W * .75 + sh, H * .5, 9 * z, 0); }
+    else { drawIcon('key', W * .22 + sh, H * .5, 10 * z, -.1); drawIcon('coin', W * .5 + sh, H * .5, 13 * z); drawIcon('anchor', W * .78 + sh, H * .5, 10 * z, .1); }
+    vignette(.45);
+  }],
+  // 16: a ring of dots, 17: "verified." with the coin turning, ticks popping
+  [10.98, 11.12, (lt) => { bgDeep(); blurred(4, () => { X.fillStyle = 'rgba(232,176,75,.6)'; const r = rng(4); for (let i = 0; i < 400; i++) { const a = r() * 7, rr = H * .5 + r() * 30; X.fillRect(W * .5 + Math.cos(a) * rr, H * .5 + Math.sin(a) * rr, 3, 3); } drawIcon('coin', W * .45, H * .5, 13); X.fillStyle = CREAM; X.fillRect(W * .52, H * .47, 26, 60); }); }],
+  [11.12, 11.82, (lt) => {
+    bgDeep();
+    drawIcon('coin', W * .27, H * .5, 17, 0, 'color', 1, Math.max(.12, Math.abs(Math.cos(lt * 5))));
+    drawIcon('moon', W * .67, H * .22, 3, .2, 'color', .8);
+    const w = txt('verified.', W * .5, H * .5, 64, CREAM, { weight: 700 });
+    cursor(W * .5 + w + 30, H * .5, lt, 62);
+    const pop = (t0, x, y, s) => { const p = eo(prog(lt, t0, t0 + .12)); if (p > 0) drawIcon('badge', x, y, s * p, Math.sin(lt * 3 + x) * .2); };
+    pop(0, W * .62, H * .85, 6); pop(.33, W * .78, H * .2, 7); pop(.5, W * .55, H * .8, 5); pop(.5, W * .86, H * .78, 6);
+    vignette(.5);
+  }],
+  // 18: outlines on black
+  [11.82, 11.97, () => { bgDeep(); blurred(2, () => ['wallet', 'chart', 'coin', 'ship', 'key'].forEach((n, i) => drawIcon(n, W * (.26 + i * .12), H * .5 + (i % 2) * 30, 11, (i - 2) * .1, 'outline'))); }],
+  // 19: the ring again, faster; it breaks apart
+  [11.97, 12.55, (lt) => {
+    bgPaper(1);
+    const sc = ei(prog(lt, .45, .58));
+    ring(lt, lt * 1.6, .95, W / 2, H / 2, sc * .6, 12);
+    blob(W * .5, H * .5, 14, 7);
+    if (lt > .4) { X.save(); X.strokeStyle = 'rgba(1,2,6,.7)'; X.lineWidth = 22; X.lineCap = 'round'; X.filter = 'blur(3px)'; X.beginPath(); X.arc(W * .5, H * .5, H * .38, -2.6, -2.6 + prog(lt, .4, .58) * 3.4); X.stroke(); X.restore(); }
+    vignette(.5);
+  }],
+  // 20: scattered, going dark one by one, ink spreading
+  [12.55, 13.82, (lt) => {
+    bgPaper(.9);
+    const pos = { eth: [.24, .15], coin: [.78, .55], ship: [.18, .32], chart: [.33, .4], key: [.42, .32], shield: [.53, .4], lock: [.62, .27], wallet: [.18, .82], anchor: [.88, .62], hook: [.43, .52], moon: [.55, .33], badge: [.3, .58] };
+    const dark = { chart: .1, hook: .2, ship: .9, key: .55, badge: .95 };
+    for (const [n, [x, y]] of Object.entries(pos)) {
+      const dx = Math.sin(lt * 1.2 + x * 9) * 10, dy = Math.cos(lt + y * 7) * 8;
+      const d = dark[n] != null && lt > dark[n];
+      drawIcon(n, W * x + dx, H * y + dy, 7, Math.sin(lt + x * 5) * .2, d ? 'sil' : 'color');
+    }
+    blob(W * .7, H * .82, 30 + prog(lt, .1, .4) * 30, 3); blob(W * .74, H * .6, prog(lt, .3, .6) * 40, 4);
+    if (lt > .5) smear([[W * .1, H * .85], [W * .2, H * .75], [W * .3, H * .7]].slice(0, 1 + Math.floor(prog(lt, .5, .7) * 2)), 40, .8);
+    if (lt > 1.05) txt('through', W * .5, H * .58, 26, CREAM, { align: 'center' });
+    vignette(.65, .25);
+  }],
+  // 21: blur up into the dark
+  [13.82, 14.05, (lt) => { bgDeep(); blurred(14, () => { txt('through', W * .4, H * .45, 30, CREAM); hookGlow(W * .55, H * (1.2 - lt * 1.4), 12, -.4, 'heat', .8); }); }],
+  // 22: the hook rising; "through code" … "nobody can change"
+  [14.05, 15.62, (lt) => {
+    bgDeep();
+    const rise = eo(lt / .3), y = lerp(H * 1.15, H * .72, rise);
+    const sp = rng(8); for (let i = 0; i < 10; i++) { const ox = W * (.42 + sp() * .16), oy = H * (.15 + sp() * .25) - lt * 40 * (1 + sp()); X.fillStyle = `rgba(247,215,140,${.6 * sp()})`; X.fillRect(ox, oy, 2, 6 + sp() * 8); }
+    hookGlow(W * .51, y, 12.5, lerp(-.35, -.05, rise) + Math.sin(lt * 1.3) * .03);
+    if (lt > .1) txt('through code', W * .38, H * .5, 42, CREAM, { align: 'right' });
+    let r = ''; if (lt > .3) r = 'nobody'; if (lt > .42) r = 'nobody can'; if (lt > .55) r = 'nobody can change';
+    const w = txt(r, W * .65, H * .5, 42, CREAM);
+    if (lt > .3 && lt < .7) cursor(W * .65 + w + 18, H * .5, lt, 34);
+    vignette(.5);
+  }],
+  // 23: washing out sideways
+  [15.62, 15.97, (lt) => {
+    const p = lt / .35;
+    X.fillStyle = lerpColor(DEEP, '#4A5672', p); X.fillRect(0, 0, W, H);
+    blurred(p * 6, () => { hookGlow(W * .51 - p * 120, H * .72, 12.5, -.05, 'heat', 1 - p * .6); });
+    streaks(71, 7, H * .3, H * .5, p, CREAM, .5);
+    txt('through code', W * .38, H * .5, 42, CREAM, { align: 'right', alpha: 1 - p * .4 });
+    txt('nobody can change it', W * .65, H * .5, 42, CREAM, { alpha: 1 - p * .4 });
+  }],
+  // 24: H O O K, one beat at a time
+  [15.97, 17.3, (lt) => {
+    const beats = [
+      [0, 'paper', 'hook', 8, 1], [.17, 'dark', 'hook', 13, 1], [.35, 'deep', 'lock', 9, 2], [.52, 'gold', 'lock', 13, 2],
+      [.7, 'gold', 'coin', 11, 3], [.86, 'deep', 'coin', 9, 4], [1.03, 'deep', 'coin', 10, 4], [1.2, 'paper', 'coin', 15, 4]];
+    let b = beats[0]; for (const x of beats) if (lt >= x[0]) b = x;
+    const [, bg, ic, px, n] = b;
+    if (bg === 'paper') bgPaper(1.2); else if (bg === 'gold') { X.fillStyle = GOLD; X.fillRect(0, 0, W, H); } else { bgDeep(); if (bg === 'dark') { const g = X.createRadialGradient(W / 2, H / 2, 50, W / 2, H / 2, W * .5); g.addColorStop(0, 'rgba(90,100,130,.55)'); g.addColorStop(1, 'rgba(0,0,0,0)'); X.fillStyle = g; X.fillRect(0, 0, W, H); } }
+    const col = bg === 'gold' ? NAVY : CREAM, xs = [.09, .37, .63, .91], L = 'HOOK';
+    for (let i = 0; i < n; i++) txt(L[i], W * xs[i], H * .5, 46, col, { align: 'center', weight: 700 });
+    const spin = b === beats[5] ? .3 : 1;
+    drawIcon(ic, W * .5, H * .5, px, ic === 'lock' && bg === 'gold' ? -.15 : 0, 'color', 1, spin);
+    vignette(bg === 'gold' ? .3 : .5);
+  }],
+  // 25: the letters loose on the page, settling; gold threads loop around them
+  [17.3, 20.6, (lt) => {
+    bgPaper(1.15);
+    const items = [['H', .2, .28], ['O', .4, .29], ['O', .24, .7], ['K', .55, .76], ['.', .33, .32], ['.', .62, .31], ['.', .12, .56], ['.', .5, .55]];
+    const settle = eio(prog(lt, .1, 2.6));
+    items.forEach(([ch, fx, fy], i) => {
+      const r = rng(i * 13 + 2), sx = (r() - .5) * W * .7, sy = (r() - .5) * H * .6, rot0 = (r() - .5) * 5;
+      const x = W * fx + sx * (1 - settle) + Math.sin(lt * 1.3 + i) * 10 * (1 - settle * .7), y = H * fy + sy * (1 - settle) + Math.cos(lt + i) * 8 * (1 - settle * .7);
+      const size = lerp(28, 46, eo(prog(lt, 2.4, 3.0)));
+      X.save(); X.translate(x, y); X.rotate(rot0 * (1 - settle)); txt(ch === '.' ? '•' : ch, 0, 0, ch === '.' ? 18 : size, CREAM, { align: 'center', weight: 700 }); X.restore();
+      if (ch !== '.') {
+        const lp = prog(lt, 1.9 + i * .1, 3.1), len = lerp(60, 260, lp);
+        if (lp > 0) { X.save(); X.translate(x, y); X.rotate(r() * 6); X.strokeStyle = 'rgba(232,176,75,.8)'; X.lineWidth = 2.2; X.beginPath(); X.ellipse(0, len * .5, len * .18, len * .5, 0, -Math.PI / 2, -Math.PI / 2 + lp * Math.PI * 2); X.stroke(); X.restore(); }
+      }
+    });
+    if (lt < .45) { const p = lt / .45; for (let i = 0; i < 6; i++) scribble(80 + i, W * (.1 + i * .14), H * (.2 + (i % 3) * .25), 60, 50, 1, i % 2 ? GOLD : CREAM, 4, 1 - p); }
+    vignette(.4);
+  }]
+];
+function lerpColor(a, b, u) { const p = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], clamp(u)))).join(',')})`; }
+
+window.draw = (t, f = Math.round(t * 23.976)) => {
+  X.setTransform(1, 0, 0, 1, 0, 0); X.filter = 'none'; X.globalAlpha = 1;
+  let sc = S[S.length - 1]; for (const s of S) if (t >= s[0] && t < s[1]) { sc = s; break; }
+  sc[2](t - sc[0], t);
+  grain(f, .085);
+};
+window.ready = document.fonts.ready.then(() => { draw(0); return true; });
+</script>
+</body></html>

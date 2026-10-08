@@ -39,14 +39,17 @@ function syncThemeButtons() {
     const next = themeNow() === "dark" ? "light" : "dark";
     b.setAttribute("aria-label", `Switch to ${next} theme`);
     b.dataset.label = next === "dark" ? "Dark theme" : "Light theme";
+    if (b.classList.contains("theme-btn")) { b.dataset.mode = themeNow(); b.title = b.dataset.label; }
   }
 }
 const themeIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>';
 const navRight = document.querySelector(".nav-right");
 if (navRight) {
   const b = document.createElement("button");
-  b.type = "button"; b.className = "theme-btn"; b.dataset.themeToggle = "";
-  b.innerHTML = themeIcon + "<span>Theme</span>";
+  // icon only, like the X button beside it: a sun while dark (to go light), a moon while light
+  b.type = "button"; b.className = "icon-btn theme-btn"; b.dataset.themeToggle = "";
+  b.innerHTML = '<svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>'
+    + '<svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.6A8.5 8.5 0 0 1 9.4 4a8.5 8.5 0 1 0 10.6 10.6z"/></svg>';
   navRight.prepend(b);
 }
 document.addEventListener("click", (e) => {

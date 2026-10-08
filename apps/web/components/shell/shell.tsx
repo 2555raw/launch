@@ -10,6 +10,9 @@ import { useAuth } from '@/lib/auth-store';
 import { useSocket } from '@/lib/socket';
 import type { NotificationDTO, VillageDTO } from '@launch/types';
 import { compact } from '@/components/ui/primitives';
+import { SiteFooter } from './footer';
+
+const GAME_ROUTES = ['/village', '/attack'];
 
 const GAME_NAV = [
   { href: '/village', label: 'Village', icon: Castle },
@@ -43,6 +46,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
 
   const village = useQuery({ queryKey: ['village'], queryFn: () => api<{ village: VillageDTO }>('/game/village'), enabled: !!user?.playerId, refetchInterval: 30_000 });
   const res = village.data?.village.resources;
+  const gameMode = GAME_ROUTES.some((r) => pathname.startsWith(r));
+  if (gameMode) return <>{children}</>;
 
   const NavList = ({ items }: { items: typeof GAME_NAV }) => (
     <ul className="space-y-0.5">
@@ -125,6 +130,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
         <main className="flex-1 px-4 py-6 md:px-8">{children}</main>
+        <SiteFooter />
       </div>
     </div>
   );

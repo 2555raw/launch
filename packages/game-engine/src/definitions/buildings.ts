@@ -410,7 +410,7 @@ export const BUILDING_DEFINITIONS: Record<string, BuildingDefinition> = Object.f
         description: 'Slows down ground troops. Build them in rings around what matters.',
         category: 'wall',
         size: 1,
-        maxCountByTownHall: [0, 25, 50, 75, 100, 125, 175, 225],
+        maxCountByTownHall: [60, 75, 100, 125, 150, 175, 225, 275],
         levels: 8,
         costResource: 'gold',
         baseCost: 50,
@@ -419,7 +419,7 @@ export const BUILDING_DEFINITIONS: Record<string, BuildingDefinition> = Object.f
         timeGrowth: 1,
         baseHp: 300,
         hpGrowth: 1.45,
-        requiredTownHall: [2, 2, 3, 4, 5, 6, 7, 8],
+        requiredTownHall: [1, 2, 3, 4, 5, 6, 7, 8],
       },
     ] as Spec[]
   ).map((spec) => [spec.type, expand(spec)]),
@@ -452,17 +452,35 @@ export function maxBuildingLevel(type: string, townHallLevel: number): number {
 export const BUILDING_TYPES = Object.keys(BUILDING_DEFINITIONS);
 
 /** Buildings every new village starts with. Positions are grid coordinates (top-left corner). */
-export const STARTER_VILLAGE: Array<{ type: string; level: number; x: number; y: number }> = [
-  { type: 'town_hall', level: 1, x: 20, y: 20 },
-  { type: 'builder_hut', level: 1, x: 14, y: 14 },
-  { type: 'gold_mine', level: 1, x: 26, y: 16 },
-  { type: 'elixir_collector', level: 1, x: 16, y: 26 },
-  { type: 'gold_storage', level: 1, x: 26, y: 24 },
-  { type: 'elixir_storage', level: 1, x: 24, y: 28 },
-  { type: 'barracks', level: 1, x: 13, y: 20 },
-  { type: 'army_camp', level: 1, x: 28, y: 29 },
-  { type: 'cannon', level: 1, x: 20, y: 15 },
-];
+export const STARTER_VILLAGE: Array<{ type: string; level: number; x: number; y: number }> = (() => {
+  const core = [
+    { type: 'town_hall', level: 1, x: 20, y: 20 },
+    { type: 'gold_storage', level: 1, x: 16, y: 19 },
+    { type: 'elixir_storage', level: 1, x: 25, y: 19 },
+    { type: 'gold_mine', level: 1, x: 20, y: 15 },
+    { type: 'elixir_collector', level: 1, x: 20, y: 25 },
+    { type: 'barracks', level: 1, x: 15, y: 15 },
+    { type: 'army_camp', level: 1, x: 24, y: 24 },
+    { type: 'cannon', level: 1, x: 16, y: 23 },
+    { type: 'cannon', level: 1, x: 25, y: 15 },
+    { type: 'builder_hut', level: 1, x: 10, y: 20 },
+  ];
+  // a ring of walls around the core (x,y in 14..29) with a gate on each side
+  const walls = new Map<string, { type: string; level: number; x: number; y: number }>();
+  for (let i = 14; i <= 29; i++) {
+    for (const [x, y] of [
+      [i, 14],
+      [i, 29],
+      [14, i],
+      [29, i],
+    ]) {
+      const gate = (y === 14 || y === 29) ? x === 21 || x === 22 : y === 21 || y === 22;
+      if (gate) continue;
+      walls.set(`${x},${y}`, { type: 'wall', level: 1, x, y });
+    }
+  }
+  return [...core, ...walls.values()];
+})();
 
 /** Free starting resources for a new player. */
 export const STARTER_RESOURCES = { gold: 750, elixir: 750, gems: 50 };

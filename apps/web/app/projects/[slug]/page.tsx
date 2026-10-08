@@ -2,7 +2,8 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeftRight, AtSign, Globe, MessageCircle, RefreshCw, Send } from 'lucide-react';
+import { ArrowLeftRight, RefreshCw } from 'lucide-react';
+import { SocialLinks } from '@/components/ui/brand-icons';
 import type { ProjectDTO, TokenMetricsDTO, TransactionStatus } from '@launch/types';
 import { robinhoodExplorerTxUrl, solanaExplorerTxUrl } from '@launch/config/chains';
 import { api, errorMessage } from '@/lib/api';
@@ -74,12 +75,6 @@ export default function ProjectPage() {
 
   const { project: p, transactions } = query.data;
   const t = p.token;
-  const socials = [
-    { href: p.website, label: 'Website', icon: Globe },
-    { href: p.twitter, label: 'X', icon: AtSign },
-    { href: p.discord, label: 'Discord', icon: MessageCircle },
-    { href: p.telegram, label: 'Telegram', icon: Send },
-  ].filter((s): s is { href: string; label: string; icon: typeof Globe } => !!s.href);
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -100,15 +95,7 @@ export default function ProjectPage() {
             {t && <span className="badge font-mono">{t.tokenProgram ?? (p.chain === 'SOLANA' ? 'SPL' : 'ERC20')}</span>}
             <span className="text-xs text-slate-500">by {p.creator.username}</span>
           </div>
-          {socials.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {socials.map((s) => (
-                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="btn-secondary px-3 py-1 text-xs">
-                  <s.icon size={13} /> {s.label}
-                </a>
-              ))}
-            </div>
-          )}
+          <SocialLinks className="mt-3" links={{ website: p.website, twitter: p.twitter, discord: p.discord, telegram: p.telegram }} labels />
           {p.description && <p className="mt-3 whitespace-pre-line text-sm text-slate-300">{p.description}</p>}
         </div>
         {t && p.chain === 'SOLANA' && (

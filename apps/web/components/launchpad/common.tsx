@@ -1,4 +1,5 @@
 'use client';
+import { SolanaIcon } from '@/components/ui/brand-icons';
 import { Check, Copy, ExternalLink } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import clsx from 'clsx';
@@ -15,7 +16,7 @@ export function networkLabel(chain: Chain, network: string): string {
 export function ChainBadge({ chain, network, className }: { chain: Chain; network?: string; className?: string }) {
   return (
     <span className={clsx('badge gap-1.5', chain === 'SOLANA' ? 'border-elixir-500/40 text-elixir-400' : 'border-mint-500/40 text-mint-400', className)}>
-      <span className={clsx('h-1.5 w-1.5 rounded-full', chain === 'SOLANA' ? 'bg-elixir-400' : 'bg-mint-400')} />
+      {chain === 'SOLANA' ? <SolanaIcon size={10} /> : <span className="h-1.5 w-1.5 rounded-full bg-mint-400" />}
       {CHAIN_LABEL[chain]}
       {network && <span className="text-slate-500">· {networkLabel(chain, network)}</span>}
     </span>

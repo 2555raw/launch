@@ -1,4 +1,5 @@
 'use client';
+import { SocialLinks } from '@/components/ui/brand-icons';
 import { useMutation } from '@tanstack/react-query';
 import { FileJson, Pencil } from 'lucide-react';
 import type { ProjectDTO } from '@launch/types';
@@ -59,10 +60,7 @@ export function StepReview({ project, fixedSupply, revokeFreeze, prepared, onPre
               <span className="text-slate-500">None</span>
             ) : (
               <div className="flex flex-wrap gap-3 text-xs">
-                {project.website && <ExtLink href={project.website}>Website</ExtLink>}
-                {project.twitter && <ExtLink href={project.twitter}>X</ExtLink>}
-                {project.discord && <ExtLink href={project.discord}>Discord</ExtLink>}
-                {project.telegram && <ExtLink href={project.telegram}>Telegram</ExtLink>}
+                <SocialLinks links={{ website: project.website, twitter: project.twitter, discord: project.discord, telegram: project.telegram }} labels />
               </div>
             )}
           </Row>

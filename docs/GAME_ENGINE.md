@@ -2,7 +2,7 @@
 
 Pure, deterministic TypeScript. No I/O, no Prisma.
 
-* **Buildings** (`definitions/buildings.ts`): 16 types (Town Hall, Gold Mine, Elixir Collector, Gold Vault, Elixir Reservoir, Barracks, Army Camp, Laboratory, Builder's Hut, Clan Hall, Crystal Mine, Arrow Tower, Cannon, Mortar, Mage Tower, Wall). Each level has cost, build time, hp, Town Hall requirement, xp and role-specific stats. `maxCountByTownHall` and `requiredTownHall` gate progression. Adding a building = adding an entry (+ an art routine in `apps/web/components/game/sprites.ts`).
+* **Buildings** (`definitions/buildings.ts`): 16 types (Town Hall, Gold Mine, Elixir Collector, Gold Vault, Elixir Reservoir, Barracks, Army Camp, Laboratory, Builder's Hut, Clan Hall, Crystal Mine, Arrow Tower, Cannon, Mortar, Mage Tower, Wall). Each level has cost, build time, hp, Town Hall requirement, xp and role-specific stats. `maxCountByTownHall` and `requiredTownHall` gate progression. New villages start with a walled core (52 wall segments, two cannons, storages, collectors, barracks, camp and a builder's hut); walls are available from Town Hall 1. Adding a building = adding an entry (+ an art routine in `apps/web/components/game/sprites.ts`).
 * **Troops** (`definitions/troops.ts`): Grunt, Ranger, Brute, Breacher, Sky Scout, Pyromancer, with hp/damage/attack speed/move speed/range/target preference/housing/cost/train time/levels and research cost/time/lab level.
 * **Economy** (`resources.ts`): lazy accrual from `lastCollectedAt`, storage capacity, builders, housing.
 * **Placement** (`placement.ts`): bounds + overlap validation; deployment exclusion mask (footprints + 1 tile).

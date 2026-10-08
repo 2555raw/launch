@@ -55,7 +55,9 @@ describe('village lifecycle', () => {
     await expect(upgradeBuilding(ctx, p.id, village.buildings.find((b) => b.type === 'gold_mine')!.id)).rejects.toMatchObject({ code: 'NO_FREE_BUILDER' });
     await expect(placeBuilding(ctx, p.id, 'gold_mine', 2, 6)).rejects.toMatchObject({ code: 'LIMIT_REACHED' });
     await expect(placeBuilding(ctx, p.id, 'cannon', 2, 2)).rejects.toMatchObject({ code: 'LIMIT_REACHED' });
-    await expect(placeBuilding(ctx, p.id, 'wall', 20, 20)).rejects.toMatchObject({ code: 'LIMIT_REACHED' });
+    await expect(placeBuilding(ctx, p.id, 'wall', 20, 20)).rejects.toMatchObject({ code: 'INVALID_PLACEMENT' });
+    const wall = await placeBuilding(ctx, p.id, 'wall', 2, 40);
+    expect(wall.state).toBe('IDLE');
     await expect(placeBuilding(ctx, p.id, 'mortar', 2, 10)).rejects.toMatchObject({ code: 'LIMIT_REACHED' });
 
     clock = new Date(clock.getTime() + 25_000);

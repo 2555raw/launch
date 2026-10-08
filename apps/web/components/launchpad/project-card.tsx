@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { ProjectDTO } from '@launch/types';
 import { fmtUsd } from '@/components/ui/primitives';
 import { ChainBadge, ProjectLogo } from './common';
+import { SocialLinks } from '@/components/ui/brand-icons';
 
 function Metric({ label, value }: { label: string; value: number | null | undefined }) {
   const unavailable = value === null || value === undefined;
@@ -25,6 +26,7 @@ export function ProjectCard({ project }: { project: ProjectDTO }) {
           <div className="truncate font-mono text-xs text-slate-400">${project.symbol}</div>
         </div>
         <ChainBadge chain={project.chain} />
+        <SocialLinks size={12} links={{ twitter: project.twitter, discord: project.discord, telegram: project.telegram, website: project.website }} />
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-2 border-t border-white/[0.06] pt-3">
         <Metric label="Price" value={m?.priceUsd} />

@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { TILE_H, TILE_W, toGrid } from './sprites';
 
 export interface Camera {
@@ -10,7 +10,7 @@ export interface Camera {
 
 export interface IsoCanvasProps {
   gridSize: number;
-  draw: (ctx: CanvasRenderingContext2D, cam: Camera, size: { w: number; h: number }) => void;
+  draw: (ctx: CanvasRenderingContext2D, cam: Camera, size: { w: number; h: number; dpr: number }) => void;
   onTileClick?: (gx: number, gy: number, e: { shift: boolean }) => void;
   onTileHover?: (gx: number, gy: number) => void;
   onTileDragStart?: (gx: number, gy: number) => boolean; // return true to capture the drag (no panning)
@@ -20,6 +20,8 @@ export interface IsoCanvasProps {
   revision?: number;
   className?: string;
   animate?: boolean;
+  /** initial zoom multiplier relative to "fit whole grid" */
+  initialZoomFactor?: number;
 }
 
 /**
@@ -29,7 +31,6 @@ export interface IsoCanvasProps {
 export function IsoCanvas(props: IsoCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const camRef = useRef<Camera>({ zoom: 1, ox: 0, oy: 0 });
-  const [, setTick] = useState(0);
   const drag = useRef<{ x: number; y: number; moved: boolean; captured: boolean; ox: number; oy: number } | null>(null);
   const pinch = useRef<number | null>(null);
   const propsRef = useRef(props);
@@ -41,9 +42,8 @@ export function IsoCanvas(props: IsoCanvasProps) {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
     const g = propsRef.current.gridSize;
-    // Fit the whole grid, then zoom in on the centre where a village actually lives (the map stays pannable).
     const fitAll = Math.min(w / (g * TILE_W * 1.05), h / (g * TILE_H * 1.15));
-    const zoom = Math.min(1.6, Math.max(fitAll * 1.9, 0.45));
+    const zoom = Math.min(1.6, Math.max(fitAll * (propsRef.current.initialZoomFactor ?? 1.9), 0.45));
     camRef.current = { zoom, ox: w / 2, oy: h / 2 - (g * TILE_H * zoom) / 2 };
   }, []);
 
@@ -53,6 +53,7 @@ export function IsoCanvas(props: IsoCanvasProps) {
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
+    if (w === 0 || h === 0) return;
     if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
@@ -61,7 +62,7 @@ export function IsoCanvas(props: IsoCanvasProps) {
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    propsRef.current.draw(ctx, camRef.current, { w, h });
+    propsRef.current.draw(ctx, camRef.current, { w, h, dpr });
   }, []);
 
   useEffect(() => {
@@ -139,7 +140,6 @@ export function IsoCanvas(props: IsoCanvasProps) {
     cam.oy = my - (my - cam.oy) * (next / cam.zoom);
     cam.zoom = next;
     render();
-    setTick((t) => t + 1);
   };
   const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
     if (e.touches.length === 2) {

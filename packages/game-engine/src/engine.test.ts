@@ -36,6 +36,7 @@ describe('building definitions', () => {
     expect(maxBuildingCount('mortar', 1)).toBe(0);
     expect(maxBuildingCount('mortar', 3)).toBe(1);
     expect(maxBuildingLevel('cannon', 1)).toBe(2);
+    expect(maxBuildingCount('wall', 1)).toBe(60);
     expect(maxBuildingLevel('cannon', 8)).toBe(8);
   });
   it('starter village is placeable without overlaps', () => {

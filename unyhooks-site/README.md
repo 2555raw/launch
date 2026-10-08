@@ -43,7 +43,7 @@ vendor/v4-sources.json   the Uniswap V4 files the templates import, for the in-b
 token.js     live $UHOOKS market panel (DexScreener, GeckoTerminal, Blockscout)
 demo.js      the demo window on the landing page
 app.js       shared: links from config, sticky nav, menu, typing prompt, copy CA, scroll reveal
-landing.js   the landing's moving parts: rules ticker, the progress line, the simulation
+landing.js   the landing's moving parts: rules ticker, the rope and its hook, the simulation
 docs.js      docs routing, table of contents, previous/next and search
 signin.js    sign-in message (EIP-4361) for app.html
 styles.css / build.css / docs.css / app.css / hooks.css / launch.css / hook.css
@@ -273,7 +273,8 @@ header and the pages they are rendered from.
 ## Motion
 
 The camera follows the scroll through the chapters and the hook keeps moving through the
-water; a hairline on the left marks the sections passed; the rules ticker scrolls. The
+water; a rope runs down the left with a knot per section and a gold hook slides down it as
+the page scrolls; the rules ticker scrolls. The
 simulation plays only when pressed, and sections rise in once. With `prefers-reduced-motion`
 nothing moves on its own. The scroll-reveal hidden state only applies once the script has run,
 so the page renders complete without JS.

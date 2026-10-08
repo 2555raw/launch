@@ -210,16 +210,28 @@ h1, h2, h3, p, dl, dd { margin: 0; }
 
 /* ---------- the line down the left side ---------- */
 
-/* Reading progress down the left gutter: a hairline that fills with gold as
-   the page scrolls, with a mark at each section. */
-.uh-rail { --rail-y: 0px; --rail-w: 9px; position: fixed; left: max(14px, calc(50% - var(--wrap) / 2 - 48px)); top: 96px; bottom: 32px; width: var(--rail-w); z-index: 30; pointer-events: none; }
-.uh-rail::before { content: ''; position: absolute; left: 4px; top: 0; bottom: 0; width: 1px; background: rgba(243, 234, 215, .12); }
-.uh-rail-fill { position: absolute; left: 4px; top: 0; width: 1px; height: var(--rail-y); background: var(--pink); }
-.uh-rail-fill::after { content: ''; position: absolute; left: -3px; bottom: -3px; width: 7px; height: 7px; border-radius: 50%; background: var(--pink); }
-.uh-rail-dot { position: absolute; left: 2px; width: 5px; height: 5px; border-radius: 50%; background: var(--bg); border: 1px solid rgba(243, 234, 215, .3); transition: background-color .3s ease, border-color .3s ease; }
-.uh-rail-dot.is-past { background: var(--pink); border-color: var(--pink); }
-.uh-rail-hook { display: none; }
-@media (max-width: 1099px) { .uh-rail { display: none; } }
+/* A rope down the left gutter. As the page scrolls the hook is let down it,
+   the rope it has passed turns to gold and each section's knot lights up once
+   its top has gone by. landing.js sets --rail-y and places the knots. */
+.uh-rail { --rail-y: 0px; --rail-w: 16px; --rope: 3px; position: fixed; left: 2px; top: 84px; bottom: 24px; width: var(--rail-w); z-index: 30; pointer-events: none; }
+.uh-rail::before { content: ''; position: absolute; left: calc(var(--rail-w) / 2 - var(--rope) / 2); top: 0; bottom: 0; width: var(--rope); border-radius: var(--rope); background: repeating-linear-gradient(-58deg, #5C4320 0 2px, #2C1F0E 2px 4px); opacity: .75; -webkit-mask-image: linear-gradient(180deg, #000 92%, transparent); mask-image: linear-gradient(180deg, #000 92%, transparent); }
+.uh-rail-fill { position: absolute; left: calc(var(--rail-w) / 2 - var(--rope) / 2); top: 0; width: var(--rope); height: calc(var(--rail-y) + 6px); border-radius: var(--rope); background: repeating-linear-gradient(-58deg, #FBE7B0 0 2px, #B57A1F 2px 4px); box-shadow: 0 0 10px rgba(232, 176, 75, .7), 0 0 26px rgba(232, 176, 75, .35); }
+.uh-rail-fill::after { content: ''; position: absolute; left: 50%; bottom: -10px; width: 26px; height: 26px; margin-left: -13px; border-radius: 50%; background: radial-gradient(circle, rgba(247, 215, 140, .8), rgba(232, 176, 75, .2) 45%, transparent 70%); }
+.uh-rail-dot { position: absolute; left: calc(var(--rail-w) / 2 - 4px); width: 8px; height: 8px; border-radius: 50%; background: #2C1F0E; border: 2px solid #5C4320; transition: background-color .4s ease, border-color .4s ease, box-shadow .4s ease, transform .4s var(--ease); }
+.uh-rail-dot.is-past { background: var(--pink-hi); border-color: #B57A1F; box-shadow: 0 0 12px rgba(232, 176, 75, .9); transform: scale(1.3); }
+.uh-rail-hook { position: absolute; left: 0; top: 0; width: var(--rail-w); height: calc(var(--rail-w) * 1.25); transform: translateY(var(--rail-y)) rotate(var(--rail-tilt, 0deg)); transform-origin: 50% 0; filter: drop-shadow(0 0 8px rgba(232, 176, 75, .7)); will-change: transform; }
+@media (min-width: 760px) {
+  .uh-rail { --rail-w: 34px; --rope: 5px; left: max(14px, calc(50% - var(--wrap) / 2 - 60px)); }
+  .uh-rail-dot { width: 12px; height: 12px; left: calc(var(--rail-w) / 2 - 6px); }
+}
+/* Below 1300px the gutter is narrower than the hook: move the content over. */
+@media (min-width: 760px) and (max-width: 1299px) {
+  main .uh-wrap { padding-left: 68px; }
+  .uh .uh-foot { padding-left: max(68px, calc(50% - var(--wrap) / 2 + 28px)); }
+}
+@media (max-width: 759px) {
+  main .uh-wrap { padding-left: 24px; }
+}
 
 /* ---------- hero ---------- */
 
@@ -524,12 +536,6 @@ main, .uh-foot { position: relative; z-index: 1; }
 .uh-ch-end .uh-sub { margin-inline: auto; max-width: 560px; color: #F3EAD7; text-shadow: 0 1px 18px rgba(7, 11, 20, .7); }
 .uh-ch-end .uh-actions { justify-content: center; }
 @media (max-width: 899px) { .uh-ch-end { align-items: center; } }
-
-/* scroll cue under the hero (not on phones, where the buttons sit there) */
-@media (max-width: 899px) { .uh-cue { display: none; } }
-.uh-cue { position: absolute; left: 50%; bottom: 28px; width: 24px; height: 40px; margin-left: -12px; border-radius: 12px; border: 1.5px solid rgba(243, 234, 215, .45); }
-.uh-cue span { position: absolute; left: 50%; top: 8px; width: 3px; height: 8px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); animation: uh-cue 2s ease-in-out infinite; }
-@keyframes uh-cue { 0% { transform: translateY(0); opacity: 1; } 70% { transform: translateY(12px); opacity: 0; } 100% { opacity: 0; } }
 
 /* labels pinned to points in the 3D scene; scene3d.js moves and fades them */
 .uh-label3d { position: fixed; left: 0; top: 0; z-index: 2; pointer-events: none; opacity: 0; white-space: nowrap;

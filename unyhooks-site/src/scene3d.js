@@ -919,6 +919,9 @@ function storyScene(canvas) {
   const ship = shipModel();
   scene.add(ship);
   ship.visible = !dbg.includes('noship');
+  // ?ship=x,z: park the ship somewhere else, for rendering stills
+  const shipQ = (new URLSearchParams(location.search).get('ship') || '').split(',').map(Number);
+  const shipAt = shipQ.length === 2 && shipQ.every(Number.isFinite) ? { x: shipQ[0], z: shipQ[1] } : null;
 
   const mir = mirror(renderer);
   water.material.uniforms.uRefl.value = mir.texture;
@@ -1062,7 +1065,7 @@ function storyScene(canvas) {
     sky.material.uniforms.uTime.value = t;
     clouds.material.uniforms.uTime.value = t;
 
-    const sx = { x: 26 + Math.sin(t * 0.03) * 5, z: -170 };
+    const sx = shipAt || { x: 26 + Math.sin(t * 0.03) * 5, z: -170 };
     const w0 = waveAt(sx.x, sx.z, t, flow), w1 = waveAt(sx.x + 3, sx.z, t, flow), w2 = waveAt(sx.x, sx.z + 1.5, t, flow);
     ship.position.set(sx.x, w0.y * 0.8 - 0.3, sx.z);
     ship.rotation.set((w2.y - w0.y) * 0.25, 2.6, (w1.y - w0.y) * 0.12);

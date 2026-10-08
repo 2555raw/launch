@@ -144,11 +144,13 @@ describe('game API', () => {
     const v = await app.inject({ method: 'GET', url: '/game/village', headers: auth(token) });
     expect(v.statusCode).toBe(200);
     expect(v.json().village.buildings.length).toBeGreaterThan(5);
-    const place = await app.inject({ method: 'POST', url: '/game/buildings', headers: auth(token), payload: { type: 'cannon', x: 2, y: 2 } });
+    const place = await app.inject({ method: 'POST', url: '/game/buildings', headers: auth(token), payload: { type: 'wall', x: 2, y: 2 } });
     expect(place.statusCode).toBe(201);
-    expect(place.json().village.resources.gold).toBe(500);
+    expect(place.json().village.resources.gold).toBe(700);
     const overlap = await app.inject({ method: 'POST', url: '/game/buildings', headers: auth(token), payload: { type: 'wall', x: 2, y: 2 } });
-    expect(overlap.statusCode).toBe(409);
+    expect(overlap.statusCode).toBe(400);
+    const limit = await app.inject({ method: 'POST', url: '/game/buildings', headers: auth(token), payload: { type: 'cannon', x: 2, y: 6 } });
+    expect(limit.statusCode).toBe(409);
     const cheat = await app.inject({ method: 'POST', url: '/game/buildings', headers: auth(token), payload: { type: 'mage_tower', x: 30, y: 30 } });
     expect(cheat.statusCode).toBe(409);
     const army = await app.inject({ method: 'POST', url: '/game/army/train', headers: auth(token), payload: { troopType: 'grunt', count: 5 } });

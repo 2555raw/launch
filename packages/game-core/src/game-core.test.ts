@@ -47,29 +47,32 @@ describe('village lifecycle', () => {
     expect(village.buildings.find((b) => b.type === 'town_hall')).toBeTruthy();
     expect(village.builders).toEqual({ total: 1, busy: 0 });
 
-    const cannon = await placeBuilding(ctx, p.id, 'cannon', 2, 2);
-    expect(cannon.state).toBe('CONSTRUCTING');
+    const wallNow = await placeBuilding(ctx, p.id, 'wall', 2, 2);
+    expect(wallNow.state).toBe('IDLE'); // walls are instant
     village = await getVillageDTO(db, p.id, clock);
-    expect(village.resources.gold).toBe(STARTER_RESOURCES.gold - 250);
+    expect(village.resources.gold).toBe(STARTER_RESOURCES.gold - 50);
+    const cannon = village.buildings.find((b) => b.type === 'cannon')!;
+    const up = await upgradeBuilding(ctx, p.id, cannon.id);
+    expect(up.state).toBe('UPGRADING');
+    village = await getVillageDTO(db, p.id, clock);
     expect(village.builders.busy).toBe(1);
     await expect(upgradeBuilding(ctx, p.id, village.buildings.find((b) => b.type === 'gold_mine')!.id)).rejects.toMatchObject({ code: 'NO_FREE_BUILDER' });
     await expect(placeBuilding(ctx, p.id, 'gold_mine', 2, 6)).rejects.toMatchObject({ code: 'LIMIT_REACHED' });
-    await expect(placeBuilding(ctx, p.id, 'cannon', 2, 2)).rejects.toMatchObject({ code: 'LIMIT_REACHED' });
-    await expect(placeBuilding(ctx, p.id, 'wall', 20, 20)).rejects.toMatchObject({ code: 'INVALID_PLACEMENT' });
-    const wall = await placeBuilding(ctx, p.id, 'wall', 2, 40);
-    expect(wall.state).toBe('IDLE');
+    await expect(placeBuilding(ctx, p.id, 'cannon', 2, 6)).rejects.toMatchObject({ code: 'LIMIT_REACHED' });
+    await expect(placeBuilding(ctx, p.id, 'wall', 2, 2)).rejects.toMatchObject({ code: 'INVALID_PLACEMENT' });
     await expect(placeBuilding(ctx, p.id, 'mortar', 2, 10)).rejects.toMatchObject({ code: 'LIMIT_REACHED' });
 
-    clock = new Date(clock.getTime() + 25_000);
+    clock = new Date(clock.getTime() + 60_000);
     village = await getVillageDTO(db, p.id, clock);
     await db.$transaction((tx) => syncPlayer(tx, p.id, clock));
     village = await getVillageDTO(db, p.id, clock);
     expect(village.buildings.find((b) => b.id === cannon.id)?.state).toBe('IDLE');
+    expect(village.buildings.find((b) => b.id === cannon.id)?.level).toBe(2);
     expect(village.builders.busy).toBe(0);
     const player = await db.player.findUniqueOrThrow({ where: { id: p.id } });
     expect(player.xp).toBeGreaterThan(0);
     const ach = await listAchievements(db, p.id);
-    expect(ach.find((a) => a.key === 'architect')?.progress).toBe(1);
+    expect(ach.find((a) => a.key === 'architect')?.progress).toBe(2);
   });
 
   it('moves, upgrades, cancels and removes buildings with validation', async () => {

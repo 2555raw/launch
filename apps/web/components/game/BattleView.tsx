@@ -116,9 +116,12 @@ export function BattleView() {
       const st = stateRef.current;
       const hp = new Map(st?.buildings.map((b) => [b.id, b]));
       const buildings = [...match.snapshot.buildings].sort((a, b) => a.x + a.y + a.size - (b.x + b.y + b.size));
+      const destroyedWalls = new Set(st?.buildings.filter((b) => b.destroyed).map((b) => b.id));
+      const wallIdAt = new Map(match.snapshot.buildings.filter((b) => b.type === 'wall').map((b) => [`${b.x},${b.y}`, b.id]));
+      const alive = (key: string) => wallSet.has(key) && !destroyedWalls.has(wallIdAt.get(key) ?? '');
       for (const b of buildings) {
         const s = hp.get(b.id);
-        drawBuilding(ctx, { type: b.type, level: b.level, x: b.x, y: b.y, size: b.size, zoom: cam.zoom, ox: cam.ox, oy: cam.oy, destroyed: s?.destroyed, hpRatio: s ? s.hp / s.maxHp : undefined, t, wallLinks: b.type === 'wall' ? { e: wallSet.has(`${b.x + 1},${b.y}`) && !hp.get(`w`)?.destroyed, s: wallSet.has(`${b.x},${b.y + 1}`) } : undefined });
+        drawBuilding(ctx, { type: b.type, level: b.level, x: b.x, y: b.y, size: b.size, zoom: cam.zoom, ox: cam.ox, oy: cam.oy, destroyed: s?.destroyed, hpRatio: s ? s.hp / s.maxHp : undefined, t, wallLinks: b.type === 'wall' ? { n: alive(`${b.x},${b.y - 1}`), e: alive(`${b.x + 1},${b.y}`), s: alive(`${b.x},${b.y + 1}`), w: alive(`${b.x - 1},${b.y}`) } : undefined });
       }
       if (st) for (const tr of [...st.troops].sort((a, b) => a.x + a.y - (b.x + b.y))) drawTroop(ctx, tr.troopType, tr.x, tr.y, cam.zoom, cam.ox, cam.oy, tr.hp / tr.maxHp, TROOP_DEFINITIONS[tr.troopType]?.isFlying ?? false, t);
     },

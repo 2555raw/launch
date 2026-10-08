@@ -308,8 +308,8 @@ export interface DrawBuildingOptions {
   destroyed?: boolean;
   hpRatio?: number;
   ghost?: boolean;
-  /** for walls: which neighbours are also walls (east = +x, south = +y) */
-  wallLinks?: { e: boolean; s: boolean };
+  /** for walls: which neighbours are also walls (n = -y, e = +x, s = +y, w = -x) */
+  wallLinks?: { n?: boolean; e: boolean; s: boolean; w?: boolean };
   /** animation clock in ms, for subtle idle effects */
   t?: number;
 }
@@ -356,11 +356,15 @@ export function drawBuilding(ctx: CanvasRenderingContext2D, o: DrawBuildingOptio
   const center = toScreen(x + size / 2, y + size / 2, zoom, ox, oy);
   switch (o.type) {
     case 'wall': {
-      const wh = 10 + Math.min(lvl, 8) * 1.4;
+      const wh = 11 + Math.min(lvl, 8) * 1.4;
       const links = o.wallLinks ?? { e: false, s: false };
-      if (links.e) drawPrism(ctx, x + 0.35, y + 0.3, 1, 0.4, wh - 3, zoom, ox, oy, pal);
-      if (links.s) drawPrism(ctx, x + 0.3, y + 0.35, 0.4, 1, wh - 3, zoom, ox, oy, pal);
-      drawPrism(ctx, x + 0.2, y + 0.2, 0.6, 0.6, wh, zoom, ox, oy, { ...pal, roof: lvl >= 5 ? '#e8d9a0' : pal.roof });
+      const barPal = { ...pal, roof: shade(pal.roof, -12) };
+      // connecting curtain walls, drawn from the post centre to the neighbour's centre
+      if (links.n) drawPrism(ctx, x + 0.28, y - 0.5, 0.44, 1, wh - 2, zoom, ox, oy, barPal);
+      if (links.w) drawPrism(ctx, x - 0.5, y + 0.28, 1, 0.44, wh - 2, zoom, ox, oy, barPal);
+      if (links.e) drawPrism(ctx, x + 0.5, y + 0.28, 1, 0.44, wh - 2, zoom, ox, oy, barPal);
+      if (links.s) drawPrism(ctx, x + 0.28, y + 0.5, 0.44, 1, wh - 2, zoom, ox, oy, barPal);
+      drawPrism(ctx, x + 0.18, y + 0.18, 0.64, 0.64, wh, zoom, ox, oy, { ...pal, roof: lvl >= 5 ? '#e8d9a0' : pal.roof });
       break;
     }
     case 'town_hall': {

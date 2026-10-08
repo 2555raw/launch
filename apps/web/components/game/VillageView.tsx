@@ -87,7 +87,7 @@ export function VillageView() {
           ghost: b.ghost,
           invalid: b.invalid,
           t,
-          wallLinks: b.type === 'wall' ? { e: wallSet.has(`${b.x + 1},${b.y}`), s: wallSet.has(`${b.x},${b.y + 1}`) } : undefined,
+          wallLinks: b.type === 'wall' ? { n: wallSet.has(`${b.x},${b.y - 1}`), e: wallSet.has(`${b.x + 1},${b.y}`), s: wallSet.has(`${b.x},${b.y + 1}`), w: wallSet.has(`${b.x - 1},${b.y}`) } : undefined,
         });
       }
     },

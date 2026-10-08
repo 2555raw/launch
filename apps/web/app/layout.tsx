@@ -1,0 +1,25 @@
+import type { Metadata } from 'next';
+import { Providers } from '@/components/providers';
+import { Shell } from '@/components/shell/shell';
+import './globals.css';
+
+export const metadata: Metadata = {
+  title: { default: 'Launch · Emberhold', template: '%s · Launch' },
+  description: 'Emberhold is a multiplayer strategy game. Launch is a Solana and Robinhood Chain token launchpad. One ecosystem.',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+      </head>
+      <body className="min-h-screen font-sans">
+        <Providers>
+          <Shell>{children}</Shell>
+        </Providers>
+      </body>
+    </html>
+  );
+}

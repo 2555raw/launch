@@ -1,0 +1,16 @@
+node_modules
+dist
+.next
+out
+coverage
+*.tsbuildinfo
+.env
+.env.*.local
+.env.local
+.DS_Store
+/apps/api/uploads/*
+!/apps/api/uploads/.gitkeep
+/packages/database/generated
+/.keys
+/pgdata
+/redisdata

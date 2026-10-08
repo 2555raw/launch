@@ -1,0 +1,36 @@
+{
+  "name": "launch-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Emberhold (a Clash-style multiplayer strategy game) + Launch (a Solana and Robinhood Chain token launchpad) in one ecosystem.",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "node scripts/dev.mjs",
+    "dev:api": "npm run dev -w @launch/api",
+    "dev:game-server": "npm run dev -w @launch/game-server",
+    "dev:web": "npm run dev -w @launch/web",
+    "build": "npm run build:packages && npm run build -w @launch/api -w @launch/game-server -w @launch/web",
+    "build:packages": "npm run build -w @launch/types -w @launch/config -w @launch/game-engine -w @launch/database -w @launch/game-core -w @launch/solana -w @launch/evm -w @launch/robinhood",
+    "start:api": "npm run start -w @launch/api",
+    "start:game-server": "npm run start -w @launch/game-server",
+    "start:web": "npm run start -w @launch/web",
+    "db:generate": "npm run generate -w @launch/database",
+    "db:migrate": "npm run migrate:deploy -w @launch/database",
+    "db:migrate:dev": "npm run migrate:dev -w @launch/database",
+    "db:seed": "npm run seed -w @launch/database",
+    "db:reset": "npm run reset -w @launch/database",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "node scripts/test.mjs",
+    "test:devnet": "SOLANA_DEVNET_TESTS=1 EVM_TESTNET_TESTS=1 node scripts/test.mjs",
+    "compile:evm": "npm run compile -w @launch/evm"
+  }
+}

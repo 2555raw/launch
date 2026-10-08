@@ -1,0 +1,399 @@
+{
+  "contractName": "LaunchToken",
+  "compiler": "0.8.37+commit.f401782d.Emscripten.clang",
+  "evmVersion": "paris",
+  "optimizer": {
+    "enabled": true,
+    "runs": 200
+  },
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "name_",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "symbol_",
+          "type": "string"
+        },
+        {
+          "internalType": "uint8",
+          "name": "decimals_",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "initialSupply_",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "owner_",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "fixedSupply_",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "InsufficientAllowance",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "MintingIsDisabled",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NotOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ZeroAddress",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [],
+      "name": "MintingDisabled",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "burn",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "disableMinting",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "mintingDisabled",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "name",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x60a060405234801561001057600080fd5b50604051610eda380380610eda83398101604081905261002f91610296565b6001600160a01b0382166100565760405163d92e233d60e01b815260040160405180910390fd5b600061006287826103e6565b50600161006f86826103e6565b5060ff8416608052600380546001600160a01b0319166001600160a01b0384169081179091556040516000907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908290a36100ca8284610118565b801561010d576003805460ff60a01b1916600160a01b1790556040517faf79b4370f6af9d950564bbe6b81f7f0834c003c455db9248f4e55e6bf865eb790600090a15b5050505050506104cf565b6001600160a01b03821661013f5760405163d92e233d60e01b815260040160405180910390fd5b806002600082825461015191906104a8565b90915550506001600160a01b0382166000908152600460205260408120805483929061017e9084906104a8565b90915550506040518181526001600160a01b038316906000907fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9060200160405180910390a35050565b634e487b7160e01b600052604160045260246000fd5b600082601f8301126101ef57600080fd5b81516001600160401b03811115610208576102086101c8565b604051601f8201601f19908116603f011681016001600160401b0381118282101715610236576102366101c8565b60405281815283820160200185101561024e57600080fd5b60005b8281101561026d57602081860181015183830182015201610251565b506000918101602001919091529392505050565b8051801515811461029157600080fd5b919050565b60008060008060008060c087890312156102af57600080fd5b86516001600160401b038111156102c557600080fd5b6102d189828a016101de565b602089015190975090506001600160401b038111156102ef57600080fd5b6102fb89828a016101de565b955050604087015160ff8116811461031257600080fd5b6060880151608089015191955093506001600160a01b038116811461033657600080fd5b915061034460a08801610281565b90509295509295509295565b600181811c9082168061036457607f821691505b60208210810361038457634e487b7160e01b600052602260045260246000fd5b50919050565b601f8211156103e157828211156103e157806000526020600020601f840160051c60208510156103b8575060005b90810190601f840160051c0360005b818110156103dd576000838201556001016103c7565b5050505b505050565b81516001600160401b038111156103ff576103ff6101c8565b6104138161040d8454610350565b8461038a565b6020601f821160018114610447576000831561042f5750848201515b600019600385901b1c1916600184901b1784556104a1565b600084815260208120601f198516915b828110156104775787850151825560209485019460019092019101610457565b50848210156104955786840151600019600387901b60f8161c191681555b505060018360011b0184555b5050505050565b808201808211156104c957634e487b7160e01b600052601160045260246000fd5b92915050565b6080516109f06104ea600039600061017e01526109f06000f3fe608060405234801561001057600080fd5b50600436106100f55760003560e01c806342966c681161009757806395d89b411161006657806395d89b411461022d578063a9059cbb14610235578063dd62ed3e14610248578063f2fde38b1461027357600080fd5b806342966c68146101c757806370a08231146101da5780637e5cd5c1146101fa5780638da5cb5b1461020257600080fd5b806321afb5ee116100d357806321afb5ee1461015257806323b872dd14610166578063313ce5671461017957806340c10f19146101b257600080fd5b806306fdde03146100fa578063095ea7b31461011857806318160ddd1461013b575b600080fd5b610102610286565b60405161010f9190610805565b60405180910390f35b61012b61012636600461086f565b610314565b604051901515815260200161010f565b61014460025481565b60405190815260200161010f565b60035461012b90600160a01b900460ff1681565b61012b610174366004610899565b610381565b6101a07f000000000000000000000000000000000000000000000000000000000000000081565b60405160ff909116815260200161010f565b6101c56101c036600461086f565b610414565b005b6101c56101d53660046108d6565b610478565b6101446101e83660046108ef565b60046020526000908152604090205481565b6101c5610520565b600354610215906001600160a01b031681565b6040516001600160a01b03909116815260200161010f565b610102610589565b61012b61024336600461086f565b610596565b610144610256366004610911565b600560209081526000928352604080842090915290825290205481565b6101c56102813660046108ef565b6105ac565b6000805461029390610944565b80601f01602080910402602001604051908101604052809291908181526020018280546102bf90610944565b801561030c5780601f106102e15761010080835404028352916020019161030c565b820191906000526020600020905b8154815290600101906020018083116102ef57829003601f168201915b505050505081565b3360008181526005602090815260408083206001600160a01b038716808552925280832085905551919290917f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b9259061036f9086815260200190565b60405180910390a35060015b92915050565b6001600160a01b038316600090815260056020908152604080832033845290915281205460001981146103fe57828110156103cf576040516313be252b60e01b815260040160405180910390fd5b6103d98382610994565b6001600160a01b03861660009081526005602090815260408083203384529091529020555b61040985858561065a565b506001949350505050565b6003546001600160a01b0316331461043f576040516330cd747160e01b815260040160405180910390fd5b600354600160a01b900460ff161561046a57604051630b66f92760e21b815260040160405180910390fd5b6104748282610755565b5050565b336000908152600460205260409020548111156104a857604051631e9acf1760e31b815260040160405180910390fd5b33600090815260046020526040812080548392906104c7908490610994565b9250508190555080600260008282546104e09190610994565b909155505060405181815260009033907fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9060200160405180910390a350565b6003546001600160a01b0316331461054b576040516330cd747160e01b815260040160405180910390fd5b6003805460ff60a01b1916600160a01b1790556040517faf79b4370f6af9d950564bbe6b81f7f0834c003c455db9248f4e55e6bf865eb790600090a1565b6001805461029390610944565b60006105a333848461065a565b50600192915050565b6003546001600160a01b031633146105d7576040516330cd747160e01b815260040160405180910390fd5b6001600160a01b0381166105fe5760405163d92e233d60e01b815260040160405180910390fd5b6003546040516001600160a01b038084169216907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e090600090a3600380546001600160a01b0319166001600160a01b0392909216919091179055565b6001600160a01b0382166106815760405163d92e233d60e01b815260040160405180910390fd5b6001600160a01b038316600090815260046020526040902054818110156106bb57604051631e9acf1760e31b815260040160405180910390fd5b6106c58282610994565b6001600160a01b0380861660009081526004602052604080822093909355908516815290812080548492906106fb9084906109a7565b92505081905550826001600160a01b0316846001600160a01b03167fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef8460405161074791815260200190565b60405180910390a350505050565b6001600160a01b03821661077c5760405163d92e233d60e01b815260040160405180910390fd5b806002600082825461078e91906109a7565b90915550506001600160a01b038216600090815260046020526040812080548392906107bb9084906109a7565b90915550506040518181526001600160a01b038316906000907fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9060200160405180910390a35050565b602081526000825180602084015260005b818110156108335760208186018101516040868401015201610816565b506000604082850101526040601f19601f83011684010191505092915050565b80356001600160a01b038116811461086a57600080fd5b919050565b6000806040838503121561088257600080fd5b61088b83610853565b946020939093013593505050565b6000806000606084860312156108ae57600080fd5b6108b784610853565b92506108c560208501610853565b929592945050506040919091013590565b6000602082840312156108e857600080fd5b5035919050565b60006020828403121561090157600080fd5b61090a82610853565b9392505050565b6000806040838503121561092457600080fd5b61092d83610853565b915061093b60208401610853565b90509250929050565b600181811c9082168061095857607f821691505b60208210810361097857634e487b7160e01b600052602260045260246000fd5b50919050565b634e487b7160e01b600052601160045260246000fd5b8181038181111561037b5761037b61097e565b8082018082111561037b5761037b61097e56fea26469706673582212206fe3abd019ca7a75abc7dc886a4959036155760bf07f9ca89f024ca8f9d0179d64736f6c63430008250033",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.37+commit.f401782d\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"string\",\"name\":\"name_\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol_\",\"type\":\"string\"},{\"internalType\":\"uint8\",\"name\":\"decimals_\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"initialSupply_\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"owner_\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"fixedSupply_\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"InsufficientAllowance\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InsufficientBalance\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"MintingIsDisabled\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"NotOwner\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"ZeroAddress\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[],\"name\":\"MintingDisabled\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"decimals\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"disableMinting\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"mint\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"mintingDisabled\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"name\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"symbol\",\"outputs\":[{\"internalType\":\"string\",\"name\":\"\",\"type\":\"string\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"title\":\"LaunchToken\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"notice\":\"Minimal, dependency-free ERC-20 used by the Launch launchpad on Robinhood Chain.         The full supply is minted to the creator at deployment. Minting can be permanently         disabled by the owner (fixed supply). Includes burn and EIP-2612-free simplicity.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"LaunchToken.sol\":\"LaunchToken\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"LaunchToken.sol\":{\"keccak256\":\"0xdc69e559d1450eb94762904f8d4047bf23b2e0594151e2d7e62dfe77755a72da\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://300c79ea726625b7e787c15ee7f1e0458ed2559d0c6af1263134e3539aab3210\",\"dweb:/ipfs/QmQD8twrie47Mp5h4ZfHfvW7pt2v4VfU6oAE3o7Yv4nYGZ\"]}},\"version\":1}",
+  "source": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.24;\n\n/**\n * @title LaunchToken\n * @notice Minimal, dependency-free ERC-20 used by the Launch launchpad on Robinhood Chain.\n *         The full supply is minted to the creator at deployment. Minting can be permanently\n *         disabled by the owner (fixed supply). Includes burn and EIP-2612-free simplicity.\n */\ncontract LaunchToken {\n    string public name;\n    string public symbol;\n    uint8 public immutable decimals;\n    uint256 public totalSupply;\n    address public owner;\n    bool public mintingDisabled;\n\n    mapping(address => uint256) public balanceOf;\n    mapping(address => mapping(address => uint256)) public allowance;\n\n    event Transfer(address indexed from, address indexed to, uint256 value);\n    event Approval(address indexed owner, address indexed spender, uint256 value);\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\n    event MintingDisabled();\n\n    error NotOwner();\n    error MintingIsDisabled();\n    error InsufficientBalance();\n    error InsufficientAllowance();\n    error ZeroAddress();\n\n    modifier onlyOwner() {\n        if (msg.sender != owner) revert NotOwner();\n        _;\n    }\n\n    constructor(string memory name_, string memory symbol_, uint8 decimals_, uint256 initialSupply_, address owner_, bool fixedSupply_) {\n        if (owner_ == address(0)) revert ZeroAddress();\n        name = name_;\n        symbol = symbol_;\n        decimals = decimals_;\n        owner = owner_;\n        emit OwnershipTransferred(address(0), owner_);\n        _mint(owner_, initialSupply_);\n        if (fixedSupply_) {\n            mintingDisabled = true;\n            emit MintingDisabled();\n        }\n    }\n\n    function transfer(address to, uint256 value) external returns (bool) {\n        _transfer(msg.sender, to, value);\n        return true;\n    }\n\n    function approve(address spender, uint256 value) external returns (bool) {\n        allowance[msg.sender][spender] = value;\n        emit Approval(msg.sender, spender, value);\n        return true;\n    }\n\n    function transferFrom(address from, address to, uint256 value) external returns (bool) {\n        uint256 allowed = allowance[from][msg.sender];\n        if (allowed != type(uint256).max) {\n            if (allowed < value) revert InsufficientAllowance();\n            allowance[from][msg.sender] = allowed - value;\n        }\n        _transfer(from, to, value);\n        return true;\n    }\n\n    function burn(uint256 value) external {\n        if (balanceOf[msg.sender] < value) revert InsufficientBalance();\n        balanceOf[msg.sender] -= value;\n        totalSupply -= value;\n        emit Transfer(msg.sender, address(0), value);\n    }\n\n    function mint(address to, uint256 value) external onlyOwner {\n        if (mintingDisabled) revert MintingIsDisabled();\n        _mint(to, value);\n    }\n\n    function disableMinting() external onlyOwner {\n        mintingDisabled = true;\n        emit MintingDisabled();\n    }\n\n    function transferOwnership(address newOwner) external onlyOwner {\n        if (newOwner == address(0)) revert ZeroAddress();\n        emit OwnershipTransferred(owner, newOwner);\n        owner = newOwner;\n    }\n\n    function _mint(address to, uint256 value) internal {\n        if (to == address(0)) revert ZeroAddress();\n        totalSupply += value;\n        balanceOf[to] += value;\n        emit Transfer(address(0), to, value);\n    }\n\n    function _transfer(address from, address to, uint256 value) internal {\n        if (to == address(0)) revert ZeroAddress();\n        uint256 bal = balanceOf[from];\n        if (bal < value) revert InsufficientBalance();\n        balanceOf[from] = bal - value;\n        balanceOf[to] += value;\n        emit Transfer(from, to, value);\n    }\n}\n"
+}

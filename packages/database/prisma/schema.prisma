@@ -1,0 +1,632 @@
+// Launch / Emberhold — PostgreSQL schema (Prisma 6)
+// Authoritative game + launchpad state. Clients never write to these tables directly.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ──────────────────────────── Identity ────────────────────────────
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+  DEVELOPER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+model User {
+  id            String     @id @default(cuid())
+  email         String?    @unique
+  emailVerified DateTime?
+  passwordHash  String?
+  username      String     @unique
+  role          UserRole   @default(USER)
+  status        UserStatus @default(ACTIVE)
+  banReason     String?
+  bannedUntil   DateTime?
+  lastLoginAt   DateTime?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  player        Player?
+  wallets       Wallet[]
+  sessions      RefreshSession[]
+  projects      Project[]
+  transactions  Transaction[]
+  auditLogs     AuditLog[]      @relation("AuditActor")
+  notifications Notification[]
+  reportsFiled  Report[]        @relation("ReportReporter")
+  reportsResolved Report[]      @relation("ReportResolver")
+  robinhoodConnection RobinhoodConnection?
+
+  @@index([createdAt])
+  @@index([role])
+}
+
+enum Chain {
+  SOLANA
+  ROBINHOOD
+}
+
+model Wallet {
+  id         String   @id @default(cuid())
+  userId     String
+  chain      Chain
+  address    String
+  label      String?
+  isPrimary  Boolean  @default(false)
+  verifiedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chain, address])
+  @@index([userId])
+}
+
+model RefreshSession {
+  id           String    @id @default(cuid())
+  userId       String
+  tokenHash    String    @unique
+  family       String
+  userAgent    String?
+  ip           String?
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?
+  createdAt    DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([family])
+  @@index([expiresAt])
+}
+
+// ──────────────────────────── Game ────────────────────────────
+
+model Player {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  name          String
+  xp            Int      @default(0)
+  level         Int      @default(1)
+  trophies      Int      @default(0)
+  bestTrophies  Int      @default(0)
+  gold          Int      @default(0)
+  elixir        Int      @default(0)
+  gems          Int      @default(0)
+  attacksWon    Int      @default(0)
+  attacksLost   Int      @default(0)
+  defensesWon   Int      @default(0)
+  defensesLost  Int      @default(0)
+  shieldUntil   DateTime?
+  lastSeenAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  village        Village?
+  troops         PlayerTroop[]
+  army           ArmyUnit[]
+  trainingJobs   TrainingJob[]
+  research       ResearchJob[]
+  attacks        Battle[]          @relation("Attacker")
+  defenses       Battle[]          @relation("Defender")
+  clanMember     ClanMember?
+  clanInvites    ClanInvite[]
+  clanMessages   ClanMessage[]
+  achievements   PlayerAchievement[]
+  ledger         ResourceLedger[]
+  donationsSent  TroopDonation[]   @relation("DonationFrom")
+  donationsReceived TroopDonation[] @relation("DonationTo")
+  troopRequests  ClanTroopRequest[]
+  rankings       RankingSnapshot[]
+
+  @@index([trophies(sort: Desc)])
+  @@index([level])
+  @@index([name])
+}
+
+model Village {
+  id        String   @id @default(cuid())
+  playerId  String   @unique
+  name      String
+  gridSize  Int      @default(44)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  player    Player     @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  buildings Building[]
+}
+
+enum BuildingState {
+  IDLE
+  CONSTRUCTING
+  UPGRADING
+}
+
+model Building {
+  id                    String        @id @default(cuid())
+  villageId             String
+  type                  String
+  level                 Int           @default(1)
+  x                     Int
+  y                     Int
+  state                 BuildingState @default(IDLE)
+  constructionStartedAt DateTime?
+  constructionEndsAt    DateTime?
+  /// For collectors: timestamp of last collection; accrual is computed lazily from it.
+  lastCollectedAt       DateTime      @default(now())
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  village Village @relation(fields: [villageId], references: [id], onDelete: Cascade)
+
+  @@index([villageId])
+  @@index([villageId, type])
+  @@index([constructionEndsAt])
+}
+
+/// Troop unlock + research level per player.
+model PlayerTroop {
+  id        String @id @default(cuid())
+  playerId  String
+  troopType String
+  level     Int    @default(1)
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, troopType])
+}
+
+/// Trained troops currently in the army camps.
+model ArmyUnit {
+  id        String @id @default(cuid())
+  playerId  String
+  troopType String
+  count     Int    @default(0)
+  /// reinforcements donated by clanmates (kept outside army-camp housing)
+  donated   Int    @default(0)
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, troopType])
+}
+
+model TrainingJob {
+  id          String   @id @default(cuid())
+  playerId    String
+  troopType   String
+  count       Int
+  startedAt   DateTime @default(now())
+  completesAt DateTime
+  createdAt   DateTime @default(now())
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([playerId, completesAt])
+}
+
+model ResearchJob {
+  id          String   @id @default(cuid())
+  playerId    String
+  troopType   String
+  toLevel     Int
+  startedAt   DateTime @default(now())
+  completesAt DateTime
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([playerId, completesAt])
+}
+
+enum BattleState {
+  PENDING
+  ACTIVE
+  FINISHED
+  ABANDONED
+}
+
+model Battle {
+  id                  String      @id @default(cuid())
+  attackerId          String
+  defenderId          String
+  state               BattleState @default(PENDING)
+  seed                Int
+  /// Immutable snapshot of the defender's village at matchmaking time.
+  defenderSnapshot    Json
+  /// Army the attacker brought (troopType -> count), locked at matchmaking.
+  attackerArmy        Json
+  /// Ordered server-validated deployments [{t, troopType, x, y}].
+  deployments         Json        @default("[]")
+  result              Json?
+  stars               Int         @default(0)
+  destructionPercent  Int         @default(0)
+  lootGold            Int         @default(0)
+  lootElixir          Int         @default(0)
+  attackerTrophyDelta Int         @default(0)
+  defenderTrophyDelta Int         @default(0)
+  startedAt           DateTime?
+  endedAt             DateTime?
+  createdAt           DateTime    @default(now())
+
+  attacker Player @relation("Attacker", fields: [attackerId], references: [id], onDelete: Cascade)
+  defender Player @relation("Defender", fields: [defenderId], references: [id], onDelete: Cascade)
+
+  @@index([attackerId, createdAt(sort: Desc)])
+  @@index([defenderId, createdAt(sort: Desc)])
+  @@index([state])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum ResourceType {
+  GOLD
+  ELIXIR
+  GEMS
+}
+
+/// Append-only ledger of every resource change: audit trail + duplicate-reward protection.
+model ResourceLedger {
+  id           String       @id @default(cuid())
+  playerId     String
+  resource     ResourceType
+  delta        Int
+  balanceAfter Int
+  reason       String
+  refId        String?
+  createdAt    DateTime     @default(now())
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, reason, refId])
+  @@index([playerId, createdAt(sort: Desc)])
+}
+
+// ──────────────────────────── Clans ────────────────────────────
+
+enum ClanRole {
+  LEADER
+  CO_LEADER
+  ELDER
+  MEMBER
+}
+
+enum ClanType {
+  OPEN
+  INVITE_ONLY
+  CLOSED
+}
+
+model Clan {
+  id               String   @id @default(cuid())
+  name             String   @unique
+  tag              String   @unique
+  description      String   @default("")
+  badge            String   @default("shield-1")
+  type             ClanType @default(OPEN)
+  requiredTrophies Int      @default(0)
+  trophies         Int      @default(0)
+  warsWon          Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  members  ClanMember[]
+  invites  ClanInvite[]
+  messages ClanMessage[]
+  requests ClanTroopRequest[]
+  donations TroopDonation[]
+  rankings RankingSnapshot[]
+
+  @@index([trophies(sort: Desc)])
+}
+
+model ClanMember {
+  id       String   @id @default(cuid())
+  clanId   String
+  playerId String   @unique
+  role     ClanRole @default(MEMBER)
+  donated  Int      @default(0)
+  received Int      @default(0)
+  joinedAt DateTime @default(now())
+
+  clan   Clan   @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([clanId])
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+model ClanInvite {
+  id          String       @id @default(cuid())
+  clanId      String
+  playerId    String
+  invitedById String
+  status      InviteStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+
+  clan   Clan   @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([playerId, status])
+  @@index([clanId, status])
+}
+
+model ClanMessage {
+  id        String   @id @default(cuid())
+  clanId    String
+  playerId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  clan   Clan   @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@index([clanId, createdAt(sort: Desc)])
+}
+
+model ClanTroopRequest {
+  id        String   @id @default(cuid())
+  clanId    String
+  playerId  String
+  message   String   @default("")
+  capacity  Int
+  filled    Int      @default(0)
+  createdAt DateTime @default(now())
+
+  clan      Clan            @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  player    Player          @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  donations TroopDonation[]
+
+  @@index([clanId, createdAt(sort: Desc)])
+}
+
+model TroopDonation {
+  id           String   @id @default(cuid())
+  clanId       String
+  requestId    String
+  fromPlayerId String
+  toPlayerId   String
+  troopType    String
+  count        Int
+  createdAt    DateTime @default(now())
+
+  clan    Clan             @relation(fields: [clanId], references: [id], onDelete: Cascade)
+  request ClanTroopRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  from    Player           @relation("DonationFrom", fields: [fromPlayerId], references: [id], onDelete: Cascade)
+  to      Player           @relation("DonationTo", fields: [toPlayerId], references: [id], onDelete: Cascade)
+
+  @@index([requestId])
+}
+
+// ──────────────────────────── Progression ────────────────────────────
+
+model PlayerAchievement {
+  id          String    @id @default(cuid())
+  playerId    String
+  key         String
+  progress    Int       @default(0)
+  tier        Int       @default(0)
+  completedAt DateTime?
+  claimedAt   DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  player Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, key])
+}
+
+enum RankingScope {
+  PLAYER
+  CLAN
+}
+
+model RankingSnapshot {
+  id        String       @id @default(cuid())
+  season    String
+  scope     RankingScope
+  rank      Int
+  trophies  Int
+  playerId  String?
+  clanId    String?
+  createdAt DateTime     @default(now())
+
+  player Player? @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  clan   Clan?   @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@index([season, scope, rank])
+}
+
+// ──────────────────────────── Launchpad ────────────────────────────
+
+enum ProjectStatus {
+  DRAFT
+  AWAITING_SIGNATURE
+  VERIFYING
+  PUBLISHED
+  FAILED
+}
+
+model Project {
+  id            String        @id @default(cuid())
+  creatorUserId String
+  slug          String        @unique
+  name          String
+  symbol        String
+  description   String        @default("")
+  logoUrl       String?
+  website       String?
+  twitter       String?
+  discord       String?
+  telegram      String?
+  chain         Chain
+  network       String
+  totalSupply   String
+  decimals      Int
+  status        ProjectStatus @default(DRAFT)
+  failureReason String?
+  metadataUri   String?
+  publishedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  creator User   @relation(fields: [creatorUserId], references: [id], onDelete: Cascade)
+  token   Token?
+
+  @@index([creatorUserId])
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([chain, network])
+}
+
+model Token {
+  id                   String    @id @default(cuid())
+  projectId            String    @unique
+  chain                Chain
+  network              String
+  address              String
+  creatorWallet        String
+  createTxSignature    String
+  decimals             Int
+  supply               String
+  tokenProgram         String?
+  metadataUri          String?
+  mintAuthorityRevoked Boolean   @default(false)
+  verifiedAt           DateTime  @default(now())
+  metrics              Json?
+  metricsFetchedAt     DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([chain, network, address])
+  @@index([createdAt(sort: Desc)])
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
+model Transaction {
+  id          String            @id @default(cuid())
+  userId      String?
+  chain       Chain
+  network     String
+  signature   String
+  kind        String
+  status      TransactionStatus @default(PENDING)
+  fromAddress String?
+  toAddress   String?
+  amount      String?
+  asset       String?
+  blockRef    String?
+  raw         Json?
+  confirmedAt DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@unique([chain, network, signature])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([kind])
+}
+
+/// Encrypted, user-linked Robinhood Crypto Trading API credentials (official API).
+model RobinhoodConnection {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  apiKeyEnc         String
+  privateKeyEnc     String
+  publicKeyBase64   String
+  label             String?
+  lastVerifiedAt    DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ──────────────────────────── Admin / Ops ────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String?
+  action      String
+  targetType  String?
+  targetId    String?
+  metadata    Json?
+  ip          String?
+  createdAt   DateTime @default(now())
+
+  actor User? @relation("AuditActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+  @@index([targetType, targetId])
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id           String       @id @default(cuid())
+  reporterId   String
+  targetType   String
+  targetId     String
+  reason       String
+  status       ReportStatus @default(OPEN)
+  resolvedById String?
+  resolution   String?
+  createdAt    DateTime     @default(now())
+  resolvedAt   DateTime?
+
+  reporter User  @relation("ReportReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  resolver User? @relation("ReportResolver", fields: [resolvedById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model GameConfigOverride {
+  key         String   @id
+  value       Json
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+}

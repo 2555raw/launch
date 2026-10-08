@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+**/dist
+**/.next
+.git
+.env
+payence
+terminal
+blendify-site
+nomia-site
+archive-2011

@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Obscura — private bonds, sealed in your browser</title>
   <meta name="description" content="Obscura seals an asset into one hash that only your receipt can open. Hold it, hand it on, and prove it one bit at a time, without showing the rest of your wallet.">
-  <meta name="theme-color" content="#ffffff">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Obscura">
   <meta property="og:title" content="Obscura — prove one holding, hide the rest">
@@ -19,8 +18,12 @@
   <meta name="twitter:title" content="Obscura — prove one holding, hide the rest">
   <meta name="twitter:description" content="Seal an asset into one hash in your browser. Prove it to one person without showing the rest of your wallet.">
   <meta name="twitter:image" content="__ORIGIN__/assets/og-home.jpg">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='9'%20fill='%230b0d12'/%3E%3Cg%20transform='translate%284%204%29'%20stroke='%23fff'%20fill='none'%3E%3Ccircle%20cx='12'%20cy='12'%20r='9'%20stroke-width='2'/%3E%3Cpath%20d='M15.14%2013.30L17.82%2014.41%20M13.30%2015.14L14.41%2017.82%20M10.70%2015.14L9.59%2017.82%20M8.86%2013.30L6.18%2014.41%20M8.86%2010.70L6.18%209.59%20M10.70%208.86L9.59%206.18%20M13.30%208.86L14.41%206.18%20M15.14%2010.70L17.82%209.59'%20stroke-width='1.8'%20stroke-linecap='round'/%3E%3Ccircle%20cx='12'%20cy='12'%20r='2'%20fill='%23fff'%20stroke='none'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#090b10">
   <link rel="preload" href="assets/fonts/host-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <script>try{var t=localStorage.getItem("obscura.theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
   <link rel="stylesheet" href="styles.css">
   <script>document.documentElement.classList.add("js")</script>
 </head>
@@ -29,7 +32,7 @@
 <div class="nav-wrap">
   <nav class="nav" aria-label="Main">
     <a class="brand" href="#top" aria-label="Obscura, home">
-      <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.9"/><g class="wheel"><path d="M15.14 13.30L17.82 14.41 M13.30 15.14L14.41 17.82 M10.70 15.14L9.59 17.82 M8.86 13.30L6.18 14.41 M8.86 10.70L6.18 9.59 M10.70 8.86L9.59 6.18 M13.30 8.86L14.41 6.18 M15.14 10.70L17.82 9.59" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></g></svg></span>
+      <span class="brand-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><g class="mark-spin"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></g></svg></span>
       Obscura
     </a>
     <div class="nav-links">
@@ -61,28 +64,42 @@
 </div>
 
 <header class="hero" id="top">
+  <canvas class="hero-field" aria-hidden="true"></canvas>
+  <svg class="hero-mark" viewBox="0 0 100 100" aria-hidden="true"><g class="hero-mark-turn"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></g></svg>
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <h1 class="hero-title"><span class="line"><span>Prove one holding.</span></span> <span class="line"><span>Hide the rest.</span></span></h1>
+      <p class="hero-chip hero-in" style="--d:.1s"><span class="live" aria-hidden="true"></span>Private proofs, sealed in your browser</p>
+      <h1 class="hero-title"><span class="line"><span>Prove one holding.</span></span> <span class="line"><span class="hero-dim">Hide the rest.</span></span></h1>
       <p class="lead hero-in" style="--d:.42s">Send one link. The other side sees “holds at least 2.5 ETH, signed by the wallet, checked on the blockchain”, and none of your other holdings.</p>
       <div class="cta-row hero-in" style="--d:.54s">
-        <a class="btn btn-dark btn-arrow" href="console.html">Launch app<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-        <a class="btn btn-light" href="#story">
-          See how it works
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
-        </a>
+        <a class="btn btn-white btn-arrow" href="console.html">Launch app<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a class="btn btn-outline" href="#story">How it works</a>
+        <a class="btn btn-outline" href="verify.html">Verify a proof</a>
       </div>
-      <p class="hero-note hero-in" style="--d:.66s"><span class="live" aria-hidden="true"></span>The receipt on the drawing is a real seal, sealed in your browser as you read.</p>
+      <p class="hero-note hero-in" style="--d:.66s">Ethereum, Base, Arbitrum, Optimism, Polygon, BNB Chain and Solana. No account, no server holding your keys.</p>
     </div>
 
-    <figure class="vault">
-      <svg class="vault-art" viewBox="0 0 800 1000" preserveAspectRatio="xMidYMax slice" role="img" aria-label="Drawing of a round vault door, its locking bolts closing as the receipt below is sealed"><rect width="800" height="1000" fill="#eef0f4"/><path d="M0 0H800" stroke="#e3e6ec" stroke-width="2"/><path d="M0 125H800" stroke="#e3e6ec" stroke-width="2"/><path d="M0 250H800" stroke="#e3e6ec" stroke-width="2"/><path d="M0 375H800" stroke="#e3e6ec" stroke-width="2"/><path d="M0 500H800" stroke="#e3e6ec" stroke-width="2"/><path d="M0 625H800" stroke="#e3e6ec" stroke-width="2"/><path d="M0 750H800" stroke="#e3e6ec" stroke-width="2"/><path d="M0 875H800" stroke="#e3e6ec" stroke-width="2"/><path d="M0 0V125" stroke="#e3e6ec" stroke-width="2"/><path d="M200 0V125" stroke="#e3e6ec" stroke-width="2"/><path d="M400 0V125" stroke="#e3e6ec" stroke-width="2"/><path d="M600 0V125" stroke="#e3e6ec" stroke-width="2"/><path d="M100 125V250" stroke="#e3e6ec" stroke-width="2"/><path d="M300 125V250" stroke="#e3e6ec" stroke-width="2"/><path d="M500 125V250" stroke="#e3e6ec" stroke-width="2"/><path d="M700 125V250" stroke="#e3e6ec" stroke-width="2"/><path d="M0 250V375" stroke="#e3e6ec" stroke-width="2"/><path d="M200 250V375" stroke="#e3e6ec" stroke-width="2"/><path d="M400 250V375" stroke="#e3e6ec" stroke-width="2"/><path d="M600 250V375" stroke="#e3e6ec" stroke-width="2"/><path d="M100 375V500" stroke="#e3e6ec" stroke-width="2"/><path d="M300 375V500" stroke="#e3e6ec" stroke-width="2"/><path d="M500 375V500" stroke="#e3e6ec" stroke-width="2"/><path d="M700 375V500" stroke="#e3e6ec" stroke-width="2"/><path d="M0 500V625" stroke="#e3e6ec" stroke-width="2"/><path d="M200 500V625" stroke="#e3e6ec" stroke-width="2"/><path d="M400 500V625" stroke="#e3e6ec" stroke-width="2"/><path d="M600 500V625" stroke="#e3e6ec" stroke-width="2"/><path d="M100 625V750" stroke="#e3e6ec" stroke-width="2"/><path d="M300 625V750" stroke="#e3e6ec" stroke-width="2"/><path d="M500 625V750" stroke="#e3e6ec" stroke-width="2"/><path d="M700 625V750" stroke="#e3e6ec" stroke-width="2"/><path d="M0 750V875" stroke="#e3e6ec" stroke-width="2"/><path d="M200 750V875" stroke="#e3e6ec" stroke-width="2"/><path d="M400 750V875" stroke="#e3e6ec" stroke-width="2"/><path d="M600 750V875" stroke="#e3e6ec" stroke-width="2"/><path d="M100 875V1000" stroke="#e3e6ec" stroke-width="2"/><path d="M300 875V1000" stroke="#e3e6ec" stroke-width="2"/><path d="M500 875V1000" stroke="#e3e6ec" stroke-width="2"/><path d="M700 875V1000" stroke="#e3e6ec" stroke-width="2"/><rect y="800" width="800" height="200" fill="#e6e9ef"/><path d="M0 800H800" stroke="#d6dae2" stroke-width="2"/><ellipse cx="400" cy="768" rx="280" ry="26" fill="#d9dde5"/><circle cx="400" cy="418" r="318" fill="#e2e5eb"/><circle cx="400" cy="418" r="288" fill="#f7f8fa" stroke="#cfd4dc" stroke-width="3"/><circle cx="704.0" cy="418.0" r="4" fill="#c4cad4"/><circle cx="693.6" cy="496.7" r="4" fill="#c4cad4"/><circle cx="663.3" cy="570.0" r="4" fill="#c4cad4"/><circle cx="615.0" cy="633.0" r="4" fill="#c4cad4"/><circle cx="552.0" cy="681.3" r="4" fill="#c4cad4"/><circle cx="478.7" cy="711.6" r="4" fill="#c4cad4"/><circle cx="400.0" cy="722.0" r="4" fill="#c4cad4"/><circle cx="321.3" cy="711.6" r="4" fill="#c4cad4"/><circle cx="248.0" cy="681.3" r="4" fill="#c4cad4"/><circle cx="185.0" cy="633.0" r="4" fill="#c4cad4"/><circle cx="136.7" cy="570.0" r="4" fill="#c4cad4"/><circle cx="106.4" cy="496.7" r="4" fill="#c4cad4"/><circle cx="96.0" cy="418.0" r="4" fill="#c4cad4"/><circle cx="106.4" cy="339.3" r="4" fill="#c4cad4"/><circle cx="136.7" cy="266.0" r="4" fill="#c4cad4"/><circle cx="185.0" cy="203.0" r="4" fill="#c4cad4"/><circle cx="248.0" cy="154.7" r="4" fill="#c4cad4"/><circle cx="321.3" cy="124.4" r="4" fill="#c4cad4"/><circle cx="400.0" cy="114.0" r="4" fill="#c4cad4"/><circle cx="478.7" cy="124.4" r="4" fill="#c4cad4"/><circle cx="552.0" cy="154.7" r="4" fill="#c4cad4"/><circle cx="615.0" cy="203.0" r="4" fill="#c4cad4"/><circle cx="663.3" cy="266.0" r="4" fill="#c4cad4"/><circle cx="693.6" cy="339.3" r="4" fill="#c4cad4"/><rect x="682" y="308" width="40" height="58" rx="10" fill="#dfe3ea" stroke="#c4cad4" stroke-width="2"/><rect x="682" y="470" width="40" height="58" rx="10" fill="#dfe3ea" stroke="#c4cad4" stroke-width="2"/><g class="bolts"><g transform="rotate(11.25 400 418)"><rect class="bolt" style="--k:0" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(33.75 400 418)"><rect class="bolt" style="--k:1" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(56.25 400 418)"><rect class="bolt" style="--k:2" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(78.75 400 418)"><rect class="bolt" style="--k:3" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(101.25 400 418)"><rect class="bolt" style="--k:4" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(123.75 400 418)"><rect class="bolt" style="--k:5" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(146.25 400 418)"><rect class="bolt" style="--k:6" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(168.75 400 418)"><rect class="bolt" style="--k:7" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(191.25 400 418)"><rect class="bolt" style="--k:8" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(213.75 400 418)"><rect class="bolt" style="--k:9" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(236.25 400 418)"><rect class="bolt" style="--k:10" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(258.75 400 418)"><rect class="bolt" style="--k:11" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(281.25 400 418)"><rect class="bolt" style="--k:12" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(303.75 400 418)"><rect class="bolt" style="--k:13" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(326.25 400 418)"><rect class="bolt" style="--k:14" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g><g transform="rotate(348.75 400 418)"><rect class="bolt" style="--k:15" x="618" y="409.5" width="54" height="17" rx="8.5" fill="#c9ced8" stroke="#aeb5c2" stroke-width="2"/></g></g><circle cx="400" cy="418" r="242" fill="#dfe3ea"/><circle cx="400" cy="418" r="236" fill="#ffffff" stroke="#cfd4dc" stroke-width="3"/><circle cx="400" cy="418" r="208" fill="none" stroke="#e3e6ec" stroke-width="2"/><circle cx="400" cy="418" r="178" fill="#f7f8fa" stroke="#d6dae2" stroke-width="2"/><g class="ticks"><path d="M564.0 418.0L576.0 418.0" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M570.1 435.9L575.0 436.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M567.3 453.6L572.2 454.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M562.6 470.8L567.4 472.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M556.2 487.6L560.8 489.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M542.0 500.0L552.4 506.0" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M538.3 518.5L542.4 521.5" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M527.1 532.4L530.8 535.8" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M514.4 545.1L517.8 548.8" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M500.5 556.3L503.5 560.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M482.0 560.0L488.0 570.4" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M469.6 574.2L471.6 578.8" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M452.8 580.6L454.4 585.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M435.6 585.3L436.6 590.2" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M417.9 588.1L418.4 593.0" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M400.0 582.0L400.0 594.0" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M382.1 588.1L381.6 593.0" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M364.4 585.3L363.4 590.2" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M347.2 580.6L345.6 585.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M330.4 574.2L328.4 578.8" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M318.0 560.0L312.0 570.4" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M299.5 556.3L296.5 560.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M285.6 545.1L282.2 548.8" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M272.9 532.4L269.2 535.8" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M261.7 518.5L257.6 521.5" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M258.0 500.0L247.6 506.0" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M243.8 487.6L239.2 489.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M237.4 470.8L232.6 472.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M232.7 453.6L227.8 454.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M229.9 435.9L225.0 436.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M236.0 418.0L224.0 418.0" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M229.9 400.1L225.0 399.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M232.7 382.4L227.8 381.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M237.4 365.2L232.6 363.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M243.8 348.4L239.2 346.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M258.0 336.0L247.6 330.0" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M261.7 317.5L257.6 314.5" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M272.9 303.6L269.2 300.2" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M285.6 290.9L282.2 287.2" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M299.5 279.7L296.5 275.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M318.0 276.0L312.0 265.6" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M330.4 261.8L328.4 257.2" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M347.2 255.4L345.6 250.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M364.4 250.7L363.4 245.8" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M382.1 247.9L381.6 243.0" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M400.0 254.0L400.0 242.0" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M417.9 247.9L418.4 243.0" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M435.6 250.7L436.6 245.8" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M452.8 255.4L454.4 250.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M469.6 261.8L471.6 257.2" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M482.0 276.0L488.0 265.6" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M500.5 279.7L503.5 275.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M514.4 290.9L517.8 287.2" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M527.1 303.6L530.8 300.2" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M538.3 317.5L542.4 314.5" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M542.0 336.0L552.4 330.0" stroke="#9aa2b1" stroke-width="2" stroke-linecap="round"/><path d="M556.2 348.4L560.8 346.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M562.6 365.2L567.4 363.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M567.3 382.4L572.2 381.4" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/><path d="M570.1 400.1L575.0 399.6" stroke="#c4cad4" stroke-width="2" stroke-linecap="round"/></g><g class="wheel" style="transform-origin:400px 418px"><g transform="rotate(-90 400 418)"><rect x="400" y="411" width="134" height="13" rx="6.5" fill="#1b1f27"/><circle cx="540" cy="418" r="15" fill="#1b1f27"/><circle cx="540" cy="418" r="6" fill="#3a404c"/></g><g transform="rotate(30 400 418)"><rect x="400" y="411" width="134" height="13" rx="6.5" fill="#1b1f27"/><circle cx="540" cy="418" r="15" fill="#1b1f27"/><circle cx="540" cy="418" r="6" fill="#3a404c"/></g><g transform="rotate(150 400 418)"><rect x="400" y="411" width="134" height="13" rx="6.5" fill="#1b1f27"/><circle cx="540" cy="418" r="15" fill="#1b1f27"/><circle cx="540" cy="418" r="6" fill="#3a404c"/></g><circle cx="400" cy="418" r="47" fill="#1b1f27"/><circle cx="400" cy="418" r="32" fill="#2458e8"/><circle cx="400" cy="418" r="32" fill="none" stroke="#ffffff" stroke-opacity=".35" stroke-width="2" stroke-dasharray="4 7"/><circle cx="400" cy="398" r="5" fill="#ffffff"/></g><rect x="352" y="568" width="96" height="26" rx="6" fill="#eef0f4" stroke="#cfd4dc" stroke-width="2"/><path d="M370 581H430" stroke="#b9c0cc" stroke-width="3" stroke-linecap="round" stroke-dasharray="6 6"/></svg>
-      <div class="receipt" aria-live="off">
-        <div class="receipt-top"><b id="r-asset" class="num">2.5 ETH</b><span id="r-chain">ethereum</span></div>
+    <div class="hero-cards">
+      <div class="hcard hcard-seal receipt" aria-live="off">
+        <div class="hcard-k"><span>Seal</span><span>SHA-256</span></div>
+        <div class="hcard-t"><b id="r-asset" class="num">2.5 ETH</b><span id="r-chain">ethereum</span></div>
         <div class="receipt-hash" id="r-hash">0x…</div>
-        <div class="receipt-foot"><span>Sealed in this browser · SHA-256</span><span class="seal" id="r-seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path class="shackle" d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span id="r-seal-text">Sealed locally</span></span></div>
+        <div class="receipt-foot"><span>Sealed in this browser, just now</span><span class="seal" id="r-seal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path class="shackle" d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><span id="r-seal-text">Sealed locally</span></span></div>
       </div>
-    </figure>
+      <div class="hcard hcard-block">
+        <div class="hcard-k"><span>Ethereum</span><span class="hcard-live"><i aria-hidden="true"></i>live</span></div>
+        <div class="hcard-t mono" id="h-block">#…</div>
+        <div class="hcard-sub" id="h-block-sub">Reading the chain from a public node</div>
+      </div>
+      <div class="hcard hcard-code">
+        <div class="hcard-k"><span>Signed statement</span><span>personal_sign</span></div>
+        <pre class="hcard-pre"><span class="c-dim">Obscura proof of funds</span>
+I control <span class="c-acc">0x7a3f…c91e</span>
+and it held at least <b>2.5 ETH</b>
+on Base at block <span class="c-acc">20,000,000</span>.
+<span class="c-dim">Bond: 0x9f3c…2e84</span></pre>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -149,6 +166,15 @@
     </div>
   </section>
 
+  <section class="facts" aria-label="Obscura in numbers">
+    <div class="wrap facts-grid">
+      <div class="fact reveal"><b class="num">SHA-256</b><span>seals every bond, inside your browser</span></div>
+      <div class="fact reveal" style="--rd:.06s"><b class="num">7</b><span>networks: six EVM mainnets and Solana</span></div>
+      <div class="fact reveal" style="--rd:.12s"><b class="num">310k</b><span>PBKDF2 rounds guard every backup and transfer</span></div>
+      <div class="fact reveal" style="--rd:.18s"><b class="num">0</b><span>servers that ever see a receipt or a key</span></div>
+    </div>
+  </section>
+
   <section class="wallets" aria-labelledby="wallets-title">
     <div class="wrap">
       <div class="wallets-head">
@@ -168,7 +194,7 @@
     </div>
   </section>
 
-  <section class="section" id="leak" aria-labelledby="leak-title">
+  <section class="band-ink" id="leak" aria-labelledby="leak-title">
     <div class="wrap split">
       <div class="reveal">
         <h2 id="leak-title">Every signature leaves a trail back to you.</h2>
@@ -290,7 +316,7 @@
     </section>
   </div>
 
-  <section class="section" id="token" aria-labelledby="token-title">
+  <section class="band-paper" id="token" aria-labelledby="token-title">
     <div class="wrap split">
       <div class="reveal">
         <h2 id="token-title">$OBX keys the set.</h2>
@@ -310,28 +336,28 @@
     </div>
   </section>
 
-  <section class="section" id="faq" aria-labelledby="faq-title">
+  <section class="band-ink" id="faq" aria-labelledby="faq-title">
     <div class="wrap split">
       <div class="reveal"><h2 id="faq-title">Questions traders ask first.</h2></div>
       <div class="faq reveal">
         <details>
-          <summary>Does Obscura ever hold my funds or keys?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+          <summary><span class="faq-n">0x01</span><span class="faq-q">Does Obscura ever hold my funds or keys?</span><span class="faq-t" aria-hidden="true"></span></summary>
           <p>No. There is no server in the loop. Cloaking, transfers and proofs run in your browser with the Web Crypto API, and receipts are stored on your device.</p>
         </details>
         <details>
-          <summary>What happens if I lose a receipt?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+          <summary><span class="faq-n">0x02</span><span class="faq-q">What happens if I lose a receipt?</span><span class="faq-t" aria-hidden="true"></span></summary>
           <p>That bond can no longer be opened or proven, by you or anyone else. Export a backup from the vault and keep it somewhere safe.</p>
         </details>
         <details>
-          <summary>What does a counterparty learn when I prove a bond?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+          <summary><span class="faq-n">0x03</span><span class="faq-q">What does a counterparty learn when I prove a bond?</span><span class="faq-t" aria-hidden="true"></span></summary>
           <p>The asset and amount in that one proof, and that it was sealed and not edited. Nothing about your other bonds. If the proof is backed by a wallet, they also see that wallet’s address, and anything public about it. To keep the rest private, back the proof with a wallet that holds only what you want to show.</p>
         </details>
         <details>
-          <summary>Do I need to connect a wallet?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+          <summary><span class="faq-n">0x04</span><span class="faq-q">Do I need to connect a wallet?</span><span class="faq-t" aria-hidden="true"></span></summary>
           <p>Not to try it. Sealing, the vault, transfers and checking proofs all work without one. A wallet does two things: it signs a proof so the other side can check the balance on the blockchain, and it can anchor a seal code onchain with a transaction to yourself. Obscura never asks for your keys or a token approval.</p>
         </details>
         <details>
-          <summary>Is $OBX live?<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+          <summary><span class="faq-n">0x05</span><span class="faq-q">Is $OBX live?</span><span class="faq-t" aria-hidden="true"></span></summary>
           <p>Not yet. The token and the bond contract are not deployed. We will announce it on X; ignore any address you receive anywhere else.</p>
         </details>
       </div>
@@ -356,7 +382,7 @@
   <div class="wrap">
     <div class="foot-top">
       <div class="foot-about">
-        <a class="brand" href="#top" aria-label="Obscura, home"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.9"/><g class="wheel"><path d="M15.14 13.30L17.82 14.41 M13.30 15.14L14.41 17.82 M10.70 15.14L9.59 17.82 M8.86 13.30L6.18 14.41 M8.86 10.70L6.18 9.59 M10.70 8.86L9.59 6.18 M13.30 8.86L14.41 6.18 M15.14 10.70L17.82 9.59" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></g></svg></span>Obscura</a>
+        <a class="brand" href="#top" aria-label="Obscura, home"><span class="brand-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><g class="mark-spin"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></g></svg></span>Obscura</a>
         <p>Private bonds, sealed in your browser. Prove one holding and keep the rest of your wallet to yourself.</p>
         <div class="foot-actions">
           <a class="btn btn-dark btn-sm" href="console.html">Launch app</a>

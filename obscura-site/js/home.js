@@ -1,9 +1,118 @@
 // Landing page: the live receipt in the hero, the film player, and the cloak demo.
 import { commit, randomBytes, toHex, SALT_BYTES, KEY_BYTES } from "./obscura.js";
 import { termsAccepted } from "./terms.js";
+import { rpc } from "./proof.js";
 
 const $ = (id) => document.getElementById(id);
 const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// ---------- hero field: dots ripple out of the mark ----------
+// A grid of square dots whose size follows rings around the mark. The rings
+// carry a faint eight-point star, the mark's own shape, and every seal sends
+// one brighter ring outward. Drawn at 30 fps, only while the hero is on screen.
+const field = (() => {
+  const canvas = document.querySelector(".hero-field");
+  const hero = document.querySelector(".hero");
+  if (!canvas || !hero) return null;
+  const ctx = canvas.getContext("2d");
+  const GAP = 9;
+  let w = 0, h = 0, dpr = 1, cx = 0, cy = 0, fadeFrom = 0, fadeSpan = 1, quiet = 1, pulseAt = -1e9, running = false, visible = true, last = 0;
+  const t0 = performance.now();
+  function resize() {
+    const r = hero.getBoundingClientRect();
+    dpr = Math.min(devicePixelRatio || 1, 1.5);
+    w = r.width; h = r.height;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    const narrow = w < 900;
+    // On phones the text fills the width: the rings start from the top corner, quieter.
+    cx = narrow ? w : w * 0.625; cy = narrow ? 40 : h * 0.53;
+    fadeFrom = narrow ? -1 : w * 0.1; fadeSpan = w * 0.36; quiet = narrow ? 0.4 : 1;
+    hero.style.setProperty("--mx", cx + "px"); hero.style.setProperty("--my", cy + "px");
+    draw(performance.now());
+  }
+  function draw(now) {
+    const t = (now - t0) / 1000;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const reach = Math.max(w, h) * 0.62;
+    const ring = (now - pulseAt) / 1000 * 420; // the seal's ring, in px from the centre
+    const buckets = [[], [], [], [], [], []];
+    const blue = [];
+    for (let y = GAP / 2; y < h; y += GAP) {
+      for (let x = GAP / 2; x < w; x += GAP) {
+        const dx = x - cx, dy = y - cy;
+        const r = Math.hypot(dx, dy);
+        if (r < 52) continue; // leave room for the mark
+        const a = Math.atan2(dy, dx);
+        const rr = r * (1 + 0.05 * Math.cos(8 * a));
+        const wave = 0.5 + 0.5 * Math.sin(rr / 10 - t * 1.4);
+        const fall = Math.max(0, 1 - r / reach);
+        // quieter behind the headline, so the words stay crisp
+        const fade = fadeFrom < 0 ? 1 : Math.min(1, Math.max(0.12, (x - fadeFrom) / fadeSpan));
+        let v = wave * wave * fall * fade * quiet;
+        const near = ring - r;
+        const glow = near > -40 && near < 40 ? Math.exp(-(near * near) / 500) : 0;
+        if (glow * fall * fade > 0.12) { blue.push(x, y, 1.2 + 2.2 * glow); continue; }
+        if (v < 0.04) continue;
+        const k = Math.min(5, Math.floor(v * 6));
+        buckets[k].push(x, y, 0.8 + 2.4 * v);
+      }
+    }
+    buckets.forEach((list, k) => {
+      if (!list.length) return;
+      ctx.fillStyle = `rgba(214, 222, 236, ${0.12 + k * 0.13})`;
+      ctx.beginPath();
+      for (let i = 0; i < list.length; i += 3) { const s = list[i + 2]; ctx.rect(list[i] - s / 2, list[i + 1] - s / 2, s, s); }
+      ctx.fill();
+    });
+    if (blue.length) {
+      ctx.fillStyle = "rgba(122, 162, 255, .9)";
+      ctx.beginPath();
+      for (let i = 0; i < blue.length; i += 3) { const s = blue[i + 2]; ctx.rect(blue[i] - s / 2, blue[i + 1] - s / 2, s, s); }
+      ctx.fill();
+    }
+  }
+  function loop(now) {
+    if (!running) return;
+    if (now - last > 33) { last = now; draw(now); }
+    requestAnimationFrame(loop);
+  }
+  function start() { if (!running && visible && !document.hidden && !reduced) { running = true; requestAnimationFrame(loop); } }
+  function stop() { running = false; }
+  new ResizeObserver(resize).observe(hero);
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? start() : stop(); }).observe(hero);
+  document.addEventListener("visibilitychange", () => (document.hidden ? stop() : start()));
+  resize(); start();
+  return { pulse() { pulseAt = performance.now(); if (reduced) draw(pulseAt); } };
+})();
+
+// The bar sits on the night while the hero fills the top of the screen.
+const heroEl = document.querySelector(".hero");
+if (heroEl) {
+  const onHero = () => document.documentElement.classList.toggle("on-hero", scrollY < heroEl.offsetHeight - 80);
+  addEventListener("scroll", onHero, { passive: true });
+  onHero();
+}
+
+// ---------- live block: the latest Ethereum block, read from a public node ----------
+const blockEl = $("h-block");
+if (blockEl) {
+  let lastBlock = 0, seenAt = 0;
+  const tick = async () => {
+    if (document.hidden) return;
+    try {
+      const n = Number(await rpc(1, "eth_blockNumber", []));
+      if (n !== lastBlock) {
+        lastBlock = n; seenAt = Date.now();
+        scramble(blockEl, "#" + n.toLocaleString("en-US"), 500);
+        const live = document.querySelector(".hcard-live");
+        live?.classList.remove("tick"); void live?.offsetWidth; live?.classList.add("tick");
+      }
+    } catch { if (!lastBlock) $("h-block-sub").textContent = "The public node did not answer"; }
+  };
+  const ago = () => { if (lastBlock) $("h-block-sub").textContent = `Latest block, seen ${Math.round((Date.now() - seenAt) / 1000)} s ago`; };
+  tick(); setInterval(tick, 12000); setInterval(ago, 1000);
+}
 
 // ---------- hero receipt: a real commitment, re-sealed every few seconds ----------
 const heroAssets = [
@@ -40,9 +149,7 @@ async function sealHero() {
   const a = heroAssets[heroIndex++ % heroAssets.length];
   const hash = await commit(a, randomBytes(SALT_BYTES), randomBytes(KEY_BYTES));
   const card = document.querySelector(".receipt");
-  const vault = document.querySelector(".vault");
-  vault?.classList.add("unlocked");
-  vault?.style.setProperty("--turn", `${heroIndex * 120}deg`);
+  document.querySelector(".hero")?.style.setProperty("--turn", `${heroIndex * 180}deg`);
   $("r-asset").textContent = `${Number(a.amount).toLocaleString("en-US")} ${a.symbol}`;
   $("r-chain").textContent = a.chain;
   card.classList.remove("sealed");
@@ -50,7 +157,7 @@ async function sealHero() {
   $("r-seal-text").textContent = "Sealing…";
   await scramble($("r-hash"), "0x" + hash, 1000);
   card.classList.remove("sealing");
-  vault?.classList.remove("unlocked");
+  field?.pulse();
   void card.offsetWidth; // restart the glint
   card.classList.add("sealed");
   $("r-seal-text").textContent = "Sealed locally";

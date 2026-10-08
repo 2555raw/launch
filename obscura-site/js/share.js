@@ -4,7 +4,9 @@
 // to a server, so opening the link verifies the bond on the reader's device.
 import qrcode from "../assets/vendor/qrcode.mjs";
 import { encodeReceipt } from "./obscura.js";
-import { copy, toast } from "./site.js";
+import { copy, toast, track } from "./site.js";
+import { saveCard } from "./card.js";
+import { CHAINS } from "./proof.js";
 
 export function proofLink(receipt) {
   const url = new URL("verify.html", location.href);
@@ -19,6 +21,19 @@ function qrSvg(text) {
   qr.addData(text);
   qr.make();
   return qr.createSvgTag({ cellSize: 4, margin: 0, scalable: true });
+}
+
+const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
+
+// What the picture of a proof says, before anyone has checked it.
+export function cardFor(receipt, link) {
+  const a = receipt.asset, p = receipt.proof;
+  const claim = p?.type === "usd-v1" ? `At least $${Number(a.amount).toLocaleString("en-US")}`
+    : p?.type === "nft-v1" ? (p.tokenId ? `${a.symbol} #${p.tokenId}` : `${a.amount} ${a.symbol} NFT${a.amount === "1" ? "" : "s"}`)
+    : `At least ${a.amount} ${a.symbol}`;
+  const where = p?.type === "sol-v1" ? "Solana" : CHAINS[p?.chainId]?.name || a.chain;
+  const sub = p ? `Signed by wallet ${short(p.address)} on ${where}. Open the link to check it on the blockchain.` : "Typed by the sender and sealed. Not checked against a wallet.";
+  return { claim, sub, link, status: p ? { text: "Wallet-signed proof", tone: "plain" } : { text: "Self-declared", tone: "warn" } };
 }
 
 export function renderShare(container, receipt) {
@@ -37,8 +52,16 @@ export function renderShare(container, receipt) {
   copyBtn.type = "button";
   copyBtn.className = "btn btn-dark btn-sm";
   copyBtn.textContent = "Copy link";
-  copyBtn.addEventListener("click", () => copy(link, "Link copied. Anyone who opens it can check this bond"));
-  row.append(input, copyBtn);
+  copyBtn.addEventListener("click", () => { track("share_link"); copy(link, "Link copied. Anyone who opens it can check this bond"); });
+  const imgBtn = document.createElement("button");
+  imgBtn.type = "button";
+  imgBtn.className = "btn btn-light btn-sm";
+  imgBtn.textContent = "Save as image";
+  imgBtn.addEventListener("click", async () => {
+    imgBtn.setAttribute("aria-busy", "true");
+    try { await saveCard(cardFor(receipt, link)); } finally { imgBtn.removeAttribute("aria-busy"); }
+  });
+  row.append(input, copyBtn, imgBtn);
 
   if (navigator.share) {
     const shareBtn = document.createElement("button");

@@ -160,15 +160,28 @@ export async function readBalance(provider, address) {
   return { chainId: r.chainId, block: r.block, wei: r.assets[0].wei, chain: r.chain };
 }
 
+// Ask the wallet to sign a statement, and check it signed with the account
+// asked for: some wallets sign with whichever account is active.
+export async function signText(provider, address, message) {
+  const signature = await provider.request({ method: "personal_sign", params: [toHexUtf8(message), address] });
+  if ((await recoverSigner(message, signature)) !== address.toLowerCase()) {
+    throw new Error(`The wallet signed with a different account than ${address.slice(0, 6)}…${address.slice(-4)}. Switch back to it, read the balance again and retry.`);
+  }
+  return signature;
+}
+
+export async function recoverSigner(message, signature) {
+  try {
+    const { verifyMessage } = await import("../assets/vendor/ethers.min.js");
+    return verifyMessage(message, signature).toLowerCase();
+  } catch { return ""; }
+}
+
+export { balanceOfData, toHexUtf8 };
+
 export async function signFunds(provider, { receipt, address, chainId, block, token = null }) {
   const message = fundsMessage({ commitment: receipt.commitment, address, chainId, amount: receipt.asset.amount, symbol: receipt.asset.symbol, block, expires: receipt.asset.expires, token });
-  const signature = await provider.request({ method: "personal_sign", params: [toHexUtf8(message), address] });
-  // Some wallets sign with whichever account is active, whatever was asked.
-  // Catch that here rather than hand out a proof every verifier rejects.
-  const { verifyMessage } = await import("../assets/vendor/ethers.min.js");
-  let signer = "";
-  try { signer = verifyMessage(message, signature).toLowerCase(); } catch { /* reported below */ }
-  if (signer !== address.toLowerCase()) throw new Error(`The wallet signed with a different account than ${address.slice(0, 6)}…${address.slice(-4)}. Switch back to it, read the balance again and retry.`);
+  const signature = await signText(provider, address, message);
   const proof = { type: "funds-v1", address: address.toLowerCase(), chainId, block, signature };
   if (token) proof.token = token.toLowerCase();
   return proof;
@@ -211,13 +224,8 @@ export async function verifyFunds(receipt) {
   if (!wellFormed) { out.detail = "The wallet proof in this link is damaged."; return out; }
 
   const message = fundsMessage({ commitment: receipt.commitment, address: p.address, chainId: p.chainId, amount: receipt.asset.amount, symbol: receipt.asset.symbol, block: p.block, expires: receipt.asset.expires, token: p.token });
-  try {
-    const { verifyMessage } = await import("../assets/vendor/ethers.min.js");
-    out.signer = verifyMessage(message, p.signature).toLowerCase();
-    out.signed = out.signer === p.address.toLowerCase();
-  } catch {
-    out.signed = false;
-  }
+  out.signer = await recoverSigner(message, p.signature);
+  out.signed = !!out.signer && out.signer === p.address.toLowerCase();
   if (!out.signed) return out;
 
   const chain = CHAINS[p.chainId];

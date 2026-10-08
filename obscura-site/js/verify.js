@@ -1,6 +1,9 @@
 // Verify page: checks a receipt from the link (#obx1_…) or pasted by hand.
 import { verify, decodeReceipt, RECEIPT_PREFIX, secondsLeft } from "./obscura.js";
-import { verifyFunds, CHAINS, explorerTx, explorerAddress } from "./proof.js";
+import { CHAINS, explorerTx } from "./proof.js";
+import { checkProof, ensName } from "./check.js";
+import { saveCard } from "./card.js";
+import { track } from "./site.js";
 import { checkAnchor } from "./anchor.js";
 
 const $ = (id) => document.getElementById(id);
@@ -93,24 +96,35 @@ async function check(text, expected, stale) {
   if (left) list.push(row("time", `Valid until ${until}`, "The sender set this date when sealing it. It cannot be extended."));
 
   let verdict = sealOk ? "declared" : "fail";
+  let holds = `at least ${amount}`;
   // The anchor check runs alongside the wallet check; both only read the chain.
   const anchoring = sealOk && r.anchor ? checkAnchor(r) : null;
   if (sealOk && r.proof) {
     checks.replaceChildren(...list, row("info", "Checking the wallet…", "Reading the balance from the blockchain."));
-    const f = await verifyFunds(r);
+    const f = await checkProof(r);
     if (stale()) return;
-    const chain = CHAINS[r.proof.chainId]?.name || `chain ${r.proof.chainId}`;
+    const chain = f.chainName;
+    // A name the address chose for itself on ENS reads better than hex; it is looked up, not trusted from the link.
+    const name = f.signed && f.kind !== "sol" ? await ensName(r.proof.address).catch(() => null) : null;
+    if (stale()) return;
+    const who = name ? `${name} (${f.signerLabel})` : f.signerLabel;
     list.push(f.signed
-      ? row("pass", `Signed by wallet ${short(r.proof.address)}`, "The owner of that address signed this exact bond and amount.", { href: explorerAddress(r.proof.chainId, r.proof.address), text: "See the address" })
+      ? row("pass", `Signed by wallet ${who}`, `The owner of that address signed this exact bond and amount.${f.kind === "sol" ? " Checked with its Solana (ed25519) key." : ""}`, f.signerLink ? { href: f.signerLink, text: "See the address" } : null)
       : row("fail", "The wallet signature is not valid", "Someone other than the address owner made this proof, or it was edited."));
     if (f.signed) {
-      if (f.onchain === "pass") list.push(row("pass", `Holds at least ${amount} on ${chain}`, f.heldAt === "block" ? `Confirmed on the blockchain at block ${Number(r.proof.block).toLocaleString("en-US")}.` : "Confirmed with the current balance (the node does not keep the older block)."));
+      const when = f.heldAt === "block"
+        ? `Confirmed on the blockchain at block ${Number(r.proof.block).toLocaleString("en-US")}.`
+        : f.kind === "sol" ? "Confirmed with the current balance: Solana nodes do not keep balances by slot." : "Confirmed with the current balance (the node does not keep the older block).";
+      const extra = f.note ? " " + f.note : "";
+      const link = f.contractLink ? { href: f.contractLink, text: "See the collection" } : null;
+      if (f.onchain === "pass") list.push(row("pass", `Holds ${f.holds} on ${chain}`, when + extra, link));
       else if (f.onchain === "fail" && !f.heldAt) list.push(row("fail", "The bond does not match what was signed", f.detail || "The asset in the bond is not the one the wallet signed for."));
-      else if (f.onchain === "fail") list.push(row("fail", `Does not hold ${amount} on ${chain}`, f.heldAt === "latest" ? "The current balance is lower. The funds may have moved since the proof was made." : "The balance at that block was lower than claimed."));
-      else list.push(row("warn", "Balance not checked", f.detail || "The blockchain could not be reached. Try again later."));
+      else if (f.onchain === "fail") list.push(row("fail", `Does not hold ${f.holds} on ${chain}`, (f.heldAt === "latest" ? "The current holding is lower. It may have moved since the proof was made." : "The holding at that block was lower than claimed.") + extra, link));
+      else list.push(row("warn", "Not checked on the blockchain", f.detail || "The blockchain could not be reached. Try again later."));
     }
     verdict = f.signed && f.onchain === "pass" ? (f.testnet ? "testnet" : "proven") : f.signed && (f.onchain === "unreachable" || f.onchain === "unsupported") ? "signed" : "fail";
     if (f.testnet && f.signed) list.push(row("warn", "Test network", "Sepolia coins are free and have no value. This proof shows the tool works, not real funds."));
+    holds = f.holds;
   } else if (sealOk) {
     // Put the caveat first: the seal only says the receipt was not edited.
     list.unshift(row("warn", "Not backed by a wallet", "The sender typed this amount. Nobody has checked that they hold it."));
@@ -134,12 +148,21 @@ async function check(text, expected, stale) {
   const claim = $("v-claim");
   claim.className = "claim " + (verdict === "proven" ? "pass" : verdict === "fail" ? "fail" : "warn");
   claim.textContent = {
-    proven: `Proven: at least ${amount}`,
+    proven: `Proven: ${holds}`,
     testnet: `Testnet only: ${amount} in test coins`,
     signed: `Signed for ${amount}, balance not checked yet`,
     declared: `Not proven: the sender says ${amount}`,
     fail: "Not valid",
   }[verdict];
+  track(verdict === "proven" ? "verify_proven" : verdict === "fail" ? "verify_failed" : "verify_declared");
+  // A proven result can travel as a picture, with the link in its QR code.
+  $("v-save")?.remove();
+  if (verdict === "proven") {
+    const btn = Object.assign(document.createElement("button"), { type: "button", id: "v-save", className: "btn btn-light btn-sm", textContent: "Save result as image" });
+    const link = location.href.includes("#obx1_") ? location.href : new URL("verify.html#" + text, location.href).href;
+    btn.addEventListener("click", () => saveCard({ claim: holds.charAt(0).toUpperCase() + holds.slice(1), sub: `Checked on the blockchain ${new Date().toLocaleDateString(undefined, { dateStyle: "medium" })}. Scan to check it yourself.`, status: { text: "Verified", tone: "ok" }, link }, "obscura-verified.png"));
+    claim.after(btn);
+  }
   $("v-note").textContent = verdict === "fail" ? ""
     : r.proof ? "You learn this one bond and the address that signed it. Nothing about the sender's other bonds."
     : "You learn this one bond and nothing else about the sender.";

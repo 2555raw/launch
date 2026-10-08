@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Console — Obscura</title>
   <meta name="description" content="Seal what you hold into a private proof, share it as a link, check it on chain. Everything runs in your browser.">
-  <meta name="theme-color" content="#ffffff">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Obscura">
   <meta property="og:title" content="Obscura console">
@@ -19,8 +18,12 @@
   <meta name="twitter:title" content="Obscura console">
   <meta name="twitter:description" content="Seal a bond, back it with your wallet, and share the proof as a link.">
   <meta name="twitter:image" content="__ORIGIN__/assets/og-home.jpg">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='9'%20fill='%230b0d12'/%3E%3Cg%20transform='translate%284%204%29'%20stroke='%23fff'%20fill='none'%3E%3Ccircle%20cx='12'%20cy='12'%20r='9'%20stroke-width='2'/%3E%3Cpath%20d='M15.14%2013.30L17.82%2014.41%20M13.30%2015.14L14.41%2017.82%20M10.70%2015.14L9.59%2017.82%20M8.86%2013.30L6.18%2014.41%20M8.86%2010.70L6.18%209.59%20M10.70%208.86L9.59%206.18%20M13.30%208.86L14.41%206.18%20M15.14%2010.70L17.82%209.59'%20stroke-width='1.8'%20stroke-linecap='round'/%3E%3Ccircle%20cx='12'%20cy='12'%20r='2'%20fill='%23fff'%20stroke='none'/%3E%3C/g%3E%3C/svg%3E">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#090b10">
   <link rel="preload" href="assets/fonts/host-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <script>try{var t=localStorage.getItem("obscura.theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
   <link rel="stylesheet" href="styles.css">
   <script>document.documentElement.classList.add("js")</script>
 </head>
@@ -29,7 +32,7 @@
 <div class="nav-wrap">
   <nav class="nav" aria-label="Main">
     <a class="brand" href="index.html" aria-label="Obscura, home">
-      <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.9"/><g class="wheel"><path d="M15.14 13.30L17.82 14.41 M13.30 15.14L14.41 17.82 M10.70 15.14L9.59 17.82 M8.86 13.30L6.18 14.41 M8.86 10.70L6.18 9.59 M10.70 8.86L9.59 6.18 M13.30 8.86L14.41 6.18 M15.14 10.70L17.82 9.59" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></g></svg></span>
+      <span class="brand-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><g class="mark-spin"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></g></svg></span>
       Obscura
     </a>
     <div class="nav-links">
@@ -86,8 +89,14 @@
             <div class="field"><label for="f-asset">Asset to prove</label><select class="select" id="f-asset"></select></div>
           </div>
           <p class="hint" id="f-testnet" hidden>This is a test network. Its coins have no value, and checkers will see the proof marked as testnet.</p>
+          <div class="field-row" id="f-nft" hidden style="margin:12px 0 0">
+            <div class="field"><label for="f-nft-contract">Collection contract</label><input class="input mono" id="f-nft-contract" placeholder="0x…" spellcheck="false" autocomplete="off"></div>
+            <div class="field"><label for="f-nft-id">Token id <span class="opt">(optional)</span></label><input class="input num" id="f-nft-id" inputmode="numeric" placeholder="Any token"></div>
+          </div>
           <div class="actions" style="margin-top:12px">
             <button class="btn btn-dark btn-sm" type="button" id="f-read">Read balance from wallet</button>
+            <button class="btn btn-light btn-sm" type="button" id="f-read-sol">Use a Solana wallet</button>
+            <button class="btn btn-light btn-sm" type="button" id="f-nft-check" hidden>Check this NFT</button>
             <button class="btn btn-ghost btn-sm" type="button" id="f-clear" hidden>Type an amount instead</button>
           </div>
         </div>
@@ -219,7 +228,7 @@
   <div class="wrap">
     <div class="foot-top">
       <div class="foot-about">
-        <a class="brand" href="index.html" aria-label="Obscura, home"><span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.9"/><g class="wheel"><path d="M15.14 13.30L17.82 14.41 M13.30 15.14L14.41 17.82 M10.70 15.14L9.59 17.82 M8.86 13.30L6.18 14.41 M8.86 10.70L6.18 9.59 M10.70 8.86L9.59 6.18 M13.30 8.86L14.41 6.18 M15.14 10.70L17.82 9.59" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></g></svg></span>Obscura</a>
+        <a class="brand" href="index.html" aria-label="Obscura, home"><span class="brand-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><g class="mark-spin"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></g></svg></span>Obscura</a>
         <p>Private bonds, sealed in your browser. Prove one holding and keep the rest of your wallet to yourself.</p>
         <div class="foot-actions">
           <a class="btn btn-dark btn-sm" href="console.html">Launch app</a>

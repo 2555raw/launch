@@ -1,0 +1,38 @@
+{
+  "name": "Obscura",
+  "short_name": "Obscura",
+  "description": "Prove one holding with one link, and keep the rest of your wallet private.",
+  "start_url": "/console.html?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#090b10",
+  "theme_color": "#090b10",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Make a proof",
+      "url": "/console.html"
+    },
+    {
+      "name": "Verify a proof",
+      "url": "/verify.html"
+    }
+  ]
+}

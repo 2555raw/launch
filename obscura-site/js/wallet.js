@@ -4,7 +4,7 @@
 // through their injected flags. A wallet that is not installed opens its own
 // download page, or on a phone, opens this page inside the wallet's browser.
 
-import { toast } from "./site.js";
+import { toast, track } from "./site.js";
 
 export const WALLETS = [
   { id: "metamask", name: "MetaMask", rdns: ["io.metamask"], flag: (e) => e.isMetaMask && !e.isRabby && !e.isBraveWallet && !e.isPhantom && !e.isTrust && !e.isTrustWallet && !e.isOkxWallet && !e.isRainbow && !e.isCoinbaseWallet,
@@ -108,6 +108,7 @@ export async function connect(id) {
     emit();
     dialog()?.close();
     toast(`${w.name} connected · ${short(address)}`);
+    track("wallet");
   } catch (err) {
     toast(err?.code === 4001 ? "Connection request was declined in the wallet" : (err?.message || "The wallet did not connect"));
   }
@@ -219,6 +220,21 @@ function renderList() {
 
 function renderButtons() {
   for (const btn of document.querySelectorAll("[data-wallet-open]")) {
+    // The side rail's button is an icon: it shows the wallet's logo once connected.
+    if ("compact" in btn.dataset) {
+      if (!btn.dataset.icon) btn.dataset.icon = btn.innerHTML;
+      if (current) {
+        const img = document.createElement("img"); img.src = current.wallet.icon; img.alt = "";
+        btn.replaceChildren(img);
+        btn.dataset.label = short(current.address);
+        btn.setAttribute("aria-label", `${current.wallet.name} connected, ${current.address}. Manage wallet`);
+      } else {
+        btn.innerHTML = btn.dataset.icon;
+        btn.dataset.label = "Connect wallet";
+        btn.setAttribute("aria-label", "Connect wallet");
+      }
+      continue;
+    }
     btn.replaceChildren();
     if (current) {
       const img = document.createElement("img"); img.src = current.wallet.icon; img.alt = "";

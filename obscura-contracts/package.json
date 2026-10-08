@@ -1,0 +1,18 @@
+{
+  "name": "obscura-contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Placeholder $OBX token and bond NFT contracts for Obscura. Not audited. Not deployed.",
+  "license": "MIT",
+  "scripts": {
+    "build": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "5.0.0",
+    "hardhat": "2.28.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.4.0"
+  }
+}

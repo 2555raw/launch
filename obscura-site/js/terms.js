@@ -63,4 +63,7 @@ function gate() {
 }
 
 export const termsAccepted = accepted();
-if (!termsAccepted) gate();
+// A counterparty opening a proof link sees the result straight away: the terms
+// cover using the app, and the verify page only reads what the link carries.
+const isVerify = /verify\.html$/.test(location.pathname);
+if (!termsAccepted && !isVerify) gate();

@@ -1,15 +1,16 @@
 # Obscura — site
 
 Landing page, console and verifier for **Obscura**, private bonds cloaked in the browser.
-White, quiet design: ink on paper, one blue accent for anything live or verified.
+A night hero with a live dot field and data cards, then warm light sections and night bands.
+Light and dark themes (a Theme button, or the system's choice). Installable as an app, works offline.
 
 No build step, no dependencies. Plain HTML, CSS and ES modules.
 
 ## Structure
 
 ```
-index.html      landing: hero (vault drawing + live receipt), wallets, the leak, films, demo,
-                deposit-box band, $OBX, FAQ, closing, footer
+index.html      landing: night hero (dot field, live seal, live Ethereum block, signed statement),
+                story, facts, wallets, the leak, films, demo, deposit-box band, $OBX, FAQ, closing
 console.html    the app: Cloak, Vault, Transfer, Receive
 verify.html     paste a receipt, get one bit back
 terms.html      Terms of Use and Privacy (template: have a lawyer review it)
@@ -18,15 +19,23 @@ styles.css      design system: Host Grotesk + JetBrains Mono (self-hosted), pape
 js/obscura.js   the crypto core (Web Crypto API, also runs in Node)
 js/terms.js     terms gate shown on first visit; acceptance remembered per browser
 js/wallet.js    wallet connection: EIP-6963 discovery, real logos, install links, mobile deep links
-js/site.js      nav, scroll reveal, toast, copy
-js/home.js      live hero receipt, film player with chapters, cloak demo
+js/site.js      nav, side rail, theme, scroll reveal, toast, copy, anonymous counts, service worker
+js/home.js      hero dot field, live block and receipt, film player with chapters, seal demo
 js/console.js   console state (localStorage), the four tabs, wallet-backed sealing, backups
-js/proof.js     proof of funds: read balance, sign, verify signature and balance onchain
+js/proof.js     chains and public nodes, proof of funds (coin or token): sign, verify onchain
+js/kinds.js     dollar totals (Chainlink prices) and NFT proofs
+js/solana.js    Solana proofs: Phantom/Solflare/Backpack, ed25519, SOL/USDC/USDT
+js/check.js     one verifier for every proof type, plus ENS names
+js/anchor.js    anchoring a seal code onchain and checking the transaction
+js/card.js      the proof as a 1200x630 image with a QR code
+js/mark.js      the logo's paths
 js/share.js     proof link and QR code
 js/verify.js    the verify page
-assets/         fonts, drawings (img/*.svg), wallet logos, films (mp4 + webm + poster)
+assets/         fonts, logo, app icons, boxes drawing, wallet logos, films, vendored libraries
+sw.js           offline cache (network first; the cache is named after each release)
+manifest.webmanifest  install as an app
 tools/          scenes.html (film source) and render-videos.mjs (renders the films)
-test/           node:test suite for the crypto core
+test/           node:test suite: crypto core, proofs (coin, token, dollars, NFT, Solana), anchors
 ```
 
 ## Things to replace before launch
@@ -50,9 +59,11 @@ Edit the captions or timings in `scenes.html` and re-run to regenerate.
 
 ## Credits
 
-- Drawings: made for this site as SVG (`assets/img/vault.svg`, inlined in the hero so it can animate, and `assets/img/boxes.svg`).
-- Vendored: `assets/vendor/ethers.min.js` (ethers 6.17, MIT) to check signatures, `assets/vendor/qrcode.mjs`
-  (qrcode-generator 2.0.4, MIT) for QR codes.
+- Logo: supplied by the owner, redrawn as SVG without the ® sign (`js/mark.js`, `assets/logo.svg`).
+- Drawing: `assets/img/boxes.svg`, made for this site.
+- Vendored: `assets/vendor/ethers.min.js` (ethers 6.17, MIT) to check signatures and ENS names,
+  `assets/vendor/qrcode.mjs` (qrcode-generator 2.0.4, MIT) for QR codes, `assets/vendor/noble-ed25519.mjs`
+  (@noble/ed25519 2.3, MIT) for Solana signatures where the browser has no Ed25519.
 - Wallet logos are the wallets' own marks (taken from RainbowKit, MIT), shown only as connection options.
 - Fonts: Host Grotesk and JetBrains Mono, SIL Open Font License.
 
@@ -84,6 +95,17 @@ Edit the captions or timings in `scenes.html` and re-run to regenerate.
   the console reminds the holder while any bond is not in a backup.
 - **Prove** — the verifier recomputes the hash and compares it to a commitment they expect.
   The answer is true or false.
+- **Dollar totals** — the wallet signs "assets worth at least $X", counting its coin and listed tokens at
+  Chainlink USD prices read on Ethereum at a stated block (`js/kinds.js`). The verifier re-reads every
+  balance at the proof's block and every price at the price block.
+- **NFTs** — "holds at least N of collection 0x…" or "owns token #id", checked with ERC-721 `balanceOf` /
+  `ownerOf` at the block; the bond names the collection's symbol.
+- **Solana** — Phantom, Solflare or Backpack signs with the wallet's ed25519 key; SOL, USDC and USDT are
+  read from the wallet's associated token accounts. Solana nodes keep no balances by slot, so Solana
+  proofs are checked against the balance at the time the link is opened, and Verify says so.
+- **ENS** — Verify shows the signer's ENS name when the address has set one (checked both ways).
+- **Proof image** — "Save as image" draws the proof as a 1200x630 PNG with a QR code of the link, for X or
+  Telegram; a proven result on Verify can be saved the same way, marked "Verified".
 - **Anchor** (optional) — with a connected EVM wallet on a supported mainnet, sends a 0-value
   transaction to yourself with the 32-byte seal code as calldata (`js/anchor.js`); you pay only the
   network fee. The console waits for the block and links the transaction on the chain's explorer.
@@ -92,6 +114,18 @@ Edit the captions or timings in `scenes.html` and re-run to regenerate.
 
 Nothing is sent to a server. The token and the bond NFT contract are described on the landing page
 but are not deployed, so the page shows no contract address.
+
+## Visit counts
+
+`server.js` counts page views and a few actions per day (`/api/e`), with no cookies, IP addresses or
+device details, and never any receipt, amount or address. `GET /api/stats` returns the last 30 days;
+set `STATS_KEY` to require `?key=…`, and `DATA_DIR` to a mounted volume to keep the counts across
+deploys (otherwise they live in memory until the next restart).
+
+## Contracts
+
+`../obscura-contracts/` holds the $OBX token and the bond NFT (Solidity, OpenZeppelin 5, Hardhat tests).
+They are not deployed and not audited; see its README for the parameters and a deploy checklist.
 
 ## Live deploy
 

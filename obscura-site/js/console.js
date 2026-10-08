@@ -1,9 +1,11 @@
 // Console: cloak, vault, transfer and receive. State is one array in localStorage.
 import { cloak, seal, receive, encodeReceipt, verify, sealBackup, openBackup, BACKUP_PREFIX, secondsLeft } from "./obscura.js";
-import { toast, copy } from "./site.js";
+import { toast, copy, track } from "./site.js";
 import { connection, openWallets, waitForConnection, onWalletChange } from "./wallet.js";
 import { readBalances, signFunds, floorAmount, parseUnits, formatUnits, CHAINS, switchChain, explorerTx } from "./proof.js";
 import { sendAnchor, normalizeAnchor } from "./anchor.js";
+import { countable, recentPriceBlock, valueAssets, floorUsd, formatUsd, readNft, signUsd, signNft } from "./kinds.js";
+import { connectSol, readSolBalances, signSol, solProvider } from "./solana.js";
 import { renderShare, openShareDialog } from "./share.js";
 
 const STORE = "obscura.vault.v1";
@@ -77,15 +79,19 @@ if (tabs.some((t) => t.dataset.tab === start)) show(start);
 
 // ---------- cloak ----------
 // Wallet-backed mode: the balance comes from the wallet and the wallet signs.
-let funds = null; // { address, provider, chainId, block, chain, assets, pick }
+// funds = { mode: "evm" | "sol", address, provider, chainId, block | slot, chain,
+//           assets, pick: "a:<index>" | "usd" | "nft", usd, nft }
+let funds = null;
 
-const pickAsset = () => funds && funds.assets[funds.pick];
+const pickAsset = () => (funds && funds.pick.startsWith("a:") ? funds.assets[Number(funds.pick.slice(2))] : null);
+const SOLANA = { key: "solana", name: "Solana", symbol: "SOL" };
 
 function setFundsMode(f) {
   funds = f;
   const on = !!f;
   $("f-clear").hidden = !on;
   $("f-asset-field").hidden = !on;
+  $("f-read-sol").hidden = on;
   $("f-read").textContent = on ? "Read again" : "Read balance from wallet";
   $("c-amount-label").textContent = on ? "Prove at least" : "Amount";
   $("c-amount-hint").hidden = !on;
@@ -95,19 +101,25 @@ function setFundsMode(f) {
   $("funds").classList.toggle("on", on);
   if (!on) {
     $("f-testnet").hidden = true;
+    $("f-nft").hidden = $("f-nft-check").hidden = true;
     $("f-text").textContent = "Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word. The proof shows the signing address, so use a wallet that holds only what you want to show.";
     return;
   }
-  $("f-text").textContent = `${short(f.address)} on ${f.chain.name}, block ${f.block.toLocaleString("en-US")}. Pick what to prove.`;
+  const where = f.mode === "sol" ? `slot ${f.slot.toLocaleString("en-US")}` : `block ${f.block.toLocaleString("en-US")}`;
+  $("f-text").textContent = `${short(f.address)} on ${f.chain.name}, ${where}. Pick what to prove.`;
   $("f-testnet").hidden = !f.chain.testnet;
   const net = $("f-network");
   const ids = Object.keys(CHAINS).map(Number);
   net.replaceChildren(...ids.map((id) => el("option", { value: String(id) }, CHAINS[id].name)),
-    ...(CHAINS[f.chainId] ? [] : [el("option", { value: String(f.chainId) }, f.chain.name + " (cannot be checked)")]));
-  net.value = String(f.chainId);
+    el("option", { value: "solana" }, "Solana"),
+    ...(f.mode === "evm" && !CHAINS[f.chainId] ? [el("option", { value: String(f.chainId) }, f.chain.name + " (cannot be checked)")] : []));
+  net.value = f.mode === "sol" ? "solana" : String(f.chainId);
   const sel = $("f-asset");
-  sel.replaceChildren(...f.assets.map((a, i) => el("option", { value: String(i) }, `${a.symbol} · ${formatUnits(a.wei, a.decimals, 4)}`)));
-  sel.value = String(f.pick);
+  const opts = f.assets.map((a, i) => el("option", { value: "a:" + i }, `${a.symbol} · ${formatUnits(a.wei, a.decimals, 4)}`));
+  if (f.usd) opts.push(el("option", { value: "usd" }, `Total in dollars · ${formatUsd(f.usd.total)}`));
+  if (f.mode === "evm" && CHAINS[f.chainId]) opts.push(el("option", { value: "nft" }, "An NFT from a collection…"));
+  sel.replaceChildren(...opts);
+  sel.value = f.pick;
   const chainSel = $("c-chain");
   if (![...chainSel.options].some((o) => o.value === f.chain.key)) chainSel.append(el("option", { value: f.chain.key }, f.chain.key));
   chainSel.value = f.chain.key;
@@ -115,6 +127,24 @@ function setFundsMode(f) {
 }
 
 function applyPick() {
+  const nft = funds.pick === "nft";
+  $("f-nft").hidden = $("f-nft-check").hidden = !nft;
+  if (nft) {
+    const n = funds.nft;
+    $("c-symbol").value = n ? n.symbol : "";
+    $("c-amount").value = n ? (n.tokenId ? "1" : n.count > 0n ? n.count.toString() : "") : "";
+    $("c-amount-hint").textContent = !n ? "Paste the collection's contract address and check it."
+      : n.tokenId ? (n.owns ? `This wallet owns ${n.name} #${n.tokenId}.` : `This wallet does not own ${n.name} #${n.tokenId}.`)
+      : n.count > 0n ? `Holds ${n.count} ${n.name}. You can prove fewer.` : `This wallet holds no ${n.name}.`;
+    return;
+  }
+  if (funds.pick === "usd") {
+    const u = funds.usd;
+    $("c-symbol").value = "USD";
+    $("c-amount").value = u.total > 0n ? floorUsd(u.total) : "";
+    $("c-amount-hint").textContent = `Up to ${formatUsd(u.total)}: ${u.parts.join(", ") || "nothing"} at Chainlink prices. You can prove less.`;
+    return;
+  }
   const a = pickAsset();
   const held = formatUnits(a.wei, a.decimals, 4);
   $("c-symbol").value = a.symbol;
@@ -124,17 +154,34 @@ function applyPick() {
     : `This wallet holds no ${a.symbol} on ${funds.chain.name}.`;
 }
 
-$("f-asset").addEventListener("change", () => { funds.pick = Number($("f-asset").value); applyPick(); });
+$("f-asset").addEventListener("change", () => { funds.pick = $("f-asset").value; applyPick(); });
+
+$("f-nft-check").addEventListener("click", async () => {
+  const btn = $("f-nft-check");
+  btn.setAttribute("aria-busy", "true");
+  try {
+    funds.nft = await readNft(funds.provider, funds.address, $("f-nft-contract").value.trim(), $("f-nft-id").value.trim());
+    if (funds.nft.chainId !== funds.chainId) throw new Error("The wallet switched network. Read again.");
+    applyPick();
+  } catch (err) {
+    funds.nft = null; applyPick();
+    toast(err?.message || "That collection could not be read");
+  } finally { btn.removeAttribute("aria-busy"); }
+});
 
 // Moving networks from here asks the wallet to switch, then reads again.
 let switching = false;
 $("f-network").addEventListener("change", async () => {
-  const target = Number($("f-network").value);
-  if (!funds || target === funds.chainId) return;
-  const back = String(funds.chainId);
+  const value = $("f-network").value;
+  if (!funds) return;
+  if (value === "solana") return readFromSolana();
+  const target = Number(value);
+  if (funds.mode === "evm" && target === funds.chainId) return;
+  const back = funds.mode === "sol" ? "solana" : String(funds.chainId);
   switching = true;
   try {
-    await switchChain(funds.provider, target);
+    const conn = connection();
+    if (conn) await switchChain(conn.provider, target);
     await readFromWallet();
   } catch (err) {
     $("f-network").value = back;
@@ -155,10 +202,17 @@ async function readFromWallet() {
   btn.setAttribute("aria-busy", "true");
   try {
     const r = await readBalances(conn.provider, conn.address);
-    // Start on the largest holding the wallet has, native coin first on ties.
+    // Start on the first holding the wallet has, native coin first.
     const firstHeld = r.assets.findIndex((a) => a.wei > 0n);
-    if (firstHeld === -1) toast(`This wallet holds nothing listed on ${r.chain.name}. Switch network in the wallet and read again.`);
-    setFundsMode({ ...r, address: conn.address, provider: conn.provider, pick: Math.max(0, firstHeld) });
+    if (firstHeld === -1) toast(`This wallet holds nothing listed on ${r.chain.name}. Switch network or prove an NFT.`);
+    let usd = null;
+    if (countable(r.chainId).length) {
+      try {
+        const priceBlock = await recentPriceBlock();
+        usd = await valueAssets(r.chainId, r.assets, priceBlock);
+      } catch { /* prices unreachable: the dollar option is simply not offered */ }
+    }
+    setFundsMode({ ...r, mode: "evm", address: conn.address, provider: conn.provider, pick: "a:" + Math.max(0, firstHeld), usd, nft: null });
   } catch (err) {
     toast(err?.message || "The wallet did not return a balance");
   } finally {
@@ -166,10 +220,32 @@ async function readFromWallet() {
   }
 }
 
+async function readFromSolana() {
+  if (!solProvider()) {
+    toast("No Solana wallet found in this browser. Install Phantom, Solflare or Backpack, or open this page in its app.");
+    const a = el("a", { href: "https://phantom.com/download", target: "_blank", rel: "noopener" });
+    return a.click();
+  }
+  const btn = $("f-read-sol");
+  btn.setAttribute("aria-busy", "true");
+  try {
+    const conn = await connectSol();
+    const r = await readSolBalances(conn.address);
+    const firstHeld = r.assets.findIndex((a) => a.wei > 0n);
+    setFundsMode({ mode: "sol", address: conn.address, provider: conn.provider, slot: r.slot, chain: SOLANA, assets: r.assets, pick: "a:" + Math.max(0, firstHeld), usd: null, nft: null });
+  } catch (err) {
+    toast(err?.code === 4001 ? "The connection was declined in the wallet" : (err?.message || "The Solana wallet did not connect"));
+    if (funds) $("f-network").value = funds.mode === "sol" ? "solana" : String(funds.chainId);
+  } finally {
+    btn.removeAttribute("aria-busy");
+  }
+}
+$("f-read-sol").addEventListener("click", readFromSolana);
+
 $("f-read").addEventListener("click", readFromWallet);
 // A balance read for one account or network says nothing about another.
 onWalletChange((c) => {
-  if (!funds) return;
+  if (!funds || funds.mode !== "evm") return;
   if (!c || c.address.toLowerCase() !== funds.address.toLowerCase() || c.provider !== funds.provider) {
     setFundsMode(null);
     toast("The wallet changed. Read the balance again to back the bond.");
@@ -210,16 +286,27 @@ $("cloak-form").addEventListener("submit", async (e) => {
     if (held && parseUnits(asset.amount, held.decimals) > held.wei) {
       throw new Error(`You can prove at most ${formatUnits(held.wei, held.decimals, 4)} ${held.symbol}`);
     }
+    if (funds?.pick === "usd" && parseUnits(asset.amount, 8) > funds.usd.total) throw new Error(`You can prove at most ${formatUsd(funds.usd.total)}`);
+    if (funds?.pick === "nft") {
+      const n = funds.nft;
+      if (!n) throw new Error("Check the NFT collection first");
+      if (!/^\d+$/.test(asset.amount)) throw new Error("An NFT count is a whole number");
+      if (n.tokenId ? !n.owns || asset.amount !== "1" : BigInt(asset.amount) > n.count || n.count === 0n) throw new Error("The wallet does not hold that");
+    }
     const r = await cloak(asset);
     if (funds) {
       toast("Confirm the signature in your wallet. It costs nothing and sends no transaction.");
       try {
-        r.proof = await signFunds(funds.provider, { receipt: r, address: funds.address, chainId: funds.chainId, block: funds.block, token: held.token });
+        if (funds.mode === "sol") r.proof = await signSol(funds.provider, { receipt: r, address: funds.address, slot: funds.slot, mint: held.token });
+        else if (funds.pick === "usd") r.proof = await signUsd(funds.provider, { receipt: r, address: funds.address, chainId: funds.chainId, block: funds.block, priceBlock: funds.usd.priceBlock, parts: funds.usd.parts });
+        else if (funds.pick === "nft") r.proof = await signNft(funds.provider, { receipt: r, address: funds.address, chainId: funds.chainId, block: funds.nft.block, contract: funds.nft.contract, tokenId: funds.nft.tokenId });
+        else r.proof = await signFunds(funds.provider, { receipt: r, address: funds.address, chainId: funds.chainId, block: funds.block, token: held.token });
       } catch (err) {
         throw new Error(err?.code === 4001 ? "The signature was declined, so nothing was saved" : (err?.message || "The wallet did not sign"));
       }
     }
     addBond(r);
+    track(r.proof ? "seal_signed" : "seal");
     showResult(r);
     toast(r.proof ? "Bond sealed and signed. Share the link to prove it." : "Bond sealed and saved to the vault");
   } catch (err) {
@@ -247,6 +334,7 @@ async function anchor(b, btn) {
       onSent: (a) => { b.anchor = a; save(vault); renderVault(); toast("Sent. Waiting for it to land in a block…"); },
     });
     b.anchor = done;
+    track("anchor");
     save(vault);
     renderVault();
     toast(done.block ? `Anchored on ${CHAINS[done.chainId].name}, block ${done.block.toLocaleString("en-US")}` : "Sent. It will show as anchored once it is in a block.");

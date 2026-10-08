@@ -15,7 +15,7 @@ const FLAVOR = [
   "Breaking: supply going down, morale going up.",
 ];
 
-export function NewsTicker({ global }: { global: GlobalSnapshot | null }) {
+export function NewsTicker({ global, bare = false }: { global: GlobalSnapshot | null; bare?: boolean }) {
   const items = useMemo(() => {
     if (!global) return FLAVOR;
     const g = global;
@@ -32,6 +32,7 @@ export function NewsTicker({ global }: { global: GlobalSnapshot | null }) {
     const t = setInterval(() => setI((x) => (x + 1) % items.length), 7000);
     return () => clearInterval(t);
   }, [items.length]);
+  if (bare) return <span key={i} className="animate-toastIn">{items[i % items.length]}</span>;
   return (
     <div className="panel flex items-center gap-3 px-4 py-2 text-sm">
       <span className="label shrink-0 text-ember">News</span>

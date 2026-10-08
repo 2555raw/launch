@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useGame } from "@/hooks/useGame";
@@ -9,17 +10,19 @@ import { fmt, fmtFull } from "@/lib/format";
 import type { PublicUser } from "@/lib/types";
 import { AchievementsPanel } from "./AchievementsPanel";
 import { AuthPanel } from "./AuthPanel";
-import { Coin } from "./Coin";
+import { Deposit } from "./Deposit";
 import { LaunchStrip } from "./LaunchStrip";
 import { Leaderboard } from "./Leaderboard";
 import { NewsTicker } from "./NewsTicker";
-import { Shop } from "./Shop";
 import { StatsBar } from "./StatsBar";
+import { Store } from "./Store";
 import { SupplyPanel } from "./SupplyPanel";
 import { Toasts } from "./Toasts";
 import { TopBar } from "./TopBar";
 import { WalletAuth } from "./WalletAuth";
-import Link from "next/link";
+import { World } from "./World";
+
+type CenterView = "world" | "options" | "stats" | "info";
 
 /** Apply the commodity palette to the document so every component re-skins. */
 function useTheme(commodity: string | undefined) {
@@ -38,10 +41,10 @@ export function Game() {
   const game = useGame(!!user, onAuthLost);
   const { global: live, connected, serverNow } = useGlobal(game.initialGlobal);
   const global = live ?? game.initialGlobal;
-  const [centerTab, setCenterTab] = useState<"world" | "leaderboard" | "achievements">("world");
+  const [view, setView] = useState<CenterView>("world");
+  const [statsTab, setStatsTab] = useState<"numbers" | "achievements" | "leaderboard">("numbers");
   useTheme(global?.commodity);
 
-  // The server pushes status changes; freeze the client the moment the window closes.
   useEffect(() => {
     if (!global) return;
     const closed = !(global.status === "DRAFT" || global.status === "ACTIVE") || (global.status === "ACTIVE" && global.endsAt !== null && serverNow() >= global.endsAt);
@@ -52,53 +55,43 @@ export function Game() {
 
   const theme = themeFor(global?.commodity ?? "GOLD");
   const symbol = global?.symbol ?? "…";
-
   const onUser = useCallback((u: PublicUser) => setUser(u), [setUser]);
 
   if (loading) return <div className="grid min-h-screen place-items-center text-slate-500">Loading…</div>;
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-6xl px-4 pb-10">
+      <div>
         <TopBar user={null} symbol={global?.symbol} />
-        <LaunchStrip global={global} serverNow={serverNow} connected={connected} />
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
-          <div className="space-y-6">
-            <div>
-              <div className="label text-ember">Community token launch</div>
-              <h1 className="mt-2 font-display text-5xl font-bold leading-[0.95] text-slate-50 md:text-6xl">
-                Every click helps shape <span className="text-brand-soft">${symbol}</span>.
-              </h1>
-              <p className="mt-4 max-w-xl text-lg text-slate-400">
-                Click the deposit, hire cursors, build mines, rigs and refineries. All production becomes <span className="text-ember">burn power</span>, and burn power permanently removes tokens from the launch supply.
-                When the countdown ends the game freezes, the final supply is computed and the token is minted on Solana with the burn executed on-chain.
-              </p>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              <Hero label="Initial supply" value={global ? fmtFull(global.initialSupply) : "…"} />
-              <Hero label="Burned so far" value={global ? fmtFull(global.burnedSupply) : "…"} tone="text-red-300" />
-              <Hero label="Current supply" value={global ? fmtFull(global.finalSupply) : "…"} tone="text-brand-soft" />
-            </div>
-            <ol className="grid gap-2 text-sm text-slate-400 sm:grid-cols-2">
-              {["Click to mine", "Earn & buy cursors", "Automate with buildings", "Unlock upgrades", "Raise your burn power", "Launch the token"].map((s, i) => (
-                <li key={s} className="flex items-center gap-3 rounded-md border border-white/[0.05] bg-ink-900/60 px-3 py-2">
-                  <span className="num grid h-6 w-6 place-items-center rounded bg-white/[0.06] text-xs text-slate-300">{i + 1}</span>
-                  {s}
-                </li>
-              ))}
-            </ol>
-            <div className="hidden lg:block">
-              <div className="label mb-2">The deposit</div>
-              <div className="pointer-events-none max-w-[240px] opacity-80">
-                <Coin theme={theme} symbol={symbol} clickPower={1} onClick={() => {}} disabled />
+        <div className="mx-auto max-w-6xl px-4 pb-10 pt-4">
+          <LaunchStrip global={global} serverNow={serverNow} connected={connected} />
+          <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
+            <div className="space-y-6">
+              <div>
+                <div className="label text-ember">Community token launch</div>
+                <h1 className="mt-2 font-display text-5xl font-bold leading-[0.95] text-slate-50 md:text-6xl">
+                  Every click helps shape <span className="text-brand-soft">${symbol}</span>.
+                </h1>
+                <p className="mt-4 max-w-xl text-lg text-slate-400">
+                  Click the deposit, hire cursors, build mines, rigs and refineries. All production becomes <span className="text-ember">burn power</span>, and burn power permanently removes tokens from the launch supply.
+                  When the countdown ends the game freezes, the final supply is computed and the token is minted on Solana with the burn executed on-chain.
+                </p>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <Hero label="Initial supply" value={global ? fmtFull(global.initialSupply) : "…"} />
+                <Hero label="Burned so far" value={global ? fmtFull(global.burnedSupply) : "…"} tone="text-red-300" />
+                <Hero label="Current supply" value={global ? fmtFull(global.finalSupply) : "…"} tone="text-brand-soft" />
+              </div>
+              <div className="hidden max-w-[280px] opacity-90 lg:block">
+                <Deposit theme={theme} symbol={symbol} clickPower={1} onClick={() => {}} disabled />
               </div>
             </div>
-          </div>
-          <div className="space-y-4">
-            <AuthPanel onUser={onUser} />
-            <p className="text-center text-xs text-slate-500">
-              Gameplay is off-chain and validated server-side. Only the launch goes on Solana. <Link href="/project" className="underline">See the project page</Link>.
-            </p>
+            <div className="space-y-4">
+              <AuthPanel onUser={onUser} />
+              <p className="text-center text-xs text-slate-500">
+                Gameplay is off-chain and validated server-side. Only the launch goes on Solana. <Link href="/docs" className="underline">Read the docs</Link>.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -107,102 +100,176 @@ export function Game() {
 
   const s = game.server;
   const disabled = game.frozen;
+  const MetalBtn = ({ v, children }: { v: CenterView; children: React.ReactNode }) => (
+    <button className={`metal-btn ${view === v ? "active" : ""}`} onClick={() => setView(view === v && v !== "world" ? "world" : v)}>
+      {children}
+    </button>
+  );
 
   return (
-    <div className="mx-auto max-w-[1600px] px-3 pb-10 md:px-4">
+    <div>
       <TopBar user={user} onLogout={logout} symbol={global?.symbol} slug={game.project?.slug} />
-      <LaunchStrip global={global} serverNow={serverNow} connected={connected} />
-
-      {game.loadError && <div className="panel mt-3 border-burn/40 p-4 text-sm text-red-200">{game.loadError}</div>}
-
-      {disabled && global && (
-        <div className="panel mt-3 flex flex-wrap items-center justify-between gap-3 border-ember/40 p-4">
-          <div>
-            <div className="font-display text-lg font-semibold text-ember">The launch window is closed.</div>
-            <div className="text-sm text-slate-400">
-              {global.status === "LAUNCHED" ? "The token is live on Solana." : "The supply is being finalized and minted. Your contribution is locked in."}
+      <div className="game-shell">
+        {/* LEFT: your foundry + the deposit */}
+        <aside className="col-left">
+          <div className="bakery-title">{user.username}&apos;s foundry</div>
+          <div className="mt-2 text-center">
+            <div className="num font-display text-4xl font-bold leading-none text-slate-50 drop-shadow-[0_2px_4px_#000]">
+              {s ? fmt(game.local.balance) : "…"} <span className="text-2xl text-brand-soft">{theme.unitShort} {symbol}</span>
+            </div>
+            <div className="mt-1 font-display text-sm font-semibold text-slate-300">
+              per second: <span className="num">{s ? fmt(s.productionPerSec) : "0"}</span>
+              <span className="mx-2 text-slate-600">·</span>burn power: <span className="num text-ember">{s ? fmt(s.burnPerSec) : "0"}/s</span>
             </div>
           </div>
-          <Link href={game.project ? `/project/${game.project.slug}` : "/project"} className="btn-brand">Open the ${symbol} project page</Link>
-        </div>
-      )}
-
-      {!s ? (
-        <div className="mt-3 grid h-64 place-items-center text-slate-500">Loading your empire…</div>
-      ) : (
-        <div className="mt-3 grid gap-3 lg:grid-cols-[300px_minmax(0,1fr)_340px]">
-          {/* LEFT: supply + coin */}
-          <aside className="space-y-3">
+          <div className="grid flex-1 place-items-center px-3 py-3">
+            {s && <Deposit theme={theme} symbol={symbol} clickPower={s.clickPower} onClick={game.click} disabled={disabled} />}
+          </div>
+          {s && (
+            <div className="grid grid-cols-2 gap-2 px-3 text-center">
+              <div className="rounded-md bg-black/40 px-2 py-1.5">
+                <div className="label">per click</div>
+                <div className="num font-display text-lg font-bold text-brand-soft">+{fmt(s.clickPower)}</div>
+              </div>
+              <div className="rounded-md bg-black/40 px-2 py-1.5">
+                <div className="label">burn / click</div>
+                <div className="num font-display text-lg font-bold text-ember">+{fmt(s.clickBurn)}</div>
+              </div>
+            </div>
+          )}
+          <div className="space-y-2 px-3 pb-2 pt-3">
             <SupplyPanel global={global} />
-            <section className="panel p-4 text-center">
-              <div className="label">Click to {theme.verb.toLowerCase()}</div>
-              <div className="mt-3">
-                <Coin theme={theme} symbol={symbol} clickPower={s.clickPower} onClick={game.click} disabled={disabled} />
-              </div>
-              <div className="mt-2 grid grid-cols-2 gap-2 text-left">
-                <div className="rounded-md bg-white/[0.03] px-3 py-2">
-                  <div className="label">per click</div>
-                  <div className="num font-display text-xl font-bold text-brand-soft">+{fmt(s.clickPower)} {theme.unitShort}</div>
-                </div>
-                <div className="rounded-md bg-white/[0.03] px-3 py-2">
-                  <div className="label">burn / click</div>
-                  <div className="num font-display text-xl font-bold text-ember">+{fmt(s.clickBurn)}</div>
-                </div>
-              </div>
-              {s.autoClicksPerSec > 0 && <div className="mt-2 text-[11px] text-slate-500">auto-clicking {s.autoClicksPerSec}×/sec</div>}
-            </section>
-            <section className="panel p-4">
+            <div className="panel px-4 py-3">
               <div className="label text-ember">The community has burned</div>
-              <div className="num font-display text-3xl font-bold text-red-300">{global ? fmtFull(global.burnedSupply) : "…"}</div>
-              <div className="text-xs text-slate-500">${symbol} · your share {global && global.totalBurnPower > 0 ? ((game.local.burnPower / global.totalBurnPower) * 100).toFixed(3) : "0.000"}%</div>
-            </section>
-            <section className="panel p-4">
-              <div className="label mb-2">Wallet</div>
-              <WalletAuth user={user} onUser={onUser} />
-              <p className="mt-2 text-[11px] text-slate-500">Link a wallet to claim your share of the community allocation after launch.</p>
-            </section>
-          </aside>
+              <div className="num font-display text-2xl font-bold text-red-300">{global ? fmtFull(global.burnedSupply) : "…"} <span className="text-base text-slate-400">${symbol}</span></div>
+              {s && global && <div className="text-xs text-slate-500">your share {global.totalBurnPower > 0 ? Math.min(100, (game.local.burnPower / global.totalBurnPower) * 100).toFixed(3) : "0.000"}% · rank {s.rank ? `#${s.rank}` : "—"}</div>}
+            </div>
+          </div>
+          <div className="px-3 pb-2 text-[11px] text-slate-600">v 0.1 · FOUNDRY</div>
+        </aside>
 
-          {/* CENTER: stats + world */}
-          <main className="space-y-3 min-w-0">
-            <NewsTicker global={global} />
-            <StatsBar server={s} local={game.local} unit={theme.unitShort} />
-            <section className="panel">
-              <div className="panel-head">
-                <div className="flex gap-1">
-                  {(["world", "leaderboard", "achievements"] as const).map((t) => (
-                    <button key={t} onClick={() => setCenterTab(t)} className={`rounded px-2.5 py-1 ${centerTab === t ? "bg-white/[0.07] text-slate-100" : "hover:text-slate-300"}`}>
-                      {t}
-                    </button>
+        {/* CENTER */}
+        <main className="col-center">
+          <div className="metal-bar">
+            <div className="flex">
+              <MetalBtn v="options">Options</MetalBtn>
+              <MetalBtn v="stats">Stats</MetalBtn>
+            </div>
+            <NewsBox global={global} />
+            <div className="flex">
+              <MetalBtn v="info">Info</MetalBtn>
+              <Link href={game.project ? `/project/${game.project.slug}` : "/project"} className="metal-btn">Project</Link>
+            </div>
+          </div>
+          <div className="border-b-2 border-[#0b0f15] px-2 py-2">
+            <LaunchStrip global={global} serverNow={serverNow} connected={connected} />
+          </div>
+          {disabled && global && (
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#0b0f15] bg-ember/10 px-4 py-2">
+              <div className="text-sm text-slate-200">
+                <span className="font-display font-bold text-ember">The launch window is closed.</span>{" "}
+                {global.status === "LAUNCHED" ? "The token is live on Solana." : "The supply is being finalized and minted. Your contribution is locked in."}
+              </div>
+              <Link href={game.project ? `/project/${game.project.slug}` : "/project"} className="btn-brand !py-1">Open the ${symbol} page</Link>
+            </div>
+          )}
+          <div className="world-stripes">
+            {game.loadError && <div className="m-3 rounded border border-burn/40 bg-ink-900 p-3 text-sm text-red-200">{game.loadError}</div>}
+            {!s ? (
+              <div className="grid h-full place-items-center text-slate-500">Loading your empire…</div>
+            ) : view === "world" ? (
+              <World server={s} onLevelUp={game.levelUp} canAfford={(n) => game.local.balance >= n} frozen={disabled} />
+            ) : view === "options" ? (
+              <div className="mx-auto max-w-md space-y-3 p-4">
+                <h2 className="font-display text-2xl font-bold text-slate-100">Options</h2>
+                <div className="panel p-4">
+                  <div className="label mb-2">Wallet</div>
+                  <WalletAuth user={user} onUser={onUser} />
+                  <p className="mt-2 text-[11px] text-slate-500">Link a wallet to claim your share of the community allocation after launch. No seed phrases, no private keys.</p>
+                </div>
+                <div className="panel p-4">
+                  <div className="label mb-2">Account</div>
+                  <div className="text-sm text-slate-300">Signed in as <b>{user.username}</b></div>
+                  <button className="btn mt-2" onClick={logout}>Sign out</button>
+                </div>
+                <div className="panel p-4 text-sm text-slate-400">
+                  Your progress is saved on the server every few seconds. Generators keep producing while you are away, up to the offline cap set by the project.
+                </div>
+              </div>
+            ) : view === "stats" ? (
+              <div className="p-3">
+                <div className="mb-2 flex gap-1">
+                  {(["numbers", "achievements", "leaderboard"] as const).map((t) => (
+                    <button key={t} onClick={() => setStatsTab(t)} className={`rounded px-2.5 py-1 font-display text-xs font-bold uppercase tracking-widest ${statsTab === t ? "bg-white/[0.08] text-slate-100" : "text-slate-500 hover:text-slate-300"}`}>{t}</button>
                   ))}
                 </div>
-                <span className="normal-case tracking-normal text-slate-500">
-                  {s.rank ? `rank #${s.rank}` : ""} · {fmt(s.burnMultiplier, 1)}× burn efficiency · {fmt(s.globalMultiplier, 2)}× global
-                </span>
+                {statsTab === "numbers" && (
+                  <div className="space-y-3">
+                    <StatsBar server={s} local={game.local} unit={theme.unitShort} />
+                    <div className="panel p-4 text-sm text-slate-300">
+                      <div className="grid gap-1 sm:grid-cols-2">
+                        <Row k="Total produced" v={fmt(game.local.totalProduced)} />
+                        <Row k="Burn efficiency" v={`${fmt(s.burnMultiplier, 1)}×`} />
+                        <Row k="Global multiplier" v={`${fmt(s.globalMultiplier, 2)}×`} />
+                        <Row k="Auto clicks" v={`${s.autoClicksPerSec}/s`} />
+                        <Row k="Buildings" v={s.generators.reduce((a, g) => a + g.count, 0).toLocaleString("en-US")} />
+                        <Row k="Upgrades" v={String(s.upgrades.length)} />
+                        <Row k="Achievements" v={String(s.achievements.length)} />
+                        <Row k="Clicks rejected by anti-cheat" v={Math.round(s.rejectedClicks).toLocaleString("en-US")} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {statsTab === "achievements" && <div className="panel"><AchievementsPanel unlocked={s.achievements} /></div>}
+                {statsTab === "leaderboard" && <div className="panel"><Leaderboard me={user.username} myRank={s.rank} /></div>}
               </div>
-              {centerTab === "world" && <World server={s} onLevelUp={game.levelUp} canAfford={(n) => game.local.balance >= n} frozen={disabled} />}
-              {centerTab === "leaderboard" && <Leaderboard me={user.username} myRank={s.rank} />}
-              {centerTab === "achievements" && <AchievementsPanel unlocked={s.achievements} />}
-            </section>
-            <section className="panel px-4 py-3 text-xs text-slate-500">
-              <span className="label mr-2">How the burn works</span>
-              Your production × burn weight × burn efficiency = burn power. Community burn power feeds the burn formula
-              {game.project && (
-                <> (<span className="num text-slate-400">{game.project.burnFormula === "asymptotic" ? `maxBurn × (1 − 2^(−power / ${fmt(game.project.burnHalfLife)}))` : `min(maxBurn, ${game.project.burnRate} × power)`}</span>)</>
-              )}
-              . The result is the amount of ${symbol} permanently removed from the {global ? fmtFull(global.initialSupply) : ""} initial supply, capped at {global?.maxBurnPercent}%.
-              {s.suspicion > 0 && <span className="ml-2 text-amber-400">Anti-cheat rejected {Math.round(s.rejectedClicks)} of your clicks (over the per-second cap).</span>}
-            </section>
-          </main>
+            ) : (
+              <div className="mx-auto max-w-2xl space-y-3 p-4 text-sm text-slate-300">
+                <h2 className="font-display text-2xl font-bold text-slate-100">How the burn works</h2>
+                <p>Your production × burn weight × burn efficiency = burn power. Community burn power feeds the burn formula:</p>
+                <pre className="panel overflow-x-auto p-3 font-mono text-xs text-brand-soft">
+                  {game.project?.burnFormula === "asymptotic"
+                    ? `burned = maxBurn × (1 − 2^(−power / ${fmt(game.project.burnHalfLife)}))`
+                    : `burned = min(maxBurn, ${game.project?.burnRate ?? "?"} × power)`}
+                  {"\n"}maxBurn = {global ? fmtFull(global.initialSupply) : "?"} × {global?.maxBurnPercent}% = {global ? fmtFull(global.maxBurn) : "?"}
+                </pre>
+                <p>The result is the amount of ${symbol} permanently removed from the initial supply when the launch window closes. The final supply is then minted on Solana, the burned amount is destroyed on-chain and the mint authority is revoked.</p>
+                <p>A share of the final supply ({game.project?.communityAllocationPercent}%) is reserved for players pro rata to their burn power. Link a wallet in Options to claim it after launch.</p>
+                <p className="text-slate-500">Everything you do is validated by the server: clicks over the per-second cap are dropped, purchases are re-priced server-side, and nothing is credited after the freeze instant. <Link href="/docs" className="underline">Full docs</Link>.</p>
+              </div>
+            )}
+          </div>
+          {s && (
+            <div className="hidden items-center gap-5 bg-[#0b0f15] px-4 py-1.5 text-xs text-slate-400 lg:flex">
+              <span>produced <span className="num text-slate-200">{fmt(game.local.totalProduced)}</span></span>
+              <span>clicks <span className="num text-slate-200">{Math.floor(game.local.totalClicks).toLocaleString("en-US")}</span></span>
+              <span>your burn power <span className="num text-ember">{fmt(game.local.burnPower)}</span></span>
+              <span className="ml-auto">{connected ? "live" : "polling"}</span>
+            </div>
+          )}
+        </main>
 
-          {/* RIGHT: shop */}
-          <aside className="min-h-[480px] lg:max-h-[calc(100vh-180px)] lg:sticky lg:top-3">
-            <Shop server={s} balance={game.local.balance} frozen={disabled} busy={game.busy} onBuy={game.buy} onUpgrade={game.upgrade} />
-          </aside>
-        </div>
-      )}
+        {/* RIGHT: store */}
+        <aside className="col-right">
+          {s ? <Store server={s} balance={game.local.balance} frozen={disabled} busy={game.busy} onBuy={game.buy} onUpgrade={game.upgrade} /> : <div className="store-head">STORE</div>}
+        </aside>
+      </div>
       <Toasts toasts={game.toasts} onDismiss={game.dismiss} />
     </div>
+  );
+}
+
+function NewsBox({ global }: { global: Parameters<typeof NewsTicker>[0]["global"] }) {
+  return (
+    <div className="news-box">
+      <NewsTicker global={global} bare />
+    </div>
+  );
+}
+
+function Row({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex justify-between gap-3 border-b border-white/[0.04] py-1"><span className="text-slate-500">{k}</span><span className="num text-slate-200">{v}</span></div>
   );
 }
 
@@ -214,5 +281,3 @@ function Hero({ label, value, tone = "text-slate-100" }: { label: string; value:
     </div>
   );
 }
-
-import { World } from "./World";

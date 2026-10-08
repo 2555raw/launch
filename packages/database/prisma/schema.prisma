@@ -249,6 +249,9 @@ model Battle {
   defenderSnapshot    Json
   /// Army the attacker brought (troopType -> count), locked at matchmaking.
   attackerArmy        Json
+  /// Troop levels (troopType -> level) and Town Hall level at battle start, for faithful replays.
+  attackerTroopLevels Json        @default("{}")
+  attackerTownHall    Int         @default(1)
   /// Ordered server-validated deployments [{t, troopType, x, y}].
   deployments         Json        @default("[]")
   result              Json?

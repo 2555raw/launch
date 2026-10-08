@@ -141,7 +141,7 @@ export async function startBattle(ctx: GameContext, attackerId: string, battleId
       const fromDonated = Math.min(unit?.donated ?? 0, count);
       await tx.armyUnit.update({ where: { playerId_troopType: { playerId: attackerId, troopType } }, data: { donated: { decrement: fromDonated }, count: { decrement: count - fromDonated } } });
     }
-    const updated = await tx.battle.update({ where: { id: battleId }, data: { state: 'ACTIVE', startedAt: now } });
+    const updated = await tx.battle.update({ where: { id: battleId }, data: { state: 'ACTIVE', startedAt: now, attackerTroopLevels: troopLevels, attackerTownHall: townHallLevel(village.buildings) } });
     return { battle: updated, troopLevels, attackerTownHall: townHallLevel(village.buildings) };
   });
 }

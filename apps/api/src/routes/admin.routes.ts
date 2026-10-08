@@ -113,9 +113,8 @@ export async function registerAdminRoutes(app: FastifyInstance) {
     const b = await db.battle.findUnique({ where: { id } });
     if (!b) throw notFound('Battle not found');
     if (b.state !== 'FINISHED') return { battle: b, replayed: null, matches: null };
-    const troops = await db.playerTroop.findMany({ where: { playerId: b.attackerId } });
     const result = b.result as { durationMs?: number } | null;
-    const sim = replayBattle({ seed: b.seed, snapshot: b.defenderSnapshot as unknown as BattleSnapshot, army: b.attackerArmy as Record<string, number>, troopLevels: Object.fromEntries(troops.map((t) => [t.troopType, t.level])), attackerTownHall: 1 }, b.deployments as unknown as DeploymentRecord[], result?.durationMs);
+    const sim = replayBattle({ seed: b.seed, snapshot: b.defenderSnapshot as unknown as BattleSnapshot, army: b.attackerArmy as Record<string, number>, troopLevels: (b.attackerTroopLevels as Record<string, number>) ?? {}, attackerTownHall: b.attackerTownHall }, b.deployments as unknown as DeploymentRecord[], result?.durationMs);
     const replayed = sim.result(0, 0, trophyDeltas, (b.defenderSnapshot as unknown as BattleSnapshot).townHallLevel);
     return { battle: { id: b.id, stars: b.stars, destructionPercent: b.destructionPercent, lootGold: b.lootGold, lootElixir: b.lootElixir, deployments: b.deployments }, replayed, matches: replayed.stars === b.stars && replayed.destructionPercent === b.destructionPercent && replayed.lootGold === b.lootGold };
   });

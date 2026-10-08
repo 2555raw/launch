@@ -136,10 +136,8 @@ export async function registerGameRoutes(app: FastifyInstance) {
     const { id } = request.params as { id: string };
     const b = await db.battle.findFirst({ where: { id, state: 'FINISHED', OR: [{ attackerId: auth.pid }, { defenderId: auth.pid }] } });
     if (!b) throw notFound('Battle not found');
-    const troops = await db.playerTroop.findMany({ where: { playerId: b.attackerId } });
-    const troopLevels = Object.fromEntries(troops.map((t) => [t.troopType, t.level]));
     const result = b.result as { durationMs?: number } | null;
-    const sim = replayBattle({ seed: b.seed, snapshot: b.defenderSnapshot as unknown as BattleSnapshot, army: b.attackerArmy as Record<string, number>, troopLevels, attackerTownHall: 1 }, b.deployments as unknown as DeploymentRecord[], result?.durationMs);
+    const sim = replayBattle({ seed: b.seed, snapshot: b.defenderSnapshot as unknown as BattleSnapshot, army: b.attackerArmy as Record<string, number>, troopLevels: (b.attackerTroopLevels as Record<string, number>) ?? {}, attackerTownHall: b.attackerTownHall }, b.deployments as unknown as DeploymentRecord[], result?.durationMs);
     const replayed = sim.result(0, 0, trophyDeltas, (b.defenderSnapshot as unknown as BattleSnapshot).townHallLevel);
     return { recorded: b.result, replayed: { stars: replayed.stars, destructionPercent: replayed.destructionPercent, lootGold: replayed.lootGold, lootElixir: replayed.lootElixir }, matches: replayed.destructionPercent === b.destructionPercent && replayed.stars === b.stars, events: sim.events.slice(0, 500) };
   });

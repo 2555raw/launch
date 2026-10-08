@@ -43,7 +43,7 @@ vendor/v4-sources.json   the Uniswap V4 files the templates import, for the in-b
 token.js     live $UHOOKS market panel (DexScreener, GeckoTerminal, Blockscout)
 demo.js      the demo window on the landing page
 app.js       shared: links from config, sticky nav, menu, typing prompt, copy CA, scroll reveal
-landing.js   the landing's moving parts: ship's log ticker, the rope and its hook, the cannon
+landing.js   the landing's moving parts: rules ticker, the progress line, the simulation
 docs.js      docs routing, table of contents, previous/next and search
 signin.js    sign-in message (EIP-4361) for app.html
 styles.css / build.css / docs.css / app.css / hooks.css / launch.css / hook.css
@@ -236,7 +236,7 @@ headline, the glow on the water. Parchment sections read like a captain's chart.
 | `--bg` / `--card` / `--card-2` | `#070B14` / `#0F182B` / `#0B1323` | night sea, panels, wells |
 | `--ink` / `--prose` / `--muted` | `#F3EAD7` / `#BDB29C` / `#8D8576` | headings, body, labels |
 | `--parch` / `--parch-ink` | `#F2E4C4` / `#24180A` | chart sections |
-| `--ok` / `--red` | `#5FD3A6` / `#E5624B` | live, locked, done / cannon fire, refusals |
+| `--ok` / `--red` | `#5FD3A6` / `#E5624B` | live, locked, done / refusals |
 
 Trading: `swap.js` puts a buy/sell panel on a token's public page when its pool pairs it
 with ETH. It quotes through Uniswap's Quoter, swaps through the Universal Router
@@ -245,37 +245,37 @@ wallet signs, and explains hook refusals (launch cap, cooldown) in words. Sales 
 Permit2. Covered by `scripts/hook-tests/e2e-swap.js` against Robinhood Chain's own router
 and quoter code.
 
-The server compresses text (Brotli or gzip) and the landing loads its 3D after first paint.
+The server compresses text (Brotli or gzip); the landing preloads its 3D and starts it as
+soon as the page is parsed.
 
-3D: `scene3d.js` (built from `src/scene3d.js` with three.js, `npm run build:3d`) draws three
-WebGL scenes on top of their 2D drawings: the hero's night sea (Gerstner swell, the moon and
-its glitter, a galleon on the horizon) with a captain's hook rising half out of the water where the `.uh-orb`
-box sits (polished steel hook, brass ferrule, leather cup with a brass band and rivets), the $UHOOKS doubloon turning in studio light, a broadside of two cast-iron cannons on a
-gun deck (planked bulwark with open ports, breeching ropes, shot stacked in pyramids, a
-bucket, a cask, a coiled rope, the mainmast and its shrouds, moonlight shadows and a
-hanging lantern) that fire as their block scrolls into view (fuse sparks, muzzle flash, recoil, smoke,
-the ball over the sea, and a shake of the page), and the sea under the closing call
-with the ship sailing across. A scene only draws while its canvas is on screen; the 2D
-drawing stays without WebGL, and with reduced motion one still frame is drawn.
+3D: `scene3d.js` (built from `src/scene3d.js` with three.js, `npm run build:3d`). The landing
+is one night sea fixed behind the whole page (`[data-scene="story"]`): Gerstner swell with a
+tiled chop map, a mirror render for reflections, the moon's glitter, moonlit cloud, bloom, a
+galleon on the horizon, and a chrome hook ploughing through the water with a V wake and spray,
+its chrome reflecting a live cube map of the scene. Each chapter of the page (`[data-shot]`)
+is a camera shot: the opening, the waterline, ahead of the hook, high above its wake, and dawn
+for the closing call. Scrolling blends between them; `[data-label3d]` labels are pinned to
+points in the scene. The product sections (simulation, hooks, limits, $UHOOKS, FAQ) are solid
+and cover the sea while you read them, and the scene stops drawing. Phones get a lighter
+version (no mirror, bloom or cube map) and their own framing; a slow GPU drops to that on its
+own. Without WebGL, on a software renderer or with data saver, the page shows a still of the
+scene (`hero.jpg`). The $UHOOKS coin is a second, small scene.
 
-Type: **Zilla Slab** for headlines (the last words in gold, same face), **Source Serif 4**
-for text, **Pirata One** for the wordmark, **Geist Mono** for addresses and code. Labels are
-plain sentence case. Every page's title is just "UnyHooks". The hero carries a "Built on
-Uniswap V4" badge with Uniswap's mark (`uniswap.png`, from Uniswap's own interface repo);
-the 3D doubloon has the hook and $UHOOKS on its front and the same mark struck on its back. The landing's hero is a porthole on a night
-sea (moon, a ship riding the swell, a compass rose), the rail down the left is a rope the
-hook is let down as you scroll, the "map" section is parchment with rhumb lines and an X on
-the lock date, and a ship crosses the closing section. The mark is a pirate's hook on its cuff, drawn once as an SVG
-`<symbol>` per page (`#uh-mark`, 64×80). The landing's ship, sea, cannon and doubloon are inline
-SVG; the line icons (anchor, skull, cannon, chest…) are a sprite at the top of `index.html`.
+Type: **Source Serif 4** for headlines and text, **Geist** for the wordmark, **Geist Mono** for
+addresses, code and labels. Every page's title is just "UnyHooks". The hero carries a "Built
+on Uniswap V4" badge with Uniswap's mark (`uniswap.png`, from Uniswap's own interface repo).
+
+The mark is the UnyHooks glyph, drawn once as an SVG `<symbol>` per page (`#uh-mark`, square,
+`currentColor`, gold in the nav) and kept in `brand/` (`logo.svg`, `logo-gold.svg`, the path in
+`mark.d.txt`). The favicon is the same glyph on a dark tile. `brand/` also has the X avatar and
+header and the pages they are rendered from.
 
 ## Motion
 
-The hero ship bobs, the waves roll, cannon ports flash, the hook floats; a rope runs down the
-left edge with a knot per section and the hook slides down it as the page scrolls; the ship's
-log ticker scrolls; the cannon in the launch section fires while it is on screen (`landing.js`).
-The demo window plays the builder back while it is visible, and sections rise in once. With
-`prefers-reduced-motion` nothing moves. The scroll-reveal hidden state only applies once the
-script has run, so the page renders complete without JS.
+The camera follows the scroll through the chapters and the hook keeps moving through the
+water; a hairline on the left marks the sections passed; the rules ticker scrolls. The
+simulation plays only when pressed, and sections rise in once. With `prefers-reduced-motion`
+nothing moves on its own. The scroll-reveal hidden state only applies once the script has run,
+so the page renders complete without JS.
 
 UnyHooks is an independent project and is not affiliated with Uniswap Labs or Robinhood.

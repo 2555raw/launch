@@ -72,5 +72,5 @@
   .ap-side { padding: 24px 48px 36px; }
   .ap-art { display: block; position: relative; }
   .ap-art { display: grid; place-items: center; padding: 40px; }
-  .ap-art .uh-orb { width: min(560px, 88%); }
+  .ap-still { width: 100%; height: 100%; min-height: 520px; border-radius: 22px; background: #070B14 url(hero.jpg) 70% 45% / cover no-repeat; box-shadow: 0 0 0 1px rgba(243, 234, 215, .08), 0 40px 80px -40px rgba(0, 0, 0, .9); }
 }

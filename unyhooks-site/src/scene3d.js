@@ -1,19 +1,16 @@
-/* UnyHooks — the 3D scenes on the landing page (three.js, WebGL).
+/* UnyHooks — the 3D on the landing page (three.js, WebGL).
 
-   Three canvases, each drawn only while it is on screen:
+     [data-scene="story"]  one night sea fixed behind the whole page: the moon,
+                           moonlit cloud, a galleon on the horizon and a chrome
+                           hook ploughing through the swell. Each chapter of the
+                           page ([data-shot]) is a camera shot; scrolling moves
+                           the camera between them, and the last one is dawn.
+     [data-scene="coin"]   the $UHOOKS coin, turning in the light
 
-     [data-scene="hero"]   a night sea with rolling swell, the moon and its
-                           glitter on the water, a galleon on the horizon and a
-                           brass hook rising out of the water where the page's
-                           .uh-orb box sits
-     [data-scene="coin"]   the $UHOOKS doubloon, turning in the moonlight
-     [data-scene="sea"]    the same sea under the closing call, with the ship
-                           sailing across
-
-   Each canvas sits on top of the page's 2D drawing of the same thing. The 2D
-   drawing stays until the first 3D frame is ready (the container gets
-   .is-3d), so without WebGL nothing changes. With prefers-reduced-motion one
-   still frame is drawn and nothing moves.
+   Scenes start when their canvas comes near the screen and draw only while it
+   is visible. Without WebGL (or on a software renderer) the page keeps a still
+   of the sea. With prefers-reduced-motion nothing moves; the camera still
+   follows the scroll.
 
    Built into ../scene3d.js with esbuild (npm run build:3d). */
 
@@ -28,20 +25,27 @@ const small = window.matchMedia('(max-width: 760px)').matches;
 
 /* ---------- shared: the night sky ---------- */
 
-const MOON_DIR = new THREE.Vector3(0.3, 0.13, -1).normalize();
+const MOON_DIR = new THREE.Vector3(0.3, 0.15, -1).normalize();
+// Where the light sits at night (the moon) and at dawn (the sun, low on the
+// horizon). The story scene moves MOON_DIR between them as the page scrolls;
+// every shader reads the same vector and the same DAWN value.
+const NIGHT_DIR = MOON_DIR.clone();
+const SUN_DIR = new THREE.Vector3(0.22, 0.035, -1).normalize();
+const DAWN = { value: 0 };
 
 const SKY_GLSL = /* glsl */`
   uniform vec3 uMoonDir;
+  uniform float uDawn;
   vec3 skyColor(vec3 d) {
     float h = clamp(d.y, 0.0, 1.0);
-    vec3 zenith = vec3(0.003, 0.007, 0.02);
-    vec3 horizon = vec3(0.026, 0.038, 0.07);
-    vec3 c = mix(horizon, zenith, pow(h, 0.4));
+    vec3 zenith = mix(vec3(0.003, 0.007, 0.02), vec3(0.02, 0.035, 0.09), uDawn);
+    vec3 horizon = mix(vec3(0.026, 0.038, 0.07), vec3(0.34, 0.15, 0.09), uDawn);
+    vec3 c = mix(horizon, zenith, pow(h, mix(0.4, 0.3, uDawn)));
     float m = max(dot(d, uMoonDir), 0.0);
-    c += vec3(0.4, 0.34, 0.24) * pow(m, 16.0) * 0.16;
-    c += vec3(0.95, 0.88, 0.7) * pow(m, 420.0) * 0.6;
-    // the warm band low on the horizon, under the moon
-    c += vec3(0.1, 0.055, 0.02) * exp(-abs(d.y) * 24.0) * (0.2 + 0.8 * pow(m, 4.0));
+    c += mix(vec3(0.4, 0.34, 0.24) * 0.16, vec3(1.0, 0.45, 0.18) * 0.45, uDawn) * pow(m, mix(16.0, 9.0, uDawn));
+    c += mix(vec3(0.95, 0.88, 0.7) * 0.6, vec3(1.6, 0.85, 0.4) * 1.0, uDawn) * pow(m, mix(420.0, 220.0, uDawn));
+    // the warm band low on the horizon, under the light
+    c += mix(vec3(0.1, 0.055, 0.02), vec3(0.55, 0.24, 0.1), uDawn) * exp(-abs(d.y) * 24.0) * (0.2 + 0.8 * pow(m, 4.0));
     return c;
   }
 `;
@@ -52,7 +56,7 @@ function skyDome(radius, withMoonDisc) {
     new THREE.ShaderMaterial({
       side: THREE.BackSide,
       depthWrite: false,
-      uniforms: { uMoonDir: { value: MOON_DIR } },
+      uniforms: { uMoonDir: { value: MOON_DIR }, uDawn: DAWN },
       vertexShader: /* glsl */`
         varying vec3 vDir;
         void main() {
@@ -74,7 +78,7 @@ function skyDome(radius, withMoonDisc) {
           vec3 b = cross(t, uMoonDir);
           vec2 uv = vec2(dot(d, t), dot(d, b)) * 60.0;
           float seas = smoothstep(0.35, 0.0, length(uv - vec2(0.2, 0.25))) * 0.25 + smoothstep(0.25, 0.0, length(uv - vec2(-0.3, -0.15))) * 0.2;
-          c = mix(c, vec3(4.2, 3.9, 3.2) * (1.0 - seas), disc);` : ''}
+          c = mix(c, mix(vec3(4.2, 3.9, 3.2) * (1.0 - seas), vec3(9.0, 5.2, 2.4), uDawn), disc);` : ''}
           gl_FragColor = vec4(c, 1.0);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
@@ -99,14 +103,14 @@ function stars(count, radius) {
   const m = new THREE.ShaderMaterial({
     transparent: true,
     depthWrite: false,
-    uniforms: { uTime: { value: 0 }, uPx: { value: 1 } },
+    uniforms: { uTime: { value: 0 }, uPx: { value: 1 }, uDawn: DAWN },
     vertexShader: /* glsl */`
       attribute float seed;
-      uniform float uTime, uPx;
+      uniform float uTime, uPx, uDawn;
       varying float vA;
       void main() {
         vA = (0.35 + 0.65 * seed) * (0.6 + 0.4 * sin(uTime * (0.6 + seed * 2.0) + seed * 40.0));
-        vA *= smoothstep(0.02, 0.2, normalize(position).y);
+        vA *= smoothstep(0.02, 0.2, normalize(position).y) * (1.0 - uDawn);
         gl_PointSize = (0.8 + seed * seed * 2.2) * uPx;
         vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         gl_Position = p; gl_Position.z = p.w * 0.9999;
@@ -279,6 +283,7 @@ function sea() {
       uTime: { value: 0 },
       uFlow: { value: 0 },
       uMoonDir: { value: MOON_DIR },
+      uDawn: DAWN,
       uWaves: { value: waves },
       uNormals: { value: waterNormals() },
       uRefl: { value: null },
@@ -379,13 +384,13 @@ function sea() {
         float m = max(dot(R, uMoonDir), 0.0);
         float far = smoothstep(15.0, 260.0, dist);
         float sharp = mix(2600.0, 420.0, far);
-        vec3 moonCol = vec3(1.0, 0.82, 0.55);
+        vec3 moonCol = mix(vec3(1.0, 0.82, 0.55), vec3(1.0, 0.6, 0.3), uDawn);
         vec3 glint = moonCol * (pow(m, sharp) * mix(9.0, 3.0, far) + pow(m, 160.0) * 0.35 + pow(m, 24.0) * 0.025);
 
-        vec3 deep = vec3(0.0015, 0.005, 0.011);
+        vec3 deep = mix(vec3(0.0015, 0.005, 0.011), vec3(0.012, 0.02, 0.035), uDawn);
         // a little light through the backs of the waves facing the moon
         vec3 body = deep + vec3(0.004, 0.016, 0.02) * clamp(vCrest * 0.9 + 0.35, 0.0, 1.1) * (0.5 + hgt);
-        vec3 col = mix(body, min(refl, vec3(6.0)), fres) + glint;
+        vec3 col = mix(body, min(refl, vec3(6.0)), fres) + glint * (1.0 - 0.45 * uDawn);
 
         // white water: the wake, and a few breaking crests close by
         float near = exp(-dist * 0.03);
@@ -420,7 +425,7 @@ function cloudDome(radius) {
       side: THREE.BackSide,
       transparent: true,
       depthWrite: false,
-      uniforms: { uMoonDir: { value: MOON_DIR }, uTime: { value: 0 } },
+      uniforms: { uMoonDir: { value: MOON_DIR }, uTime: { value: 0 }, uDawn: DAWN },
       vertexShader: /* glsl */`
         varying vec3 vDir;
         void main() {
@@ -430,7 +435,7 @@ function cloudDome(radius) {
         }`,
       fragmentShader: /* glsl */`
         uniform vec3 uMoonDir;
-        uniform float uTime;
+        uniform float uTime, uDawn;
         varying vec3 vDir;
         float hash(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
         float noise(vec2 p) {
@@ -474,9 +479,9 @@ function cloudDome(radius) {
           for (int i = 1; i <= 4; i++) occ += smoothstep(cv, cv + 0.28, fbm4(p + step * float(i)));
           float lit = exp(-occ * 1.1);
           float m = max(dot(d, uMoonDir), 0.0);
-          float phase = 0.03 + pow(m, 6.0) * 0.5 + pow(m, 40.0) * 2.2 + pow(m, 300.0) * 6.0;
-          vec3 under = vec3(0.006, 0.009, 0.018);
-          vec3 edge = mix(vec3(0.65, 0.7, 0.85), vec3(1.0, 0.72, 0.42), smoothstep(0.6, 0.98, m));
+          float phase = 0.03 + uDawn * 0.12 + pow(m, 6.0) * 0.5 + pow(m, 40.0) * 2.2 + pow(m, 300.0) * 6.0;
+          vec3 under = mix(vec3(0.006, 0.009, 0.018), vec3(0.06, 0.035, 0.05), uDawn);
+          vec3 edge = mix(mix(vec3(0.65, 0.7, 0.85), vec3(1.0, 0.72, 0.42), smoothstep(0.6, 0.98, m)), vec3(1.0, 0.55, 0.3), uDawn);
           vec3 col = under + edge * lit * phase * (1.15 - den * 0.7);
           float alpha = den * smoothstep(0.008, 0.045, d.y) * 0.96;
           gl_FragColor = vec4(col, alpha);
@@ -734,8 +739,11 @@ function shipModel() {
 
 /* ---------- the coin ---------- */
 
+// The UnyHooks mark (brand/mark.d.txt), in a 3000-unit square.
+const MARK_D = 'M 1486 -17 C 1415 -11,1355 39,1337 107 C 1331 128,1332 125,1331 194 L 1330 258 1328 262 C 1325 268,1320 272,1314 275 C 1310 277,1308 278,1246 278 C 1180 279,1180 279,1161 284 C 1097 300,1047 356,1038 422 C 1037 428,1037 498,1037 654 C 1037 805,1037 881,1036 885 C 1035 893,1031 899,1026 903 C 1017 910,1018 910,955 910 C 894 910,885 911,869 915 C 803 932,756 983,744 1049 C 742 1060,742 1062,741 1195 C 741 1305,741 1329,740 1330 C 739 1331,701 1331,602 1331 L 466 1330 456 1328 C 383 1312,333 1258,322 1186 C 319 1165,319 1007,322 996 C 327 976,341 961,361 954 C 366 953,373 953,418 952 C 446 952,471 951,474 950 C 541 938,594 890,610 826 C 615 804,615 813,615 584 C 615 375,615 371,617 364 C 622 342,639 326,660 322 C 667 320,676 320,711 320 C 765 320,779 318,805 308 C 918 262,946 113,857 29 C 781 -43,657 -29,600 60 C 588 79,580 98,575 124 C 574 126,573 155,573 192 L 572 256 570 262 C 567 268,561 273,556 276 C 552 277,546 278,488 278 C 451 278,422 279,419 280 C 417 280,411 281,407 282 C 347 296,295 349,282 409 C 281 414,280 420,279 422 C 279 423,278 529,278 656 L 278 888 275 893 C 274 896,271 900,268 902 C 260 910,264 909,193 910 C 158 910,127 911,124 912 C 50 925,-4 981,-16 1056 C -18 1070,-18 1930,-16 1944 C -4 2019,50 2075,124 2088 C 127 2089,158 2090,193 2090 L 256 2090 261 2093 C 267 2095,273 2102,276 2108 C 277 2111,278 2129,278 2344 C 278 2471,279 2577,279 2578 C 280 2580,281 2586,282 2591 C 295 2651,347 2704,407 2718 C 411 2719,417 2720,419 2720 C 422 2721,451 2722,488 2722 C 546 2722,552 2723,556 2724 C 561 2727,567 2732,570 2738 L 572 2744 573 2808 C 573 2845,574 2874,575 2876 C 580 2902,588 2921,600 2940 C 657 3029,781 3043,857 2971 C 946 2887,918 2738,805 2692 C 779 2682,765 2680,711 2680 C 676 2680,667 2680,660 2678 C 639 2674,622 2658,617 2636 C 615 2629,615 2625,615 2416 C 615 2187,615 2196,610 2174 C 594 2110,541 2062,474 2050 C 471 2049,446 2048,418 2048 C 373 2047,366 2047,361 2046 C 341 2039,327 2024,322 2004 C 319 1993,319 1835,322 1814 C 333 1742,383 1688,456 1672 L 466 1670 602 1669 C 701 1669,739 1669,740 1670 C 741 1671,741 1695,741 1805 C 742 1938,742 1940,744 1951 C 756 2017,803 2068,869 2085 C 885 2089,894 2090,955 2090 C 1018 2090,1017 2090,1026 2097 C 1031 2101,1035 2107,1036 2115 C 1037 2119,1037 2195,1037 2346 C 1037 2502,1037 2572,1038 2578 C 1047 2644,1097 2700,1161 2716 C 1180 2721,1180 2721,1246 2722 C 1308 2722,1310 2723,1314 2725 C 1320 2728,1325 2732,1328 2738 L 1330 2742 1331 2806 C 1332 2875,1331 2872,1337 2893 C 1363 2993,1479 3046,1573 3001 C 1617 2980,1651 2939,1663 2893 C 1669 2872,1668 2875,1669 2806 L 1670 2742 1672 2738 C 1675 2732,1680 2728,1686 2725 C 1690 2723,1692 2722,1754 2722 C 1820 2721,1820 2721,1839 2716 C 1903 2700,1953 2644,1962 2578 C 1963 2572,1963 2502,1963 2346 C 1963 2195,1963 2119,1964 2115 C 1965 2107,1969 2101,1974 2097 C 1983 2090,1982 2090,2045 2090 C 2106 2090,2115 2089,2131 2085 C 2197 2068,2244 2017,2256 1951 C 2258 1940,2258 1938,2259 1805 C 2259 1695,2259 1671,2260 1670 C 2261 1669,2299 1669,2398 1669 L 2534 1670 2544 1672 C 2617 1688,2667 1742,2678 1814 C 2681 1835,2681 1993,2678 2004 C 2673 2024,2659 2039,2639 2046 C 2634 2047,2627 2047,2582 2048 C 2554 2048,2529 2049,2526 2050 C 2459 2062,2406 2110,2390 2174 C 2385 2196,2385 2187,2385 2416 C 2385 2625,2385 2629,2383 2636 C 2378 2658,2361 2674,2340 2678 C 2333 2680,2324 2680,2289 2680 C 2235 2680,2221 2682,2195 2692 C 2082 2738,2054 2887,2143 2971 C 2219 3043,2343 3029,2400 2940 C 2412 2921,2420 2902,2425 2876 C 2426 2874,2427 2845,2427 2808 L 2428 2744 2430 2738 C 2433 2732,2439 2727,2444 2724 C 2448 2723,2454 2722,2512 2722 C 2549 2722,2578 2721,2581 2720 C 2583 2720,2589 2719,2593 2718 C 2653 2704,2705 2651,2718 2591 C 2719 2586,2720 2580,2721 2578 C 2721 2577,2722 2471,2722 2344 C 2722 2129,2723 2111,2724 2108 C 2727 2102,2733 2095,2739 2093 L 2744 2090 2807 2090 C 2842 2090,2873 2089,2876 2088 C 2950 2075,3004 2019,3016 1944 C 3018 1930,3018 1070,3016 1056 C 3004 981,2950 925,2876 912 C 2873 911,2842 910,2807 910 C 2736 909,2740 910,2732 902 C 2729 900,2726 896,2725 893 L 2722 888 2722 656 C 2722 529,2721 423,2721 422 C 2720 420,2719 414,2718 409 C 2705 349,2653 296,2593 282 C 2589 281,2583 280,2581 280 C 2578 279,2549 278,2512 278 C 2454 278,2448 277,2444 276 C 2439 273,2433 268,2430 262 L 2428 256 2427 192 C 2427 155,2426 126,2425 124 C 2420 98,2412 79,2400 60 C 2343 -29,2219 -43,2143 29 C 2054 113,2082 262,2195 308 C 2221 318,2235 320,2289 320 C 2324 320,2333 320,2340 322 C 2361 326,2378 342,2383 364 C 2385 371,2385 375,2385 584 C 2385 813,2385 804,2390 826 C 2406 890,2459 938,2526 950 C 2529 951,2554 952,2582 952 C 2627 953,2634 953,2639 954 C 2659 961,2673 976,2678 996 C 2681 1007,2681 1165,2678 1186 C 2667 1258,2617 1312,2544 1328 L 2534 1330 2398 1331 C 2299 1331,2261 1331,2260 1330 C 2259 1329,2259 1305,2259 1195 C 2258 1062,2258 1060,2256 1049 C 2244 983,2197 932,2131 915 C 2115 911,2106 910,2045 910 C 1982 910,1983 910,1974 903 C 1969 899,1965 893,1964 885 C 1963 881,1963 805,1963 654 C 1963 498,1963 428,1962 422 C 1953 356,1903 300,1839 284 C 1820 279,1820 279,1754 278 C 1692 278,1690 277,1686 275 C 1680 272,1675 268,1672 262 L 1670 258 1669 194 C 1668 125,1669 128,1663 107 C 1643 30,1566 -24,1486 -17 M 1418 321 C 1397 326,1379 344,1375 365 C 1374 368,1374 441,1374 578 C 1374 715,1374 791,1373 798 C 1366 875,1309 937,1233 950 C 1230 951,1205 952,1176 952 L 1126 953 1118 955 C 1100 962,1089 972,1082 989 L 1080 996 1080 1090 L 1080 1184 1082 1195 C 1097 1264,1147 1314,1215 1328 L 1226 1330 1500 1330 L 1774 1330 1785 1328 C 1853 1314,1903 1264,1918 1195 L 1920 1184 1920 1090 L 1920 996 1918 989 C 1911 972,1900 962,1882 955 L 1874 953 1824 952 C 1795 952,1770 951,1767 950 C 1691 937,1634 875,1627 798 C 1626 791,1626 715,1626 578 C 1626 445,1626 368,1625 365 C 1622 347,1606 329,1587 323 L 1580 321 1502 320 C 1440 320,1423 320,1418 321 M 1228 1670 C 1158 1676,1098 1731,1082 1805 L 1080 1816 1080 1910 L 1080 2004 1082 2011 C 1089 2028,1100 2038,1118 2045 L 1126 2047 1176 2048 C 1205 2048,1230 2049,1233 2050 C 1309 2063,1366 2125,1373 2202 C 1374 2209,1374 2285,1374 2422 C 1374 2555,1374 2632,1375 2635 C 1378 2653,1395 2671,1413 2677 L 1420 2680 1500 2680 L 1580 2680 1587 2677 C 1605 2671,1622 2653,1625 2635 C 1626 2632,1626 2555,1626 2422 C 1626 2285,1626 2209,1627 2202 C 1634 2125,1691 2063,1767 2050 C 1770 2049,1795 2048,1824 2048 L 1874 2047 1882 2045 C 1900 2038,1911 2028,1918 2011 L 1920 2004 1920 1910 L 1920 1816 1918 1805 C 1903 1736,1854 1687,1786 1672 L 1776 1670 1504 1669 C 1355 1669,1231 1669,1228 1670';
+
 // One face of the doubloon as a bump map: grey is the field, white is raised.
-// The front carries the hook and "$UHOOKS"; the back, Uniswap's unicorn.
+// The front carries the UnyHooks mark and "$UHOOKS"; the back, Uniswap's unicorn.
 function coinFaceTexture(side) {
   const c = document.createElement('canvas');
   c.width = c.height = 1024;
@@ -767,10 +775,9 @@ function coinFaceTexture(side) {
   g.fillStyle = '#e6e6e6';
   for (let i = 0; i < 72; i++) { const a = (i / 72) * Math.PI * 2; g.beginPath(); g.arc(Math.cos(a) * 405, Math.sin(a) * 405, 9, 0, Math.PI * 2); g.fill(); }
   if (side === 'front') {
-    g.save(); g.scale(4.4, 4.4); g.translate(-30.5, -60);
+    g.save(); g.translate(-150, -195); g.scale(0.1, 0.1);
     g.fillStyle = '#fff';
-    g.fill(new Path2D('M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z'));
-    g.fill(new Path2D('M18 63h14l6.2 12.6a1.6 1.6 0 0 1-1.4 2.4H13.2a1.6 1.6 0 0 1-1.4-2.4z'));
+    g.fill(new Path2D(MARK_D), 'evenodd');
     g.restore();
     g.font = '700 92px Georgia, serif'; g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.fillText('$UHOOKS', 0, 215);
@@ -864,14 +871,36 @@ window.addEventListener('pointermove', (e) => {
   pointer.ty = (e.clientY / window.innerHeight) * 2 - 1;
 }, { passive: true });
 
-function seaScene(canvas, opts) {
-  const renderer = makeRenderer(canvas, false, small ? 1.5 : 1.5);
-  // Desktop gets the full treatment: a mirror for real reflections, the
-  // hook's surroundings in its chrome, and bloom on the moon and the glitter.
+/* ---------- the story: one sea behind the whole page ---------- */
+
+/* Camera shots, one per chapter of the page ([data-shot] sections). The hook
+   stands at the origin and ploughs along FLOW_DIR; each shot is a camera
+   position and the point it looks at, plus how far into dawn the sky is.
+   Scrolling between two chapters blends their shots. */
+const SHOTS = {
+  // the opening: the hook off to the right, the moon above it
+  hero: { pos: [-2.7, 0.95, 7.2], look: [-2.9, 1.55, -10], dawn: 0,
+    // narrow screens: the hook small and high, above the words
+    portrait: { pos: [-0.9, 1.2, 12.5], look: [0.2, -0.75, 0] } },
+  // down at the waterline beside it
+  close: { pos: [-3.6, 0.6, 4.1], look: [-1.2, 1.15, -1.4], dawn: 0 },
+  // ahead of it, looking back along its wake
+  front: { pos: [4.7, 1.25, 4.5], look: [-2.2, 1.05, 1.0], dawn: 0 },
+  // high above, the wake drawn out behind it
+  aerial: { pos: [-3.2, 7.5, 6.6], look: [-3.8, 0, -1.9], dawn: 0.05 },
+  // the end of the night: the sun on the horizon, the hook off to the side
+  dawn: { pos: [-1.6, 1.5, 7.8], look: [-6.0, 2.4, -10], dawn: 1 }
+};
+
+const V3 = (a) => new THREE.Vector3(a[0], a[1], a[2]);
+const ease = (t) => t * t * (3 - 2 * t);
+
+function storyScene(canvas) {
+  const renderer = makeRenderer(canvas, false, 1.5);
   let hq = !small;
   const dbg = new URLSearchParams(location.search).get('dbg') || '';
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(opts.fov || 40, 1, 0.1, 2000);
+  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 2000);
   scene.environment = environment(renderer);
   scene.add(skyDome(1000, true));
   const sky = stars(small ? 700 : 1400, 900);
@@ -881,11 +910,10 @@ function seaScene(canvas, opts) {
   scene.add(clouds);
   const water = sea();
   scene.add(water);
-  scene.add(new THREE.HemisphereLight(0x5a6c90, 0x05070c, 0.4));
+  const hemi = new THREE.HemisphereLight(0x5a6c90, 0x05070c, 0.4);
+  scene.add(hemi);
   const moon = new THREE.DirectionalLight(0xffe2b8, 1.8);
-  moon.position.copy(MOON_DIR).multiplyScalar(50);
   scene.add(moon);
-
   const ship = shipModel();
   scene.add(ship);
 
@@ -893,151 +921,194 @@ function seaScene(canvas, opts) {
   water.material.uniforms.uRefl.value = mir.texture;
   water.material.uniforms.uReflMat.value = mir.matrix;
 
-  let hook = null, drops = null, cube = null, cubeRT = null;
-  if (opts.hook) {
-    hook = hookModel();
-    if (hq) {
-      // the chrome reflects what is really around it: the sea, the moon, the sky
-      cubeRT = new THREE.WebGLCubeRenderTarget(128, { type: THREE.HalfFloatType });
-      cube = new THREE.CubeCamera(0.1, 2000, cubeRT);
-      cube.children.forEach((c) => c.layers.enable(2));
-      scene.add(cube);
-      const panel = (w, h, c, at) => {
-        const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: c, side: THREE.DoubleSide }));
-        m.layers.set(2);
-        m.userData.at = at;
-        scene.add(m);
-        return m;
-      };
-      hook.userData.panels = [
-        panel(14, 6, new THREE.Color(1.6, 1.5, 1.4), [-6, 7, 8]),
-        panel(8, 10, new THREE.Color(0.5, 0.6, 0.85), [9, 2, 6]),
-        panel(20, 4, new THREE.Color(0.25, 0.28, 0.35), [0, 12, -2])
-      ];
-      hook.traverse((o) => { if (o.material) { o.material.envMap = cubeRT.texture; o.material.envMapIntensity = 1.6; } });
-    } else {
-      const studio = environment(renderer, true);
-      hook.traverse((o) => { if (o.material) o.material.envMap = studio; });
-    }
-    scene.add(hook);
-    drops = spray(small ? 90 : 220);
-    drops.material.uniforms.uPx.value = renderer.getPixelRatio();
-    scene.add(drops);
-    const rim = new THREE.SpotLight(0xffe6c4, 70, 40, 0.5, 0.6, 2);
-    rim.target = hook;
-    hook.userData.rim = rim;
-    scene.add(rim);
-    const fill = new THREE.PointLight(0x8aa4d8, 6, 20, 2);
-    hook.userData.fill = fill;
-    scene.add(fill);
+  // the hook, its chrome reflecting what is really around it
+  const S = 1.1;
+  const hook = hookModel();
+  hook.scale.setScalar(S);
+  let cube = null, cubeRT = null, panels = [];
+  const studio = () => environment(renderer, true);
+  if (hq) {
+    cubeRT = new THREE.WebGLCubeRenderTarget(128, { type: THREE.HalfFloatType });
+    cube = new THREE.CubeCamera(0.1, 2000, cubeRT);
+    cube.children.forEach((c) => c.layers.enable(2));
+    scene.add(cube);
+    // softboxes only the cube camera sees, so the chrome reads as chrome
+    const panel = (w, h, c, at) => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color: c, side: THREE.DoubleSide }));
+      m.layers.set(2);
+      m.position.set(at[0], 0.9 * S + at[1], at[2]);
+      m.lookAt(0, 0.9 * S, 0);
+      scene.add(m);
+      return m;
+    };
+    panels = [
+      panel(14, 6, new THREE.Color(1.6, 1.5, 1.4), [-6, 7, 8]),
+      panel(8, 10, new THREE.Color(0.5, 0.6, 0.85), [9, 2, 6]),
+      panel(20, 4, new THREE.Color(0.25, 0.28, 0.35), [0, 12, -2])
+    ];
+    hook.traverse((o) => { if (o.material) { o.material.envMap = cubeRT.texture; o.material.envMapIntensity = 1.6; } });
+  } else {
+    const env = studio();
+    hook.traverse((o) => { if (o.material) o.material.envMap = env; });
   }
+  scene.add(hook);
+  const drops = spray(small ? 90 : 220);
+  drops.material.uniforms.uPx.value = renderer.getPixelRatio();
+  scene.add(drops);
+  const rim = new THREE.SpotLight(0xffe6c4, 70, 40, 0.5, 0.6, 2);
+  rim.position.set(3.5 * S, 3 * S + 1.2, -2.5 * S);
+  rim.target = hook;
+  scene.add(rim);
+  const fill = new THREE.PointLight(0x8aa4d8, 6, 20, 2);
+  fill.position.set(-2.5 * S, 1.2 * S, 3 * S);
+  scene.add(fill);
 
-  // bloom: the moon, its glitter and the ship's lanterns glow a little
-  let composer = null, bloom = null;
+  let composer = null;
   if (hq && !dbg.includes('nobloom')) {
     composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    bloom = new UnrealBloomPass(new THREE.Vector2(256, 256), 0.32, 0.5, 1.1);
-    composer.addPass(bloom);
+    composer.addPass(new UnrealBloomPass(new THREE.Vector2(256, 256), 0.32, 0.5, 1.1));
     composer.addPass(new OutputPass());
   }
 
-  const ray = new THREE.Raycaster();
-  const anchor = opts.anchor;
-  let camY = opts.cam[1];
-  const place = () => {
-    if (!hook || !anchor) return;
-    // Put the hook where the page's box for it is: a point along the ray
-    // through the box's centre, hovering a little above the swell.
-    const cr = canvas.getBoundingClientRect(), ar = anchor.getBoundingClientRect();
-    const ndc = new THREE.Vector2(((ar.left + ar.width / 2 - cr.left) / cr.width) * 2 - 1, -(((ar.top + ar.height * 0.56 - cr.top) / cr.height) * 2 - 1));
-    ray.setFromCamera(ndc, camera);
-    const want = Math.min(ar.height, ar.width * 1.15) * 0.5 / cr.height;
-    // The hook stands half under water: the sea cuts its shaft at the model's
-    // y = -0.35, so what shows is the 1.77 above that (the curl and the upper
-    // shaft), centred 0.89 above the water. At distance d the screen holds
-    // 2·d·tan(fov/2), so d = s/k; the camera's height is what puts that centre
-    // on the ray through the box.
-    const k = (want * 2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / 1.85;
-    const s = 1.1;
-    const d = s / k;
-    const dir = ray.ray.direction;
-    camY = 0.89 * s + Math.max(0.01, -dir.y) * d;
-    const p = new THREE.Vector3(camera.position.x + dir.x * d, 0, camera.position.z + dir.z * d);
-    hook.userData.base = { x: p.x, z: p.z, s };
-    hook.scale.setScalar(s);
+  /* Where the page is: which two chapters the middle of the screen sits
+     between, and how far from one to the other. */
+  const chapters = [...document.querySelectorAll('[data-shot]')];
+  const labels = [...document.querySelectorAll('[data-label3d]')];
+  const portrait = () => canvas.clientHeight > canvas.clientWidth * 1.05;
+  const shotFor = (name) => {
+    const s = SHOTS[name] || SHOTS.hero;
+    if (portrait() && s.portrait) return { pos: V3(s.portrait.pos), look: V3(s.portrait.look), dawn: s.dawn };
+    const pos = V3(s.pos), look = V3(s.look);
+    if (portrait()) {
+      // narrow screens: stand further back, face the hook, and keep it in the
+      // top half so the words can sit below it
+      const at = new THREE.Vector3(0, 0.9 * S, 0);
+      pos.sub(at).multiplyScalar(1.45).add(at);
+      look.lerp(at, 0.75);
+      look.y -= 0.9;
+    }
+    return { pos, look, dawn: s.dawn };
+  };
+  const where = () => {
+    const mid = window.innerHeight / 2;
+    let i = 0, f = 0;
+    const centers = chapters.map((c) => { const r = c.getBoundingClientRect(); return r.top + r.height / 2; });
+    if (mid <= centers[0]) return { i: 0, f: 0, x: 0 };
+    for (i = 0; i < centers.length - 1; i++) {
+      if (mid < centers[i + 1]) { f = (mid - centers[i]) / (centers[i + 1] - centers[i]); break; }
+    }
+    if (i >= centers.length - 1) return { i: centers.length - 1, f: 0, x: centers.length - 1 };
+    return { i, f, x: i + f };
   };
 
-  let lastW = 0, lastH = 0, flow = 0, last = 0, frame = 0;
-  const shaft = new THREE.Vector3();
+  const pos = new THREE.Vector3(), look = new THREE.Vector3(), tmp = new THREE.Vector3();
+  const shaft = new THREE.Vector3(), top = new THREE.Vector3(), wakePt = new THREE.Vector3();
+  const u = water.material.uniforms;
+  let flow = 0, last = 0, frame = 0, lastW = 0, lastH = 0;
   const times = [];
+  let smoothX = null;
+
   const draw = (t) => {
-    if (!fit(renderer, camera, canvas)) return;
-    const dt = Math.min(0.1, Math.max(0, t - last)); last = t;
-    if (composer && (canvas.clientWidth !== lastW || canvas.clientHeight !== lastH)) {
-      lastW = canvas.clientWidth; lastH = canvas.clientHeight;
-      composer.setPixelRatio(renderer.getPixelRatio());
-      composer.setSize(lastW, lastH);
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
+    // keep the drawing buffer to a sane size on very large screens
+    const ratio = Math.min(window.devicePixelRatio || 1, hq ? 1.5 : 1.25, Math.sqrt((hq ? 2.6e6 : 1.4e6) / (w * h)));
+    if (Math.abs(renderer.getPixelRatio() - ratio) > 0.01) renderer.setPixelRatio(ratio);
+    fit(renderer, camera, canvas);
+    if (composer && (w !== lastW || h !== lastH || composer._ratio !== ratio)) {
+      lastW = w; lastH = h; composer._ratio = ratio;
+      composer.setPixelRatio(ratio);
+      composer.setSize(w, h);
     }
+    const dt = Math.min(0.1, Math.max(0, t - last)); last = t;
+
+    // the camera eases towards where the scroll says it should be
+    const at = where();
+    smoothX = smoothX === null || still ? at.x : smoothX + (at.x - smoothX) * Math.min(1, dt * 4);
+    const i = Math.min(chapters.length - 1, Math.floor(smoothX)), f = ease(smoothX - i);
+    const a = shotFor(chapters[i].dataset.shot), b = shotFor(chapters[Math.min(chapters.length - 1, i + 1)].dataset.shot);
+    pos.copy(a.pos).lerp(b.pos, f);
+    look.copy(a.look).lerp(b.look, f);
+    DAWN.value = a.dawn + (b.dawn - a.dawn) * f;
+
+    // a little life in the hand-held camera, and the pointer's pull
     pointer.x += (pointer.tx - pointer.x) * 0.05;
     pointer.y += (pointer.ty - pointer.y) * 0.05;
-    camera.position.set(opts.cam[0] + pointer.x * 0.35, camY - pointer.y * 0.15, opts.cam[2]);
-    camera.lookAt(opts.look[0] + pointer.x * 0.6, camY + opts.look[1] - opts.cam[1], opts.look[2]);
+    pos.x += Math.sin(t * 0.31) * 0.05 + pointer.x * 0.3;
+    pos.y += Math.sin(t * 0.43) * 0.03 - pointer.y * 0.12;
+    camera.position.copy(pos);
+    camera.lookAt(look.x + pointer.x * 0.5, look.y, look.z);
     camera.updateMatrixWorld();
-    if (hook && !hook.userData.base) place();
 
-    // The hook ploughs on through the water: the sea streams past it, so it
-    // stays where the page put it while its wake trails away behind.
-    const speed = hook ? 1.25 * hook.userData.base.s : 0;
-    flow += speed * dt;
-    const u = water.material.uniforms;
+    // night to dawn: the light moves from the moon to the rising sun
+    MOON_DIR.copy(NIGHT_DIR).lerp(SUN_DIR, DAWN.value).normalize();
+    moon.position.copy(MOON_DIR).multiplyScalar(50);
+    moon.color.setRGB(1, 0.89 - DAWN.value * 0.25, 0.72 - DAWN.value * 0.35);
+    hemi.intensity = 0.4 + DAWN.value * 0.5;
+
+    // the hook ploughs on: the sea streams past it and its wake trails away
+    flow += (still ? 0 : 1.25 * S) * dt;
     u.uTime.value = t;
     u.uFlow.value = flow;
     sky.material.uniforms.uTime.value = t;
     clouds.material.uniforms.uTime.value = t;
 
-    // the ship rides the swell
-    const sx = opts.ship(t);
+    const sx = { x: 26 + Math.sin(t * 0.03) * 5, z: -170 };
     const w0 = waveAt(sx.x, sx.z, t, flow), w1 = waveAt(sx.x + 3, sx.z, t, flow), w2 = waveAt(sx.x, sx.z + 1.5, t, flow);
     ship.position.set(sx.x, w0.y * 0.8 - 0.3, sx.z);
-    ship.rotation.set((w2.y - w0.y) * 0.25, sx.heading, (w1.y - w0.y) * 0.12);
-    ship.scale.setScalar(sx.scale);
+    ship.rotation.set((w2.y - w0.y) * 0.25, 2.6, (w1.y - w0.y) * 0.12);
+    ship.scale.setScalar(1.1);
 
-    if (hook) {
-      const b = hook.userData.base;
-      // it weaves a little as it goes, and pitches over the swell
-      const weave = Math.sin(t * 0.23) * 0.35 * b.s;
-      const w = waveAt(b.x, b.z + weave, t, flow);
-      const wa = waveAt(b.x + 0.6, b.z + weave, t, flow), wb = waveAt(b.x - 0.6, b.z + weave, t, flow);
-      hook.position.set(b.x, 0.35 * b.s + w.y * 0.9, b.z + weave);
-      hook.rotation.set(Math.sin(t * 0.5) * 0.03, Math.atan2(-FLOW_DIR.y, FLOW_DIR.x) + 0.1 + Math.cos(t * 0.23) * 0.15 + pointer.x * 0.25, -0.06 - (wa.y - wb.y) * 0.35);
-      hook.updateMatrixWorld();
-      shaft.set(-0.6, -0.35, 0);
-      hook.localToWorld(shaft);
-      u.uHook.value.set(shaft.x, shaft.z, 0, b.s);
-      drops.userData.update(dt, shaft, b.s, w.y, still ? 0 : 160);
-      hook.userData.rim.position.set(b.x + 3.5 * b.s, 3 * b.s + 1.2, b.z - 2.5 * b.s);
-      hook.userData.fill.position.set(b.x - 2.5 * b.s, 1.2 * b.s, b.z + 3 * b.s);
-      if (cube && frame % 3 === 0) {
-        cube.position.set(b.x + 0.1 * b.s, 0.9 * b.s, b.z + weave);
-        hook.userData.panels.forEach((m) => { m.position.set(cube.position.x + m.userData.at[0], cube.position.y + m.userData.at[1], cube.position.z + m.userData.at[2]); m.lookAt(cube.position); });
-        hook.visible = false; drops.visible = false;
-        u.uHasRefl.value = 0;
-        cube.update(renderer, scene);
-        hook.visible = true; drops.visible = true;
-      }
+    const weave = Math.sin(t * 0.23) * 0.3 * S;
+    const wv = waveAt(0, weave, t, flow), wa = waveAt(0.6, weave, t, flow), wb = waveAt(-0.6, weave, t, flow);
+    hook.position.set(0, 0.35 * S + wv.y * 0.9, weave);
+    hook.rotation.set(Math.sin(t * 0.5) * 0.03, Math.atan2(-FLOW_DIR.y, FLOW_DIR.x) + 0.1 + Math.cos(t * 0.23) * 0.15, -0.06 - (wa.y - wb.y) * 0.35);
+    hook.updateMatrixWorld();
+    shaft.set(-0.6, -0.35, 0); hook.localToWorld(shaft);
+    u.uHook.value.set(shaft.x, shaft.z, 0, S);
+    drops.userData.update(dt, shaft, S, wv.y, still ? 0 : 160);
+
+    if (cube && hq && frame % 3 === 0) {
+      cube.position.set(0.1 * S, 0.9 * S, weave);
+      hook.visible = false; drops.visible = false;
+      u.uHasRefl.value = 0;
+      cube.update(renderer, scene);
+      hook.visible = true; drops.visible = true;
     }
 
     if (hq) {
       // the hook is left out of the mirror: on choppy water its reflection
       // breaks into streaks that read as lightning, not as metal
-      mir.render(scene, camera, hook ? [water, drops, hook] : [water], 0.5);
+      mir.render(scene, camera, [water, drops, hook], 0.5);
       u.uHasRefl.value = dbg.includes('nomirror') ? 0 : 1;
       if (composer) composer.render(); else renderer.render(scene, camera);
     } else {
       u.uHasRefl.value = 0;
       renderer.render(scene, camera);
     }
+
+    // labels pinned to points in the scene, shown in their own chapter
+    top.set(0.62, 1.55, 0); hook.localToWorld(top);
+    wakePt.set(shaft.x - FLOW_DIR.x * 3.2 * S, 0.05, shaft.z - FLOW_DIR.y * 3.2 * S);
+    const pts = { top, shaft, wake: wakePt };
+    for (const el of labels) {
+      const p3 = pts[el.dataset.label3d] || top;
+      tmp.copy(p3).project(camera);
+      const sec = el.closest('[data-shot]');
+      const ch = chapters.indexOf(sec);
+      // only while its own chapter fills most of the screen
+      const r = sec.getBoundingClientRect();
+      const shown = Math.max(0, Math.min(r.bottom, h) - Math.max(r.top, 0)) / h;
+      const near = Math.max(0, 1 - Math.abs(smoothX - ch) * 2.2) * Math.min(1, Math.max(0, (shown - 0.55) / 0.3));
+      const onScreen = tmp.z < 1 && Math.abs(tmp.x) < 1.1 && Math.abs(tmp.y) < 1.1;
+      el.style.opacity = onScreen ? near.toFixed(3) : '0';
+      // keep the whole label on screen
+      const lw = el._w || (el._w = el.offsetWidth);
+      const lx = Math.min((tmp.x + 1) / 2 * w, w - lw - 34);
+      el.style.transform = `translate(${lx.toFixed(1)}px, ${((1 - tmp.y) / 2 * h).toFixed(1)}px)`;
+    }
+
     frame++;
     // a slow GPU drops the extras rather than the frame rate
     if (hq && frame > 10 && frame < 100) {
@@ -1046,15 +1117,32 @@ function seaScene(canvas, opts) {
         times.sort((p, q) => p - q);
         if (times[30] > 30) {
           hq = false;
-          renderer.setPixelRatio(1);
-          if (hook && cubeRT) { const studio = environment(renderer, true); hook.traverse((o) => { if (o.material) o.material.envMap = studio; }); }
+          if (cubeRT) { const env = studio(); hook.traverse((o) => { if (o.material) o.material.envMap = env; }); }
+          panels.forEach((m) => scene.remove(m));
         }
       }
     }
-    canvas.parentElement.classList.add('is-3d');
+    document.documentElement.classList.add('is-3d');
   };
-  window.addEventListener('resize', () => { if (hook) { hook.userData.base = null; } });
-  loop(canvas, draw);
+
+  // draw while any chapter is on screen; the page's solid sections cover it
+  let visible = 0, raf = 0;
+  const t0 = performance.now();
+  const tick = (now) => {
+    raf = 0;
+    draw((now - t0) / 1000);
+    if (visible > 0 && !still) raf = requestAnimationFrame(tick);
+  };
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { e.target._on = e.isIntersecting; });
+    visible = chapters.filter((c) => c._on).length;
+    if (visible > 0 && !raf) raf = requestAnimationFrame(tick);
+    if (!visible) labels.forEach((el) => { el.style.opacity = '0'; });
+  });
+  chapters.forEach((c) => io.observe(c));
+  // reduced motion: one still per scroll position
+  if (still) window.addEventListener('scroll', () => { if (!raf) raf = requestAnimationFrame(tick); }, { passive: true });
+  draw(0);
 }
 
 function coinScene(canvas) {
@@ -1083,491 +1171,6 @@ function coinScene(canvas) {
   });
 }
 
-/* ---------- the broadside: two cannons that fire as you scroll past ---------- */
-
-function softTexture(inner, outer) {
-  const c = document.createElement('canvas');
-  c.width = c.height = 128;
-  const g = c.getContext('2d');
-  const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-  gr.addColorStop(0, inner); gr.addColorStop(0.45, outer); gr.addColorStop(1, 'rgba(0,0,0,0)');
-  g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
-  return new THREE.CanvasTexture(c);
-}
-
-function smokeTexture() {
-  // a lumpy puff: a few overlapping soft blobs
-  const c = document.createElement('canvas');
-  c.width = c.height = 256;
-  const g = c.getContext('2d');
-  for (let i = 0; i < 14; i++) {
-    const x = 128 + (Math.random() - 0.5) * 110, y = 128 + (Math.random() - 0.5) * 110, r = 40 + Math.random() * 50;
-    const gr = g.createRadialGradient(x, y, 0, x, y, r);
-    gr.addColorStop(0, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
-    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
-  }
-  return new THREE.CanvasTexture(c);
-}
-
-// Canvas textures for the gun deck. Each returns a colour map and a matching
-// grey map for bump and roughness, so the grain catches the light.
-function woodTextures({ w = 1024, h = 512, boards = 8, base = [96, 62, 36], seams = true, nails = true, vertical = false } = {}) {
-  const c = document.createElement('canvas'); c.width = w; c.height = h;
-  const b = document.createElement('canvas'); b.width = w; b.height = h;
-  const g = c.getContext('2d'), gb = b.getContext('2d');
-  const bh = h / boards;
-  for (let i = 0; i < boards; i++) {
-    const y = i * bh, k = 0.78 + Math.random() * 0.35;
-    const [r, gg, bb] = base.map((v) => Math.round(v * k));
-    g.fillStyle = `rgb(${r},${gg},${bb})`; g.fillRect(0, y, w, bh);
-    const tone = 115 + Math.round(Math.random() * 25);
-    gb.fillStyle = `rgb(${tone},${tone},${tone})`; gb.fillRect(0, y, w, bh);
-    // grain: long wavy streaks, now and then a knot
-    for (let n = 0; n < 90; n++) {
-      const yy = y + Math.random() * bh, dark = Math.random() < 0.6;
-      g.strokeStyle = dark ? `rgba(20,10,4,${0.06 + Math.random() * 0.12})` : `rgba(255,220,170,${0.03 + Math.random() * 0.05})`;
-      gb.strokeStyle = dark ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.12)';
-      g.lineWidth = gb.lineWidth = 0.6 + Math.random() * 1.6;
-      const ph = Math.random() * 6, amp = 1 + Math.random() * 3;
-      [g, gb].forEach((x) => { x.beginPath(); x.moveTo(0, yy); for (let xx = 0; xx <= w; xx += 32) x.lineTo(xx, yy + Math.sin(xx / 90 + ph) * amp); x.stroke(); });
-    }
-    if (Math.random() < 0.5) {
-      const kx = Math.random() * w, ky = y + bh * (0.3 + Math.random() * 0.4), rx = 9 + Math.random() * 8, ry = 4 + Math.random() * 3;
-      [g, gb].forEach((x, j) => { x.fillStyle = j ? 'rgba(0,0,0,0.35)' : 'rgba(30,15,6,0.55)'; x.beginPath(); x.ellipse(kx, ky, rx, ry, 0, 0, 7); x.fill(); });
-    }
-    if (seams) {
-      [g, gb].forEach((x) => { x.fillStyle = 'rgba(0,0,0,0.85)'; x.fillRect(0, y, w, 3); });
-      const cut = Math.random() * (w - 100) + 50;
-      [g, gb].forEach((x) => x.fillRect(cut, y, 3, bh));
-      if (nails) {
-        [cut - 16, cut + 19].forEach((x) => [0.3, 0.7].forEach((f) => {
-          g.fillStyle = 'rgba(15,12,10,0.95)'; g.beginPath(); g.arc(x, y + bh * f, 3.2, 0, 7); g.fill();
-          gb.fillStyle = '#000'; gb.beginPath(); gb.arc(x, y + bh * f, 3.2, 0, 7); gb.fill();
-        }));
-      }
-    }
-  }
-  // grime and wear
-  for (let n = 0; n < 40; n++) {
-    const x = Math.random() * w, y = Math.random() * h, r = 20 + Math.random() * 80;
-    const gr = g.createRadialGradient(x, y, 0, x, y, r);
-    gr.addColorStop(0, `rgba(10,6,3,${0.08 + Math.random() * 0.12})`); gr.addColorStop(1, 'rgba(10,6,3,0)');
-    g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
-  }
-  const tex = (cv, srgb) => {
-    const t = new THREE.CanvasTexture(cv);
-    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
-    if (srgb) t.colorSpace = THREE.SRGBColorSpace;
-    if (vertical) { t.center.set(0.5, 0.5); t.rotation = Math.PI / 2; }
-    return t;
-  };
-  return { map: tex(c, true), bump: tex(b, false) };
-}
-
-// cast iron: mottled, a little rust in the low spots
-function ironTextures() {
-  const c = document.createElement('canvas'); c.width = c.height = 512;
-  const r = document.createElement('canvas'); r.width = r.height = 512;
-  const g = c.getContext('2d'), gr = r.getContext('2d');
-  g.fillStyle = '#26272a'; g.fillRect(0, 0, 512, 512);
-  gr.fillStyle = '#9a9a9a'; gr.fillRect(0, 0, 512, 512);
-  for (let i = 0; i < 2600; i++) {
-    const x = Math.random() * 512, y = Math.random() * 512, s = 1 + Math.random() * 6;
-    const rust = Math.random() < 0.12, light = Math.random() < 0.5;
-    g.fillStyle = rust ? `rgba(${110 + Math.random() * 40},${50 + Math.random() * 20},20,${0.08 + Math.random() * 0.15})` : (light ? `rgba(90,90,95,${0.05 + Math.random() * 0.08})` : `rgba(0,0,0,${0.05 + Math.random() * 0.08})`);
-    g.beginPath(); g.arc(x, y, s, 0, 7); g.fill();
-    gr.fillStyle = rust || light ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.12)';
-    gr.beginPath(); gr.arc(x, y, s, 0, 7); gr.fill();
-  }
-  const t = (cv, srgb) => { const x = new THREE.CanvasTexture(cv); x.wrapS = x.wrapT = THREE.RepeatWrapping; if (srgb) x.colorSpace = THREE.SRGBColorSpace; return x; };
-  return { map: t(c, true), rough: t(r, false) };
-}
-
-// laid hemp: a light rope with dark diagonal lays
-function ropeTexture() {
-  const c = document.createElement('canvas'); c.width = 64; c.height = 256;
-  const g = c.getContext('2d');
-  g.fillStyle = '#8c6b42'; g.fillRect(0, 0, 64, 256);
-  for (let y = -64; y < 320; y += 16) {
-    g.strokeStyle = 'rgba(40,24,10,0.55)'; g.lineWidth = 5;
-    g.beginPath(); g.moveTo(0, y); g.lineTo(64, y + 32); g.stroke();
-    g.strokeStyle = 'rgba(255,225,170,0.25)'; g.lineWidth = 2;
-    g.beginPath(); g.moveTo(0, y + 6); g.lineTo(64, y + 38); g.stroke();
-  }
-  const t = new THREE.CanvasTexture(c);
-  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace;
-  return t;
-}
-
-// the materials the deck is built from
-function deckKit(studio) {
-  const woodT = woodTextures({ base: [104, 70, 42] });
-  const carT = woodTextures({ w: 512, h: 256, boards: 2, base: [92, 52, 28], nails: false });
-  const ironT = ironTextures();
-  const rope = ropeTexture();
-  return {
-    deckWood: woodT,
-    carriage: new THREE.MeshStandardMaterial({ map: carT.map, bumpMap: carT.bump, bumpScale: 1, roughness: 0.9 }),
-    iron: new THREE.MeshStandardMaterial({ map: ironT.map, roughnessMap: ironT.rough, roughness: 0.75, metalness: 0.85, bumpMap: ironT.rough, bumpScale: 0.6, envMap: studio, envMapIntensity: 0.55 }),
-    darkIron: new THREE.MeshStandardMaterial({ color: 0x141416, metalness: 0.8, roughness: 0.6, envMap: studio, envMapIntensity: 0.4 }),
-    rope: (len) => { const t = rope.clone(); t.needsUpdate = true; t.repeat.set(1, Math.max(1, len * 6)); return new THREE.MeshStandardMaterial({ map: t, roughness: 0.95 }); }
-  };
-}
-
-function cannonModel(kit) {
-  const g = new THREE.Group();
-  // the barrel, cast iron: button, breech ring, reinforces, a long chase, the muzzle swell
-  const prof = [
-    [0, -0.62], [0.06, -0.62], [0.085, -0.58], [0.08, -0.53], [0.045, -0.5], [0.05, -0.46], [0.14, -0.44], [0.25, -0.38], [0.31, -0.3],
-    [0.33, -0.2], [0.355, -0.18], [0.355, -0.08], [0.33, -0.06], [0.32, 0.45], [0.34, 0.47], [0.34, 0.56], [0.3, 0.58],
-    [0.255, 1.62], [0.275, 1.64], [0.275, 1.7], [0.255, 1.72], [0.25, 1.86], [0.29, 1.96], [0.305, 2.02], [0.305, 2.08], [0.17, 2.08], [0.16, 2.0]
-  ].map(([r, y]) => new THREE.Vector2(r, y));
-  const barrel = new THREE.Mesh(new THREE.LatheGeometry(prof, 72), kit.iron);
-  const bore = new THREE.Mesh(new THREE.CircleGeometry(0.16, 32), new THREE.MeshBasicMaterial({ color: 0x030202 }));
-  bore.rotation.x = -Math.PI / 2; bore.position.y = 2.0;
-  const trunnion = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.9, 20), kit.iron);
-  trunnion.rotation.z = Math.PI / 2; trunnion.position.y = 0.52;
-  const vent = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.05, 12), kit.darkIron); // the touch hole's patch
-  vent.position.set(-0.33, -0.2, 0); vent.rotation.z = Math.PI / 2;
-  const gun = new THREE.Group();
-  gun.add(barrel, bore, trunnion, vent);
-  gun.rotation.z = -Math.PI / 2 + 0.05; // lies along +x, nose up a touch
-  gun.position.set(-0.5, 0.86, 0);
-  g.add(gun);
-  // the carriage: stepped cheeks, a transom, axletrees, four solid trucks, iron caps
-  const cheek = new THREE.Shape();
-  cheek.moveTo(-1.15, 0); cheek.lineTo(0.62, 0); cheek.lineTo(0.62, 0.58); cheek.lineTo(0.16, 0.58); cheek.lineTo(0.16, 0.47);
-  cheek.lineTo(-0.26, 0.47); cheek.lineTo(-0.26, 0.36); cheek.lineTo(-0.7, 0.36); cheek.lineTo(-0.7, 0.25); cheek.lineTo(-1.15, 0.25);
-  [-0.36, 0.36].forEach((z) => {
-    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(cheek, { depth: 0.13, bevelEnabled: true, bevelSize: 0.012, bevelThickness: 0.012, bevelSegments: 1 }), kit.carriage);
-    m.position.set(0, 0.2, z - 0.065);
-    g.add(m);
-    const cap = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.03, 0.16), kit.darkIron); // cap-square over the trunnion
-    cap.position.set(0.04, 0.8, z);
-    g.add(cap);
-    [-0.9, -0.45, 0.4].forEach((x) => { const bolt = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), kit.darkIron); bolt.position.set(x, 0.33, z + (z > 0 ? 0.08 : -0.08)); g.add(bolt); });
-  });
-  const transom = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.18, 0.62), kit.carriage);
-  transom.position.set(0.45, 0.3, 0); g.add(transom);
-  const quoin = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.1, 0.3), kit.carriage); // the wedge under the breech
-  quoin.position.set(-0.92, 0.5, 0); quoin.rotation.z = 0.12; g.add(quoin);
-  [[-0.82, 0.18], [0.34, 0.21]].forEach(([x, r]) => {
-    const axle = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.14, 1.06), kit.carriage);
-    axle.position.set(x, r, 0); g.add(axle);
-    [-0.48, 0.48].forEach((z) => {
-      const w = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.11, 28), kit.carriage);
-      w.rotation.x = Math.PI / 2; w.position.set(x, r, z);
-      const hoop = new THREE.Mesh(new THREE.TorusGeometry(r - 0.01, 0.012, 6, 28), kit.darkIron);
-      hoop.position.set(x, r, z + (z > 0 ? 0.056 : -0.056));
-      const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.16, 10), kit.darkIron);
-      pin.rotation.x = Math.PI / 2; pin.position.set(x, r, z + (z > 0 ? 0.04 : -0.04));
-      g.add(w, hoop, pin);
-    });
-  });
-  g.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-  const touch = new THREE.Object3D(); // the touch hole, where the fuse burns
-  touch.position.set(-0.36, -0.2, 0);
-  gun.add(touch);
-  const muzzle = new THREE.Object3D();
-  muzzle.position.set(0, 2.15, 0);
-  gun.add(muzzle);
-  return { group: g, gun, touch, muzzle };
-}
-
-function broadsideScene(canvas) {
-  const renderer = makeRenderer(canvas, false, 1.5);
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 2000);
-  const studio = environment(renderer, true);
-  scene.environment = environment(renderer);
-  scene.add(skyDome(1000, true));
-  const sky = stars(small ? 500 : 1000, 900);
-  sky.material.uniforms.uPx.value = renderer.getPixelRatio();
-  scene.add(sky);
-  const water = sea();
-  water.position.y = -3.2;
-  scene.add(water);
-  scene.add(new THREE.HemisphereLight(0x5a6c90, 0x05070c, 0.6));
-  const moon = new THREE.DirectionalLight(0xdfe6ff, 1.2);
-  moon.position.copy(MOON_DIR).multiplyScalar(50);
-  scene.add(moon);
-
-  // real shadows: the moon over the rail, cast across the deck
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  moon.intensity = 1.7;
-  moon.castShadow = true;
-  moon.shadow.mapSize.set(small ? 1024 : 2048, small ? 1024 : 2048);
-  Object.assign(moon.shadow.camera, { left: -7, right: 7, top: 7, bottom: -7, near: 1, far: 120 });
-  moon.shadow.bias = -0.0004;
-  moon.shadow.normalBias = 0.02;
-  moon.position.copy(MOON_DIR).multiplyScalar(40).add(new THREE.Vector3(0, 0, -1));
-  moon.target.position.set(0, 0, -1);
-  scene.add(moon.target);
-
-  const kit = deckKit(studio);
-  const shadowy = (m) => { m.castShadow = true; m.receiveShadow = true; return m; };
-
-  // the deck: weathered planks, nailed, a little worn
-  kit.deckWood.map.repeat.set(2.2, 4.5);
-  kit.deckWood.bump.repeat.set(2.2, 4.5);
-  const deck = new THREE.Mesh(new THREE.PlaneGeometry(10, 9), new THREE.MeshStandardMaterial({ map: kit.deckWood.map, bumpMap: kit.deckWood.bump, bumpScale: 0.8, roughness: 0.97, metalness: 0 }));
-  deck.rotation.x = -Math.PI / 2; deck.position.set(-3.25, 0, -1);
-  deck.receiveShadow = true;
-  scene.add(deck);
-
-  // the bulwark: planked, two gun ports with their lids hauled up, a rail on top
-  const wallT = woodTextures({ base: [78, 46, 26], boards: 6 });
-  const wallMat = new THREE.MeshStandardMaterial({ map: wallT.map, bumpMap: wallT.bump, bumpScale: 1, roughness: 0.93 });
-  const X = 1.75, T = 0.22, Z0 = -5.5, Z1 = 3.5;
-  const PORTS = [0, -2.2].map((pz) => [pz - 0.5, pz + 0.5]);
-  const slab = (y0, y1, z0, z1) => {
-    const geo = new THREE.BoxGeometry(T, y1 - y0, z1 - z0);
-    const uv = geo.attributes.uv;
-    for (let i = 0; i < uv.count; i++) uv.setXY(i, (uv.getX(i) * (z1 - z0)) / 3, (uv.getY(i) * (y1 - y0)) / 1.6);
-    const m = shadowy(new THREE.Mesh(geo, wallMat));
-    m.position.set(X, (y0 + y1) / 2, (z0 + z1) / 2);
-    scene.add(m);
-  };
-  slab(0, 0.5, Z0, Z1);
-  slab(1.36, 1.62, Z0, Z1);
-  let zz = Z0;
-  [...PORTS].sort((p, q) => p[0] - q[0]).forEach(([p0, p1]) => { slab(0.5, 1.36, zz, p0); zz = p1; });
-  slab(0.5, 1.36, zz, Z1);
-  const railCap = shadowy(new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.1, Z1 - Z0 + 0.2), kit.carriage));
-  railCap.position.set(X, 1.67, (Z0 + Z1) / 2);
-  scene.add(railCap);
-  // the hull's side below, outboard
-  const side = shadowy(new THREE.Mesh(new THREE.BoxGeometry(0.3, 3.4, Z1 - Z0), wallMat));
-  side.position.set(X + 0.02, -1.7, (Z0 + Z1) / 2);
-  scene.add(side);
-  // knees inside the bulwark, between the guns
-  [-4.4, -1.1, 1.1, 2.9].forEach((kz) => {
-    const knee = new THREE.Shape();
-    knee.moveTo(0, 0); knee.lineTo(0, 1.25); knee.lineTo(-0.16, 1.25); knee.quadraticCurveTo(-0.18, 0.35, -0.55, 0.16); knee.lineTo(-0.55, 0);
-    const m = shadowy(new THREE.Mesh(new THREE.ExtrudeGeometry(knee, { depth: 0.14, bevelEnabled: false }), kit.carriage));
-    m.position.set(X - T / 2, 0, kz - 0.07);
-    scene.add(m);
-  });
-  // port lids, hinged at the top and hauled open
-  PORTS.forEach(([p0, p1]) => {
-    const lid = new THREE.Group();
-    const board = shadowy(new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.86, 1.04), wallMat));
-    board.position.y = -0.43;
-    lid.add(board);
-    lid.position.set(X + T / 2 + 0.04, 1.38, (p0 + p1) / 2);
-    lid.rotation.z = 1.05;
-    scene.add(lid);
-  });
-  // ring bolts, and the breeching rope that stops each gun's recoil
-  PORTS.forEach(([p0, p1]) => {
-    const gz = (p0 + p1) / 2;
-    [-0.75, 0.75].forEach((dz) => {
-      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.013, 8, 16), kit.darkIron);
-      ring.position.set(X - T / 2 - 0.02, 0.7, gz + dz); ring.rotation.y = Math.PI / 2;
-      scene.add(ring);
-    });
-    const path = new THREE.CatmullRomCurve3([
-      [X - 0.15, 0.7, gz - 0.75], [0.9, 0.62, gz - 0.62], [-0.2, 0.78, gz - 0.34], [-0.62, 0.86, gz - 0.06],
-      [-0.66, 0.86, gz + 0.06], [-0.2, 0.78, gz + 0.34], [0.9, 0.62, gz + 0.62], [X - 0.15, 0.7, gz + 0.75]
-    ].map((v) => new THREE.Vector3(...v)));
-    scene.add(shadowy(new THREE.Mesh(new THREE.TubeGeometry(path, 80, 0.028, 8, false), kit.rope(path.getLength()))));
-  });
-
-  // stores on deck: shot stacked in pyramids, a bucket, a cask, a coil of rope
-  const shot = new THREE.SphereGeometry(0.11, 16, 12);
-  const pyramid = (cx, cz) => {
-    for (let layer = 0, n = 3; n > 0; layer++, n--) {
-      for (let i = 0; i < n; i++) {
-        for (let j = 0; j < n; j++) {
-          const m = shadowy(new THREE.Mesh(shot, kit.iron));
-          m.position.set(cx + (i - (n - 1) / 2) * 0.22, 0.11 + layer * 0.155, cz + (j - (n - 1) / 2) * 0.22);
-          scene.add(m);
-        }
-      }
-    }
-  };
-  pyramid(-0.35, -1.1);
-  pyramid(-0.4, 1.2);
-  const staves = woodTextures({ w: 512, h: 256, boards: 10, base: [110, 72, 40], nails: false, vertical: true });
-  const staveMat = new THREE.MeshStandardMaterial({ map: staves.map, bumpMap: staves.bump, bumpScale: 2, roughness: 0.85, side: THREE.DoubleSide });
-  const bucket = shadowy(new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.17, 0.36, 24, 1, true), staveMat));
-  bucket.position.set(-1.45, 0.18, -0.95);
-  scene.add(bucket);
-  const bucketWater = new THREE.Mesh(new THREE.CircleGeometry(0.2, 24), new THREE.MeshStandardMaterial({ color: 0x0a1418, metalness: 0.2, roughness: 0.1 }));
-  bucketWater.rotation.x = -Math.PI / 2; bucketWater.position.set(-1.45, 0.3, -0.95);
-  scene.add(bucketWater);
-  [0.08, 0.28].forEach((y) => {
-    const hoop = new THREE.Mesh(new THREE.TorusGeometry(0.2 - y * 0.08, 0.012, 6, 24), kit.darkIron);
-    hoop.rotation.x = Math.PI / 2; hoop.position.set(-1.45, y, -0.95);
-    scene.add(hoop);
-  });
-  const caskProf = [[0, 0], [0.3, 0], [0.36, 0.2], [0.39, 0.45], [0.36, 0.7], [0.3, 0.9], [0, 0.9]].map(([r, y]) => new THREE.Vector2(r, y));
-  const cask = shadowy(new THREE.Mesh(new THREE.LatheGeometry(caskProf, 28), staveMat));
-  cask.position.set(-2.1, 0, -3.3);
-  scene.add(cask);
-  [0.12, 0.3, 0.6, 0.78].forEach((y) => {
-    const r = y < 0.45 ? 0.3 + (y / 0.45) * 0.09 : 0.39 - ((y - 0.45) / 0.45) * 0.09;
-    const hoop = new THREE.Mesh(new THREE.TorusGeometry(r + 0.005, 0.015, 6, 28), kit.darkIron);
-    hoop.rotation.x = Math.PI / 2; hoop.position.set(-2.1, y, -3.3);
-    scene.add(hoop);
-  });
-  const coilPts = [];
-  for (let i = 0; i <= 260; i++) { const a = i * 0.21, r = 0.1 + i * 0.0011; coilPts.push(new THREE.Vector3(Math.cos(a) * r, 0.03, Math.sin(a) * r)); }
-  const coil = new THREE.CatmullRomCurve3(coilPts);
-  const coilMesh = shadowy(new THREE.Mesh(new THREE.TubeGeometry(coil, 600, 0.026, 6, false), kit.rope(coil.getLength())));
-  coilMesh.position.set(-1.6, 0, 1.0);
-  scene.add(coilMesh);
-
-  // the mainmast behind, and its shrouds running down to the side
-  const mast = shadowy(new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.38, 20, 24), kit.carriage));
-  mast.position.set(-2.8, 10, -4.6);
-  scene.add(mast);
-  [-5.4, -4.7, -4.0].forEach((sz, i) => {
-    const line = new THREE.LineCurve3(new THREE.Vector3(X, 1.7, sz - 0.6), new THREE.Vector3(-2.6, 14, -4.6 + i * 0.12));
-    scene.add(new THREE.Mesh(new THREE.TubeGeometry(line, 4, 0.02, 6, false), kit.rope(16)));
-  });
-
-  // a lantern hung from the rail, its flame flickering
-  const lantern = new THREE.Group();
-  const glass = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.2, 0.15), new THREE.MeshBasicMaterial({ color: new THREE.Color(2.6, 1.5, 0.55) }));
-  const cage = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.24, 0.18), new THREE.MeshStandardMaterial({ color: 0x1a1a1c, metalness: 0.7, roughness: 0.5, transparent: true, opacity: 0.35 }));
-  const capTop = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.1, 4), kit.darkIron);
-  capTop.position.y = 0.17; capTop.rotation.y = Math.PI / 4;
-  lantern.add(glass, cage, capTop);
-  lantern.position.set(1.42, 1.48, -1.1);
-  scene.add(lantern);
-  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.03, 0.03), kit.darkIron);
-  arm.position.set(1.55, 1.72, -1.1);
-  scene.add(arm);
-
-  const lamp = new THREE.PointLight(0xffa850, 12, 10, 2);
-  lamp.position.set(1.42, 1.48, -1.1); scene.add(lamp);
-  const lampGlow = new THREE.Sprite(new THREE.SpriteMaterial({ map: softTexture('rgba(255,210,140,1)', 'rgba(255,140,40,0.35)'), blending: THREE.AdditiveBlending, depthWrite: false }));
-  lampGlow.scale.setScalar(0.7); lampGlow.position.copy(lamp.position); scene.add(lampGlow);
-
-  const guns = [cannonModel(kit), cannonModel(kit)];
-  guns[0].group.position.set(0.55, 0, 0.0);
-  guns[1].group.position.set(0.55, 0, -2.2);
-  guns.forEach((c) => scene.add(c.group));
-
-  // effects
-  const flashTex = softTexture('rgba(255,250,220,1)', 'rgba(255,150,40,0.6)');
-  const smokeTex = smokeTexture();
-  const sparkTex = softTexture('rgba(255,240,200,1)', 'rgba(255,160,60,0.5)');
-  const parts = [];
-  const sprite = (tex, additive) => {
-    const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, blending: additive ? THREE.AdditiveBlending : THREE.NormalBlending }));
-    scene.add(m);
-    return m;
-  };
-  const emit = (kind, pos, vel, life, size, grow) => {
-    const m = sprite(kind === 'smoke' ? smokeTex : kind === 'flash' ? flashTex : sparkTex, kind !== 'smoke');
-    m.position.copy(pos);
-    m.material.rotation = Math.random() * 6.28;
-    parts.push({ m, kind, vel, life, age: 0, size, grow });
-  };
-  const flash = new THREE.PointLight(0xffc070, 0, 30, 2);
-  scene.add(flash);
-  const balls = [];
-  const ballMat = new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.7, roughness: 0.4 });
-
-  const muzzlePos = new THREE.Vector3(), dirV = new THREE.Vector3();
-  const fire = (c) => {
-    c.muzzle.getWorldPosition(muzzlePos);
-    dirV.set(Math.cos(0.06), Math.sin(0.06), 0);
-    c.kick = 1;
-    flash.position.copy(muzzlePos); flash.intensity = 260;
-    for (let i = 0; i < 3; i++) emit('flash', muzzlePos.clone().addScaledVector(dirV, 0.3 + i * 0.35), dirV.clone().multiplyScalar(2), 0.14 + i * 0.03, 2.2 - i * 0.4, 6);
-    for (let i = 0; i < (small ? 22 : 36); i++) {
-      const v = dirV.clone().multiplyScalar(2.5 + Math.random() * 6).add(new THREE.Vector3((Math.random() - 0.5) * 1.5, Math.random() * 1.6, (Math.random() - 0.5) * 2.2));
-      emit('smoke', muzzlePos.clone(), v, 2.6 + Math.random() * 2.2, 0.5 + Math.random() * 0.6, 1.4 + Math.random());
-    }
-    for (let i = 0; i < 26; i++) {
-      const v = dirV.clone().multiplyScalar(4 + Math.random() * 8).add(new THREE.Vector3((Math.random() - 0.5) * 4, Math.random() * 4, (Math.random() - 0.5) * 4));
-      emit('spark', muzzlePos.clone(), v, 0.5 + Math.random() * 0.7, 0.08 + Math.random() * 0.08, 0);
-    }
-    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 12), ballMat);
-    ball.position.copy(muzzlePos);
-    balls.push({ m: ball, v: dirV.clone().multiplyScalar(42), age: 0 });
-    scene.add(ball);
-    // the page feels it
-    const host = canvas.parentElement;
-    host.classList.remove('is-boom'); void host.offsetWidth; host.classList.add('is-boom');
-  };
-
-  // fire when the scene comes into view; re-arm once it has left the screen
-  let armed = true, timeline = null;
-  new IntersectionObserver(([e]) => {
-    if (still) return;
-    if (e.intersectionRatio >= 0.5 && armed) { armed = false; timeline = 0; }
-    if (e.intersectionRatio === 0) armed = true;
-  }, { threshold: [0, 0.5] }).observe(canvas);
-
-  let last = 0;
-  loop(canvas, (t) => {
-    if (!fit(renderer, camera, canvas)) return;
-    const dt = Math.min(0.1, t - last); last = t;
-    pointer.x += (pointer.tx - pointer.x) * 0.05;
-    const wide = camera.aspect > 1.4;
-    camera.position.set(-3.6 + pointer.x * 0.3, 2.4, wide ? 5.2 : 7.5);
-    camera.lookAt(wide ? 2.6 : 1.4, 0.9, -1.2);
-    water.material.uniforms.uTime.value = t;
-    sky.material.uniforms.uTime.value = t;
-    lamp.intensity = 12 + Math.sin(t * 9) * 1.1 + Math.sin(t * 23) * 0.6;
-    lantern.rotation.z = Math.sin(t * 1.1) * 0.06;
-    lampGlow.position.set(1.42 + Math.sin(t * 1.1) * 0.02, 1.48, -1.1);
-
-    // the fuses fizz, then the guns fire one after the other
-    if (timeline !== null) {
-      const before = timeline;
-      timeline += dt;
-      guns.forEach((c, i) => {
-        const at = 0.55 + i * 0.5;
-        if (timeline < at && Math.random() < 0.7) {
-          const p = c.touch.getWorldPosition(new THREE.Vector3());
-          emit('spark', p, new THREE.Vector3((Math.random() - 0.5) * 1.5, 1 + Math.random() * 1.5, (Math.random() - 0.5) * 1.5), 0.3, 0.05 + Math.random() * 0.05, 0);
-        }
-        if (before < at && timeline >= at) fire(c);
-      });
-      if (timeline > 6) timeline = null;
-    }
-    // recoil: back fast, then run out slowly
-    guns.forEach((c, i) => {
-      c.kick = Math.max(0, (c.kick || 0) - dt * 0.9);
-      const k = c.kick > 0.85 ? (1 - c.kick) / 0.15 : c.kick / 0.85;
-      c.group.position.x = 0.55 - 0.7 * Math.pow(Math.max(0, k), 0.6) * (c.kick > 0 ? 1 : 0);
-    });
-    flash.intensity *= Math.pow(0.0005, dt);
-
-    for (let i = parts.length - 1; i >= 0; i--) {
-      const p = parts[i];
-      p.age += dt;
-      const f = p.age / p.life;
-      if (f >= 1) { scene.remove(p.m); p.m.material.dispose(); parts.splice(i, 1); continue; }
-      if (p.kind === 'smoke') {
-        p.vel.multiplyScalar(Math.pow(0.18, dt)); p.vel.y += dt * 0.35; p.vel.x += dt * 0.25;
-        p.m.material.opacity = 0.5 * Math.sin(Math.min(1, f * 6) * Math.PI / 2) * (1 - f);
-        p.m.material.color.setRGB(0.55 + 0.2 * (1 - f), 0.52 + 0.15 * (1 - f), 0.5);
-      } else if (p.kind === 'spark') {
-        p.vel.y -= dt * 9; p.m.material.opacity = 1 - f;
-      } else {
-        p.m.material.opacity = 1 - f;
-      }
-      p.m.position.addScaledVector(p.vel, dt);
-      p.m.scale.setScalar(p.size * (1 + p.grow * f));
-    }
-    for (let i = balls.length - 1; i >= 0; i--) {
-      const b = balls[i];
-      b.age += dt; b.v.y -= 9.8 * dt;
-      b.m.position.addScaledVector(b.v, dt);
-      if (b.age > 3) { scene.remove(b.m); balls.splice(i, 1); }
-    }
-    renderer.render(scene, camera);
-    canvas.parentElement.classList.add('is-3d');
-  });
-}
-
 /* ---------- start ---------- */
 
 // No GPU (a software renderer) would make every frame cost the whole page,
@@ -1590,33 +1193,17 @@ function webgl() {
 const start = (canvas) => {
   try {
     const kind = canvas.dataset.scene;
-    if (kind === 'hero') {
-      seaScene(canvas, {
-        hook: true,
-        anchor: document.querySelector(canvas.dataset.anchor || '.uh-orb'),
-        cam: [0, 1.9, 8], look: [0, 1.25, -10],
-        ship: (t) => ({ x: 22 + Math.sin(t * 0.03) * 5, z: -160, heading: 2.6, scale: 1.1 })
-      });
-    } else if (kind === 'sea') {
-      seaScene(canvas, {
-        fov: 38,
-        cam: [0, 2.2, 8], look: [-3.5, 6.4, -10],
-        ship: (t) => ({ x: ((t * 1.4 + 40) % 140) - 70, z: -72, heading: 0, scale: 1 })
-      });
-    } else if (kind === 'coin') {
-      coinScene(canvas);
-    } else if (kind === 'broadside') {
-      broadsideScene(canvas);
-    }
+    if (kind === 'story') storyScene(canvas);
+    else if (kind === 'coin') coinScene(canvas);
   } catch (err) {
-    // put the 2D drawing back
+    // put the still back
     console.warn('3D scene unavailable:', err && err.message);
-    if (canvas.dataset.scene === 'hero') no3d();
+    if (canvas.dataset.scene === 'story') no3d();
   }
 };
 
-// The page hides the 2D hero drawing from the first paint when it expects 3D
-// (html.uh-3d-on); without WebGL, or if the hero scene fails, it comes back.
+// The page hides the still of the sea from the first paint when it expects 3D
+// (html.uh-3d-on); without WebGL, or if the story scene fails, it comes back.
 function no3d() { document.documentElement.classList.remove('uh-3d-on'); }
 window.__uh3d = true;
 

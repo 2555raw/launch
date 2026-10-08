@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>HeldAt GIF</title>
+<!--
+  A 4-second loop for social posts (1200x675): a point of light, a blast of the
+  site's halftone dots expanding from it, the wordmark landing on the shock,
+  two more waves, then everything falls back into the point so the loop is seamless.
+  Rendered frame by frame by tools/render-gif.mjs, which calls render(t).
+-->
+<style>
+  @font-face { font-family: "Host Grotesk"; font-weight: 300 800; src: url(../assets/fonts/host-grotesk-latin.woff2) format("woff2"); }
+  @font-face { font-family: "JetBrains Mono"; font-weight: 400 600; src: url(../assets/fonts/jetbrains-mono-latin.woff2) format("woff2"); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1200px; height: 675px; overflow: hidden; background: #090b10; color: #fff; font-family: "Host Grotesk", sans-serif; -webkit-font-smoothing: antialiased; }
+  canvas { position: absolute; inset: 0; width: 1200px; height: 675px; }
+  .shade { position: absolute; inset: 0; background: radial-gradient(ellipse 34% 31% at 50% 53%, rgba(9,11,16,.96), rgba(9,11,16,.7) 55%, transparent 100%); }
+  .brand { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; }
+  .brand b { display: block; font-size: 168px; font-weight: 600; letter-spacing: -.055em; line-height: 1; }
+  .brand p { margin-top: 22px; font-size: 36px; font-weight: 560; letter-spacing: -.02em; }
+  .brand p span { color: #7c8596; }
+  .flash { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(235,241,255,1), rgba(122,162,255,.55) 22%, rgba(36,88,232,.18) 48%, transparent 75%); }
+</style>
+</head>
+<body>
+<canvas id="dots"></canvas>
+<div class="shade" id="shade"></div>
+<div class="brand" id="brand"><div><b id="word">HeldAt</b><p id="tag">Prove one holding. <span>Hide the rest.</span></p></div></div>
+<div class="flash" id="flash"></div>
+<script>
+const $ = (id) => document.getElementById(id);
+const clamp = (x) => Math.max(0, Math.min(1, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const out = (x) => 1 - (1 - x) ** 3;
+const outExpo = (x) => (x >= 1 ? 1 : 1 - 2 ** (-9 * x));
+const inCubic = (x) => x ** 3;
+
+const BOOM = 0.3, COLLAPSE = 3.5, END = 4;
+const W = 1200, H = 675, CX = 600, CY = 337, GAP = 11, MAXR = 900;
+const cv = $("dots"), ctx = cv.getContext("2d");
+cv.width = W * 2; cv.height = H * 2; ctx.scale(2, 2);
+
+// how far the blast has reached at time t, and then how far it has fallen back
+function reach(t) {
+  if (t < BOOM) return 0;
+  if (t < COLLAPSE) return MAXR * outExpo(seg(t, BOOM, BOOM + 1.1));
+  return MAXR * (1 - inCubic(seg(t, COLLAPSE, END - 0.05)));
+}
+
+// shock fronts: the blast, then two softer waves
+const FRONTS = [[BOOM, 1.0, 1700], [1.45, 0.7, 1050], [2.45, 0.6, 1000]];
+
+function dots(t) {
+  ctx.clearRect(0, 0, W, H);
+  const R = reach(t);
+  // the seed point before the blast, and again as everything falls back into it
+  const seed = t < BOOM ? 0.4 + 0.6 * seg(t, 0, BOOM) : seg(t, COLLAPSE + 0.3, END);
+  if (seed > 0) {
+    const g = ctx.createRadialGradient(CX, CY, 0, CX, CY, 26 + 30 * seed);
+    g.addColorStop(0, `rgba(230,238,255,${seed})`); g.addColorStop(0.35, `rgba(122,162,255,${0.5 * seed})`); g.addColorStop(1, "rgba(122,162,255,0)");
+    ctx.fillStyle = g; ctx.fillRect(CX - 70, CY - 70, 140, 140);
+  }
+  if (R < 2) return;
+  for (let y = GAP / 2; y < H; y += GAP) for (let x = GAP / 2; x < W; x += GAP) {
+    const dx = x - CX, dy = y - CY, r = Math.hypot(dx, dy);
+    if (r > R + 30) continue;
+    const a = Math.atan2(dy, dx);
+    // the site's rings with their eight-point star, rolling outward
+    let v = (0.5 + 0.5 * Math.sin(r * (1 + 0.06 * Math.cos(8 * a)) / 12 - t * 7)) ** 2 * Math.max(0.12, 1 - r / (MAXR + 300));
+    v *= clamp((R + 30 - r) / 60);
+    let hot = 0;
+    for (const [t0, amp, speed] of FRONTS) {
+      if (t < t0 || t > COLLAPSE) continue;
+      const fr = (t - t0) * speed * (t0 === BOOM ? 1 - 0.4 * seg(t, BOOM, BOOM + 0.9) : 1);
+      const band = Math.max(0, 1 - Math.abs(r - fr) / (40 + (t - t0) * 60));
+      hot = Math.max(hot, band * amp * (1 - 0.7 * seg(t, t0, t0 + 1.2)));
+    }
+    v = Math.min(1, v + hot);
+    if (v < 0.04) continue;
+    // the wave shoves the dots outward as it passes
+    const push = hot * 16, px = x + (r ? dx / r : 0) * push, py = y + (r ? dy / r : 0) * push;
+    ctx.fillStyle = hot > 0.1 ? `rgba(${190 + 65 * hot | 0},${210 + 45 * hot | 0},255,${0.35 + hot * 0.65})` : `rgba(214,222,236,${0.1 + v * 0.62})`;
+    const s = 1.2 + v * 3.8 + hot * 2.2;
+    ctx.fillRect(px - s / 2, py - s / 2, s, s);
+  }
+}
+
+function render(t) {
+  dots(t);
+  // the flash on the blast
+  const f = t >= BOOM ? 1 - out(seg(t, BOOM, BOOM + 0.45)) : 0;
+  $("flash").style.opacity = f;
+  // the wordmark lands on the shock, with a short shake
+  const land = seg(t, BOOM + 0.02, BOOM + 0.22), leave = seg(t, COLLAPSE, COLLAPSE + 0.3);
+  const shake = t > BOOM && t < BOOM + 0.35 ? (1 - seg(t, BOOM, BOOM + 0.35)) * 7 : 0;
+  const sx = shake * Math.sin(t * 173), sy = shake * Math.cos(t * 131);
+  const word = $("word");
+  word.style.opacity = land * (1 - leave);
+  word.style.transform = `translate(${sx}px, ${sy}px) scale(${(1.35 - 0.35 * out(land)) * (1 - 0.2 * inCubic(leave))})`;
+  word.style.letterSpacing = `${-0.055 + 0.02 * (1 - out(land))}em`;
+  // the line follows
+  const tag = $("tag"), tl = out(seg(t, 1.0, 1.35));
+  tag.style.opacity = tl * (1 - leave);
+  tag.style.transform = `translateY(${(1 - tl) * 18}px)`;
+  $("shade").style.opacity = clamp(seg(t, BOOM, BOOM + 0.3) - leave);
+}
+
+window.DURATION = END;
+window.render = render;
+document.fonts.ready.then(() => { render(0); window.READY = true; });
+</script>
+</body>
+</html>

@@ -17,6 +17,24 @@
         "value": "mono",
         "createdAt": "2026-10-05T11:17:04.887Z",
         "reason": "Generic monospace fallback after JetBrains Mono, which DESIGN.md declares for hashes"
+      },
+      {
+        "rule": "nested-cards",
+        "value": "*",
+        "files": [
+          "obscura-site/tools/promo.html"
+        ],
+        "createdAt": "2026-10-08T20:13:23.453Z",
+        "reason": "Render-only film source: mocks the site's own verify window and wallet popups frame by frame; not a served page"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "obscura-site/tools/promo.html"
+        ],
+        "createdAt": "2026-10-08T20:13:23.453Z",
+        "reason": "Render-only film source: mocks the site's own verify window and wallet popups frame by frame; not a served page"
       }
     ]
   }

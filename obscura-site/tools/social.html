@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Obscura social images</title>
+<!--
+  Source for assets/social/: the X header (1500x500) and two profile pictures
+  (1000x1000). Rendered by tools/render-social.mjs. ?asset=header | pfp-blue | pfp-white.
+  The side panels of the header are screenshots of the real site (tools/social/).
+-->
+<style>
+  @font-face { font-family: "Host Grotesk"; font-weight: 300 800; src: url(../assets/fonts/host-grotesk-latin.woff2) format("woff2"); }
+  @font-face { font-family: "JetBrains Mono"; font-weight: 400 600; src: url(../assets/fonts/jetbrains-mono-latin.woff2) format("woff2"); }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: "Host Grotesk", sans-serif; -webkit-font-smoothing: antialiased; overflow: hidden; }
+  canvas.field { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .stage { position: relative; overflow: hidden; }
+
+  /* header */
+  .header { width: 1500px; height: 500px; background: #090b10; color: #fff; perspective: 1400px; }
+  .center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -54%); text-align: center; z-index: 3; }
+  .lockup { display: inline-flex; align-items: center; gap: 22px; }
+  .lockup svg { width: 78px; height: 78px; color: #fff; }
+  .lockup b { font-size: 86px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
+  .tag { margin-top: 22px; font-size: 30px; font-weight: 560; letter-spacing: -.02em; }
+  .tag span { color: #7c8596; }
+  .chip { margin-top: 22px; display: inline-flex; align-items: center; gap: 10px; padding: 8px 15px; border-radius: 999px; font: 15px "JetBrains Mono", monospace; color: #d7dce6; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); background: rgba(9,11,16,.6); }
+  .chip i { width: 7px; height: 7px; border-radius: 50%; background: #7aa2ff; }
+  .panel { position: absolute; z-index: 2; border-radius: 22px; overflow: hidden; box-shadow: 0 40px 80px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.1); }
+  .panel img { display: block; width: 100%; }
+  .panel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 60%, rgba(9,11,16,.85)); }
+  .left { width: 380px; height: 470px; left: 40px; top: 70px; transform: rotateY(22deg) rotateZ(-1deg); transform-origin: left center; }
+  .right { width: 400px; height: 440px; right: 34px; top: 46px; transform: rotateY(-22deg) rotateZ(1deg); transform-origin: right center; }
+  .fade { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse 34% 70% at 50% 50%, rgba(9,11,16,.9), transparent 75%); }
+
+  /* profile pictures */
+  .pfp { width: 1000px; height: 1000px; display: grid; place-items: center; }
+  .pfp svg { position: relative; z-index: 2; width: 520px; height: 520px; }
+  .pfp-blue { background: #2458e8; color: #fff; }
+  .pfp-white { background: #fff; color: #0d1016; }
+</style>
+</head>
+<body>
+<script>
+const MARK = (sw) => `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></svg>`;
+const asset = new URLSearchParams(location.search).get("asset") || "header";
+
+// the site's halftone: square dots in rings with an eight-point modulation
+function field(canvas, w, h, { cx, cy, gap, reach, color, alpha, fadeCenter = 0 }) {
+  canvas.width = w * 2; canvas.height = h * 2;
+  const ctx = canvas.getContext("2d"); ctx.scale(2, 2);
+  for (let y = gap / 2; y < h; y += gap) for (let x = gap / 2; x < w; x += gap) {
+    const r = Math.hypot(x - cx, y - cy), a = Math.atan2(y - cy, x - cx);
+    if (r < fadeCenter) continue;
+    let v = (0.5 + 0.5 * Math.sin(r * (1 + 0.05 * Math.cos(8 * a)) / (gap * 1.15))) ** 2 * Math.max(0, 1 - r / reach);
+    if (v < 0.05) continue;
+    ctx.fillStyle = color; ctx.globalAlpha = alpha[0] + v * alpha[1];
+    const s = 0.8 + v * gap * (gap > 12 ? 0.42 : 0.32); ctx.fillRect(x - s / 2, y - s / 2, s, s);
+  }
+}
+
+if (asset === "header") {
+  document.body.innerHTML = `<div class="stage header">
+    <canvas class="field"></canvas>
+    <div class="panel left"><img src="social/verify-result.png" alt=""></div>
+    <div class="panel right"><img src="social/console-form.png" alt=""></div>
+    <div class="fade"></div>
+    <div class="center">
+      <div class="lockup">${MARK(5.2)}<b>Obscura</b></div>
+      <p class="tag">Prove one holding. <span>Hide the rest.</span></p>
+      <p class="chip"><i></i>Private proofs, sealed in your browser</p>
+    </div></div>`;
+  field(document.querySelector(".field"), 1500, 500, { cx: 750, cy: 250, gap: 9, reach: 820, color: "#d6deec", alpha: [0.06, 0.55] });
+} else {
+  const blue = asset === "pfp-blue";
+  document.body.innerHTML = `<div class="stage pfp ${blue ? "pfp-blue" : "pfp-white"}"><canvas class="field"></canvas>${MARK(4.4)}</div>`;
+  if (blue) field(document.querySelector(".field"), 1000, 1000, { cx: 500, cy: 500, gap: 18, reach: 760, color: "#dbe6ff", alpha: [0.18, 0.75], fadeCenter: 320 });
+  else document.querySelector(".field").remove();
+}
+Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode().catch(() => {}))]).then(() => { window.READY = true; });
+</script>
+</body>
+</html>

@@ -254,3 +254,97 @@ export function track(name) {
 }
 track("view:" + location.pathname.replace(/\/index\.html$/, "/"));
 addEventListener("appinstalled", () => track("install"));
+
+// Footer: the wordmark drawn as a field of square dots, the same halftone as
+// the hero. Dots inside the letters are larger and catch a slow wave of light;
+// a few dots elsewhere blink blue now and then. The SVG stays for no-script.
+const footMark = document.querySelector(".foot-mark");
+if (footMark) {
+  const canvas = document.createElement("canvas");
+  canvas.className = "foot-dots";
+  canvas.setAttribute("aria-hidden", "true");
+  footMark.after(canvas);
+  document.documentElement.classList.add("has-foot-dots");
+  const ctx = canvas.getContext("2d");
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const GAP = 7;
+  let w = 0, h = 0, dpr = 1, cells = [], visible = false, running = false, last = 0;
+  const sparks = new Map(); // cell index -> time it lit
+  function layout() {
+    const r = canvas.getBoundingClientRect();
+    w = r.width; h = r.height; dpr = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    // draw the word once, off screen, and read which cells fall inside it
+    const off = document.createElement("canvas");
+    off.width = Math.ceil(w); off.height = Math.ceil(h);
+    const o = off.getContext("2d");
+    let size = h * 1.18;
+    o.font = `600 ${size}px "Host Grotesk", system-ui, sans-serif`;
+    const tw = o.measureText("Obscura").width;
+    size *= (w * 1.0) / tw;
+    o.font = `600 ${size}px "Host Grotesk", system-ui, sans-serif`;
+    o.textBaseline = "alphabetic";
+    o.fillText("Obscura", (w - o.measureText("Obscura").width) / 2, h * 0.94);
+    const data = o.getImageData(0, 0, off.width, off.height).data;
+    cells = [];
+    for (let y = GAP / 2; y < h; y += GAP) {
+      for (let x = GAP / 2; x < w; x += GAP) {
+        const inside = data[(Math.floor(y) * off.width + Math.floor(x)) * 4 + 3] > 120;
+        cells.push(x, y, inside ? 1 : 0);
+      }
+    }
+    draw(performance.now());
+  }
+  function colors() {
+    const cs = getComputedStyle(document.documentElement);
+    return { ink: cs.getPropertyValue("--dim-2").trim() || "#6b717c", accent: cs.getPropertyValue("--accent").trim() || "#2458e8" };
+  }
+  function draw(now) {
+    const t = now / 1000, c = colors();
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const lit = [[], [], [], []], blue = [];
+    for (let i = 0; i < cells.length; i += 3) {
+      const x = cells[i], y = cells[i + 1], inside = cells[i + 2];
+      // a slow diagonal wave, the same rhythm as the hero's rings
+      const wave = 0.5 + 0.5 * Math.sin((x + y * 0.6) / 46 - t * 0.9);
+      if (sparks.has(i)) {
+        const age = now - sparks.get(i);
+        if (age > 1400) sparks.delete(i); else { blue.push(x, y, 2.6, 1 - age / 1400); continue; }
+      }
+      if (inside) {
+        const k = Math.min(3, 1 + Math.floor(wave * 3));
+        lit[k].push(x, y, 2.2 + 1.4 * wave);
+      } else if (wave > 0.72 && ((x * 7 + y * 13) % 5) < 1.2) {
+        lit[0].push(x, y, 1.1);
+      }
+    }
+    const alpha = [0.18, 0.38, 0.55, 0.75];
+    ctx.fillStyle = c.ink;
+    lit.forEach((list, k) => {
+      if (!list.length) return;
+      ctx.globalAlpha = alpha[k];
+      ctx.beginPath();
+      for (let i = 0; i < list.length; i += 3) { const sz = list[i + 2]; ctx.rect(list[i] - sz / 2, list[i + 1] - sz / 2, sz, sz); }
+      ctx.fill();
+    });
+    ctx.fillStyle = c.accent;
+    for (let i = 0; i < blue.length; i += 4) { ctx.globalAlpha = blue[i + 3]; ctx.fillRect(blue[i] - 1.3, blue[i + 1] - 1.3, 2.6, 2.6); }
+    ctx.globalAlpha = 1;
+  }
+  function loop(now) {
+    if (!running) return;
+    if (now - last > 50) {
+      last = now;
+      if (Math.random() < 0.18 && cells.length) sparks.set(3 * Math.floor(Math.random() * (cells.length / 3)), now);
+      draw(now);
+    }
+    requestAnimationFrame(loop);
+  }
+  const start = () => { if (!running && visible && !still && !document.hidden) { running = true; requestAnimationFrame(loop); } };
+  new ResizeObserver(layout).observe(canvas);
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? start() : (running = false); }).observe(canvas);
+  document.addEventListener("visibilitychange", () => (document.hidden ? (running = false) : start()));
+  document.fonts?.ready.then(layout);
+  new MutationObserver(() => draw(performance.now())).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+}

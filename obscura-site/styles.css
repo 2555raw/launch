@@ -597,13 +597,16 @@ input[type="file"]::file-selector-button { margin-right: 12px; padding: 8px 14px
 .foot-x:hover > svg:last-child { opacity: 1; transform: none; }
 .foot-mark { display: block; width: 100%; height: auto; margin-top: 64px; user-select: none; }
 .foot-mark text { font-family: var(--sans); font-weight: 600; font-size: 252px; fill: var(--steel); }
+/* the wordmark as halftone dots (js/site.js); the SVG stays for no-script */
+.foot-dots { display: block; width: 100%; aspect-ratio: 860 / 196; margin-top: 64px; }
+.has-foot-dots .foot-mark { display: none; }
 .foot-bottom { position: relative; display: flex; justify-content: space-between; gap: 12px 32px; flex-wrap: wrap; margin-top: 18px; padding-top: 22px; border-top: 1px solid var(--line-2); font-size: 13px; color: var(--dim); }
 .foot-credits { max-width: 62ch; }
 @media (max-width: 960px) { .foot-top { grid-template-columns: 1fr; } }
 @media (max-width: 640px) {
   .footer { margin-top: 88px; padding-top: 56px; }
   .foot-cols { grid-template-columns: 1fr 1fr; gap: 28px 24px; }
-  .foot-mark { margin-top: 40px; }
+  .foot-mark, .foot-dots { margin-top: 40px; }
 }
 
 /* ============ reveal ============ */

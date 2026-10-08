@@ -918,6 +918,7 @@ function storyScene(canvas) {
   scene.add(moon);
   const ship = shipModel();
   scene.add(ship);
+  ship.visible = !dbg.includes('noship');
 
   const mir = mirror(renderer);
   water.material.uniforms.uRefl.value = mir.texture;

@@ -14,7 +14,7 @@ export function TopBar({ user, onLogout, symbol, slug }: { user: PublicUser | nu
         <LogoMark />
         LAUNCH
       </Link>
-      <span className="topnav-title">FOUNDRY<span className="hidden sm:inline text-slate-500"> · Mine · Burn · Launch</span></span>
+      <span className="topnav-title">FOUNDRY<span className="hidden sm:inline font-normal text-slate-500"> © 2026</span></span>
       <ExtLink href={DISCORD} label="Discord" icon={<DiscordIcon />} />
       <ExtLink href={X_URL} label="X" icon={<XIcon />} />
       <Link href="/docs" className="topnav-link">Docs</Link>

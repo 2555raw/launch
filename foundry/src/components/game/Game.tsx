@@ -105,14 +105,9 @@ export function Game() {
         {/* LEFT: your foundry + the deposit */}
         <aside className="col-left">
           <div className="bakery-title">{user.username}&apos;s foundry</div>
-          <div className="mt-2 text-center">
-            <div className="num font-display text-4xl font-bold leading-none text-slate-50 drop-shadow-[0_2px_4px_#000]">
-              {s ? fmt(game.local.balance) : "…"} <span className="text-2xl text-brand-soft">{theme.unitShort} {symbol}</span>
-            </div>
-            <div className="mt-1 font-display text-sm font-semibold text-slate-300">
-              per second: <span className="num">{s ? fmt(s.productionPerSec) : "0"}</span>
-              <span className="mx-2 text-slate-600">·</span>burn power: <span className="num text-ember">{s ? fmt(s.burnPerSec) : "0"}/s</span>
-            </div>
+          <div className="mt-3 text-center">
+            <div className="cc-count">{s ? fmt(game.local.balance) : "…"} {theme.unitShort} {symbol}</div>
+            <div className="cc-sub mt-1">per second: {s ? fmt(s.productionPerSec) : "0"} · burn: {s ? fmt(s.burnPerSec) : "0"}/s</div>
           </div>
           <div className="grid flex-1 place-items-center px-3 py-3">
             {s && <Deposit theme={theme} symbol={symbol} clickPower={s.clickPower} onClick={game.click} disabled={disabled} />}
@@ -137,7 +132,7 @@ export function Game() {
               {s && global && <div className="text-xs text-slate-500">your share {global.totalBurnPower > 0 ? Math.min(100, (game.local.burnPower / global.totalBurnPower) * 100).toFixed(3) : "0.000"}% · rank {s.rank ? `#${s.rank}` : "—"}</div>}
             </div>
           </div>
-          <div className="px-3 pb-2 text-[11px] text-slate-600">v 0.1 · FOUNDRY</div>
+          <div className="serif px-3 pb-2 text-sm font-bold text-white/80 drop-shadow">v. 0.1</div>
         </aside>
 
         {/* CENTER */}
@@ -153,7 +148,8 @@ export function Game() {
               <Link href={game.project ? `/project/${game.project.slug}` : "/project"} className="metal-btn">Project</Link>
             </div>
           </div>
-          <div className="border-b-2 border-[#0b0f15] px-2 py-2">
+          <div className="cc-ledge" />
+          <div className="launch-wrap">
             <LaunchStrip global={global} serverNow={serverNow} connected={connected} />
           </div>
           {disabled && global && (

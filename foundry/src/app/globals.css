@@ -432,3 +432,216 @@ body {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 16px rgba(0, 0, 0, 0.5);
   letter-spacing: 0.04em;
 }
+
+/* =========================================================================
+   Classic clicker skin: blue stage, wooden frames, striped paper, serif type
+   ========================================================================= */
+:root {
+  --wood-1: #6a4323;
+  --wood-2: #4b2d14;
+  --wood-3: #2e1a0a;
+  --paper: #2f6db3;
+  --paper-2: #255c9a;
+}
+.wood {
+  background-color: var(--wood-2);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.16) 0 2px, transparent 2px 9px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 5px),
+    linear-gradient(180deg, var(--wood-1), var(--wood-2) 60%, var(--wood-3));
+}
+.wood-h {
+  background-color: var(--wood-2);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 2px, transparent 2px 9px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 5px),
+    linear-gradient(90deg, var(--wood-1), var(--wood-2) 60%, var(--wood-3));
+}
+.serif { font-family: "Merriweather", Georgia, serif; }
+
+/* top bar */
+.topnav {
+  background: #0b0b0e;
+  border-bottom: 1px solid #2a2a33;
+  font-family: "Merriweather", Georgia, serif;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 15px;
+  height: 46px;
+  gap: 0;
+}
+.topnav-brand {
+  height: 46px;
+  background: linear-gradient(180deg, #4a3ba8, #2a2070);
+  color: #d9d2ff;
+  letter-spacing: 0.08em;
+  font-size: 17px;
+  border-right: 1px solid #000;
+}
+.topnav-title { color: #cfd4dc; letter-spacing: 0; font-weight: 700; border-right: 1px solid #26262e; }
+.topnav-link { height: 46px; color: #b7bcc6; border-right: 1px solid #26262e; font-size: 15px; }
+.topnav-link:hover { color: #fff; background: #17171d; }
+
+/* shell */
+.game-shell { height: calc(100vh - 46px); }
+.col-left {
+  background:
+    radial-gradient(50% 36% at 50% 44%, rgba(255, 255, 255, 0.55), rgba(140, 190, 255, 0.25) 45%, transparent 72%),
+    radial-gradient(80% 60% at 50% 50%, #2d5f9f, #163662 70%, #0e2443 100%);
+  border-right: 10px solid transparent;
+  border-image: linear-gradient(180deg, var(--wood-1), var(--wood-3)) 1;
+}
+.col-left::after { background: radial-gradient(120% 90% at 50% 40%, transparent 50%, rgba(5, 15, 35, 0.75) 100%); }
+.coin-halo {
+  inset: -4%;
+  filter: blur(6px);
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 255, 255, 0.35) 8deg, transparent 16deg, transparent 40deg, rgba(255, 255, 255, 0.3) 48deg, transparent 56deg, transparent 80deg, rgba(255, 255, 255, 0.35) 88deg, transparent 96deg, transparent 120deg, rgba(255, 255, 255, 0.3) 128deg, transparent 136deg, transparent 160deg, rgba(255, 255, 255, 0.35) 168deg, transparent 176deg, transparent 200deg, rgba(255, 255, 255, 0.3) 208deg, transparent 216deg, transparent 240deg, rgba(255, 255, 255, 0.35) 248deg, transparent 256deg, transparent 280deg, rgba(255, 255, 255, 0.3) 288deg, transparent 296deg, transparent 320deg, rgba(255, 255, 255, 0.35) 328deg, transparent 336deg);
+  animation: spinSlow 60s linear infinite;
+}
+.bakery-title {
+  font-family: "Merriweather", Georgia, serif;
+  font-size: 24px;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(0, 10, 30, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 2px #000;
+}
+.cc-count {
+  font-family: "Merriweather", Georgia, serif;
+  font-weight: 900;
+  font-size: 38px;
+  color: #fff;
+  text-shadow: 0 2px 3px #000, 0 0 12px rgba(0, 0, 0, 0.6);
+  line-height: 1;
+}
+.cc-sub {
+  font-family: "Merriweather", Georgia, serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}
+.float-num { font-family: "Merriweather", Georgia, serif; color: #fff; }
+
+/* center frame */
+.col-center { background: #0d1a2e; }
+.metal-bar {
+  background: var(--wood-2);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.16) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, var(--wood-1), var(--wood-2) 60%, var(--wood-3));
+  border-bottom: 4px solid #1c0f05;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.08), 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+.metal-btn {
+  font-family: "Merriweather", Georgia, serif;
+  font-weight: 700;
+  font-size: 19px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #e9dcc4;
+  background: linear-gradient(180deg, #7a4f2a, #4e2f15);
+  border: 2px solid #1c0f05;
+  border-radius: 6px;
+  margin: 6px 4px;
+  padding: 6px 18px;
+  text-shadow: 0 1px 1px #000;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 3px rgba(0, 0, 0, 0.6);
+}
+.metal-btn:hover { background: linear-gradient(180deg, #8d5c32, #5a3618); color: #fff; }
+.metal-btn.active { background: linear-gradient(180deg, #3a2210, #2b180a); color: #ffd98a; }
+.news-box {
+  font-family: "Merriweather", Georgia, serif;
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+  background: radial-gradient(120% 120% at 50% 0%, #1f4f8f, #123362 70%);
+  border: 2px solid #1c0f05;
+  border-radius: 4px;
+  margin: 6px 2px;
+  text-shadow: 0 1px 2px #000;
+}
+.cc-ledge {
+  height: 14px;
+  background: linear-gradient(180deg, var(--wood-1), var(--wood-3));
+  border-top: 1px solid #8a5a30;
+  border-bottom: 2px solid #150a03;
+}
+.world-stripes {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 22px, rgba(0, 0, 0, 0.08) 22px 44px),
+    linear-gradient(180deg, var(--paper), var(--paper-2));
+  border-bottom: 0;
+}
+.world-scene { box-shadow: inset 0 -30px 40px -20px rgba(0, 0, 0, 0.7), 0 4px 10px rgba(0, 0, 0, 0.4); border-bottom: 4px solid #1c0f05; }
+.launch-wrap { padding: 8px 10px; background: rgba(0, 0, 0, 0.25); border-bottom: 2px solid rgba(0, 0, 0, 0.4); }
+.launch-wrap .panel { background: rgba(8, 18, 36, 0.85); }
+
+/* store */
+.col-right {
+  background-color: var(--wood-2);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.16) 0 2px, transparent 2px 9px),
+    linear-gradient(180deg, var(--wood-1), var(--wood-2) 50%, var(--wood-3));
+  border-left: 10px solid transparent;
+  border-image: linear-gradient(180deg, var(--wood-1), var(--wood-3)) 1;
+}
+.store-head {
+  font-family: "Merriweather", Georgia, serif;
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 0;
+  color: #fff;
+  text-shadow: 0 2px 3px #000;
+  background: transparent;
+  border-bottom: 4px solid #1c0f05;
+  padding: 14px 0 10px;
+}
+.cc-buyrow {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 6px 14px;
+  background: rgba(0, 0, 0, 0.35);
+  border-top: 2px solid #1c0f05;
+  border-bottom: 2px solid #1c0f05;
+  font-family: "Merriweather", Georgia, serif;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}
+.cc-buyrow button { font-family: inherit; font-weight: 900; font-size: 17px; color: #c9b89a; padding: 0 4px; }
+.cc-buyrow button.on { color: #fff; }
+.store-row {
+  padding: 8px 12px;
+  min-height: 66px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.35));
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 2px solid #150a03;
+}
+.store-row.ok:hover { background: linear-gradient(90deg, rgba(60, 35, 10, 0.75), rgba(0, 0, 0, 0.4)); }
+.store-row.locked { filter: none; }
+.store-row.locked .store-icon { filter: brightness(0) opacity(0.75); }
+.store-row.locked .store-name, .store-row.locked .store-cost { color: #c9b89a; }
+.store-name { font-family: "Merriweather", Georgia, serif; font-weight: 900; font-size: 19px; color: #fff; text-shadow: 0 1px 2px #000; }
+.store-cost { font-family: "Merriweather", Georgia, serif; font-weight: 700; font-size: 14px; color: #8fe39a; text-shadow: 0 1px 1px #000; }
+.store-cost.poor { color: #ff8a8a; }
+.store-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 8px; background: rgba(0, 0, 0, 0.35); color: #ffd98a; }
+.store-owned { font-family: "Merriweather", Georgia, serif; font-weight: 900; font-size: 30px; color: rgba(255, 255, 255, 0.55); text-shadow: 0 1px 2px #000; }
+.upgrade-tile { background: linear-gradient(180deg, #3a2210, #22140a); border: 2px solid #1c0f05; color: #ffd98a; font-family: "Merriweather", Georgia, serif; font-size: 12px; }
+
+/* achievements toast, classic style */
+.cc-toast {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, #1b1510, #0d0a07);
+  border: 2px solid #5a3a1e;
+  box-shadow: 0 0 0 2px #0b0806, 0 8px 20px rgba(0, 0, 0, 0.7);
+  font-family: "Merriweather", Georgia, serif;
+}
+.cc-toast-icon { width: 44px; height: 44px; border-radius: 6px; display: grid; place-items: center; border: 2px solid #8a5a30; background: radial-gradient(circle at 35% 30%, #ffd98a, #7a4f2a); }

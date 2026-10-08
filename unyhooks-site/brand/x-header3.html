@@ -9,32 +9,40 @@ body::before{content:'';position:absolute;inset:0;background:linear-gradient(90d
 .brand em{font-style:normal;color:#E8B04B}
 h1{position:absolute;left:82px;top:112px;font:600 52px/1.04 'Source Serif 4',serif;font-variation-settings:'opsz' 60;letter-spacing:-.022em;text-shadow:0 2px 28px rgba(0,0,0,.45)}
 h1 em{font-style:normal;color:#F0BE5E}
-.sub{position:absolute;left:84px;top:236px;font:400 17px/1.45 'Geist',sans-serif;color:rgba(246,235,218,.84);max-width:640px}
+.sub{position:absolute;left:84px;top:236px;font:400 17px/1.45 'Geist',sans-serif;color:rgba(226,232,244,.8);max-width:640px}
 .chips{position:absolute;left:84px;top:280px;display:flex;gap:8px}
-.chips span{font:500 12.5px 'Geist Mono',monospace;padding:6px 12px;border-radius:999px;color:rgba(246,235,218,.9);background:rgba(20,14,20,.35);border:1px solid rgba(246,235,218,.28);backdrop-filter:blur(6px)}
+.chips span{font:500 12.5px 'Geist Mono',monospace;padding:6px 12px;border-radius:999px;color:rgba(226,232,244,.85);background:rgba(10,15,27,.45);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(6px)}
 .chips span.g{color:#F3CC7A;border-color:rgba(232,176,75,.6);background:rgba(232,176,75,.12)}
-.slab{position:absolute;width:296px;transform-style:preserve-3d;transform:perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz))}
-.edge{position:absolute;inset:0;border-radius:22px;border:1.5px solid rgba(190,212,245,.16);transform:translateZ(var(--z))}
-.edge.last{border-color:rgba(150,175,215,.28);box-shadow:0 34px 60px -14px rgba(0,0,0,.8),0 8px 18px rgba(0,0,0,.4)}
-.card{position:relative;padding:16px 18px 17px;border-radius:22px;transform:translateZ(0);overflow:hidden;
-  background:linear-gradient(155deg,rgba(255,255,255,.16),rgba(255,255,255,.05) 45%,rgba(160,190,240,.07));
-  -webkit-backdrop-filter:blur(16px) saturate(160%) brightness(1.08);backdrop-filter:blur(16px) saturate(160%) brightness(1.08);
-  border:1px solid rgba(230,240,255,.42);
-  box-shadow:inset 0 1.5px 0 rgba(255,255,255,.7),inset 1.5px 0 0 rgba(255,255,255,.18),inset 0 -1.5px 0 rgba(140,170,220,.25),inset 0 0 0 1px rgba(255,255,255,.04),inset 0 -24px 40px -20px rgba(120,160,230,.18)}
-.card::before{content:'';position:absolute;left:-20%;top:-60%;width:70%;height:220%;transform:rotate(24deg);background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.12) 45%,rgba(255,255,255,.02) 55%,rgba(255,255,255,0));pointer-events:none}
-.card::after{content:'';position:absolute;inset:0;border-radius:22px;pointer-events:none;opacity:.22;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.row{display:flex;align-items:center;gap:13px;position:relative}
-.ico{flex:none;width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 6px 14px rgba(0,0,0,.25)}
-.ico svg{width:25px;height:25px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
-.t b{display:block;font:700 19px 'Geist',sans-serif;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.35)}
-.t span{font:500 12.5px 'Geist',sans-serif;color:rgba(240,244,255,.78)}
-.foot{position:relative;display:flex;justify-content:space-between;align-items:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.16)}
-.foot b{font:700 30px/1 'Geist',sans-serif;letter-spacing:-.035em;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.35)}
-.foot small{display:block;font:500 11.5px 'Geist',sans-serif;color:rgba(240,244,255,.7);margin-top:5px}
-.pill{font:700 11.5px 'Geist',sans-serif;padding:5px 11px;border-radius:999px;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 3px 8px rgba(0,0,0,.25)}
-.pill.gold{background:linear-gradient(180deg,#F3C76C,#C98E2E);color:#2A1A08;border:1px solid #FFE0A0}
-.pill.red{background:linear-gradient(180deg,#F58A72,#C9503A);color:#2A0C06;border:1px solid #FFC2B3}
-.pill.green{background:linear-gradient(180deg,#7FE3BA,#3BAA80);color:#06241A;border:1px solid #BFF5DD}
+.panel{position:absolute;width:304px;border-radius:16px;overflow:hidden;transform:perspective(1400px) rotateY(var(--ry,0deg));
+  background:linear-gradient(180deg,rgba(22,30,48,.62),rgba(10,15,27,.72));
+  -webkit-backdrop-filter:blur(22px) saturate(150%);backdrop-filter:blur(22px) saturate(150%);
+  border:1px solid rgba(255,255,255,.13);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 1px 0 rgba(0,0,0,.4),0 28px 56px -20px rgba(0,0,0,.85),0 0 0 1px rgba(0,0,0,.25)}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)}
+.ph .lab{display:flex;align-items:center;gap:8px;font:500 10.5px 'Geist Mono',monospace;letter-spacing:.09em;text-transform:uppercase;color:rgba(226,232,244,.66)}
+.ph .lab svg{width:14px;height:14px}
+.st{display:flex;align-items:center;gap:6px;font:500 11px 'Geist',sans-serif;color:rgba(226,232,244,.85)}
+.st i{width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 22%,transparent),0 0 8px var(--c)}
+.pb{padding:13px 14px 14px}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.kv div small{display:block;font:500 11px 'Geist',sans-serif;color:rgba(226,232,244,.55);margin-bottom:3px}
+.kv div b{font:600 21px/1.1 'Geist',sans-serif;letter-spacing:-.02em;color:#F4F6FA;font-variant-numeric:tabular-nums}
+.kv div b em{font-style:normal;font-size:13px;font-weight:500;color:rgba(226,232,244,.6);margin-left:3px}
+.ev{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:8px 10px;border-radius:9px;background:rgba(240,113,90,.08);border:1px solid rgba(240,113,90,.22);font:500 12px 'Geist',sans-serif;color:#F3C2B8}
+.ev span:last-child{font:500 11px 'Geist Mono',monospace;color:rgba(243,194,184,.7)}
+.bar{margin-top:12px}
+.bar .tr{height:5px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.bar .tr i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#B98A35,#E8B04B)}
+.bar .lg{display:flex;justify-content:space-between;margin-top:6px;font:500 10.5px 'Geist Mono',monospace;color:rgba(226,232,244,.55)}
+.tok{display:flex;align-items:center;gap:12px}
+.tok .coin{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#1F2B44,#0B1222);border:1px solid rgba(232,176,75,.45)}
+.tok .coin svg{width:22px;height:22px}
+.tok b{display:block;font:600 19px 'Geist',sans-serif;letter-spacing:-.015em;color:#F4F6FA}
+.tok span{font:500 12px 'Geist',sans-serif;color:rgba(226,232,244,.6)}
+.rows{margin-top:12px;border-top:1px solid rgba(255,255,255,.07)}
+.rows div{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);font:500 12px 'Geist',sans-serif;color:rgba(226,232,244,.58)}
+.rows div:last-child{border-bottom:0;padding-bottom:0}
+.rows div b{font-weight:500;color:#E9EDF5}
 .url{position:absolute;right:30px;bottom:22px;display:flex;align-items:center;gap:8px;font:500 13px 'Geist Mono',monospace;color:rgba(246,235,218,.8)}
 .url svg{width:16px;height:16px}
 </style></head><body>
@@ -45,29 +53,29 @@ h1 em{font-style:normal;color:#F0BE5E}
 <p class="sub">Launch on Uniswap V4 with capped buys and locked liquidity, in one signature.</p>
 <div class="chips"><span>Robinhood Chain</span><span>Uniswap V4</span><span class="g">$UHOOKS</span></div>
 
-<div class="slab" style="left:540px;top:318px;--rx:12deg;--ry:24deg;--rz:-3deg"><div class="card">
-  <div class="row"><div class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="#F0715A" stroke-width="1.8"/><path d="M6.5 6.5l11 11" stroke="#F0715A" stroke-width="1.8"/></svg></div>
-  <div class="t"><b>Sniper refused</b><span>Tried to buy 2 ETH in block 1</span></div></div>
-  <div class="foot"><div><b>0.002 ETH</b><small>max buy · first hour</small></div><i class="pill red">Blocked</i></div>
-</div></div>
+<div class="panel" style="left:556px;top:322px;--ry:10deg">
+  <div class="ph"><span class="lab"><svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.4-3 8.3-7 9.6C8 19.3 5 15.4 5 11V6z" fill="none" stroke="#E8B04B" stroke-width="2"/></svg>Launch protection</span><span class="st" style="--c:#5FD3A6"><i></i>Active</span></div>
+  <div class="pb">
+    <div class="kv"><div><small>Max buy</small><b>0.002<em>ETH</em></b></div><div><small>Cooldown</small><b>30<em>s</em></b></div></div>
+    <div class="ev"><span>Buy of 2 ETH refused</span><span>block 1</span></div>
+  </div>
+</div>
 
-<div class="slab" style="left:1178px;top:40px;--rx:8deg;--ry:-24deg;--rz:3deg"><div class="card">
-  <div class="row"><div class="ico"><svg style="color:#E8B04B"><use href="#m"/></svg></div>
-  <div class="t"><b>$UHOOKS</b><span>Native token of UnyHooks</span></div></div>
-  <div class="foot"><div><b>On-chain</b><small>Robinhood Chain</small></div><i class="pill gold">Official</i></div>
-</div></div>
+<div class="panel" style="left:1172px;top:34px;--ry:-10deg">
+  <div class="ph"><span class="lab"><svg style="color:#E8B04B"><use href="#m"/></svg>Token</span><span class="st" style="--c:#E8B04B"><i></i>Official</span></div>
+  <div class="pb">
+    <div class="tok"><div class="coin"><svg style="color:#E8B04B"><use href="#m"/></svg></div><div><b>$UHOOKS</b><span>Native token of UnyHooks</span></div></div>
+    <div class="rows"><div><span>Network</span><b>Robinhood Chain</b></div><div><span>Pool</span><b>Uniswap V4</b></div></div>
+  </div>
+</div>
 
-<div class="slab" style="left:1170px;top:266px;--rx:-8deg;--ry:-22deg;--rz:-2.5deg"><div class="card">
-  <div class="row"><div class="ico"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="#E8B04B" stroke-width="1.8"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#E8B04B" stroke-width="1.8"/></svg></div>
-  <div class="t"><b>Liquidity locked</b><span>LiquidityLock · no early exit</span></div></div>
-  <div class="foot"><div><b>100%</b><small>of the pool</small></div><i class="pill green">Forever</i></div>
-</div></div>
+<div class="panel" style="left:1172px;top:262px;--ry:-10deg">
+  <div class="ph"><span class="lab"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5" fill="none" stroke="#E8B04B" stroke-width="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="#E8B04B" stroke-width="2"/></svg>Liquidity lock</span><span class="st" style="--c:#E8B04B"><i></i>Locked</span></div>
+  <div class="pb">
+    <div class="kv"><div><small>Locked</small><b>100<em>%</em></b></div><div><small>Unlocks</small><b>Never</b></div></div>
+    <div class="bar"><div class="tr"><i style="width:100%"></i></div><div class="lg"><span>No early exit</span><span>fees → creator</span></div></div>
+  </div>
+</div>
 
 <div class="url"><svg style="color:#E8B04B"><use href="#m"/></svg>unyhooks.xyz</div>
-<script>
-for (const slab of document.querySelectorAll('.slab')) {
-  const D = 14;
-  for (let i = D; i >= 1; i--) { const e = document.createElement('div'); e.className = 'edge' + (i === D ? ' last' : ''); e.style.setProperty('--z', -i + 'px'); slab.prepend(e); }
-}
-</script>
 </body></html>

@@ -23,7 +23,7 @@
   .chapter { left: 64px; top: 52px; display: flex; align-items: center; gap: 14px; font-size: 22px; font-weight: 500; color: var(--dim); }
   .chapter b { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: #fff; font-size: 15px; font-weight: 600; }
   .brand { right: 64px; top: 56px; font-size: 22px; font-weight: 600; letter-spacing: -.01em; display: flex; gap: 9px; align-items: center; }
-  .brand i { width: 26px; height: 26px; border-radius: 8px; background: var(--ink); display: grid; place-items: center; }
+  .brand i { width: 26px; height: 26px; display: grid; place-items: center; color: var(--ink); }
   
   .title { left: 64px; top: 250px; font-size: 116px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
   .title small { display: block; font-size: 34px; font-weight: 400; letter-spacing: -.01em; color: var(--dim); margin-top: 22px; }
@@ -98,7 +98,7 @@ function show(node, k, dy = 24, scale = 1) {
 // Shared chrome: chapter tag, brand, captions, progress bar.
 function chrome(stage, t, D, n, name, caps) {
   const ch = el(`<b>${n}</b>${name}`, 64, 52, { cls: "chapter" });
-  const br = el(`<i><svg style="width:17px;height:17px;color:#fff" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.9"/><g class="wheel"><path d="M15.14 13.30L17.82 14.41 M13.30 15.14L14.41 17.82 M10.70 15.14L9.59 17.82 M8.86 13.30L6.18 14.41 M8.86 10.70L6.18 9.59 M10.70 8.86L9.59 6.18 M13.30 8.86L14.41 6.18 M15.14 10.70L17.82 9.59" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></g></svg></i>Obscura`, 0, 56, { cls: "brand" }); br.style.left = "auto"; br.style.right = "64px";
+  const br = el(`<i><svg style="width:24px;height:24px" viewBox="0 0 100 100" aria-hidden="true"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></svg></i>Obscura`, 0, 56, { cls: "brand" }); br.style.left = "auto"; br.style.right = "64px";
   const bar = el(`<i></i>`, 64, H - 39, { cls: "bar" }); bar.style.width = (W - 128) + "px";
   bar.firstChild.style.transform = `scaleX(${t / D})`;
   stage.append(ch, br, bar);

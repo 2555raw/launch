@@ -6,7 +6,7 @@
 <!--
   Source for assets/social/: the X header (1500x500) and two profile pictures
   (1000x1000). Rendered by tools/render-social.mjs. ?asset=header | pfp-blue | pfp-white.
-  The side panels of the header are screenshots of the real site (tools/social/).
+  The two windows in the header are screenshots of the real site (tools/social/).
 -->
 <style>
   @font-face { font-family: "Host Grotesk"; font-weight: 300 800; src: url(../assets/fonts/host-grotesk-latin.woff2) format("woff2"); }
@@ -16,28 +16,34 @@
   canvas.field { position: absolute; inset: 0; width: 100%; height: 100%; }
   .stage { position: relative; overflow: hidden; }
 
-  /* header */
-  .header { width: 1500px; height: 500px; background: #090b10; color: #fff; perspective: 1400px; }
-  .center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -54%); text-align: center; z-index: 3; }
-  .lockup { display: inline-flex; align-items: center; gap: 22px; }
-  .lockup svg { width: 78px; height: 78px; color: #fff; }
-  .lockup b { font-size: 86px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
-  .tag { margin-top: 22px; font-size: 30px; font-weight: 560; letter-spacing: -.02em; }
-  .tag span { color: #7c8596; }
-  .chip { margin-top: 22px; display: inline-flex; align-items: center; gap: 10px; padding: 8px 15px; border-radius: 999px; font: 15px "JetBrains Mono", monospace; color: #d7dce6; box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); background: rgba(9,11,16,.6); }
-  .chip i { width: 7px; height: 7px; border-radius: 50%; background: #7aa2ff; }
-  .panel { position: absolute; z-index: 2; border-radius: 22px; overflow: hidden; box-shadow: 0 40px 80px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.1); }
-  .panel img { display: block; width: 100%; }
-  .panel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 60%, rgba(9,11,16,.85)); }
-  .left { width: 380px; height: 470px; left: 40px; top: 70px; transform: rotateY(22deg) rotateZ(-1deg); transform-origin: left center; }
-  .right { width: 400px; height: 440px; right: 34px; top: 46px; transform: rotateY(-22deg) rotateZ(1deg); transform-origin: right center; }
-  .fade { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse 34% 70% at 50% 50%, rgba(9,11,16,.9), transparent 75%); }
+  /* header: brand on the left, clear of the profile picture X lays over the
+     bottom-left corner; two app windows on the right, shown whole */
+  .header { width: 1500px; height: 500px; background: #090b10; color: #fff; }
+  .center { position: absolute; left: 92px; top: 92px; z-index: 3; }
+  .lockup { display: inline-flex; align-items: center; gap: 20px; }
+  .lockup svg { width: 70px; height: 70px; color: #fff; }
+  .lockup b { font-size: 80px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
+  .tag { margin-top: 26px; font-size: 30px; font-weight: 560; letter-spacing: -.02em; line-height: 1.15; }
+  .tag span { display: block; color: #7c8596; }
+  .glow { position: absolute; z-index: 1; left: 700px; top: 20px; width: 820px; height: 480px; background: radial-gradient(ellipse 50% 50% at 55% 50%, rgba(36,88,232,.22), transparent 70%); }
+  .fade { position: absolute; inset: 0; z-index: 1; background: radial-gradient(ellipse 30% 46% at 24% 40%, rgba(9,11,16,.92), transparent 80%); }
+  .win { position: absolute; z-index: 2; border-radius: 14px; overflow: hidden; background: #0e1118;
+    box-shadow: 0 0 0 1px rgba(255,255,255,.11), inset 0 1px 0 rgba(255,255,255,.06), 0 2px 4px rgba(0,0,0,.4), 0 24px 48px -12px rgba(0,0,0,.75), 0 60px 90px -40px rgba(0,0,0,.9); }
+  .win .bar { position: relative; height: 30px; display: flex; align-items: center; gap: 7px; padding: 0 12px; background: linear-gradient(#171b24, #12151d); border-bottom: 1px solid rgba(255,255,255,.07); }
+  .win .bar i { width: 10px; height: 10px; border-radius: 50%; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.35); }
+  .win .bar i:nth-child(1) { background: #ff5f57; } .win .bar i:nth-child(2) { background: #febc2e; } .win .bar i:nth-child(3) { background: #28c840; }
+  .win .bar span { position: absolute; left: 0; right: 0; text-align: center; font-size: 12px; font-weight: 500; color: #8b93a3; letter-spacing: .01em; }
+  .win img { display: block; width: 100%; }
+  .win::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: linear-gradient(140deg, rgba(255,255,255,.05), transparent 35%); }
+  .w-verify { width: 300px; left: 760px; top: 50px; }
+  .w-console { width: 372px; height: 360px; right: 52px; top: 70px; } /* ends under the amount hint */
 
   /* profile pictures */
   .pfp { width: 1000px; height: 1000px; display: grid; place-items: center; }
   .pfp svg { position: relative; z-index: 2; width: 520px; height: 520px; }
   .pfp-blue { background: #2458e8; color: #fff; }
   .pfp-white { background: #fff; color: #0d1016; }
+  .pfp-night { background: #090b10; color: #fff; }
 </style>
 </head>
 <body>
@@ -62,19 +68,21 @@ function field(canvas, w, h, { cx, cy, gap, reach, color, alpha, fadeCenter = 0 
 if (asset === "header") {
   document.body.innerHTML = `<div class="stage header">
     <canvas class="field"></canvas>
-    <div class="panel left"><img src="social/verify-result.png" alt=""></div>
-    <div class="panel right"><img src="social/console-form.png" alt=""></div>
+    <div class="glow"></div>
     <div class="fade"></div>
+    <div class="win w-verify"><div class="bar"><i></i><i></i><i></i><span>Verify a proof</span></div><img src="social/verify-result.png" alt=""></div>
+    <div class="win w-console"><div class="bar"><i></i><i></i><i></i><span>Console</span></div><img src="social/console-form.png" alt=""></div>
     <div class="center">
       <div class="lockup">${MARK(5.2)}<b>HeldAt</b></div>
       <p class="tag">Prove one holding. <span>Hide the rest.</span></p>
-      <p class="chip"><i></i>heldat.xyz</p>
     </div></div>`;
-  field(document.querySelector(".field"), 1500, 500, { cx: 750, cy: 250, gap: 9, reach: 820, color: "#d6deec", alpha: [0.06, 0.55] });
+  field(document.querySelector(".field"), 1500, 500, { cx: 360, cy: 230, gap: 9, reach: 820, color: "#d6deec", alpha: [0.06, 0.55] });
 } else {
-  const blue = asset === "pfp-blue";
-  document.body.innerHTML = `<div class="stage pfp ${blue ? "pfp-blue" : "pfp-white"}"><canvas class="field"></canvas>${MARK(4.4)}</div>`;
-  if (blue) field(document.querySelector(".field"), 1000, 1000, { cx: 500, cy: 500, gap: 18, reach: 760, color: "#dbe6ff", alpha: [0.18, 0.75], fadeCenter: 320 });
+  const blue = asset === "pfp-blue", night = asset === "pfp-night";
+  document.body.innerHTML = `<div class="stage pfp ${asset}"><canvas class="field"></canvas>${MARK(4.4)}</div>`;
+  // the header's background: dark, with the same quiet dots
+  if (night) field(document.querySelector(".field"), 1000, 1000, { cx: 500, cy: 500, gap: 14, reach: 900, color: "#d6deec", alpha: [0.06, 0.55], fadeCenter: 300 });
+  else if (blue) field(document.querySelector(".field"), 1000, 1000, { cx: 500, cy: 500, gap: 18, reach: 760, color: "#dbe6ff", alpha: [0.18, 0.75], fadeCenter: 320 });
   else document.querySelector(".field").remove();
 }
 Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode().catch(() => {}))]).then(() => { window.READY = true; });

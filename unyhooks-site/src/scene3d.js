@@ -1148,7 +1148,9 @@ function storyScene(canvas) {
         times.length = 0;
       }
     }
-    document.documentElement.classList.add('is-3d');
+    // show the canvas only once every effect is in, so the still hands over
+    // to the finished picture instead of a flat one that then pops into shape
+    if ((stage >= 3 && (!cube || cubeFrame > 1)) || !hq || revealNow) document.documentElement.classList.add('is-3d');
   };
 
   // draw while any chapter is on screen; the page's solid sections cover it
@@ -1175,17 +1177,19 @@ function storyScene(canvas) {
   // the mirror (its clipped variants of every material), the bloom, and last
   // the live chrome reflections.
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  let revealNow = false;
   const extras = async () => {
     if (!hq) return;
-    await wait(300);
+    setTimeout(() => { revealNow = true; }, 5000);
+    await wait(250);
     if (renderer.compileAsync) {
       renderer.clippingPlanes = mir.clip;
       try { await renderer.compileAsync(scene, camera); } finally { renderer.clippingPlanes = []; }
     }
     stage = 1;
-    await wait(500);
+    await wait(300);
     stage = 2;
-    await wait(700);
+    await wait(300);
     stage = 3;
   };
   const go = () => {

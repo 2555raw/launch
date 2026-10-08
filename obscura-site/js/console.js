@@ -436,6 +436,7 @@ function renderBackupState() {
   const missing = vault.filter((b) => b.status === "live" && !done.has(b.commitment)).length;
   $("backup-banner").hidden = missing === 0;
   $("backup-count").textContent = missing === 1 ? "1 bond is not backed up." : `${missing} bonds are not backed up.`;
+  $("backup-why").textContent = `Clearing this browser's data deletes ${missing === 1 ? "it" : "them"} for good.`;
   let at = null;
   try { at = JSON.parse(localStorage.getItem(BACKUP_STORE))?.at; } catch { /* never */ }
   $("b-status").textContent = at ? `Last backup ${new Date(at).toLocaleString()}.${missing ? ` ${missing} newer bond${missing === 1 ? "" : "s"} not in it.` : " Everything is in it."}` : "No backup yet.";

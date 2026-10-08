@@ -24,11 +24,11 @@ export function AuthCard({ title, subtitle, children, footer }: { title: string;
 
 export function Field({ label, error, children, hint }: { label: string; error?: string; hint?: string; children: ReactNode }) {
   return (
-    <div>
-      <label className="label">{label}</label>
+    <label className="block">
+      <span className="label">{label}</span>
       {children}
-      {error ? <p className="mt-1 text-xs text-rose-400">{error}</p> : hint ? <p className="mt-1 text-xs text-slate-500">{hint}</p> : null}
-    </div>
+      {error ? <span className="mt-1 block text-xs text-rose-400">{error}</span> : hint ? <span className="mt-1 block text-xs text-slate-500">{hint}</span> : null}
+    </label>
   );
 }
 

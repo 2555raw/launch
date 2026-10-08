@@ -134,6 +134,12 @@ https://launch-production-c4cd.up.railway.app — source `2555raw/launch`, branc
 That service previously ran Propello (branch `claude/gifted-allen-3obxjy`, root `/propello-site`) with
 no public domain; pointing the source and root back restores it.
 
+The same source also runs as service `Heladat` (same project) for the custom domain https://heldat.xyz,
+with the same root, start command and healthcheck. That service previously ran another app from root
+`/trailfi`. The domain needs two DNS records at the registrar: a CNAME (or ALIAS/flattened CNAME) for
+the bare domain pointing at the `*.up.railway.app` target Railway shows, and the `_railway-verify` TXT
+record.
+
 Chain reads go to free public nodes listed per chain in `js/proof.js` (`CHAINS[*].rpcs`); each was
 checked to keep full history and to accept requests from a browser page. They are tried in order, so a
 busy node falls through to the next. If none can answer for the proof's block, Verify checks the

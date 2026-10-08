@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tricker Launchpad — lanzamientos pareados a restaurantes</title>
+  <meta name="description" content="Un launchpad donde cada lanzamiento va pareado a un ticker real de restaurantes o delivery: McDonald's, Starbucks, Taco Bell, Burger King, Wendy's, DoorDash y más. Fases, precio, recaudación, cotización de la matriz y calendario en una sola mesa.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230A0A0D'/%3E%3Cpath d='M9 23 16 7l7 16' fill='none' stroke='%23FFFFFF' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M12 18h8' stroke='%23FF7A1A' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="lp-root" id="top">
+
+  <!-- cinta: un lanzamiento por casilla, desplaza de lado, nunca parpadea -->
+  <div class="lp-tape" aria-label="Lanzamientos en curso">
+    <div class="lp-tape-track" id="tape"></div>
+  </div>
+
+  <nav class="lp-nav">
+    <a class="lp-brand" href="#top">
+      <span class="lp-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 23 16 7l7 16" stroke="currentColor" stroke-width="2.6"/>
+          <path d="M12 18h8" stroke="#FF7A1A" stroke-width="2.6"/>
+        </svg>
+      </span>
+      Tricker <span class="lp-brand-sub">Launchpad</span>
+    </a>
+    <div class="lp-nav-links" id="navlinks">
+      <a href="#mesa">Mesa</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#calendario">Calendario</a>
+      <a href="#reglas">Reglas</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="lp-nav-right">
+      <button class="lp-icon-btn" id="theme" type="button" aria-label="Cambiar tema"></button>
+      <button class="lp-icon-btn lp-burger" id="burger" type="button" aria-label="Abrir el menú" aria-expanded="false">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <button class="lp-btn lp-btn-primary lp-btn-sm" id="wallet" type="button">Conectar wallet</button>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- hero -->
+    <section class="lp-hero">
+      <div class="lp-wrap lp-hero-grid">
+        <div class="lp-hero-copy">
+          <span class="lp-eyebrow"><i class="lp-dot"></i><span id="live-count">—</span> lanzamientos en vivo ahora</span>
+          <h1>Cada lanzamiento,<br>pareado a un <em>restaurante</em></h1>
+          <p class="lp-hero-sub">
+            Un token por marca, y cada uno pareado a una acción que cotiza de verdad. McDonald's,
+            Starbucks, Taco Bell, Burger King, Wendy's, DoorDash y las demás cadenas que todo el mundo
+            conoce, cada una con su lanzamiento: fase, precio, recaudación, cotización de la matriz y
+            el par con el que sale a mercado, todo en una mesa.
+          </p>
+          <div class="lp-hero-cta">
+            <a class="lp-btn lp-btn-primary" href="#mesa">Entrar a la mesa</a>
+            <a class="lp-btn lp-btn-ghost" href="#como">Cómo funciona</a>
+          </div>
+          <p class="lp-hero-note">Recaudación y fases en tiempo real desde el servidor · Cotizaciones reales con retraso de mercado · Las marcas pertenecen a sus dueños y no participan en esto</p>
+        </div>
+
+        <!-- el lanzamiento destacado: el que más cerca está de cerrar -->
+        <div class="lp-feature" id="feature" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- cifras -->
+    <section class="lp-stats">
+      <div class="lp-wrap lp-stats-in" id="stats"></div>
+    </section>
+
+    <!-- la mesa -->
+    <section class="lp-sec" id="mesa">
+      <div class="lp-wrap">
+        <div class="lp-head lp-rise">
+          <span class="lp-label">La mesa</span>
+          <h2>Todos los lanzamientos, una sola mesa</h2>
+          <p>Filtra por fase, ordena por lo que te importe y busca la cadena por nombre o ticker. Cada fila es un lanzamiento, el par con el que sale (TOKEN/ACCIÓN) y la cotización real de esa acción.</p>
+        </div>
+
+        <div class="lp-toolbar lp-rise">
+          <div class="lp-seg" id="phase" role="tablist" aria-label="Fase">
+            <button type="button" class="is-on" data-phase="all" role="tab">Todos</button>
+            <button type="button" data-phase="live" role="tab">En vivo</button>
+            <button type="button" data-phase="soon" role="tab">Próximos</button>
+            <button type="button" data-phase="done" role="tab">Cerrados</button>
+          </div>
+          <div class="lp-seg" id="cat" aria-label="Categoría">
+            <button type="button" class="is-on" data-cat="all">Todas</button>
+            <button type="button" data-cat="burger">Burger</button>
+            <button type="button" data-cat="mex">Mexicana</button>
+            <button type="button" data-cat="cafe">Café</button>
+            <button type="button" data-cat="pizza">Pizza</button>
+            <button type="button" data-cat="chicken">Pollo</button>
+            <button type="button" data-cat="delivery">Delivery</button>
+            <button type="button" data-cat="casual">De mesa</button>
+          </div>
+          <label class="lp-search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <input id="q" type="search" placeholder="Buscar cadena o ticker" autocomplete="off">
+          </label>
+          <select id="sort" class="lp-select" aria-label="Ordenar">
+            <option value="progress">Progreso</option>
+            <option value="raised">Recaudado</option>
+            <option value="time">Cierre más próximo</option>
+            <option value="fdv">Valoración</option>
+            <option value="name">Nombre</option>
+          </select>
+        </div>
+
+        <div class="lp-board lp-rise">
+          <div class="lp-row lp-row-head" aria-hidden="true">
+            <span>Lanzamiento</span><span>Par</span><span>Fase</span><span>Precio</span><span>Progreso</span><span>Recaudado</span><span>Cierre</span><span></span>
+          </div>
+          <div id="rows"></div>
+          <p class="lp-empty" id="empty" hidden>Nada coincide con esa búsqueda.</p>
+        </div>
+        <p class="lp-foot-note"><span id="quotes-at">Cargando cotizaciones…</span> Los logos son los oficiales de cada cadena, resueltos desde su dominio en tiempo de ejecución; si no cargan, verás un monograma. <span id="demo-note" hidden>Las filas marcadas "demo" incluyen aportaciones de demostración sembradas por el servidor.</span></p>
+      </div>
+    </section>
+
+    <!-- cómo funciona -->
+    <section class="lp-sec lp-sec-alt" id="como">
+      <div class="lp-wrap">
+        <div class="lp-head lp-rise">
+          <span class="lp-label">Cómo funciona</span>
+          <h2>Tres fases, un par, una regla</h2>
+        </div>
+        <div class="lp-steps lp-rise">
+          <article class="lp-step">
+            <b>01</b>
+            <h3>Se parea</h3>
+            <p>Cada lanzamiento nace atado a una marca y a la acción de su matriz: sólo entran cadenas que cotizan, porque sin acción no hay par. El ticker, el logo y la categoría vienen de la marca; el par dice contra qué cotiza al abrir.</p>
+          </article>
+          <article class="lp-step">
+            <b>02</b>
+            <h3>Se recauda</h3>
+            <p>Durante la ventana en vivo cada aportación compra al precio de lanzamiento. La barra de progreso es la recaudación sobre el objetivo; al llegar al objetivo la ventana cierra aunque sobre tiempo.</p>
+          </article>
+          <article class="lp-step">
+            <b>03</b>
+            <h3>Sale a mercado</h3>
+            <p>Al cerrar, el par se lista en la cadena elegida y aparece en el Terminal y en las bolsas de Tricker. Un lanzamiento que no alcanza el mínimo devuelve cada aportación tal cual. En esta versión la aportación es un compromiso registrado a nombre de tu cartera: la liquidación on-chain no está conectada todavía.</p>
+          </article>
+        </div>
+
+        <!-- calculadora -->
+        <div class="lp-calc lp-rise" id="calc">
+          <div class="lp-calc-head">
+            <span class="lp-label">Calculadora</span>
+            <h3>¿Cuánto recibes por lo que aportas?</h3>
+          </div>
+          <div class="lp-calc-grid">
+            <label>Lanzamiento
+              <select id="calc-launch" class="lp-select"></select>
+            </label>
+            <label>Aportación (USDC)
+              <input id="calc-amount" class="lp-input" type="number" min="0" step="10" value="250" inputmode="decimal">
+            </label>
+            <div class="lp-calc-out">
+              <div><small>Precio de lanzamiento</small><b id="calc-price">—</b></div>
+              <div><small>Recibes</small><b id="calc-tokens">—</b></div>
+              <div><small>Del total emitido</small><b id="calc-share">—</b></div>
+              <div><small>Tu parte del objetivo</small><b id="calc-goal">—</b></div>
+            </div>
+            <p class="lp-calc-cap" id="calc-cap"></p>
+          </div>
+          <p class="lp-calc-note">Sin comisión de entrada. Los números salen de la mesa de arriba y de nada más.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- calendario -->
+    <section class="lp-sec" id="calendario">
+      <div class="lp-wrap">
+        <div class="lp-head lp-rise">
+          <span class="lp-label">Calendario</span>
+          <h2>Lo que abre y lo que cierra</h2>
+          <p>Los próximos lanzamientos en orden de apertura y los cerrados en orden de cierre.</p>
+        </div>
+        <div class="lp-cal lp-rise">
+          <div>
+            <h3 class="lp-cal-h">Próximas aperturas</h3>
+            <ol class="lp-cal-list" id="cal-soon"></ol>
+          </div>
+          <div>
+            <h3 class="lp-cal-h">Cerrados recientemente</h3>
+            <ol class="lp-cal-list" id="cal-done"></ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- reglas -->
+    <section class="lp-sec lp-sec-alt" id="reglas">
+      <div class="lp-wrap">
+        <div class="lp-head lp-rise">
+          <span class="lp-label">Reglas</span>
+          <h2>Lo que vale para todos los lanzamientos</h2>
+        </div>
+        <div class="lp-rules lp-rise">
+          <div class="lp-rule"><b>Un token por marca, pareado a bolsa</b><p>No hay dos lanzamientos de la misma marca, y ninguno sin acción detrás. Varias marcas pueden compartir matriz: Taco Bell, KFC y Pizza Hut van las tres contra YUM.</p></div>
+          <div class="lp-rule"><b>Precio fijo durante la ventana</b><p>Todos los que entran en la ventana pagan lo mismo. El precio de mercado empieza al cerrar, no antes.</p></div>
+          <div class="lp-rule"><b>Tope por cartera</b><p>Cada lanzamiento marca cuánto puede aportar una sola cartera. Está en la ficha y no se negocia.</p></div>
+          <div class="lp-rule"><b>Mínimo o devolución</b><p>Si al cierre no se llega al mínimo, cada aportación vuelve a su cartera sin descuento.</p></div>
+          <div class="lp-rule"><b>Nada se inventa</b><p>Recaudación, carteras y fases salen del servidor; la cotización, del mercado. Si no hay dato, se dice "no disponible". El logo es el de la propia cadena, resuelto desde su dominio, o un monograma.</p></div>
+          <div class="lp-rule"><b>Las marcas no participan</b><p>Los nombres y logos identifican la cadena a la que va pareado el lanzamiento. Ninguna marca patrocina, avala ni emite nada aquí.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- faq -->
+    <section class="lp-sec" id="faq">
+      <div class="lp-wrap lp-faq-wrap">
+        <div class="lp-head lp-rise">
+          <span class="lp-label">FAQ</span>
+          <h2>Preguntas que hace todo el mundo</h2>
+        </div>
+        <div class="lp-faq lp-rise">
+          <details open>
+            <summary>¿Qué significa que un lanzamiento esté "pareado" a un restaurante?</summary>
+            <p>Que el token toma su identidad de esa cadena (nombre, logo, categoría) y sale a mercado contra la acción de su matriz: TACO/YUM, BK/QSR, MCD/MCD. Ese par es el que ves en la columna "Par", con la cotización real de la acción debajo.</p>
+          </details>
+          <details>
+            <summary>¿Las cadenas tienen algo que ver con esto?</summary>
+            <p>No. McDonald's, Starbucks, Taco Bell, Burger King, Wendy's y el resto son marcas registradas de sus dueños, y sus acciones cotizan donde cotizan. Aquí aparecen como referencia de a qué va pareado cada lanzamiento, nada más.</p>
+          </details>
+          <details>
+            <summary>¿Qué pasa si no se alcanza el mínimo?</summary>
+            <p>Se devuelve cada aportación entera a la cartera que la hizo. No hay comisión de salida por un lanzamiento que no llega.</p>
+          </details>
+          <details>
+            <summary>¿Qué pasa cuando se llega al objetivo antes de tiempo?</summary>
+            <p>La ventana cierra en ese momento. Lo que entra después del cierre no se acepta.</p>
+          </details>
+          <details>
+            <summary>¿Por qué no está Subway, Chick-fil-A o Dunkin'?</summary>
+            <p>Porque son empresas privadas: no hay acción con la que parearlas. Sólo entran marcas cuya matriz cotiza, y por eso cada lanzamiento lleva una cotización real al lado.</p>
+          </details>
+          <details>
+            <summary>¿Cómo entro y qué firmo?</summary>
+            <p>Con cualquier wallet EVM (MetaMask, Rabby, Coinbase Wallet). Firmas un mensaje de texto con un nonce: no cuesta gas y no autoriza ningún movimiento. El servidor recupera tu dirección de la firma y a partir de ahí las aportaciones van a tu nombre.</p>
+          </details>
+          <details>
+            <summary>¿De dónde salen las cifras de esta página?</summary>
+            <p>Recaudación, carteras y fases salen del servidor, que guarda cada aportación en su fichero de datos. Las cotizaciones vienen del mercado con retraso. Lo único escrito a mano es el catálogo de lanzamientos (precio, emisión, objetivo, fechas), en <code>launches.js</code>.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- cierre -->
+    <section class="lp-sec lp-cta" id="cta">
+      <div class="lp-wrap lp-cta-in lp-rise">
+        <h2>Siéntate a la mesa</h2>
+        <p>Elige la cadena, mira el par, entra con tu wallet y aporta en la ventana. Lo demás es esperar al cierre.</p>
+        <a class="lp-btn lp-btn-primary" href="#mesa">Ver lanzamientos</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="lp-footer">
+    <div class="lp-wrap lp-footer-in">
+      <span>© <span id="year"></span> Tricker Launchpad · Compromisos registrados; liquidación on-chain no conectada</span>
+      <span>Las marcas y logos pertenecen a sus respectivos dueños y no están afiliadas a este sitio.</span>
+    </div>
+  </footer>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>

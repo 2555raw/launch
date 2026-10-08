@@ -68,14 +68,26 @@ export function Game() {
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.2fr_1fr]">
             <div className="space-y-6">
               <div>
-                <div className="label text-ember">Community token launch</div>
+                <div className="label text-ember">Community-priced token launch</div>
                 <h1 className="mt-2 font-display text-5xl font-bold leading-[0.95] text-slate-50 md:text-6xl">
-                  Every click helps shape <span className="text-brand-soft">${symbol}</span>.
+                  The supply of <span className="text-brand-soft">${symbol}</span> is decided by the people who play.
                 </h1>
                 <p className="mt-4 max-w-xl text-lg text-slate-400">
-                  Click the deposit, hire cursors, build mines, rigs and refineries. All production becomes <span className="text-ember">burn power</span>, and burn power permanently removes tokens from the launch supply.
-                  When the countdown ends the game freezes, the final supply is computed and the token is minted on Solana with the burn executed on-chain.
+                  Extract from the deposit, hire cursors, build mines, rigs and refineries. All production becomes burn power, and the community&apos;s burn power removes tokens from the launch supply through a published formula.
+                  When the window closes, the final supply is locked, minted on Solana, and the burn is executed on-chain.
                 </p>
+                <ul className="mt-4 grid gap-2 text-sm text-slate-300 sm:grid-cols-3">
+                  {[
+                    ["Server-validated", "No client numbers are trusted. Click caps, re-priced purchases, locked ledger at freeze."],
+                    ["On-chain result", "Token-2022 mint with metadata, supply minted, burn executed, mint authority revoked."],
+                    ["Your keys stay yours", "Wallet linking is a signed message. Never a seed phrase, never a private key."],
+                  ].map(([t, d]) => (
+                    <li key={t} className="rounded-md border border-white/[0.06] bg-ink-900/70 px-3 py-2">
+                      <div className="font-display font-bold text-slate-100">{t}</div>
+                      <div className="text-xs text-slate-500">{d}</div>
+                    </li>
+                  ))}
+                </ul>
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <Hero label="Initial supply" value={global ? fmtFull(global.initialSupply) : "…"} />

@@ -5,14 +5,12 @@ import type { GlobalSnapshot } from "@/lib/types";
 import { fmt, fmtFull } from "@/lib/format";
 
 const FLAVOR = [
-  "Analysts confirm: every click is, technically, monetary policy.",
-  "Local cursor union demands shorter seconds.",
-  "Refinery smoke now visible from the trading floor. Traders delighted.",
-  "Economist: \"Burning supply before launch is either genius or a very warm idea.\"",
-  "Orbital Smelter operators report asteroid ore is \"mostly fine\".",
-  "Community reminder: the burn is final once the countdown ends.",
-  "Vault managers insist the vault is not simply a big room.",
-  "Breaking: supply going down, morale going up.",
+  "Market desk: supply removed at launch is permanent; the burn transaction is published on the project page.",
+  "Operations: cursor tiers raise extraction cadence; buildings add automated output with their own burn weight.",
+  "Treasury note: a fixed share of the final supply is reserved for players, pro rata to burn power.",
+  "Compliance: every click batch is validated server-side; clicks above the per-second cap are discarded.",
+  "Engineering: Burn Protocol upgrades double the burn weight of all your production.",
+  "Launch desk: when the countdown ends the ledger freezes and the final supply is locked before minting.",
 ];
 
 export function NewsTicker({ global, bare = false }: { global: GlobalSnapshot | null; bare?: boolean }) {

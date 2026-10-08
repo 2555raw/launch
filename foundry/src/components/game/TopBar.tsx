@@ -11,6 +11,7 @@ export function TopBar({ user, onLogout, symbol, slug }: { user: PublicUser | nu
   return (
     <header className="topnav">
       <Link href="/" className="topnav-brand" title="FOUNDRY launch">
+        <LogoMark />
         LAUNCH
       </Link>
       <span className="topnav-title">FOUNDRY<span className="hidden sm:inline text-slate-500"> · Mine · Burn · Launch</span></span>
@@ -46,6 +47,15 @@ function ExtLink({ href, label, icon }: { href: string; label: string; icon: Rea
       {icon}
       <span className="hidden md:inline">{label}</span>
     </a>
+  );
+}
+
+function LogoMark() {
+  return (
+    <svg viewBox="0 0 24 24" className="mr-2 h-5 w-5" aria-hidden>
+      <path d="M12 2 21 7v10l-9 5-9-5V7z" fill="none" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 6.5c1.2 3 4 4.2 4 7.3a4 4 0 0 1-8 0c0-1.6.8-2.6 1.7-3.5 0 1.7.8 2.5 1.6 2.5.1-3-.8-4.3.7-6.3z" fill="currentColor" />
+    </svg>
   );
 }
 

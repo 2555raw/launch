@@ -16,9 +16,9 @@ interface Floater { id: number; x: number; y: number; text: string }
 interface Spark { id: number; x: number; y: number; dx: number; dy: number }
 
 /**
- * The deposit: every commodity piled together into one clickable mound.
- * Gold nuggets, an oil barrel, a silver ingot, a copper bar and lithium
- * crystals on a bed of ore. Original artwork, pure SVG.
+ * The deposit: every commodity piled on a bed of ore. Gold nuggets, a steel
+ * oil drum, a stamped silver ingot, a cast copper bar and lithium crystals.
+ * Original SVG with lighting, texture and shadow filters.
  */
 export function Deposit({ theme, symbol, clickPower, disabled, onClick }: Props) {
   const [floaters, setFloaters] = useState<Floater[]>([]);
@@ -35,13 +35,13 @@ export function Deposit({ theme, symbol, clickPower, disabled, onClick }: Props)
       const x = rect ? clientX - rect.left : 0;
       const y = rect ? clientY - rect.top : 0;
       const id = ++idRef.current;
-      setFloaters((f) => [...f.slice(-14), { id, x, y, text: `+${fmt(clickPower)}` }]);
-      const ns: Spark[] = Array.from({ length: 7 }, (_, i) => {
-        const a = (Math.PI * 2 * i) / 7 + Math.random();
-        const d = 40 + Math.random() * 60;
-        return { id: id * 10 + i, x, y, dx: Math.cos(a) * d, dy: Math.sin(a) * d - 20 };
+      setFloaters((f) => [...f.slice(-14), { id, x, y, text: `+${fmt(clickPower)} ${theme.unitShort}` }]);
+      const ns: Spark[] = Array.from({ length: 8 }, (_, i) => {
+        const a = (Math.PI * 2 * i) / 8 + Math.random();
+        const d = 40 + Math.random() * 70;
+        return { id: id * 10 + i, x, y, dx: Math.cos(a) * d, dy: Math.sin(a) * d - 30 };
       });
-      setSparks((s) => [...s.slice(-35), ...ns]);
+      setSparks((s) => [...s.slice(-40), ...ns]);
       setPressed(true);
       setTimeout(() => setPressed(false), 80);
       setTimeout(() => {
@@ -49,18 +49,18 @@ export function Deposit({ theme, symbol, clickPower, disabled, onClick }: Props)
         setSparks((s) => s.filter((x) => Math.floor(x.id / 10) !== id));
       }, 1000);
     },
-    [clickPower, disabled, onClick],
+    [clickPower, disabled, onClick, theme.unitShort],
   );
 
   return (
-    <div ref={stageRef} className="coin-stage mx-auto w-full max-w-[360px] aspect-square">
+    <div ref={stageRef} className="coin-stage mx-auto w-full max-w-[380px] aspect-square">
       <div className="coin-halo" />
       <svg
         viewBox="0 0 240 240"
         role="button"
         aria-label={`${theme.verb} ${symbol}`}
         tabIndex={0}
-        className={`coin-btn w-[94%] ${pressed ? "pressed" : ""} ${disabled ? "opacity-60 grayscale-[0.3]" : ""}`}
+        className={`coin-btn w-[96%] ${pressed ? "pressed" : ""} ${disabled ? "opacity-60 grayscale-[0.3]" : ""}`}
         onPointerDown={(e) => {
           e.preventDefault();
           handle(e.clientX, e.clientY);
@@ -74,81 +74,146 @@ export function Deposit({ theme, symbol, clickPower, disabled, onClick }: Props)
         }}
       >
         <defs>
-          <radialGradient id="gold" cx="35%" cy="30%" r="80%">
-            <stop offset="0%" stopColor="#fff2a8" /><stop offset="50%" stopColor="#f2b734" /><stop offset="100%" stopColor="#8a5a0a" />
+          {/* lighting & texture */}
+          <filter id="rockTex" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="7" result="n" />
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.35 0" result="grain" />
+            <feComposite in="grain" in2="SourceGraphic" operator="in" result="g2" />
+            <feBlend in="SourceGraphic" in2="g2" mode="multiply" />
+          </filter>
+          <filter id="metalTex" x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.02 0.6" numOctaves="2" seed="3" result="n" />
+            <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.22 0" result="grain" />
+            <feComposite in="grain" in2="SourceGraphic" operator="in" result="g2" />
+            <feBlend in="SourceGraphic" in2="g2" mode="overlay" />
+          </filter>
+          <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="3" />
+          </filter>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2.5" />
+          </filter>
+          <radialGradient id="goldA" cx="30%" cy="25%" r="85%">
+            <stop offset="0%" stopColor="#fff7c2" /><stop offset="35%" stopColor="#f6c445" /><stop offset="75%" stopColor="#b7801a" /><stop offset="100%" stopColor="#5e3b06" />
           </radialGradient>
-          <linearGradient id="silver" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#ffffff" /><stop offset="45%" stopColor="#c3cfdd" /><stop offset="100%" stopColor="#5f7089" />
+          <linearGradient id="goldFacet" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#ffe892" /><stop offset="100%" stopColor="#9c6a0c" />
           </linearGradient>
-          <linearGradient id="copper" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#ffd2b0" /><stop offset="50%" stopColor="#d97a3f" /><stop offset="100%" stopColor="#6b2f10" />
+          <linearGradient id="silverTop" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#dfe7f1" /><stop offset="40%" stopColor="#ffffff" /><stop offset="60%" stopColor="#b9c5d4" /><stop offset="100%" stopColor="#8a99ad" />
           </linearGradient>
-          <linearGradient id="barrel" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#0d161c" /><stop offset="35%" stopColor="#2b3f4b" /><stop offset="70%" stopColor="#15232c" /><stop offset="100%" stopColor="#09100f" />
+          <linearGradient id="silverSide" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#8d9db1" /><stop offset="100%" stopColor="#4d5b6d" />
           </linearGradient>
-          <linearGradient id="lithium" x1="0" y1="1" x2="0.4" y2="0">
-            <stop offset="0%" stopColor="#4b3aa6" /><stop offset="55%" stopColor="#a08cff" /><stop offset="100%" stopColor="#efe9ff" />
+          <linearGradient id="copperTop" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#f7b98d" /><stop offset="45%" stopColor="#e28a52" /><stop offset="100%" stopColor="#9a4a1f" />
           </linearGradient>
-          <radialGradient id="rock" cx="50%" cy="30%" r="70%">
-            <stop offset="0%" stopColor="#3a4455" /><stop offset="100%" stopColor="#12171f" />
+          <linearGradient id="copperSide" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#8f4019" /><stop offset="100%" stopColor="#4a1f0a" />
+          </linearGradient>
+          <linearGradient id="drum" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#0c1418" /><stop offset="22%" stopColor="#36505c" /><stop offset="45%" stopColor="#1b2b33" /><stop offset="80%" stopColor="#101a1f" /><stop offset="100%" stopColor="#05090b" />
+          </linearGradient>
+          <linearGradient id="drumBand" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#1f5c4c" /><stop offset="40%" stopColor="#5fe0bd" /><stop offset="100%" stopColor="#1a4a3e" />
+          </linearGradient>
+          <linearGradient id="lith" x1="0" y1="1" x2="0.5" y2="0">
+            <stop offset="0%" stopColor="#3a2b8f" /><stop offset="50%" stopColor="#9d86ff" /><stop offset="100%" stopColor="#f3efff" />
+          </linearGradient>
+          <linearGradient id="lithSide" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#2a1f6e" /><stop offset="100%" stopColor="#6d5ccf" />
+          </linearGradient>
+          <radialGradient id="rock" cx="45%" cy="25%" r="75%">
+            <stop offset="0%" stopColor="#4a5566" /><stop offset="60%" stopColor="#242c38" /><stop offset="100%" stopColor="#0d1117" />
           </radialGradient>
-          <radialGradient id="oildrop" cx="40%" cy="30%" r="70%">
-            <stop offset="0%" stopColor="#3e5663" /><stop offset="100%" stopColor="#05090b" />
+          <radialGradient id="ground" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#000" stopOpacity="0.7" /><stop offset="100%" stopColor="#000" stopOpacity="0" />
           </radialGradient>
         </defs>
 
-        {/* ore mound */}
-        <ellipse cx="120" cy="200" rx="104" ry="22" fill="#000" opacity="0.5" />
-        <path d="M22 196 C 30 150, 70 120, 120 118 C 170 120, 212 150, 218 196 Z" fill="url(#rock)" />
-        <path d="M40 186 l10-14 12 10 -8 12z M170 184 l14-12 10 10 -12 10z M100 192 l8-10 12 6 -6 10z" fill="#1c2430" />
+        {/* ground shadow + ore mound */}
+        <ellipse cx="120" cy="204" rx="112" ry="26" fill="url(#ground)" />
+        <path d="M18 198 C 26 150, 66 118, 120 116 C 174 118, 214 150, 222 198 Z" fill="url(#rock)" filter="url(#rockTex)" />
+        <path d="M30 192 l12-16 14 10 -8 14z M166 188 l16-14 12 12 -14 10z M92 194 l10-12 14 6 -6 12z M196 194 l10-8 8 6 -6 8z" fill="#1a212b" />
+        <path d="M30 192 l12-16 M166 188 l16-14 M92 194 l10-12" stroke="#5b6778" strokeWidth="1" strokeOpacity="0.6" />
+        {/* embedded ore glints */}
+        <circle cx="70" cy="170" r="1.6" fill="#ffe892" opacity="0.8" />
+        <circle cx="150" cy="180" r="1.3" fill="#ffe892" opacity="0.7" />
+        <circle cx="200" cy="184" r="1.2" fill="#dfe7f1" opacity="0.8" />
 
-        {/* oil barrel (back left) */}
-        <g transform="translate(40 92)">
-          <rect x="0" y="0" width="54" height="78" rx="8" fill="url(#barrel)" />
-          <ellipse cx="27" cy="2" rx="27" ry="8" fill="#3b525f" />
-          <rect x="0" y="16" width="54" height="5" fill="#48ceaa" opacity="0.75" />
-          <rect x="0" y="54" width="54" height="5" fill="#48ceaa" opacity="0.75" />
-          <path d="M27 30 c-6 8 -7 12 -7 16 a7 7 0 0 0 14 0 c0-4 -1-8 -7-16z" fill="url(#oildrop)" stroke="#48ceaa" strokeOpacity="0.7" />
+        {/* steel oil drum (back left) */}
+        <g transform="translate(36 86)">
+          <ellipse cx="29" cy="86" rx="31" ry="8" fill="#000" opacity="0.45" filter="url(#softShadow)" />
+          <rect x="0" y="4" width="58" height="82" rx="6" fill="url(#drum)" filter="url(#metalTex)" />
+          <ellipse cx="29" cy="4" rx="29" ry="8" fill="#3c535f" />
+          <ellipse cx="29" cy="4" rx="24" ry="6" fill="#22333b" />
+          <circle cx="36" cy="3" r="2.2" fill="#0a1114" stroke="#5c7580" strokeWidth="0.6" />
+          <rect x="0" y="20" width="58" height="6" fill="url(#drumBand)" opacity="0.9" />
+          <rect x="0" y="62" width="58" height="6" fill="url(#drumBand)" opacity="0.9" />
+          <rect x="0" y="20" width="58" height="1" fill="#fff" opacity="0.25" />
+          <rect x="0" y="62" width="58" height="1" fill="#fff" opacity="0.25" />
+          {/* rivets */}
+          {[8, 20, 32, 44].map((x) => (
+            <g key={x}><circle cx={x + 3} cy="23" r="1" fill="#0b1316" /><circle cx={x + 3} cy="65" r="1" fill="#0b1316" /></g>
+          ))}
+          {/* drop emblem */}
+          <path d="M29 32 c-7 9 -8 13 -8 18 a8 8 0 0 0 16 0 c0-5 -1-9 -8-18z" fill="#0a1316" stroke="#5fe0bd" strokeOpacity="0.8" strokeWidth="1" />
+          <path d="M25 48 a4 4 0 0 0 4 4" stroke="#5fe0bd" strokeOpacity="0.6" strokeWidth="1" fill="none" />
+          <rect x="4" y="8" width="3" height="74" fill="#fff" opacity="0.08" />
         </g>
 
         {/* lithium crystals (back center) */}
         <g>
-          <path d="M112 128 l10 -50 10 50z" fill="url(#lithium)" />
-          <path d="M126 130 l14 -36 8 36z" fill="url(#lithium)" opacity="0.85" />
-          <path d="M100 132 l6 -32 10 32z" fill="url(#lithium)" opacity="0.8" />
-          <path d="M122 78 l0 50" stroke="#fff" strokeOpacity="0.5" strokeWidth="1" />
+          <path d="M108 130 l12 -58 12 58z" fill="url(#lith)" />
+          <path d="M120 72 l12 58 -12 0z" fill="url(#lithSide)" opacity="0.9" />
+          <path d="M126 132 l14 -40 10 40z" fill="url(#lith)" opacity="0.95" />
+          <path d="M140 92 l10 40 -10 0z" fill="url(#lithSide)" opacity="0.9" />
+          <path d="M98 134 l6 -34 10 34z" fill="url(#lith)" opacity="0.9" />
+          <path d="M104 100 l10 34 -10 0z" fill="url(#lithSide)" opacity="0.85" />
+          <path d="M120 72 l0 58" stroke="#fff" strokeOpacity="0.55" strokeWidth="1" />
+          <path d="M140 92 l0 40" stroke="#fff" strokeOpacity="0.45" strokeWidth="0.8" />
+          <path d="M120 74 l-4 20" stroke="#fff" strokeOpacity="0.5" strokeWidth="2" filter="url(#glow)" />
         </g>
 
-        {/* silver ingot (back right) */}
-        <g transform="translate(140 108)">
-          <path d="M8 36 L18 4 H66 L76 36 Z" fill="url(#silver)" />
-          <path d="M8 36 H76 L72 48 H12 Z" fill="#6f7f96" />
-          <path d="M18 4 H66 L62 12 H22 Z" fill="#fff" opacity="0.5" />
-          <text x="42" y="30" textAnchor="middle" fontFamily="Rajdhani, sans-serif" fontWeight="700" fontSize="12" fill="#2d3542">Ag</text>
+        {/* stamped silver ingot (back right) */}
+        <g transform="translate(138 106)">
+          <ellipse cx="42" cy="50" rx="42" ry="7" fill="#000" opacity="0.4" filter="url(#softShadow)" />
+          <path d="M6 36 L16 4 H68 L78 36 Z" fill="url(#silverTop)" filter="url(#metalTex)" />
+          <path d="M6 36 H78 L74 48 H10 Z" fill="url(#silverSide)" />
+          <path d="M16 4 H68 L64 10 H20 Z" fill="#fff" opacity="0.55" />
+          <path d="M8 34 L18 6" stroke="#fff" strokeOpacity="0.5" strokeWidth="1" />
+          <rect x="24" y="14" width="36" height="16" rx="2" fill="none" stroke="#6b7a8e" strokeOpacity="0.7" strokeWidth="0.8" />
+          <text x="42" y="26" textAnchor="middle" fontFamily="Rajdhani, sans-serif" fontWeight="700" fontSize="10" fill="#3b4656" letterSpacing="1">999.9 Ag</text>
         </g>
 
-        {/* copper bar (front right) */}
-        <g transform="translate(150 150)">
-          <path d="M4 30 L12 6 H60 L68 30 Z" fill="url(#copper)" />
-          <path d="M4 30 H68 L64 40 H8 Z" fill="#6b2f10" />
-          <text x="36" y="25" textAnchor="middle" fontFamily="Rajdhani, sans-serif" fontWeight="700" fontSize="11" fill="#4a2109">Cu</text>
+        {/* cast copper bar (front right) */}
+        <g transform="translate(148 150)">
+          <ellipse cx="36" cy="42" rx="38" ry="6" fill="#000" opacity="0.45" filter="url(#softShadow)" />
+          <path d="M2 30 L12 6 H60 L70 30 Z" fill="url(#copperTop)" filter="url(#metalTex)" />
+          <path d="M2 30 H70 L66 42 H6 Z" fill="url(#copperSide)" />
+          <path d="M12 6 H60 L57 11 H15 Z" fill="#ffd9bf" opacity="0.45" />
+          <text x="36" y="25" textAnchor="middle" fontFamily="Rajdhani, sans-serif" fontWeight="700" fontSize="10" fill="#4a2109" letterSpacing="1">Cu 99.9</text>
         </g>
 
-        {/* gold nuggets (front center / left) */}
+        {/* gold nuggets (front) */}
         <g>
-          <path d="M64 176 l12-18 20-6 16 10 4 18 -14 10 -24 -2z" fill="url(#gold)" stroke="#8a5a0a" strokeWidth="1" />
-          <path d="M96 164 l10-14 18-2 12 12 -2 16 -16 8 -18 -6z" fill="url(#gold)" stroke="#8a5a0a" strokeWidth="1" />
-          <path d="M122 150 l8-10 14 0 8 10 -4 12 -14 4 -12 -6z" fill="url(#gold)" stroke="#8a5a0a" strokeWidth="1" />
-          <path d="M74 170 l8-10 10-2" stroke="#fff6c7" strokeWidth="2" strokeOpacity="0.7" fill="none" />
-          <path d="M104 160 l6-8 8-1" stroke="#fff6c7" strokeWidth="2" strokeOpacity="0.7" fill="none" />
-          <path d="M128 150 l5-6 7 0" stroke="#fff6c7" strokeWidth="2" strokeOpacity="0.7" fill="none" />
+          <ellipse cx="100" cy="196" rx="52" ry="7" fill="#000" opacity="0.45" filter="url(#softShadow)" />
+          <path d="M60 178 l12-20 22-6 18 10 4 20 -16 10 -26 -2z" fill="url(#goldA)" stroke="#6b4408" strokeWidth="0.8" />
+          <path d="M72 158 l22-6 6 12 -16 8z" fill="url(#goldFacet)" opacity="0.8" />
+          <path d="M94 164 l10-14 20-2 12 12 -2 16 -16 8 -20 -6z" fill="url(#goldA)" stroke="#6b4408" strokeWidth="0.8" />
+          <path d="M104 150 l20-2 2 10 -14 4z" fill="url(#goldFacet)" opacity="0.8" />
+          <path d="M122 152 l8-10 14 0 8 10 -4 12 -14 4 -12 -6z" fill="url(#goldA)" stroke="#6b4408" strokeWidth="0.8" />
+          <path d="M130 142 l14 0 2 6 -10 2z" fill="url(#goldFacet)" opacity="0.8" />
+          {/* specular */}
+          <path d="M74 172 l6-8" stroke="#fff" strokeWidth="2" strokeOpacity="0.85" strokeLinecap="round" />
+          <path d="M106 160 l5-6" stroke="#fff" strokeWidth="2" strokeOpacity="0.85" strokeLinecap="round" />
+          <path d="M130 148 l4-4" stroke="#fff" strokeWidth="1.6" strokeOpacity="0.85" strokeLinecap="round" />
+          <circle cx="86" cy="168" r="6" fill="#fff" opacity="0.12" filter="url(#glow)" />
         </g>
 
-        {/* small ore chunks */}
-        <path d="M44 190 l6-8 8 4 -2 8z M196 190 l6-6 6 6 -4 6z M150 196 l4-6 8 2 -2 6z" fill="#2a3442" stroke="#0e1218" />
-        <text x="120" y="226" textAnchor="middle" fontFamily="Rajdhani, sans-serif" fontWeight="700" fontSize="11" letterSpacing="4" fill="#94a3b8" opacity="0.8">
-          COMMODITY DEPOSIT
-        </text>
+        {/* loose ore chunks */}
+        <path d="M40 192 l6-8 8 4 -2 8z M196 190 l6-6 6 6 -4 6z M150 196 l4-6 8 2 -2 6z M60 198 l4-5 6 2 -1 5z" fill="#2a3442" stroke="#0e1218" strokeWidth="0.6" />
+        <path d="M40 192 l6-8 M196 190 l6-6" stroke="#6b788a" strokeWidth="0.8" strokeOpacity="0.7" />
       </svg>
       {floaters.map((f) => (
         <span key={f.id} className="float-num" style={{ left: f.x, top: f.y }}>{f.text}</span>

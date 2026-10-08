@@ -374,3 +374,61 @@ body {
 }
 .upgrade-tile.ok:hover { transform: scale(1.08); border-color: rgb(var(--brand) / 0.6); }
 .upgrade-tile.poor { opacity: 0.45; }
+
+/* --- world scenes ------------------------------------------------------- */
+.world-scene {
+  position: relative;
+  min-height: 118px;
+  background-size: cover;
+  background-position: center bottom;
+  border-bottom: 2px solid #05080c;
+  box-shadow: inset 0 -30px 40px -20px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.world-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  background: linear-gradient(180deg, rgba(5, 8, 12, 0.85), rgba(5, 8, 12, 0.35));
+  backdrop-filter: blur(2px);
+}
+.world-units {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  padding: 8px 12px 12px;
+  color: #fff;
+}
+.world-unit {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  color: rgb(var(--brand-soft));
+  animation: bob 2.4s ease-in-out infinite;
+}
+
+/* brushed metal + vignette polish */
+.metal-bar, .store-head, .metal-btn {
+  background-image: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px);
+}
+.metal-bar { background-color: #1a2230; }
+.col-left::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+.col-left > * { position: relative; z-index: 1; }
+.bakery-title {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.35));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 16px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.04em;
+}

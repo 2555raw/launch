@@ -41,8 +41,10 @@ export function IsoCanvas(props: IsoCanvasProps) {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
     const g = propsRef.current.gridSize;
-    const zoom = Math.min(w / (g * TILE_W * 1.05), h / (g * TILE_H * 1.15), 1.6);
-    camRef.current = { zoom, ox: w / 2, oy: (h - g * TILE_H * zoom) / 2 + 10 };
+    // Fit the whole grid, then zoom in on the centre where a village actually lives (the map stays pannable).
+    const fitAll = Math.min(w / (g * TILE_W * 1.05), h / (g * TILE_H * 1.15));
+    const zoom = Math.min(1.6, Math.max(fitAll * 1.9, 0.45));
+    camRef.current = { zoom, ox: w / 2, oy: h / 2 - (g * TILE_H * zoom) / 2 };
   }, []);
 
   const render = useCallback(() => {

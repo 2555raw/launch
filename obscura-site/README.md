@@ -10,7 +10,7 @@ No build step, no dependencies. Plain HTML, CSS and ES modules.
 
 ```
 index.html      landing: night hero (dot field, live seal, live Ethereum block, signed statement),
-                story, facts, wallets, the leak, films, demo, deposit-box band, $OBX, FAQ, closing
+                story, facts, wallets, the leak, films, demo, the bond grid, $OBX, FAQ, closing
 console.html    the app: Cloak, Vault, Transfer, Receive
 verify.html     paste a receipt, get one bit back
 terms.html      Terms of Use and Privacy (template: have a lawyer review it)
@@ -31,7 +31,7 @@ js/card.js      the proof as a 1200x630 image with a QR code
 js/mark.js      the logo's paths
 js/share.js     proof link and QR code
 js/verify.js    the verify page
-assets/         fonts, logo, app icons, boxes drawing, wallet logos, films, vendored libraries
+assets/         fonts, logo, app icons, wallet logos, films, vendored libraries
 sw.js           offline cache (network first; the cache is named after each release)
 manifest.webmanifest  install as an app
 tools/          scenes.html (film source) and render-videos.mjs (renders the films)
@@ -60,7 +60,6 @@ Edit the captions or timings in `scenes.html` and re-run to regenerate.
 ## Credits
 
 - Logo: supplied by the owner, redrawn as SVG without the ® sign (`js/mark.js`, `assets/logo.svg`).
-- Drawing: `assets/img/boxes.svg`, made for this site.
 - Vendored: `assets/vendor/ethers.min.js` (ethers 6.17, MIT) to check signatures and ENS names,
   `assets/vendor/qrcode.mjs` (qrcode-generator 2.0.4, MIT) for QR codes, `assets/vendor/noble-ed25519.mjs`
   (@noble/ed25519 2.3, MIT) for Solana signatures where the browser has no Ed25519.

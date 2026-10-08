@@ -94,6 +94,109 @@ if (heroEl) {
   onHero();
 }
 
+// ---------- the vault: a grid of sealed bonds, one opened at a time ----------
+// Every square is a bond nobody can read. Every few seconds a receipt opens
+// one: it lights up blue, a ring spreads from it, and its seal code shows.
+(() => {
+  const canvas = document.querySelector(".band-field");
+  if (!canvas) return;
+  const box = canvas.parentElement;
+  const ctx = canvas.getContext("2d");
+  const CELL = 20, GAP = 8, STEP = CELL + GAP;
+  let w = 0, h = 0, dpr = 1, cols = 0, rows = 0, ox = 0, oy = 0, visible = false, running = false, last = 0;
+  let open = null, prev = null, openedAt = 0, code = "";
+  const hex = () => Array.from(crypto.getRandomValues(new Uint8Array(4)), (b) => b.toString(16).padStart(2, "0")).join("");
+  function pick() {
+    // somewhere the card does not cover: the right half, or the top half
+    for (let i = 0; i < 40; i++) {
+      const c = Math.floor(Math.random() * cols), r = Math.floor(Math.random() * rows);
+      const x = ox + c * STEP, y = oy + r * STEP;
+      const wide = w > 700;
+      const clear = wide ? x > w * 0.5 && x < w - 220 && y > 40 && y < h - 60 : y < h * 0.45 && x < w - 200;
+      if (clear && (!open || open.c !== c || open.r !== r)) return { c, r };
+    }
+    return { c: Math.floor(cols * 0.7), r: Math.floor(rows * 0.3) };
+  }
+  function next(now) {
+    prev = open; open = pick(); openedAt = reduced ? now - 3000 : now;
+    code = "0x" + hex() + "…" + hex().slice(0, 4);
+  }
+  function resize() {
+    const r = box.getBoundingClientRect();
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    w = r.width; h = r.height;
+    canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+    cols = Math.floor((w - 24) / STEP); rows = Math.floor((h - 24) / STEP);
+    ox = (w - (cols * STEP - GAP)) / 2; oy = (h - (rows * STEP - GAP)) / 2;
+    if (!open || open.c >= cols || open.r >= rows) next(performance.now());
+    draw(performance.now());
+  }
+  const ease = (t) => 1 - Math.pow(1 - Math.min(1, Math.max(0, t)), 3);
+  function draw(now) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, w, h);
+    const t = (now - openedAt) / 1000;
+    const cx = ox + open.c * STEP + CELL / 2, cy = oy + open.r * STEP + CELL / 2;
+    const ring = ease(t / 1.6) * Math.max(w, h) * 0.5;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const x = ox + c * STEP, y = oy + r * STEP;
+        const d = Math.hypot(x + CELL / 2 - cx, y + CELL / 2 - cy);
+        // fade towards the edges, and a soft wave where the ring passes
+        const edge = Math.min(1, Math.min(x, w - x, y, h - y) / 90);
+        const wave = Math.max(0, 1 - Math.abs(d - ring) / 70) * (1 - ease(t / 1.6));
+        const near = Math.max(0, 1 - d / 160);
+        ctx.fillStyle = `rgba(255, 255, 255, ${(0.025 + 0.05 * near + 0.12 * wave) * edge})`;
+        ctx.strokeStyle = `rgba(255, 255, 255, ${(0.06 + 0.08 * near + 0.25 * wave) * edge})`;
+        ctx.beginPath(); ctx.roundRect(x + 0.5, y + 0.5, CELL - 1, CELL - 1, 5); ctx.fill(); ctx.stroke();
+      }
+    }
+    // the bond that closes as the next one opens
+    if (prev && t < 0.8) {
+      const px = ox + prev.c * STEP, py = oy + prev.r * STEP;
+      ctx.fillStyle = `rgba(122, 162, 255, ${0.5 * (1 - t / 0.8)})`;
+      ctx.beginPath(); ctx.roundRect(px, py, CELL, CELL, 5); ctx.fill();
+    }
+    // the open bond
+    const k = ease(t / 0.5);
+    ctx.save();
+    ctx.shadowColor = "rgba(122, 162, 255, .65)"; ctx.shadowBlur = 26 * k;
+    ctx.fillStyle = `rgba(122, 162, 255, ${0.25 + 0.75 * k})`;
+    ctx.beginPath(); ctx.roundRect(cx - CELL / 2, cy - CELL / 2, CELL, CELL, 5); ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = `rgba(122, 162, 255, ${0.5 * (1 - ease(t / 1.2))})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.roundRect(cx - CELL / 2 - 6 * ease(t / 1.2) - 2, cy - CELL / 2 - 6 * ease(t / 1.2) - 2, CELL + 12 * ease(t / 1.2) + 4, CELL + 12 * ease(t / 1.2) + 4, 8); ctx.stroke();
+    ctx.lineWidth = 1;
+    // its label: the seal code, typed out
+    const shown = Math.floor(ease((t - 0.25) / 0.9) * code.length);
+    if (shown > 0) {
+      const lx = cx + CELL / 2 + 14, ly = cy;
+      ctx.font = '500 12px "JetBrains Mono", ui-monospace, monospace';
+      const text = code.slice(0, shown), label = "OPENED BY RECEIPT";
+      const tw = Math.max(ctx.measureText(code).width, ctx.measureText(label).width) + 24;
+      ctx.fillStyle = `rgba(13, 17, 25, ${0.9 * k})`; ctx.strokeStyle = `rgba(255, 255, 255, ${0.12 * k})`;
+      ctx.beginPath(); ctx.roundRect(lx, ly - 24, tw, 48, 10); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = `rgba(141, 151, 168, ${k})`; ctx.font = '500 10px "JetBrains Mono", ui-monospace, monospace';
+      ctx.fillText(label, lx + 12, ly - 6);
+      ctx.fillStyle = `rgba(158, 192, 255, ${k})`; ctx.font = '500 12px "JetBrains Mono", ui-monospace, monospace';
+      ctx.fillText(text, lx + 12, ly + 12);
+    }
+  }
+  function loop(now) {
+    if (!running) return;
+    if (now - openedAt > 3600) next(now);
+    if (now - last > 33) { last = now; draw(now); }
+    requestAnimationFrame(loop);
+  }
+  const start = () => { if (!running && visible && !document.hidden && !reduced) { running = true; requestAnimationFrame(loop); } };
+  new ResizeObserver(resize).observe(box);
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; visible ? start() : (running = false); }).observe(box);
+  document.addEventListener("visibilitychange", () => (document.hidden ? (running = false) : start()));
+  document.fonts?.ready.then(() => draw(performance.now() + 2000));
+  resize();
+})();
+
 // ---------- live block: the latest Ethereum block, read from a public node ----------
 const blockEl = $("h-block");
 if (blockEl) {

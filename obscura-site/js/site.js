@@ -136,7 +136,11 @@ if (topNav) {
 
   // Past the first screen, the bar becomes the rail; back near the top, it returns.
   const wide = matchMedia("(min-width: 1360px)");
-  const update = () => document.documentElement.classList.toggle("side-on", wide.matches && scrollY > innerHeight * 0.6);
+  const update = () => {
+    document.documentElement.classList.toggle("side-on", wide.matches && scrollY > innerHeight * 0.6);
+    const max = document.documentElement.scrollHeight - innerHeight;
+    rail.style.setProperty("--read", max > 0 ? Math.min(1, scrollY / max).toFixed(3) : "0");
+  };
   addEventListener("scroll", update, { passive: true });
   wide.addEventListener?.("change", update);
   update();

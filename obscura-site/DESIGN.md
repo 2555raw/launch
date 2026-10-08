@@ -259,7 +259,7 @@ A warm paper-and-ink palette with a night layer, one blue as its live signal, an
 - **Paper** (paper): cards, facts, boxes, dialogs, inputs, the story stage and the token-sheet band.
 - **Mist** (mist): first tonal step: hover fills, the active nav pill, the current chapter, the demo output pane, soft buttons, the tab track, badges, status notes and the footer.
 - **Steel** (steel): second tonal step: soft-button hover, the sent badge, the footer wordmark, a typed but unbacked check tick.
-- **Ink** (ink): headings and body text, primary buttons, the brand mark, active chapter and step numbers, the side rail's current item, toasts. Text selection inverts to ink with on-ink text.
+- **Ink** (ink): headings and body text, primary buttons, the brand mark, active chapter and step numbers, the side rail's launch key, toasts. Text selection inverts to ink with on-ink text.
 - **Ink Hover** (ink-hover): the dark button and rail launch item on hover.
 - **On Ink** (on-ink): text and icons set on ink fills. White in light, blue-black in dark.
 - **Ink Secondary** (ink-2): long-form reading text in prose, terms, status notes and field labels.
@@ -321,7 +321,7 @@ The dark theme maps each light token to its dark-* value: ground dark-bg, surfac
 
 Content sits on a centred 1180px rail with a 16px gutter on mobile and 32px from 720px. Sections are separated by a fluid section space (88px to 148px). Full-bleed bands (night or paper) take the section space as both their top margin and their inner padding, and hold a split grid (0.9fr to 1.1fr). The hero grid is 1.1fr to 0.9fr with the copy left and the stacked cards right-aligned and staggered; the story is a sticky stage (6:5) beside four numbered steps; the facts are a four-column grid that drops to two at 900px; the films are 0.82fr to 1.5fr.
 
-The page order alternates rooms: night hero, warm story, facts and wallets, night leak band, films and demo, the boxes band (a drawn wall of safe-deposit boxes, clipped to 28px, with a floating paper card), the paper token-sheet band, the night FAQ band, then a night closing card on the rail and a mist footer with a giant steel wordmark.
+The page order alternates rooms: night hero, warm story, facts and wallets, night leak band, films and demo, the bond grid (a night panel of faint square cells drawn on a canvas; every few seconds one lights up blue with a ring and a typed seal-code tag, and a night-glass card with a mono label sits over its lower left; on phones the card drops below, solid), the paper token-sheet band, the night FAQ band, then a night closing card on the rail and a mist footer with a giant steel wordmark.
 
 The nav floats 12px from the top as a 60px pill; under 960px its links collapse into a drawer, and under 560px the wallet and X buttons hide. From 1360px wide, once the hero is passed, the bar slides away and becomes a vertical icon rail at the left edge, centred vertically. Grids drop to one column at about 860 to 900px. On phones the hero mark and the code card hide, the cards stretch full width, and the dot field starts from the top corner at reduced strength. App pages start 128px down and use a pill tab bar with two-column panels.
 
@@ -341,7 +341,7 @@ The system is tonal first: ground, paper, mist and steel separate surfaces, and 
 
 ## Shapes
 
-Corners are generous and step with scale: 10px, 14px (fields, wallet items, menus), 20px (hero cards, facts, bonds, status notes, verdicts, the FAQ frame on night), and 28px (the boxes drawing, the player, the demo, boxes, dialogs, the story stage, the closing band). Every interactive control (buttons, nav, tabs, badges, the chip, the theme button, toasts) is a full pill; the side rail is a 30px-radius column of 42px circles. Strokes are 1px hairlines at rest and 1.5px on focus and invalid fields, drawn as inset box-shadows so geometry doesn't shift. Status dots are 6 to 8px circles with a 3 to 4px halo. The hero field is squares, not circles. The mark is round-capped strokes (6.4 on the 100 grid) with filled joints.
+Corners are generous and step with scale: 10px, 14px (fields, wallet items, menus), 20px (hero cards, facts, bonds, status notes, verdicts, the FAQ frame on night), and 28px (the bond grid, the player, the demo, boxes, dialogs, the story stage, the closing band). Every interactive control (buttons, nav, tabs, badges, the chip, the theme button, toasts) is a full pill; the side rail is a 30px-radius column of 42px circles. Strokes are 1px hairlines at rest and 1.5px on focus and invalid fields, drawn as inset box-shadows so geometry doesn't shift. Status dots are 6 to 8px circles with a 3 to 4px halo. The hero field is squares, not circles. The mark is round-capped strokes (6.4 on the 100 grid) with filled joints.
 
 ## Components
 
@@ -380,7 +380,7 @@ Four paper cards (20px radius, hairline border) each with one large figure and a
 ### Navigation
 - **Floating pill nav:** glass fill with 16px blur, a hairline border and Rest, 60px tall. Links are 14.5px weight 500 in dim, ink on hover, the current one on a mist pill. Right side: X icon, Theme, Connect wallet (light), Launch app (dark).
 - **Over the hero:** the same pill turns dark translucent (white 4% fill, white-10% border, no shadow); links go grey-to-white with white-8% pills, Launch app turns white and Connect wallet turns outline.
-- **Side rail (1360px and up, after the hero):** a vertical glass column with the mark, section icons, the Theme toggle and a launch item in ink. The current item is an ink circle; labels slide out to the right as ink pills on hover and focus.
+- **Side rail (1360px and up, after the hero):** a vertical glass column (18px radius) of 40px square keys (11px radius): the mark, section icons at 18px and 1.7 stroke, the Theme toggle, wallet, and a launch key in ink. The current section is a mist key with a 3px accent bar on the rail's left edge; a 2px reading line inside the right edge fills with accent as the page scrolls. Labels slide out to the right as small ink tags (7px radius) on hover and focus.
 - **Tabs (app):** a mist pill track; the selected tab is a paper pill with Rest.
 
 ### Ruled Lists (signature)

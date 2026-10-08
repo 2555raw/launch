@@ -341,7 +341,7 @@ The system is tonal first: ground, paper, mist and steel separate surfaces, and 
 
 ## Shapes
 
-Corners are generous and step with scale: 10px, 14px (fields, wallet items, menus), 20px (hero cards, facts, bonds, status notes, verdicts, the FAQ frame on night), and 28px (the bond grid, the player, the demo, boxes, dialogs, the story stage, the closing band). Every interactive control (buttons, nav, tabs, badges, the chip, the theme button, toasts) is a full pill; the side rail is an 18px-radius column of 40px square keys with an 11px radius. Strokes are 1px hairlines at rest and 1.5px on focus and invalid fields, drawn as inset box-shadows so geometry doesn't shift. Status dots are 6 to 8px circles with a 3 to 4px halo. The hero field is squares, not circles. The mark is round-capped strokes (6.4 on the 100 grid) with filled joints.
+Corners are generous and step with scale: 10px, 14px (fields, wallet items, menus), 20px (hero cards, facts, bonds, status notes, verdicts, the FAQ frame on night), and 28px (the bond grid, the player, the demo, boxes, dialogs, the story stage, the closing band). Every interactive control (buttons, nav, tabs, badges, the chip, the theme button, toasts) is a full pill; the side rail is a square-cornered (2px) column of 48px square cells. Strokes are 1px hairlines at rest and 1.5px on focus and invalid fields, drawn as inset box-shadows so geometry doesn't shift. Status dots are 6 to 8px circles with a 3 to 4px halo. The hero field is squares, not circles. The mark is round-capped strokes (6.4 on the 100 grid) with filled joints.
 
 ## Components
 
@@ -380,7 +380,7 @@ Four paper cards (20px radius, hairline border) each with one large figure and a
 ### Navigation
 - **Floating pill nav:** glass fill with 16px blur, a hairline border and Rest, 60px tall. Links are 14.5px weight 500 in dim, ink on hover, the current one on a mist pill. Right side: X icon, Theme, Connect wallet (light), Launch app (dark).
 - **Over the hero:** the same pill turns dark translucent (white 4% fill, white-10% border, no shadow); links go grey-to-white with white-8% pills, Launch app turns white and Connect wallet turns outline.
-- **Side rail (1360px and up, after the hero):** a vertical glass column (18px radius) of 40px square keys (11px radius): the mark, section icons at 18px and 1.7 stroke, the Theme toggle, wallet, and a launch key in ink. The current section is a mist key with a 3px accent bar on the rail's left edge; a 2px reading line inside the right edge fills with accent as the page scrolls. Labels slide out to the right as small ink tags (7px radius) on hover and focus.
+- **Side rail (1360px and up, after the hero):** a square-cornered column ruled like graph paper (8px grid in the line colour over glass, 2px corners): 48px square cells split by hairlines, a heavier rule between groups, the mark on top and the launch cell in ink at the bottom. The current section's cell turns mist with a 2px accent edge on its left; a 2px accent reading line runs down the right edge as the page scrolls. Labels slide out as square ink tags in uppercase mono.
 - **Tabs (app):** a mist pill track; the selected tab is a paper pill with Rest.
 
 ### Ruled Lists (signature)

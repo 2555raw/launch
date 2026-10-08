@@ -228,11 +228,18 @@ p { text-wrap: pretty; }
 }
 
 /* side rail: the top bar, moved to the left edge once the hero is passed.
-   Square keys, a thin accent bar on the current section, and a reading line. */
+   A column of square cells ruled like graph paper: hairlines between cells,
+   a heavier rule between groups, a 2px accent edge on the current section,
+   and a reading line down the right side. */
 .side-rail {
   position: fixed; z-index: 50; left: 16px; top: 50%;
-  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px;
-  background: var(--glass); border: 1px solid var(--line); border-radius: 18px;
+  display: flex; flex-direction: column; padding: 0;
+  border: 1px solid var(--line-2); border-radius: 2px;
+  background-color: var(--glass);
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 8px 8px; background-position: -1px -1px;
   backdrop-filter: blur(18px) saturate(170%); -webkit-backdrop-filter: blur(18px) saturate(170%);
   box-shadow: var(--shadow-md);
   opacity: 0; visibility: hidden; transform: translate(-16px, -50%);
@@ -241,33 +248,35 @@ p { text-wrap: pretty; }
 .side-on .side-rail { opacity: 1; visibility: visible; transform: translate(0, -50%); transition: opacity .3s var(--ease), transform .45s var(--ease), visibility 0s; }
 .side-on .nav-wrap { opacity: 0; transform: translateY(-120%); pointer-events: none; }
 .nav-wrap { transition: opacity .3s var(--ease), transform .45s var(--ease); }
-/* how far down the page you are, as a hairline on the rail's right edge */
-.side-rail::after { content: ""; position: absolute; right: 3px; top: 22px; bottom: 22px; width: 2px; border-radius: 2px; background: var(--line); }
-.side-rail::before { content: ""; position: absolute; z-index: 1; right: 3px; top: 22px; bottom: 22px; width: 2px; border-radius: 2px; background: var(--accent); opacity: .85; transform: scaleY(var(--read, 0)); transform-origin: top; transition: transform .15s linear; }
+/* the reading line: how far down the page you are */
+.side-rail::after { content: ""; position: absolute; right: -1px; top: -1px; bottom: -1px; width: 2px; background: transparent; }
+.side-rail::before { content: ""; position: absolute; z-index: 2; right: -1px; top: -1px; bottom: -1px; width: 2px; background: var(--accent); transform: scaleY(var(--read, 0)); transform-origin: top; transition: transform .15s linear; }
 .side-item {
-  position: relative; width: 40px; height: 40px; border: 0; border-radius: 11px; cursor: pointer;
+  position: relative; width: 48px; height: 48px; border: 0; border-radius: 0; cursor: pointer;
   display: grid; place-items: center; background: transparent; color: var(--dim-2);
-  transition: background-color .2s, color .2s;
+  box-shadow: inset 0 -1px 0 var(--line-2);
+  transition: background-color .15s, color .15s;
 }
+.side-item:last-child { box-shadow: none; }
 .side-item svg { width: 18px; height: 18px; stroke-width: 1.7; }
-.side-item img { width: 20px; height: 20px; border-radius: 5px; }
+.side-item img { width: 20px; height: 20px; border-radius: 2px; }
 .side-item:hover, .side-item:focus-visible { background: var(--mist); color: var(--ink); outline: none; }
-.side-item:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
+.side-item:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
 .side-item[aria-current="true"], .side-item[aria-current="page"] { background: var(--mist); color: var(--ink); }
 .side-item[aria-current="true"]::before, .side-item[aria-current="page"]::before {
-  content: ""; position: absolute; left: -9px; top: 11px; bottom: 11px; width: 3px; border-radius: 0 3px 3px 0; background: var(--accent);
+  content: ""; position: absolute; left: 0; top: 0; bottom: 1px; width: 2px; background: var(--accent);
 }
-.side-brand { width: 40px; height: 40px; margin-bottom: 2px; color: var(--ink); }
-.side-brand svg { width: 24px; height: 24px; overflow: visible; }
-.side-brand:hover { background: transparent; }
-.side-launch { margin-top: 2px; background: var(--ink); color: var(--on-ink); }
+.side-brand { color: var(--ink); }
+.side-brand svg { width: 22px; height: 22px; overflow: visible; }
+.side-launch { background: var(--ink); color: var(--on-ink); }
 .side-launch:hover, .side-launch:focus-visible { background: var(--ink-hover); color: var(--on-ink); }
-.side-sep { width: 20px; height: 1px; margin: 6px 0; background: var(--line); }
-/* the label: a small dark tag that slides out on hover and keyboard focus */
+/* groups are split by a heavier rule rather than a gap */
+.side-sep { width: 100%; height: 0; border-top: 1px solid var(--line-2); }
+/* the label: a square tag that slides out on hover and keyboard focus */
 .side-item::after {
-  content: attr(data-label); position: absolute; left: calc(100% + 14px); top: 50%;
-  padding: 5px 9px; border-radius: 7px; background: var(--ink); color: var(--on-ink);
-  font: 500 12.5px/1.2 var(--sans); letter-spacing: -.005em; white-space: nowrap; pointer-events: none;
+  content: attr(data-label); position: absolute; left: calc(100% + 10px); top: 50%;
+  padding: 6px 10px; border-radius: 2px; background: var(--ink); color: var(--on-ink);
+  font: 500 11.5px/1.2 var(--mono); letter-spacing: .04em; text-transform: uppercase; white-space: nowrap; pointer-events: none;
   box-shadow: var(--shadow-sm);
   opacity: 0; transform: translate(-4px, -50%); transition: opacity .15s var(--ease), transform .2s var(--ease);
 }

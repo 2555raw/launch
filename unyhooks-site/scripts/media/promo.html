@@ -14,6 +14,7 @@ let X = C.getContext('2d');
 const NAVY = '#0B1222', NAVY_HI = '#1B2844', DEEP = '#04070E', SLATE = '#2E3A58';
 const GOLD = '#E8B04B', PALE = '#F7D78C', CREAM = '#F3EAD7', BRONZE = '#A86F18';
 const FONT = "'Geist', sans-serif";
+const SIDE = { '#F3EAD7': '#8A7653', '#04070E': '#6E4A12', '#0B1222': '#6E4A12', '#E8B04B': '#7A5214', '#F7D78C': '#8A6420' };
 
 const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
 const lerp = (a, b, u) => a + (b - a) * u;
@@ -59,7 +60,20 @@ function icon(name, mode = 'color', tint) {
   }));
   return (iconCache[key] = c);
 }
-function drawIcon(name, cx, cy, px, rot = 0, mode, alpha = 1, sx = 1, tint) {
+let NOW = 0;
+function drawIcon(name, cx, cy, px, rot = 0, mode = 'color', alpha = 1, sx = 1, tint) {
+  if (window.P3D) {
+    // voxel model: a little idle turn so the depth reads; sx < 1 means "turned edge-on"
+    const seed = (cx * 7.1 + cy * 3.3) % 6.28;
+    const yaw = (sx < 1 ? Math.acos(clamp(sx)) : 0) + .42 * Math.sin(NOW * 1.1 + seed);
+    const pitch = .28 + .1 * Math.sin(NOW * .9 + seed * 2);
+    const { canvas, span } = P3D.icon(name, mode, -rot, yaw, pitch);
+    const size = span * px;
+    X.save(); X.globalAlpha *= alpha;
+    if (mode !== 'outline') { X.shadowColor = 'rgba(0,0,0,.55)'; X.shadowBlur = px * 4; X.shadowOffsetY = px * 2.2; }
+    X.drawImage(canvas, cx - size / 2, cy - size / 2, size, size);
+    X.restore(); return;
+  }
   const im = icon(name, mode, tint);
   X.save(); X.globalAlpha *= alpha; X.translate(cx, cy); X.rotate(rot); X.scale(sx, 1);
   X.imageSmoothingEnabled = false;
@@ -91,9 +105,16 @@ const GRAIN = [0, 1, 2, 3, 4, 5].map((i) => {
 function grain(f, a = .07) { X.save(); X.globalAlpha = a; X.globalCompositeOperation = 'overlay'; X.drawImage(GRAIN[f % 6], 0, 0, W, H); X.restore(); }
 function txt(s, x, y, size = 34, col = CREAM, opt = {}) {
   X.save(); X.font = `${opt.weight || 600} ${size}px ${FONT}`; X.textAlign = opt.align || 'left'; X.textBaseline = 'middle';
-  X.globalAlpha *= opt.alpha == null ? 1 : opt.alpha; X.fillStyle = col;
+  X.globalAlpha *= opt.alpha == null ? 1 : opt.alpha;
   if (opt.ls) X.letterSpacing = opt.ls + 'px';
-  X.fillText(s, x, y); X.restore();
+  const depth = opt.depth == null ? Math.max(3, Math.round(size * .09)) : opt.depth;
+  if (depth > 0 && x > -9000) {
+    X.save(); X.shadowColor = 'rgba(0,0,0,.5)'; X.shadowBlur = size * .5; X.shadowOffsetY = size * .25; X.fillStyle = opt.side || SIDE[col] || 'rgba(0,0,0,.6)'; X.fillText(s, x + depth * .55, y + depth); X.restore();
+    X.fillStyle = opt.side || SIDE[col] || 'rgba(0,0,0,.6)';
+    for (let i = depth - 1; i >= 1; i--) X.fillText(s, x + i * .55, y + i);
+  }
+  X.fillStyle = col; X.fillText(s, x, y);
+  X.restore();
   X.font = `${opt.weight || 600} ${size}px ${FONT}`; return X.measureText(s).width;
 }
 function cursor(x, y, lt, h = 40, col = CREAM) { if (Math.floor(lt * 3.2) % 2 === 0) { X.fillStyle = col; X.fillRect(x, y - h / 2, 5, h); } }
@@ -106,6 +127,8 @@ function blurred(px, fn) {
 /* ---------- shapes ---------- */
 function star4(cx, cy, R, w, inner, outer, rot = 0, alpha = 1, sy = 1) {
   X.save(); X.translate(cx, cy); X.rotate(rot); X.scale(1, sy); X.globalAlpha *= alpha;
+  const shape = () => { X.beginPath(); X.moveTo(0, -R); X.quadraticCurveTo(w * .12, -w * .12, w, 0); X.quadraticCurveTo(w * .12, w * .12, 0, R); X.quadraticCurveTo(-w * .12, w * .12, -w, 0); X.quadraticCurveTo(-w * .12, -w * .12, 0, -R); };
+  X.save(); for (let i = 14; i >= 1; i -= 1) { X.translate(i === 14 ? 14 * .5 : -.5, i === 14 ? 14 : -1); X.fillStyle = i > 10 ? 'rgba(60,38,8,.6)' : BRONZE; shape(); X.fill(); } X.restore();
   const g = X.createRadialGradient(0, 0, 0, 0, 0, R); g.addColorStop(0, inner); g.addColorStop(1, outer);
   X.fillStyle = g; X.beginPath();
   X.moveTo(0, -R); X.quadraticCurveTo(w * .12, -w * .12, w, 0); X.quadraticCurveTo(w * .12, w * .12, 0, R);
@@ -114,6 +137,13 @@ function star4(cx, cy, R, w, inner, outer, rot = 0, alpha = 1, sy = 1) {
 const HOOK = new Path2D('M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z M19 58.5h12v4.5H19z M18 63h14l6.2 12.6a1.6 1.6 0 0 1-1.4 2.4H13.2a1.6 1.6 0 0 1-1.4-2.4z');
 // the hook as a glowing heat silhouette (the figure in the black scenes)
 function hookGlow(cx, cy, s, rot = 0, mode = 'heat', alpha = 1) {
+  if (window.P3D) {
+    if (mode === 'heat') { X.save(); X.globalAlpha *= alpha * .5; X.translate(cx, cy); X.rotate(rot); X.scale(s, s); X.translate(-32, -45); X.filter = `blur(${Math.max(4, s * 2)}px)`; X.fillStyle = '#E8862C'; X.fill(HOOK); X.restore(); }
+    const { canvas, span } = P3D.hook(mode, .55 * Math.sin(NOW * .6) - .25, -rot);
+    const size = span * s;
+    X.save(); X.globalAlpha *= alpha; X.drawImage(canvas, cx - size / 2, cy - size / 2, size, size); X.restore();
+    return;
+  }
   X.save(); X.globalAlpha *= alpha; X.translate(cx, cy); X.rotate(rot); X.scale(s, s); X.translate(-32, -45);
   if (mode === 'heat') {
     const g = X.createLinearGradient(20, 5, 40, 80);
@@ -324,7 +354,7 @@ const S = [
   [9.95, 10.45, (lt) => {
     bgDeep();
     const p = eo(lt / .4);
-    X.save(); X.fillStyle = GOLD; X.beginPath(); X.moveTo(0, H * .95); X.lineTo(W * .1, H * .85); X.lineTo(W * .32 + p * W * .7, H * .62 - p * H * .9); X.lineTo(W * .27 + p * W * .7, H * .52 - p * H * .9); X.lineTo(W * .08, H * .75); X.lineTo(0, H * .82); X.fill(); X.restore();
+    X.save(); for (const [dy, c] of [[16, '#5E3E0E'], [0, GOLD]]) { X.save(); X.translate(0, dy); X.fillStyle = c; X.beginPath(); X.moveTo(0, H * .95); X.lineTo(W * .1, H * .85); X.lineTo(W * .32 + p * W * .7, H * .62 - p * H * .9); X.lineTo(W * .27 + p * W * .7, H * .52 - p * H * .9); X.lineTo(W * .08, H * .75); X.lineTo(0, H * .82); X.fill(); X.restore(); } X.restore();
     drawIcon('lock', W * .24, H * .5, 19, -.3 + lt * .1);
     const w = txt('locked.', W * .47, H * .5, 64, CREAM, { weight: 700 });
     cursor(W * .47 + w + 30, H * .5, lt, 62);
@@ -385,10 +415,10 @@ const S = [
     const rise = eo(lt / .3), y = lerp(H * 1.15, H * .72, rise);
     const sp = rng(8); for (let i = 0; i < 10; i++) { const ox = W * (.42 + sp() * .16), oy = H * (.15 + sp() * .25) - lt * 40 * (1 + sp()); X.fillStyle = `rgba(247,215,140,${.6 * sp()})`; X.fillRect(ox, oy, 2, 6 + sp() * 8); }
     hookGlow(W * .51, y, 12.5, lerp(-.35, -.05, rise) + Math.sin(lt * 1.3) * .03);
-    if (lt > .1) txt('through code', W * .38, H * .5, 42, CREAM, { align: 'right' });
+    if (lt > .1) txt('through code', W * .35, H * .5, 42, CREAM, { align: 'right' });
     let r = ''; if (lt > .3) r = 'nobody'; if (lt > .42) r = 'nobody can'; if (lt > .55) r = 'nobody can change';
-    const w = txt(r, W * .65, H * .5, 42, CREAM);
-    if (lt > .3 && lt < .7) cursor(W * .65 + w + 18, H * .5, lt, 34);
+    const w = txt(r, W * .69, H * .5, 42, CREAM);
+    if (lt > .3 && lt < .7) cursor(W * .69 + w + 18, H * .5, lt, 34);
     vignette(.5);
   }],
   // 23: washing out sideways
@@ -397,8 +427,8 @@ const S = [
     X.fillStyle = lerpColor(DEEP, '#4A5672', p); X.fillRect(0, 0, W, H);
     blurred(p * 6, () => { hookGlow(W * .51 - p * 120, H * .72, 12.5, -.05, 'heat', 1 - p * .6); });
     streaks(71, 7, H * .3, H * .5, p, CREAM, .5);
-    txt('through code', W * .38, H * .5, 42, CREAM, { align: 'right', alpha: 1 - p * .4 });
-    txt('nobody can change it', W * .65, H * .5, 42, CREAM, { alpha: 1 - p * .4 });
+    txt('through code', W * .35, H * .5, 42, CREAM, { align: 'right', alpha: 1 - p * .4 });
+    txt('nobody can change it', W * .69, H * .5, 42, CREAM, { alpha: 1 - p * .4 });
   }],
   // 24: H O O K, one beat at a time
   [15.97, 17.3, (lt) => {
@@ -414,21 +444,26 @@ const S = [
     drawIcon(ic, W * .5, H * .5, px, ic === 'lock' && bg === 'gold' ? -.15 : 0, 'color', 1, spin);
     vignette(bg === 'gold' ? .3 : .5);
   }],
-  // 25: the letters loose on the page, settling; gold threads loop around them
+  // 25: the letters loose on the page settle into the name; gold threads loop round them; then the link
   [17.3, 20.6, (lt) => {
     bgPaper(1.15);
-    const items = [['H', .2, .28], ['O', .4, .29], ['O', .24, .7], ['K', .55, .76], ['.', .33, .32], ['.', .62, .31], ['.', .12, .56], ['.', .5, .55]];
-    const settle = eio(prog(lt, .1, 2.6));
-    items.forEach(([ch, fx, fy], i) => {
-      const r = rng(i * 13 + 2), sx = (r() - .5) * W * .7, sy = (r() - .5) * H * .6, rot0 = (r() - .5) * 5;
-      const x = W * fx + sx * (1 - settle) + Math.sin(lt * 1.3 + i) * 10 * (1 - settle * .7), y = H * fy + sy * (1 - settle) + Math.cos(lt + i) * 8 * (1 - settle * .7);
-      const size = lerp(28, 46, eo(prog(lt, 2.4, 3.0)));
-      X.save(); X.translate(x, y); X.rotate(rot0 * (1 - settle)); txt(ch === '.' ? '•' : ch, 0, 0, ch === '.' ? 18 : size, CREAM, { align: 'center', weight: 700 }); X.restore();
-      if (ch !== '.') {
-        const lp = prog(lt, 1.9 + i * .1, 3.1), len = lerp(60, 260, lp);
-        if (lp > 0) { X.save(); X.translate(x, y); X.rotate(r() * 6); X.strokeStyle = 'rgba(232,176,75,.8)'; X.lineWidth = 2.2; X.beginPath(); X.ellipse(0, len * .5, len * .18, len * .5, 0, -Math.PI / 2, -Math.PI / 2 + lp * Math.PI * 2); X.stroke(); X.restore(); }
-      }
+    const word = 'UnyHooks', size = lerp(46, 120, eio(prog(lt, .2, 2.2)));
+    X.font = `800 ${size}px ${FONT}`; const full = X.measureText(word).width;
+    let cx = W / 2 - full / 2; const settle = eio(prog(lt, .1, 2.2));
+    [...word].forEach((ch, i) => {
+      const cw = (X.font = `800 ${size}px ${FONT}`, X.measureText(ch).width);
+      const r = rng(i * 13 + 2), sx = (r() - .5) * W * .8, sy = (r() - .5) * H * .7, rot0 = (r() - .5) * 5;
+      const x = cx + cw / 2 + sx * (1 - settle) + Math.sin(lt * 1.3 + i) * 12 * (1 - settle), y = H * .45 + sy * (1 - settle) + Math.cos(lt + i) * 10 * (1 - settle);
+      X.save(); X.translate(x, y); X.rotate(rot0 * (1 - settle)); txt(ch, 0, 0, size, i >= 3 ? GOLD : CREAM, { align: 'center', weight: 800 }); X.restore();
+      const lp = prog(lt, 1.2 + i * .08, 2.4) * (1 - prog(lt, 2.4, 2.9));
+      if (lp > 0) { X.save(); X.translate(x, y); X.rotate(r() * 6); X.strokeStyle = 'rgba(232,176,75,.8)'; X.lineWidth = 2.2; X.beginPath(); const len = lerp(60, 240, lp); X.ellipse(0, len * .5, len * .18, len * .5, 0, -Math.PI / 2, -Math.PI / 2 + lp * Math.PI * 2); X.stroke(); X.restore(); }
+      cx += cw;
     });
+    const lk = eo(prog(lt, 2.35, 2.75));
+    if (lk > 0) {
+      txt('unyhooks.xyz', W / 2, H * .45 + size * .62 + 40 + (1 - lk) * 30, 44, CREAM, { align: 'center', weight: 600, alpha: lk });
+      X.save(); X.globalAlpha = lk; X.fillStyle = GOLD; const lw = 260 * lk; X.fillRect(W / 2 - lw / 2, H * .45 + size * .62 + 82, lw, 4); X.restore();
+    }
     if (lt < .45) { const p = lt / .45; for (let i = 0; i < 6; i++) scribble(80 + i, W * (.1 + i * .14), H * (.2 + (i % 3) * .25), 60, 50, 1, i % 2 ? GOLD : CREAM, 4, 1 - p); }
     vignette(.4);
   }]
@@ -436,11 +471,89 @@ const S = [
 function lerpColor(a, b, u) { const p = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], clamp(u)))).join(',')})`; }
 
 window.draw = (t, f = Math.round(t * 23.976)) => {
+  NOW = t;
   X.setTransform(1, 0, 0, 1, 0, 0); X.filter = 'none'; X.globalAlpha = 1;
   let sc = S[S.length - 1]; for (const s of S) if (t >= s[0] && t < s[1]) { sc = s; break; }
   sc[2](t - sc[0], t);
   grain(f, .085);
 };
-window.ready = document.fonts.ready.then(() => { draw(0); return true; });
+window.ready = Promise.all([document.fonts.ready, new Promise((r) => { window.__p3dReady = r; setTimeout(r, 8000); })]).then(() => { draw(0); return true; });
+</script>
+<script type="importmap">{"imports":{"three":"../../node_modules/three/build/three.module.js","three/addons/":"../../node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+/* The 3D layer: each pixel icon becomes a voxel model (a box per pixel, the
+   fill standing a little proud of the outline), and the hook an extruded
+   metal model. Both render into one offscreen WebGL canvas that the 2D cut
+   draws from, one model at a time. */
+import * as THREE from 'three';
+import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+const G = document.createElement('canvas'); G.width = G.height = 640;
+const R = new THREE.WebGLRenderer({ canvas: G, alpha: true, antialias: true, preserveDrawingBuffer: true });
+R.setClearColor(0x000000, 0); R.outputColorSpace = THREE.SRGBColorSpace; R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.25;
+const scene = new THREE.Scene();
+scene.add(new THREE.HemisphereLight(0xe6eeff, 0x2a1c10, 1.3));
+const key = new THREE.DirectionalLight(0xfff0d8, 3.0); key.position.set(-3, 5, 6); scene.add(key);
+const rim = new THREE.DirectionalLight(0x9ab8ff, 1.8); rim.position.set(5, -2, -4); scene.add(rim);
+const warm = new THREE.DirectionalLight(0xffc27a, .9); warm.position.set(5, 1, 4); scene.add(warm);
+const cam = new THREE.PerspectiveCamera(28, 1, .1, 2000);
+const holder = new THREE.Group(); scene.add(holder);
+const T = Math.tan(14 * Math.PI / 180);
+const METAL = { y: .45, Y: .4, o: .45, s: .7, S: .7, n: .1 };
+const mats = {};
+function mat(ch, mode) {
+  const k = ch + mode; if (mats[k]) return mats[k];
+  let col = PAL[ch], m;
+  if (mode === 'sil') m = new THREE.MeshStandardMaterial({ color: 0x0a0f1a, roughness: .85 });
+  else if (mode === 'outline') m = new THREE.MeshStandardMaterial({ color: CREAM, emissive: CREAM, emissiveIntensity: .45, roughness: .5 });
+  else if (mode === 'flash') m = new THREE.MeshStandardMaterial({ color: ch === 'k' ? BRONZE : PALE, emissive: 0xffc070, emissiveIntensity: .8, roughness: .4 });
+  else {
+    if (mode === 'grey') { const v = parseInt(col.slice(1, 3), 16) * .3 + parseInt(col.slice(3, 5), 16) * .55 + parseInt(col.slice(5, 7), 16) * .15, q = Math.round(70 + v * .35); col = `rgb(${q},${q + 4},${q + 14})`; }
+    m = new THREE.MeshStandardMaterial({ color: col, roughness: ch === 'k' ? .8 : .38, metalness: mode === 'grey' ? 0 : (METAL[ch] || .05) });
+  }
+  m.flatShading = true; return (mats[k] = m);
+}
+const models = {};
+function model(name, mode) {
+  const k = name + mode; if (models[k]) return models[k];
+  const rows = ICONS[name], w = Math.max(...rows.map((r) => r.length)), h = rows.length, g = new THREE.Group(), groups = {};
+  rows.forEach((r, y) => [...r].forEach((ch, x) => { if (ch === '.' || (mode === 'outline' && ch !== 'k')) return; (groups[ch] = groups[ch] || []).push([x, y]); }));
+  for (const [ch, cells] of Object.entries(groups)) {
+    const d = ch === 'k' ? 2.6 : 3.4, geo = new THREE.BoxGeometry(1, 1, d), im = new THREE.InstancedMesh(geo, mat(ch, mode), cells.length), m4 = new THREE.Matrix4();
+    cells.forEach(([x, y], i) => { m4.makeTranslation(x - w / 2 + .5, -(y - h / 2 + .5), (d - 2.6) / 2); im.setMatrixAt(i, m4); });
+    g.add(im);
+  }
+  g.userData.size = Math.max(w, h);
+  return (models[k] = g);
+}
+function shot(obj, size, yaw, pitch, rz) {
+  holder.clear(); holder.add(obj); holder.rotation.set(0, 0, rz);
+  obj.rotation.set(pitch, yaw, 0);
+  const span = size * 1.5, d = span / 2 / T;
+  cam.position.set(0, 0, d); cam.near = d * .3; cam.far = d * 3; cam.updateProjectionMatrix();
+  R.render(scene, cam);
+  return span;
+}
+let hookMeshes = null;
+function hookModel(mode) {
+  if (!hookMeshes) {
+    const d = 'M22.5 62V27A13.5 13.5 0 0 1 49.5 27C49.5 35.5 45.5 41 38.5 43.5C43 38.8 44.5 33.5 44.5 27A8.5 8.5 0 0 0 27.5 27V62Z M19 58.5h12v4.5H19z M18 63h14l6.2 12.6a1.6 1.6 0 0 1-1.4 2.4H13.2a1.6 1.6 0 0 1-1.4-2.4z';
+    const data = new SVGLoader().parse(`<svg xmlns="http://www.w3.org/2000/svg"><path d="${d}"/></svg>`);
+    const shapes = data.paths.flatMap((p) => SVGLoader.createShapes(p));
+    const geo = new THREE.ExtrudeGeometry(shapes, { depth: 7, bevelEnabled: true, bevelThickness: 1.6, bevelSize: 1.1, bevelSegments: 4, curveSegments: 28 });
+    geo.translate(-32, -45, -3.5); geo.scale(1, -1, 1);
+    // flipping y turns the faces inside out; flip them back
+    const idx = geo.index; if (idx) { for (let i = 0; i < idx.count; i += 3) { const a = idx.getX(i); idx.setX(i, idx.getX(i + 1)); idx.setX(i + 1, a); } } else { const pos = geo.attributes.position; for (let i = 0; i < pos.count; i += 3) for (const at of Object.values(geo.attributes)) { const n = at.itemSize; for (let c = 0; c < n; c++) { const t = at.array[i * n + c]; at.array[i * n + c] = at.array[(i + 1) * n + c]; at.array[(i + 1) * n + c] = t; } } }
+    geo.computeVertexNormals();
+    const heat = new THREE.MeshStandardMaterial({ color: 0xF0B050, emissive: 0xC2561A, emissiveIntensity: .55, metalness: .6, roughness: .26 });
+    const dark = new THREE.MeshStandardMaterial({ color: 0x0b1020, metalness: .75, roughness: .32, emissive: 0x1a1206, emissiveIntensity: .4 });
+    hookMeshes = { heat: new THREE.Mesh(geo, heat), dark: new THREE.Mesh(geo, dark) };
+  }
+  return hookMeshes[mode] || hookMeshes.heat;
+}
+window.P3D = {
+  icon(name, mode = 'color', rz = 0, yaw = 0, pitch = .25) { const m = model(name, mode); const span = shot(m, m.userData.size, yaw, pitch, rz); return { canvas: G, span }; },
+  hook(mode = 'heat', yaw = 0, rz = 0) { const span = shot(hookModel(mode), 92, yaw, .08, rz); return { canvas: G, span }; }
+};
+(window.__p3dReady || (() => {}))();
 </script>
 </body></html>

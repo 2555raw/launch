@@ -117,3 +117,21 @@ test("a damaged proof is rejected instead of throwing", async () => {
     assert.equal(out.signed, false);
   }
 });
+
+test("statements open with the new name, and proofs signed as Obscura still verify", async () => {
+  const w = Wallet.createRandom();
+  const amount = "2.5";
+  const r = await obx.cloak({ chain: "base", symbol: "ETH", amount });
+  const fields = { commitment: r.commitment, address: w.address.toLowerCase(), chainId: 8453, amount, symbol: "ETH", block: 1000 };
+  assert.match(fundsMessage(fields), /^HeldAt proof of funds\n/);
+  fakeChain(parseUnits("3"));
+  for (const brand of ["HeldAt", "Obscura"]) {
+    const proof = { type: "funds-v1", address: fields.address, chainId: 8453, block: 1000, signature: await w.signMessage(fundsMessage({ ...fields, brand })) };
+    const v = await verifyFunds(obx.decodeReceipt(obx.encodeReceipt({ ...r, proof })));
+    assert.equal(v.signed, true, brand);
+    assert.equal(v.onchain, "pass", brand);
+  }
+  // any other name is not accepted
+  const proof = { type: "funds-v1", address: fields.address, chainId: 8453, block: 1000, signature: await w.signMessage(fundsMessage({ ...fields, brand: "Other" })) };
+  assert.equal((await verifyFunds(obx.decodeReceipt(obx.encodeReceipt({ ...r, proof })))).signed, false);
+});

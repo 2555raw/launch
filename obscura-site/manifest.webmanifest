@@ -1,6 +1,6 @@
 {
-  "name": "Obscura",
-  "short_name": "Obscura",
+  "name": "HeldAt",
+  "short_name": "HeldAt",
   "description": "Prove one holding with one link, and keep the rest of your wallet private.",
   "start_url": "/console.html?source=app",
   "scope": "/",

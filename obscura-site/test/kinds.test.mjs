@@ -98,3 +98,16 @@ test("a Solana proof verifies an ed25519 signature and the SOL balance", async (
   assert.equal((await verifySol(edited)).signed, false);
   assert.match(solMessage({ commitment: r.commitment, address, amount: "12.5", symbol: "SOL", slot: 4242 }), /on Solana/);
 });
+
+test("a Solana proof signed as Obscura still verifies", async () => {
+  const pair = await crypto.subtle.generateKey({ name: "Ed25519" }, true, ["sign", "verify"]);
+  const address = b58encode(new Uint8Array(await crypto.subtle.exportKey("raw", pair.publicKey)));
+  const r = await obx.cloak({ chain: "solana", symbol: "SOL", amount: "1" });
+  const old = new TextEncoder().encode(solMessage({ commitment: r.commitment, address, amount: "1", symbol: "SOL", slot: 7, brand: "Obscura" }));
+  const signature = b58encode(new Uint8Array(await crypto.subtle.sign({ name: "Ed25519" }, pair.privateKey, old)));
+  globalThis.fetch = async () => ({ json: async () => ({ result: { context: { slot: 9 }, value: 2e9 } }) });
+  const v = await verifySol({ ...r, proof: { type: "sol-v1", address, slot: 7, signature } });
+  assert.equal(v.signed, true);
+  assert.equal(v.onchain, "pass");
+  assert.match(solMessage({ commitment: r.commitment, address, amount: "1", symbol: "SOL", slot: 7 }), /^HeldAt proof of funds\n/);
+});

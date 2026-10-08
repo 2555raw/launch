@@ -151,7 +151,7 @@ function buildDialog() {
       </button>
       <div class="sheet-head">
         <h2 id="wallet-title">Connect a wallet</h2>
-        <p>Signs proofs so the other side can check your balance, and anchors seal codes onchain. Obscura never asks for your keys or a token approval.</p>
+        <p>Signs proofs so the other side can check your balance, and anchors seal codes onchain. HeldAt never asks for your keys or a token approval.</p>
       </div>
       <div class="sheet-body"><div id="wallet-connected"></div><ul class="wallet-list" id="wallet-list"></ul></div>
     </div>`;

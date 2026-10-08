@@ -18,7 +18,7 @@ prove a single holding to a counterparty without exposing the whole wallet.
 
 ## Product Purpose
 
-Obscura seals an asset into a single SHA-256 commitment that only the holder's receipt can open.
+HeldAt seals an asset into a single SHA-256 commitment that only the holder's receipt can open.
 The holder keeps the receipt, can hand the bond on through a passphrase-sealed package, and can
 prove one bond to one counterparty, who gets back a single bit: true or false.
 
@@ -39,8 +39,8 @@ shows one bond; connecting a wallet shows everything.
 - Working today: SHA-256 cloaking, local vault with backup, AES-256-GCM transfer packages
   (PBKDF2-SHA-256, 310k rounds), re-cloak on receive, verification, optional self-transaction
   anchor with the commitment as calldata.
-- Not deployed: the $OBX token and the bond NFT contract. No contract address may be shown.
-- Product name and ticker ("Obscura", "$OBX") are placeholders; the user will supply final ones.
+- Not deployed: the $HELD token and the bond NFT contract. No contract address may be shown.
+- Product name and ticker ("HeldAt", "$HELD") are placeholders; the user will supply final ones.
 - Token parameters are undecided. The landing shows a proposal (0.30% fee on buys, 80/20 burn and prover
   split, hold-to-mint gate) carried over from the reference site and labelled "Proposed"; the user has not
   confirmed any of them.

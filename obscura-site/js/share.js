@@ -68,7 +68,7 @@ export function renderShare(container, receipt) {
     shareBtn.type = "button";
     shareBtn.className = "btn btn-light btn-sm";
     shareBtn.textContent = "Share…";
-    shareBtn.addEventListener("click", () => navigator.share({ title: "Obscura proof", url: link }).catch(() => {}));
+    shareBtn.addEventListener("click", () => navigator.share({ title: "HeldAt proof", url: link }).catch(() => {}));
     row.append(shareBtn);
   }
 

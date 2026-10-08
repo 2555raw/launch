@@ -6,7 +6,7 @@
 // Both work like a balance proof: the wallet signs a plain-text statement that
 // names the bond, the address, the chain and the block, and the verifier reads
 // the chain at that block to check it.
-import { CHAINS, TOKENS, rpc, parseUnits, signText, recoverSigner, balanceOfData } from "./proof.js";
+import { CHAINS, TOKENS, rpc, parseUnits, signText, recoverAny, balanceOfData, BRAND } from "./proof.js";
 
 // ---------- prices ----------
 // Chainlink USD feeds on Ethereum mainnet, 8 decimals. Addresses were read
@@ -79,10 +79,10 @@ export async function valueAssets(chainId, assets, priceBlock) {
   return { total, parts, priceBlock };
 }
 
-export function usdMessage({ commitment, address, chainId, amount, block, priceBlock, parts, expires }) {
+export function usdMessage({ commitment, address, chainId, amount, block, priceBlock, parts, expires, brand = BRAND }) {
   const chain = CHAINS[chainId]?.name || `chain ${chainId}`;
   const lines = [
-    "Obscura proof of funds",
+    `${brand} proof of funds`,
     "",
     `I control ${address.toLowerCase()}`,
     `and it held assets worth at least $${amount} on ${chain}`,
@@ -113,8 +113,8 @@ export async function verifyUsd(receipt) {
     && Array.isArray(p.parts) && p.parts.length > 0 && p.parts.length <= 12 && p.parts.every((x) => typeof x === "string");
   if (!ok) { out.detail = "The wallet proof in this link is damaged."; return out; }
 
-  const message = usdMessage({ commitment: receipt.commitment, address: p.address, chainId: p.chainId, amount: receipt.asset.amount, block: p.block, priceBlock: p.priceBlock, parts: p.parts, expires: receipt.asset.expires });
-  out.signer = await recoverSigner(message, p.signature);
+  const message = (brand) => usdMessage({ commitment: receipt.commitment, address: p.address, chainId: p.chainId, amount: receipt.asset.amount, block: p.block, priceBlock: p.priceBlock, parts: p.parts, expires: receipt.asset.expires, brand });
+  out.signer = await recoverAny(message, p.signature, p.address);
   out.signed = !!out.signer && out.signer === p.address.toLowerCase();
   if (!out.signed) return out;
 
@@ -192,10 +192,10 @@ export async function readNft(provider, address, contract, tokenId = "") {
   return { chainId, block, contract: contract.toLowerCase(), name: name || symbol, symbol, tokenId, count, owns };
 }
 
-export function nftMessage({ commitment, address, chainId, block, contract, tokenId, amount, expires }) {
+export function nftMessage({ commitment, address, chainId, block, contract, tokenId, amount, expires, brand = BRAND }) {
   const chain = CHAINS[chainId]?.name || `chain ${chainId}`;
   const lines = [
-    "Obscura proof of NFT",
+    `${brand} proof of NFT`,
     "",
     `I control ${address.toLowerCase()}`,
     tokenId ? `and it owned token #${tokenId} of NFT collection ${contract.toLowerCase()}` : `and it held at least ${amount} NFTs of collection ${contract.toLowerCase()}`,
@@ -223,8 +223,8 @@ export async function verifyNft(receipt) {
     && Number.isSafeInteger(p.chainId) && isBlock(p.block) && (p.tokenId === undefined || (typeof p.tokenId === "string" && /^\d{1,78}$/.test(p.tokenId)));
   if (!ok) { out.detail = "The wallet proof in this link is damaged."; return out; }
 
-  const message = nftMessage({ commitment: receipt.commitment, address: p.address, chainId: p.chainId, block: p.block, contract: p.contract, tokenId: p.tokenId, amount: receipt.asset.amount, expires: receipt.asset.expires });
-  out.signer = await recoverSigner(message, p.signature);
+  const message = (brand) => nftMessage({ commitment: receipt.commitment, address: p.address, chainId: p.chainId, block: p.block, contract: p.contract, tokenId: p.tokenId, amount: receipt.asset.amount, expires: receipt.asset.expires, brand });
+  out.signer = await recoverAny(message, p.signature, p.address);
   out.signed = !!out.signer && out.signer === p.address.toLowerCase();
   if (!out.signed) return out;
 

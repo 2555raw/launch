@@ -10,20 +10,20 @@ import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /// @title BondNFT (placeholder name)
 /// @notice ERC-721 whose only payload is a 32-byte seal code (a SHA-256 commitment made in the
-///         browser). Minting is open to any wallet whose OBX balance is at least `minHold`
+///         browser). Minting is open to any wallet whose HELD balance is at least `minHold`
 ///         at the moment of minting. Metadata is fully on-chain.
 /// @dev    NOT AUDITED.
 contract BondNFT is ERC721, Ownable2Step {
     using Strings for uint256;
 
-    /// @notice The OBX token checked by the hold gate.
-    IERC20 public immutable obx;
+    /// @notice The HELD token checked by the hold gate.
+    IERC20 public immutable held;
     /// @notice Upper bound for `minHold`, fixed at deploy so the owner cannot price everyone out.
     uint256 public immutable maxMinHold;
     /// @notice If true, bonds cannot be transferred after minting (fixed at deploy).
     bool public immutable soulbound;
 
-    /// @notice Minimum OBX balance (smallest units) a wallet needs to mint. Always >= 1.
+    /// @notice Minimum HELD balance (smallest units) a wallet needs to mint. Always >= 1.
     uint256 public minHold;
     /// @notice Number of bonds minted so far. Token ids run 1..totalMinted.
     uint256 public totalMinted;
@@ -38,26 +38,26 @@ contract BondNFT is ERC721, Ownable2Step {
     error ZeroAddress();
     error ZeroSealCode();
     error SealCodeAlreadyBonded(bytes32 sealCode, uint256 tokenId);
-    error InsufficientOBX(uint256 balance, uint256 required);
+    error InsufficientHELD(uint256 balance, uint256 required);
     error MinHoldOutOfRange(uint256 requested, uint256 max);
     error Soulbound();
 
     /// @param name_       Collection name (placeholder).
     /// @param symbol_     Collection symbol.
-    /// @param obx_        OBX token address.
-    /// @param minHold_    Initial minimum OBX balance to mint (smallest units, 1..maxMinHold_).
+    /// @param held_        HELD token address.
+    /// @param minHold_    Initial minimum HELD balance to mint (smallest units, 1..maxMinHold_).
     /// @param maxMinHold_ Hard cap for minHold, immutable.
     /// @param soulbound_  True to make bonds non-transferable.
     constructor(
         string memory name_,
         string memory symbol_,
-        address obx_,
+        address held_,
         uint256 minHold_,
         uint256 maxMinHold_,
         bool soulbound_
     ) ERC721(name_, symbol_) Ownable(msg.sender) {
-        if (obx_ == address(0)) revert ZeroAddress();
-        obx = IERC20(obx_);
+        if (held_ == address(0)) revert ZeroAddress();
+        held = IERC20(held_);
         maxMinHold = maxMinHold_;
         soulbound = soulbound_;
         _setMinHold(minHold_);
@@ -78,13 +78,13 @@ contract BondNFT is ERC721, Ownable2Step {
 
     // ---------------------------------------------------------------- mint
 
-    /// @notice Mint a bond carrying `sealCode` to the caller. Caller must hold >= minHold OBX.
+    /// @notice Mint a bond carrying `sealCode` to the caller. Caller must hold >= minHold HELD.
     function mint(bytes32 sealCode) external returns (uint256 tokenId) {
         if (sealCode == bytes32(0)) revert ZeroSealCode();
         uint256 existing = tokenIdOfSeal[sealCode];
         if (existing != 0) revert SealCodeAlreadyBonded(sealCode, existing);
-        uint256 bal = obx.balanceOf(msg.sender);
-        if (bal < minHold) revert InsufficientOBX(bal, minHold);
+        uint256 bal = held.balanceOf(msg.sender);
+        if (bal < minHold) revert InsufficientHELD(bal, minHold);
 
         tokenId = ++totalMinted;
         _sealCodes[tokenId] = sealCode;

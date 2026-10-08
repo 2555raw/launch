@@ -44,7 +44,7 @@ export async function drawCard({ claim, sub, status, link }) {
   ctx.stroke(new Path2D(MARK_LINES)); ctx.fillStyle = "#fff"; ctx.fill(new Path2D(MARK_FILL));
   ctx.restore();
   ctx.fillStyle = "#fff"; ctx.font = '600 26px "Host Grotesk", system-ui, sans-serif'; ctx.textBaseline = "middle";
-  ctx.fillText("Obscura", 112, 76);
+  ctx.fillText("HeldAt", 112, 76);
 
   // status chip
   const tone = { ok: ["#4fd18e", "rgba(79, 209, 142, .14)"], warn: ["#f2b552", "rgba(242, 181, 82, .12)"], plain: ["#c9cfda", "rgba(255, 255, 255, .06)"] }[status.tone || "plain"];
@@ -83,13 +83,13 @@ export async function drawCard({ claim, sub, status, link }) {
 }
 
 // Share the card where the device can (phones), or save it as a file.
-export async function saveCard(opts, filename = "obscura-proof.png") {
+export async function saveCard(opts, filename = "heldat-proof.png") {
   const blob = await drawCard(opts);
   track("card");
   if (!blob) return toast("This browser could not draw the image");
   const file = new File([blob], filename, { type: "image/png" });
   if (navigator.canShare?.({ files: [file] }) && matchMedia("(pointer: coarse)").matches) {
-    try { await navigator.share({ files: [file], title: "Obscura proof", text: opts.link }); return; } catch (err) { if (err?.name === "AbortError") return; }
+    try { await navigator.share({ files: [file], title: "HeldAt proof", text: opts.link }); return; } catch (err) { if (err?.name === "AbortError") return; }
   }
   const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(blob), download: filename });
   document.body.append(a); a.click(); a.remove();

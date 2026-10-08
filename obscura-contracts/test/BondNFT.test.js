@@ -9,18 +9,18 @@ const seal = (s) => ethers.sha256(ethers.toUtf8Bytes(s)); // 32-byte SHA-256, li
 
 async function deploy(soulbound) {
   const [owner, holder, poor, other, prover] = await ethers.getSigners();
-  const obx = await (await ethers.getContractFactory("OBX")).deploy("Obscura", "OBX", E(1_000_000_000), 30, 8000, prover.address);
+  const held = await (await ethers.getContractFactory("HELD")).deploy("HeldAt", "HELD", E(1_000_000_000), 30, 8000, prover.address);
   const bond = await (await ethers.getContractFactory("BondNFT")).deploy(
-    "Obscura Bond",
+    "HeldAt Bond",
     "OBOND",
-    await obx.getAddress(),
+    await held.getAddress(),
     MIN_HOLD,
     MAX_MIN_HOLD,
     soulbound
   );
-  await obx.transfer(holder.address, MIN_HOLD);
-  await obx.transfer(poor.address, MIN_HOLD - 1n);
-  return { obx, bond, owner, holder, poor, other };
+  await held.transfer(holder.address, MIN_HOLD);
+  await held.transfer(poor.address, MIN_HOLD - 1n);
+  return { held, bond, owner, holder, poor, other };
 }
 const transferable = () => deploy(false);
 const soulboundFx = () => deploy(true);
@@ -34,16 +34,16 @@ function decodeTokenURI(uri) {
 describe("BondNFT", function () {
   describe("deployment", function () {
     it("stores constructor settings", async function () {
-      const { obx, bond, owner } = await loadFixture(transferable);
-      expect(await bond.obx()).to.equal(await obx.getAddress());
+      const { held, bond, owner } = await loadFixture(transferable);
+      expect(await bond.held()).to.equal(await held.getAddress());
       expect(await bond.minHold()).to.equal(MIN_HOLD);
       expect(await bond.maxMinHold()).to.equal(MAX_MIN_HOLD);
       expect(await bond.soulbound()).to.equal(false);
       expect(await bond.owner()).to.equal(owner.address);
-      expect(await bond.name()).to.equal("Obscura Bond");
+      expect(await bond.name()).to.equal("HeldAt Bond");
     });
 
-    it("rejects a zero OBX address and an out-of-range minHold", async function () {
+    it("rejects a zero HELD address and an out-of-range minHold", async function () {
       const F = await ethers.getContractFactory("BondNFT");
       const [a] = await ethers.getSigners();
       await expect(F.deploy("B", "B", ethers.ZeroAddress, 1, 10, false)).to.be.revertedWithCustomError(F, "ZeroAddress");
@@ -64,13 +64,13 @@ describe("BondNFT", function () {
     it("rejects a wallet holding 1 wei less than minHold", async function () {
       const { bond, poor } = await loadFixture(transferable);
       await expect(bond.connect(poor).mint(seal("x")))
-        .to.be.revertedWithCustomError(bond, "InsufficientOBX")
+        .to.be.revertedWithCustomError(bond, "InsufficientHELD")
         .withArgs(MIN_HOLD - 1n, MIN_HOLD);
     });
 
-    it("rejects a wallet with no OBX", async function () {
+    it("rejects a wallet with no HELD", async function () {
       const { bond, other } = await loadFixture(transferable);
-      await expect(bond.connect(other).mint(seal("x"))).to.be.revertedWithCustomError(bond, "InsufficientOBX").withArgs(0n, MIN_HOLD);
+      await expect(bond.connect(other).mint(seal("x"))).to.be.revertedWithCustomError(bond, "InsufficientHELD").withArgs(0n, MIN_HOLD);
     });
 
     it("owner can move minHold within 1..maxMinHold only", async function () {
@@ -98,11 +98,11 @@ describe("BondNFT", function () {
     });
 
     it("rejects a duplicate seal code, even from another holder", async function () {
-      const { obx, bond, holder, other } = await loadFixture(transferable);
+      const { held, bond, holder, other } = await loadFixture(transferable);
       const s = seal("dup");
       await bond.connect(holder).mint(s);
       await expect(bond.connect(holder).mint(s)).to.be.revertedWithCustomError(bond, "SealCodeAlreadyBonded").withArgs(s, 1n);
-      await obx.transfer(other.address, MIN_HOLD);
+      await held.transfer(other.address, MIN_HOLD);
       await expect(bond.connect(other).mint(s)).to.be.revertedWithCustomError(bond, "SealCodeAlreadyBonded");
     });
 
@@ -179,16 +179,16 @@ describe("BondNFT", function () {
     });
   });
 
-  describe("integration with OBX", function () {
+  describe("integration with HELD", function () {
     it("a buyer from the pair who nets >= minHold after the fee can mint", async function () {
-      const { obx, bond, other } = await loadFixture(transferable);
+      const { held, bond, other } = await loadFixture(transferable);
       const [, , , , , pair] = await ethers.getSigners();
-      await obx.setPair(pair.address, true);
-      await obx.transfer(pair.address, E(10_000));
+      await held.setPair(pair.address, true);
+      await held.transfer(pair.address, E(10_000));
       // Buying exactly minHold nets 0.30% less, which is below the gate.
-      await obx.connect(pair).transfer(other.address, MIN_HOLD);
-      await expect(bond.connect(other).mint(seal("i"))).to.be.revertedWithCustomError(bond, "InsufficientOBX");
-      await obx.connect(pair).transfer(other.address, E(10));
+      await held.connect(pair).transfer(other.address, MIN_HOLD);
+      await expect(bond.connect(other).mint(seal("i"))).to.be.revertedWithCustomError(bond, "InsufficientHELD");
+      await held.connect(pair).transfer(other.address, E(10));
       await expect(bond.connect(other).mint(seal("i"))).to.emit(bond, "Bonded");
     });
   });

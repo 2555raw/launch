@@ -88,8 +88,8 @@ if (topNav) {
   const home = document.createElement("a");
   home.className = "side-item side-brand";
   home.href = brand.getAttribute("href");
-  home.dataset.label = "Obscura";
-  home.setAttribute("aria-label", "Obscura, home");
+  home.dataset.label = "HeldAt";
+  home.setAttribute("aria-label", "HeldAt, home");
   home.innerHTML = brand.querySelector(".brand-mark").innerHTML;
   const items = [...topNav.querySelectorAll(".nav-links a")].map((a) => {
     const it = document.createElement("a");
@@ -107,7 +107,7 @@ if (topNav) {
   if (x) {
     const it = document.createElement("a");
     it.className = "side-item"; it.href = x.href; it.target = "_blank"; it.rel = "noopener";
-    it.dataset.label = "Obscura on X"; it.setAttribute("aria-label", "Obscura on X");
+    it.dataset.label = "HeldAt on X"; it.setAttribute("aria-label", "HeldAt on X");
     it.innerHTML = x.innerHTML;
     extras.push(it);
   }
@@ -280,11 +280,11 @@ if (footMark) {
     const o = off.getContext("2d");
     let size = h * 1.18;
     o.font = `600 ${size}px "Host Grotesk", system-ui, sans-serif`;
-    const tw = o.measureText("Obscura").width;
-    size *= (w * 1.0) / tw;
+    const tw = o.measureText("HeldAt").width;
+    size = Math.min(size * (w * 0.97) / tw, h * 1.3); // full width, without cutting the tall letters
     o.font = `600 ${size}px "Host Grotesk", system-ui, sans-serif`;
     o.textBaseline = "alphabetic";
-    o.fillText("Obscura", (w - o.measureText("Obscura").width) / 2, h * 0.94);
+    o.fillText("HeldAt", (w - o.measureText("HeldAt").width) / 2, h * 0.94);
     const data = o.getImageData(0, 0, off.width, off.height).data;
     cells = [];
     for (let y = GAP / 2; y < h; y += GAP) {

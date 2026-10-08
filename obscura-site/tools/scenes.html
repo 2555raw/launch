@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Obscura explainer scenes</title>
+<title>HeldAt explainer scenes</title>
 <!--
   Source for the three explainer videos in assets/video/. Every frame is a pure
   function of time: render(t) sets the whole scene for second t, and
@@ -98,7 +98,7 @@ function show(node, k, dy = 24, scale = 1) {
 // Shared chrome: chapter tag, brand, captions, progress bar.
 function chrome(stage, t, D, n, name, caps) {
   const ch = el(`<b>${n}</b>${name}`, 64, 52, { cls: "chapter" });
-  const br = el(`<i><svg style="width:24px;height:24px" viewBox="0 0 100 100" aria-hidden="true"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></svg></i>Obscura`, 0, 56, { cls: "brand" }); br.style.left = "auto"; br.style.right = "64px";
+  const br = el(`<i><svg style="width:24px;height:24px" viewBox="0 0 100 100" aria-hidden="true"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></svg></i>HeldAt`, 0, 56, { cls: "brand" }); br.style.left = "auto"; br.style.right = "64px";
   const bar = el(`<i></i>`, 64, H - 39, { cls: "bar" }); bar.style.width = (W - 128) + "px";
   bar.firstChild.style.transform = `scaleX(${t / D})`;
   stage.append(ch, br, bar);

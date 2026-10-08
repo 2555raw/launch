@@ -1,4 +1,4 @@
-/* Obscura — a private vault, rendered as a calm white page.
+/* HeldAt — a private vault, rendered as a calm white page.
    Paper and steel from the vault drawings, ink for actions,
    one blue for anything live, green only for a true proof. */
 
@@ -862,7 +862,7 @@ details.raw summary:hover { color: var(--ink); }
 .badge.expired { background: var(--bad-soft); color: var(--bad); }
 .check.time .check-icon { background: var(--accent-soft); color: var(--accent); }
 
-/* ============ story: what Obscura does, told by scrolling ============
+/* ============ story: what HeldAt does, told by scrolling ============
    A sticky stage on one side, four steps on the other. The step in view sets
    data-step on the stage; every change below is a transition between states. */
 .story { padding-top: var(--space-section); }

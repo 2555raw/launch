@@ -1,4 +1,4 @@
-// Obscura core: cloak, prove, seal and open bonds with the Web Crypto API.
+// HeldAt core: cloak, prove, seal and open bonds with the Web Crypto API.
 //
 // Runs unchanged in the browser and in Node 20+ (globalThis.crypto). Nothing
 // here talks to a network; every byte stays on the machine that calls it.
@@ -137,7 +137,7 @@ export function encodeReceipt(receipt) {
 
 export function decodeReceipt(text) {
   const t = String(text).trim();
-  if (!t.startsWith(RECEIPT_PREFIX)) throw new Error("Not an Obscura receipt");
+  if (!t.startsWith(RECEIPT_PREFIX)) throw new Error("Not a HeldAt receipt");
   const r = JSON.parse(dec.decode(fromBase64Url(t.slice(RECEIPT_PREFIX.length))));
   if (r.v !== 1 || !r.asset || !r.salt || !r.key || !r.commitment) throw new Error("Receipt is incomplete");
   return r;
@@ -166,7 +166,7 @@ async function sealText(text, passphrase, prefix) {
 
 async function openText(sealed, passphrase, prefix, what) {
   const t = String(sealed).trim();
-  if (!t.startsWith(prefix)) throw new Error(`Not an Obscura ${what}`);
+  if (!t.startsWith(prefix)) throw new Error(`Not a HeldAt ${what}`);
   const raw = fromBase64Url(t.slice(prefix.length));
   try {
     const aesKey = await passphraseKey(passphrase, raw.slice(0, 16));

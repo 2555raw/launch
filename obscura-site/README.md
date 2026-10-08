@@ -1,6 +1,6 @@
-# Obscura — site
+# HeldAt — site
 
-Landing page, console and verifier for **Obscura**, private bonds cloaked in the browser.
+Landing page, console and verifier for **HeldAt**, private bonds cloaked in the browser.
 A night hero with a live dot field and data cards, then warm light sections and night bands.
 Light and dark themes (a Theme button, or the system's choice). Installable as an app, works offline.
 
@@ -10,7 +10,7 @@ No build step, no dependencies. Plain HTML, CSS and ES modules.
 
 ```
 index.html      landing: night hero (dot field, live seal, live Ethereum block, signed statement),
-                story, facts, wallets, the leak, films, demo, the bond grid, $OBX, FAQ, closing
+                story, facts, wallets, the leak, films, demo, the bond grid, $HELD, FAQ, closing
 console.html    the app: Cloak, Vault, Transfer, Receive
 verify.html     paste a receipt, get one bit back
 terms.html      Terms of Use and Privacy (template: have a lawyer review it)
@@ -40,7 +40,7 @@ test/           node:test suite: crypto core, proofs (coin, token, dollars, NFT,
 
 ## Things to replace before launch
 
-- Product name and ticker: "Obscura" and "$OBX" are placeholders.
+- Product name: HeldAt (heldat.xyz). The ticker "$HELD" is a placeholder.
 - X link: points to https://x.com until an account exists (nav and footer, every page).
 - terms.html is a template.
 
@@ -123,7 +123,7 @@ deploys (otherwise they live in memory until the next restart).
 
 ## Contracts
 
-`../obscura-contracts/` holds the $OBX token and the bond NFT (Solidity, OpenZeppelin 5, Hardhat tests).
+`../obscura-contracts/` holds the $HELD token and the bond NFT (Solidity, OpenZeppelin 5, Hardhat tests).
 They are not deployed and not audited; see its README for the parameters and a deploy checklist.
 
 ## Live deploy

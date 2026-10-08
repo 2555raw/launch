@@ -24,13 +24,13 @@ function gate() {
     <div class="sheet-card">
       <div class="sheet-head">
         <h2 id="terms-title">Before you enter</h2>
-        <p>Obscura is self-custody software. Please read these four points.</p>
+        <p>HeldAt is self-custody software. Please read these four points.</p>
       </div>
       <div class="sheet-body">
         <ol class="terms-list">
-          <li>Obscura runs in your browser. We never receive or hold your assets, receipts, keys or passphrases.</li>
+          <li>HeldAt runs in your browser. We never receive or hold your assets, receipts, keys or passphrases.</li>
           <li>Receipts live only on your device. If you lose one without a backup, nobody can recover that bond.</li>
-          <li>The $OBX token and the bond contract are not deployed. Nothing here is an offer, a solicitation or financial advice.</li>
+          <li>The $HELD token and the bond contract are not deployed. Nothing here is an offer, a solicitation or financial advice.</li>
           <li>You use the software at your own risk and are responsible for following the laws where you live.</li>
         </ol>
         <p class="terms-more"><a class="link" href="terms.html" target="_blank" rel="noopener">Read the full Terms of Use and Privacy notice</a></p>

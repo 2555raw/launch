@@ -1,5 +1,5 @@
 ---
-name: Obscura
+name: HeldAt
 description: Private bonds, sealed in your browser. A night hero that ripples out of the mark, over warm paper rooms that alternate with night bands, in a light and a dark theme.
 colors:
   bg: "#f7f6f2"
@@ -225,13 +225,13 @@ components:
     padding: "14px 16px 14px 18px"
 ---
 
-# Design System: Obscura
+# Design System: HeldAt
 
 ## Overview
 
 **Creative North Star: "The Night Vault"**
 
-Obscura opens at night. The landing hero is always night (#090b10), whatever the theme: a canvas field of small square dots, set on a 9px grid, swells in rings out of the mark with a faint eight-point modulation (the mark's own shape). The field is held quiet behind the headline so the words stay crisp, and every seal sends one blue ring outward. Floating dark-glass cards show live machinery: a seal receipt recomputed in the browser, the current Ethereum block read from a public node, and a signed statement. Below the hero the page settles into warm paper rooms (off-white ground, white paper, warm greys) that alternate with full-bleed night bands, so the night comes back for the leak and for the questions.
+HeldAt opens at night. The landing hero is always night (#090b10), whatever the theme: a canvas field of small square dots, set on a 9px grid, swells in rings out of the mark with a faint eight-point modulation (the mark's own shape). The field is held quiet behind the headline so the words stay crisp, and every seal sends one blue ring outward. Floating dark-glass cards show live machinery: a seal receipt recomputed in the browser, the current Ethereum block read from a public node, and a signed statement. Below the hero the page settles into warm paper rooms (off-white ground, white paper, warm greys) that alternate with full-bleed night bands, so the night comes back for the leak and for the questions.
 
 Density stays low and the pacing generous: a 1180px rail, large vertical breaks, hairline-ruled lists instead of boxed cards, pill controls and large soft radii. Depth is a few low ambient shadows under things that float. The user chose this look explicitly, modelled on a reference site (dark halftone hero, floating mono cards, a theme button, warm light sections alternating with dark ones). The mark is an eight-ray asterisk with filled V-shaped joints above and below the centre, drawn as a stroked path plus a filled path on a 100 grid.
 

@@ -115,10 +115,27 @@ export function floorAmount(wei, decimals = 18, places = 4) {
 }
 
 // ---------- the signed statement ----------
-export function fundsMessage({ commitment, address, chainId, amount, symbol, block, expires, token }) {
+// The name that opens every signed statement. Proofs signed before the site
+// was renamed open with "Obscura" and still verify.
+export const BRAND = "HeldAt";
+export const BRANDS = [BRAND, "Obscura"];
+
+// The signer of a statement that may open with any of the brands: the expected
+// address when one of them matches, otherwise what the current brand recovers to.
+export async function recoverAny(build, signature, address) {
+  let first = null;
+  for (const brand of BRANDS) {
+    const signer = await recoverSigner(build(brand), signature);
+    if (signer && signer === address.toLowerCase()) return signer;
+    first ??= signer;
+  }
+  return first;
+}
+
+export function fundsMessage({ commitment, address, chainId, amount, symbol, block, expires, token, brand = BRAND }) {
   const chain = CHAINS[chainId]?.name || `chain ${chainId}`;
   const lines = [
-    "Obscura proof of funds",
+    `${brand} proof of funds`,
     "",
     `I control ${address.toLowerCase()}`,
     `and it held at least ${amount} ${symbol} on ${chain}`,
@@ -223,8 +240,8 @@ export async function verifyFunds(receipt) {
     && (p.token === undefined || (typeof p.token === "string" && /^0x[0-9a-fA-F]{40}$/.test(p.token)));
   if (!wellFormed) { out.detail = "The wallet proof in this link is damaged."; return out; }
 
-  const message = fundsMessage({ commitment: receipt.commitment, address: p.address, chainId: p.chainId, amount: receipt.asset.amount, symbol: receipt.asset.symbol, block: p.block, expires: receipt.asset.expires, token: p.token });
-  out.signer = await recoverSigner(message, p.signature);
+  const message = (brand) => fundsMessage({ commitment: receipt.commitment, address: p.address, chainId: p.chainId, amount: receipt.asset.amount, symbol: receipt.asset.symbol, block: p.block, expires: receipt.asset.expires, token: p.token, brand });
+  out.signer = await recoverAny(message, p.signature, p.address);
   out.signed = !!out.signer && out.signer === p.address.toLowerCase();
   if (!out.signed) return out;
 

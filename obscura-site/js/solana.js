@@ -12,6 +12,9 @@ export const SOL_TOKENS = [
   { symbol: "USDT", mint: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCt8BnEUw4h", decimals: 6 },
 ];
 export const EXPLORER = "https://solscan.io";
+// Kept in step with BRAND and BRANDS in proof.js; this file loads on its own.
+const BRAND = "HeldAt";
+const BRANDS = [BRAND, "Obscura"];
 
 // ---------- base58 ----------
 const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
@@ -112,9 +115,9 @@ export async function connectSol() {
   return { provider, address: key.toBase58 ? key.toBase58() : String(key) };
 }
 
-export function solMessage({ commitment, address, amount, symbol, slot, mint, expires }) {
+export function solMessage({ commitment, address, amount, symbol, slot, mint, expires, brand = BRAND }) {
   const lines = [
-    "Obscura proof of funds",
+    `${brand} proof of funds`,
     "",
     `I control ${address}`,
     `and it held at least ${amount} ${symbol} on Solana`,
@@ -160,10 +163,13 @@ export async function verifySol(receipt) {
   const ok = p && p.type === "sol-v1" && isSolAddress(p.address) && typeof p.signature === "string"
     && Number.isSafeInteger(p.slot) && p.slot >= 0 && (p.mint === undefined || isSolAddress(p.mint));
   if (!ok) { out.detail = "The wallet proof in this link is damaged."; return out; }
-  const message = solMessage({ commitment: receipt.commitment, address: p.address, amount: receipt.asset.amount, symbol: receipt.asset.symbol, slot: p.slot, mint: p.mint, expires: receipt.asset.expires });
   let sig;
   try { sig = b58decode(p.signature); } catch { return out; }
-  out.signed = sig.length === 64 && await ed25519Verify(b58decode(p.address), sig, new TextEncoder().encode(message));
+  for (const brand of BRANDS) {
+    const message = solMessage({ commitment: receipt.commitment, address: p.address, amount: receipt.asset.amount, symbol: receipt.asset.symbol, slot: p.slot, mint: p.mint, expires: receipt.asset.expires, brand });
+    out.signed = sig.length === 64 && await ed25519Verify(b58decode(p.address), sig, new TextEncoder().encode(message));
+    if (out.signed) break;
+  }
   if (!out.signed) return out;
   out.signer = p.address;
 

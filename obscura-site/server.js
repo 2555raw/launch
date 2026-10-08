@@ -1,4 +1,4 @@
-// Serves the Obscura site as static files. Railway sets PORT.
+// Serves the HeldAt site as static files. Railway sets PORT.
 //
 // No dependencies. Supports HTTP Range requests, which Safari needs before it
 // will play the films, and keeps every request inside this folder.
@@ -148,7 +148,7 @@ http.createServer((req, res) => {
   res.writeHead(200, { ...headers, "content-length": size });
   if (req.method === "HEAD") return res.end();
   createReadStream(file).on("error", () => res.destroy()).pipe(res);
-}).listen(PORT, () => console.log(`Obscura on :${PORT}`));
+}).listen(PORT, () => console.log(`HeldAt on :${PORT}`));
 
 function notFound(res) {
   res.writeHead(404, { "content-type": "text/plain; charset=utf-8" });

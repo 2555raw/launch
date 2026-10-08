@@ -2,7 +2,7 @@
   "name": "obscura-contracts",
   "version": "0.1.0",
   "private": true,
-  "description": "Placeholder $OBX token and bond NFT contracts for Obscura. Not audited. Not deployed.",
+  "description": "Placeholder $HELD token and bond NFT contracts for HeldAt. Not audited. Not deployed.",
   "license": "MIT",
   "scripts": {
     "build": "hardhat compile",

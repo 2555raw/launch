@@ -5,14 +5,14 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-/// @title OBX (placeholder name and ticker)
+/// @title HELD (placeholder name and ticker)
 /// @notice Fixed-supply ERC-20 with a buy fee. When tokens leave an address the owner has
-///         marked as an AMM pair (a buy), `feeBps` of the amount is taken in OBX:
+///         marked as an AMM pair (a buy), `feeBps` of the amount is taken in HELD:
 ///         `burnShareBps` of the fee is burned and the rest goes to `proverPool`.
 ///         Sells and wallet-to-wallet transfers pay no fee.
 /// @dev    There is no mint function after the constructor, no blacklist and no pause.
 ///         NOT AUDITED.
-contract OBX is ERC20, Ownable2Step {
+contract HELD is ERC20, Ownable2Step {
     /// @notice Hard cap on the buy fee: 100 bps = 1%. Cannot be changed by anyone.
     uint16 public constant MAX_FEE_BPS = 100;
     /// @notice Basis-point denominator (100%).

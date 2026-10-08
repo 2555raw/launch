@@ -456,7 +456,7 @@ $("backup-form").addEventListener("submit", async (e) => {
     if (e.submitter?.name === "copy") {
       if (!(await copy(text, "Encrypted backup copied. Paste it somewhere safe"))) return;
     } else {
-      const a = el("a", { href: URL.createObjectURL(new Blob([text], { type: "text/plain" })), download: `obscura-backup-${new Date().toISOString().slice(0, 10)}.obxbak` });
+      const a = el("a", { href: URL.createObjectURL(new Blob([text], { type: "text/plain" })), download: `heldat-backup-${new Date().toISOString().slice(0, 10)}.obxbak` });
       a.click();
       URL.revokeObjectURL(a.href);
       toast("Encrypted backup downloaded");
@@ -501,7 +501,7 @@ $("restore-form").addEventListener("submit", async (e) => {
     $("r-text").value = $("r-pass2").value = "";
     toast(`Restored ${added} bond${added === 1 ? "" : "s"}`);
   } catch (err) {
-    toast(err instanceof SyntaxError ? "That is not an Obscura backup" : err.message);
+    toast(err instanceof SyntaxError ? "That is not a HeldAt backup" : err.message);
   }
 });
 

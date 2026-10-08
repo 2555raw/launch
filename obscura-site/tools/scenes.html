@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Obscura explainer scenes</title>
+<!--
+  Source for the three explainer videos in assets/video/. Every frame is a pure
+  function of time: render(t) sets the whole scene for second t, and
+  tools/render-videos.mjs screenshots it at 30 fps and encodes the MP4.
+  Open scenes.html?scene=cloak&t=6 to look at one moment by hand.
+-->
+<style>
+  @font-face { font-family: "Host Grotesk"; font-weight: 300 800; src: url(../assets/fonts/host-grotesk-latin.woff2) format("woff2"); }
+  @font-face { font-family: "JetBrains Mono"; font-weight: 400 600; src: url(../assets/fonts/jetbrains-mono-latin.woff2) format("woff2"); }
+  :root { --ink: #0b0d12; --dim: #5b6472; --dim2: #8a93a1; --line: #e6e8ee; --soft: #f5f6f8; --accent: #2f6bff; --accent-soft: #eaf0ff; --ok: #12a150; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1280px; height: 720px; overflow: hidden; background: #fff; }
+  body { font-family: "Host Grotesk", sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .stage { position: absolute; inset: 0; }
+  .mono { font-family: "JetBrains Mono", monospace; }
+  .abs { position: absolute; will-change: transform, opacity; }
+
+  .chapter { left: 64px; top: 52px; display: flex; align-items: center; gap: 14px; font-size: 22px; font-weight: 500; color: var(--dim); }
+  .chapter b { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: #fff; font-size: 15px; font-weight: 600; }
+  .brand { right: 64px; top: 56px; font-size: 22px; font-weight: 600; letter-spacing: -.01em; display: flex; gap: 9px; align-items: center; }
+  .brand i { width: 26px; height: 26px; border-radius: 8px; background: var(--ink); display: grid; place-items: center; }
+  
+  .title { left: 64px; top: 250px; font-size: 116px; font-weight: 600; letter-spacing: -.045em; line-height: 1; }
+  .title small { display: block; font-size: 34px; font-weight: 400; letter-spacing: -.01em; color: var(--dim); margin-top: 22px; }
+
+  .caption { left: 64px; right: 64px; bottom: 56px; font-size: 40px; font-weight: 500; letter-spacing: -.02em; line-height: 1.25; }
+  .caption span { color: var(--dim2); }
+  .bar { left: 64px; right: 64px; bottom: 36px; height: 3px; background: var(--line); border-radius: 3px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: var(--ink); transform-origin: left; }
+
+  .card { background: #fff; border: 1.5px solid var(--line); border-radius: 22px; padding: 22px 26px; box-shadow: 0 24px 50px -30px rgba(11,13,18,.35); }
+  .label { font-size: 22px; color: var(--dim); font-weight: 500; margin-bottom: 8px; }
+  .big { font-size: 34px; font-weight: 600; letter-spacing: -.03em; }
+  .hex { font-size: 23px; color: var(--ink); line-height: 1.5; word-break: break-all; }
+  .engine { width: 240px; height: 240px; border-radius: 50%; display: grid; place-items: center; text-align: center; background: var(--ink); color: #fff; }
+  .engine div { font-size: 30px; font-weight: 600; letter-spacing: -.02em; }
+  .engine span { display: block; font-size: 22px; opacity: .6; font-weight: 400; margin-top: 6px; }
+  .ring { border-radius: 50%; border: 2px solid var(--accent); }
+  .hash { font-size: 25px; color: var(--accent); word-break: break-all; line-height: 1.45; }
+  .pill { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 999px; background: var(--soft); font-size: 20px; font-weight: 500; }
+  .who { font-size: 26px; font-weight: 600; text-align: center; }
+  .who span { display: block; font-size: 19px; color: var(--dim); font-weight: 400; margin-top: 4px; }
+  .avatar { width: 92px; height: 92px; border-radius: 50%; margin: 0 auto 14px; background: var(--soft); border: 1.5px solid var(--line); display: grid; place-items: center; }
+  .avatar svg { width: 40px; height: 40px; }
+  .lock { width: 120px; height: 120px; border-radius: 30px; background: var(--ink); display: grid; place-items: center; }
+  .lock svg { width: 56px; height: 56px; }
+  .holding { width: 200px; padding: 18px 20px; border-radius: 18px; border: 1.5px solid var(--line); background: #fff; }
+  .holding .big { font-size: 24px; white-space: nowrap; }
+  .holding .hex { font-size: 18px; color: var(--dim2); }
+  .bit { font-size: 150px; font-weight: 600; letter-spacing: -.05em; color: var(--ok); line-height: 1; }
+  .ok { color: var(--ok); }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"></div>
+<script>
+const W = 1280, H = 720;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const ease = (x) => 1 - Math.pow(1 - clamp(x), 4);           // expo-ish out
+const inout = (x) => { x = clamp(x); return x < .5 ? 8 * x ** 4 : 1 - Math.pow(-2 * x + 2, 4) / 2; };
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const lerp = (a, b, k) => a + (b - a) * k;
+
+// Deterministic pseudo-random hex so every render of a frame is identical.
+function hexAt(seed, n) {
+  let s = seed >>> 0, out = "";
+  for (let i = 0; i < n; i++) { s = (s * 1664525 + 1013904223) >>> 0; out += "0123456789abcdef"[s >>> 28]; }
+  return out;
+}
+const COMMIT = "9f3c1ab47e20d58c6b11f0e2a7d94c3385e6b0f17a2c48d9e05b3f6a1c7d2e84";
+const COMMIT2 = "41d7e8a09c3b2f6e15a8d4c70b9e2f31c6a5d8e47f0b1c93a2e6d5f8b7c4a019";
+
+const icons = {
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="#0b0d12" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  unlock: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 7.5-2"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="#12a150" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg>',
+};
+
+function el(html, x, y, extra = {}) {
+  const d = document.createElement("div");
+  d.className = "abs " + (extra.cls || "");
+  d.innerHTML = html;
+  d.style.left = x + "px"; d.style.top = y + "px";
+  if (extra.w) d.style.width = extra.w + "px";
+  return d;
+}
+function show(node, k, dy = 24, scale = 1) {
+  node.style.opacity = ease(k);
+  node.style.transform = `translateY(${(1 - ease(k)) * dy}px) scale(${lerp(scale, 1, ease(k))})`;
+}
+
+// Shared chrome: chapter tag, brand, captions, progress bar.
+function chrome(stage, t, D, n, name, caps) {
+  const ch = el(`<b>${n}</b>${name}`, 64, 52, { cls: "chapter" });
+  const br = el(`<i><svg style="width:17px;height:17px;color:#fff" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.9"/><g class="wheel"><path d="M15.14 13.30L17.82 14.41 M13.30 15.14L14.41 17.82 M10.70 15.14L9.59 17.82 M8.86 13.30L6.18 14.41 M8.86 10.70L6.18 9.59 M10.70 8.86L9.59 6.18 M13.30 8.86L14.41 6.18 M15.14 10.70L17.82 9.59" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="12" r="1.9" fill="currentColor"/></g></svg></i>Obscura`, 0, 56, { cls: "brand" }); br.style.left = "auto"; br.style.right = "64px";
+  const bar = el(`<i></i>`, 64, H - 39, { cls: "bar" }); bar.style.width = (W - 128) + "px";
+  bar.firstChild.style.transform = `scaleX(${t / D})`;
+  stage.append(ch, br, bar);
+  // captions cross-fade on their own timeline
+  for (const [a, b, text] of caps) {
+    if (t < a - .2 || t > b + .2) continue;
+    const c = el(text, 64, H - 124, { cls: "caption" }); c.style.width = (W - 128) + "px";
+    const k = Math.min(seg(t, a - .2, a + .35), 1 - seg(t, b - .3, b + .2));
+    c.style.opacity = k; c.style.transform = `translateY(${(1 - ease(seg(t, a - .2, a + .35))) * 14}px)`;
+    stage.append(c);
+  }
+}
+
+function intro(stage, t, n, title, sub) {
+  const k = seg(t, 0, .9), out = seg(t, 2.1, 2.6);
+  const node = el(`${title}<small>${sub}</small>`, 64, 230, { cls: "title" });
+  node.style.opacity = ease(k) * (1 - out);
+  node.style.transform = `translateY(${(1 - ease(k)) * 30 - out * 30}px)`;
+  stage.append(node);
+}
+
+const scenes = {
+  cloak: {
+    duration: 15,
+    render(stage, t) {
+      chrome(stage, t, 15, 1, "Cloak", [
+        [2.6, 5.4, "Start with an asset, a random salt and a one-time key."],
+        [5.4, 8.4, "SHA-256 runs over all three. <span>Inside your browser.</span>"],
+        [8.4, 11.4, "Out comes one 32-byte hash. It names nothing."],
+        [11.4, 15.2, "The chain can store the hash. <span>Only your receipt can open it.</span>"],
+      ]);
+      intro(stage, t, 1, "Cloak a bond", "One hash that only your receipt can open.");
+      if (t < 2.4) return;
+
+      const gather = inout(seg(t, 5.4, 6.8));          // inputs fly into the engine
+      const inputs = [
+        [`<div class="label">Asset</div><div class="big">2.5 ETH</div><div class="hex" style="color:var(--dim)">ethereum</div>`, 64, 96, 2.6],
+        [`<div class="label">Salt · 16 bytes</div><div class="hex mono">${hexAt(Math.floor(t * 12) + 7, 32)}</div>`, 64, 264, 3.1],
+        [`<div class="label">Key · 32 bytes</div><div class="hex mono">${hexAt(Math.floor(t * 12) + 99, 64)}</div>`, 64, 390, 3.6],
+      ];
+      const ex = 640 - 120, ey = 180;                    // engine top-left
+      inputs.forEach(([html, x, y, at], i) => {
+        const node = el(html, x, y, { cls: "card", w: [340, 500, 560][i] });
+        const k = seg(t, at, at + .8);
+        const tx = lerp(0, ex + 120 - x - 170, gather), ty = lerp(0, ey + 120 - y - 50, gather);
+        node.style.opacity = ease(k) * (1 - seg(t, 6.3, 6.8));
+        node.style.transform = `translate(${tx}px, ${ty + (1 - ease(k)) * 24}px) scale(${lerp(1, .3, gather)})`;
+        stage.append(node);
+      });
+
+      const eng = el(`<div><div>SHA-256</div><span>in your browser</span></div>`, ex + 160, ey, { cls: "engine" });
+      const ek = seg(t, 4.2, 5.2);
+      const pulse = t > 6.4 && t < 8.6 ? 1 + .04 * Math.sin((t - 6.4) * 10) : 1;
+      const slide = inout(seg(t, 8.2, 9.2));
+      eng.style.opacity = ease(ek) * (1 - seg(t, 11.0, 11.6));
+      eng.style.transform = `translateX(${-slide * 520}px) scale(${lerp(.85, 1, ease(ek)) * pulse * lerp(1, .7, slide)})`;
+      stage.append(eng);
+      if (t > 6.4 && t < 9) {
+        const r = el("", ex + 160, ey, { cls: "ring" }); r.style.width = r.style.height = "240px";
+        const p = ((t - 6.4) % .8) / .8;
+        r.style.opacity = (1 - p) * .8; r.style.transform = `scale(${1 + p * .5})`;
+        stage.append(r);
+      }
+
+      // the hash types out
+      const typed = Math.round(64 * seg(t, 8.8, 10.6));
+      const hash = el(`<div class="label">Commitment · 32 bytes</div><div class="hash mono">0x${COMMIT.slice(0, typed)}<span style="opacity:${typed < 64 ? 1 : 0}">▍</span></div>`, 470, 230, { cls: "card", w: 740 });
+      hash.style.opacity = ease(seg(t, 8.6, 9.2)) * (1 - seg(t, 11.0, 11.5));
+      stage.append(hash);
+
+      // final split: what the chain sees / what you keep
+      const s1 = el(`<div class="label">The chain sees</div><div class="hash mono" style="font-size:21px">0x${COMMIT}</div>`, 64, 250, { cls: "card", w: 560 });
+      const s2 = el(`<div class="label">You keep · the receipt</div><div class="big" style="font-size:28px">2.5 ETH · ethereum</div><div class="hex mono" style="color:var(--dim);margin-top:6px">salt ${hexAt(7, 12)}…<br>key&nbsp; ${hexAt(99, 12)}…</div>`, 656, 250, { cls: "card", w: 560 });
+      show(s1, seg(t, 11.4, 12.2)); show(s2, seg(t, 11.9, 12.7));
+      stage.append(s1, s2);
+    },
+  },
+
+  transfer: {
+    duration: 15,
+    render(stage, t) {
+      chrome(stage, t, 15, 2, "Transfer", [
+        [2.6, 5.6, "Seal the receipt with AES-256-GCM, behind a passphrase."],
+        [5.6, 8.6, "Send the package one way. <span>Send the passphrase another.</span>"],
+        [8.6, 11.6, "The recipient opens it and re-cloaks under fresh keys."],
+        [11.6, 15.2, "One commitment out, one in. <span>Nothing on the chain links them.</span>"],
+      ]);
+      intro(stage, t, 2, "Hand a bond on", "Sealed for one recipient, re-cloaked on arrival.");
+      if (t < 2.4) return;
+
+      const you = el(`<div class="avatar">${icons.user}</div>You`, 80, 200, { cls: "who", w: 180 });
+      const them = el(`<div class="avatar">${icons.user}</div>Recipient`, W - 260, 200, { cls: "who", w: 180 });
+      show(you, seg(t, 2.6, 3.3)); show(them, seg(t, 2.9, 3.6));
+      stage.append(you, them);
+
+      // receipt -> lock
+      const rk = seg(t, 3.0, 3.7), into = inout(seg(t, 4.4, 5.2));
+      const receipt = el(`<div class="label">Receipt</div><div class="big" style="font-size:24px">2.5 ETH</div><div class="hex mono" style="color:var(--dim)">0x${COMMIT.slice(0, 12)}…</div>`, 300, 200, { cls: "card", w: 300 });
+      receipt.style.opacity = ease(rk) * (1 - seg(t, 4.9, 5.2));
+      receipt.style.transform = `translate(${into * 230}px, ${(1 - ease(rk)) * 20}px) scale(${lerp(1, .4, into)})`;
+      stage.append(receipt);
+
+      const dots = "•".repeat(Math.round(14 * seg(t, 3.4, 4.4)));
+      const pass = el(`<span style="color:var(--dim)">Passphrase</span> <b class="mono">${dots}</b>`, 300, 400, { cls: "pill" });
+      show(pass, seg(t, 3.3, 3.9)); pass.style.opacity = +pass.style.opacity * (1 - seg(t, 4.9, 5.2));
+      stage.append(pass);
+
+      // the package travels
+      const travel = inout(seg(t, 5.8, 8.2));
+      const opened = seg(t, 8.6, 9.2);
+      const pk = el(`<div class="lock">${opened > .5 ? icons.unlock : icons.lock}</div><div class="mono" style="text-align:center;margin-top:12px;font-size:21px;color:var(--dim)">obxpkg1_${hexAt(3, 8)}…</div><div style="text-align:center;font-size:21px;color:var(--dim);margin-top:2px">AES-256-GCM</div>`, 540, 205, { w: 200 });
+      const pkIn = seg(t, 4.9, 5.6);
+      pk.style.opacity = ease(pkIn) * (1 - seg(t, 9.6, 10.1));
+      pk.style.transform = `translate(${travel * 230}px, ${Math.sin(travel * Math.PI) * -40}px) scale(${lerp(.6, 1, ease(pkIn))})`;
+      stage.append(pk);
+
+      // passphrase goes by another route
+      if (t > 6.0 && t < 9.4) {
+        const pr = inout(seg(t, 6.2, 8.4));
+        const p2 = el(`<span class="mono">••••••••••••••</span>`, 300 + pr * 540, 470, { cls: "pill" });
+        p2.style.opacity = Math.min(seg(t, 6.0, 6.4), 1 - seg(t, 8.9, 9.4));
+        stage.append(p2);
+        const lbl = el(`a separate channel`, 300 + pr * 540, 528); lbl.style.cssText += ";font-size:21px;color:var(--dim)";
+        lbl.style.opacity = p2.style.opacity; stage.append(lbl);
+      }
+
+      // re-cloak
+      const nk = seg(t, 9.9, 10.6);
+      const fresh = el(`<div class="label">New commitment · recipient's keys</div><div class="hash mono" style="font-size:19px">0x${COMMIT2.slice(0, Math.round(64 * seg(t, 9.9, 11.0)))}</div>`, 360, 420, { cls: "card", w: 560 });
+      show(fresh, nk); fresh.style.opacity = +fresh.style.opacity * (1 - seg(t, 11.3, 11.7));
+      stage.append(fresh);
+
+      // out / in
+      const o1 = el(`<div class="label">Out · your old commitment</div><div class="hash mono" style="font-size:21px;color:var(--dim)">0x${COMMIT}</div>`, 64, 300, { cls: "card", w: 560 });
+      const o2 = el(`<div class="label">In · a fresh commitment</div><div class="hash mono" style="font-size:21px">0x${COMMIT2}</div>`, 656, 300, { cls: "card", w: 560 });
+      show(o1, seg(t, 11.6, 12.4)); show(o2, seg(t, 12.0, 12.8));
+      if (t > 11.6) { you.style.opacity = them.style.opacity = 1 - seg(t, 11.6, 12.0); }
+      stage.append(o1, o2);
+    },
+  },
+
+  prove: {
+    duration: 15,
+    render(stage, t) {
+      chrome(stage, t, 15, 3, "Prove", [
+        [2.6, 5.6, "Your wallet holds many things. Most are nobody's business."],
+        [5.6, 8.6, "Hand one receipt to one counterparty."],
+        [8.6, 11.6, "Their browser recomputes the hash and compares."],
+        [11.6, 15.2, "They learn one bit: true. <span>Everything else stays hidden.</span>"],
+      ]);
+      intro(stage, t, 3, "Prove one thing", "Show the point. Hide the rest.");
+      if (t < 2.4) return;
+
+      const items = [["2.5 ETH", 1], ["40,000 USDC", 2], ["12 SOL", 3], ["0.8 BTC", 4], ["900 LINK", 5], ["3 NFTs", 6]];
+      const pick = 0, moveOut = inout(seg(t, 5.8, 7.0)), blur = seg(t, 4.6, 5.6);
+      items.forEach(([amt, s], i) => {
+        const col = i % 3, row = Math.floor(i / 3);
+        const x = 64 + col * 214, y = 170 + row * 142;
+        const node = el(`<div class="big">${amt}</div><div class="hex mono">0x${hexAt(s * 31, 8)}…</div>`, x, y, { cls: "holding" });
+        const k = seg(t, 2.6 + i * .12, 3.3 + i * .12);
+        if (i === pick) {
+          node.style.borderColor = t > 4.6 ? "var(--accent)" : "";
+          node.style.opacity = ease(k);
+          node.style.transform = `translate(${moveOut * 610}px, ${moveOut * 12}px) translateY(${(1 - ease(k)) * 20}px)`;
+          if (t > 8.6) node.style.opacity = 1 - seg(t, 11.2, 11.6);
+        } else {
+          node.style.opacity = ease(k) * lerp(1, .55, blur);
+          node.style.filter = `blur(${blur * 7}px)`;
+          node.style.transform = `translateY(${(1 - ease(k)) * 20}px)`;
+          if (t > 11.6) node.style.opacity = .55 * (1 - seg(t, 11.6, 12.0)) + .25 * seg(t, 11.6, 12.0);
+        }
+        stage.append(node);
+      });
+
+      const vk = seg(t, 6.0, 6.8);
+      const ver = el(`<div class="avatar">${icons.user}</div>Counterparty<span>sees only this receipt</span>`, 940, 150, { cls: "who", w: 260 });
+      show(ver, vk); stage.append(ver);
+
+      // recompute
+      if (t > 8.4) {
+        const k = seg(t, 8.6, 9.4);
+        const a = el(`<div class="label">Recomputed</div><div class="hash mono" style="font-size:19px">0x${COMMIT.slice(0, Math.round(64 * seg(t, 8.8, 10.0)))}</div>`, 700, 322, { cls: "card", w: 516 });
+        const b = el(`<div class="label">Expected</div><div class="hash mono" style="font-size:19px;color:var(--dim)">0x${COMMIT}</div>`, 700, 440, { cls: "card", w: 516 });
+        show(a, k); show(b, seg(t, 9.0, 9.8));
+        const gone = 1 - seg(t, 11.2, 11.6);
+        a.style.opacity = +a.style.opacity * gone; b.style.opacity = +b.style.opacity * gone;
+        if (t > 10.2) { a.style.borderColor = b.style.borderColor = "var(--ok)"; }
+        stage.append(a, b);
+      }
+
+      // the bit
+      const bk = seg(t, 11.6, 12.4);
+      const bit = el(`<div class="bit">1</div><div style="font-size:34px;font-weight:600;letter-spacing:-.02em" class="ok">true</div><div style="font-size:24px;color:var(--dim);margin-top:6px">2.5 ETH is held. Nothing else is shown.</div>`, 760, 290, { w: 460 });
+      show(bit, bk, 30, .9); stage.append(bit);
+      if (t > 11.6) ver.style.opacity = 1 - seg(t, 11.6, 12.0);
+    },
+  },
+};
+
+const params = new URLSearchParams(location.search);
+const scene = scenes[params.get("scene") || "cloak"];
+window.DURATION = scene.duration;
+window.render = (t) => {
+  const stage = document.getElementById("stage");
+  stage.replaceChildren();
+  scene.render(stage, t);
+};
+document.fonts.ready.then(() => { window.render(+(params.get("t") || 6)); window.READY = true; });
+</script>
+</body>
+</html>

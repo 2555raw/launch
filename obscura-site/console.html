@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Obscura</title>
+  <meta name="description" content="Seal what you hold into a private proof, share it as a link, check it on chain. Everything runs in your browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Obscura">
+  <meta property="og:title" content="Obscura console">
+  <meta property="og:description" content="Seal a bond, back it with your wallet, and share the proof as a link.">
+  <meta property="og:url" content="__ORIGIN__/console.html">
+  <meta property="og:image" content="__ORIGIN__/assets/og-home.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Obscura: prove one holding, hide the rest">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Obscura console">
+  <meta name="twitter:description" content="Seal a bond, back it with your wallet, and share the proof as a link.">
+  <meta name="twitter:image" content="__ORIGIN__/assets/og-home.jpg">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <meta name="theme-color" content="#090b10">
+  <link rel="preload" href="assets/fonts/host-grotesk-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <script>try{var t=localStorage.getItem("obscura.theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}</script>
+  <link rel="stylesheet" href="styles.css">
+  <script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<div class="nav-wrap">
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="index.html" aria-label="Obscura, home">
+      <span class="brand-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><g class="mark-spin"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></g></svg></span>
+      Obscura
+    </a>
+    <div class="nav-links">
+      <a href="index.html#films">How it works</a>
+      <a href="console.html" aria-current="true">Console</a>
+      <a href="verify.html">Verify</a>
+    </div>
+    <div class="nav-right">
+      <a class="icon-btn" href="https://x.com" target="_blank" rel="noopener" aria-label="Obscura on X">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <button class="btn btn-light btn-sm wallet-btn" type="button" data-wallet-open>Connect wallet</button>
+      <button class="icon-btn burger" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </nav>
+  <div class="drawer">
+    <a href="index.html">Home</a>
+    <a href="index.html#films">How it works</a>
+    <a href="console.html">Console</a>
+    <a href="verify.html">Verify</a>
+    <button type="button" data-wallet-open data-label="Connect wallet">Connect wallet</button>
+  </div>
+</div>
+
+<main class="app-main">
+  <div class="wrap">
+    <div class="app-head">
+      <h1>Console</h1>
+      <p>Seal what you hold into a private proof, keep it in this browser, and share it as a link. No server sees any of it.</p>
+    </div>
+
+    <div class="banner" id="backup-banner" role="status" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 2.5 17.5A2 2 0 0 0 4.2 20.5h15.6a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+      <p><b id="backup-count"></b> Clearing this browser's data deletes them for good.</p>
+      <button class="btn btn-dark btn-sm" type="button" id="backup-now">Back up now</button>
+    </div>
+
+    <div class="tabs" role="tablist" aria-label="Console">
+      <button class="tab" role="tab" id="tab-cloak" aria-controls="panel-cloak" data-tab="cloak" aria-selected="true">Seal</button>
+      <button class="tab" role="tab" id="tab-vault" aria-controls="panel-vault" data-tab="vault" aria-selected="false">Vault<span class="count" id="vault-count">0</span></button>
+      <button class="tab" role="tab" id="tab-transfer" aria-controls="panel-transfer" data-tab="transfer" aria-selected="false">Transfer</button>
+      <button class="tab" role="tab" id="tab-receive" aria-controls="panel-receive" data-tab="receive" aria-selected="false">Receive</button>
+    </div>
+
+    <div class="panel active" id="panel-cloak" role="tabpanel" aria-labelledby="tab-cloak">
+      <form class="box" id="cloak-form" autocomplete="off">
+        <h2>Seal an asset</h2>
+        <p>A fresh 16-byte salt and 32-byte key are drawn for every bond.</p>
+        <div class="funds" id="funds">
+          <div class="funds-head"><h3>Back it with your wallet</h3><span class="badge live">Recommended</span></div>
+          <p id="f-text">Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word.</p>
+          <div class="field-row" id="f-asset-field" hidden style="margin:12px 0 0">
+            <div class="field"><label for="f-network">Network</label><select class="select" id="f-network"></select></div>
+            <div class="field"><label for="f-asset">Asset to prove</label><select class="select" id="f-asset"></select></div>
+          </div>
+          <p class="hint" id="f-testnet" hidden>This is a test network. Its coins have no value, and checkers will see the proof marked as testnet.</p>
+          <div class="field-row" id="f-nft" hidden style="margin:12px 0 0">
+            <div class="field"><label for="f-nft-contract">Collection contract</label><input class="input mono" id="f-nft-contract" placeholder="0x…" spellcheck="false" autocomplete="off"></div>
+            <div class="field"><label for="f-nft-id">Token id <span class="opt">(optional)</span></label><input class="input num" id="f-nft-id" inputmode="numeric" placeholder="Any token"></div>
+          </div>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn btn-dark btn-sm" type="button" id="f-read">Read balance from wallet</button>
+            <button class="btn btn-light btn-sm" type="button" id="f-read-sol">Use a Solana wallet</button>
+            <button class="btn btn-light btn-sm" type="button" id="f-nft-check" hidden>Check this NFT</button>
+            <button class="btn btn-ghost btn-sm" type="button" id="f-clear" hidden>Type an amount instead</button>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label for="c-amount" id="c-amount-label">Amount</label><input class="input num" id="c-amount" inputmode="decimal" placeholder="1.0" required><span class="hint" id="c-amount-hint" hidden></span></div>
+          <div class="field"><label for="c-symbol">Asset</label><input class="input" id="c-symbol" placeholder="ETH" required></div>
+        </div>
+        <div class="field"><label for="c-chain">Chain</label>
+          <select class="select" id="c-chain"><option>ethereum</option><option>base</option><option>arbitrum</option><option>optimism</option><option>polygon</option><option>bnb</option><option value="solana">solana (typed amount only)</option></select>
+        </div>
+        <div class="field"><label for="c-note">Private note <span class="opt">(optional, sealed into the hash)</span></label><input class="input" id="c-note" placeholder="e.g. OTC desk, March"></div>
+        <div class="field"><label for="c-expiry">Proof valid for</label>
+          <select class="select" id="c-expiry">
+            <option value="3600">1 hour</option>
+            <option value="86400" selected>24 hours</option>
+            <option value="604800">7 days</option>
+            <option value="2592000">30 days</option>
+            <option value="">No expiry</option>
+          </select>
+          <span class="hint">After this, anyone opening the proof sees it has expired. The date is sealed in, so it cannot be extended.</span>
+        </div>
+        <button class="btn btn-dark" type="submit" id="c-submit">Seal bond</button>
+      </form>
+      <div class="box soft" id="cloak-result">
+        <h2>Result</h2>
+        <p>The receipt is saved to your vault automatically.</p>
+        <div class="empty" id="cloak-empty">Nothing sealed yet. Read your wallet or type an amount, then press Seal.</div>
+        <div id="cloak-out" hidden>
+          <p class="backing" id="c-backing"></p>
+          <div class="share" id="c-share"></div>
+          <details class="raw">
+            <summary>Show the raw receipt and seal code</summary>
+            <div class="kv" style="margin-top:14px">
+              <div class="kv-row"><span class="k">Seal code, safe to post anywhere</span><span class="v big" id="c-commit"></span></div>
+              <div class="kv-row"><label class="k" for="c-receipt">Receipt, share only with who should see this bond</label><textarea class="textarea" id="c-receipt" readonly></textarea></div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-light btn-sm" type="button" data-copy="#c-receipt" data-copy-label="Receipt copied">Copy receipt</button>
+              <button class="btn btn-light btn-sm" type="button" data-copy="#c-commit" data-copy-label="Seal code copied">Copy seal code</button>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel single" id="panel-vault" role="tabpanel" aria-labelledby="tab-vault">
+      <div class="box">
+        <div class="bond-top" style="margin-bottom:20px">
+          <div><h2>Vault</h2><p class="hint" style="margin-top:4px">Stored only in this browser. Keep an encrypted backup below.</p></div>
+        </div>
+        <div id="vault-list"></div>
+      </div>
+      <div class="box soft" id="backup">
+        <h2>Backup</h2>
+        <p>Your receipts are keys. The backup is locked with a passphrase so a lost file opens nothing.</p>
+        <form id="backup-form" class="backup-grid" autocomplete="off">
+          <div class="field"><label for="b-pass">Backup passphrase</label><input class="input" id="b-pass" type="password" minlength="8" required autocomplete="new-password"></div>
+          <div class="field"><label for="b-pass2">Repeat it</label><input class="input" id="b-pass2" type="password" minlength="8" required autocomplete="new-password"></div>
+          <div class="actions" style="margin-top:0">
+            <button class="btn btn-dark btn-sm" type="submit" name="download">Download encrypted backup</button>
+            <button class="btn btn-light btn-sm" type="submit" name="copy">Copy backup text</button>
+          </div>
+        </form>
+        <p class="hint" id="b-status" style="margin-top:12px"></p>
+        <details class="raw" style="margin-top:18px">
+          <summary>Restore from a backup</summary>
+          <form id="restore-form" autocomplete="off" style="margin-top:14px">
+            <div class="field"><label for="r-file2">Backup file</label><input id="r-file2" type="file" accept=".obxbak,.json,text/plain"></div>
+            <div class="field"><label for="r-text">Or paste the backup text</label><textarea class="textarea" id="r-text" placeholder="obxbak1_…"></textarea></div>
+            <div class="field"><label for="r-pass2">Backup passphrase</label><input class="input" id="r-pass2" type="password" autocomplete="off"></div>
+            <button class="btn btn-dark btn-sm" type="submit">Restore bonds</button>
+          </form>
+        </details>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-transfer" role="tabpanel" aria-labelledby="tab-transfer">
+      <form class="box" id="transfer-form" autocomplete="off">
+        <h2>Transfer a bond</h2>
+        <p>Seals the receipt with AES-256-GCM under a key stretched from your passphrase (PBKDF2, 310,000 rounds).</p>
+        <div class="field"><label for="t-bond">Bond</label><select class="select" id="t-bond"></select></div>
+        <div class="field"><label for="t-pass">Passphrase</label><input class="input" id="t-pass" type="password" minlength="8" required autocomplete="new-password"></div>
+        <div class="field"><label for="t-pass2">Repeat passphrase</label><input class="input" id="t-pass2" type="password" minlength="8" required autocomplete="new-password"></div>
+        <button class="btn btn-dark" type="submit">Seal package</button>
+        <p class="hint" style="margin-top:14px">Send the package and the passphrase through different channels.</p>
+      </form>
+      <div class="box soft">
+        <h2>Package</h2>
+        <p>Hand this to the recipient. Without the passphrase it is noise.</p>
+        <div class="empty" id="t-empty">No package sealed yet.</div>
+        <div id="t-out" hidden>
+          <label class="sr" for="t-pkg">Transfer package</label>
+          <textarea class="textarea" id="t-pkg" readonly></textarea>
+          <div class="actions">
+            <button class="btn btn-dark btn-sm" type="button" data-copy="#t-pkg" data-copy-label="Package copied">Copy package</button>
+            <button class="btn btn-light btn-sm" type="button" id="t-download">Download .obx file</button>
+          </div>
+          <p class="hint" style="margin-top:14px">The bond is marked as sent in your vault. Your old receipt still verifies until you remove it.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-receive" role="tabpanel" aria-labelledby="tab-receive">
+      <form class="box" id="receive-form" autocomplete="off">
+        <h2>Receive a bond</h2>
+        <p>Opens the package, checks the receipt inside, then re-seals the asset under a key only you hold.</p>
+        <div class="field"><label for="r-pkg">Package</label><textarea class="textarea" id="r-pkg" placeholder="obxpkg1_…" required></textarea></div>
+        <div class="field"><label for="r-file">Or load a .obx file</label><input id="r-file" type="file" accept=".obx,text/plain"></div>
+        <div class="field"><label for="r-pass">Passphrase</label><input class="input" id="r-pass" type="password" required autocomplete="off"></div>
+        <button class="btn btn-dark" type="submit">Open and re-seal</button>
+      </form>
+      <div class="box soft">
+        <h2>Your new bond</h2>
+        <p>Fresh seal code, fresh receipt, saved to the vault.</p>
+        <div class="empty" id="r-empty">Nothing received yet.</div>
+        <div id="r-out" hidden>
+          <div class="kv">
+            <div class="kv-row"><span class="k">Asset</span><span class="v" id="r-asset"></span></div>
+            <div class="kv-row"><span class="k">New seal code</span><span class="v big" id="r-commit"></span></div>
+            <div class="kv-row"><span class="k">Replaces</span><span class="v" id="r-prev"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-about">
+        <a class="brand" href="index.html" aria-label="Obscura, home"><span class="brand-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><g class="mark-spin"><path d="M8 50H92M50 8.5V40M50 60V91.5M21.5 21L44 38.9M78.5 21L56 38.9M21.5 79L44 61.1M78.5 79L56 61.1" fill="none" stroke="currentColor" stroke-width="6.4" stroke-linecap="round"/><path d="M42.4 40.4L48.5 48.4Q50 49.9 51.5 48.4L57.6 40.4L55.6 36.9C54.9 41.4 52.7 41.9 51.8 37.6L48.2 37.6C47.3 41.9 45.1 41.4 44.4 36.9ZM42.4 59.6L48.5 51.6Q50 50.1 51.5 51.6L57.6 59.6L55.6 63.1C54.9 58.6 52.7 58.1 51.8 62.4L48.2 62.4C47.3 58.1 45.1 58.6 44.4 63.1Z" fill="currentColor"/></g></svg></span>Obscura</a>
+        <p>Private bonds, sealed in your browser. Prove one holding and keep the rest of your wallet to yourself.</p>
+        <div class="foot-actions">
+          <a class="btn btn-dark btn-sm" href="console.html">Launch app</a>
+          <span class="foot-status"><span class="live" aria-hidden="true"></span>Runs locally, no server</span>
+        </div>
+      </div>
+      <nav class="foot-cols" aria-label="Footer">
+        <div><p class="foot-h">Product</p><a href="console.html">Console</a><a href="console.html#vault">Vault</a><a href="verify.html">Verify a receipt</a></div>
+        <div><p class="foot-h">Learn</p><a href="index.html#films">How it works</a><a href="index.html#token">$OBX</a><a href="index.html#faq">FAQ</a></div>
+        <div><p class="foot-h">Community</p><a class="foot-x" href="https://x.com" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>X (Twitter)</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg></a></div>
+        <div><p class="foot-h">Legal</p><a href="terms.html">Terms of Use</a><a href="terms.html#privacy">Privacy</a></div>
+      </nav>
+    </div>
+    <svg class="foot-mark" viewBox="0 0 860 196" aria-hidden="true" focusable="false"><text x="-6" y="188" textLength="866" lengthAdjust="spacingAndGlyphs">Obscura</text></svg>
+    <div class="foot-bottom">
+      <p>© 2026 Obscura. Self-custody software. Nothing here is financial advice.</p>
+      <p class="foot-credits">Wallet names and logos belong to their owners and appear only as connection options.</p>
+    </div>
+  </div>
+</footer>
+<script type="module" src="js/terms.js"></script>
+<script type="module" src="js/site.js"></script>
+<script type="module" src="js/wallet.js"></script>
+<dialog id="share-dialog" aria-labelledby="share-title">
+  <div class="sheet-card">
+    <button class="icon-btn dialog-close" type="button" aria-label="Close" data-close>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div class="sheet-head"><h2 id="share-title">Share this proof</h2><p id="share-sub"></p></div>
+    <div class="sheet-body"><div class="share" id="share-body"></div></div>
+  </div>
+</dialog>
+<script type="module" src="js/console.js"></script>
+</body>
+</html>

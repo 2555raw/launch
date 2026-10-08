@@ -1,0 +1,1004 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-08T08:48:40+00:00",
+  "title": "Design System: Obscura",
+  "extensions": {
+    "colorMeta": {
+      "bg": {
+        "role": "neutral",
+        "displayName": "Warm Ground",
+        "canonical": "#f7f6f2",
+        "tonalRamp": [
+          "#0c0b09",
+          "#252421",
+          "#40403d",
+          "#5e5e5a",
+          "#7e7d7a",
+          "#9f9e9b",
+          "#c5c4c0",
+          "#efeeea"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#7d7d7d",
+          "#9e9e9e",
+          "#c4c4c4",
+          "#eeeeee"
+        ]
+      },
+      "mist": {
+        "role": "neutral",
+        "displayName": "Mist",
+        "canonical": "#f0efea",
+        "tonalRamp": [
+          "#0c0b08",
+          "#252420",
+          "#41403c",
+          "#5e5e59",
+          "#7e7d79",
+          "#9f9e9a",
+          "#c5c4bf",
+          "#efeeea"
+        ]
+      },
+      "steel": {
+        "role": "neutral",
+        "displayName": "Steel",
+        "canonical": "#e7e5df",
+        "tonalRamp": [
+          "#0c0b07",
+          "#252420",
+          "#41403b",
+          "#5f5d58",
+          "#7f7d78",
+          "#a09e99",
+          "#c6c4be",
+          "#f0eee8"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#0d1016",
+        "tonalRamp": [
+          "#080b11",
+          "#21242b",
+          "#3c4047",
+          "#5a5e65",
+          "#797d86",
+          "#9a9ea7",
+          "#c0c4cd",
+          "#eaeff8"
+        ]
+      },
+      "ink-hover": {
+        "role": "neutral",
+        "displayName": "Ink Hover",
+        "canonical": "#1f232b",
+        "tonalRamp": [
+          "#080b12",
+          "#20242c",
+          "#3b4049",
+          "#595e67",
+          "#787d87",
+          "#999fa9",
+          "#bfc4cf",
+          "#e9effa"
+        ]
+      },
+      "ink-2": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "canonical": "#2b303a",
+        "tonalRamp": [
+          "#070b13",
+          "#1f242e",
+          "#3b404a",
+          "#585e69",
+          "#777d89",
+          "#989fab",
+          "#bec4d1",
+          "#e8effc"
+        ]
+      },
+      "on-ink": {
+        "role": "neutral",
+        "displayName": "On Ink",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#7d7d7d",
+          "#9e9e9e",
+          "#c4c4c4",
+          "#eeeeee"
+        ]
+      },
+      "dim": {
+        "role": "neutral",
+        "displayName": "Dim",
+        "canonical": "#555b66",
+        "tonalRamp": [
+          "#070b13",
+          "#1f242e",
+          "#3a404a",
+          "#585e69",
+          "#777e89",
+          "#989fab",
+          "#bdc4d1",
+          "#e8effc"
+        ]
+      },
+      "dim-2": {
+        "role": "neutral",
+        "displayName": "Dim Light",
+        "canonical": "#6b717c",
+        "tonalRamp": [
+          "#070b13",
+          "#1f242d",
+          "#3a404a",
+          "#585e68",
+          "#777d89",
+          "#989faa",
+          "#bec4d1",
+          "#e8effb"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#e5e2db",
+        "tonalRamp": [
+          "#0d0b07",
+          "#26241f",
+          "#423f3a",
+          "#605d57",
+          "#807d77",
+          "#a19e98",
+          "#c7c4bd",
+          "#f1eee7"
+        ]
+      },
+      "line-2": {
+        "role": "neutral",
+        "displayName": "Hairline Strong",
+        "canonical": "#d5d2ca",
+        "tonalRamp": [
+          "#0d0b06",
+          "#26241e",
+          "#424039",
+          "#605d56",
+          "#807d76",
+          "#a19e97",
+          "#c7c4bc",
+          "#f1eee6"
+        ]
+      },
+      "glass": {
+        "role": "neutral",
+        "displayName": "Glass",
+        "canonical": "rgba(255, 255, 255, .86)"
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Signal Blue",
+        "canonical": "#2458e8",
+        "tonalRamp": [
+          "#06004d",
+          "#010e6f",
+          "#123492",
+          "#2e56b6",
+          "#4c77db",
+          "#6c9aff",
+          "#90c1ff",
+          "#b8ecff"
+        ]
+      },
+      "accent-soft": {
+        "role": "primary",
+        "displayName": "Signal Blue Wash",
+        "canonical": "#edf2ff",
+        "tonalRamp": [
+          "#080b13",
+          "#20242d",
+          "#3c404a",
+          "#595d68",
+          "#797d89",
+          "#9a9eaa",
+          "#bfc4d0",
+          "#e9eefb"
+        ]
+      },
+      "ok": {
+        "role": "semantic",
+        "displayName": "Proof Green",
+        "canonical": "#0f8a43",
+        "tonalRamp": [
+          "#001700",
+          "#003400",
+          "#00530a",
+          "#00732d",
+          "#23954d",
+          "#4db76d",
+          "#76df92",
+          "#a1ffbb"
+        ]
+      },
+      "ok-soft": {
+        "role": "semantic",
+        "displayName": "Proof Wash",
+        "canonical": "#e8f6ee",
+        "tonalRamp": [
+          "#050e09",
+          "#1c2721",
+          "#38433d",
+          "#55615a",
+          "#74817a",
+          "#95a29b",
+          "#bac8c0",
+          "#e5f2eb"
+        ]
+      },
+      "bad": {
+        "role": "semantic",
+        "displayName": "Exposure Red",
+        "canonical": "#c62f2f",
+        "tonalRamp": [
+          "#360000",
+          "#5b0000",
+          "#800005",
+          "#a52a28",
+          "#cb4e48",
+          "#f27168",
+          "#ff988c",
+          "#ffc2b5"
+        ]
+      },
+      "bad-soft": {
+        "role": "semantic",
+        "displayName": "Exposure Wash",
+        "canonical": "#fdeeee",
+        "tonalRamp": [
+          "#110809",
+          "#2b2121",
+          "#483c3d",
+          "#675a5a",
+          "#877a7a",
+          "#a89b9b",
+          "#cec0c0",
+          "#f9eaea"
+        ]
+      },
+      "warn": {
+        "role": "semantic",
+        "displayName": "Caution Amber",
+        "canonical": "#9a5b00",
+        "tonalRamp": [
+          "#270000",
+          "#470c00",
+          "#682d00",
+          "#8a4c00",
+          "#ad6c20",
+          "#d18e47",
+          "#f9b46d",
+          "#ffde97"
+        ]
+      },
+      "warn-soft": {
+        "role": "semantic",
+        "displayName": "Caution Wash",
+        "canonical": "#fff7e6",
+        "tonalRamp": [
+          "#100a02",
+          "#292317",
+          "#453f31",
+          "#645d4e",
+          "#847d6d",
+          "#a59e8e",
+          "#cbc3b3",
+          "#f6eedd"
+        ]
+      },
+      "warn-line": {
+        "role": "semantic",
+        "displayName": "Caution Stroke",
+        "canonical": "#f3d9a6",
+        "tonalRamp": [
+          "#190600",
+          "#342000",
+          "#523c06",
+          "#715a2a",
+          "#927a4a",
+          "#b49b6a",
+          "#dac18f",
+          "#ffebb8"
+        ]
+      },
+      "warn-ink": {
+        "role": "semantic",
+        "displayName": "Caution Ink",
+        "canonical": "#4d3200",
+        "tonalRamp": [
+          "#1b0400",
+          "#371d00",
+          "#553a09",
+          "#75582c",
+          "#96784b",
+          "#b8996c",
+          "#dfbe90",
+          "#ffe9b9"
+        ]
+      },
+      "dark-bg": {
+        "role": "neutral",
+        "displayName": "Warm Ground (dark theme)",
+        "canonical": "#0b0e14",
+        "tonalRamp": [
+          "#080b11",
+          "#21242b",
+          "#3c4047",
+          "#5a5e66",
+          "#797d86",
+          "#9a9ea7",
+          "#c0c4cd",
+          "#eaeff8"
+        ]
+      },
+      "dark-paper": {
+        "role": "neutral",
+        "displayName": "Paper (dark theme)",
+        "canonical": "#12161f",
+        "tonalRamp": [
+          "#080b13",
+          "#20242e",
+          "#3b404a",
+          "#585e69",
+          "#787d89",
+          "#999eab",
+          "#bec4d1",
+          "#e8effc"
+        ]
+      },
+      "dark-mist": {
+        "role": "neutral",
+        "displayName": "Mist (dark theme)",
+        "canonical": "#171c26",
+        "tonalRamp": [
+          "#070b14",
+          "#1f242e",
+          "#3a404b",
+          "#585e6a",
+          "#777d8a",
+          "#989fac",
+          "#bdc4d2",
+          "#e7effd"
+        ]
+      },
+      "dark-steel": {
+        "role": "neutral",
+        "displayName": "Steel (dark theme)",
+        "canonical": "#1f2532",
+        "tonalRamp": [
+          "#060b16",
+          "#1e2431",
+          "#39404e",
+          "#575e6d",
+          "#767d8d",
+          "#979faf",
+          "#bcc4d6",
+          "#e6efff"
+        ]
+      },
+      "dark-ink": {
+        "role": "neutral",
+        "displayName": "Ink (dark theme)",
+        "canonical": "#eef1f6",
+        "tonalRamp": [
+          "#090b0e",
+          "#222428",
+          "#3d4044",
+          "#5b5e62",
+          "#7b7d82",
+          "#9c9ea3",
+          "#c1c4c9",
+          "#eceff4"
+        ]
+      },
+      "dark-ink-hover": {
+        "role": "neutral",
+        "displayName": "Ink Hover (dark theme)",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#0b0b0b",
+          "#242424",
+          "#404040",
+          "#5d5d5d",
+          "#7d7d7d",
+          "#9e9e9e",
+          "#c4c4c4",
+          "#eeeeee"
+        ]
+      },
+      "dark-ink-2": {
+        "role": "neutral",
+        "displayName": "Ink Secondary (dark theme)",
+        "canonical": "#c9cfda",
+        "tonalRamp": [
+          "#080b12",
+          "#20242c",
+          "#3b4049",
+          "#595e67",
+          "#787d87",
+          "#999fa9",
+          "#bec4cf",
+          "#e9effa"
+        ]
+      },
+      "dark-on-ink": {
+        "role": "neutral",
+        "displayName": "On Ink (dark theme)",
+        "canonical": "#0b0e14",
+        "tonalRamp": [
+          "#080b11",
+          "#21242b",
+          "#3c4047",
+          "#5a5e66",
+          "#797d86",
+          "#9a9ea7",
+          "#c0c4cd",
+          "#eaeff8"
+        ]
+      },
+      "dark-dim": {
+        "role": "neutral",
+        "displayName": "Dim (dark theme)",
+        "canonical": "#9ba3b2",
+        "tonalRamp": [
+          "#060b15",
+          "#1e2430",
+          "#39404d",
+          "#575e6b",
+          "#767e8c",
+          "#979fae",
+          "#bcc4d4",
+          "#e6efff"
+        ]
+      },
+      "dark-dim-2": {
+        "role": "neutral",
+        "displayName": "Dim Light (dark theme)",
+        "canonical": "#8a93a3",
+        "tonalRamp": [
+          "#060b16",
+          "#1d2431",
+          "#38404e",
+          "#565e6d",
+          "#757e8d",
+          "#969faf",
+          "#bbc5d5",
+          "#e5efff"
+        ]
+      },
+      "dark-line": {
+        "role": "neutral",
+        "displayName": "Hairline (dark theme)",
+        "canonical": "rgba(255, 255, 255, .08)"
+      },
+      "dark-line-2": {
+        "role": "neutral",
+        "displayName": "Hairline Strong (dark theme)",
+        "canonical": "rgba(255, 255, 255, .15)"
+      },
+      "dark-glass": {
+        "role": "neutral",
+        "displayName": "Glass (dark theme)",
+        "canonical": "rgba(18, 22, 31, .82)"
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "Signal Blue (dark theme)",
+        "canonical": "#7aa2ff",
+        "tonalRamp": [
+          "#040046",
+          "#041467",
+          "#1a378a",
+          "#3657ad",
+          "#5478d2",
+          "#739bf7",
+          "#97c1ff",
+          "#c0ecff"
+        ]
+      },
+      "dark-accent-soft": {
+        "role": "primary",
+        "displayName": "Signal Blue Wash (dark theme)",
+        "canonical": "rgba(122, 162, 255, .14)"
+      },
+      "dark-ok": {
+        "role": "semantic",
+        "displayName": "Proof Green (dark theme)",
+        "canonical": "#4fd18e",
+        "tonalRamp": [
+          "#001800",
+          "#003500",
+          "#00541a",
+          "#007539",
+          "#009758",
+          "#31ba78",
+          "#61e19d",
+          "#8fffc6"
+        ]
+      },
+      "dark-ok-soft": {
+        "role": "semantic",
+        "displayName": "Proof Wash (dark theme)",
+        "canonical": "rgba(79, 209, 142, .12)"
+      },
+      "dark-bad": {
+        "role": "semantic",
+        "displayName": "Exposure Red (dark theme)",
+        "canonical": "#ff7d7d",
+        "tonalRamp": [
+          "#360000",
+          "#5a0000",
+          "#7f0014",
+          "#a42933",
+          "#ca4e51",
+          "#f17071",
+          "#ff9796",
+          "#ffc1bf"
+        ]
+      },
+      "dark-bad-soft": {
+        "role": "semantic",
+        "displayName": "Exposure Wash (dark theme)",
+        "canonical": "rgba(255, 125, 125, .12)"
+      },
+      "dark-warn": {
+        "role": "semantic",
+        "displayName": "Caution Amber (dark theme)",
+        "canonical": "#f2b552",
+        "tonalRamp": [
+          "#260000",
+          "#451000",
+          "#653000",
+          "#875000",
+          "#a97000",
+          "#cd9227",
+          "#f5b855",
+          "#ffe281"
+        ]
+      },
+      "dark-warn-soft": {
+        "role": "semantic",
+        "displayName": "Caution Wash (dark theme)",
+        "canonical": "rgba(242, 181, 82, .1)"
+      },
+      "dark-warn-line": {
+        "role": "semantic",
+        "displayName": "Caution Stroke (dark theme)",
+        "canonical": "rgba(242, 181, 82, .3)"
+      },
+      "dark-warn-ink": {
+        "role": "semantic",
+        "displayName": "Caution Ink (dark theme)",
+        "canonical": "#f6d9a8",
+        "tonalRamp": [
+          "#1a0500",
+          "#351f00",
+          "#533b08",
+          "#72592b",
+          "#93794b",
+          "#b69a6b",
+          "#dcc090",
+          "#ffeab9"
+        ]
+      },
+      "night": {
+        "role": "neutral",
+        "displayName": "Night",
+        "canonical": "#090b10",
+        "tonalRamp": [
+          "#090b10",
+          "#22242a",
+          "#3d4046",
+          "#5b5e64",
+          "#7a7d84",
+          "#9b9ea6",
+          "#c1c4cc",
+          "#ebeef6"
+        ]
+      },
+      "night-glass": {
+        "role": "neutral",
+        "displayName": "Night Glass",
+        "canonical": "rgba(13, 17, 25, .72)"
+      },
+      "night-text": {
+        "role": "neutral",
+        "displayName": "Night Text",
+        "canonical": "#f2f4f8",
+        "tonalRamp": [
+          "#0a0b0e",
+          "#232427",
+          "#3e4043",
+          "#5c5e61",
+          "#7b7d81",
+          "#9d9ea2",
+          "#c2c4c8",
+          "#eceef2"
+        ]
+      },
+      "night-soft": {
+        "role": "neutral",
+        "displayName": "Night Soft",
+        "canonical": "#b4bccb",
+        "tonalRamp": [
+          "#060b15",
+          "#1e242f",
+          "#39404c",
+          "#575e6b",
+          "#767e8b",
+          "#979fad",
+          "#bcc4d4",
+          "#e6efff"
+        ]
+      },
+      "night-label": {
+        "role": "neutral",
+        "displayName": "Night Label",
+        "canonical": "#8d97a8",
+        "tonalRamp": [
+          "#050b17",
+          "#1c2432",
+          "#38404f",
+          "#555e6e",
+          "#747e8e",
+          "#959fb0",
+          "#bac5d7",
+          "#e4efff"
+        ]
+      },
+      "night-dim": {
+        "role": "neutral",
+        "displayName": "Night Dim",
+        "canonical": "#7c8596",
+        "tonalRamp": [
+          "#060b17",
+          "#1d2432",
+          "#38404f",
+          "#555e6e",
+          "#757e8e",
+          "#959fb0",
+          "#bbc4d7",
+          "#e5efff"
+        ]
+      },
+      "night-signal": {
+        "role": "primary",
+        "displayName": "Night Signal",
+        "canonical": "#9ec0ff",
+        "tonalRamp": [
+          "#000233",
+          "#072052",
+          "#223d72",
+          "#3f5c94",
+          "#5e7db7",
+          "#7e9edb",
+          "#a2c4ff",
+          "#ccefff"
+        ]
+      },
+      "night-dot": {
+        "role": "neutral",
+        "displayName": "Dot Field",
+        "canonical": "rgba(214, 222, 236, .12)"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The single hero h1, white on night, second line in night-dim."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section h2s."
+      },
+      "figure": {
+        "displayName": "Figure",
+        "purpose": "Large numbers on the four fact cards."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "h3s, token-sheet terms, FAQ questions."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "One supporting paragraph under a heading, max 34em."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text, 62 to 74ch."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Nav links, field labels, table headers, meta, in sentence case."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Bytes (hashes, keys, addresses, block numbers, signed text), the hero chip and hex FAQ indices."
+      },
+      "mono-label": {
+        "displayName": "Mono Label",
+        "purpose": "Uppercase tracked head row inside hero and data cards only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "rest",
+        "value": "0 1px 2px rgba(11,13,18,.05), 0 6px 14px -8px rgba(11,13,18,.14)",
+        "purpose": "Nav pill, drawer, dark button, active tab. Dark theme: 0 1px 2px rgba(0,0,0,.3), 0 6px 14px -8px rgba(0,0,0,.5)."
+      },
+      {
+        "name": "lift",
+        "value": "0 2px 4px rgba(11,13,18,.04), 0 24px 48px -28px rgba(11,13,18,.30)",
+        "purpose": "Side rail, toasts, menus, story wallet. Dark theme: .25/.7 black."
+      },
+      {
+        "name": "float",
+        "value": "0 4px 10px rgba(11,13,18,.05), 0 40px 80px -40px rgba(11,13,18,.38)",
+        "purpose": "Band card, dialogs, declined card, story receipt. Dark theme: .25/.8 black."
+      },
+      {
+        "name": "night-drop",
+        "value": "0 30px 60px -30px rgba(0,0,0,.8)",
+        "purpose": "Hero cards over the dot field."
+      },
+      {
+        "name": "night-glass",
+        "value": "background rgba(13,17,25,.72); border 1px rgba(255,255,255,.1); backdrop-filter blur(10px)",
+        "purpose": "Hero card material."
+      },
+      {
+        "name": "glass",
+        "value": "background var(--glass); backdrop-filter blur(16px) saturate(170%)",
+        "purpose": "Floating nav and side rail."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Reveals, dialogs, shadows, toggles, rail slide, hero entrances."
+      },
+      {
+        "name": "spring",
+        "value": "cubic-bezier(.22, 1, .36, 1)",
+        "purpose": "Button lift, icon buttons, wallet logos. No overshoot."
+      },
+      {
+        "name": "press",
+        "value": "scale(.97), 80ms",
+        "purpose": "Button active state."
+      },
+      {
+        "name": "hero-field",
+        "value": "canvas at 30fps while visible; sine ripple in rings, 8-point modulation; seal pulse ring 420px/s in blue",
+        "purpose": "The hero dot field."
+      },
+      {
+        "name": "card-in",
+        "value": "translateY(26px) + blur(8px) to rest, .9s ease, staggered .75s/.95s/1.15s",
+        "purpose": "Hero cards entrance; they lift 28px as the page scrolls."
+      },
+      {
+        "name": "reveal",
+        "value": "opacity + translateY(14px), .7s ease",
+        "purpose": "Section reveal on scroll; off under reduced motion."
+      },
+      {
+        "name": "dialog-rise",
+        "value": "translateY(18px) scale(.985) to rest, .5s ease",
+        "purpose": "Sheet card entrance."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "gutter",
+        "value": "720px"
+      },
+      {
+        "name": "stack",
+        "value": "900px"
+      },
+      {
+        "name": "nav-collapse",
+        "value": "960px"
+      },
+      {
+        "name": "theme-label",
+        "value": "1100px"
+      },
+      {
+        "name": "wallets-4up",
+        "value": "1100px"
+      },
+      {
+        "name": "wallets-2up",
+        "value": "560px"
+      },
+      {
+        "name": "side-rail",
+        "value": "1360px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Dark Button",
+      "kind": "button",
+      "refersTo": "button-dark",
+      "description": "Primary action on paper rooms: ink pill, one per decision point.",
+      "html": "<button class=\"ds-btn-dark\">Launch app</button>",
+      "css": ".ds-btn-dark{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:0 22px;border:0;border-radius:999px;font-weight:560;font-size:15px;letter-spacing:-.005em;cursor:pointer;transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background-color .2s;background:var(--ink,#0d1016);color:var(--on-ink,#fff);box-shadow:0 1px 2px rgba(11,13,18,.05),0 6px 14px -8px rgba(11,13,18,.14)}.ds-btn-dark:hover{background:var(--ink-hover,#1f232b);transform:translateY(-1px);box-shadow:0 14px 28px -14px rgba(11,13,18,.55)}.ds-btn-dark:active{transform:scale(.97)}.ds-btn-dark:focus-visible{outline:2px solid var(--accent,#2458e8);outline-offset:3px;}"
+    },
+    {
+      "name": "Light Button",
+      "kind": "button",
+      "refersTo": "button-light",
+      "description": "Secondary action on paper rooms: paper pill with a line-2 stroke.",
+      "html": "<button class=\"ds-btn-light\">Connect wallet</button>",
+      "css": ".ds-btn-light{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:0 22px;border:0;border-radius:999px;font-weight:560;font-size:15px;letter-spacing:-.005em;cursor:pointer;transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background-color .2s;background:var(--paper,#fff);color:var(--ink,#0d1016);box-shadow:inset 0 0 0 1px var(--line-2,#d5d2ca)}.ds-btn-light:hover{transform:translateY(-1px);box-shadow:inset 0 0 0 1px var(--dim-2,#6b717c),0 1px 2px rgba(11,13,18,.05),0 6px 14px -8px rgba(11,13,18,.14)}.ds-btn-light:active{transform:scale(.97)}.ds-btn-light:focus-visible{outline:2px solid var(--accent,#2458e8);outline-offset:3px;}"
+    },
+    {
+      "name": "White and Outline Buttons (night)",
+      "kind": "button",
+      "refersTo": "button-white",
+      "description": "Primary and secondary actions on the night hero.",
+      "html": "<div class=\"ds-night\"><button class=\"ds-btn-white\">Launch app</button> <button class=\"ds-btn-outline\">How it works</button></div>",
+      "css": ".ds-night{background:#090b10;padding:28px;border-radius:20px;display:flex;gap:10px;flex-wrap:wrap}.ds-btn-white{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:0 22px;border:0;border-radius:999px;font-weight:560;font-size:15px;letter-spacing:-.005em;cursor:pointer;transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background-color .2s;background:#fff;color:#0b0e14;box-shadow:0 10px 30px -12px rgba(255,255,255,.35)}.ds-btn-white:hover{background:#e9edf4;transform:translateY(-1px)}.ds-btn-outline{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:46px;padding:0 22px;border:0;border-radius:999px;font-weight:560;font-size:15px;letter-spacing:-.005em;cursor:pointer;transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.16,1,.3,1),background-color .2s;background:transparent;color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}.ds-btn-outline:hover{box-shadow:inset 0 0 0 1px rgba(255,255,255,.6);transform:translateY(-1px)}.ds-btn-white:active,.ds-btn-outline:active{transform:scale(.97)}.ds-btn-white:focus-visible,.ds-btn-outline:focus-visible{outline:2px solid var(--accent,#2458e8);outline-offset:3px;}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Paper field with an inset stroke and a blue focus ring.",
+      "html": "<label class=\"ds-field\"><span>Amount</span><input class=\"ds-input\" value=\"2.5\"></label>",
+      "css": ".ds-field{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:grid;gap:7px;max-width:320px}.ds-field span{font-size:14px;font-weight:500;color:var(--ink-2,#2b303a)}.ds-input{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);min-height:46px;padding:11px 14px;border:0;border-radius:14px;background:var(--paper,#fff);color:var(--ink,#0d1016);font-size:15px;box-shadow:inset 0 0 0 1px var(--line-2,#d5d2ca);transition:box-shadow .2s}.ds-input:hover{box-shadow:inset 0 0 0 1px var(--dim-2,#6b717c)}.ds-input:focus{outline:0;box-shadow:inset 0 0 0 1.5px var(--accent,#2458e8),0 0 0 4px var(--accent-soft,#edf2ff)}"
+    },
+    {
+      "name": "Floating Nav over the Hero",
+      "kind": "nav",
+      "refersTo": "theme-button",
+      "description": "The pill nav as it sits on the night hero, with the Theme button.",
+      "html": "<div class=\"ds-night\"><nav class=\"ds-nav\"><b>Obscura</b><a href=\"#\">How it works</a><a href=\"#\" aria-current=\"true\">FAQ</a><button class=\"ds-theme\">Theme</button><button class=\"ds-nbtn\">Launch app</button></nav></div>",
+      "css": ".ds-night{background:#090b10;padding:28px;border-radius:20px;}.ds-nav{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:flex;align-items:center;gap:4px;height:60px;padding:0 8px 0 18px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#f2f4f8;font-size:14.5px;font-weight:500}.ds-nav b{margin-right:auto;font-weight:600;font-size:17px}.ds-nav a{padding:8px 14px;border-radius:999px;color:#aab3c2;text-decoration:none;transition:color .2s,background-color .2s}.ds-nav a:hover,.ds-nav a[aria-current=\"true\"]{color:#fff;background:rgba(255,255,255,.08)}.ds-theme{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);height:40px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:#f2f4f8;font-size:14px;font-weight:500;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18);cursor:pointer}.ds-theme:hover{background:rgba(255,255,255,.08)}.ds-nbtn{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);height:40px;padding:0 16px;border:0;border-radius:999px;background:#fff;color:#0b0e14;font-weight:560;font-size:14px;cursor:pointer}.ds-nav a:focus-visible,.ds-theme:focus-visible,.ds-nbtn:focus-visible{outline:2px solid var(--accent,#2458e8);outline-offset:3px;}"
+    },
+    {
+      "name": "Hero Card",
+      "kind": "card",
+      "refersTo": "hero-card",
+      "description": "Dark-glass card with an uppercase tracked mono head row and live data.",
+      "html": "<div class=\"ds-night\"><div class=\"ds-hcard\"><div class=\"ds-hk\"><span>Ethereum</span><span class=\"ds-live\"><i></i>live</span></div><div class=\"ds-ht\">#20,000,000</div><div class=\"ds-hs\">Reading the chain from a public node</div></div></div>",
+      "css": ".ds-night{background:#090b10;padding:28px;border-radius:20px;}.ds-hcard{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);max-width:300px;padding:16px 18px;border-radius:20px;background:rgba(13,17,25,.72);border:1px solid rgba(255,255,255,.1);box-shadow:0 30px 60px -30px rgba(0,0,0,.8);color:#e9edf4}.ds-hk{font-family:var(--mono,\"JetBrains Mono\",ui-monospace,monospace);display:flex;justify-content:space-between;padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:#8d97a8}.ds-live{display:inline-flex;align-items:center;gap:6px;color:#9ec0ff}.ds-live i{width:6px;height:6px;border-radius:50%;background:#7aa2ff}.ds-ht{font-family:var(--mono,\"JetBrains Mono\",ui-monospace,monospace);font-size:22px;font-weight:600;color:#fff}.ds-hs{margin-top:6px;font-size:13px;color:#8d97a8}"
+    },
+    {
+      "name": "Hero Chip",
+      "kind": "chip",
+      "refersTo": "hero-chip",
+      "description": "The one mono status pill above the hero headline (hero only).",
+      "html": "<div class=\"ds-night\"><span class=\"ds-chip\"><i></i>Private proofs, sealed in your browser</span></div>",
+      "css": ".ds-night{background:#090b10;padding:28px;border-radius:20px;}.ds-chip{font-family:var(--mono,\"JetBrains Mono\",ui-monospace,monospace);display:inline-flex;align-items:center;gap:10px;padding:7px 14px;border-radius:999px;font-size:13px;color:#d7dce6;background:rgba(255,255,255,.03);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}.ds-chip i{width:7px;height:7px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.14)}"
+    },
+    {
+      "name": "Fact Card",
+      "kind": "card",
+      "refersTo": "fact",
+      "description": "One large figure with a short dim caption.",
+      "html": "<div class=\"ds-fact\"><b>310k</b><span>PBKDF2 rounds guard every backup and transfer</span></div>",
+      "css": ".ds-fact{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);max-width:260px;padding:28px 26px 26px;border-radius:20px;background:var(--paper,#fff);border:1px solid var(--line,#e5e2db);color:var(--ink,#0d1016)}.ds-fact b{display:block;font-size:3rem;font-weight:650;letter-spacing:-.045em;line-height:1;font-variant-numeric:tabular-nums}.ds-fact span{display:block;margin-top:14px;color:var(--dim,#555b66);font-size:15px;max-width:22ch}"
+    },
+    {
+      "name": "FAQ on Night",
+      "kind": "custom",
+      "refersTo": "faq",
+      "description": "Numbered rows with mono hex indices and a circular plus/minus toggle.",
+      "html": "<div class=\"ds-night\"><div class=\"ds-faq\"><details open><summary><span class=\"ds-n\">0x01</span><span class=\"ds-q\">Does Obscura ever hold my funds or keys?</span><span class=\"ds-t\"></span></summary><p>No. There is no server in the loop.</p></details><details><summary><span class=\"ds-n\">0x02</span><span class=\"ds-q\">What happens if I lose a receipt?</span><span class=\"ds-t\"></span></summary><p>That bond can no longer be opened.</p></details></div></div>",
+      "css": ".ds-night{background:#090b10;padding:28px;border-radius:20px;}.ds-faq{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:0 22px;background:rgba(255,255,255,.02)}.ds-faq details{border-bottom:1px solid rgba(255,255,255,.1)}.ds-faq details:last-child{border-bottom:0}.ds-faq summary{display:grid;grid-template-columns:52px 1fr 28px;align-items:center;gap:14px;padding:22px 0;cursor:pointer;list-style:none;font-size:18px;font-weight:560;letter-spacing:-.012em;color:#fff}.ds-faq summary::-webkit-details-marker{display:none}.ds-n{font-family:var(--mono,\"JetBrains Mono\",ui-monospace,monospace);font-size:13px;font-weight:400;color:#7c8596}.ds-t{position:relative;width:28px;height:28px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(127,135,150,.5)}.ds-t::before,.ds-t::after{content:\"\";position:absolute;left:50%;top:50%;width:10px;height:1.6px;margin:-.8px 0 0 -5px;background:currentColor;transition:transform .3s cubic-bezier(.16,1,.3,1)}.ds-t::after{transform:rotate(90deg)}.ds-faq details[open] .ds-t::after{transform:rotate(0)}.ds-faq p{padding:0 0 24px 66px;color:#aab3c2}.ds-faq summary:focus-visible{outline:2px solid var(--accent,#2458e8);outline-offset:3px;}"
+    },
+    {
+      "name": "Verdicts and Caution Banner",
+      "kind": "custom",
+      "refersTo": "verdict-true",
+      "description": "Green only for a true proof, red for false, amber for not proven or backup.",
+      "html": "<div class=\"ds-v ds-true\"><span class=\"ds-bit\">1</span>Proof holds</div><div class=\"ds-v ds-false\"><span class=\"ds-bit\">0</span>Proof does not hold</div><div class=\"ds-banner\">Back up your receipts. Lost receipts cannot be recovered.</div>",
+      "css": ".ds-v{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:20px;font-weight:600;font-size:17px;margin-bottom:10px}.ds-bit{font-family:var(--mono,\"JetBrains Mono\",ui-monospace,monospace);font-size:30px;font-weight:600;line-height:1}.ds-true{background:var(--ok-soft,#e8f6ee);color:var(--ok,#0f8a43)}.ds-false{background:var(--bad-soft,#fdeeee);color:var(--bad,#c62f2f)}.ds-banner{font-family:var(--sans,\"Host Grotesk\",system-ui,sans-serif);padding:14px 16px 14px 18px;border-radius:20px;background:var(--warn-soft,#fff7e6);box-shadow:inset 0 0 0 1px var(--warn-line,#f3d9a6);color:var(--warn-ink,#4d3200);font-size:14.5px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Night Vault",
+    "overview": "Obscura opens at night. The landing hero is always night (#090b10), whatever the theme: a canvas field of small square dots, set on a 9px grid, swells in rings out of the mark with a faint eight-point modulation (the mark's own shape). The field is held quiet behind the headline so the words stay crisp, and every seal sends one blue ring outward. Floating dark-glass cards show live machinery: a seal receipt recomputed in the browser, the current Ethereum block read from a public node, and a signed statement. Below the hero the page settles into warm paper rooms (off-white ground, white paper, warm greys) that alternate with full-bleed night bands, so the night comes back for the leak and for the questions.\n\nDensity stays low and the pacing generous: a 1180px rail, large vertical breaks, hairline-ruled lists instead of boxed cards, pill controls and large soft radii. Depth is a few low ambient shadows under things that float. The user chose this look explicitly, modelled on a reference site (dark halftone hero, floating mono cards, a theme button, warm light sections alternating with dark ones). The mark is an eight-ray asterisk with filled V-shaped joints above and below the centre, drawn as a stroked path plus a filled path on a 100 grid.\n\nBoth themes are first-class. Light is warm paper; dark (chosen with the Theme button, or from the system until someone picks) swaps every surface token to blue-black, while the hero, the night bands and the closing band stay night in both.",
+    "keyCharacteristics": [
+      "An always-night hero with a square-dot ripple field radiating from the mark, quieter behind the headline.",
+      "Warm paper rooms alternating with full-bleed night bands; one paper band for the token sheet.",
+      "One signal blue for live or computed state; green only for a true proof; amber for not-proven and backup states.",
+      "Host Grotesk for words; JetBrains Mono for bytes, and for the machine voice on night surfaces (the hero chip, uppercase tracked card labels, hex FAQ indices).",
+      "Pill controls, hairline-ruled lists, large radii, shadows only under floating surfaces.",
+      "Light and dark themes, both driven by the same token names."
+    ],
+    "rules": [
+      {
+        "name": "The One Signal Rule",
+        "body": "Blue means live, computed or detected. If an element is not changing, verified or found in the browser right now, it is not blue. Actions are ink (or white on night), never blue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Earned Green Rule",
+        "body": "Green appears only after a real proof returns true. Never use it for decoration, success toasts or \"secure\" claims. A typed, unbacked amount is never green: its tick is ink on steel.",
+        "section": "colors"
+      },
+      {
+        "name": "The Amber Is Not Red Rule",
+        "body": "Something unproven or unbacked is caution amber, not failure red. Red is for exposure and for things that are false or broken.",
+        "section": "colors"
+      },
+      {
+        "name": "The Night Is Fixed Rule",
+        "body": "The hero, the night bands and the closing band are night in both themes. Theme switching changes the rooms between them, never the night itself.",
+        "section": "colors"
+      },
+      {
+        "name": "The Machine Voice Rule",
+        "body": "JetBrains Mono is for bytes (hashes, keys, salts, addresses, block numbers, signed text) and for the machine voice on night surfaces: the hero chip, card head labels and hex indices. Headings, buttons, body text and the fact figures stay in Host Grotesk with tabular figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The Scoped Uppercase Rule",
+        "body": "Uppercase tracked mono is allowed only as the head label inside a hero or data card. It never sits above a section heading, never appears on paper rooms as a kicker, and never in Host Grotesk.",
+        "section": "typography"
+      },
+      {
+        "name": "The 560 Rule",
+        "body": "Headings, buttons, badges and emphasised UI share one weight (560). Heavier weights are kept for the brand name, amounts and verdicts (600) and fact figures (650).",
+        "section": "typography"
+      },
+      {
+        "name": "The Float-Only Shadow Rule",
+        "body": "A shadow means the surface floats over something. Inline containers such as boxes, facts, bonds, the explorer and the demo use a 1px hairline border, never a shadow.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep the hero, the leak and FAQ bands and the closing band on night (#090b10) in both themes.",
+      "**Do** alternate warm paper rooms with full-bleed night bands; use the paper band for reference material such as the token sheet.",
+      "**Do** use white pills for the primary action on night and ink pills on paper rooms; outline pills for the secondary on night, light pills on paper.",
+      "**Do** keep blue for live or computed state: hashes being recomputed, the live block, detected wallets, ready states, the seal pulse, focus.",
+      "**Do** use caution amber for not-proven, unbacked, backup and testnet states, and green only for a true proof.",
+      "**Do** give hero and data cards an uppercase tracked mono head row (11.5px, 0.08em) and nothing else uppercase.",
+      "**Do** separate list content with 1px hairlines instead of wrapping each item in a card.",
+      "**Do** set surface and text colours through the CSS custom properties so both themes follow, and give any new surface token a dark value.",
+      "**Do** use tabular figures for amounts, times, block numbers and fact figures.",
+      "**Do** draw new imagery as flat SVG in the palette, clipped to the 28px radius."
+    ],
+    "donts": [
+      "**Don't** use green for anything except a true verification result.",
+      "**Don't** use red for unproven or unbacked states; that is amber.",
+      "**Don't** fill buttons with the signal blue.",
+      "**Don't** put shadows on inline containers. Shadows are for surfaces that float.",
+      "**Don't** add uppercase tracked labels or eyebrows above section headings. Headings carry their sections alone; uppercase mono lives only inside cards.",
+      "**Don't** let the hero theme-switch, or put the dot field anywhere but the hero.",
+      "**Don't** use gradient fills on UI surfaces, neon glows or icon-card feature grids.",
+      "**Don't** use easing that overshoots."
+    ]
+  }
+}

@@ -1,0 +1,564 @@
+// Console: cloak, vault, transfer and receive. State is one array in localStorage.
+import { cloak, seal, receive, encodeReceipt, verify, sealBackup, openBackup, BACKUP_PREFIX, secondsLeft } from "./obscura.js";
+import { toast, copy, track } from "./site.js";
+import { connection, openWallets, waitForConnection, onWalletChange } from "./wallet.js";
+import { readBalances, signFunds, floorAmount, parseUnits, formatUnits, CHAINS, switchChain, explorerTx } from "./proof.js";
+import { sendAnchor, normalizeAnchor } from "./anchor.js";
+import { countable, recentPriceBlock, valueAssets, floorUsd, formatUsd, readNft, signUsd, signNft } from "./kinds.js";
+import { connectSol, readSolBalances, signSol, solProvider } from "./solana.js";
+import { renderShare, openShareDialog } from "./share.js";
+
+const STORE = "obscura.vault.v1";
+const $ = (id) => document.getElementById(id);
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(STORE)) || []; } catch { return []; }
+}
+function save(bonds) {
+  try { localStorage.setItem(STORE, JSON.stringify(bonds)); } catch { toast("This browser blocked storage: export a backup now"); }
+}
+let vault = load();
+
+function addBond(receipt) {
+  vault.unshift({ ...receipt, status: "live" });
+  save(vault);
+  renderVault();
+}
+
+const short = (a) => `${a.slice(0, 6)}…${a.slice(-4)}`;
+
+// "Expires in 23 h", "Expired", or nothing for bonds without an expiry.
+export function expiryLabel(asset) {
+  const left = secondsLeft(asset);
+  if (left === null) return null;
+  if (left === 0) return { text: "Expired", cls: "expired" };
+  const h = left / 3600;
+  const text = h < 1 ? `Expires in ${Math.max(1, Math.round(left / 60))} min` : h < 48 ? `Expires in ${Math.round(h)} h` : `Expires in ${Math.round(h / 24)} days`;
+  return { text, cls: "" };
+}
+
+function label(b) {
+  return `${b.asset.amount} ${b.asset.symbol}`;
+}
+
+function el(tag, attrs = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") n.className = v;
+    else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v);
+  }
+  n.append(...kids);
+  return n;
+}
+
+// ---------- tabs ----------
+const tabs = [...document.querySelectorAll(".tab")];
+function show(name) {
+  document.querySelector(".toast")?.classList.remove("show"); // a toast belongs to the tab it came from
+  for (const t of tabs) {
+    const on = t.dataset.tab === name;
+    t.setAttribute("aria-selected", String(on));
+    t.tabIndex = on ? 0 : -1;
+  }
+  for (const p of document.querySelectorAll(".panel")) p.classList.toggle("active", p.id === "panel-" + name);
+  history.replaceState(null, "", "#" + name);
+}
+tabs.forEach((t) => t.addEventListener("click", () => show(t.dataset.tab)));
+// Arrow keys move between tabs, as screen-reader users expect from a tab list.
+tabs.forEach((t, i) => t.addEventListener("keydown", (e) => {
+  const step = { ArrowRight: 1, ArrowLeft: -1, Home: -i, End: tabs.length - 1 - i }[e.key];
+  if (step === undefined) return;
+  e.preventDefault();
+  const next = tabs[(i + step + tabs.length) % tabs.length];
+  show(next.dataset.tab);
+  next.focus();
+}));
+const start = location.hash.slice(1);
+if (tabs.some((t) => t.dataset.tab === start)) show(start);
+
+// ---------- cloak ----------
+// Wallet-backed mode: the balance comes from the wallet and the wallet signs.
+// funds = { mode: "evm" | "sol", address, provider, chainId, block | slot, chain,
+//           assets, pick: "a:<index>" | "usd" | "nft", usd, nft }
+let funds = null;
+
+const pickAsset = () => (funds && funds.pick.startsWith("a:") ? funds.assets[Number(funds.pick.slice(2))] : null);
+const SOLANA = { key: "solana", name: "Solana", symbol: "SOL" };
+
+function setFundsMode(f) {
+  funds = f;
+  const on = !!f;
+  $("f-clear").hidden = !on;
+  $("f-asset-field").hidden = !on;
+  $("f-read-sol").hidden = on;
+  $("f-read").textContent = on ? "Read again" : "Read balance from wallet";
+  $("c-amount-label").textContent = on ? "Prove at least" : "Amount";
+  $("c-amount-hint").hidden = !on;
+  $("c-symbol").readOnly = on;
+  $("c-chain").disabled = on;
+  $("c-submit").textContent = on ? "Seal and sign with wallet" : "Seal bond";
+  $("funds").classList.toggle("on", on);
+  if (!on) {
+    $("f-testnet").hidden = true;
+    $("f-nft").hidden = $("f-nft-check").hidden = true;
+    $("f-text").textContent = "Reads your real balance and asks your wallet to sign. Whoever checks your proof can confirm it on the blockchain. Without it, the amount is only your word. The proof shows the signing address, so use a wallet that holds only what you want to show.";
+    return;
+  }
+  const where = f.mode === "sol" ? `slot ${f.slot.toLocaleString("en-US")}` : `block ${f.block.toLocaleString("en-US")}`;
+  $("f-text").textContent = `${short(f.address)} on ${f.chain.name}, ${where}. Pick what to prove.`;
+  $("f-testnet").hidden = !f.chain.testnet;
+  const net = $("f-network");
+  const ids = Object.keys(CHAINS).map(Number);
+  net.replaceChildren(...ids.map((id) => el("option", { value: String(id) }, CHAINS[id].name)),
+    el("option", { value: "solana" }, "Solana"),
+    ...(f.mode === "evm" && !CHAINS[f.chainId] ? [el("option", { value: String(f.chainId) }, f.chain.name + " (cannot be checked)")] : []));
+  net.value = f.mode === "sol" ? "solana" : String(f.chainId);
+  const sel = $("f-asset");
+  const opts = f.assets.map((a, i) => el("option", { value: "a:" + i }, `${a.symbol} · ${formatUnits(a.wei, a.decimals, 4)}`));
+  if (f.usd) opts.push(el("option", { value: "usd" }, `Total in dollars · ${formatUsd(f.usd.total)}`));
+  if (f.mode === "evm" && CHAINS[f.chainId]) opts.push(el("option", { value: "nft" }, "An NFT from a collection…"));
+  sel.replaceChildren(...opts);
+  sel.value = f.pick;
+  const chainSel = $("c-chain");
+  if (![...chainSel.options].some((o) => o.value === f.chain.key)) chainSel.append(el("option", { value: f.chain.key }, f.chain.key));
+  chainSel.value = f.chain.key;
+  applyPick();
+}
+
+function applyPick() {
+  const nft = funds.pick === "nft";
+  $("f-nft").hidden = $("f-nft-check").hidden = !nft;
+  if (nft) {
+    const n = funds.nft;
+    $("c-symbol").value = n ? n.symbol : "";
+    $("c-amount").value = n ? (n.tokenId ? "1" : n.count > 0n ? n.count.toString() : "") : "";
+    $("c-amount-hint").textContent = !n ? "Paste the collection's contract address and check it."
+      : n.tokenId ? (n.owns ? `This wallet owns ${n.name} #${n.tokenId}.` : `This wallet does not own ${n.name} #${n.tokenId}.`)
+      : n.count > 0n ? `Holds ${n.count} ${n.name}. You can prove fewer.` : `This wallet holds no ${n.name}.`;
+    return;
+  }
+  if (funds.pick === "usd") {
+    const u = funds.usd;
+    $("c-symbol").value = "USD";
+    $("c-amount").value = u.total > 0n ? floorUsd(u.total) : "";
+    $("c-amount-hint").textContent = `Up to ${formatUsd(u.total)}: ${u.parts.join(", ") || "nothing"} at Chainlink prices. You can prove less.`;
+    return;
+  }
+  const a = pickAsset();
+  const held = formatUnits(a.wei, a.decimals, 4);
+  $("c-symbol").value = a.symbol;
+  $("c-amount").value = a.wei > 0n ? floorAmount(a.wei, a.decimals) : "";
+  $("c-amount-hint").textContent = a.wei > 0n
+    ? `Up to ${held} ${a.symbol}. You can prove less than you hold.`
+    : `This wallet holds no ${a.symbol} on ${funds.chain.name}.`;
+}
+
+$("f-asset").addEventListener("change", () => { funds.pick = $("f-asset").value; applyPick(); });
+
+$("f-nft-check").addEventListener("click", async () => {
+  const btn = $("f-nft-check");
+  btn.setAttribute("aria-busy", "true");
+  try {
+    funds.nft = await readNft(funds.provider, funds.address, $("f-nft-contract").value.trim(), $("f-nft-id").value.trim());
+    if (funds.nft.chainId !== funds.chainId) throw new Error("The wallet switched network. Read again.");
+    applyPick();
+  } catch (err) {
+    funds.nft = null; applyPick();
+    toast(err?.message || "That collection could not be read");
+  } finally { btn.removeAttribute("aria-busy"); }
+});
+
+// Moving networks from here asks the wallet to switch, then reads again.
+let switching = false;
+$("f-network").addEventListener("change", async () => {
+  const value = $("f-network").value;
+  if (!funds) return;
+  if (value === "solana") return readFromSolana();
+  const target = Number(value);
+  if (funds.mode === "evm" && target === funds.chainId) return;
+  const back = funds.mode === "sol" ? "solana" : String(funds.chainId);
+  switching = true;
+  try {
+    const conn = connection();
+    if (conn) await switchChain(conn.provider, target);
+    await readFromWallet();
+  } catch (err) {
+    $("f-network").value = back;
+    toast(err?.code === 4001 ? "The network switch was declined in the wallet" : (err?.message || "The wallet did not switch network"));
+  } finally {
+    switching = false;
+  }
+});
+
+async function readFromWallet() {
+  let conn = connection();
+  if (!conn) {
+    openWallets();
+    conn = await waitForConnection();
+    if (!conn) return; // picker closed without a wallet
+  }
+  const btn = $("f-read");
+  btn.setAttribute("aria-busy", "true");
+  try {
+    const r = await readBalances(conn.provider, conn.address);
+    // Start on the first holding the wallet has, native coin first.
+    const firstHeld = r.assets.findIndex((a) => a.wei > 0n);
+    if (firstHeld === -1) toast(`This wallet holds nothing listed on ${r.chain.name}. Switch network or prove an NFT.`);
+    let usd = null;
+    if (countable(r.chainId).length) {
+      try {
+        const priceBlock = await recentPriceBlock();
+        usd = await valueAssets(r.chainId, r.assets, priceBlock);
+      } catch { /* prices unreachable: the dollar option is simply not offered */ }
+    }
+    setFundsMode({ ...r, mode: "evm", address: conn.address, provider: conn.provider, pick: "a:" + Math.max(0, firstHeld), usd, nft: null });
+  } catch (err) {
+    toast(err?.message || "The wallet did not return a balance");
+  } finally {
+    btn.removeAttribute("aria-busy");
+  }
+}
+
+async function readFromSolana() {
+  if (!solProvider()) {
+    toast("No Solana wallet found in this browser. Install Phantom, Solflare or Backpack, or open this page in its app.");
+    const a = el("a", { href: "https://phantom.com/download", target: "_blank", rel: "noopener" });
+    return a.click();
+  }
+  const btn = $("f-read-sol");
+  btn.setAttribute("aria-busy", "true");
+  try {
+    const conn = await connectSol();
+    const r = await readSolBalances(conn.address);
+    const firstHeld = r.assets.findIndex((a) => a.wei > 0n);
+    setFundsMode({ mode: "sol", address: conn.address, provider: conn.provider, slot: r.slot, chain: SOLANA, assets: r.assets, pick: "a:" + Math.max(0, firstHeld), usd: null, nft: null });
+  } catch (err) {
+    toast(err?.code === 4001 ? "The connection was declined in the wallet" : (err?.message || "The Solana wallet did not connect"));
+    if (funds) $("f-network").value = funds.mode === "sol" ? "solana" : String(funds.chainId);
+  } finally {
+    btn.removeAttribute("aria-busy");
+  }
+}
+$("f-read-sol").addEventListener("click", readFromSolana);
+
+$("f-read").addEventListener("click", readFromWallet);
+// A balance read for one account or network says nothing about another.
+onWalletChange((c) => {
+  if (!funds || funds.mode !== "evm") return;
+  if (!c || c.address.toLowerCase() !== funds.address.toLowerCase() || c.provider !== funds.provider) {
+    setFundsMode(null);
+    toast("The wallet changed. Read the balance again to back the bond.");
+    return;
+  }
+  if (switching) return;
+  c.provider.request({ method: "eth_chainId" }).then((id) => {
+    if (!switching && funds && Number(id) !== funds.chainId) { setFundsMode(null); toast("The wallet switched network. Read the balance again."); }
+  }).catch(() => {});
+});
+$("f-clear").addEventListener("click", () => setFundsMode(null));
+
+function showResult(r) {
+  $("c-commit").textContent = "0x" + r.commitment;
+  $("c-receipt").value = encodeReceipt(r);
+  const exp = expiryLabel(r.asset);
+  $("c-backing").replaceChildren(r.proof
+    ? el("span", { class: "badge live" }, "Backed by wallet " + short(r.proof.address))
+    : el("span", { class: "badge" }, "Self-declared: not checked against a wallet"),
+    ...(exp ? [" ", el("span", { class: "badge " + exp.cls }, exp.text)] : []));
+  renderShare($("c-share"), r);
+  $("cloak-empty").hidden = true;
+  $("cloak-out").hidden = false;
+}
+
+let sealing = false; // Enter in a field submits too, even while the wallet prompt is open
+$("cloak-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (sealing) return;
+  sealing = true;
+  const btn = $("c-submit");
+  btn.setAttribute("aria-busy", "true");
+  try {
+    const ttl = Number($("c-expiry").value);
+    const asset = { amount: $("c-amount").value, symbol: $("c-symbol").value, chain: $("c-chain").value, note: $("c-note").value };
+    if (ttl) asset.expires = Math.floor(Date.now() / 1000) + ttl;
+    const held = pickAsset();
+    if (held && parseUnits(asset.amount, held.decimals) > held.wei) {
+      throw new Error(`You can prove at most ${formatUnits(held.wei, held.decimals, 4)} ${held.symbol}`);
+    }
+    if (funds?.pick === "usd" && parseUnits(asset.amount, 8) > funds.usd.total) throw new Error(`You can prove at most ${formatUsd(funds.usd.total)}`);
+    if (funds?.pick === "nft") {
+      const n = funds.nft;
+      if (!n) throw new Error("Check the NFT collection first");
+      if (!/^\d+$/.test(asset.amount)) throw new Error("An NFT count is a whole number");
+      if (n.tokenId ? !n.owns || asset.amount !== "1" : BigInt(asset.amount) > n.count || n.count === 0n) throw new Error("The wallet does not hold that");
+    }
+    const r = await cloak(asset);
+    if (funds) {
+      toast("Confirm the signature in your wallet. It costs nothing and sends no transaction.");
+      try {
+        if (funds.mode === "sol") r.proof = await signSol(funds.provider, { receipt: r, address: funds.address, slot: funds.slot, mint: held.token });
+        else if (funds.pick === "usd") r.proof = await signUsd(funds.provider, { receipt: r, address: funds.address, chainId: funds.chainId, block: funds.block, priceBlock: funds.usd.priceBlock, parts: funds.usd.parts });
+        else if (funds.pick === "nft") r.proof = await signNft(funds.provider, { receipt: r, address: funds.address, chainId: funds.chainId, block: funds.nft.block, contract: funds.nft.contract, tokenId: funds.nft.tokenId });
+        else r.proof = await signFunds(funds.provider, { receipt: r, address: funds.address, chainId: funds.chainId, block: funds.block, token: held.token });
+      } catch (err) {
+        throw new Error(err?.code === 4001 ? "The signature was declined, so nothing was saved" : (err?.message || "The wallet did not sign"));
+      }
+    }
+    addBond(r);
+    track(r.proof ? "seal_signed" : "seal");
+    showResult(r);
+    toast(r.proof ? "Bond sealed and signed. Share the link to prove it." : "Bond sealed and saved to the vault");
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    sealing = false;
+    btn.removeAttribute("aria-busy");
+  }
+});
+
+// ---------- vault ----------
+async function anchor(b, btn) {
+  const conn = connection();
+  if (!conn) {
+    toast("Connect a wallet to anchor this seal code");
+    return openWallets();
+  }
+  if (btn.getAttribute("aria-busy") === "true") return;
+  btn.setAttribute("aria-busy", "true");
+  try {
+    const chainId = Number(await conn.provider.request({ method: "eth_chainId" }));
+    const name = CHAINS[chainId]?.name;
+    if (name) toast(`Anchoring on ${name}. Confirm in the wallet; you pay only the network fee.`);
+    const done = await sendAnchor(conn.provider, conn.address, b.commitment, {
+      onSent: (a) => { b.anchor = a; save(vault); renderVault(); toast("Sent. Waiting for it to land in a block…"); },
+    });
+    b.anchor = done;
+    track("anchor");
+    save(vault);
+    renderVault();
+    toast(done.block ? `Anchored on ${CHAINS[done.chainId].name}, block ${done.block.toLocaleString("en-US")}` : "Sent. It will show as anchored once it is in a block.");
+  } catch (err) {
+    toast(err?.code === 4001 ? "Transaction was declined in the wallet" : (err?.message || "The wallet did not send the transaction"));
+    renderVault();
+  }
+}
+
+// Close an open "More" menu on an outside click or Escape.
+document.addEventListener("click", (e) => {
+  for (const d of document.querySelectorAll("details.more[open]")) if (!d.contains(e.target)) d.open = false;
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  for (const d of document.querySelectorAll("details.more[open]")) { d.open = false; d.querySelector("summary").focus(); }
+});
+
+function renderVault() {
+  const list = $("vault-list");
+  list.replaceChildren();
+  $("vault-count").textContent = vault.length;
+  if (!vault.length) {
+    list.append(el("div", { class: "empty" }, "Your vault is empty. Seal a bond or receive one."));
+  }
+  for (const b of vault) {
+    const badge = el("span", { class: "badge " + b.status }, b.status === "sent" ? "Sent" : "Live");
+    const meta = el("span", { class: "badge" }, b.asset.chain);
+    const backed = el("span", { class: "badge" + (b.proof ? " live" : "") }, b.proof ? "Wallet-backed" : "Self-declared");
+    const anc = normalizeAnchor(b.anchor);
+    const exp = expiryLabel(b.asset);
+    const expBadge = exp ? [el("span", { class: "badge " + exp.cls }, exp.text)] : [];
+    // One clear action; the rest wait behind "More".
+    const remove = el("button", {
+      class: "more-danger", type: "button", role: "menuitem", onclick: (e) => {
+        // Two steps instead of confirm(): the first press asks, the second removes.
+        const btn = e.currentTarget;
+        if (btn.dataset.armed !== "1") {
+          btn.dataset.armed = "1";
+          btn.textContent = "Press again to remove for good";
+          setTimeout(() => { if (btn.isConnected) { btn.dataset.armed = ""; btn.textContent = "Remove from this browser"; } }, 4000);
+          return toast(`Without a backup, ${label(b)} can never be opened again`);
+        }
+        vault = vault.filter((x) => x !== b);
+        save(vault);
+        renderVault();
+        toast(`${label(b)} removed from this browser`);
+      },
+    }, "Remove from this browser");
+    const more = el("details", { class: "more" },
+      el("summary", { class: "btn btn-light btn-sm" }, "More"),
+      el("div", { class: "more-menu", role: "menu" },
+        el("button", { type: "button", role: "menuitem", onclick: () => copy(encodeReceipt(b), "Receipt copied") }, "Copy receipt"),
+        el("button", { type: "button", role: "menuitem", onclick: () => { $("t-bond").value = b.commitment; show("transfer"); } }, "Transfer to someone"),
+        ...(anc ? [] : [el("button", { type: "button", role: "menuitem", onclick: (e) => { more.open = false; anchor(b, e.currentTarget); } }, "Anchor onchain")]),
+        remove));
+    const actions = el("div", { class: "actions", style: "margin-top:4px" },
+      el("button", { class: "btn btn-dark btn-sm", type: "button", onclick: () => openShareDialog(b, label(b)) }, "Share proof"),
+      more,
+    );
+    const extra = [];
+    if (b.asset.note) extra.push(el("span", { class: "hint" }, "Note: " + b.asset.note));
+    if (b.proof) extra.push(el("span", { class: "bond-meta" }, "Signed by ", el("span", { class: "mono" }, b.proof.address), ` at block ${Number(b.proof.block).toLocaleString("en-US")}`));
+    if (b.prev) extra.push(el("span", { class: "bond-meta" }, "Re-sealed from ", el("span", { class: "mono" }, "0x" + b.prev.slice(0, 16) + "…")));
+    if (anc) {
+      const where = CHAINS[anc.chainId]?.name;
+      const link = anc.chainId && explorerTx(anc.chainId, anc.tx);
+      const txEl = link ? el("a", { class: "mono", href: link, target: "_blank", rel: "noopener" }, anc.tx.slice(0, 18) + "…") : el("span", { class: "mono" }, anc.tx);
+      extra.push(el("span", { class: "bond-meta" }, where ? `Anchored on ${where}${anc.block ? `, block ${anc.block.toLocaleString("en-US")}` : " (waiting for a block)"} · ` : "Anchor transaction ", txEl));
+    }
+    list.append(el("div", { class: "bond" },
+      el("div", { class: "bond-top" }, el("span", { class: "bond-amt" }, label(b)), el("span", { style: "display:flex;gap:6px;flex-wrap:wrap" }, backed, ...(anc ? [el("span", { class: "badge live" }, "Anchored")] : []), ...expBadge, meta, badge)),
+      el("span", { class: "bond-hash" }, "0x" + b.commitment),
+      ...extra,
+      actions,
+    ));
+  }
+
+  const sel = $("t-bond");
+  const keep = sel.value;
+  sel.replaceChildren(...vault.filter((b) => b.status === "live").map((b) =>
+    el("option", { value: b.commitment }, `${label(b)} · 0x${b.commitment.slice(0, 10)}…`)));
+  if (!sel.options.length) sel.append(el("option", { value: "" }, "No live bonds in the vault"));
+  if ([...sel.options].some((o) => o.value === keep)) sel.value = keep;
+  renderBackupState();
+}
+
+// ---------- backup ----------
+const BACKUP_STORE = "obscura.backup";
+function backedUp() {
+  try { return new Set(JSON.parse(localStorage.getItem(BACKUP_STORE))?.commitments || []); } catch { return new Set(); }
+}
+function markBackedUp() {
+  try { localStorage.setItem(BACKUP_STORE, JSON.stringify({ at: new Date().toISOString(), commitments: vault.map((b) => b.commitment) })); } catch { /* reminder stays */ }
+  renderBackupState();
+}
+function renderBackupState() {
+  const done = backedUp();
+  const missing = vault.filter((b) => b.status === "live" && !done.has(b.commitment)).length;
+  $("backup-banner").hidden = missing === 0;
+  $("backup-count").textContent = missing === 1 ? "1 bond is not backed up." : `${missing} bonds are not backed up.`;
+  let at = null;
+  try { at = JSON.parse(localStorage.getItem(BACKUP_STORE))?.at; } catch { /* never */ }
+  $("b-status").textContent = at ? `Last backup ${new Date(at).toLocaleString()}.${missing ? ` ${missing} newer bond${missing === 1 ? "" : "s"} not in it.` : " Everything is in it."}` : "No backup yet.";
+}
+
+$("backup-now").addEventListener("click", () => {
+  show("vault");
+  $("backup").scrollIntoView({ behavior: "smooth", block: "center" });
+  setTimeout(() => $("b-pass").focus(), 400);
+});
+
+$("backup-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!vault.length) return toast("The vault is empty: nothing to back up yet");
+  if ($("b-pass").value !== $("b-pass2").value) return toast("Passphrases do not match");
+  try {
+    const text = await sealBackup(vault, $("b-pass").value);
+    if (e.submitter?.name === "copy") {
+      if (!(await copy(text, "Encrypted backup copied. Paste it somewhere safe"))) return;
+    } else {
+      const a = el("a", { href: URL.createObjectURL(new Blob([text], { type: "text/plain" })), download: `obscura-backup-${new Date().toISOString().slice(0, 10)}.obxbak` });
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast("Encrypted backup downloaded");
+    }
+    $("b-pass").value = $("b-pass2").value = "";
+    markBackedUp();
+  } catch (err) {
+    toast(err.message);
+  }
+});
+
+$("r-file2").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (file) $("r-text").value = (await file.text()).trim();
+});
+
+$("restore-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = $("r-text").value.trim();
+  if (!text) return toast("Choose a backup file or paste the backup text");
+  try {
+    let bonds;
+    if (text.startsWith(BACKUP_PREFIX)) {
+      bonds = await openBackup(text, $("r-pass2").value);
+    } else {
+      // Older, unencrypted backups.
+      const data = JSON.parse(text);
+      bonds = Array.isArray(data) ? data : data.bonds;
+    }
+    // Check everything first, then add it in one go, so a bad entry leaves the vault as it was.
+    const fresh = [];
+    for (const b of bonds || []) {
+      if (!b || typeof b !== "object" || !b.commitment) continue;
+      if (vault.some((x) => x.commitment === b.commitment) || fresh.some((x) => x.commitment === b.commitment)) continue;
+      if (!(await verify(b).catch(() => false))) continue;
+      fresh.push({ ...b, status: b.status === "sent" ? "sent" : "live" });
+    }
+    const added = fresh.length;
+    vault.push(...fresh);
+    save(vault);
+    renderVault();
+    $("r-text").value = $("r-pass2").value = "";
+    toast(`Restored ${added} bond${added === 1 ? "" : "s"}`);
+  } catch (err) {
+    toast(err instanceof SyntaxError ? "That is not an Obscura backup" : err.message);
+  }
+});
+
+// ---------- transfer ----------
+let lastPkg = "";
+$("transfer-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const b = vault.find((x) => x.commitment === $("t-bond").value);
+  if (!b) return toast("Pick a live bond first");
+  if ($("t-pass").value !== $("t-pass2").value) return toast("Passphrases do not match");
+  try {
+    lastPkg = await seal(b, $("t-pass").value);
+    b.status = "sent";
+    save(vault);
+    renderVault();
+    $("t-pkg").value = lastPkg;
+    $("t-empty").hidden = true;
+    $("t-out").hidden = false;
+    $("t-pass").value = $("t-pass2").value = "";
+    toast("Package sealed");
+  } catch (err) {
+    toast(err.message);
+  }
+});
+
+$("t-download").addEventListener("click", () => {
+  if (!lastPkg) return;
+  const a = el("a", { href: URL.createObjectURL(new Blob([lastPkg], { type: "text/plain" })), download: `bond-${Date.now()}.obx` });
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+// ---------- receive ----------
+$("r-file").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (file) $("r-pkg").value = (await file.text()).trim();
+});
+
+$("receive-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const btn = e.submitter;
+  if (btn) btn.disabled = true;
+  try {
+    const r = await receive($("r-pkg").value, $("r-pass").value);
+    addBond(r);
+    $("r-asset").textContent = `${label(r)} on ${r.asset.chain}`;
+    $("r-commit").textContent = "0x" + r.commitment;
+    $("r-prev").textContent = "0x" + r.prev;
+    $("r-empty").hidden = true;
+    $("r-out").hidden = false;
+    $("r-pass").value = "";
+    toast("Bond received and re-sealed");
+  } catch (err) {
+    toast(err.message);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+});
+
+renderVault();

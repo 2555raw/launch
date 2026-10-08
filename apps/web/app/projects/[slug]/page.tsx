@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeftRight, Globe, MessageCircle, RefreshCw, Send, Twitter } from 'lucide-react';
+import { ArrowLeftRight, AtSign, Globe, MessageCircle, RefreshCw, Send } from 'lucide-react';
 import type { ProjectDTO, TokenMetricsDTO, TransactionStatus } from '@launch/types';
 import { robinhoodExplorerTxUrl, solanaExplorerTxUrl } from '@launch/config/chains';
 import { api, errorMessage } from '@/lib/api';
@@ -76,7 +76,7 @@ export default function ProjectPage() {
   const t = p.token;
   const socials = [
     { href: p.website, label: 'Website', icon: Globe },
-    { href: p.twitter, label: 'X', icon: Twitter },
+    { href: p.twitter, label: 'X', icon: AtSign },
     { href: p.discord, label: 'Discord', icon: MessageCircle },
     { href: p.telegram, label: 'Telegram', icon: Send },
   ].filter((s): s is { href: string; label: string; icon: typeof Globe } => !!s.href);

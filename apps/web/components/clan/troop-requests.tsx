@@ -6,7 +6,7 @@ import { TROOP_DEFINITIONS } from '@launch/game-engine';
 import type { ArmyDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
 import type { ClanTroopRequest } from './types';
-import { TroopAvatar, troopName } from '@/components/army/troop-avatar';
+import { troopName } from '@/components/army/troop-avatar';
 import { ago } from '@/components/ui/dates';
 import { ProgressBar } from '@/components/ui/progress';
 import { Spinner } from '@/components/ui/primitives';
@@ -154,12 +154,7 @@ export function TroopRequests({ requests, myPlayerId }: { requests: ClanTroopReq
                     ))}
                 </>
               )}
-              {isMine && r.filled > 0 && (
-                <div className="mt-2 flex items-center gap-1 text-[11px] text-slate-500">
-                  <TroopAvatar type="grunt" size="sm" className="hidden" />
-                  Donated troops join your army automatically.
-                </div>
-              )}
+              {isMine && r.filled > 0 && <div className="mt-2 text-[11px] text-slate-500">Donated troops join your army automatically.</div>}
             </li>
           );
         })}

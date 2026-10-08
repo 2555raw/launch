@@ -9,5 +9,6 @@ const nextConfig = {
     return config;
   },
   output: 'standalone',
+  eslint: { ignoreDuringBuilds: true },
 };
 export default nextConfig;

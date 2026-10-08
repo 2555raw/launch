@@ -1,17 +1,18 @@
-// Builds x-header4.png: the night scene (the hook, the ship, the moon) as a halftone dot field.
-// node brand/x-header4.js   (needs Playwright; reads x-header3-bg.png)
+// Builds x-header4.png: the night scene (the hook, the ship, the moon) and the mark, huge, as a halftone dot field.
+// node brand/x-header4.js   (needs Playwright; reads x-header3-bg.png and mark.d.txt)
 const { chromium } = require('/opt/node-tools/node_modules/playwright');
 const fs = require('fs'), path = require('path');
 const D = __dirname;
 const bg = 'data:image/png;base64,' + fs.readFileSync(path.join(D, 'x-header3-bg.png')).toString('base64');
+const mark = fs.readFileSync(path.join(D, 'mark.d.txt'), 'utf8').trim();
 const html = `<!doctype html><html><head><meta charset="utf-8">
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@600&display=swap" rel="stylesheet">
 <style>*{margin:0}body{width:1500px;height:500px;overflow:hidden;background:#070B14;position:relative}
 canvas{position:absolute;inset:0;width:1500px;height:500px}
-.wm{position:absolute;right:58px;bottom:46px;display:flex;align-items:center;gap:14px;font:600 44px 'Geist',sans-serif;letter-spacing:-.03em;color:#fff}
+.wm{position:absolute;right:58px;bottom:46px;display:flex;align-items:center;gap:14px;font:600 44px 'Geist',sans-serif;letter-spacing:-.03em;color:#F3EAD7}
 .wm svg{width:46px;height:46px}.wm em{font-style:normal;color:#E8B04B}</style></head><body>
 <canvas id="c" width="3000" height="1000"></canvas>
-<div class="wm"><span>Uny<em>Hooks</em></span></div>
+<div class="wm"><span>UnyHooks.</span></div>
 <script>
 const W = 3000, H = 1000, STEP = 9;
 const img = new Image();
@@ -28,6 +29,10 @@ img.onload = () => {
     const q = g.createRadialGradient(x, y, 0, x, y, r); q.addColorStop(0, 'rgba(120,150,210,' + a + ')'); q.addColorStop(1, 'rgba(120,150,210,0)');
     g.fillStyle = q; g.fillRect(x - r, y - r, 2 * r, 2 * r);
   }
+  // the mark, huge and faint, behind everything on the left
+  g.save(); g.filter = 'blur(9px)'; g.globalAlpha = 0.115; g.fillStyle = '#8FA6D8';
+  const s = 1150 / 3036; g.translate(170, -75); g.scale(s, s); g.translate(18, 18);
+  g.fill(new Path2D(${JSON.stringify(mark)}), 'evenodd'); g.restore();
   const px = g.getImageData(0, 0, W, H).data, pb = bg2.getImageData(0, 0, W, H).data;
   const lum = (p, i) => (0.3 * p[i] + 0.55 * p[i + 1] + 0.15 * p[i + 2]) / 255;
   const L = (x, y) => { const i = (Math.min(H - 1, y) * W + Math.min(W - 1, x)) * 4; const f = lum(px, i), b = lum(pb, i); return Math.max(0, 0.5 * f + 0.12 * b + 2.2 * (f - b)); };

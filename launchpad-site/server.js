@@ -242,7 +242,11 @@ function limited(req) {
 }
 
 function serveStatic(req, res, rel) {
-  if (rel === '/' || rel.endsWith('/')) rel += 'index.html';
+  // La raíz es el dapp de BNB Chain (dapp/index.html y dapp/logos); la mesa
+  // clásica sigue en /index.html, /app.js y /styles.css.
+  if (rel === '/' || rel === '/dapp' || rel === '/dapp/') rel = '/dapp/index.html';
+  else if (rel.startsWith('/logos/')) rel = '/dapp' + rel;
+  if (rel.endsWith('/')) rel += 'index.html';
   const file = path.join(ROOT, path.normalize(rel));
   if (!file.startsWith(ROOT + path.sep) || PRIVATE.has(path.basename(file)) || file.includes(path.sep + 'data' + path.sep) || file.includes('node_modules')) {
     return fail(res, 404, 'nothing here');

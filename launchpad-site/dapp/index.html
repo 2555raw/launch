@@ -70,8 +70,8 @@ p { margin: 0; }
 .hdr-in { display: flex; align-items: center; gap: 16px; height: 64px; padding: 0 16px 0 24px; }
 .burger { width: 40px; height: 40px; border: 0; background: transparent; border-radius: 999px; display: grid; place-items: center; cursor: pointer; margin-left: -8px; }
 .burger:hover { background: var(--surface); }
-.brand { font-weight: 700; font-size: 22px; letter-spacing: -.03em; white-space: nowrap; margin-right: 8px; }
-.brand em { font-style: normal; font-weight: 500; }
+.brand { font-weight: 800; font-size: 24px; letter-spacing: -.04em; white-space: nowrap; margin-right: 8px; }
+.brand em { font-style: normal; }
 .mode { display: inline-flex; background: var(--surface); border-radius: 999px; padding: 4px; height: 48px; }
 .mode button { font-size: 14px; font-weight: 500; color: var(--ink); background: transparent; border: 0; padding: 0 16px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
 .mode button.is-on { background: var(--bg); box-shadow: 0 1px 4px rgba(0,0,0,.14); }
@@ -105,7 +105,7 @@ p { margin: 0; }
 .side { padding: 12px 12px 24px; position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 64px); overflow: auto; display: flex; flex-direction: column; gap: 2px; scrollbar-width: none; }
 .side::-webkit-scrollbar { display: none; }
 .side > * { flex: none; }
-.side .grp { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); padding: 20px 12px 6px; }
+.side .grp { font-size: 13px; font-weight: 600; color: var(--muted); padding: 20px 12px 6px; }
 .side a, .side button { display: flex; align-items: center; gap: 12px; width: 100%; height: 44px; padding: 0 12px; border-radius: 12px; font-weight: 500; font-size: 16px; color: var(--ink); background: transparent; border: 0; cursor: pointer; text-align: left; white-space: nowrap; transition: background .12s ease; }
 .side a:hover, .side button:hover { background: var(--surface); }
 .side a:active, .side button:active { background: var(--surface-hi); }
@@ -114,13 +114,6 @@ p { margin: 0; }
 .side .is-on { background: var(--surface); font-weight: 700; }
 .side .is-on:hover { background: var(--surface-hi); }
 .side .n { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--muted); }
-.side-tk { display: grid; gap: 2px; }
-.side-tk button { height: 40px; font-size: 14px; font-weight: 500; gap: 10px; padding: 0 12px; border-radius: 12px; }
-.side-tk .logo { width: 24px; height: 24px; }
-.side-tk .sym { font-family: var(--mono); font-weight: 600; font-size: 12.5px; }
-.side-tk .px { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 600; text-align: right; line-height: 14px; }
-.side-tk .px i { display: block; font-style: normal; font-size: 11px; font-weight: 600; }
-.side-tk .px.na { color: var(--dim); font-weight: 500; }
 .side .wallet-card { margin-top: auto; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
 .side .wallet-card .row1 { display: flex; align-items: center; gap: 10px; }
 .side .wallet-card .av { width: 36px; height: 36px; border-radius: 999px; background: var(--green); flex: none; }
@@ -142,7 +135,9 @@ p { margin: 0; }
 .cats { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; padding: 8px 0 4px; scroll-behavior: smooth; }
 .cats::-webkit-scrollbar { display: none; }
 .cats button { flex: none; display: grid; justify-items: center; gap: 8px; width: 90px; padding: 6px 0; border: 0; background: transparent; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--ink); line-height: 1.2; text-align: center; }
-.cats button .ic { height: 52px; width: 52px; display: grid; place-items: center; font-size: 42px; line-height: 1; filter: saturate(1.05); }
+.cats button .ic { height: 64px; width: 64px; border-radius: 999px; overflow: hidden; background: var(--surface); }
+.cats button .ic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cats button.is-on .ic { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
 .cats button.is-on .ic { position: relative; }
 .cats button.is-on span:last-child { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .cats button span:last-child { max-width: 84px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -197,7 +192,7 @@ p { margin: 0; }
 /* ---- coin card ---- */
 .row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; cursor: pointer; min-width: 0; }
 .row-img { position: relative; aspect-ratio: 375 / 133; border-radius: 8px; overflow: hidden; background: var(--tile); display: grid; place-items: center; }
-.row-img .wash { position: absolute; inset: 0; opacity: .9; }
+.row-img .wash { position: absolute; inset: 0; opacity: .55; }
 .row-img .logo { position: relative; width: 88px; height: 88px; border: 0; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
 .row-img .tag.red { position: absolute; left: 10px; top: 10px; }
 .row-img .tag.live, .row-img .tag.ok, .row-img .tag.failed { position: absolute; left: 10px; top: 10px; }
@@ -288,55 +283,55 @@ p { margin: 0; }
 .doc ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
 
 /* ---- hero ---- */
-.hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 24px; align-items: center; background: var(--green-soft); border-radius: 24px; padding: 44px 48px; margin: 8px 0 28px; animation: rise .5s cubic-bezier(.2,.7,.2,1) both; }
-.hero::before { content: ''; position: absolute; right: -8%; bottom: -45%; width: 58%; aspect-ratio: 1; border-radius: 999px; background: radial-gradient(closest-side, rgba(6,193,103,.30), transparent 72%); pointer-events: none; }
-.hero-t { position: relative; min-width: 0; }
+.hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; background: var(--green-soft); border-radius: 20px; margin: 8px 0 28px; min-height: 380px; }
+.hero-t { position: relative; min-width: 0; padding: 44px 24px 44px 44px; z-index: 1; }
 .hero .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; line-height: 16px; font-weight: 600; color: var(--green-ink); background: var(--bg); border-radius: 999px; padding: 7px 12px; }
-.hero .eyebrow i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); animation: pulse 1.8s ease-out infinite; }
-.hero h1 { font-size: 44px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 18px 0 14px; max-width: 15ch; }
+.hero .eyebrow i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); }
+.hero h1 { font-size: 42px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 18px 0 14px; max-width: 15ch; }
 .hero h1 em { font-style: normal; color: var(--green-ink); }
-.hero p { font-size: 16px; line-height: 24px; color: var(--prose); max-width: 52ch; }
+.hero p { font-size: 16px; line-height: 24px; color: var(--prose); max-width: 46ch; }
 .hero-cta { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
 .hero-cta .btn { height: 48px; padding: 0 22px; font-size: 16px; }
 .hero-cta .btn-white { box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-.hero-stats { display: flex; gap: 32px; margin-top: 30px; flex-wrap: wrap; }
-.hero-stats b { display: block; font-family: var(--mono); font-size: 24px; line-height: 28px; font-weight: 600; letter-spacing: -.01em; }
+.hero-stats { display: flex; gap: 32px; margin-top: 28px; flex-wrap: wrap; }
+.hero-stats[hidden] { display: none; }
+.hero-stats b { display: block; font-family: var(--mono); font-size: 22px; line-height: 28px; font-weight: 600; }
 .hero-stats small { display: block; font-size: 13px; line-height: 18px; color: var(--muted); margin-top: 2px; }
-.hero-art { position: relative; height: 330px; }
-.hero-art .orb { position: absolute; animation: float var(--d, 4s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
-.hero-art .orb .logo { width: 100%; height: 100%; border: 0; box-shadow: 0 18px 40px rgba(0,0,0,.14); }
-.hero-art .orb .chip { position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%); white-space: nowrap; background: var(--bg); color: var(--ink); border-radius: 999px; padding: 4px 10px; font-family: var(--mono); font-size: 12px; font-weight: 600; box-shadow: 0 6px 16px rgba(0,0,0,.12); }
-.hero-art .orb .chip i { font-style: normal; margin-left: 4px; }
-.hero-marq { display: none; min-width: 0; width: 100%; }
-.hero-marq .feed-c { gap: 14px; padding-right: 14px; }
-.hero-marq .logo { box-shadow: 0 6px 16px rgba(0,0,0,.10); border: 0; }
-@media (max-width: 1100px) { .hero { grid-template-columns: 1fr; padding: 32px 28px; } .hero-art { display: none; } .hero h1 { font-size: 36px; } .hero-marq { display: block; overflow: hidden; margin-top: 26px; } }
-@media (max-width: 600px) { .hero { padding: 28px 20px 24px; border-radius: 18px; margin-top: 4px; } .hero h1 { font-size: 30px; } .hero-stats { gap: 18px 24px; } .hero-stats b { font-size: 20px; } .hero-cta .btn { flex: 1; padding: 0 12px; } div.bottom { height: auto; min-height: 44px; padding-top: 8px; padding-bottom: 8px; font-size: 12px; line-height: 15px; } }
+.hero-art { position: absolute; top: 0; right: 0; bottom: 0; width: 52%; background-size: cover; background-position: center; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 28%); mask-image: linear-gradient(90deg, transparent 0, #000 28%); }
+@media (max-width: 1100px) { .hero { grid-template-columns: 1fr; min-height: 0; } .hero-t { padding: 28px 24px 28px; } .hero-art { position: relative; width: auto; height: 200px; order: -1; -webkit-mask-image: none; mask-image: none; } .hero h1 { font-size: 34px; } }
+@media (max-width: 600px) { .hero { border-radius: 16px; margin-top: 4px; } .hero-t { padding: 22px 18px 22px; } .hero-art { height: 170px; } .hero h1 { font-size: 30px; } .hero-stats { gap: 18px 24px; } .hero-stats b { font-size: 20px; } .hero-cta .btn { flex: 1; padding: 0 12px; } div.bottom { height: auto; min-height: 44px; padding-top: 8px; padding-bottom: 8px; font-size: 12px; line-height: 15px; } }
 .rcard .px-chip, .px-chip { position: absolute; right: 10px; bottom: 14px; background: var(--bg); color: var(--ink); border-radius: 999px; padding: 4px 10px; font-family: var(--mono); font-size: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,.14); }
 .px-chip i { font-style: normal; margin-left: 4px; }
 .banner .pxl { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--mono); font-size: 13px; font-weight: 600; background: rgba(255,255,255,.22); border-radius: 999px; padding: 4px 10px; }
 .banner.g3 .pxl { background: rgba(0,0,0,.08); }
 
+/* ---- ticker tape ---- */
+.tape { overflow: hidden; height: 36px; margin: 4px 0 12px; border-bottom: 1px solid var(--line); display: flex; align-items: center; }
+.tape .feed-t { --dur: 60s; }
+.tape:hover .feed-t { animation-play-state: paused; }
+.tape .feed-c { gap: 28px; padding-right: 28px; }
+.tape-i { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
+.tape-i .logo { width: 18px; height: 18px; }
+.tape-i b { font-family: var(--mono); font-weight: 600; }
+.tape-i span { font-family: var(--mono); color: var(--muted); }
+.tape-i i { font-style: normal; font-family: var(--mono); font-size: 12px; font-weight: 600; }
+
 /* ---- gift cards ---- */
-.gift { position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 12px; aspect-ratio: 1.586; min-height: 190px; border-radius: 16px; padding: 18px; color: #fff; overflow: hidden; cursor: pointer; transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .18s ease; box-shadow: 0 8px 24px rgba(0,0,0,.10); }
-.gift:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(0,0,0,.16); }
-.gift::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,0) 45%, rgba(0,0,0,.18)); pointer-events: none; }
-.gift::after { content: ''; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 999px; background: rgba(255,255,255,.14); pointer-events: none; }
+.gift { position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 12px; aspect-ratio: 1.586; min-height: 190px; border-radius: 16px; padding: 18px; color: #fff; overflow: hidden; cursor: pointer; background-size: cover; background-position: center; transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .18s ease; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
+.gift:hover { transform: translateY(-3px); box-shadow: 0 14px 32px rgba(0,0,0,.16); }
+.gift::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.05) 35%, rgba(0,0,0,.62) 100%); pointer-events: none; }
 .gift > * { position: relative; }
 .gift-h { display: flex; align-items: center; gap: 10px; }
 .gift-h .logo { width: 40px; height: 40px; border: 0; box-shadow: 0 4px 12px rgba(0,0,0,.18); }
-.gift-h b { display: block; font-size: 16px; font-weight: 700; line-height: 20px; }
-.gift-h small { display: block; font-size: 12px; opacity: .85; }
-.gift-h .tag { margin-left: auto; background: rgba(255,255,255,.22); color: #fff; font-weight: 600; }
-.gift-amt { font-family: var(--mono); font-size: 26px; font-weight: 600; letter-spacing: -.01em; align-self: end; }
-.gift-amt small { display: block; font-family: var(--font); font-size: 12px; font-weight: 500; opacity: .85; margin-top: 2px; }
+.gift-h b { display: block; font-size: 16px; font-weight: 700; line-height: 20px; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.gift-h small { display: block; font-size: 12px; opacity: .9; text-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.gift-amt { font-family: var(--mono); font-size: 28px; font-weight: 600; letter-spacing: -.01em; align-self: end; text-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.gift-amt small { display: block; font-family: var(--font); font-size: 12px; font-weight: 500; opacity: .9; margin-top: 2px; }
 .gift-f { display: flex; align-items: center; gap: 8px; }
 .gift-f .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-.gift-f .chips span { font-family: var(--mono); font-size: 11px; font-weight: 600; background: rgba(255,255,255,.22); border-radius: 6px; padding: 3px 7px; }
+.gift-f .chips span { font-family: var(--mono); font-size: 11px; font-weight: 600; background: rgba(255,255,255,.9); color: #111; border-radius: 6px; padding: 3px 7px; }
 .gift-f .cta { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; background: #fff; color: #000; font-size: 13px; font-weight: 600; white-space: nowrap; }
-.gift.is-dark { color: #111; } .gift.is-dark::before { background: linear-gradient(135deg, rgba(255,255,255,.5), rgba(255,255,255,0) 45%, rgba(0,0,0,.06)); }
-.gift.is-dark .gift-h .tag, .gift.is-dark .gift-f .chips span { background: rgba(0,0,0,.08); color: #111; }
-.gift.is-dark .gift-f .cta { background: #000; color: #fff; }
+.gift .cta.in { background: var(--green); color: #fff; }
 .gift-pay { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); margin: -4px 0 16px; }
 .gift-pay b { font-weight: 600; color: var(--ink); }
 .gift-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; }
@@ -375,14 +370,14 @@ p { margin: 0; }
 
 /* ---- photos ---- */
 .row-img.has-photo { background-size: cover; background-position: center; }
-.row-img.has-photo .wash { background: linear-gradient(180deg, rgba(0,0,0,0) 45%, rgba(0,0,0,.45)) !important; opacity: 1; }
-.row-img.has-photo > .logo { position: absolute; left: 10px; bottom: 14px; width: 44px !important; height: 44px !important; font-size: 15px !important; box-shadow: 0 4px 14px rgba(0,0,0,.25); }
+.row-img.has-photo .wash { display: none; }
+.row-img.has-photo > .logo { position: absolute; left: 10px; bottom: 14px; width: 40px !important; height: 40px !important; font-size: 14px !important; border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.2); }
 .row:hover .row-img.has-photo > .logo { transform: none; }
 .banner .art.photo { width: 50%; background-size: cover; background-position: center; clip-path: ellipse(62% 100% at 68% 50%); }
 .banner .art.photo::before { display: none; }
 .banner .art.photo .logo { position: absolute; left: 32%; bottom: 16px; width: 44px; height: 44px; animation: none; box-shadow: 0 6px 16px rgba(0,0,0,.3); }
 .sheet-photo { position: relative; height: 150px; margin: -20px -24px 0; background-size: cover; background-position: center; }
-.sheet-photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.35)); }
+.sheet-photo::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.18)); }
 .sheet-photo .logo { position: absolute; left: 24px; bottom: -22px; width: 56px; height: 56px; z-index: 1; box-shadow: 0 6px 18px rgba(0,0,0,.25); }
 .sheet-photo + .sheet-h { padding-top: 12px; }
 .sheet-photo + .sheet-h > .logo { visibility: hidden; width: 56px; }
@@ -392,12 +387,10 @@ p { margin: 0; }
 .credits a { text-decoration: underline; }
 
 /* ---- brand mark ---- */
-.brand { display: inline-flex; align-items: center; gap: 9px; }
-.brand .mark { width: 30px; height: 30px; flex: none; }
-.brand .mark rect { fill: var(--ink); } .brand .mark path { stroke: var(--bg); }
+.brand { display: inline-flex; align-items: baseline; }
+.brand em { color: var(--green-ink); font-weight: 500; }
 
 /* ---- category icons ---- */
-.cats button .ic svg { width: 48px; height: 48px; display: block; }
 
 /* ---- live buys strip ---- */
 .feed { display: flex; align-items: center; gap: 12px; height: 44px; margin: -8px 0 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 999px; padding: 0 6px 0 14px; animation: rise .45s cubic-bezier(.2,.7,.2,1) both; animation-delay: .1s; }
@@ -523,7 +516,7 @@ p { margin: 0; }
 footer { padding: 40px 0 0; font-size: 14px; line-height: 20px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 24px; }
 .ft { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
 @media (max-width: 900px) { .ft { grid-template-columns: 1fr 1fr; } }
-.ft .brand { font-size: 20px; margin: 0 0 10px; }
+.ft .brand { font-size: 22px; margin: 0 0 10px; }
 .ft p { max-width: 360px; }
 .ft h4 { margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--ink); }
 .ft ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
@@ -553,8 +546,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
 <header class="hdr"><div class="hdr-in">
   <button class="burger" id="burger" type="button" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-  <a class="brand" href="#top"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8"/><path d="M12 2v28M2 15h10M12 15h18" stroke-width="2" opacity=".35"/><circle cx="21" cy="8.5" r="3.6" fill="#06C167"/></svg><span>Bento <em>Launch</em></span></a>
-  <div class="mode" id="tabs"><button type="button" class="is-on" data-tab="trending" data-t="mode.raising"></button><button type="button" data-tab="graduated" data-t="mode.graduated"></button></div>
+  <a class="brand" href="#top">bento<em>launch</em></a>
   <label class="place" id="place"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg><select id="netsel" aria-label="Network"><option value="56">BNB Chain</option><option value="97">BNB Testnet</option></select><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></label>
   <button class="cart" type="button" id="refresh" aria-label="Refresh" title="Refresh"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="q" type="search" autocomplete="off"></label>
@@ -578,8 +570,6 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     <button type="button" data-tab="new"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="tab.new"></span></button>
     <button type="button" data-tab="graduating"><span class="ico c4"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 10 11l4 4 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span data-t="tab.graduating"></span></button>
     <button type="button" data-tab="graduated"><span class="ico c5"><svg viewBox="0 0 24 24" fill="none"><path d="m3 9 9-4 9 4-9 4-9-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 11v4c0 1.5 2.5 3 5 3s5-1.5 5-3v-4" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="tab.graduated"></span><span class="n" id="n-grad">0</span></button>
-    <div class="grp" data-t="grp.mkt"></div>
-    <div class="side-tk" id="side-tk"></div>
     <div class="grp" data-t="grp.food"></div>
     <button type="button" data-cat="burger"><span class="ico c1"><svg viewBox="0 0 24 24" fill="none"><path d="M4 10c0-3.3 3.6-6 8-6s8 2.7 8 6H4zM3 14h18M5 18h14a2 2 0 0 0 2-2v-1H3v1a2 2 0 0 0 2 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.burger"></span></button>
     <button type="button" data-cat="chicken"><span class="ico c2"><svg viewBox="0 0 24 24" fill="none"><path d="M15 4a5 5 0 0 1 2 9.6L10 20l-2-2-2-2 6.4-7A5 5 0 0 1 15 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.chicken"></span></button>
@@ -597,14 +587,14 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
   <main class="content">
     <section id="explore">
+      <div class="tape" id="tape" hidden><div class="feed-t" id="tape-t"></div></div>
       <div class="hero" id="hero">
         <div class="hero-t">
           <span class="eyebrow"><i></i><span id="hero-eye"></span></span>
           <h1 id="hero-h1"></h1>
           <p id="hero-p"></p>
           <div class="hero-cta"><a class="btn btn-ink" href="#launch" data-t="nav.create"></a><a class="btn btn-white" href="#sec-rest" data-t="hero.cta2"></a></div>
-          <div class="hero-stats" id="hero-stats"></div>
-          <div class="hero-marq" id="hero-marq"></div>
+          <div class="hero-stats" id="hero-stats" hidden></div>
         </div>
         <div class="hero-art" id="hero-art" aria-hidden="true"></div>
       </div>
@@ -712,7 +702,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
     <footer>
       <div class="ft">
-        <div><a class="brand" href="#top"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8"/><path d="M12 2v28M2 15h10M12 15h18" stroke-width="2" opacity=".35"/><circle cx="21" cy="8.5" r="3.6" fill="#06C167"/></svg><span>Bento <em>Launch</em></span></a><p data-t="ft.tag"></p></div>
+        <div><a class="brand" href="#top">bento<em>launch</em></a><p data-t="ft.tag"></p></div>
         <div><h4 data-t="ft.product"></h4><ul><li><a href="#explore" data-t="nav.home"></a></li><li><a href="#launch" data-t="nav.create"></a></li><li><a href="#gifts" data-t="nav.gifts"></a></li><li><a href="#pairs" data-t="docs.4h"></a></li><li><a href="#docs" data-t="nav.docs"></a></li></ul></div>
         <div><h4 data-t="ft.protocol"></h4><ul><li><a id="explorer-link" href="#" target="_blank" rel="noopener" data-t="ft.factory"></a></li><li><a href="https://github.com/2555raw/launch" target="_blank" rel="noopener" data-t="ft.src"></a></li><li><a href="https://pancakeswap.finance" target="_blank" rel="noopener">PancakeSwap</a></li><li><a href="https://www.bnbchain.org" target="_blank" rel="noopener">BNB Chain</a></li></ul></div>
         <div><h4 data-t="ft.legal"></h4><ul><li><a href="#" data-doc="risk" data-t="legal.risk"></a></li><li><a href="#" data-doc="terms" data-t="legal.terms"></a></li><li><a href="#" data-doc="privacy" data-t="legal.privacy"></a></li><li><a href="#" data-doc="photos" data-t="legal.photos"></a></li></ul></div>
@@ -768,7 +758,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'nav.home': 'Home', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works', 'grp.coins': 'Coins', 'grp.mkt': 'Stock tokens', 'grp.food': 'By cuisine', 'grp.you': 'You', 'wc.off': 'Connect a wallet to buy and create coins on BNB Chain.', 'wc.on': 'Connected',
       'tab.trending': 'Trending', 'tab.new': 'New', 'tab.graduating': 'Graduating', 'tab.graduated': 'Graduated',
       'pill.live': 'Raising now', 'pill.pay': 'Paid in', 'pill.top': 'Most backed', 'pill.sort': 'Sort', 'f.all': 'All', 'ranked.more': 'More info',
-      'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on BNB Chain', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Pair your coin with ${n}`, 'promo.pairP': (s, iss) => `${s} by ${iss} is live on BNB Chain. Raise in it, list against it.`,
+      'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on BNB Chain', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Launch on ${n}`, 'promo.pairP': (s, iss) => `Raise in ${s}, the ${iss} stock token, and list against it.`,
       'wallet.connect': 'Connect wallet', 'wallet.connecting': 'Connecting…', 'wallet.none': 'No wallet found. Install MetaMask (or any BNB Chain wallet) and reload. Inside claude.ai the wallet may not be injected: open this page from its own domain.',
       'st.live': 'raising', 'board.loading': 'Loading coins from the chain…', 'board.nomatch': 'No coins match.', 'board.empty': 'No coins yet. Create the first one.',
       'board.nowallet': 'Connect a wallet to load the board from BNB Chain.', 'board.nofactory': 'Contracts are not deployed on this network yet. Deploy BentoFactory (see How it works) and set its address in the page config.',
@@ -785,7 +775,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'p.note': (tick, rate, s, bal, left, room) => `≈ ${rate} ${tick} per ${s} · your ${s} ${bal} · cap left ${left} · ${room} to target. Excess over the cap or target is returned by the contract.`,
       'e.amount': 'Enter an amount.', 'e.bal': (b) => `Insufficient balance: ${b}.`, 'e.tx': 'Transaction failed or was rejected.', 'e.net': 'Wrong network.',
       'tx.sent': 'Transaction sent. Waiting for confirmation…', 'tx.done': 'Confirmed.', 'tx.approved': 'Approved. Now press Buy.',
-      'n.nowallet': 'Coins are paired with tokenized restaurant stocks on BNB Chain and you buy them with that stock token.', 'n.ok': (b, n) => `<b>Connected</b> to ${n} · ${b}.`, 'n.wrongnet': (n) => `<b>Wrong network.</b> Switch your wallet to ${n}.`,
+      'n.nowallet': 'Every coin is paired with a real restaurant stock token on BNB Chain.', 'n.ok': (b, n) => `<b>Connected</b> to ${n} · ${b}.`, 'n.wrongnet': (n) => `<b>Wrong network.</b> Switch your wallet to ${n}.`,
       'launch.h2': 'Create a coin', 'launch.name': 'Name', 'launch.tick': 'Ticker', 'launch.rest': 'Paired restaurant (tokenized stock on BNB Chain)', 'launch.goal': (s) => `Raise target (${s})`, 'launch.window': 'Duration',
       'launch.hint': (s) => `Creating a coin deploys a token and a raise contract from your wallet (you pay gas). Buyers pay in ${s}. Supply 1,000,000,000. Minimum = target ÷ 3, cap per wallet = target ÷ 10. At graduation 99% of the ${s} raised plus 20% of supply go into a COIN/${s} PancakeSwap pool; 80% of supply is claimed by buyers; 1% of the raise is the platform fee.`,
       'launch.btn': 'Create coin', 'launch.saving': 'Confirm in wallet…', 'launch.signin': 'Connect your wallet to create a coin.', 'launch.tick.bad': 'Ticker: 2 to 8 letters or digits.', 'launch.name.bad': 'Name: 2 to 32 characters.', 'launch.rest.bad': 'Pick a restaurant.', 'launch.goal.bad': 'Target must be a positive number.', 'launch.done': (t) => `${t} is live on the board.`, 'launch.preview': 'Preview', 'launch.yours': 'Your coin',
@@ -797,14 +787,14 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'docs.4h': 'Verified pairs on BNB Chain', 'docs.4p': 'Every token below was checked on-chain (name, symbol, decimals, supply) and is what a raise paired with that restaurant is paid in. Open a card for the token, its issuer and the coins already paired with it, or copy the address into the search box. The launch contracts are open source (contracts/BentoLaunch.sol) and unaudited: test on BNB Testnet first.',
       'bottom': 'Real money. Coins are unaudited contracts created by users; you can lose everything you put in.',
       'footer': 'Restaurant brands and logos belong to their owners and are not affiliated with this site. Stock tokens are issued by third parties. Nothing here is financial advice or an offer.',
-      'feat.top': 'Closest to graduation', 'feat.big': 'Largest raise', 'feat.create': 'Launch your own coin', 'feat.createP': 'Pair it with McDonald\'s, Starbucks, Meituan or 15 more tokenized stocks.', 'feat.cta': 'Buy now', 'feat.ctaCreate': 'Create now',
+      'feat.top': 'Closest to graduation', 'feat.big': 'Largest raise', 'feat.create': 'Launch your own coin', 'feat.createP': 'Pair it with McDonald\'s, Starbucks, Meituan or 15 more tokenized stocks.', 'feat.cta': 'Buy', 'feat.ctaCreate': 'Create with',
       'feed.h': 'Live buys', 'bought': 'bought', 'ago': (s) => `${s} ago`, 'you.tag': 'you', 'chart.h': 'Raise over time', 'buys.n': (n) => `${n} buy${n === 1 ? '' : 's'}`, 'buys.none': 'No buys yet. Be the first.', 'buys.err': 'Could not load buys from the RPC.',
       'link.copy': 'Copy link', 'copied': 'Copied.', 'copy.addr': 'Copy address', 'search.noaddr': (n) => `No coin at that address on ${n}.`, 'm.search': 'Search', 'm.wallet': 'Wallet',
       'pairs.n': (n, i) => `${n} tokens · ${i} issuers`, 'pairs.verified': 'Verified on-chain', 'pairs.px': 'Price', 'pairs.nopx': 'Price unavailable', 'px.src': (at) => `USD prices: CoinGecko · 24h change · ${at}`, 'iss.x': 'Backed Finance', 'iss.b': 'Binance', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}: factory not deployed yet. Deploy BentoFactory and set its address in the page config.`, 'st.factoryOk': (n) => `BentoFactory live on ${n}`,
-      'hero.eye': (n) => `Live on BNB Chain · ${n} verified stock tokens`, 'hero.h1': 'Launch a coin <em>paired</em> with a real restaurant stock.', 'hero.p': 'Pick McDonald\'s, Starbucks, Meituan or 15 more. The raise is paid in that restaurant\'s tokenized stock, and at graduation the coin lists against it on PancakeSwap with the liquidity burned.', 'hero.cta2': 'See restaurants', 'hero.live': 'raising now', 'hero.raised': 'raised so far', 'hero.issuers': 'issuers', 'hero.tokens': 'stock tokens', 'hero.fee': 'fee · LP burned', 'hero.today': 'today',
+      'hero.eye': (n) => `Live on BNB Chain · ${n} verified stock tokens`, 'hero.h1': 'Launch a coin <em>paired</em> with a real restaurant stock.', 'hero.p': 'Pick a restaurant. The raise is paid in its tokenized stock, and the coin lists against it on PancakeSwap with the liquidity burned.', 'hero.cta2': 'Browse restaurants', 'hero.live': 'raising now', 'hero.raised': 'raised so far', 'hero.issuers': 'issuers', 'hero.tokens': 'stock tokens', 'hero.fee': 'fee · LP burned', 'hero.today': 'today',
       'r.exchange': 'Listed on', 'r.hq': 'Headquarters', 'r.founded': 'Founded', 'r.stores': 'Locations', 'fav.on': 'Saved to My coins.', 'fav.off': 'Removed from My coins.', 'btn.fav': 'Save', 'ft.block': (n) => `Block ${n}`,
-      'nav.gifts': 'Gift cards', 'gift.h2': 'Gift cards, paid in crypto', 'gift.all': 'All restaurants on Bitrefill', 'gift.p': 'eGift cards sold and emailed by Bitrefill. Pay with', 'gift.egift': 'eGift card', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `up to ${b}`, 'gift.buy': 'Buy on Bitrefill', 'gift.browse': 'Browse on Bitrefill', 'gift.works': (c) => `Works in ${c}`, 'gift.na': 'No listing yet', 'gift.sheet': 'Gift card', 'gift.sheetP': 'Bought on Bitrefill, delivered by email in minutes.', 'gift.sheetNa': 'Bitrefill has no listing for this brand yet.', 'gift.note': 'Gift cards are sold by Bitrefill, not by this site, and are unrelated to the coins and stock tokens.',
+      'nav.gifts': 'Gift cards', 'gift.h2': 'Gift cards for crypto', 'gift.all': 'All restaurants on Bitrefill', 'gift.p': 'eGift cards sold and emailed by Bitrefill. Pay with', 'gift.egift': 'eGift card', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `up to ${b}`, 'gift.buy': 'Buy on Bitrefill', 'gift.browse': 'Browse on Bitrefill', 'gift.works': (c) => `Works in ${c}`, 'gift.na': 'No listing yet', 'gift.sheet': 'Gift card', 'gift.sheetP': 'Bought on Bitrefill, delivered by email in minutes.', 'gift.sheetNa': 'Bitrefill has no listing for this brand yet.', 'gift.note': 'Gift cards are sold by Bitrefill, not by this site, and are unrelated to the coins and stock tokens.',
       'gs.h': 'Buy gift card', 'gs.amount': 'Amount', 'gs.custom': 'Other', 'gs.face': 'Card value', 'gs.fee': (p) => `Service fee ${p}%`, 'gs.total': 'Total', 'gs.payBnb': 'Pay with BNB', 'gs.payUsdt': 'Pay with USDT', 'gs.step1': 'Confirm the payment in your wallet…', 'gs.step2': 'Payment sent. Waiting for confirmation…', 'gs.step3': 'Confirmed. Ordering your card…', 'gs.done': 'Your gift card', 'gs.copy': 'Copy code', 'gs.saved': 'Saved in this browser. Keep a copy: it cannot be re-issued.', 'gs.failed': 'The card could not be issued. Your payment is recorded; contact support with this order id and we will refund or re-issue.', 'gs.processing': 'Still being issued. This page keeps checking; you can also come back later.', 'gs.mine': 'Your gift cards', 'gs.ext': 'In-site checkout is not enabled on this deployment. You can buy this card on Bitrefill instead.', 'gs.out': 'Out of stock right now.', 'gs.range': (a, b) => `Any amount from ${a} to ${b}`, 'gs.net': 'Payments go to the site wallet on BNB Chain. Gift cards are issued by Bitrefill and are final.', 'gs.quoteErr': 'Could not get a price. Try again.', 'gs.order': 'Order', 'gift.buyHere': 'Buy here',
       'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
       'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply, same for everyone', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of the raise + 20% of supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply, pro rata', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP tokens burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
@@ -820,7 +810,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.mkt': '股票代币', 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 BNB 链上买入和创建代币。', 'wc.on': '已连接',
       'tab.trending': '热门', 'tab.new': '打新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
       'pill.live': '募集中', 'pill.pay': '支付币种', 'pill.top': '最多人买', 'pill.sort': '排序', 'f.all': '全部', 'ranked.more': '了解更多',
-      'sec.featured': '当前精选', 'sec.new': '今日打新', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `让你的代币配对 ${n}`, 'promo.pairP': (s, iss) => `${iss} 发行的 ${s} 已在 BNB 链上线。以它募集，与它配对上市。`,
+      'sec.featured': '当前精选', 'sec.new': '今日打新', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `在 ${n} 上发行`, 'promo.pairP': (s, iss) => `以 ${iss} 的股票代币 ${s} 募集，并与之配对上市。`,
       'wallet.connect': '连接钱包', 'wallet.connecting': '连接中…', 'wallet.none': '未检测到钱包。请安装 MetaMask（或任意 BNB 链钱包）后刷新。在 claude.ai 内钱包可能无法注入：请从独立域名打开本页。',
       'st.live': '募集中', 'board.loading': '正在从链上加载…', 'board.nomatch': '没有匹配的代币。', 'board.empty': '还没有代币。创建第一个吧。',
       'board.nowallet': '连接钱包后从 BNB 链加载。', 'board.nofactory': '合约尚未部署到此网络。请部署 BentoFactory（见玩法说明）并在页面配置中填入地址。',
@@ -837,7 +827,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'p.note': (tick, rate, s, bal, left, room) => `≈ 每 ${s} ${rate} ${tick} · 你的 ${s} ${bal} · 剩余额度 ${left} · 距目标 ${room}。超出上限或目标的部分由合约退回。`,
       'e.amount': '请输入金额。', 'e.bal': (b) => `余额不足：${b}。`, 'e.tx': '交易失败或已拒绝。', 'e.net': '网络错误。',
       'tx.sent': '交易已发送，等待确认…', 'tx.done': '已确认。', 'tx.approved': '已授权，现在点击“买入”。',
-      'n.nowallet': '代币配对 BNB 链上的餐饮股票代币，并以该股票代币买入。', 'n.ok': (b, n) => `<b>已连接</b> ${n} · ${b}。`, 'n.wrongnet': (n) => `<b>网络错误。</b>请将钱包切换到 ${n}。`,
+      'n.nowallet': '每个代币都配对一只 BNB 链上的真实餐饮股票代币。', 'n.ok': (b, n) => `<b>已连接</b> ${n} · ${b}。`, 'n.wrongnet': (n) => `<b>网络错误。</b>请将钱包切换到 ${n}。`,
       'launch.h2': '创建代币', 'launch.name': '名称', 'launch.tick': '代码', 'launch.rest': '配对餐饮品牌（BNB 链上的股票代币）', 'launch.goal': (s) => `募集目标（${s}）`, 'launch.window': '时长',
       'launch.hint': (s) => `创建代币会从你的钱包部署代币合约与募集合约（你支付 gas）。买家以 ${s} 支付。总供应量 1,000,000,000。最低额 = 目标 ÷ 3，单钱包上限 = 目标 ÷ 10。毕业时 99% 的 ${s} 与 20% 的供应量进入 COIN/${s} PancakeSwap 池；80% 供应量由买家领取；1% 为平台费。`,
       'launch.btn': '创建代币', 'launch.saving': '请在钱包中确认…', 'launch.signin': '连接钱包后即可创建代币。', 'launch.tick.bad': '代码：2 到 8 个字母或数字。', 'launch.name.bad': '名称：2 到 32 个字符。', 'launch.rest.bad': '请选择餐饮品牌。', 'launch.goal.bad': '目标必须为正数。', 'launch.done': (t) => `${t} 已上板。`, 'launch.preview': '预览', 'launch.yours': '你的代币',
@@ -849,14 +839,14 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'docs.4h': 'BNB 链上已验证的配对', 'docs.4p': '以下每个代币都经过链上核验（名称、代码、精度、供应量），配对该品牌的募集就以它支付。点开卡片查看代币、发行方和已配对的代币，或把地址复制到搜索框。发射合约开源（contracts/BentoLaunch.sol），未经审计：请先在 BNB 测试网测试。',
       'bottom': '真实资金。代币是用户创建的未审计合约，投入可能全部损失。',
       'footer': '餐饮品牌与标志归其所有者所有，与本站无关联。股票代币由第三方发行。本站内容不构成任何财务建议或要约。',
-      'feat.top': '最接近毕业', 'feat.big': '最大募集', 'feat.create': '发行你自己的代币', 'feat.createP': '配对麦当劳、星巴克、美团等 18 个股票代币。', 'feat.cta': '立即打新', 'feat.ctaCreate': '立即创建',
+      'feat.top': '最接近毕业', 'feat.big': '最大募集', 'feat.create': '发行你自己的代币', 'feat.createP': '配对麦当劳、星巴克、美团等 18 个股票代币。', 'feat.cta': '买入', 'feat.ctaCreate': '创建 ·',
       'feed.h': '实时买入', 'bought': '买入', 'ago': (s) => `${s}前`, 'you.tag': '我', 'chart.h': '募集走势', 'buys.n': (n) => `${n} 笔买入`, 'buys.none': '还没有人买入，抢先打新。', 'buys.err': '无法从 RPC 加载买入记录。',
       'link.copy': '复制链接', 'copied': '已复制。', 'copy.addr': '复制地址', 'search.noaddr': (n) => `${n} 上没有该地址的代币。`, 'm.search': '搜索', 'm.wallet': '钱包',
       'pairs.n': (n, i) => `${n} 个代币 · ${i} 家发行方`, 'pairs.verified': '链上已验证', 'pairs.px': '价格', 'pairs.nopx': '暂无价格', 'px.src': (at) => `美元价格：CoinGecko · 24 小时涨跌 · ${at}`, 'iss.x': 'Backed Finance', 'iss.b': '币安', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}：工厂合约尚未部署。请部署 BentoFactory 并在页面配置中填入地址。`, 'st.factoryOk': (n) => `BentoFactory 已在 ${n} 上线`,
-      'hero.eye': (n) => `已在 BNB 链上线 · ${n} 个已验证股票代币`, 'hero.h1': '发行一个与真实餐饮股票<em>配对</em>的代币。', 'hero.p': '选麦当劳、星巴克、美团或另外 15 家。募集以该品牌的股票代币支付，毕业后在 PancakeSwap 与它配对上市，流动性凭证销毁。', 'hero.cta2': '查看品牌', 'hero.live': '募集中', 'hero.raised': '累计募集', 'hero.issuers': '发行方', 'hero.tokens': '股票代币', 'hero.fee': '手续费 · LP 已销毁', 'hero.today': '今日',
+      'hero.eye': (n) => `已在 BNB 链上线 · ${n} 个已验证股票代币`, 'hero.h1': '发行一个与真实餐饮股票<em>配对</em>的代币。', 'hero.p': '选一家餐饮品牌。募集以它的股票代币支付，毕业后在 PancakeSwap 与它配对上市，流动性凭证销毁。', 'hero.cta2': '查看品牌', 'hero.live': '募集中', 'hero.raised': '累计募集', 'hero.issuers': '发行方', 'hero.tokens': '股票代币', 'hero.fee': '手续费 · LP 已销毁', 'hero.today': '今日',
       'r.exchange': '上市', 'r.hq': '总部', 'r.founded': '成立', 'r.stores': '门店', 'fav.on': '已加入我的代币。', 'fav.off': '已从我的代币移除。', 'btn.fav': '收藏', 'ft.block': (n) => `区块 ${n}`,
-      'nav.gifts': '礼品卡', 'gift.h2': '用加密货币买礼品卡', 'gift.all': 'Bitrefill 全部餐饮品牌', 'gift.p': '电子礼品卡由 Bitrefill 出售并邮件发送。支持', 'gift.egift': '电子礼品卡', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `最高 ${b}`, 'gift.buy': '在 Bitrefill 购买', 'gift.browse': '去 Bitrefill 浏览', 'gift.works': (c) => `仅限${c}使用`, 'gift.na': '暂无上架', 'gift.sheet': '礼品卡', 'gift.sheetP': '在 Bitrefill 购买，几分钟内邮件送达。', 'gift.sheetNa': 'Bitrefill 尚未上架该品牌。', 'gift.note': '礼品卡由 Bitrefill 出售，与本站、代币和股票代币无关。',
+      'nav.gifts': '礼品卡', 'gift.h2': '加密货币买礼品卡', 'gift.all': 'Bitrefill 全部餐饮品牌', 'gift.p': '电子礼品卡由 Bitrefill 出售并邮件发送。支持', 'gift.egift': '电子礼品卡', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `最高 ${b}`, 'gift.buy': '在 Bitrefill 购买', 'gift.browse': '去 Bitrefill 浏览', 'gift.works': (c) => `仅限${c}使用`, 'gift.na': '暂无上架', 'gift.sheet': '礼品卡', 'gift.sheetP': '在 Bitrefill 购买，几分钟内邮件送达。', 'gift.sheetNa': 'Bitrefill 尚未上架该品牌。', 'gift.note': '礼品卡由 Bitrefill 出售，与本站、代币和股票代币无关。',
       'gs.h': '购买礼品卡', 'gs.amount': '面额', 'gs.custom': '其他', 'gs.face': '卡面值', 'gs.fee': (p) => `服务费 ${p}%`, 'gs.total': '合计', 'gs.payBnb': '用 BNB 支付', 'gs.payUsdt': '用 USDT 支付', 'gs.step1': '请在钱包中确认付款…', 'gs.step2': '已发送，等待确认…', 'gs.step3': '已确认，正在出卡…', 'gs.done': '你的礼品卡', 'gs.copy': '复制卡号', 'gs.saved': '已保存在此浏览器。请自行备份：卡号无法重新发放。', 'gs.failed': '出卡失败。付款已记录，请凭此订单号联系客服退款或补发。', 'gs.processing': '仍在出卡中。本页会持续检查，你也可以稍后再来。', 'gs.mine': '我的礼品卡', 'gs.ext': '此部署未开启站内结账。你可以到 Bitrefill 购买这张卡。', 'gs.out': '暂时缺货。', 'gs.range': (a, b) => `${a} 至 ${b} 任意金额`, 'gs.net': '付款进入本站在 BNB 链上的钱包。礼品卡由 Bitrefill 发放，售出不退。', 'gs.quoteErr': '无法获取价格，请重试。', 'gs.order': '订单', 'gift.buyHere': '在本站购买',
       'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
       'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量，人人相同', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '募集额的 99% + 供应量的 20%', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%，按比例', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
@@ -922,7 +912,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const DOMAINS = {"mcdonalds":"mcdonalds.com","burgerking":"bk.com","wendys":"wendys.com","shakeshack":"shakeshack.com","jackinthebox":"jackinthebox.com","tacobell":"tacobell.com","chipotle":"chipotle.com","cava":"cava.com","sweetgreen":"sweetgreen.com","starbucks":"starbucks.com","timhortons":"timhortons.com","dutchbros":"dutchbros.com","krispykreme":"krispykreme.com","dominos":"dominos.com","pizzahut":"pizzahut.com","papajohns":"papajohns.com","kfc":"kfc.com","popeyes":"popeyes.com","wingstop":"wingstop.com","doordash":"doordash.com","ubereats":"ubereats.com","olivegarden":"olivegarden.com","texasroadhouse":"texasroadhouse.com","applebees":"applebees.com","chilis":"chilis.com","cheesecake":"thecheesecakefactory.com","outback":"outback.com","meituan":"meituan.com","haidilao":"haidilao.com","mixue":"mxbc.com","luckin":"luckincoffee.com","yumchina":"yumchina.com","chagee":"chagee.com","guming":"gumingnc.com","chabaidao":"chapanda.com","nayuki":"naixue.com","auntea":"hsay.cn","xiabu":"xiabu.com","jiumaojiu":"jiumaojiu.com","dpcdash":"dominos.com.cn","xiaocaiyuan":"xiaocaiyuan.cn","greentea":"greenteagroup.com","ajisen":"ajisen.com.hk","cafedecoral":"cafedecoral.com","quanjude":"quanjude.com.cn","timschina":"timschina.com"};
   const TILES = {"ajisen": "#480018", "applebees": "#a81818", "burgerking": "#c01800", "cafedecoral": "#d80000", "cava": "#f0c000", "chabaidao": "#1848d8", "cheesecake": "#f0d878", "chilis": "#d81818", "chipotle": "#a81818", "dominos": "#d81830", "doordash": "#f03000", "dpcdash": "#d81830", "dutchbros": "#003060", "haidilao": "#d80000", "jackinthebox": "#a80030", "kfc": "#000000", "krispykreme": "#006048", "luckin": "#0018a8", "mcdonalds": "#f0c000", "meituan": "#f0c000", "mixue": "#d80000", "olivegarden": "#484848", "outback": "#a81800", "papajohns": "#f00000", "pizzahut": "#d81818", "popeyes": "#f07818", "shakeshack": "#48a830", "starbucks": "#006030", "sweetgreen": "#004830", "tacobell": "#481890", "texasroadhouse": "#d83018", "timhortons": "#c00030", "timschina": "#c00018", "ubereats": "#00c060", "wendys": "#c01818", "wingstop": "#006030", "yumchina": "#d81818"};
   const PAIRS = {"mcdonalds": {"symbol": "MCDx", "address": "0x80a77a372c1e12accda84299492f404902e2da67", "issuer": "xStocks", "stock": "MCD", "alt": {"MCDon": "0x995add4ba29a628a57930a8a185c62ca044ec090"}, "cg": "mcdonald-s-xstock"}, "starbucks": {"symbol": "SBUXx", "address": "0x5667c2d45acb2933ce129b53615aaf17c69f262c", "issuer": "xStocks", "stock": "SBUX", "alt": {"SBUXon": "0x94d7754541b829a87321d56121bc544167ac490d"}, "cg": "starbucks-xstock"}, "chipotle": {"symbol": "CMGx", "address": "0xdad1865dd327fd305df6ec6accede2b5faaec9ca", "issuer": "xStocks", "stock": "CMG", "alt": {"CMGon": "0xaed5985afc12aa09d87f55b4b1e6bc3b8f7b0208"}, "cg": "chipotle-mexican-grill-xstock"}, "tacobell": {"symbol": "YUMx", "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM", "cg": "yum-brands-xstock"}, "kfc": {"symbol": "YUMx", "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM", "cg": "yum-brands-xstock"}, "pizzahut": {"symbol": "YUMx", "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM", "cg": "yum-brands-xstock"}, "burgerking": {"symbol": "QSRx", "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR", "cg": "restaurant-brands-international-xstock"}, "popeyes": {"symbol": "QSRx", "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR", "cg": "restaurant-brands-international-xstock"}, "timhortons": {"symbol": "QSRx", "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR", "cg": "restaurant-brands-international-xstock"}, "dominos": {"symbol": "DPZx", "address": "0x14e7901b89158e80a953cfef3cebe065f9cb8eef", "issuer": "xStocks", "stock": "DPZ", "cg": "domino-s-pizza-xstock"}, "wendys": {"symbol": "WENB", "address": "0xded1c5fb38c262beb9cff1e1116eff3c5bf278cd", "issuer": "bStocks", "stock": "WEN", "alt": {"WENon": "0x79ed7f4d9668e8e7aaadd12a711d19064840b9a5"}, "cg": "wendy-s-bstocks-tokenized-stock"}, "doordash": {"symbol": "DASHx", "address": "0xf38665a4a42a1e7eeb36a5f26d1757b788e64a4f", "issuer": "xStocks", "stock": "DASH", "alt": {"DASHon": "0x7567c2a46bce46373b454682f3d95e6535bde144"}, "cg": "doordash-xstock"}, "ubereats": {"symbol": "UBERon", "address": "0xde9d6036fca870f7efc5a82722ae694c371ac909", "issuer": "Ondo", "stock": "UBER", "cg": "uber-ondo-tokenized-stock"}, "olivegarden": {"symbol": "DRIx", "address": "0xd80840f51367e5f22d29c2de161d86fe992ebf77", "issuer": "xStocks", "stock": "DRI", "cg": "darden-restaurants-xstock"}, "texasroadhouse": {"symbol": "TXRHx", "address": "0x013678d2039f27ac8531dd994411b6f6c502d889", "issuer": "xStocks", "stock": "TXRH", "cg": "texas-roadhouse-xstock"}, "haidilao": {"symbol": "HAIDLx", "address": "0x19a04945109738c9b8f936b2e3277c82fee707f3", "issuer": "xStocks", "stock": "6862.HK", "cg": "haidilao-international-xstock"}, "meituan": {"symbol": "MEITx", "address": "0x0024af2ca56e822ad487c0bedc52a82028a55f86", "issuer": "xStocks", "stock": "3690.HK", "cg": "meituan-xstock"}, "mixue": {"symbol": "MIXUx", "address": "0x8fa39ff32b316e2296630aa05bdd6a4a2e4b7598", "issuer": "xStocks", "stock": "2097.HK", "cg": "mixue-xstock"}};
-  const PHOTO_CREDITS = {"mcdonalds": {"title": "File:Big Mac BLT - Busan, Korea.jpg", "page": "https://commons.wikimedia.org/wiki/File:Big_Mac_BLT_-_Busan,_Korea.jpg", "artist": "EighteenChild", "license": "CC0"}, "starbucks": {"title": "File:Starbucks Frappuccino (24564745748).jpg", "page": "https://commons.wikimedia.org/wiki/File:Starbucks_Frappuccino_(24564745748).jpg", "artist": "Push Doctor", "license": "CC BY 2.0"}, "chipotle": {"title": "File:2019-05-04 20 10 55 A burrito bowl from Chipotle in the Franklin Farm section of Oak Hill, Fairfax County, Virginia.jpg", "page": "https://commons.wikimedia.org/wiki/File:2019-05-04_20_10_55_A_burrito_bowl_from_Chipotle_in_the_Franklin_Farm_section_of_Oak_Hill,_Fairfax_County,_Virginia.jpg", "artist": "Famartin", "license": "CC BY-SA 4.0"}, "tacobell": {"title": "File:(El Flaco) Al Pastor Tacos.jpg", "page": "https://commons.wikimedia.org/wiki/File:(El_Flaco)_Al_Pastor_Tacos.jpg", "artist": "City Foodsters", "license": "CC BY 2.0"}, "kfc": {"title": "File:Chicken bucket from KFC in Dhaka Bangladesh.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chicken_bucket_from_KFC_in_Dhaka_Bangladesh.jpg", "artist": "Sm faysal", "license": "CC BY-SA 4.0"}, "pizzahut": {"title": "File:Pizza Hut Express Personal Pan Pizza Target Dadeland Station Florida 2026.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pizza_Hut_Express_Personal_Pan_Pizza_Target_Dadeland_Station_Florida_2026.jpg", "artist": "Phillip Pessar", "license": "CC BY 4.0"}, "burgerking": {"title": "File:Burger King Triple Whopper with cheese.jpg", "page": "https://commons.wikimedia.org/wiki/File:Burger_King_Triple_Whopper_with_cheese.jpg", "artist": "Beau96080 at English Wikipedia", "license": "Public domain"}, "popeyes": {"title": "File:Hot Honey Sandwich - Popeyes 2025-08-17.jpg", "page": "https://commons.wikimedia.org/wiki/File:Hot_Honey_Sandwich_-_Popeyes_2025-08-17.jpg", "artist": "Andy Li", "license": "CC0"}, "timhortons": {"title": "File:Cappuccino with latte art on Coffee Right in Brno, Brno-City District.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cappuccino_with_latte_art_on_Coffee_Right_in_Brno,_Brno-City_District.jpg", "artist": "Frettie", "license": "CC BY 3.0"}, "dominos": {"title": "File:Pepperoni pizza- boella co. 2024-02-17.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pepperoni_pizza-_boella_co._2024-02-17.jpg", "artist": "Andy Li", "license": "CC0"}, "wendys": {"title": "File:A Dave's double at Wendy's in Stratford (51657183734).jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Dave%27s_double_at_Wendy%27s_in_Stratford_(51657183734).jpg", "artist": "Daniel from Glasgow, United Kingdom", "license": "CC BY 2.0"}, "doordash": {"title": "File:President Donald Trump accepts a DoorDash delivery outside of the Oval Office (55210789457) (cropped).jpg", "page": "https://commons.wikimedia.org/wiki/File:President_Donald_Trump_accepts_a_DoorDash_delivery_outside_of_the_Oval_Office_(55210789457)_(cropped).jpg", "artist": "The White House", "license": "Public domain"}, "ubereats": {"title": "File:Uber Eats Bag at Namba.jpg", "page": "https://commons.wikimedia.org/wiki/File:Uber_Eats_Bag_at_Namba.jpg", "artist": "Mr.ちゅらさん", "license": "CC BY-SA 4.0"}, "olivegarden": {"title": "File:2019-02-16 21 01 03 A roll of bread at the Olive Garden in Fair Lakes, Fairfax County, Virginia.jpg", "page": "https://commons.wikimedia.org/wiki/File:2019-02-16_21_01_03_A_roll_of_bread_at_the_Olive_Garden_in_Fair_Lakes,_Fairfax_County,_Virginia.jpg", "artist": "Famartin", "license": "CC BY-SA 4.0"}, "texasroadhouse": {"title": "File:Grilled flank steak.jpg", "page": "https://commons.wikimedia.org/wiki/File:Grilled_flank_steak.jpg", "artist": "Wikiuser100", "license": "CC BY-SA 4.0"}, "haidilao": {"title": "File:Chongqing Hot Pot.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chongqing_Hot_Pot.jpg", "artist": "Zhou Guanhuai", "license": "CC BY-SA 4.0"}, "meituan": {"title": "File:A Meituan Bike waiting at Ganjiakou (20221011173428).jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Meituan_Bike_waiting_at_Ganjiakou_(20221011173428).jpg", "artist": "N509FZ", "license": "CC BY-SA 4.0"}, "mixue": {"title": "File:20250331 Mixue Ice Cream & Tea at World Square, Sydney.jpg", "page": "https://commons.wikimedia.org/wiki/File:20250331_Mixue_Ice_Cream_%26_Tea_at_World_Square,_Sydney.jpg", "artist": "Windmemories", "license": "CC BY-SA 4.0"}, "all": {"title": "File:Mickey Mouse bento box school lunch (8717712173).jpg", "page": "https://commons.wikimedia.org/wiki/File:Mickey_Mouse_bento_box_school_lunch_(8717712173).jpg", "artist": "Melissa", "license": "CC BY 2.0"}, "burger": {"title": "File:Cheeseburger.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cheeseburger.jpg", "artist": "Renee Comet (photographer)", "license": "Public domain"}, "chicken": {"title": "File:Fried chicken Burger in Milan, Italy.jpg", "page": "https://commons.wikimedia.org/wiki/File:Fried_chicken_Burger_in_Milan,_Italy.jpg", "artist": "Pava", "license": "CC BY-SA 3.0 it"}, "pizza": {"title": "File:Pepperoni Pizza from Fellini’s Pizza.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pepperoni_Pizza_from_Fellini%E2%80%99s_Pizza.jpg", "artist": "BullDawg2021", "license": "CC BY 4.0"}, "mex": {"title": "File:Tacos - al pastor, pollo and a sunkist.jpg", "page": "https://commons.wikimedia.org/wiki/File:Tacos_-_al_pastor,_pollo_and_a_sunkist.jpg", "artist": "Paul  Bailey", "license": "CC BY-SA 2.0"}, "cafe": {"title": "File:Cup of coffee with latte art 2016.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cup_of_coffee_with_latte_art_2016.jpg", "artist": "Abdulrohmatt", "license": "CC BY-SA 4.0"}, "tea": {"title": "File:Bubble Tea Becher.jpg", "page": "https://commons.wikimedia.org/wiki/File:Bubble_Tea_Becher.jpg", "artist": "Liwe-photos Photography", "license": "CC BY-SA 3.0 de"}, "hotpot": {"title": "File:Chengdu Hot Pot Yuanyangguo style 2019.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chengdu_Hot_Pot_Yuanyangguo_style_2019.jpg", "artist": "Breaknet2025", "license": "CC BY 4.0"}, "delivery": {"title": "File:Domino's Pizza delivery scooter in Southern Taiwan 20070220.jpg", "page": "https://commons.wikimedia.org/wiki/File:Domino%27s_Pizza_delivery_scooter_in_Southern_Taiwan_20070220.jpg", "artist": "Joe Lewis", "license": "CC BY-SA 2.0"}, "casual": {"title": "File:Grilled meat (steaks) near Hostákov, Vladislav, Třebíč District.jpg", "page": "https://commons.wikimedia.org/wiki/File:Grilled_meat_(steaks)_near_Host%C3%A1kov,_Vladislav,_T%C5%99eb%C3%AD%C4%8D_District.jpg", "artist": "Frettie", "license": "CC BY 3.0"}, "cn": {"title": "File:A xiaolongbao at Beijing Dumpling Shop in Sham Shui Po.jpg", "page": "https://commons.wikimedia.org/wiki/File:A_xiaolongbao_at_Beijing_Dumpling_Shop_in_Sham_Shui_Po.jpg", "artist": "Peachyeung316", "license": "CC BY-SA 4.0"}};
+  const PHOTO_CREDITS = {"mcdonalds": {"title": "File:Big Mac BLT - Busan, Korea.jpg", "page": "https://commons.wikimedia.org/wiki/File:Big_Mac_BLT_-_Busan,_Korea.jpg", "artist": "EighteenChild", "license": "CC0"}, "starbucks": {"title": "File:Starbucks Frappuccino (24564745748).jpg", "page": "https://commons.wikimedia.org/wiki/File:Starbucks_Frappuccino_(24564745748).jpg", "artist": "Push Doctor", "license": "CC BY 2.0"}, "chipotle": {"title": "File:Burrito rice bowl.jpg", "page": "https://commons.wikimedia.org/wiki/File:Burrito_rice_bowl.jpg", "artist": "JaredMcKenzie", "license": "CC0"}, "tacobell": {"title": "File:(El Flaco) Al Pastor Tacos.jpg", "page": "https://commons.wikimedia.org/wiki/File:(El_Flaco)_Al_Pastor_Tacos.jpg", "artist": "City Foodsters", "license": "CC BY 2.0"}, "kfc": {"title": "File:Chicken bucket from KFC in Dhaka Bangladesh.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chicken_bucket_from_KFC_in_Dhaka_Bangladesh.jpg", "artist": "Sm faysal", "license": "CC BY-SA 4.0"}, "pizzahut": {"title": "File:Pizza Hut Express Personal Pan Pizza Target Dadeland Station Florida 2026.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pizza_Hut_Express_Personal_Pan_Pizza_Target_Dadeland_Station_Florida_2026.jpg", "artist": "Phillip Pessar", "license": "CC BY 4.0"}, "burgerking": {"title": "File:Burger King Triple Whopper with cheese.jpg", "page": "https://commons.wikimedia.org/wiki/File:Burger_King_Triple_Whopper_with_cheese.jpg", "artist": "Beau96080 at English Wikipedia", "license": "Public domain"}, "popeyes": {"title": "File:Hot Honey Sandwich - Popeyes 2025-08-17.jpg", "page": "https://commons.wikimedia.org/wiki/File:Hot_Honey_Sandwich_-_Popeyes_2025-08-17.jpg", "artist": "Andy Li", "license": "CC0"}, "timhortons": {"title": "File:Cappuccino with latte art on Coffee Right in Brno, Brno-City District.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cappuccino_with_latte_art_on_Coffee_Right_in_Brno,_Brno-City_District.jpg", "artist": "Frettie", "license": "CC BY 3.0"}, "dominos": {"title": "File:Pepperoni pizza- boella co. 2024-02-17.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pepperoni_pizza-_boella_co._2024-02-17.jpg", "artist": "Andy Li", "license": "CC0"}, "wendys": {"title": "File:A Dave's double at Wendy's in Stratford (51657183734).jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Dave%27s_double_at_Wendy%27s_in_Stratford_(51657183734).jpg", "artist": "Daniel from Glasgow, United Kingdom", "license": "CC BY 2.0"}, "doordash": {"title": "File:A Takeaway Bag being Delivered through a Car Window.jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Takeaway_Bag_being_Delivered_through_a_Car_Window.jpg", "artist": "Meanwell Packaging", "license": "CC BY 2.0"}, "ubereats": {"title": "File:Uber Eats Bag at Namba.jpg", "page": "https://commons.wikimedia.org/wiki/File:Uber_Eats_Bag_at_Namba.jpg", "artist": "Mr.ちゅらさん", "license": "CC BY-SA 4.0"}, "olivegarden": {"title": "File:2019-02-16 21 01 03 A roll of bread at the Olive Garden in Fair Lakes, Fairfax County, Virginia.jpg", "page": "https://commons.wikimedia.org/wiki/File:2019-02-16_21_01_03_A_roll_of_bread_at_the_Olive_Garden_in_Fair_Lakes,_Fairfax_County,_Virginia.jpg", "artist": "Famartin", "license": "CC BY-SA 4.0"}, "texasroadhouse": {"title": "File:Grilled flank steak.jpg", "page": "https://commons.wikimedia.org/wiki/File:Grilled_flank_steak.jpg", "artist": "Wikiuser100", "license": "CC BY-SA 4.0"}, "haidilao": {"title": "File:Chongqing Hot Pot.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chongqing_Hot_Pot.jpg", "artist": "Zhou Guanhuai", "license": "CC BY-SA 4.0"}, "meituan": {"title": "File:A Meituan Bike waiting at Ganjiakou (20221011173428).jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Meituan_Bike_waiting_at_Ganjiakou_(20221011173428).jpg", "artist": "N509FZ", "license": "CC BY-SA 4.0"}, "mixue": {"title": "File:20250331 Mixue Ice Cream & Tea at World Square, Sydney.jpg", "page": "https://commons.wikimedia.org/wiki/File:20250331_Mixue_Ice_Cream_%26_Tea_at_World_Square,_Sydney.jpg", "artist": "Windmemories", "license": "CC BY-SA 4.0"}, "all": {"title": "File:Nori bento with grilled salmon lunch box of Lawson.jpg", "page": "https://commons.wikimedia.org/wiki/File:Nori_bento_with_grilled_salmon_lunch_box_of_Lawson.jpg", "artist": "毒島みるく", "license": "CC0"}, "burger": {"title": "File:Cheeseburger.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cheeseburger.jpg", "artist": "Renee Comet (photographer)", "license": "Public domain"}, "chicken": {"title": "File:Fried chicken Burger in Milan, Italy.jpg", "page": "https://commons.wikimedia.org/wiki/File:Fried_chicken_Burger_in_Milan,_Italy.jpg", "artist": "Pava", "license": "CC BY-SA 3.0 it"}, "pizza": {"title": "File:Pepperoni Pizza from Fellini’s Pizza.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pepperoni_Pizza_from_Fellini%E2%80%99s_Pizza.jpg", "artist": "BullDawg2021", "license": "CC BY 4.0"}, "mex": {"title": "File:Tacos - al pastor, pollo and a sunkist.jpg", "page": "https://commons.wikimedia.org/wiki/File:Tacos_-_al_pastor,_pollo_and_a_sunkist.jpg", "artist": "Paul  Bailey", "license": "CC BY-SA 2.0"}, "cafe": {"title": "File:Cup of coffee with latte art 2016.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cup_of_coffee_with_latte_art_2016.jpg", "artist": "Abdulrohmatt", "license": "CC BY-SA 4.0"}, "tea": {"title": "File:Bubble Tea Becher.jpg", "page": "https://commons.wikimedia.org/wiki/File:Bubble_Tea_Becher.jpg", "artist": "Liwe-photos Photography", "license": "CC BY-SA 3.0 de"}, "hotpot": {"title": "File:Chengdu Hot Pot Yuanyangguo style 2019.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chengdu_Hot_Pot_Yuanyangguo_style_2019.jpg", "artist": "Breaknet2025", "license": "CC BY 4.0"}, "delivery": {"title": "File:Domino's Pizza delivery scooter in Southern Taiwan 20070220.jpg", "page": "https://commons.wikimedia.org/wiki/File:Domino%27s_Pizza_delivery_scooter_in_Southern_Taiwan_20070220.jpg", "artist": "Joe Lewis", "license": "CC BY-SA 2.0"}, "casual": {"title": "File:Grilled meat (steaks) near Hostákov, Vladislav, Třebíč District.jpg", "page": "https://commons.wikimedia.org/wiki/File:Grilled_meat_(steaks)_near_Host%C3%A1kov,_Vladislav,_T%C5%99eb%C3%AD%C4%8D_District.jpg", "artist": "Frettie", "license": "CC BY 3.0"}, "cn": {"title": "File:A xiaolongbao at Beijing Dumpling Shop in Sham Shui Po.jpg", "page": "https://commons.wikimedia.org/wiki/File:A_xiaolongbao_at_Beijing_Dumpling_Shop_in_Sham_Shui_Po.jpg", "artist": "Peachyeung316", "license": "CC BY-SA 4.0"}};
   const photoOf = (r) => PHOTO_CREDITS[r.id] ? `photos/${r.id}.jpg` : PHOTO_CREDITS[r.cat] ? `photos/${r.cat}.jpg` : '';
   const ISSUER_URL = { xStocks: 'https://xstocks.com', bStocks: 'https://www.binance.com/en/bstocks', Ondo: 'https://ondo.finance' };
   const CN = new Set(['meituan', 'haidilao', 'mixue', 'luckin', 'yumchina', 'chagee', 'guming', 'chabaidao', 'nayuki', 'auntea', 'xiabu', 'jiumaojiu', 'dpcdash', 'xiaocaiyuan', 'greentea', 'ajisen', 'cafedecoral', 'quanjude', 'timschina']);
@@ -989,9 +979,10 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const r = REST[rid]; const g = GIFTS[rid]; if (!r) return ''; const listed = Boolean(g && g[0]); const bg = tile(r);
     const range = listed ? (g[1] ? t('gift.from', money(g[1], g[3]), money(g[2], g[3])) : t('gift.upto', money(g[2], g[3]))) : '';
     const inSite = GAPI.configured && GAPI.products[rid] && listed;
-    const openTag = inSite ? `<div class="gift${isDarkHex(bg) ? ' is-dark' : ''}" data-open="g:${esc(rid)}" style="background:${esc(bg)}">` : `<a class="gift${isDarkHex(bg) ? ' is-dark' : ''}" href="${giftUrl(rid)}" target="_blank" rel="noopener" style="background:${esc(bg)}">`;
+    const sty = photoOf(r) ? `background-color:${esc(bg)};background-image:url(${photoOf(r)})` : `background:${esc(bg)}`;
+    const openTag = inSite ? `<div class="gift" data-open="g:${esc(rid)}" style="${sty}">` : `<a class="gift" href="${giftUrl(rid)}" target="_blank" rel="noopener" style="${sty}">`;
     return openTag + `
-      <div class="gift-h">${logo(r, 40)}<div><b>${esc(nm(r))}</b><small>${t('gift.egift')}${listed ? ' · ' + t('gift.works', cn(g[5])) : ''}</small></div><span class="tag">Bitrefill</span></div>
+      <div class="gift-h">${logo(r, 40)}<div><b>${esc(nm(r))}</b><small>${t('gift.egift')} · Bitrefill${listed ? ' · ' + t('gift.works', cn(g[5])) : ''}</small></div></div>
       <div class="gift-amt">${listed ? esc(range) : t('gift.na')}<small>${listed ? esc(t('gift.upto', money(g[2], g[3]))) : ''}</small></div>
       <div class="gift-f"><span class="chips">${giftChips(g).map((c) => `<span>${esc(c)}</span>`).join('')}</span><span class="cta${inSite ? ' in' : ''}">${inSite ? t('gift.buyHere') : t(listed ? 'gift.buy' : 'gift.browse') + ' ↗'}</span></div>${inSite ? '</div>' : '</a>'}`;
   }
@@ -1017,7 +1008,6 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     $('#q').placeholder = t('search');
     $$('#lang button').forEach((b) => b.classList.toggle('is-on', b.dataset.lang === lang));
     try { localStorage.setItem('bento.lang', lang); } catch {}
-    const art = $('#hero-art'); if (art) delete art.dataset.built; const mq = $('#hero-marq'); if (mq) delete mq.dataset.built;
     fillRestaurants(); renderPairs(); render();
   }
   const amt = (v, s) => fmt.amt.format(Number(v)) + ' ' + s;
@@ -1256,7 +1246,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const host = $('#featured'); const Cs = list(); const live = Cs.filter((C) => C.phase === 'live');
     const top = [...live].sort((a, b) => b.progress - a.progress)[0]; const big = [...live].filter((C) => C !== top).sort((a, b) => b.goal - a.goal)[0];
     const bn = (k, C, sub, cls) => C ? `<div class="banner ${cls}" data-open="${esc(C.addr)}"><div><h3>${esc(C.tick)} · ${esc(nm(C.r))}</h3><p>${t(k)} · ${sub}</p></div><span class="cta">${t('feat.cta')} ${esc(C.tick)}</span>${photoOf(C.r) ? `<div class="art photo" style="background-image:url(${photoOf(C.r)})">${logo(C.r, 44)}</div>` : `<div class="art">${logo(C.r, 120)}</div>`}</div>` : '';
-    const pb = (rid, cls) => { const r = REST[rid]; const pr = PAIRS[rid]; return `<div class="banner ${cls}" data-open="r:${esc(rid)}"><div><h3>${t('promo.pair', esc(nm(r)), esc(pr.symbol))}</h3><p>${t('promo.pairP', esc(pr.symbol), esc(pr.issuer))}</p>${PX.usd[pr.symbol] ? `<span class="pxl">${esc(pr.symbol)} ${usdStr(PX.usd[pr.symbol])}${PX.chg[pr.symbol] != null ? ` <span>${PX.chg[pr.symbol] >= 0 ? '▲' : '▼'} ${Math.abs(PX.chg[pr.symbol]).toFixed(2)}% ${t('hero.today')}</span>` : ''}</span>` : ''}</div><span class="cta">${t('feat.ctaCreate')} · ${esc(pr.symbol)}</span>${photoOf(r) ? `<div class="art photo" style="background-image:url(${photoOf(r)})">${logo(r, 44)}</div>` : `<div class="art">${logo(r, 120)}</div>`}</div>`; };
+    const pb = (rid, cls) => { const r = REST[rid]; const pr = PAIRS[rid]; return `<div class="banner ${cls}" data-open="r:${esc(rid)}"><div><h3>${t('promo.pair', esc(nm(r)), esc(pr.symbol))}</h3><p>${t('promo.pairP', esc(pr.symbol), esc(pr.issuer))}</p>${PX.usd[pr.symbol] ? `<span class="pxl">${esc(pr.symbol)} ${usdStr(PX.usd[pr.symbol])}${PX.chg[pr.symbol] != null ? ` <span>${PX.chg[pr.symbol] >= 0 ? '▲' : '▼'} ${Math.abs(PX.chg[pr.symbol]).toFixed(2)}% ${t('hero.today')}</span>` : ''}</span>` : ''}</div><span class="cta">${t('feat.ctaCreate')} ${esc(pr.symbol)}</span>${photoOf(r) ? `<div class="art photo" style="background-image:url(${photoOf(r)})">${logo(r, 44)}</div>` : `<div class="art">${logo(r, 120)}</div>`}</div>`; };
     const promos = ['mcdonalds', 'meituan', 'starbucks'].filter((id) => PAIRS[id]);
     host.innerHTML = (top ? bn('feat.top', top, `${pct(top.progress)} · ${amt(top.raised, top.unit)} / ${amt(top.goal, top.unit)}`, 'g1') : pb(promos[0], 'g1'))
       + (big ? bn('feat.big', big, `${amt(big.goal, big.unit)} · ${t('buyersN', big.buyers)}`, 'g2') : pb(promos[1], 'g2'))
@@ -1389,7 +1379,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   }
   const chg = (sym) => { const c = PX.chg[sym]; return c == null ? '' : `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>`; };
   const pxChip = (sym) => PX.usd[sym] ? `<span class="px-chip">${usdStr(PX.usd[sym])}${chg(sym)}</span>` : '';
-  const HERO_ORBS = [['mcdonalds', 124, '6%', '6%', 4.2, 0, true], ['starbucks', 96, '46%', '0%', 5.1, -1.3, false], ['meituan', 112, '74%', '20%', 4.6, -2.4, true], ['chipotle', 72, '30%', '56%', 3.9, -0.7, false], ['wendys', 86, '54%', '52%', 4.9, -3.1, true], ['haidilao', 66, '82%', '68%', 4.4, -1.9, false], ['dominos', 58, '4%', '70%', 5.3, -2.8, false]];
+  const HERO_PHOTOS = ['burger', 'all', 'pizza', 'hotpot', 'mex', 'chicken'];
   const tweened = new Set();
   function setStat(el, value) { if (typeof value !== 'number' || tweened.has(el) || matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = typeof value === 'number' ? num(value) : value; return; }
     tweened.add(el); const t0 = performance.now(); const step = (now) => { const k = Math.min(1, (now - t0) / 900); el.textContent = num(Math.round(value * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
@@ -1398,11 +1388,9 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     $('#hero-eye').textContent = t('hero.eye', PAIR_IDS.length); $('#hero-h1').innerHTML = t('hero.h1'); $('#hero-p').textContent = t('hero.p');
     let usd = 0, anyUsd = false; for (const C of Cs) { const p = usdOf(C.unit); if (p) { anyUsd = true; usd += C.raised * p; } }
     const stats = [[live.length, t('hero.live')], ...(anyUsd && usd > 0 ? [[usdStr(usd), t('hero.raised')]] : []), [PAIR_IDS.length, t('hero.tokens')], [new Set(Object.values(PAIRS).map((p) => p.issuer)).size, t('hero.issuers')], ['1%', t('hero.fee')]];
-    const hs = $('#hero-stats'); if (hs.children.length !== stats.length) hs.innerHTML = stats.map(() => '<div><b></b><small></small></div>').join('');
-    stats.forEach(([v, l], i) => { const d = hs.children[i]; setStat(d.querySelector('b'), v); d.querySelector('small').textContent = l; });
-    const art = $('#hero-art'); if (!art.dataset.built || art.dataset.px !== String(PX.at)) { art.dataset.built = '1'; art.dataset.px = String(PX.at);
-      art.innerHTML = HERO_ORBS.filter(([id]) => REST[id] && PAIRS[id]).map(([id, sz, l, tp, d, dl, chip]) => `<span class="orb" style="width:${sz}px;height:${sz}px;left:${l};top:${tp};--d:${d}s;--dl:${dl}s" data-open="r:${id}">${logo(REST[id], sz)}${chip && PX.usd[PAIRS[id].symbol] ? `<span class="chip">${esc(PAIRS[id].symbol)} ${usdStr(PX.usd[PAIRS[id].symbol])}${chg(PAIRS[id].symbol)}</span>` : ''}</span>`).join(''); }
-    const mq = $('#hero-marq'); if (!mq.dataset.built) { mq.dataset.built = '1'; const items = PAIR_IDS.map((id) => `<span data-open="r:${id}">${logo(REST[id], 44)}</span>`).join(''); mq.innerHTML = `<div class="feed-t" style="--dur:${PAIR_IDS.length * 2.2}s"><span class="feed-c">${items}</span><span class="feed-c" aria-hidden="true">${items}</span></div>`; }
+    const hs = $('#hero-stats'); hs.hidden = !Cs.length;
+    if (Cs.length) { if (hs.children.length !== stats.length) hs.innerHTML = stats.map(() => '<div><b></b><small></small></div>').join(''); stats.forEach(([v, l], i) => { const d = hs.children[i]; setStat(d.querySelector('b'), v); d.querySelector('small').textContent = l; }); }
+    const art = $('#hero-art'); if (!art.dataset.built) { art.dataset.built = '1'; const pick = HERO_PHOTOS.filter((k) => PHOTO_CREDITS[k]); const k = pick[Math.floor(Date.now() / 864e5) % pick.length] || 'burger'; art.style.backgroundImage = `url(photos/${k}.jpg)`; }
   }
   const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2"/></svg>';
   function renderPairs() {
@@ -1415,7 +1403,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div class="pair-addr"><span class="mono">${esc(short(p.address))}</span><button type="button" data-copy="${esc(p.address)}" aria-label="${t('copy.addr')}" title="${t('copy.addr')}">${COPY_SVG}</button><a href="https://bscscan.com/token/${p.address}" target="_blank" rel="noopener">BscScan</a></div>
       </div>`; }).join('');
     $('#pairs-n').textContent = t('pairs.n', PAIR_IDS.length, issuers.size);
-    const tk = $('#side-tk'); if (tk) tk.innerHTML = ['mcdonalds', 'starbucks', 'meituan', 'wendys', 'haidilao'].filter((id) => PAIRS[id] && REST[id]).map((id) => { const p = PAIRS[id]; const px = PX.usd[p.symbol]; const c = PX.chg[p.symbol]; return `<button type="button" data-open="r:${id}">${logo(REST[id], 26)}<span class="sym">${esc(p.symbol)}</span>${px ? `<span class="px">${usdStr(px)}${c != null ? `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>` : ''}</span>` : `<span class="px na">—</span>`}</button>`; }).join('');
+    const tape = $('#tape'); if (tape) { const items = PAIR_IDS.filter((id) => PX.usd[PAIRS[id].symbol]).map((id) => { const p = PAIRS[id]; const c = PX.chg[p.symbol]; return `<span class="tape-i" data-open="r:${id}">${logo(REST[id], 18)}<b>${esc(p.symbol)}</b><span>${usdStr(PX.usd[p.symbol])}</span>${c != null ? `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>` : ''}</span>`; }).join('');
+      tape.hidden = !items; if (items && tape.dataset.px !== String(PX.at)) { tape.dataset.px = String(PX.at); $('#tape-t').innerHTML = `<span class="feed-c">${items}</span><span class="feed-c" aria-hidden="true">${items}</span>`; } }
     $('#px-src').textContent = PX.at ? t('px.src', new Intl.DateTimeFormat(T.locale, { hour: '2-digit', minute: '2-digit' }).format(PX.at)) : '';
   }
   function setOpen(id) {
@@ -1562,7 +1551,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   (function start() {
     let lang = null; try { lang = localStorage.getItem('bento.lang'); } catch {}
     if (!lang || !I18N[lang]) lang = 'en';
-    $$('.cats .ic[data-ic]').forEach((el) => { el.innerHTML = ICONS[el.dataset.ic] || ''; });
+    $$('.cats .ic[data-ic]').forEach((el) => { const k = el.dataset.ic; el.innerHTML = PHOTO_CREDITS[k] ? `<img src="photos/${k}.jpg" alt="" loading="lazy">` : (ICONS[k] || ''); });
     if (E) route();
     setLang(lang);
     if (!E) { $('#rows').innerHTML = `<p class="empty">ethers.js failed to load.</p>`; return; }

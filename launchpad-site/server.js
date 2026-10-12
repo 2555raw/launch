@@ -203,7 +203,7 @@ setInterval(pruneSessions, 15 * 60 * 1000).unref();
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon',
+  '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon',
   '.txt': 'text/plain; charset=utf-8', '.md': 'text/markdown; charset=utf-8'
 };
 const PRIVATE = new Set(['server.js', 'launches.js', 'gifts.js', 'test.js', 'package.json', 'package-lock.json', '.gitignore']);
@@ -246,7 +246,7 @@ function serveStatic(req, res, rel) {
   // La raíz es el dapp de BNB Chain (dapp/index.html y dapp/logos); la mesa
   // clásica sigue en /index.html, /app.js y /styles.css.
   if (rel === '/' || rel === '/dapp' || rel === '/dapp/') rel = '/dapp/index.html';
-  else if (rel.startsWith('/logos/')) rel = '/dapp' + rel;
+  else if (rel.startsWith('/logos/') || rel.startsWith('/photos/')) rel = '/dapp' + rel;
   if (rel.endsWith('/')) rel += 'index.html';
   const file = path.join(ROOT, path.normalize(rel));
   if (!file.startsWith(ROOT + path.sep) || PRIVATE.has(path.basename(file)) || file.includes(path.sep + 'data' + path.sep) || file.includes('node_modules')) {

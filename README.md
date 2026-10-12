@@ -1,5 +1,7 @@
 # Launch · Emberhold
 
+> 中文说明：[README.zh.md](./README.zh.md) · The web UI is bilingual (English / 中文) with a switcher in the header and the game HUD.
+
 **Emberhold** is an original, server-authoritative multiplayer strategy game in the spirit of base-building raid games: build a persistent village, train an army, raid real players in real time, join clans and climb the ladder.
 **Launch** is a real token launchpad on **Solana** (Token-2022 mints with on-chain metadata) and **Robinhood Chain** (ERC-20 on Robinhood's Arbitrum-based L2). Every launch is a transaction signed by the user's own wallet and verified on chain by the server before it is published.
 

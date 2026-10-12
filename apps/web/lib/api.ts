@@ -1,6 +1,7 @@
 'use client';
 import type { ApiError } from '@launch/types';
 import { API_URL } from './config';
+import { tGlobal } from './i18n';
 
 export class ApiRequestError extends Error {
   constructor(
@@ -71,6 +72,7 @@ export async function api<T>(path: string, init: RequestInit & { json?: unknown;
 
 export function errorMessage(e: unknown): string {
   if (e instanceof ApiRequestError) return e.message;
+  if (e instanceof TypeError && /fetch|network/i.test(e.message)) return tGlobal('Could not reach the server. Check your connection and try again.');
   if (e instanceof Error) return e.message;
   return String(e);
 }

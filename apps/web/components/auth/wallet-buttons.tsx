@@ -1,5 +1,4 @@
 'use client';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
@@ -15,7 +14,7 @@ import { Spinner, shortAddr } from '@/components/ui/primitives';
 import { toast } from '@/components/ui/toast';
 
 // The wallet picker button renders differently on the server and the client; load it client-side only.
-const WalletMultiButton = dynamic(async () => (await import('@solana/wallet-adapter-react-ui')).WalletMultiButton, { ssr: false });
+import { SolanaWalletButton } from '@/components/wallet/solana-wallet-button';
 
 type Session = { user: AuthUser; accessToken: string; refreshToken?: string };
 
@@ -49,9 +48,9 @@ export function SolanaSignIn() {
   if (!wallet.connected || !wallet.publicKey) {
     return (
       <div className="[&>button]:w-full [&>button]:justify-center">
-        <WalletMultiButton>
+        <SolanaWalletButton>
           <Wallet size={16} className="mr-2" /> {t('Continue with Solana wallet')}
-        </WalletMultiButton>
+        </SolanaWalletButton>
       </div>
     );
   }

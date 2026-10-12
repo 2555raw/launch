@@ -1,4 +1,12 @@
 export const ZH_COMMON: Record<string, string> = {
+  'Select wallet': '选择钱包',
+  'Connect': '连接',
+  'Disconnect': '断开连接',
+  'Copied': '已复制',
+  'Copy address': '复制地址',
+  'Connecting…': '连接中…',
+  'Change wallet': '更换钱包',
+  'Could not reach the server. Check your connection and try again.': '无法连接服务器，请检查网络后重试。',
   // Shell / navigation
   Village: '村庄',
   Attack: '进攻',
@@ -87,7 +95,6 @@ export const ZH_COMMON: Record<string, string> = {
   'Continue with Solana wallet': '使用 Solana 钱包继续',
   '{wallet} does not support message signing. Choose another wallet.': '{wallet} 不支持消息签名。请选择其他钱包。',
   'This wallet': '此钱包',
-  Disconnect: '断开连接',
   'Sign in as {address}': '以 {address} 登录',
   'Use a different wallet': '使用其他钱包',
   Change: '更换',
@@ -102,6 +109,6 @@ export const ZH_COMMON: Record<string, string> = {
   // Primitives / toasts / socket
   'Data unavailable': '暂无数据',
   done: '完成',
-  Dismiss: '关闭',
+  'Close notification': '关闭',
   'Realtime connection': '实时连接',
 };

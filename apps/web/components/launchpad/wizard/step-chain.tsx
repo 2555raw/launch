@@ -2,7 +2,7 @@
 import clsx from 'clsx';
 import { AlertTriangle, CheckCircle2, Link2 } from 'lucide-react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { SolanaWalletButton } from '@/components/wallet/solana-wallet-button';
 import type { Chain } from '@launch/types';
 import { ROBINHOOD_CHAIN_NETWORK, SOLANA_NETWORK } from '@/lib/config';
 import { useAuth } from '@/lib/auth-store';
@@ -66,7 +66,7 @@ export function StepChain({ chain, locked, onChange, onNext }: { chain: Chain; l
         <p className="mt-1 text-sm text-slate-400">{t('This wallet signs the creation transaction, pays fees and receives the full supply. It must be linked to your account so the launch is attributed to you.')}</p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           {chain === 'SOLANA' ? (
-            <WalletMultiButton />
+            <SolanaWalletButton />
           ) : evm.isConnected ? (
             <>
               <span className="badge font-mono">{shortAddr(evm.address ?? '', 6)}</span>

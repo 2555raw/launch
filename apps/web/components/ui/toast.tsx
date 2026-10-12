@@ -43,7 +43,7 @@ export function ToastHost() {
               <div className="font-semibold text-slate-100">{t.title}</div>
               {t.body && <div className="mt-0.5 text-xs text-slate-300 break-words">{t.body}</div>}
             </div>
-            <button onClick={() => dismiss(t.id)} className="text-slate-400 hover:text-white" aria-label={tr('Dismiss')}>
+            <button onClick={() => dismiss(t.id)} className="text-slate-400 hover:text-white" aria-label={tr('Close notification')}>
               <X size={14} />
             </button>
           </div>

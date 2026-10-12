@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2, KeyRound, Plug, Unplug, XCircle } from 'lucide-react';
 import { api, errorMessage } from '@/lib/api';
-import { useT } from '@/lib/i18n';
+import { useI18n, useT } from '@/lib/i18n';
 import { toast } from '@/components/ui/toast';
 import { Spinner } from '@/components/ui/primitives';
 import { CopyButton, ExtLink, Field, SectionTitle } from '@/components/launchpad/common';
@@ -11,6 +11,7 @@ import type { RhAccount, RhCapabilities, RhConnection } from './robinhood-types'
 
 export function RobinhoodCapabilities() {
   const t = useT();
+  const { locale } = useI18n();
   const q = useQuery({ queryKey: ['robinhood', 'capabilities'], queryFn: () => api<RhCapabilities>('/robinhood/capabilities') });
   return (
     <div className="card p-4">
@@ -29,11 +30,11 @@ export function RobinhoodCapabilities() {
               {c.available ? <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-mint-400" /> : <XCircle size={16} className="mt-0.5 shrink-0 text-rose-400" />}
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-slate-100">
-                  {c.name}
+                  {locale === 'zh' && c.zh ? c.zh.name : c.name}
                   <span className={`badge ${c.available ? 'border-mint-500/40 text-mint-400' : 'border-rose-500/40 text-rose-300'}`}>{c.available ? t('Available') : t('Not implemented')}</span>
                 </div>
                 <div className="mt-0.5 text-xs text-slate-400">
-                  {c.reason}
+                  {locale === 'zh' && c.zh ? c.zh.reason : c.reason}
                   {c.docs && (
                     <>
                       {' '}

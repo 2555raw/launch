@@ -1,7 +1,7 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { SolanaWalletButton } from '@/components/wallet/solana-wallet-button';
 import { LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { CheckCircle2, Link2, LogIn } from 'lucide-react';
 import { solanaExplorerAddressUrl } from '@launch/config/chains';
@@ -36,7 +36,7 @@ export function SolanaCard() {
       </div>
       <p className="mt-1 text-xs text-slate-500">{t('Phantom or Solflare. Used to launch Token-2022 mints and to swap through Jupiter.')}</p>
       <div className="mt-4">
-        <WalletMultiButton />
+        <SolanaWalletButton />
       </div>
       {address && (
         <div className="mt-4 space-y-3 text-sm">

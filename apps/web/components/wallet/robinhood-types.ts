@@ -4,6 +4,7 @@ export interface RhCapability {
   available: boolean;
   reason: string;
   docs?: string;
+  zh?: { name: string; reason: string };
 }
 export interface RhCapabilities {
   capabilities: RhCapability[];

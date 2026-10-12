@@ -281,10 +281,10 @@ export const ZH_WEB3: Record<string, string> = {
   'Status': '状态',
   'From': '来源',
   'Amount': '数量',
-  'Signature': '签名哈希',
+  'Signature': '签名',
   'When': '时间',
   'confirmed': '已确认',
-  'pending': '待确认',
+  'pending': '待处理',
   'failed': '失败',
 
   // ---- Wallet page ----

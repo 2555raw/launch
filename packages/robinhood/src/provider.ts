@@ -110,14 +110,16 @@ export interface ProviderCapability {
   available: boolean;
   reason: string;
   docs?: string;
+  /** Simplified Chinese copy for bilingual UIs */
+  zh?: { name: string; reason: string };
 }
 
 export const ROBINHOOD_CAPABILITIES: ProviderCapability[] = [
-  { name: 'Crypto trading (account, holdings, market data, orders)', available: true, reason: 'Official Robinhood Crypto Trading API. Users link their own API key + Ed25519 key pair.', docs: 'https://docs.robinhood.com/crypto/trading/' },
-  { name: 'Robinhood Chain token launch, balances, explorer', available: true, reason: 'Robinhood Chain is a public EVM L2; handled through JSON-RPC with the user\'s wallet.', docs: 'https://docs.robinhood.com/chain' },
-  { name: 'Stock / ETF / options trading', available: false, reason: 'Robinhood publishes no public brokerage trading API. Activation requires an official partner API or the agent program exposing one; see docs/ROBINHOOD.md.' },
-  { name: 'Brokerage portfolio read', available: false, reason: 'No public API. Do not use unofficial reverse-engineered endpoints: they violate Robinhood\'s terms.' },
-  { name: 'OAuth login with Robinhood', available: false, reason: 'Robinhood does not offer third-party OAuth.' },
+  { name: 'Crypto trading (account, holdings, market data, orders)', available: true, reason: 'Official Robinhood Crypto Trading API. Users link their own API key + Ed25519 key pair.', docs: 'https://docs.robinhood.com/crypto/trading/', zh: { name: '加密货币交易（账户、持仓、行情、订单）', reason: '官方 Robinhood 加密货币交易 API。用户绑定自己的 API 密钥和 Ed25519 密钥对。' } },
+  { name: 'Robinhood Chain token launch, balances, explorer', available: true, reason: 'Robinhood Chain is a public EVM L2; handled through JSON-RPC with the user\'s wallet.', docs: 'https://docs.robinhood.com/chain', zh: { name: 'Robinhood Chain 代币发射、余额、区块浏览器', reason: 'Robinhood Chain 是公开的 EVM 二层网络，通过 JSON-RPC 和用户钱包完成。' } },
+  { name: 'Stock / ETF / options trading', available: false, reason: 'Robinhood publishes no public brokerage trading API. Activation requires an official partner API or the agent program exposing one; see docs/ROBINHOOD.md.', zh: { name: '股票 / ETF / 期权交易', reason: 'Robinhood 没有公开的券商交易 API。启用需要官方合作伙伴 API 或代理计划开放接口；见 docs/ROBINHOOD.md。' } },
+  { name: 'Brokerage portfolio read', available: false, reason: 'No public API. Do not use unofficial reverse-engineered endpoints: they violate Robinhood\'s terms.', zh: { name: '券商资产读取', reason: '没有公开 API。请勿使用非官方逆向接口：这违反 Robinhood 的条款。' } },
+  { name: 'OAuth login with Robinhood', available: false, reason: 'Robinhood does not offer third-party OAuth.', zh: { name: '使用 Robinhood 账号登录（OAuth）', reason: 'Robinhood 不提供第三方 OAuth。' } },
 ];
 
 export class RobinhoodFeatureUnavailableError extends Error {

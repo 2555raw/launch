@@ -19,15 +19,7 @@
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #121212; --bg-alt: #181818; --card: #1A1A1A; --surface: #262626; --surface-hi: #333333; --tile: #222222;
-    --ink: #F5F5F5; --muted: #B0B0B0; --dim: #7A7A7A; --prose: #DDDDDD;
-    --line: #2C2C2C; --line-hi: #3C3C3C;
-    --green-soft: rgba(6,193,103,.14); --green-ink: #3DDC84; --up: #3DDC84; --down: #FF6B5E;
-    color-scheme: dark;
-  }
-}
+
 :root[data-theme="dark"] {
   --bg: #121212; --bg-alt: #181818; --card: #1A1A1A; --surface: #262626; --surface-hi: #333333; --tile: #222222;
   --ink: #F5F5F5; --muted: #B0B0B0; --dim: #7A7A7A; --prose: #DDDDDD;
@@ -36,7 +28,6 @@
   color-scheme: dark;
 }
 :root[lang="zh"] { --up: #E11900; --down: #05944F; }
-@media (prefers-color-scheme: dark) { :root[lang="zh"]:not([data-theme="light"]) { --up: #FF6B5E; --down: #3DDC84; } }
 :root[data-theme="dark"][lang="zh"] { --up: #FF6B5E; --down: #3DDC84; }
 
 * { box-sizing: border-box; }
@@ -177,6 +168,8 @@ p { margin: 0; }
 .row-img .you { position: absolute; right: 10px; top: 10px; font-family: var(--mono); font-size: 11px; font-weight: 600; background: #fff; color: #000; padding: 3px 8px; border-radius: 4px; }
 .row-img .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; border-radius: 0; background: rgba(0,0,0,.18); }
 .row.is-open .row-img { box-shadow: 0 0 0 2px var(--ink); }
+.rcard .row-img .tag { position: absolute; left: 10px; top: 10px; }
+.rcard .row-name small .tk { font-family: var(--mono); color: var(--ink); font-weight: 500; }
 .row-top { display: flex; align-items: flex-start; gap: 8px; }
 .row-name { min-width: 0; flex: 1; }
 .row-name b { display: block; font-size: 18px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -327,6 +320,11 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <button class="arrow r" type="button" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
 
+      <div class="sec" id="sec-rest">
+        <div class="sec-h"><h2 data-t="sec.rest"></h2><a class="all" href="#docs" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="rest-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="rest-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
+        <div class="rail" id="rest-rail"></div>
+      </div>
+      <hr class="divider">
       <div class="sec" id="sec-featured">
         <div class="sec-h"><h2 data-t="sec.featured"></h2><a class="all" href="#all" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="featured-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="featured-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
         <div class="rail" id="featured-rail"></div>
@@ -421,7 +419,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'nav.home': 'Home', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works',
       'tab.trending': 'Trending', 'tab.new': 'New', 'tab.graduating': 'Graduating', 'tab.graduated': 'Graduated',
       'pill.live': 'Raising now', 'pill.pay': 'Paid in', 'pill.top': 'Most backed', 'pill.sort': 'Sort', 'f.all': 'All', 'ranked.more': 'More info',
-      'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all',
+      'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on BNB Chain', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Pair your coin with ${n}`, 'promo.pairP': (s, iss) => `${s} by ${iss} is live on BNB Chain. Raise in it, list against it.`,
       'wallet.connect': 'Connect wallet', 'wallet.connecting': 'Connecting…', 'wallet.none': 'No wallet found. Install MetaMask (or any BNB Chain wallet) and reload. Inside claude.ai the wallet may not be injected: open this page from its own domain.',
       'st.live': 'raising', 'board.loading': 'Loading coins from the chain…', 'board.nomatch': 'No coins match.', 'board.empty': 'No coins yet. Create the first one.',
       'board.nowallet': 'Connect a wallet to load the board from BNB Chain.', 'board.nofactory': 'Contracts are not deployed on this network yet. Deploy BentoFactory (see How it works) and set its address in the page config.',
@@ -458,7 +456,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明',
       'tab.trending': '热门', 'tab.new': '最新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
       'pill.live': '募集中', 'pill.pay': '支付币种', 'pill.top': '最多人买', 'pill.sort': '排序', 'f.all': '全部', 'ranked.more': '了解更多',
-      'sec.featured': '当前精选', 'sec.new': '今日新发', 'sec.allCoins': '全部代币', 'sec.all': '查看全部',
+      'sec.featured': '当前精选', 'sec.new': '今日新发', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `让你的代币配对 ${n}`, 'promo.pairP': (s, iss) => `${iss} 发行的 ${s} 已在 BNB 链上线。以它募集，与它配对上市。`,
       'wallet.connect': '连接钱包', 'wallet.connecting': '连接中…', 'wallet.none': '未检测到钱包。请安装 MetaMask（或任意 BNB 链钱包）后刷新。在 claude.ai 内钱包可能无法注入：请从独立域名打开本页。',
       'st.live': '募集中', 'board.loading': '正在从链上加载…', 'board.nomatch': '没有匹配的代币。', 'board.empty': '还没有代币。创建第一个吧。',
       'board.nowallet': '连接钱包后从 BNB 链加载。', 'board.nofactory': '合约尚未部署到此网络。请部署 BentoFactory（见玩法说明）并在页面配置中填入地址。',
@@ -663,6 +661,30 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       <div class="row-top"><div class="row-name"><b>${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small><span class="star">${pct(C.progress)}</span> (${C.buyers}) · ${t('pairs')} ${esc(nm(C.r))} · ${esc(C.unit)} · <span data-countdown="${esc(C.addr)}">${closeText(C, now)}</span></small></div><button class="heart" type="button" data-open="${esc(C.addr)}" aria-label="${t('btn.view')}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
     </div>`;
   }
+  const PAIR_IDS = Object.keys(PAIRS);
+  function rcard(rid) {
+    const r = REST[rid]; const pr = PAIRS[rid]; if (!r || !pr) return '';
+    const n = list().filter((C) => C.rest === rid).length;
+    return `<div class="row rcard${state.open === 'r:' + rid ? ' is-open' : ''}" data-open="r:${esc(rid)}">
+      <div class="row-img"><span class="wash" style="background:${esc(tile(r))}"></span>${logo(r, 88)}<span class="tag">${esc(pr.symbol)}</span></div>
+      <div class="row-top"><div class="row-name"><b>${esc(nm(r))}</b><small><span class="tk">${esc(pr.symbol)}</span> · ${esc(pr.issuer)} · ${n ? t('r.coins', n) : t('r.none')}</small></div><button class="heart" type="button" data-open="r:${esc(rid)}" aria-label="${t('btn.view')}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
+    </div>`;
+  }
+  function renderRest() { const host = $('#rest-rail'); if (host) host.innerHTML = PAIR_IDS.map(rcard).join(''); }
+  function renderRestSheet(rid) {
+    const d = $('#drawer'); const r = REST[rid]; const pr = PAIRS[rid]; if (!r || !pr) return;
+    const coins = list().filter((C) => C.rest === rid);
+    d.innerHTML = `
+      <div class="sheet-h">${logo(r, 56)}<div class="who"><b>${esc(nm(r))}</b><small>${esc(r.parentName)}${r.parent ? ' · ' + esc(r.parent) : ''}</small></div><span class="tag">${esc(pr.symbol)}</span><button class="close" type="button" data-close aria-label="Close">✕</button></div>
+      <div class="kv">
+        <div><small>${t('r.token')}</small><b><a href="https://bscscan.com/token/${pr.address}" target="_blank" rel="noopener">${esc(pr.symbol)}</a></b></div>
+        <div><small>${t('r.issuer')}</small><b><a href="${ISSUER_URL[pr.issuer] || '#'}" target="_blank" rel="noopener">${esc(pr.issuer)}</a></b></div>
+        <div><small>${t('r.stock')}</small><b>${esc(pr.stock)}</b></div>
+        <div><small>${t('d.contract')}</small><b class="mono" style="font-size:12px">${esc(short(pr.address))}</b></div>
+      </div>
+      <button class="btn btn-ink btn-block" type="button" data-create="${esc(rid)}">${t('r.create', esc(nm(r)))}</button>
+      <div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('r.coinsH')} · ${coins.length}</p>${coins.length ? coins.map((C) => `<div class="row" data-open="${esc(C.addr)}" style="grid-template-columns:40px 1fr auto;align-items:center;gap:10px;margin-bottom:8px">${logo(C.r, 40)}<div class="row-name"><b style="font-size:15px">${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small>${pct(C.progress)} · ${amt(C.raised, C.unit)} / ${amt(C.goal, C.unit)}</small></div>${tag(C)}</div>`).join('') : `<p class="hint">${t('r.none')}</p>`}</div>`;
+  }
   function renderStats() {
     const Cs = list(); const live = Cs.filter((C) => C.phase === 'live');
     $('#live-count').textContent = String(live.length); $('#net-name').textContent = net().name;
@@ -684,9 +706,11 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const host = $('#featured'); const Cs = list(); const live = Cs.filter((C) => C.phase === 'live');
     const top = [...live].sort((a, b) => b.progress - a.progress)[0]; const big = [...live].filter((C) => C !== top).sort((a, b) => b.goal - a.goal)[0];
     const bn = (k, C, sub, cls) => C ? `<div class="banner ${cls}" data-open="${esc(C.addr)}"><div><h3>${esc(C.tick)} · ${esc(nm(C.r))}</h3><p>${t(k)} · ${sub}</p></div><span class="cta">${t('feat.cta')} ${esc(C.tick)}</span><div class="art">${logo(C.r, 120)}</div></div>` : '';
-    host.innerHTML = bn('feat.top', top, top && `${pct(top.progress)} · ${amt(top.raised, top.unit)} / ${amt(top.goal, top.unit)}`, 'g1')
-      + bn('feat.big', big, big && `${amt(big.goal, big.unit)} · ${t('buyersN', big.buyers)}`, 'g2')
-      + `<a class="banner g3" href="#launch"><div><h3>${t('feat.create')}</h3><p>${t('feat.createP')}</p></div><span class="cta">${t('feat.ctaCreate')}</span><div class="art"><span class="big">🍱</span></div></a>`;
+    const pb = (rid, cls) => { const r = REST[rid]; const pr = PAIRS[rid]; return `<div class="banner ${cls}" data-open="r:${esc(rid)}"><div><h3>${t('promo.pair', esc(nm(r)), esc(pr.symbol))}</h3><p>${t('promo.pairP', esc(pr.symbol), esc(pr.issuer))}</p></div><span class="cta">${t('feat.ctaCreate')} · ${esc(pr.symbol)}</span><div class="art">${logo(r, 120)}</div></div>`; };
+    const promos = ['mcdonalds', 'meituan', 'starbucks'].filter((id) => PAIRS[id]);
+    host.innerHTML = (top ? bn('feat.top', top, `${pct(top.progress)} · ${amt(top.raised, top.unit)} / ${amt(top.goal, top.unit)}`, 'g1') : pb(promos[0], 'g1'))
+      + (big ? bn('feat.big', big, `${amt(big.goal, big.unit)} · ${t('buyersN', big.buyers)}`, 'g2') : pb(promos[1], 'g2'))
+      + pb(promos[2], 'g3');
   }
   function filtered(all) {
     const q = state.q.trim().toLowerCase(); const order = { live: 0, pending: 1, ok: 2, failed: 3 };
@@ -707,19 +731,23 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   function renderRows() {
     const host = $('#rows'); const now = Date.now(); const Cs = list();
     const fr = $('#featured-rail'), nr = $('#new-rail');
-    if (!state.loaded) { host.innerHTML = `<p class="empty">${t('board.loading')}</p>`; fr.innerHTML = nr.innerHTML = ''; renderDrawer(); return; }
+    renderRest();
+    if (!state.loaded) { host.innerHTML = `<p class="empty">${t('board.loading')}</p>`; fr.innerHTML = nr.innerHTML = ''; $('#sec-featured').hidden = $('#sec-new').hidden = true; renderDrawer(); return; }
     if (state.loadError) { const msg = state.loadError === 'nofactory' ? t('board.nofactory') : state.loadError === 'nowallet' ? t('board.nowallet') : t('board.loading');
-      host.innerHTML = `<p class="empty">${msg}${state.loadError === 'nowallet' ? `<br><br><button class="btn btn-ink" type="button" data-connect>${t('wallet.connect')}</button>` : ''}</p>`; fr.innerHTML = nr.innerHTML = ''; renderDrawer(); return; }
+      host.innerHTML = `<p class="empty">${msg}${state.loadError === 'nowallet' ? `<br><br><button class="btn btn-ink" type="button" data-connect>${t('wallet.connect')}</button>` : ''}</p>`; fr.innerHTML = nr.innerHTML = ''; $('#sec-featured').hidden = $('#sec-new').hidden = true; renderDrawer(); return; }
     const live = Cs.filter((C) => C.phase === 'live');
     fr.innerHTML = [...live].sort((a, b) => b.progress - a.progress || b.buyers - a.buyers).slice(0, 8).map((C) => card(C, now)).join('') || `<p class="empty">${t('board.empty')}</p>`;
     nr.innerHTML = [...live].sort((a, b) => b.openAt - a.openAt).slice(0, 8).map((C) => card(C, now)).join('') || `<p class="empty">${t('board.empty')}</p>`;
     $('#sec-featured').hidden = $('#sec-new').hidden = !live.length;
+    renderRest();
     const rows = filtered(Cs);
     host.innerHTML = rows.length ? rows.map((C) => card(C, now)).join('') : `<p class="empty">${t(Cs.length ? 'board.nomatch' : 'board.empty')}</p>`;
     renderDrawer();
   }
   function renderDrawer() {
-    const d = $('#drawer'); const C = state.open ? list().find((x) => x.addr === state.open) : null;
+    const d = $('#drawer');
+    if (state.open && state.open.startsWith('r:')) { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); renderRestSheet(state.open.slice(2)); return; }
+    const C = state.open ? list().find((x) => x.addr === state.open) : null;
     d.classList.toggle('is-open', Boolean(C)); $('#scrim').classList.toggle('is-open', Boolean(C));
     if (!C) return;
     const bal = C.isBnb ? (state.balance || 0) : (C.bal || 0);
@@ -835,6 +863,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const f = e.target.closest('[data-finalize]'); if (f) { sendTx(async (s) => new E.Contract(f.dataset.finalize, RAISE_ABI, s).finalize()); return; }
     const c = e.target.closest('[data-claim]'); if (c) { sendTx(async (s) => new E.Contract(c.dataset.claim, RAISE_ABI, s).claim()); return; }
     const r = e.target.closest('[data-refund]'); if (r) { sendTx(async (s) => new E.Contract(r.dataset.refund, RAISE_ABI, s).refund()); return; }
+    const cr = e.target.closest('[data-create]'); if (cr) { state.open = null; $('#c-rest').value = cr.dataset.create; renderPreview(); renderRows(); $('#launch')?.scrollIntoView({ behavior: 'smooth' }); $('#c-name').focus(); return; }
     const open = e.target.closest('[data-open]'); if (open) { state.open = open.dataset.open; renderRows(); return; }
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }
     if (e.target.closest('#cats-r')) { $('#cat').scrollBy({ left: 300, behavior: 'smooth' }); return; }
@@ -858,8 +887,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const prefersLight = () => matchMedia('(prefers-color-scheme: light)').matches;
   function applyTheme(th) { root.dataset.theme = th; themeBtn.textContent = th === 'light' ? '☾' : '☀'; try { localStorage.setItem('bento.theme', th); } catch {} }
   let savedTheme = null; try { savedTheme = localStorage.getItem('bento.theme'); } catch {}
-  if (savedTheme) applyTheme(savedTheme); else themeBtn.textContent = prefersLight() ? '☾' : '☀';
-  themeBtn.addEventListener('click', () => applyTheme((root.dataset.theme || (prefersLight() ? 'light' : 'dark')) === 'light' ? 'dark' : 'light'));
+  if (savedTheme) applyTheme(savedTheme); else themeBtn.textContent = '☾';
+  themeBtn.addEventListener('click', () => applyTheme((root.dataset.theme || 'light') === 'light' ? 'dark' : 'light'));
   $('#year').textContent = String(new Date().getFullYear());
   setInterval(() => { const now = Date.now(); $$('[data-countdown]').forEach((el) => { const C = list().find((x) => x.addr === el.dataset.countdown); if (C) el.textContent = closeText(C, now); }); }, 1000);
   setInterval(() => { if (state.loaded && !state.loadError && !state.busy) loadCoins(); }, 20000);

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { api, errorMessage } from '@/lib/api';
+import { useT } from '@/lib/i18n';
 import { JsonView } from '@/components/admin/json-view';
 import { fmtDate } from '@/components/ui/dates';
 import { Empty, PageHeader, Spinner } from '@/components/ui/primitives';
@@ -23,11 +24,12 @@ interface AuditRow {
 const ACTION_TONE = (a: string) => (a.startsWith('admin.') ? 'text-ember-300' : a.startsWith('auth.') ? 'text-sky-300' : 'text-slate-200');
 
 export default function AdminLogsPage() {
+  const t = useT();
   const [input, setInput] = useState('');
   const [action, setAction] = useState('');
   useEffect(() => {
-    const t = setTimeout(() => setAction(input.trim()), 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setAction(input.trim()), 300);
+    return () => clearTimeout(timer);
   }, [input]);
   const q = useInfiniteQuery({
     queryKey: ['admin', 'audit-logs', action],
@@ -40,32 +42,32 @@ export default function AdminLogsPage() {
   return (
     <div>
       <PageHeader
-        title="Audit log"
-        subtitle="Every privileged or security-relevant action, newest first. Filter by action prefix (e.g. admin., auth.login)."
+        title={t('Audit log')}
+        subtitle={t('Every privileged or security-relevant action, newest first. Filter by action prefix (e.g. admin., auth.login).')}
         actions={
           <div className="relative w-72">
             <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input className="input pl-8 font-mono" placeholder="action prefix" value={input} onChange={(e) => setInput(e.target.value)} />
+            <input className="input pl-8 font-mono" placeholder={t('action prefix')} value={input} onChange={(e) => setInput(e.target.value)} />
           </div>
         }
       />
       {q.isLoading ? (
-        <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> Loading audit log…</div>
+        <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> {t('Loading audit log…')}</div>
       ) : q.error ? (
-        <Empty title="Could not load audit log" body={errorMessage(q.error)} action={<button className="btn-secondary" onClick={() => void q.refetch()}>Retry</button>} />
+        <Empty title={t('Could not load audit log')} body={errorMessage(q.error)} action={<button className="btn-secondary" onClick={() => void q.refetch()}>{t('Retry')}</button>} />
       ) : rows.length === 0 ? (
-        <Empty title="No log entries" body={action ? `Nothing starts with "${action}".` : undefined} />
+        <Empty title={t('No log entries')} body={action ? t('Nothing starts with "{action}".', { action }) : undefined} />
       ) : (
         <div className="card p-2 sm:p-4">
           <Table>
             <thead>
               <tr>
-                <Th>When</Th>
-                <Th>Actor</Th>
-                <Th>Action</Th>
-                <Th>Target</Th>
-                <Th>IP</Th>
-                <Th>Metadata</Th>
+                <Th>{t('When')}</Th>
+                <Th>{t('Actor')}</Th>
+                <Th>{t('Action')}</Th>
+                <Th>{t('Target')}</Th>
+                <Th>{t('IP')}</Th>
+                <Th>{t('Metadata')}</Th>
               </tr>
             </thead>
             <tbody>
@@ -73,7 +75,7 @@ export default function AdminLogsPage() {
                 <Tr key={l.id}>
                   <Td className="whitespace-nowrap text-xs text-slate-400">{fmtDate(l.createdAt)}</Td>
                   <Td className="text-xs">
-                    {l.actor?.username ?? <span className="text-slate-600">system</span>}
+                    {l.actor?.username ?? <span className="text-slate-600">{t('system')}</span>}
                     {l.actorUserId && <div className="font-mono text-[10px] text-slate-600">{l.actorUserId}</div>}
                   </Td>
                   <Td className={`font-mono text-xs ${ACTION_TONE(l.action)}`}>{l.action}</Td>
@@ -95,7 +97,7 @@ export default function AdminLogsPage() {
           {q.hasNextPage && (
             <div className="mt-3 text-center">
               <button className="btn-secondary" onClick={() => void q.fetchNextPage()} disabled={q.isFetchingNextPage}>
-                {q.isFetchingNextPage ? <Spinner /> : null} Load more
+                {q.isFetchingNextPage ? <Spinner /> : null} {t('Load more')}
               </button>
             </div>
           )}

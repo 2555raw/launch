@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Check, Copy, X } from 'lucide-react';
 import type { Chain, ProjectStatus } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
+import { useT } from '@/lib/i18n';
 import { StatusBadge } from '@/components/admin/status-badge';
 import { fmtDate } from '@/components/ui/dates';
 import { Empty, PageHeader, Spinner, shortAddr } from '@/components/ui/primitives';
@@ -41,12 +42,13 @@ function formatSupply(supply: string, decimals: number): string {
 }
 
 function CopyAddr({ value, chars = 6 }: { value: string; chars?: number }) {
+  const t = useT();
   return (
     <button
       className="flex items-center gap-1 font-mono text-xs text-slate-200 hover:text-ember-300"
       title={value}
       onClick={() => {
-        void navigator.clipboard?.writeText(value).then(() => toast.info('Copied', shortAddr(value, 8)));
+        void navigator.clipboard?.writeText(value).then(() => toast.info(t('Copied'), shortAddr(value, 8)));
       }}
     >
       {shortAddr(value, chars)} <Copy size={11} className="text-slate-500" />
@@ -55,60 +57,61 @@ function CopyAddr({ value, chars = 6 }: { value: string; chars?: number }) {
 }
 
 export default function AdminTokensPage() {
+  const t = useT();
   const q = useQuery({ queryKey: ['admin', 'tokens'], queryFn: () => api<{ items: TokenRow[] }>('/admin/tokens') });
   return (
     <div>
-      <PageHeader title="Tokens" subtitle="On-chain tokens verified for launchpad projects (up to 100, newest first)." />
+      <PageHeader title={t('Tokens')} subtitle={t('On-chain tokens verified for launchpad projects (up to 100, newest first).')} />
       {q.isLoading ? (
-        <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> Loading tokens…</div>
+        <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> {t('Loading tokens…')}</div>
       ) : q.error ? (
-        <Empty title="Could not load tokens" body={errorMessage(q.error)} action={<button className="btn-secondary" onClick={() => void q.refetch()}>Retry</button>} />
+        <Empty title={t('Could not load tokens')} body={errorMessage(q.error)} action={<button className="btn-secondary" onClick={() => void q.refetch()}>{t('Retry')}</button>} />
       ) : q.data && q.data.items.length === 0 ? (
-        <Empty title="No tokens yet" />
+        <Empty title={t('No tokens yet')} />
       ) : (
         <div className="card p-2 sm:p-4">
           <Table>
             <thead>
               <tr>
-                <Th>Project</Th>
-                <Th>Chain</Th>
-                <Th>Address</Th>
-                <Th>Creator wallet</Th>
-                <Th className="text-right">Supply</Th>
-                <Th>Mint authority</Th>
-                <Th>Create tx</Th>
-                <Th>Verified</Th>
+                <Th>{t('Project')}</Th>
+                <Th>{t('Chain')}</Th>
+                <Th>{t('Address')}</Th>
+                <Th>{t('Creator wallet')}</Th>
+                <Th className="text-right">{t('Supply')}</Th>
+                <Th>{t('Mint authority')}</Th>
+                <Th>{t('Create tx')}</Th>
+                <Th>{t('Verified')}</Th>
               </tr>
             </thead>
             <tbody>
-              {q.data?.items.map((t) => (
-                <Tr key={t.id}>
+              {q.data?.items.map((tok) => (
+                <Tr key={tok.id}>
                   <Td>
                     <div className="font-semibold text-slate-100">
-                      {t.project.name} <span className="font-mono text-xs text-slate-500">{t.project.symbol}</span>
+                      {tok.project.name} <span className="font-mono text-xs text-slate-500">{tok.project.symbol}</span>
                     </div>
-                    <div className="mt-0.5"><StatusBadge value={t.project.status} /></div>
+                    <div className="mt-0.5"><StatusBadge value={tok.project.status} /></div>
                   </Td>
                   <Td className="text-xs">
-                    {t.chain === 'SOLANA' ? 'Solana' : 'Robinhood Chain'}
-                    <div className="text-slate-500">{t.network}</div>
-                    {t.tokenProgram && <div className="font-mono text-[10px] text-slate-600">{shortAddr(t.tokenProgram)}</div>}
+                    {tok.chain === 'SOLANA' ? 'Solana' : 'Robinhood Chain'}
+                    <div className="text-slate-500">{tok.network}</div>
+                    {tok.tokenProgram && <div className="font-mono text-[10px] text-slate-600">{shortAddr(tok.tokenProgram)}</div>}
                   </Td>
-                  <Td><CopyAddr value={t.address} /></Td>
-                  <Td><CopyAddr value={t.creatorWallet} /></Td>
+                  <Td><CopyAddr value={tok.address} /></Td>
+                  <Td><CopyAddr value={tok.creatorWallet} /></Td>
                   <Td className="text-right font-mono text-xs">
-                    {formatSupply(t.supply, t.decimals)}
-                    <div className="text-[10px] text-slate-500">{t.decimals} decimals</div>
+                    {formatSupply(tok.supply, tok.decimals)}
+                    <div className="text-[10px] text-slate-500">{t('{n} decimals', { n: tok.decimals })}</div>
                   </Td>
                   <Td>
-                    {t.mintAuthorityRevoked ? (
-                      <span className="badge gap-1 border-mint-500/30 text-mint-400"><Check size={10} /> revoked</span>
+                    {tok.mintAuthorityRevoked ? (
+                      <span className="badge gap-1 border-mint-500/30 text-mint-400"><Check size={10} /> {t('revoked')}</span>
                     ) : (
-                      <span className="badge gap-1 border-amber-500/30 text-amber-300"><X size={10} /> active</span>
+                      <span className="badge gap-1 border-amber-500/30 text-amber-300"><X size={10} /> {t('active')}</span>
                     )}
                   </Td>
-                  <Td><CopyAddr value={t.createTxSignature} chars={5} /></Td>
-                  <Td className="text-xs text-slate-400">{fmtDate(t.verifiedAt)}</Td>
+                  <Td><CopyAddr value={tok.createTxSignature} chars={5} /></Td>
+                  <Td className="text-xs text-slate-400">{fmtDate(tok.verifiedAt)}</Td>
                 </Tr>
               ))}
             </tbody>

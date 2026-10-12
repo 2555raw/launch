@@ -199,6 +199,7 @@ p { margin: 0; }
 @media (max-width: 1499px) and (min-width: 1100px) { .rail { grid-auto-columns: calc((100% - 32px) / 3); } }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px 16px; }
 .divider { border: 0; border-top: 1px solid var(--line); margin: 8px 0 32px; }
+.sec[hidden] + .divider { display: none; }
 
 /* ---- coin card ---- */
 .row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; cursor: pointer; min-width: 0; }
@@ -322,6 +323,35 @@ p { margin: 0; }
 .px-chip i { font-style: normal; margin-left: 4px; }
 .banner .pxl { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--mono); font-size: 13px; font-weight: 600; background: rgba(255,255,255,.22); border-radius: 999px; padding: 4px 10px; }
 .banner.g3 .pxl { background: rgba(0,0,0,.08); }
+
+/* ---- gift cards ---- */
+.gift { position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 12px; aspect-ratio: 1.586; min-height: 190px; border-radius: 16px; padding: 18px; color: #fff; overflow: hidden; cursor: pointer; transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .18s ease; box-shadow: 0 8px 24px rgba(0,0,0,.10); }
+.gift:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(0,0,0,.16); }
+.gift::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,0) 45%, rgba(0,0,0,.18)); pointer-events: none; }
+.gift::after { content: ''; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; border-radius: 999px; background: rgba(255,255,255,.14); pointer-events: none; }
+.gift > * { position: relative; }
+.gift-h { display: flex; align-items: center; gap: 10px; }
+.gift-h .logo { width: 40px; height: 40px; border: 0; box-shadow: 0 4px 12px rgba(0,0,0,.18); }
+.gift-h b { display: block; font-size: 16px; font-weight: 700; line-height: 20px; }
+.gift-h small { display: block; font-size: 12px; opacity: .85; }
+.gift-h .tag { margin-left: auto; background: rgba(255,255,255,.22); color: #fff; font-weight: 600; }
+.gift-amt { font-family: var(--mono); font-size: 26px; font-weight: 600; letter-spacing: -.01em; align-self: end; }
+.gift-amt small { display: block; font-family: var(--font); font-size: 12px; font-weight: 500; opacity: .85; margin-top: 2px; }
+.gift-f { display: flex; align-items: center; gap: 8px; }
+.gift-f .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.gift-f .chips span { font-family: var(--mono); font-size: 11px; font-weight: 600; background: rgba(255,255,255,.22); border-radius: 6px; padding: 3px 7px; }
+.gift-f .cta { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; background: #fff; color: #000; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.gift.is-dark { color: #111; } .gift.is-dark::before { background: linear-gradient(135deg, rgba(255,255,255,.5), rgba(255,255,255,0) 45%, rgba(0,0,0,.06)); }
+.gift.is-dark .gift-h .tag, .gift.is-dark .gift-f .chips span { background: rgba(0,0,0,.08); color: #111; }
+.gift.is-dark .gift-f .cta { background: #000; color: #fff; }
+.gift-pay { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); margin: -4px 0 16px; }
+.gift-pay b { font-weight: 600; color: var(--ink); }
+.gift-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; }
+.gift-row .gi { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: linear-gradient(135deg, #FF9A5B, #D9731A); color: #fff; }
+.gift-row .gi svg { width: 20px; height: 20px; }
+.gift-row b { display: block; font-size: 15px; font-weight: 600; }
+.gift-row small { display: block; color: var(--muted); font-size: 13px; }
+.gift-row .btn { height: 36px; font-size: 13px; }
 
 /* ---- brand mark ---- */
 .brand { display: inline-flex; align-items: center; gap: 9px; }
@@ -503,6 +533,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 <div class="shell" id="top">
   <aside class="side" id="side">
     <a href="#explore" class="is-on"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.home"></span></a>
+    <a href="#gifts" id="nav-gifts"><span class="ico c6"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 8v13M12 8c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.gifts"></span></a>
+
     <div class="grp" data-t="grp.coins"></div>
     <button type="button" data-tab="trending"><span class="ico c6"><svg viewBox="0 0 24 24" fill="none"><path d="M13 3s1 3-1 6 3 4 3 7a4 4 0 0 1-8 0c0-2 1-3 1-3s0 2 2 2c0-4 3-5 3-12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="tab.trending"></span><span class="n" id="n-live">0</span></button>
     <button type="button" data-tab="new"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="tab.new"></span></button>
@@ -575,6 +607,12 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div class="rail" id="rest-rail"></div>
       </div>
       <hr class="divider">
+      <div class="sec" id="gifts">
+        <div class="sec-h"><h2 data-t="gift.h2"></h2><a class="all" href="https://www.bitrefill.com/us/en/gift-cards/restaurants/" target="_blank" rel="noopener" data-t="gift.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="gift-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="gift-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
+        <p class="gift-pay"><span data-t="gift.p"></span><b>Bitcoin</b><b>Lightning</b><b>USDT</b><b>USDC</b><b>Binance Pay</b><b>Apple Pay</b></p>
+        <div class="rail" id="gift-rail"></div>
+      </div>
+      <hr class="divider">
       <div class="sec" id="sec-featured">
         <div class="sec-h"><h2 data-t="sec.featured"></h2><a class="all" href="#all" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="featured-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="featured-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
         <div class="rail" id="featured-rail"></div>
@@ -637,11 +675,11 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     <footer>
       <div class="ft">
         <div><a class="brand" href="#top"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8"/><path d="M12 2v28M2 15h10M12 15h18" stroke-width="2" opacity=".35"/><circle cx="21" cy="8.5" r="3.6" fill="#06C167"/></svg><span>Bento <em>Launch</em></span></a><p data-t="ft.tag"></p></div>
-        <div><h4 data-t="ft.product"></h4><ul><li><a href="#explore" data-t="nav.home"></a></li><li><a href="#launch" data-t="nav.create"></a></li><li><a href="#pairs" data-t="docs.4h"></a></li><li><a href="#docs" data-t="nav.docs"></a></li></ul></div>
+        <div><h4 data-t="ft.product"></h4><ul><li><a href="#explore" data-t="nav.home"></a></li><li><a href="#launch" data-t="nav.create"></a></li><li><a href="#gifts" data-t="nav.gifts"></a></li><li><a href="#pairs" data-t="docs.4h"></a></li><li><a href="#docs" data-t="nav.docs"></a></li></ul></div>
         <div><h4 data-t="ft.protocol"></h4><ul><li><a id="explorer-link" href="#" target="_blank" rel="noopener" data-t="ft.factory"></a></li><li><a href="https://github.com/2555raw/launch" target="_blank" rel="noopener" data-t="ft.src"></a></li><li><a href="https://pancakeswap.finance" target="_blank" rel="noopener">PancakeSwap</a></li><li><a href="https://www.bnbchain.org" target="_blank" rel="noopener">BNB Chain</a></li></ul></div>
         <div><h4 data-t="ft.legal"></h4><ul><li><a href="#" data-doc="risk" data-t="legal.risk"></a></li><li><a href="#" data-doc="terms" data-t="legal.terms"></a></li><li><a href="#" data-doc="privacy" data-t="legal.privacy"></a></li></ul></div>
       </div>
-      <p data-t="footer"></p>
+      <p><span data-t="footer"></span> <span data-t="gift.note"></span></p>
       <div class="ft-b"><span>© <span id="year"></span> Bento Launch</span><span class="tagl" id="ft-net"><i></i><span></span></span><span class="tagl ok" id="ft-block" hidden><i></i><span class="mono"></span></span><span class="tagl"><i style="background:#F0B90B"></i><span data-t="ft.unaudited"></span></span><span class="legal"><a href="#" data-doc="risk" data-t="legal.risk"></a><a href="#" data-doc="terms" data-t="legal.terms"></a></span></div>
     </footer>
   </main>
@@ -728,6 +766,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'st.factory': (n) => `${n}: factory not deployed yet. Deploy BentoFactory and set its address in the page config.`, 'st.factoryOk': (n) => `BentoFactory live on ${n}`,
       'hero.eye': (n) => `Live on BNB Chain · ${n} verified stock tokens`, 'hero.h1': 'Launch a coin <em>paired</em> with a real restaurant stock.', 'hero.p': 'Pick McDonald\'s, Starbucks, Meituan or 15 more. The raise is paid in that restaurant\'s tokenized stock, and at graduation the coin lists against it on PancakeSwap with the liquidity burned.', 'hero.cta2': 'See restaurants', 'hero.live': 'raising now', 'hero.raised': 'raised so far', 'hero.issuers': 'issuers', 'hero.tokens': 'stock tokens', 'hero.fee': 'fee · LP burned', 'hero.today': 'today',
       'r.exchange': 'Listed on', 'r.hq': 'Headquarters', 'r.founded': 'Founded', 'r.stores': 'Locations', 'fav.on': 'Saved to My coins.', 'fav.off': 'Removed from My coins.', 'btn.fav': 'Save', 'ft.block': (n) => `Block ${n}`,
+      'nav.gifts': 'Gift cards', 'gift.h2': 'Gift cards, paid in crypto', 'gift.all': 'All restaurants on Bitrefill', 'gift.p': 'eGift cards sold and emailed by Bitrefill. Pay with', 'gift.egift': 'eGift card', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `up to ${b}`, 'gift.buy': 'Buy on Bitrefill', 'gift.browse': 'Browse on Bitrefill', 'gift.works': (c) => `Works in ${c}`, 'gift.na': 'No listing yet', 'gift.sheet': 'Gift card', 'gift.sheetP': 'Bought on Bitrefill, delivered by email in minutes.', 'gift.sheetNa': 'Bitrefill has no listing for this brand yet.', 'gift.note': 'Gift cards are sold by Bitrefill, not by this site, and are unrelated to the coins and stock tokens.',
       'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
       'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply, same for everyone', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of the raise + 20% of supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply, pro rata', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP tokens burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
       'ft.tag': 'A coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Factory contract', 'ft.src': 'Source code', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
@@ -778,6 +817,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'st.factory': (n) => `${n}：工厂合约尚未部署。请部署 BentoFactory 并在页面配置中填入地址。`, 'st.factoryOk': (n) => `BentoFactory 已在 ${n} 上线`,
       'hero.eye': (n) => `已在 BNB 链上线 · ${n} 个已验证股票代币`, 'hero.h1': '发行一个与真实餐饮股票<em>配对</em>的代币。', 'hero.p': '选麦当劳、星巴克、美团或另外 15 家。募集以该品牌的股票代币支付，毕业后在 PancakeSwap 与它配对上市，流动性凭证销毁。', 'hero.cta2': '查看品牌', 'hero.live': '募集中', 'hero.raised': '累计募集', 'hero.issuers': '发行方', 'hero.tokens': '股票代币', 'hero.fee': '手续费 · LP 已销毁', 'hero.today': '今日',
       'r.exchange': '上市', 'r.hq': '总部', 'r.founded': '成立', 'r.stores': '门店', 'fav.on': '已加入我的代币。', 'fav.off': '已从我的代币移除。', 'btn.fav': '收藏', 'ft.block': (n) => `区块 ${n}`,
+      'nav.gifts': '礼品卡', 'gift.h2': '用加密货币买礼品卡', 'gift.all': 'Bitrefill 全部餐饮品牌', 'gift.p': '电子礼品卡由 Bitrefill 出售并邮件发送。支持', 'gift.egift': '电子礼品卡', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `最高 ${b}`, 'gift.buy': '在 Bitrefill 购买', 'gift.browse': '去 Bitrefill 浏览', 'gift.works': (c) => `仅限${c}使用`, 'gift.na': '暂无上架', 'gift.sheet': '礼品卡', 'gift.sheetP': '在 Bitrefill 购买，几分钟内邮件送达。', 'gift.sheetNa': 'Bitrefill 尚未上架该品牌。', 'gift.note': '礼品卡由 Bitrefill 出售，与本站、代币和股票代币无关。',
       'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
       'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量，人人相同', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '募集额的 99% + 供应量的 20%', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%，按比例', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
       'ft.tag': 'BNB 链上的代币发射台：每个代币配对一只餐饮股票代币，以它募集，与它配对上市。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '工厂合约', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
@@ -871,6 +911,29 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   };
   let FAV = new Set(); try { FAV = new Set(JSON.parse(localStorage.getItem('bento.fav') || '[]')); } catch {}
   const saveFav = () => { try { localStorage.setItem('bento.fav', JSON.stringify([...FAV])); } catch {} };
+
+  /* ---------- gift cards (Bitrefill listings checked 2026-10-12; set GIFT_REF to your Bitrefill referral code) ---------- */
+  const GIFT_REF = '';
+  const GIFTS = {
+    starbucks: ['starbucks-usa', 5, 500, 'USD', 'us', 'US'], chipotle: ['chipotle-usa', 5, 250, 'USD', 'us', 'US'], tacobell: ['taco-bell-usa', 5, 500, 'USD', 'us', 'US'], kfc: ['kfc-usa', 70, 100, 'USD', 'us', 'US'],
+    pizzahut: ['pizza-hut-usa', 5, 50, 'USD', 'us', 'US'], burgerking: ['burger-king-usa', 5, 1000, 'USD', 'us', 'US'], dominos: ['dominos-usa', 5, 100, 'USD', 'us', 'US'], doordash: ['doordash-usa', 5, 200, 'USD', 'us', 'US'],
+    ubereats: ['uber-eats-usa', 20, 500, 'USD', 'us', 'US'], olivegarden: ['olive-garden-usa', null, 2000, 'USD', 'us', 'US'], texasroadhouse: ['texas-roadhouse-usa', 5, 100, 'USD', 'us', 'US'], timhortons: ['tim-hortons-canada', 5, 100, 'CAD', 'ca', 'CA'],
+    mcdonalds: [null], wendys: [null], popeyes: [null]
+  };
+  const GIFT_ORDER = ['starbucks', 'chipotle', 'burgerking', 'dominos', 'tacobell', 'ubereats', 'doordash', 'pizzahut', 'kfc', 'olivegarden', 'texasroadhouse', 'timhortons', 'mcdonalds', 'wendys', 'popeyes'];
+  const giftUrl = (rid) => { const g = GIFTS[rid]; const u = g && g[0] ? `https://www.bitrefill.com/${g[4]}/en/gift-cards/${g[0]}/` : 'https://www.bitrefill.com/us/en/gift-cards/restaurants/'; return GIFT_REF ? `${u}?ref=${encodeURIComponent(GIFT_REF)}` : u; };
+  const money = (v, cur) => new Intl.NumberFormat('en-US', { style: 'currency', currency: cur || 'USD', maximumFractionDigits: 0 }).format(v);
+  const giftChips = (g) => { if (!g || !g[0]) return []; const lo = g[1] || 5, hi = g[2]; return [5, 10, 25, 50, 100, 250, 500, 1000].filter((v) => v >= lo && v <= hi).slice(0, 4).map((v) => money(v, g[3])); };
+  const isDarkHex = (hex) => { const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return false; const n = parseInt(m[1], 16); const r = n >> 16, gg = (n >> 8) & 255, b = n & 255; return (0.299 * r + 0.587 * gg + 0.114 * b) > 170; };
+  function giftCard(rid) {
+    const r = REST[rid]; const g = GIFTS[rid]; if (!r) return ''; const listed = Boolean(g && g[0]); const bg = tile(r);
+    const range = listed ? (g[1] ? t('gift.from', money(g[1], g[3]), money(g[2], g[3])) : t('gift.upto', money(g[2], g[3]))) : '';
+    return `<a class="gift${isDarkHex(bg) ? ' is-dark' : ''}" href="${giftUrl(rid)}" target="_blank" rel="noopener" style="background:${esc(bg)}">
+      <div class="gift-h">${logo(r, 40)}<div><b>${esc(nm(r))}</b><small>${t('gift.egift')}${listed ? ' · ' + t('gift.works', g[5]) : ''}</small></div><span class="tag">Bitrefill</span></div>
+      <div class="gift-amt">${listed ? esc(range) : t('gift.na')}<small>${listed ? esc(money(g[2], g[3])) + ' max' : ''}</small></div>
+      <div class="gift-f"><span class="chips">${giftChips(g).map((c) => `<span>${esc(c)}</span>`).join('')}</span><span class="cta">${t(listed ? 'gift.buy' : 'gift.browse')} ↗</span></div></a>`;
+  }
+  function renderGifts() { const host = $('#gift-rail'); if (host && host.dataset.lang !== state.lang) { host.innerHTML = GIFT_ORDER.filter((id) => REST[id]).map(giftCard).join(''); host.dataset.lang = state.lang; } }
 
   /* ---------- state ---------- */
   const state = { lang: 'en', chainId: DEFAULT_CHAIN, provider: null, address: null, balance: null, walletChain: null, coins: [], loaded: false, loadError: null,
@@ -1100,6 +1163,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div><small>${t('d.contract')}</small><b class="mono" style="font-size:12px">${esc(short(pr.address))}</b></div>
       </div>
       <button class="btn btn-ink btn-block" type="button" data-create="${esc(rid)}">${t('r.create', esc(nm(r)))}</button>
+      ${GIFTS[rid] ? `<div class="gift-row"><span class="gi"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 8v13M12 8c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><b>${t('gift.sheet')}${GIFTS[rid][0] ? ` · ${GIFTS[rid][1] ? t('gift.from', money(GIFTS[rid][1], GIFTS[rid][3]), money(GIFTS[rid][2], GIFTS[rid][3])) : t('gift.upto', money(GIFTS[rid][2], GIFTS[rid][3]))}` : ''}</b><small>${t(GIFTS[rid][0] ? 'gift.sheetP' : 'gift.sheetNa')}</small></div><a class="btn btn-gray" href="${giftUrl(rid)}" target="_blank" rel="noopener">${t(GIFTS[rid][0] ? 'gift.buy' : 'gift.browse')} ↗</a></div>` : ''}
       <div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('r.coinsH')} · ${coins.length}</p>${coins.length ? coins.map((C) => `<div class="row" data-open="${esc(C.addr)}" style="grid-template-columns:40px 1fr auto;align-items:center;gap:10px;margin-bottom:8px">${logo(C.r, 40)}<div class="row-name"><b style="font-size:15px">${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small>${pct(C.progress)} · ${amt(C.raised, C.unit)} / ${amt(C.goal, C.unit)}</small></div>${tag(C)}</div>`).join('') : `<p class="hint">${t('r.none')}</p>`}</div>`;
   }
   function renderStats() {
@@ -1265,7 +1329,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (state.loaded) toast(t('search.noaddr', net().name));
   }
   function copyText(v) { const done = () => toast(t('copied')); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done).catch(() => toast(v)); else { try { const ta = document.createElement('textarea'); ta.value = v; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); } catch { toast(v); } } }
-  function render() { renderStats(); renderWallet(); renderHero(); renderFeatured(); renderRows(); renderPreview(); renderPairs(); renderFeed(); }
+  function render() { renderStats(); renderWallet(); renderGifts(); renderHero(); renderFeatured(); renderRows(); renderPreview(); renderPairs(); renderFeed(); }
 
   /* ---------- create ---------- */
   function fillRestaurants() {

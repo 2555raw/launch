@@ -129,7 +129,49 @@ principal. Dentro de claude.ai (iframe aislado) la wallet puede no inyectarse: e
 abrir la página desde su propio dominio. En testnet los tokens de acciones no existen, así que
 las coins se pagan en tBNB (o en un ERC20 de prueba con `STOCK_TEST=0x...`).
 
+**Qué hace la página además de comprar**
+
+- Precio en USD junto a cada cantidad (CoinGecko, caché de 2 minutos en el navegador; si la
+  API falla se oculta y el BNB/USD sale del feed de Chainlink).
+- Página por coin con enlace compartible (`#coin/56/0x…`, `#r/mcdonalds` para un restaurante),
+  botón de copiar enlace, gráfico de la recaudación y lista de compras leídas de los eventos
+  `Bought` del contrato (por rangos de 5000 bloques).
+- Cinta de compras en vivo en la portada (eventos de los últimos 5000 bloques).
+- Buscador que acepta una dirección `0x…` o un enlace de BscScan y abre esa coin o ese token.
+- Iconos propios de categoría, marca propia, barra inferior en móvil, números en 万/亿 y
+  textos de 打新 en chino.
+- Las fotos de los restaurantes no se pueden obtener legalmente de forma automática: la página
+  usa los logotipos oficiales y, si quieres fotos reales, hay que aportarlas y colocarlas en
+  `dapp/logos/<id>.png`.
+
+**Pruebas**
+
+```bash
+npm run test:contracts   # 28 comprobaciones de los contratos en una EVM en proceso
+```
+
+`contracts/test/run.js` compila `BentoLaunch.sol` y los mocks (`contracts/test/Mocks.sol`:
+un token de acción y un router de PancakeSwap) y ejecuta en `@ethereumjs/vm` el ciclo
+completo: restaurante no registrado, raise pagado en MCDx (tope por cartera, recorte,
+cierre por debajo del mínimo y reembolso), raise que llega al objetivo y gradúa (99 % al
+pool, 1 % de comisión, par COIN/MCDx, claim del 80 %), y raise pagado en BNB.
+
 La página se probó en navegador contra una wallet simulada que responde a los mismos ABIs:
-conectar, crear, aprobar MCDx, comprar, recorte por tope, finalizar, reclamar y chino. Los
-contratos compilan pero nadie los ha probado en cadena ni auditado: prueba el flujo completo en
-testnet antes de mainnet.
+conectar, crear, aprobar MCDx, comprar, recorte por tope, finalizar, reclamar, eventos de
+compra (gráfico, cinta en vivo), enlaces profundos, búsqueda por dirección, chino y móvil.
+
+**Antes de mainnet (lista)**
+
+1. `npm run test:contracts` en verde.
+2. Desplegar en BNB Testnet (`npm run deploy -- testnet`) y recorrer en la página con una
+   wallet real: crear, comprar hasta el tope, finalizar por debajo del mínimo y reembolsar;
+   crear otra, llenar el objetivo con varias wallets, finalizar, comprobar el pool en
+   PancakeSwap testnet y reclamar.
+3. Repetir el flujo de token ERC20 con `STOCK_TEST=0x…` (un token de prueba) para cubrir
+   `buyWith` y `addLiquidity`.
+4. Auditoría externa de `BentoLaunch.sol`: nadie la ha hecho y el contrato custodia dinero
+   real. Hasta entonces la página lo avisa en la barra inferior.
+5. Decidir `FEE_TO` (la comisión del 1 %) y quién es dueño del registro de restaurantes.
+6. Desplegar en mainnet, pegar la dirección de la factory en `NETWORKS[56].factory`, servir
+   `dapp/` desde un dominio propio (dentro de claude.ai la wallet no se inyecta) y
+   verificar el código fuente de la factory en BscScan.

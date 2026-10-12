@@ -1,21 +1,144 @@
 {
   "_note": "Tokenized restaurant stocks on BNB Chain (chainId 56), verified on-chain on 2026-10-12 via bsc-dataseed (name, symbol, decimals, totalSupply). Issuers: xStocks = Backed Finance (traded via Kraken, PancakeSwap, CowSwap); bStocks = Binance (BTech Holdings); Ondo = Ondo Stocks. Sources: CoinGecko platform data, BNB Chain blog, Coinbase/CoinGecko MCDx pages.",
-  "mcdonalds":    { "symbol": "MCDx",   "address": "0x80a77a372c1e12accda84299492f404902e2da67", "issuer": "xStocks", "stock": "MCD",     "alt": { "MCDon": "0x995add4ba29a628a57930a8a185c62ca044ec090" } },
-  "starbucks":    { "symbol": "SBUXx",  "address": "0x5667c2d45acb2933ce129b53615aaf17c69f262c", "issuer": "xStocks", "stock": "SBUX",    "alt": { "SBUXon": "0x94d7754541b829a87321d56121bc544167ac490d" } },
-  "chipotle":     { "symbol": "CMGx",   "address": "0xdad1865dd327fd305df6ec6accede2b5faaec9ca", "issuer": "xStocks", "stock": "CMG",     "alt": { "CMGon": "0xaed5985afc12aa09d87f55b4b1e6bc3b8f7b0208" } },
-  "tacobell":     { "symbol": "YUMx",   "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM" },
-  "kfc":          { "symbol": "YUMx",   "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM" },
-  "pizzahut":     { "symbol": "YUMx",   "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM" },
-  "burgerking":   { "symbol": "QSRx",   "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR" },
-  "popeyes":      { "symbol": "QSRx",   "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR" },
-  "timhortons":   { "symbol": "QSRx",   "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR" },
-  "dominos":      { "symbol": "DPZx",   "address": "0x14e7901b89158e80a953cfef3cebe065f9cb8eef", "issuer": "xStocks", "stock": "DPZ" },
-  "wendys":       { "symbol": "WENB",   "address": "0xded1c5fb38c262beb9cff1e1116eff3c5bf278cd", "issuer": "bStocks", "stock": "WEN",     "alt": { "WENon": "0x79ed7f4d9668e8e7aaadd12a711d19064840b9a5" } },
-  "doordash":     { "symbol": "DASHx",  "address": "0xf38665a4a42a1e7eeb36a5f26d1757b788e64a4f", "issuer": "xStocks", "stock": "DASH",    "alt": { "DASHon": "0x7567c2a46bce46373b454682f3d95e6535bde144" } },
-  "ubereats":     { "symbol": "UBERon", "address": "0xde9d6036fca870f7efc5a82722ae694c371ac909", "issuer": "Ondo",    "stock": "UBER" },
-  "olivegarden":  { "symbol": "DRIx",   "address": "0xd80840f51367e5f22d29c2de161d86fe992ebf77", "issuer": "xStocks", "stock": "DRI" },
-  "texasroadhouse": { "symbol": "TXRHx", "address": "0x013678d2039f27ac8531dd994411b6f6c502d889", "issuer": "xStocks", "stock": "TXRH" },
-  "haidilao":     { "symbol": "HAIDLx", "address": "0x19a04945109738c9b8f936b2e3277c82fee707f3", "issuer": "xStocks", "stock": "6862.HK" },
-  "meituan":      { "symbol": "MEITx",  "address": "0x0024af2ca56e822ad487c0bedc52a82028a55f86", "issuer": "xStocks", "stock": "3690.HK" },
-  "mixue":        { "symbol": "MIXUx",  "address": "0x8fa39ff32b316e2296630aa05bdd6a4a2e4b7598", "issuer": "xStocks", "stock": "2097.HK" }
+  "mcdonalds": {
+    "symbol": "MCDx",
+    "address": "0x80a77a372c1e12accda84299492f404902e2da67",
+    "issuer": "xStocks",
+    "stock": "MCD",
+    "alt": {
+      "MCDon": "0x995add4ba29a628a57930a8a185c62ca044ec090"
+    },
+    "cg": "mcdonald-s-xstock"
+  },
+  "starbucks": {
+    "symbol": "SBUXx",
+    "address": "0x5667c2d45acb2933ce129b53615aaf17c69f262c",
+    "issuer": "xStocks",
+    "stock": "SBUX",
+    "alt": {
+      "SBUXon": "0x94d7754541b829a87321d56121bc544167ac490d"
+    },
+    "cg": "starbucks-xstock"
+  },
+  "chipotle": {
+    "symbol": "CMGx",
+    "address": "0xdad1865dd327fd305df6ec6accede2b5faaec9ca",
+    "issuer": "xStocks",
+    "stock": "CMG",
+    "alt": {
+      "CMGon": "0xaed5985afc12aa09d87f55b4b1e6bc3b8f7b0208"
+    },
+    "cg": "chipotle-mexican-grill-xstock"
+  },
+  "tacobell": {
+    "symbol": "YUMx",
+    "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30",
+    "issuer": "xStocks",
+    "stock": "YUM",
+    "cg": "yum-brands-xstock"
+  },
+  "kfc": {
+    "symbol": "YUMx",
+    "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30",
+    "issuer": "xStocks",
+    "stock": "YUM",
+    "cg": "yum-brands-xstock"
+  },
+  "pizzahut": {
+    "symbol": "YUMx",
+    "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30",
+    "issuer": "xStocks",
+    "stock": "YUM",
+    "cg": "yum-brands-xstock"
+  },
+  "burgerking": {
+    "symbol": "QSRx",
+    "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046",
+    "issuer": "xStocks",
+    "stock": "QSR",
+    "cg": "restaurant-brands-international-xstock"
+  },
+  "popeyes": {
+    "symbol": "QSRx",
+    "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046",
+    "issuer": "xStocks",
+    "stock": "QSR",
+    "cg": "restaurant-brands-international-xstock"
+  },
+  "timhortons": {
+    "symbol": "QSRx",
+    "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046",
+    "issuer": "xStocks",
+    "stock": "QSR",
+    "cg": "restaurant-brands-international-xstock"
+  },
+  "dominos": {
+    "symbol": "DPZx",
+    "address": "0x14e7901b89158e80a953cfef3cebe065f9cb8eef",
+    "issuer": "xStocks",
+    "stock": "DPZ",
+    "cg": "domino-s-pizza-xstock"
+  },
+  "wendys": {
+    "symbol": "WENB",
+    "address": "0xded1c5fb38c262beb9cff1e1116eff3c5bf278cd",
+    "issuer": "bStocks",
+    "stock": "WEN",
+    "alt": {
+      "WENon": "0x79ed7f4d9668e8e7aaadd12a711d19064840b9a5"
+    },
+    "cg": "wendy-s-bstocks-tokenized-stock"
+  },
+  "doordash": {
+    "symbol": "DASHx",
+    "address": "0xf38665a4a42a1e7eeb36a5f26d1757b788e64a4f",
+    "issuer": "xStocks",
+    "stock": "DASH",
+    "alt": {
+      "DASHon": "0x7567c2a46bce46373b454682f3d95e6535bde144"
+    },
+    "cg": "doordash-xstock"
+  },
+  "ubereats": {
+    "symbol": "UBERon",
+    "address": "0xde9d6036fca870f7efc5a82722ae694c371ac909",
+    "issuer": "Ondo",
+    "stock": "UBER",
+    "cg": "uber-ondo-tokenized-stock"
+  },
+  "olivegarden": {
+    "symbol": "DRIx",
+    "address": "0xd80840f51367e5f22d29c2de161d86fe992ebf77",
+    "issuer": "xStocks",
+    "stock": "DRI",
+    "cg": "darden-restaurants-xstock"
+  },
+  "texasroadhouse": {
+    "symbol": "TXRHx",
+    "address": "0x013678d2039f27ac8531dd994411b6f6c502d889",
+    "issuer": "xStocks",
+    "stock": "TXRH",
+    "cg": "texas-roadhouse-xstock"
+  },
+  "haidilao": {
+    "symbol": "HAIDLx",
+    "address": "0x19a04945109738c9b8f936b2e3277c82fee707f3",
+    "issuer": "xStocks",
+    "stock": "6862.HK",
+    "cg": "haidilao-international-xstock"
+  },
+  "meituan": {
+    "symbol": "MEITx",
+    "address": "0x0024af2ca56e822ad487c0bedc52a82028a55f86",
+    "issuer": "xStocks",
+    "stock": "3690.HK",
+    "cg": "meituan-xstock"
+  },
+  "mixue": {
+    "symbol": "MIXUx",
+    "address": "0x8fa39ff32b316e2296630aa05bdd6a4a2e4b7598",
+    "issuer": "xStocks",
+    "stock": "2097.HK",
+    "cg": "mixue-xstock"
+  }
 }

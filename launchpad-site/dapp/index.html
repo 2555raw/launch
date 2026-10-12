@@ -89,7 +89,7 @@ p { margin: 0; }
 .addr b { font-family: var(--mono); font-weight: 500; }
 @media (max-width: 1100px) { .place { display: none; } }
 @media (max-width: 860px) { .mode, #theme, .hdr-right .btn-gray { display: none; } .brand { font-size: 18px; } .hdr-in { gap: 8px; padding: 0 12px; } }
-@media (max-width: 600px) { .lang { display: none; } #connect { padding: 0 8px; font-size: 13px; } .addr span { display: none; } .search { padding: 0 12px; } .brand em { display: none; } }
+@media (max-width: 600px) { .lang, #cartbtn { display: none; } #connect { padding: 0 8px; font-size: 13px; } .addr span { display: none; } .addr { padding: 0 10px 0 8px; } .search { padding: 0 12px; gap: 8px; } .brand em { display: none; } .hdr-in { padding: 0 10px; } }
 
 /* ---- shell ---- */
 .shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); }
@@ -254,12 +254,103 @@ p { margin: 0; }
 .doc h3 { margin-bottom: 8px; }
 .doc p, .doc li { font-size: 14px; color: var(--prose); line-height: 1.55; }
 .doc ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
-.pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-top: 12px; }
-.pairs div { display: flex; align-items: center; gap: 10px; background: var(--surface); border-radius: 10px; padding: 8px 10px; font-size: 13px; min-width: 0; }
-.pairs .logo { width: 30px; height: 30px; }
-.pairs b { font-family: var(--mono); font-weight: 600; }
-.pairs span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pairs a { font-family: var(--mono); font-size: 12px; color: var(--muted); text-decoration: underline; }
+
+/* ---- brand mark ---- */
+.brand { display: inline-flex; align-items: center; gap: 9px; }
+.brand .mark { width: 30px; height: 30px; flex: none; }
+.brand .mark rect { fill: var(--ink); } .brand .mark path { stroke: var(--bg); }
+
+/* ---- category icons ---- */
+.cats button .ic svg { width: 48px; height: 48px; display: block; }
+
+/* ---- live buys strip ---- */
+.feed { display: flex; align-items: center; gap: 12px; height: 44px; margin: -8px 0 16px; overflow: hidden; border: 1px solid var(--line); border-radius: 999px; padding: 0 6px 0 14px; animation: rise .45s cubic-bezier(.2,.7,.2,1) both; animation-delay: .1s; }
+.feed-l { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); flex: none; }
+.feed-l i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); animation: pulse 1.8s ease-out infinite; }
+.feed-s { flex: 1; min-width: 0; overflow: hidden; }
+.feed-t { display: inline-flex; white-space: nowrap; animation: marquee var(--dur, 40s) linear infinite; }
+.feed:hover .feed-t { animation-play-state: paused; }
+.feed-c { display: inline-flex; gap: 28px; padding-right: 28px; }
+.feed-i { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+.feed-i .logo { width: 22px; height: 22px; }
+.feed-i b { font-family: var(--mono); font-weight: 600; }
+.feed-i small { color: var(--muted); }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(6,193,103,.55); } 100% { box-shadow: 0 0 0 8px rgba(6,193,103,0); } }
+
+/* ---- usd ---- */
+.usd { color: var(--muted); font-weight: 400; font-family: var(--mono); font-size: .92em; margin-left: 6px; }
+
+/* ---- verified pairs ---- */
+.pairs { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin: 0; }
+.pair { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 10px; cursor: pointer; min-width: 0; overflow: hidden; transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .18s ease, border-color .18s ease; }
+.pair:hover { border-color: var(--line-hi); box-shadow: 0 10px 28px rgba(0,0,0,.08); transform: translateY(-2px); }
+.pair-top { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.pair-name { min-width: 0; flex: 1; }
+.pair-name b { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pair-name small { display: block; color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pair-sym { font-family: var(--mono); font-size: 12px; font-weight: 600; background: var(--surface); padding: 4px 8px; border-radius: 6px; flex: none; }
+.pair-px { display: flex; align-items: baseline; gap: 8px; font-family: var(--mono); min-height: 26px; }
+.pair-px b { font-size: 21px; font-weight: 600; letter-spacing: -.01em; }
+.pair-px span { font-size: 12px; font-weight: 600; }
+.pair-px small { font-size: 12px; color: var(--muted); font-family: var(--font); white-space: nowrap; }
+.pair-px .nopx { font-size: 13px; color: var(--dim); font-family: var(--font); }
+.pair-meta { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; color: var(--muted); min-width: 0; }
+.pair-meta > span:last-child { white-space: nowrap; }
+.iss { padding: 2px 8px; border-radius: 999px; font-weight: 600; }
+.iss-x { background: #E8EEFF; color: #2F55D4; } .iss-b { background: #FFF1C2; color: #8A5A00; } .iss-o { background: #E6F4F1; color: #0F766E; }
+:root[data-theme="dark"] .iss-x { background: rgba(47,85,212,.22); color: #9DB4FF; } :root[data-theme="dark"] .iss-b { background: rgba(240,185,11,.18); color: #F0C949; } :root[data-theme="dark"] .iss-o { background: rgba(15,118,110,.25); color: #6FD3C5; }
+.ver { color: var(--green-ink); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+.ver svg { width: 14px; height: 14px; }
+.pair-addr { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); padding-top: 10px; border-top: 1px solid var(--line); min-width: 0; }
+.pair-addr .mono { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.pair-addr button { border: 0; background: var(--surface); border-radius: 6px; width: 26px; height: 26px; display: grid; place-items: center; cursor: pointer; color: var(--ink); flex: none; }
+.pair-addr button:hover { background: var(--surface-hi); }
+.pair-addr button svg { width: 14px; height: 14px; }
+.pair-addr a { text-decoration: underline; color: var(--ink); flex: none; }
+.status { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 13px; background: var(--surface); border-radius: 999px; padding: 8px 14px; max-width: 100%; }
+.status i { width: 8px; height: 8px; border-radius: 999px; background: var(--dim); flex: none; }
+.status.ok i { background: var(--green); }
+.status a { text-decoration: underline; font-family: var(--mono); font-size: 12px; overflow: hidden; text-overflow: ellipsis; }
+.legend { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: -4px 0 16px; font-size: 13px; color: var(--muted); }
+.legend .iss { font-size: 12px; }
+
+/* ---- activity (chart + buys) ---- */
+.act { display: grid; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
+.act-h { display: flex; align-items: baseline; gap: 8px; }
+.act-h b { font-size: 15px; font-weight: 600; } .act-h small { color: var(--muted); font-size: 13px; margin-left: auto; }
+.chart { width: 100%; height: auto; display: block; border-radius: 8px; background: var(--surface); }
+.chart .line { fill: none; stroke: var(--green); stroke-width: 2; stroke-linejoin: round; }
+.chart .goal { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 4 4; opacity: .5; }
+.chart .min { stroke: var(--dim); stroke-width: 1; stroke-dasharray: 2 4; opacity: .7; }
+.chart .ax { font-family: var(--mono); font-size: 9px; fill: var(--muted); }
+.chart .dot { fill: var(--green); }
+.buys { display: grid; gap: 2px; }
+.buy-r { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.buy-r:last-child { border-bottom: 0; }
+.buy-r .who { display: inline-flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+.buy-r .who i { width: 18px; height: 18px; border-radius: 999px; flex: none; }
+.buy-r .who em { font-style: normal; font-size: 11px; font-weight: 700; background: var(--green-soft); color: var(--green-ink); padding: 1px 6px; border-radius: 4px; }
+.buy-r b { font-family: var(--mono); font-weight: 600; white-space: nowrap; }
+.buy-r small { color: var(--muted); white-space: nowrap; }
+.buy-r a { color: var(--muted); }
+.sheet .close.link { font-size: 14px; }
+.sheet .close svg { width: 16px; height: 16px; }
+
+/* ---- mobile bottom bar ---- */
+.mbar { display: none; }
+@media (max-width: 1000px) {
+  .mbar { display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; height: calc(60px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--bg); border-top: 1px solid var(--line); }
+  .mbar button { display: grid; justify-items: center; align-content: center; gap: 3px; border: 0; background: transparent; color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; }
+  .mbar button svg { width: 24px; height: 24px; }
+  .mbar button.is-on { color: var(--ink); }
+  .mbar button .plus { width: 40px; height: 40px; border-radius: 999px; background: var(--green); color: #fff; display: grid; place-items: center; margin-top: -2px; }
+  .mbar button .plus svg { width: 22px; height: 22px; }
+  .content { padding-bottom: 150px; }
+  div.bottom { bottom: calc(60px + env(safe-area-inset-bottom, 0px)); padding-bottom: 0; }
+  div.toast { bottom: calc(132px + env(safe-area-inset-bottom, 0px)); }
+  .sheet { padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+}
 
 /* ---- motion ---- */
 @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
@@ -305,7 +396,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
 <header class="hdr"><div class="hdr-in">
   <button class="burger" id="burger" type="button" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-  <a class="brand" href="#top">Bento <em>Launch</em></a>
+  <a class="brand" href="#top"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8"/><path d="M12 2v28M2 15h10M12 15h18" stroke-width="2" opacity=".35"/><circle cx="21" cy="8.5" r="3.6" fill="#06C167"/></svg><span>Bento <em>Launch</em></span></a>
   <div class="mode" id="tabs"><button type="button" class="is-on" data-tab="trending" data-t="mode.raising"></button><button type="button" data-tab="graduated" data-t="mode.graduated"></button></div>
   <button class="place" type="button" id="refresh"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg><span id="net-name">BNB Chain</span><span class="sep">·</span><span data-t="place.now"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
   <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="q" type="search" autocomplete="off"></label>
@@ -346,17 +437,17 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     <section id="explore">
       <div class="cats-wrap">
         <div class="cats" id="cat">
-          <button type="button" class="is-on" data-cat="all"><span class="ic">🍱</span><span data-t="f.allCats"></span></button>
-          <button type="button" data-cat="burger"><span class="ic">🍔</span><span data-t="cat.burger"></span></button>
-          <button type="button" data-cat="chicken"><span class="ic">🍗</span><span data-t="cat.chicken"></span></button>
-          <button type="button" data-cat="pizza"><span class="ic">🍕</span><span data-t="cat.pizza"></span></button>
-          <button type="button" data-cat="mex"><span class="ic">🌮</span><span data-t="cat.mex"></span></button>
-          <button type="button" data-cat="cafe"><span class="ic">☕</span><span data-t="cat.cafe"></span></button>
-          <button type="button" data-cat="tea"><span class="ic">🧋</span><span data-t="cat.tea"></span></button>
-          <button type="button" data-cat="hotpot"><span class="ic">🍲</span><span data-t="cat.hotpot"></span></button>
-          <button type="button" data-cat="delivery"><span class="ic">🛵</span><span data-t="cat.delivery"></span></button>
-          <button type="button" data-cat="casual"><span class="ic">🥩</span><span data-t="cat.casual"></span></button>
-          <button type="button" data-cat="cn"><span class="ic">🥟</span><span data-t="cat.cn"></span></button>
+          <button type="button" class="is-on" data-cat="all"><span class="ic" data-ic="all"></span><span data-t="f.allCats"></span></button>
+          <button type="button" data-cat="burger"><span class="ic" data-ic="burger"></span><span data-t="cat.burger"></span></button>
+          <button type="button" data-cat="chicken"><span class="ic" data-ic="chicken"></span><span data-t="cat.chicken"></span></button>
+          <button type="button" data-cat="pizza"><span class="ic" data-ic="pizza"></span><span data-t="cat.pizza"></span></button>
+          <button type="button" data-cat="mex"><span class="ic" data-ic="mex"></span><span data-t="cat.mex"></span></button>
+          <button type="button" data-cat="cafe"><span class="ic" data-ic="cafe"></span><span data-t="cat.cafe"></span></button>
+          <button type="button" data-cat="tea"><span class="ic" data-ic="tea"></span><span data-t="cat.tea"></span></button>
+          <button type="button" data-cat="hotpot"><span class="ic" data-ic="hotpot"></span><span data-t="cat.hotpot"></span></button>
+          <button type="button" data-cat="delivery"><span class="ic" data-ic="delivery"></span><span data-t="cat.delivery"></span></button>
+          <button type="button" data-cat="casual"><span class="ic" data-ic="casual"></span><span data-t="cat.casual"></span></button>
+          <button type="button" data-cat="cn"><span class="ic" data-ic="cn"></span><span data-t="cat.cn"></span></button>
         </div>
         <button class="arrow" type="button" id="cats-r" aria-label="More"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
@@ -368,6 +459,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       </div>
       <p class="ranked"><span id="notice-text"></span> <a href="#docs" data-t="ranked.more"></a></p>
       <hr class="rule">
+      <div class="feed" id="feed" hidden><span class="feed-l"><i></i><span data-t="feed.h"></span></span><div class="feed-s" id="feed-s"></div></div>
 
       <div class="banners-wrap">
         <button class="arrow l" type="button" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -427,7 +519,15 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div class="doc"><h3 data-t="docs.2h"></h3><ul><li data-t="docs.2a"></li><li data-t="docs.2b"></li><li data-t="docs.2c"></li><li data-t="docs.2d"></li></ul></div>
         <div class="doc"><h3 data-t="docs.3h"></h3><ul><li data-t="docs.3a"></li><li data-t="docs.3b"></li><li data-t="docs.3c"></li><li data-t="docs.3d"></li></ul></div>
       </div>
-      <div class="doc" style="margin-top:16px"><h3 data-t="docs.4h"></h3><p data-t="docs.4p"></p><div class="pairs" id="pairs-list"></div><p id="contracts" class="mono" style="margin-top:12px;font-size:13px"></p></div>
+    </section>
+
+    <hr class="divider">
+    <section class="sec" id="pairs">
+      <div class="sec-h"><h2 data-t="docs.4h"></h2><span class="muted" id="pairs-n"></span></div>
+      <p class="hint" data-t="docs.4p" style="margin:-8px 0 14px;max-width:860px"></p>
+      <div class="legend"><span class="iss iss-x">xStocks</span><span data-t="iss.x"></span><span class="iss iss-b">bStocks</span><span data-t="iss.b"></span><span class="iss iss-o">Ondo</span><span data-t="iss.o"></span><span id="px-src" style="margin-left:auto"></span></div>
+      <div class="pairs" id="pairs-list"></div>
+      <p id="contracts" class="status"></p>
     </section>
 
     <footer>
@@ -439,6 +539,12 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 <div class="scrim" id="scrim"></div>
 <aside class="sheet" id="drawer" aria-live="polite"></aside>
 <div class="bottom" id="bottom"><span class="icon">!</span><span data-t="bottom"></span><button type="button" id="bottom-x" aria-label="Close">✕</button></div>
+<nav class="mbar" id="mbar" aria-label="Mobile">
+  <button type="button" class="is-on" data-m="home"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="nav.home"></span></button>
+  <button type="button" data-m="search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.search"></span></button>
+  <button type="button" data-m="create"><span class="plus"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span><span data-t="nav.create"></span></button>
+  <button type="button" data-m="wallet"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M16 14h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.wallet"></span></button>
+</nav>
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
@@ -463,7 +569,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const RAISE_ABI = [
     'function info() view returns (address token, address payToken, string name, string symbol, string restaurantId, address creator, uint256 target, uint256 minimum, uint256 cap, uint256 openAt, uint256 closeAt, uint256 raised, uint256 closedAt, uint256 buyers, bool finalized, bool graduated)',
     'function paid(address) view returns (uint256)', 'function claimable(address) view returns (uint256)',
-    'function buy() payable', 'function buyWith(uint256 amount)', 'function finalize()', 'function claim()', 'function refund()'
+    'function buy() payable', 'function buyWith(uint256 amount)', 'function finalize()', 'function claim()', 'function refund()',
+    'event Bought(address indexed buyer, uint256 amount, uint256 raised)'
   ];
   const ERC20_ABI = ['function symbol() view returns (string)', 'function decimals() view returns (uint8)', 'function balanceOf(address) view returns (uint256)', 'function allowance(address,address) view returns (uint256)', 'function approve(address,uint256) returns (bool)'];
 
@@ -481,7 +588,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'board.note': 'Restaurant names and logos identify the tokenized stock each coin is paired with. Restaurants do not take part in, sponsor or issue anything here. Coins are unaudited contracts created by users; buying them can lose everything you put in.',
       'f.allCats': 'All', 'ph.live': 'Raising', 'ph.pending': 'Awaiting finalize', 'chip.ok': 'Graduated', 'chip.failed': 'Refunding',
       'cat.burger': 'Burgers', 'cat.mex': 'Mexican', 'cat.cafe': 'Coffee', 'cat.tea': 'Tea', 'cat.pizza': 'Pizza', 'cat.chicken': 'Chicken', 'cat.hotpot': 'Hot pot', 'cat.delivery': 'Delivery', 'cat.casual': 'Steak & dining', 'cat.cn': 'China',
-      'search': 'Search Bento Launch', 'sort.progress': 'Progress', 'sort.raised': 'Raised', 'sort.time': 'Ending soon', 'sort.new': 'Newest',
+      'search': 'Search coins, restaurants or paste a contract address', 'sort.progress': 'Progress', 'sort.raised': 'Raised', 'sort.time': 'Ending soon', 'sort.new': 'Newest',
       'pairs': 'Pairs with', 'closesIn': (t) => `${t} left`, 'closedAt': (d, full) => `closed ${d}${full ? ' · filled' : ''}`, 'buyersN': (n) => `${n} buyer${n === 1 ? '' : 's'}`, 'you': (v) => `you ${v}`, 'by': (n) => `by ${n}`, 'paidIn': (s) => `paid in ${s}`,
       'promo.new': 'New', 'promo.hot': (p) => `${p} funded`,
       'btn.buy': 'Buy', 'btn.approve': (s) => `Approve ${s}`, 'btn.view': 'View', 'btn.sending': 'Confirm in wallet…', 'btn.finalize': 'Finalize raise', 'btn.claim': (v) => `Claim ${v} tokens`, 'btn.refund': (v) => `Refund ${v}`, 'btn.max': 'Max',
@@ -500,27 +607,31 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'docs.1h': '1 · Paired with a real stock token', 'docs.1a': 'Every coin is paired with a restaurant whose stock exists as a token on BNB Chain: McDonald\'s is MCDx, Starbucks SBUXx, Meituan MEITx, Haidilao HAIDLx, Mixue MIXUx, Wendy\'s WENB and so on (xStocks by Backed, bStocks by Binance, Ondo Stocks).', 'docs.1b': 'The pairing is not a label: the raise is paid in that stock token and the coin lists in a pool against it.', 'docs.1c': 'Restaurants without a tokenized stock on BNB Chain (Luckin, Chagee, Guming, KFC China…) cannot be paired yet. We add them when an issuer lists them.', 'docs.1d': 'The restaurant itself does not take part. The stock token is issued by a third party and tracks the share price.',
       'docs.2h': '2 · The raise', 'docs.2a': 'Creating a coin deploys its token (1,000,000,000) and a raise contract from your wallet. You set the target in the stock token and the duration.', 'docs.2b': 'Buyers approve the stock token and buy. Everyone gets the same rate: target ÷ supply. Each wallet can put in at most one tenth of the target.', 'docs.2c': 'The contract keeps the funds. Nobody, including the creator, can withdraw before finalize.', 'docs.2d': 'Reaching the target closes the raise instantly; otherwise it closes at the deadline.',
       'docs.3h': '3 · Graduation or refund', 'docs.3a': 'Once closed, anyone can press Finalize. If at least one third of the target was raised, the coin graduates.', 'docs.3b': 'Graduation puts 99% of the stock tokens and 20% of the supply into a PancakeSwap v2 pool COIN/STOCK and burns the liquidity tokens, so the pool cannot be pulled. 1% goes to the platform.', 'docs.3c': 'Buyers then claim the other 80% of the supply in proportion to what they paid.', 'docs.3d': 'If the minimum was not reached, every buyer gets 100% back with Refund.',
-      'docs.4h': 'Verified pairs on BNB Chain', 'docs.4p': 'Tokenized restaurant stocks found on BNB Chain and verified on-chain (name, symbol, supply). The contracts are open source (contracts/BentoLaunch.sol) and unaudited. Test on BNB Testnet first.',
+      'docs.4h': 'Verified pairs on BNB Chain', 'docs.4p': 'Every token below was checked on-chain (name, symbol, decimals, supply) and is what a raise paired with that restaurant is paid in. Open a card for the token, its issuer and the coins already paired with it, or copy the address into the search box. The launch contracts are open source (contracts/BentoLaunch.sol) and unaudited: test on BNB Testnet first.',
       'bottom': 'Real money · unaudited user-created contracts · you can lose everything you put in',
       'footer': 'Restaurant brands and logos belong to their owners and are not affiliated with this site. Stock tokens are issued by third parties. Nothing here is financial advice or an offer.',
       'feat.top': 'Closest to graduation', 'feat.big': 'Largest raise', 'feat.create': 'Launch your own coin', 'feat.createP': 'Pair it with McDonald\'s, Starbucks, Meituan or 15 more tokenized stocks.', 'feat.cta': 'Buy now', 'feat.ctaCreate': 'Create now',
+      'feed.h': 'Live buys', 'bought': 'bought', 'ago': (s) => `${s} ago`, 'you.tag': 'you', 'chart.h': 'Raise over time', 'buys.n': (n) => `${n} buy${n === 1 ? '' : 's'}`, 'buys.none': 'No buys yet. Be the first.', 'buys.err': 'Could not load buys from the RPC.',
+      'link.copy': 'Copy link', 'copied': 'Copied.', 'copy.addr': 'Copy address', 'search.noaddr': (n) => `No coin at that address on ${n}.`, 'm.search': 'Search', 'm.wallet': 'Wallet',
+      'pairs.n': (n, i) => `${n} tokens · ${i} issuers`, 'pairs.verified': 'Verified on-chain', 'pairs.px': 'Price', 'pairs.nopx': 'Price unavailable', 'px.src': 'USD prices: CoinGecko, 24h change', 'iss.x': 'Backed Finance', 'iss.b': 'Binance', 'iss.o': 'Ondo Finance',
+      'st.factory': (n) => `${n}: factory not deployed yet. Deploy BentoFactory and set its address in the page config.`, 'st.factoryOk': (n) => `BentoFactory live on ${n}`,
       'units': { d: 'd', h: 'h', m: 'min' }, locale: 'en-US'
     },
     zh: {
       'mode.raising': '募集中', 'mode.graduated': '已毕业', 'place.now': '实时',
       'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 BNB 链上买入和创建代币。', 'wc.on': '已连接',
-      'tab.trending': '热门', 'tab.new': '最新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
+      'tab.trending': '热门', 'tab.new': '打新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
       'pill.live': '募集中', 'pill.pay': '支付币种', 'pill.top': '最多人买', 'pill.sort': '排序', 'f.all': '全部', 'ranked.more': '了解更多',
-      'sec.featured': '当前精选', 'sec.new': '今日新发', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `让你的代币配对 ${n}`, 'promo.pairP': (s, iss) => `${iss} 发行的 ${s} 已在 BNB 链上线。以它募集，与它配对上市。`,
+      'sec.featured': '当前精选', 'sec.new': '今日打新', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `让你的代币配对 ${n}`, 'promo.pairP': (s, iss) => `${iss} 发行的 ${s} 已在 BNB 链上线。以它募集，与它配对上市。`,
       'wallet.connect': '连接钱包', 'wallet.connecting': '连接中…', 'wallet.none': '未检测到钱包。请安装 MetaMask（或任意 BNB 链钱包）后刷新。在 claude.ai 内钱包可能无法注入：请从独立域名打开本页。',
       'st.live': '募集中', 'board.loading': '正在从链上加载…', 'board.nomatch': '没有匹配的代币。', 'board.empty': '还没有代币。创建第一个吧。',
       'board.nowallet': '连接钱包后从 BNB 链加载。', 'board.nofactory': '合约尚未部署到此网络。请部署 BentoFactory（见玩法说明）并在页面配置中填入地址。',
       'board.note': '餐饮品牌名称与标志用于标识每个代币所配对的股票代币。餐饮品牌不参与、不赞助、不发行任何内容。代币由用户创建的未审计合约发行，买入可能损失全部投入。',
       'f.allCats': '全部', 'ph.live': '募集中', 'ph.pending': '待结算', 'chip.ok': '已毕业', 'chip.failed': '退款中',
       'cat.burger': '汉堡', 'cat.mex': '墨西哥菜', 'cat.cafe': '咖啡', 'cat.tea': '茶饮', 'cat.pizza': '披萨', 'cat.chicken': '炸鸡', 'cat.hotpot': '火锅', 'cat.delivery': '外卖', 'cat.casual': '牛排正餐', 'cat.cn': '中国',
-      'search': '搜索 Bento Launch', 'sort.progress': '进度', 'sort.raised': '募集额', 'sort.time': '即将截止', 'sort.new': '最新',
+      'search': '搜索代币、品牌，或粘贴合约地址', 'sort.progress': '进度', 'sort.raised': '募集额', 'sort.time': '即将截止', 'sort.new': '最新',
       'pairs': '配对', 'closesIn': (t) => `剩余 ${t}`, 'closedAt': (d, full) => `${d} 结束${full ? ' · 募满' : ''}`, 'buyersN': (n) => `${n} 位买家`, 'you': (v) => `我 ${v}`, 'by': (n) => `${n}`, 'paidIn': (s) => `以 ${s} 支付`,
-      'promo.new': '新', 'promo.hot': (p) => `已募 ${p}`,
+      'promo.new': '打新', 'promo.hot': (p) => `已募 ${p}`,
       'btn.buy': '买入', 'btn.approve': (s) => `授权 ${s}`, 'btn.view': '查看', 'btn.sending': '请在钱包中确认…', 'btn.finalize': '结算募集', 'btn.claim': (v) => `领取 ${v} 代币`, 'btn.refund': (v) => `退款 ${v}`, 'btn.max': '最大',
       'd.rest': '餐饮品牌', 'd.stock': '配对股票代币', 'd.min': '最低额', 'd.cap': '单钱包上限', 'd.perUnit': (s) => `每 ${s} 代币数`, 'd.pool': '毕业时池子', 'd.opens': '开始', 'd.closes': '截止', 'd.contract': '募集合约', 'd.token': '代币合约', 'd.explorer': '在 BscScan 查看', 'd.wallet': '你的余额',
       'p.amount': '金额', 'p.pending': '募集已结束。任何人都可以点击“结算”：若达到最低额，则在 PancakeSwap 创建池子；否则开放退款。', 'p.ok': (s) => `已毕业：COIN/${s} 池子已在 PancakeSwap 上线。买家可在此领取代币。`, 'p.failed': '未达最低额结束。买家可点击“退款”取回资金。',
@@ -537,10 +648,14 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'docs.1h': '1 · 配对真实的股票代币', 'docs.1a': '每个代币配对一家在 BNB 链上有股票代币的餐饮品牌：麦当劳是 MCDx，星巴克 SBUXx，美团 MEITx，海底捞 HAIDLx，蜜雪冰城 MIXUx，温蒂 WENB 等（Backed 的 xStocks、币安的 bStocks、Ondo Stocks）。', 'docs.1b': '配对不是标签：募集以该股票代币支付，代币毕业后在与它的池子中交易。', 'docs.1c': 'BNB 链上没有股票代币的品牌（瑞幸、霸王茶姬、古茗、百胜中国等）暂不能配对。发行方上线后我们会加入。', 'docs.1d': '餐饮品牌本身不参与。股票代币由第三方发行，跟踪股价。',
       'docs.2h': '2 · 募集', 'docs.2a': '创建代币会从你的钱包部署代币（1,000,000,000）与募集合约。你以股票代币设定目标和时长。', 'docs.2b': '买家授权股票代币后买入。所有人汇率相同：目标 ÷ 供应量。每个钱包最多投入目标的十分之一。', 'docs.2c': '资金由合约保管。结算前包括创建者在内任何人都无法提取。', 'docs.2d': '达到目标即刻结束；否则到期结束。',
       'docs.3h': '3 · 毕业或退款', 'docs.3a': '结束后任何人都可以点击“结算”。若募集额达到目标的三分之一，代币毕业。', 'docs.3b': '毕业时 99% 的股票代币与 20% 的供应量进入 PancakeSwap v2 的 COIN/股票 池，并销毁流动性凭证，池子无法撤走。1% 归平台。', 'docs.3c': '随后买家按投入比例领取其余 80% 的供应量。', 'docs.3d': '若未达最低额，每位买家可通过“退款”取回 100%。',
-      'docs.4h': 'BNB 链上已验证的配对', 'docs.4p': '在 BNB 链上找到并经链上验证（名称、代码、供应量）的餐饮股票代币。合约开源（contracts/BentoLaunch.sol），未经审计。请先在 BNB 测试网测试。',
+      'docs.4h': 'BNB 链上已验证的配对', 'docs.4p': '以下每个代币都经过链上核验（名称、代码、精度、供应量），配对该品牌的募集就以它支付。点开卡片查看代币、发行方和已配对的代币，或把地址复制到搜索框。发射合约开源（contracts/BentoLaunch.sol），未经审计：请先在 BNB 测试网测试。',
       'bottom': '真实资金 · 用户创建的未审计合约 · 投入可能全部损失',
       'footer': '餐饮品牌与标志归其所有者所有，与本站无关联。股票代币由第三方发行。本站内容不构成任何财务建议或要约。',
-      'feat.top': '最接近毕业', 'feat.big': '最大募集', 'feat.create': '发行你自己的代币', 'feat.createP': '配对麦当劳、星巴克、美团等 18 个股票代币。', 'feat.cta': '立即买入', 'feat.ctaCreate': '立即创建',
+      'feat.top': '最接近毕业', 'feat.big': '最大募集', 'feat.create': '发行你自己的代币', 'feat.createP': '配对麦当劳、星巴克、美团等 18 个股票代币。', 'feat.cta': '立即打新', 'feat.ctaCreate': '立即创建',
+      'feed.h': '实时买入', 'bought': '买入', 'ago': (s) => `${s}前`, 'you.tag': '我', 'chart.h': '募集走势', 'buys.n': (n) => `${n} 笔买入`, 'buys.none': '还没有人买入，抢先打新。', 'buys.err': '无法从 RPC 加载买入记录。',
+      'link.copy': '复制链接', 'copied': '已复制。', 'copy.addr': '复制地址', 'search.noaddr': (n) => `${n} 上没有该地址的代币。`, 'm.search': '搜索', 'm.wallet': '钱包',
+      'pairs.n': (n, i) => `${n} 个代币 · ${i} 家发行方`, 'pairs.verified': '链上已验证', 'pairs.px': '价格', 'pairs.nopx': '暂无价格', 'px.src': '美元价格：CoinGecko，24 小时涨跌', 'iss.x': 'Backed Finance', 'iss.b': '币安', 'iss.o': 'Ondo Finance',
+      'st.factory': (n) => `${n}：工厂合约尚未部署。请部署 BentoFactory 并在页面配置中填入地址。`, 'st.factoryOk': (n) => `BentoFactory 已在 ${n} 上线`,
       'units': { d: '天', h: '小时', m: '分' }, locale: 'zh-CN'
     }
   };
@@ -597,13 +712,28 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const REST = Object.fromEntries(RESTAURANTS.map((r) => [r.id, r]));
   const DOMAINS = {"mcdonalds":"mcdonalds.com","burgerking":"bk.com","wendys":"wendys.com","shakeshack":"shakeshack.com","jackinthebox":"jackinthebox.com","tacobell":"tacobell.com","chipotle":"chipotle.com","cava":"cava.com","sweetgreen":"sweetgreen.com","starbucks":"starbucks.com","timhortons":"timhortons.com","dutchbros":"dutchbros.com","krispykreme":"krispykreme.com","dominos":"dominos.com","pizzahut":"pizzahut.com","papajohns":"papajohns.com","kfc":"kfc.com","popeyes":"popeyes.com","wingstop":"wingstop.com","doordash":"doordash.com","ubereats":"ubereats.com","olivegarden":"olivegarden.com","texasroadhouse":"texasroadhouse.com","applebees":"applebees.com","chilis":"chilis.com","cheesecake":"thecheesecakefactory.com","outback":"outback.com","meituan":"meituan.com","haidilao":"haidilao.com","mixue":"mxbc.com","luckin":"luckincoffee.com","yumchina":"yumchina.com","chagee":"chagee.com","guming":"gumingnc.com","chabaidao":"chapanda.com","nayuki":"naixue.com","auntea":"hsay.cn","xiabu":"xiabu.com","jiumaojiu":"jiumaojiu.com","dpcdash":"dominos.com.cn","xiaocaiyuan":"xiaocaiyuan.cn","greentea":"greenteagroup.com","ajisen":"ajisen.com.hk","cafedecoral":"cafedecoral.com","quanjude":"quanjude.com.cn","timschina":"timschina.com"};
   const TILES = {"ajisen": "#480018", "applebees": "#a81818", "burgerking": "#c01800", "cafedecoral": "#d80000", "cava": "#f0c000", "chabaidao": "#1848d8", "cheesecake": "#f0d878", "chilis": "#d81818", "chipotle": "#a81818", "dominos": "#d81830", "doordash": "#f03000", "dpcdash": "#d81830", "dutchbros": "#003060", "haidilao": "#d80000", "jackinthebox": "#a80030", "kfc": "#000000", "krispykreme": "#006048", "luckin": "#0018a8", "mcdonalds": "#f0c000", "meituan": "#f0c000", "mixue": "#d80000", "olivegarden": "#484848", "outback": "#a81800", "papajohns": "#f00000", "pizzahut": "#d81818", "popeyes": "#f07818", "shakeshack": "#48a830", "starbucks": "#006030", "sweetgreen": "#004830", "tacobell": "#481890", "texasroadhouse": "#d83018", "timhortons": "#c00030", "timschina": "#c00018", "ubereats": "#00c060", "wendys": "#c01818", "wingstop": "#006030", "yumchina": "#d81818"};
-  const PAIRS = {"mcdonalds":{"symbol":"MCDx","address":"0x80a77a372c1e12accda84299492f404902e2da67","issuer":"xStocks","stock":"MCD","alt":{"MCDon":"0x995add4ba29a628a57930a8a185c62ca044ec090"}},"starbucks":{"symbol":"SBUXx","address":"0x5667c2d45acb2933ce129b53615aaf17c69f262c","issuer":"xStocks","stock":"SBUX","alt":{"SBUXon":"0x94d7754541b829a87321d56121bc544167ac490d"}},"chipotle":{"symbol":"CMGx","address":"0xdad1865dd327fd305df6ec6accede2b5faaec9ca","issuer":"xStocks","stock":"CMG","alt":{"CMGon":"0xaed5985afc12aa09d87f55b4b1e6bc3b8f7b0208"}},"tacobell":{"symbol":"YUMx","address":"0xf946c949d70e6fb9245b708176e9060e05cffd30","issuer":"xStocks","stock":"YUM"},"kfc":{"symbol":"YUMx","address":"0xf946c949d70e6fb9245b708176e9060e05cffd30","issuer":"xStocks","stock":"YUM"},"pizzahut":{"symbol":"YUMx","address":"0xf946c949d70e6fb9245b708176e9060e05cffd30","issuer":"xStocks","stock":"YUM"},"burgerking":{"symbol":"QSRx","address":"0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046","issuer":"xStocks","stock":"QSR"},"popeyes":{"symbol":"QSRx","address":"0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046","issuer":"xStocks","stock":"QSR"},"timhortons":{"symbol":"QSRx","address":"0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046","issuer":"xStocks","stock":"QSR"},"dominos":{"symbol":"DPZx","address":"0x14e7901b89158e80a953cfef3cebe065f9cb8eef","issuer":"xStocks","stock":"DPZ"},"wendys":{"symbol":"WENB","address":"0xded1c5fb38c262beb9cff1e1116eff3c5bf278cd","issuer":"bStocks","stock":"WEN","alt":{"WENon":"0x79ed7f4d9668e8e7aaadd12a711d19064840b9a5"}},"doordash":{"symbol":"DASHx","address":"0xf38665a4a42a1e7eeb36a5f26d1757b788e64a4f","issuer":"xStocks","stock":"DASH","alt":{"DASHon":"0x7567c2a46bce46373b454682f3d95e6535bde144"}},"ubereats":{"symbol":"UBERon","address":"0xde9d6036fca870f7efc5a82722ae694c371ac909","issuer":"Ondo","stock":"UBER"},"olivegarden":{"symbol":"DRIx","address":"0xd80840f51367e5f22d29c2de161d86fe992ebf77","issuer":"xStocks","stock":"DRI"},"texasroadhouse":{"symbol":"TXRHx","address":"0x013678d2039f27ac8531dd994411b6f6c502d889","issuer":"xStocks","stock":"TXRH"},"haidilao":{"symbol":"HAIDLx","address":"0x19a04945109738c9b8f936b2e3277c82fee707f3","issuer":"xStocks","stock":"6862.HK"},"meituan":{"symbol":"MEITx","address":"0x0024af2ca56e822ad487c0bedc52a82028a55f86","issuer":"xStocks","stock":"3690.HK"},"mixue":{"symbol":"MIXUx","address":"0x8fa39ff32b316e2296630aa05bdd6a4a2e4b7598","issuer":"xStocks","stock":"2097.HK"}};
+  const PAIRS = {"mcdonalds": {"symbol": "MCDx", "address": "0x80a77a372c1e12accda84299492f404902e2da67", "issuer": "xStocks", "stock": "MCD", "alt": {"MCDon": "0x995add4ba29a628a57930a8a185c62ca044ec090"}, "cg": "mcdonald-s-xstock"}, "starbucks": {"symbol": "SBUXx", "address": "0x5667c2d45acb2933ce129b53615aaf17c69f262c", "issuer": "xStocks", "stock": "SBUX", "alt": {"SBUXon": "0x94d7754541b829a87321d56121bc544167ac490d"}, "cg": "starbucks-xstock"}, "chipotle": {"symbol": "CMGx", "address": "0xdad1865dd327fd305df6ec6accede2b5faaec9ca", "issuer": "xStocks", "stock": "CMG", "alt": {"CMGon": "0xaed5985afc12aa09d87f55b4b1e6bc3b8f7b0208"}, "cg": "chipotle-mexican-grill-xstock"}, "tacobell": {"symbol": "YUMx", "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM", "cg": "yum-brands-xstock"}, "kfc": {"symbol": "YUMx", "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM", "cg": "yum-brands-xstock"}, "pizzahut": {"symbol": "YUMx", "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM", "cg": "yum-brands-xstock"}, "burgerking": {"symbol": "QSRx", "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR", "cg": "restaurant-brands-international-xstock"}, "popeyes": {"symbol": "QSRx", "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR", "cg": "restaurant-brands-international-xstock"}, "timhortons": {"symbol": "QSRx", "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR", "cg": "restaurant-brands-international-xstock"}, "dominos": {"symbol": "DPZx", "address": "0x14e7901b89158e80a953cfef3cebe065f9cb8eef", "issuer": "xStocks", "stock": "DPZ", "cg": "domino-s-pizza-xstock"}, "wendys": {"symbol": "WENB", "address": "0xded1c5fb38c262beb9cff1e1116eff3c5bf278cd", "issuer": "bStocks", "stock": "WEN", "alt": {"WENon": "0x79ed7f4d9668e8e7aaadd12a711d19064840b9a5"}, "cg": "wendy-s-bstocks-tokenized-stock"}, "doordash": {"symbol": "DASHx", "address": "0xf38665a4a42a1e7eeb36a5f26d1757b788e64a4f", "issuer": "xStocks", "stock": "DASH", "alt": {"DASHon": "0x7567c2a46bce46373b454682f3d95e6535bde144"}, "cg": "doordash-xstock"}, "ubereats": {"symbol": "UBERon", "address": "0xde9d6036fca870f7efc5a82722ae694c371ac909", "issuer": "Ondo", "stock": "UBER", "cg": "uber-ondo-tokenized-stock"}, "olivegarden": {"symbol": "DRIx", "address": "0xd80840f51367e5f22d29c2de161d86fe992ebf77", "issuer": "xStocks", "stock": "DRI", "cg": "darden-restaurants-xstock"}, "texasroadhouse": {"symbol": "TXRHx", "address": "0x013678d2039f27ac8531dd994411b6f6c502d889", "issuer": "xStocks", "stock": "TXRH", "cg": "texas-roadhouse-xstock"}, "haidilao": {"symbol": "HAIDLx", "address": "0x19a04945109738c9b8f936b2e3277c82fee707f3", "issuer": "xStocks", "stock": "6862.HK", "cg": "haidilao-international-xstock"}, "meituan": {"symbol": "MEITx", "address": "0x0024af2ca56e822ad487c0bedc52a82028a55f86", "issuer": "xStocks", "stock": "3690.HK", "cg": "meituan-xstock"}, "mixue": {"symbol": "MIXUx", "address": "0x8fa39ff32b316e2296630aa05bdd6a4a2e4b7598", "issuer": "xStocks", "stock": "2097.HK", "cg": "mixue-xstock"}};
   const ISSUER_URL = { xStocks: 'https://xstocks.com', bStocks: 'https://www.binance.com/en/bstocks', Ondo: 'https://ondo.finance' };
   const CN = new Set(['meituan', 'haidilao', 'mixue', 'luckin', 'yumchina', 'chagee', 'guming', 'chabaidao', 'nayuki', 'auntea', 'xiabu', 'jiumaojiu', 'dpcdash', 'xiaocaiyuan', 'greentea', 'ajisen', 'cafedecoral', 'quanjude', 'timschina']);
 
+  /* ---------- category icons (own set, 64-unit grid) ---------- */
+  const ICONS = {
+    all: '<svg viewBox="0 0 64 64"><rect x="6" y="14" width="52" height="40" rx="8" fill="#3B2A20"/><rect x="11" y="19" width="19" height="30" rx="4" fill="#F7F1E8"/><circle cx="20.5" cy="34" r="7" fill="#fff" stroke="#E6DED2" stroke-width="2"/><rect x="34" y="19" width="19" height="13" rx="3" fill="#FF8A5B"/><rect x="34" y="36" width="19" height="13" rx="3" fill="#5BC06E"/><path d="M38 23h11M38 27h11" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/></svg>',
+    burger: '<svg viewBox="0 0 64 64"><path d="M10 28c0-11 10-18 22-18s22 7 22 18H10z" fill="#F2B04D"/><circle cx="24" cy="18" r="1.6" fill="#fff"/><circle cx="34" cy="15" r="1.6" fill="#fff"/><circle cx="42" cy="20" r="1.6" fill="#fff"/><path d="M8 31h48l-4 5H12z" fill="#5BC06E"/><rect x="10" y="36" width="44" height="7" rx="3" fill="#7A4A2B"/><path d="M12 43h40l-3 5H15z" fill="#F7D04B"/><path d="M12 48h40v2a6 6 0 0 1-6 6H18a6 6 0 0 1-6-6z" fill="#F2B04D"/></svg>',
+    chicken: '<svg viewBox="0 0 64 64"><path d="M14 48l9-9" stroke="#F4EBDD" stroke-width="7" stroke-linecap="round"/><circle cx="12" cy="50" r="5" fill="#F4EBDD"/><circle cx="18" cy="56" r="5" fill="#F4EBDD"/><path d="M22 40c-6-8-2-22 12-26s22 6 20 16-10 14-18 14c-6 0-9-1-14-4z" fill="#E8913A"/><path d="M30 20c4-3 10-3 14 0" stroke="#F9C77A" stroke-width="3" stroke-linecap="round" fill="none"/></svg>',
+    pizza: '<svg viewBox="0 0 64 64"><path d="M8 14h48L32 58z" fill="#F7C948"/><path d="M8 14h48l-3 5H11z" fill="#E0632F"/><circle cx="24" cy="27" r="4.5" fill="#C62B2B"/><circle cx="38" cy="30" r="4.5" fill="#C62B2B"/><circle cx="31" cy="42" r="4" fill="#C62B2B"/><circle cx="31" cy="24" r="1.4" fill="#5BC06E"/><circle cx="26" cy="36" r="1.4" fill="#5BC06E"/></svg>',
+    mex: '<svg viewBox="0 0 64 64"><path d="M8 44a24 24 0 0 1 48 0z" fill="#F2B04D"/><path d="M12 42c6-10 14-14 20-14s14 4 20 14z" fill="#5BC06E"/><path d="M18 42c4-6 9-9 14-9s10 3 14 9z" fill="#7A4A2B"/><circle cx="24" cy="38" r="2.5" fill="#E0322F"/><circle cx="38" cy="37" r="2.5" fill="#E0322F"/><path d="M8 44h48v2a8 8 0 0 1-8 8H16a8 8 0 0 1-8-8z" fill="#E9A23B"/></svg>',
+    cafe: '<svg viewBox="0 0 64 64"><path d="M14 22h30v14a12 12 0 0 1-12 12H26a12 12 0 0 1-12-12z" fill="#F7F1E8"/><path d="M17 25h24v10a9 9 0 0 1-9 9h-6a9 9 0 0 1-9-9z" fill="#6F4E37"/><path d="M44 26h3a6 6 0 0 1 0 12h-3" stroke="#F7F1E8" stroke-width="4" fill="none"/><path d="M10 52h40" stroke="#E6DED2" stroke-width="4" stroke-linecap="round"/><path d="M24 16c0-3 3-3 3-6M32 16c0-3 3-3 3-6" stroke="#B9AFA2" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>',
+    tea: '<svg viewBox="0 0 64 64"><path d="M18 18h28l-3 34a4 4 0 0 1-4 4H25a4 4 0 0 1-4-4z" fill="#D9B8F0"/><path d="M20 30h24l-2 22a3 3 0 0 1-3 3H25a3 3 0 0 1-3-3z" fill="#B98AD8" opacity=".6"/><circle cx="26" cy="48" r="2.6" fill="#2A1B33"/><circle cx="33" cy="51" r="2.6" fill="#2A1B33"/><circle cx="39" cy="47" r="2.6" fill="#2A1B33"/><rect x="16" y="14" width="32" height="6" rx="3" fill="#F7F1E8"/><path d="M34 6l2 12" stroke="#FF6B8A" stroke-width="4" stroke-linecap="round"/></svg>',
+    hotpot: '<svg viewBox="0 0 64 64"><path d="M10 28h44v8a18 18 0 0 1-18 18H28a18 18 0 0 1-18-18z" fill="#D9342B"/><ellipse cx="32" cy="28" rx="22" ry="7" fill="#F7F1E8"/><path d="M32 21a7 7 0 0 1 0 14a7 7 0 0 0 0-14z" fill="#E6B33A"/><path d="M32 35a7 7 0 0 1 0-14" fill="#D9342B"/><path d="M8 28h48" stroke="#A82820" stroke-width="3" stroke-linecap="round"/><path d="M24 14c0-3 3-3 3-6M32 14c0-3 3-3 3-6M40 14c0-3 3-3 3-6" stroke="#B9AFA2" stroke-width="2.5" stroke-linecap="round" fill="none"/></svg>',
+    delivery: '<svg viewBox="0 0 64 64"><circle cx="16" cy="46" r="7" fill="#2A2A2A"/><circle cx="48" cy="46" r="7" fill="#2A2A2A"/><circle cx="16" cy="46" r="3" fill="#fff"/><circle cx="48" cy="46" r="3" fill="#fff"/><path d="M16 46h12l6-14h8l6 14" stroke="#06C167" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><rect x="30" y="14" width="18" height="14" rx="3" fill="#F2B04D"/><path d="M34 14v-4h10" stroke="#2A2A2A" stroke-width="3" stroke-linecap="round" fill="none"/></svg>',
+    casual: '<svg viewBox="0 0 64 64"><circle cx="32" cy="34" r="24" fill="#F7F1E8"/><circle cx="32" cy="34" r="19" fill="#fff" stroke="#E6DED2" stroke-width="2"/><path d="M18 36c0-8 6-14 15-14 6 0 8 4 13 4s4 8-2 14c-5 5-12 6-18 3-5-2-8-3-8-7z" fill="#A4452B"/><path d="M24 30l10 10M30 27l10 10" stroke="#6B2A1B" stroke-width="2.5" stroke-linecap="round"/><path d="M38 24c3 0 5 3 4 5" stroke="#F7F1E8" stroke-width="2" stroke-linecap="round" fill="none"/></svg>',
+    cn: '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="50" rx="24" ry="6" fill="#D8B374"/><rect x="8" y="42" width="48" height="8" rx="3" fill="#E9C98A"/><path d="M12 42c0-12 9-20 20-20s20 8 20 20z" fill="#FBF3E4"/><path d="M12 42c0-12 9-20 20-20s20 8 20 20" stroke="#E0C7A0" stroke-width="2" fill="none"/><path d="M18 30l4 4 4-5 3 5 3-5 3 5 3-5 3 5 4-4" stroke="#E0C7A0" stroke-width="2" fill="none" stroke-linecap="round"/></svg>'
+  };
+
   /* ---------- state ---------- */
   const state = { lang: 'en', chainId: DEFAULT_CHAIN, provider: null, address: null, balance: null, walletChain: null, coins: [], loaded: false, loadError: null,
-    tab: 'trending', cat: 'all', q: '', sort: 'progress', pay: 'all', top: false, liveOnly: false, open: null, busy: false, tokens: {}, myTok: {} };
+    tab: 'trending', cat: 'all', q: '', sort: 'progress', pay: 'all', top: false, liveOnly: false, open: null, busy: false, tokens: {}, myTok: {}, buys: {}, feed: [] };
   let T = I18N.en, fmt = {};
   const t = (k, ...a) => { const v = T[k] ?? I18N.en[k] ?? k; return typeof v === 'function' ? v(...a) : v; };
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -627,11 +757,97 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const num = (v) => fmt.num.format(v);
   const cmp = (v) => fmt.cmp.format(v);
   const pct = (x) => fmt.pct.format(x);
+  const big = (v) => state.lang === 'zh' ? cmp(v) : num(v);
+  const usdStr = (v) => new Intl.NumberFormat(T.locale, { style: 'currency', currency: 'USD', notation: v >= 1e6 ? 'compact' : 'standard', maximumFractionDigits: v >= 1000 ? 0 : 2 }).format(v);
+  const usdOf = (unit) => (unit && unit !== 'tBNB' && PX.usd[unit]) || null;
+  const usdTxt = (v, unit) => { const p = usdOf(unit); return p && v > 0 ? `<span class="usd">≈ ${usdStr(v * p)}</span>` : ''; };
+  function ago(ms) { const u = T.units; const m = Math.max(0, Math.floor(ms / 60000)), h = Math.floor(m / 60), d = Math.floor(h / 24); return t('ago', d >= 1 ? `${d}${u.d}` : h >= 1 ? `${h}${u.h}` : `${Math.max(1, m)} ${u.m}`); }
+  const hue = (a) => `hsl(${parseInt(String(a).slice(2, 6), 16) % 360} 70% 55%)`;
   const dateFmt = (ms) => fmt.date.format(ms);
   const short = (a) => a ? a.slice(0, 6) + '…' + a.slice(-4) : '';
   function remaining(ms) { const u = T.units; if (ms <= 0) return `0 ${u.m}`; const m = Math.floor(ms / 60000), h = Math.floor(m / 60), d = Math.floor(h / 24); return d >= 1 ? `${d}${u.d} ${h % 24}${u.h}` : h >= 1 ? `${h}${u.h} ${m % 60} ${u.m}` : `${m} ${u.m}`; }
   const payUnit = (C) => C.payToken === E.ZeroAddress ? net().symbol : (state.tokens[C.payToken.toLowerCase()]?.symbol || short(C.payToken));
   const pairOf = (rid) => PAIRS[rid] || null;
+
+  /* ---------- USD prices (CoinGecko, cached 2 min; Chainlink BNB/USD as fallback) ---------- */
+  const PX = { usd: {}, chg: {}, at: 0 };
+  const CG_IDS = { binancecoin: ['BNB'] }; for (const p of Object.values(PAIRS)) if (p.cg) (CG_IDS[p.cg] ||= []).push(p.symbol);
+  function applyPx(j) { for (const [id, syms] of Object.entries(CG_IDS)) { const v = j && j[id]; if (!v || v.usd == null) continue; for (const sy of syms) { PX.usd[sy] = Number(v.usd); if (v.usd_24h_change != null) PX.chg[sy] = Number(v.usd_24h_change); } } }
+  async function chainlinkBnb() {
+    const feed = { 56: '0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE', 97: '0x2514895c72f50D8bd4B4F9b1110F0D6bD2c97526' }[state.chainId]; if (!feed) return;
+    try { const c = new E.Contract(feed, ['function latestRoundData() view returns (uint80,int256,uint256,uint256,uint80)'], readProvider()); const r = await c.latestRoundData(); const v = Number(r[1]) / 1e8; if (v > 0) PX.usd.BNB = v; } catch {}
+  }
+  async function loadPrices() {
+    let cached = null; try { cached = JSON.parse(localStorage.getItem('bento.px') || 'null'); } catch {}
+    if (cached && Date.now() - cached.at < 120000) { applyPx(cached.j); PX.at = cached.at; render(); return; }
+    try { const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${Object.keys(CG_IDS).join(',')}&vs_currencies=usd&include_24hr_change=true`); if (!res.ok) throw new Error(String(res.status)); const j = await res.json(); applyPx(j); PX.at = Date.now(); try { localStorage.setItem('bento.px', JSON.stringify({ at: PX.at, j })); } catch {} }
+    catch { if (cached) { applyPx(cached.j); PX.at = cached.at; } if (!PX.usd.BNB) await chainlinkBnb(); }
+    render();
+  }
+
+  /* ---------- on-chain activity: Bought events ---------- */
+  let RI = null; const riface = () => RI || (RI = new E.Interface(RAISE_ABI));
+  const boughtTopic = () => riface().getEvent('Bought').topicHash;
+  const chainRef = { at: 0, num: 0, ts: 0, spb: 3 };
+  async function blockRef(p) {
+    if (Date.now() - chainRef.at < 60000) return chainRef;
+    const latest = await p.getBlock('latest'); let spb = 3; const back = Math.max(0, latest.number - 20000);
+    if (back > 0) { try { const old = await p.getBlock(back); if (latest.timestamp > old.timestamp) spb = Math.max(0.2, (latest.timestamp - old.timestamp) / (latest.number - back)); } catch {} }
+    Object.assign(chainRef, { at: Date.now(), num: latest.number, ts: Number(latest.timestamp), spb }); return chainRef;
+  }
+  const estBlock = (ref, tsMs) => Math.max(0, ref.num - Math.ceil((ref.ts - tsMs / 1000) / ref.spb));
+  const estTs = (ref, bn) => (ref.ts - (ref.num - bn) * ref.spb) * 1000;
+  const parseBought = (ref, logs) => logs.map((l) => { try { const d = riface().parseLog({ topics: [...l.topics], data: l.data }); return { addr: E.getAddress(l.address), buyer: d.args.buyer, amount: d.args.amount, raised: d.args.raised, bn: Number(l.blockNumber), tx: l.transactionHash, ts: estTs(ref, Number(l.blockNumber)), idx: Number(l.index ?? l.logIndex ?? 0) }; } catch { return null; } }).filter(Boolean);
+  async function fetchBuys(C) {
+    const cache = state.buys[C.addr]; if (cache && Date.now() - cache.at < (C.phase === 'live' ? 20000 : 600000)) return cache.items;
+    const p = readProvider(); const ref = await blockRef(p); const from0 = Math.max(0, estBlock(ref, C.openAt) - 2000); const CH = 5000; let items = [];
+    for (let to = ref.num, i = 0; to >= from0 && i < 30; i++) {
+      const batch = []; for (let k = 0; k < 4 && to >= from0; k++) { const from = Math.max(from0, to - CH + 1); batch.push(p.getLogs({ address: C.addr, topics: [boughtTopic()], fromBlock: from, toBlock: to })); to = from - 1; }
+      for (const logs of await Promise.all(batch)) items = items.concat(parseBought(ref, logs));
+      if (C.buyers && new Set(items.map((x) => x.buyer)).size >= C.buyers) break;
+    }
+    items.sort((a, b) => a.bn - b.bn || a.idx - b.idx);
+    state.buys[C.addr] = { at: Date.now(), items }; return items;
+  }
+  async function loadFeed() {
+    const Cs = list().filter((C) => C.phase !== 'failed'); if (!Cs.length || !net().factory) { state.feed = []; renderFeed(); return; }
+    try { const p = readProvider(); const ref = await blockRef(p); const logs = await p.getLogs({ address: Cs.slice(0, 100).map((C) => C.addr), topics: [boughtTopic()], fromBlock: Math.max(0, ref.num - 5000), toBlock: ref.num });
+      state.feed = parseBought(ref, logs).sort((a, b) => b.bn - a.bn || b.idx - a.idx).slice(0, 14); } catch (e) { console.warn('feed', e); state.feed = []; }
+    renderFeed();
+  }
+  function renderFeed() {
+    const host = $('#feed'); if (!host) return; const Cs = list(); const rows = state.feed.map((b) => ({ b, C: Cs.find((C) => C.addr === b.addr) })).filter((x) => x.C);
+    host.hidden = !rows.length; if (!rows.length) return;
+    const items = rows.map(({ b, C }) => `<span class="feed-i" data-open="${esc(C.addr)}">${logo(C.r, 22)}<span class="mono">${esc(short(b.buyer))}</span><small>${t('bought')}</small><b>${amt(Number(E.formatUnits(b.amount, C.dec)), C.unit)}</b><small>· ${esc(C.tick)} · ${ago(Date.now() - b.ts)}</small></span>`).join('');
+    $('#feed-s').innerHTML = `<div class="feed-t" style="--dur:${Math.max(18, rows.length * 5)}s"><span class="feed-c">${items}</span><span class="feed-c" aria-hidden="true">${items}</span></div>`;
+  }
+  function chartSvg(C, items) {
+    const W = 432, H = 132, L = 8, R = 8, Tp = 14, B = 22; const u = (v) => Number(E.formatUnits(v, C.dec));
+    const now = Date.now(); const t0 = C.openAt; const tEnd = C.phase === 'live' ? Math.min(now, C.closeAt) : C.closeAtEff;
+    const t1 = Math.max(t0 + 60000, tEnd, ...items.map((b) => b.ts)); const ymax = Math.max(C.goal, C.raised) * 1.05 || 1;
+    const x = (tt) => L + (Math.min(Math.max(tt, t0), t1) - t0) / (t1 - t0) * (W - L - R); const y = (v) => Tp + (1 - v / ymax) * (H - Tp - B);
+    const pts = [[t0, 0], ...items.map((b) => [b.ts, u(b.raised)]), [tEnd, C.raised]];
+    let d = ''; pts.forEach(([tt, v], i) => { const X = x(tt).toFixed(1), Y = y(v).toFixed(1); d += i ? ` H${X} V${Y}` : `M${X} ${Y}`; });
+    const area = `${d} V${y(0).toFixed(1)} H${x(t0).toFixed(1)} Z`; const gy = y(C.goal).toFixed(1), my = y(C.min).toFixed(1);
+    const dots = items.slice(-40).map((b) => `<circle class="dot" cx="${x(b.ts).toFixed(1)}" cy="${y(u(b.raised)).toFixed(1)}" r="2.2"/>`).join('');
+    return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img"><defs><linearGradient id="cg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#06C167" stop-opacity=".35"/><stop offset="1" stop-color="#06C167" stop-opacity="0"/></linearGradient></defs>
+      <line class="goal" x1="${L}" x2="${W - R}" y1="${gy}" y2="${gy}"/><line class="min" x1="${L}" x2="${W - R}" y1="${my}" y2="${my}"/>
+      <path d="${area}" fill="url(#cg)"/><path class="line" d="${d}"/>${dots}
+      <text class="ax" x="${L}" y="${Tp - 4}">${esc(t('pv.target'))} ${esc(amt(C.goal, C.unit))}</text><text class="ax" x="${W - R}" y="${Tp - 4}" text-anchor="end">${esc(t('pv.min'))} ${esc(amt(C.min, C.unit))}</text>
+      <text class="ax" x="${L}" y="${H - 7}">${esc(dateFmt(t0))}</text><text class="ax" x="${W - R}" y="${H - 7}" text-anchor="end">${esc(dateFmt(t1))}</text></svg>`;
+  }
+  function activityHtml(C, items) {
+    const u = (v) => Number(E.formatUnits(v, C.dec)); const me = (state.address || '').toLowerCase();
+    const rows = [...items].reverse().slice(0, 30).map((b) => `<div class="buy-r"><span class="who"><i style="background:${hue(b.buyer)}"></i><span class="mono">${esc(short(b.buyer))}</span>${me && b.buyer.toLowerCase() === me ? `<em>${t('you.tag')}</em>` : ''}</span><b>${amt(u(b.amount), C.unit)}${usdTxt(u(b.amount), C.unit)}</b><small>${ago(Date.now() - b.ts)}</small><a href="${explorer(b.tx, 'tx')}" target="_blank" rel="noopener" aria-label="tx">↗</a></div>`).join('');
+    return `<div class="act-h"><b>${t('chart.h')}</b><small>${t('buys.n', items.length)}</small></div>${chartSvg(C, items)}<div class="buys">${rows || `<p class="hint">${t('buys.none')}</p>`}</div>`;
+  }
+  function loadActivity(C) {
+    const cache = state.buys[C.addr]; const el = $('#act'); if (!el) return;
+    if (cache) el.innerHTML = activityHtml(C, cache.items);
+    if (cache && Date.now() - cache.at < (C.phase === 'live' ? 20000 : 600000)) return;
+    fetchBuys(C).then((items) => { if (state.open !== C.addr) return; const e2 = $('#act'); if (e2) e2.innerHTML = activityHtml(C, items); })
+      .catch((e) => { console.warn('buys', e); if (state.open !== C.addr || cache) return; const e2 = $('#act'); if (e2) e2.innerHTML = `<div class="act-h"><b>${t('chart.h')}</b></div><p class="hint">${t('buys.err')}</p>`; });
+  }
 
   /* ---------- chain ---------- */
   function readProvider() { if (window.ethereum) return new E.BrowserProvider(window.ethereum); return new E.JsonRpcProvider(net().rpc, state.chainId, { staticNetwork: true }); }
@@ -662,6 +878,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       state.coins = coins; state.loaded = true; state.loadError = null;
     } catch (e) { console.error(e); state.loaded = true; state.loadError = window.ethereum ? 'rpc' : 'nowallet'; }
     render();
+    if (!state.loadError) loadFeed();
   }
   const phaseOf = (c, now) => c.finalized ? (c.graduated ? 'ok' : 'failed') : (c.closedAt || now >= c.closeAt) ? 'pending' : 'live';
   const list = () => { const now = Date.now(); return state.coins.map((c) => ({ ...c, phase: phaseOf(c, now), progress: Math.min(1, c.raised / c.goal), closeAtEff: c.closedAt || c.closeAt })); };
@@ -688,7 +905,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   async function signer() { if (!state.provider || !state.address) throw new Error('no wallet'); if (!(await ensureNetwork())) throw new Error('net'); return state.provider.getSigner(); }
   async function sendTx(fn, doneMsg) {
     state.busy = true; render();
-    try { const s = await signer(); const tx = await fn(s); toast(t('tx.sent')); await tx.wait(); toast(doneMsg || t('tx.done')); await refreshWallet(); await loadCoins(); return true; }
+    try { const s = await signer(); const tx = await fn(s); toast(t('tx.sent')); await tx.wait(); toast(doneMsg || t('tx.done')); state.buys = {}; chainRef.at = 0; await refreshWallet(); await loadCoins(); return true; }
     catch (e) { console.error(e); toast(e && e.message === 'net' ? t('e.net') : t('e.tx')); return false; }
     finally { state.busy = false; render(); }
   }
@@ -713,7 +930,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const promo = C.phase === 'live' && (now - C.openAt) < 24 * 3600000 ? `<span class="tag red">${t('promo.new')}</span>` : C.phase === 'live' && C.progress >= 0.5 ? `<span class="tag red">${t('promo.hot', pct(C.progress))}</span>` : tag(C);
     return `<div class="row${state.open === C.addr ? ' is-open' : ''}" data-id="${esc(C.addr)}" data-open="${esc(C.addr)}">
       <div class="row-img"><span class="wash" style="background:${esc(tile(C.r))}"></span>${logo(C.r, 88)}${promo}${C.my ? `<span class="you">${t('you', amt(C.my, C.unit))}</span>` : ''}<div class="bar ${barCls(C)}"><i style="width:${C.progress * 100}%"></i></div></div>
-      <div class="row-top"><div class="row-name"><b>${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small><span class="star">${pct(C.progress)}</span> (${C.buyers}) · ${t('pairs')} ${esc(nm(C.r))} · ${esc(C.unit)} · <span data-countdown="${esc(C.addr)}">${closeText(C, now)}</span></small></div><button class="heart" type="button" data-open="${esc(C.addr)}" aria-label="${t('btn.view')}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
+      <div class="row-top"><div class="row-name"><b>${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small><span class="star">${pct(C.progress)}</span> (${C.buyers}) · ${esc(nm(C.r))} · ${amt(C.raised, C.unit)}${usdTxt(C.raised, C.unit)} · <span data-countdown="${esc(C.addr)}">${closeText(C, now)}</span></small></div><button class="heart" type="button" data-open="${esc(C.addr)}" aria-label="${t('btn.view')}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
     </div>`;
   }
   const PAIR_IDS = Object.keys(PAIRS);
@@ -730,8 +947,9 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const d = $('#drawer'); const r = REST[rid]; const pr = PAIRS[rid]; if (!r || !pr) return;
     const coins = list().filter((C) => C.rest === rid);
     d.innerHTML = `
-      <div class="sheet-h">${logo(r, 56)}<div class="who"><b>${esc(nm(r))}</b><small>${esc(r.parentName)}${r.parent ? ' · ' + esc(r.parent) : ''}</small></div><span class="tag">${esc(pr.symbol)}</span><button class="close" type="button" data-close aria-label="Close">✕</button></div>
+      <div class="sheet-h">${logo(r, 56)}<div class="who"><b>${esc(nm(r))}</b><small>${esc(r.parentName)}${r.parent ? ' · ' + esc(r.parent) : ''}</small></div><span class="tag">${esc(pr.symbol)}</span><button class="close link" type="button" data-copy="link" aria-label="${t('link.copy')}" title="${t('link.copy')}"><svg viewBox="0 0 24 24" fill="none"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="close" type="button" data-close aria-label="Close">✕</button></div>
       <div class="kv">
+        <div><small>${t('pairs.px')}</small><b>${PX.usd[pr.symbol] ? `${usdStr(PX.usd[pr.symbol])}${PX.chg[pr.symbol] != null ? ` <span class="${PX.chg[pr.symbol] >= 0 ? 'up' : 'down'}" style="font-size:12px">${PX.chg[pr.symbol] >= 0 ? '+' : ''}${PX.chg[pr.symbol].toFixed(2)}%</span>` : ''}` : '—'}</b></div>
         <div><small>${t('r.token')}</small><b><a href="https://bscscan.com/token/${pr.address}" target="_blank" rel="noopener">${esc(pr.symbol)}</a></b></div>
         <div><small>${t('r.issuer')}</small><b><a href="${ISSUER_URL[pr.issuer] || '#'}" target="_blank" rel="noopener">${esc(pr.issuer)}</a></b></div>
         <div><small>${t('r.stock')}</small><b>${esc(pr.stock)}</b></div>
@@ -744,7 +962,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const Cs = list(); const live = Cs.filter((C) => C.phase === 'live'); const grad = Cs.filter((C) => C.phase === 'ok');
     $('#live-count').textContent = String(live.length); $('#net-name').textContent = net().name;
     $('#explorer-link').href = net().factory ? explorer(net().factory) : net().explorer;
-    $('#contracts').innerHTML = net().factory ? `BentoFactory · <a href="${explorer(net().factory)}" target="_blank" rel="noopener" style="text-decoration:underline">${esc(net().factory)}</a> · ${esc(net().name)}` : `${esc(net().name)}: factory not deployed yet.`;
+    const st = $('#contracts'); st.className = 'status' + (net().factory ? ' ok' : ''); st.innerHTML = `<i></i>${net().factory ? `${t('st.factoryOk', esc(net().name))} · <a href="${explorer(net().factory)}" target="_blank" rel="noopener">${esc(net().factory)}</a>` : t('st.factory', esc(net().name))}`;
     const mine = Cs.filter((C) => state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase()));
     $('#cart-n').textContent = String(mine.length);
     for (const [id, v] of [['n-live', live.length], ['n-grad', grad.length], ['n-mine', mine.length]]) { const el = $('#' + id); const nv = String(v); if (el.textContent !== nv) { el.textContent = nv; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }
@@ -757,7 +975,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (!state.address) { b.hidden = false; b.textContent = t('wallet.connect'); chip.hidden = true;
       wc.innerHTML = `<p>${t('wc.off')}</p><button class="btn btn-white btn-block" type="button" data-connect>${t('wallet.connect')}</button>`; }
     else { b.hidden = true; chip.hidden = false; $('#p-addr').textContent = short(state.address); $('#p-cash').textContent = state.balance == null ? '' : amt(state.balance, net().symbol);
-      wc.innerHTML = `<div class="row1"><span class="av"></span><div><b>${esc(short(state.address))}</b><small>${t('wc.on')}</small></div></div><div class="bal">${state.balance == null ? '…' : amt(state.balance, net().symbol)}</div><span class="net"><i></i>${esc(net().name)}</span>`; }
+      wc.innerHTML = `<div class="row1"><span class="av"></span><div><b>${esc(short(state.address))}</b><small>${t('wc.on')}</small></div></div><div class="bal">${state.balance == null ? '…' : amt(state.balance, net().symbol)}</div>${state.balance != null && usdOf(net().symbol) ? `<small>${usdTxt(state.balance, net().symbol).replace('class="usd"', 'class="usd" style="margin:0;opacity:.85"')}</small>` : ''}<span class="net"><i></i>${esc(net().name)}</span>`; }
     const n = $('#notice-text');
     if (!state.address) n.innerHTML = t('n.nowallet'); else if (state.walletChain !== state.chainId) n.innerHTML = t('n.wrongnet', net().name); else n.innerHTML = t('n.ok', state.balance == null ? '…' : amt(state.balance, net().symbol), net().name);
   }
@@ -774,7 +992,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   function filtered(all) {
     const q = state.q.trim().toLowerCase(); const order = { live: 0, pending: 1, ok: 2, failed: 3 };
     let rows = (all || list()).filter((C) => (state.cat === 'all' || (state.cat === 'cn' ? CN.has(C.r.id) : C.r.cat === state.cat)) && (state.pay === 'all' || C.unit === state.pay) &&
-      (!q || [C.name, C.tick, C.r.name, NAME_ZH[C.r.id], C.r.parent, C.unit, C.addr].some((s) => String(s || '').toLowerCase().includes(q))));
+      (!q || [C.name, C.tick, C.r.name, NAME_ZH[C.r.id], C.r.parent, C.unit, C.addr, C.token].some((s) => String(s || '').toLowerCase().includes(q))));
     if (state.liveOnly) rows = rows.filter((C) => C.phase === 'live');
     const tab = state.tab;
     if (tab === 'trending') rows = rows.filter((C) => C.phase !== 'ok' && C.phase !== 'failed');
@@ -812,7 +1030,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const bal = C.isBnb ? (state.balance || 0) : (C.bal || 0);
     const left = Math.max(0, C.cap - C.my); const room = Math.max(0, C.goal - C.raised);
     const max = Math.floor(Math.min(left, room, Math.max(0, C.isBnb ? bal - 0.002 : bal)) * 10000) / 10000;
-    const quick = [0.25, 0.5, 1].map((f) => Math.floor(f * max * 10000) / 10000).filter((v, i, a) => v > 0 && a.indexOf(v) === i);
+    let quick = state.lang === 'zh' ? [0.08, 0.18, 0.88, 1.88, 8.88].filter((v) => v <= max) : [];
+    if (quick.length < 2) quick = [0.25, 0.5, 1].map((f) => Math.floor(f * max * 10000) / 10000).filter((v, i, a) => v > 0 && a.indexOf(v) === i);
     const pair = pairOf(C.rest);
     let act;
     if (C.phase === 'live') {
@@ -830,27 +1049,58 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     else if (C.phase === 'ok') act = `<p class="note">${t('p.ok', esc(C.unit))}</p>${C.claimable > 0 ? `<button class="btn btn-ink btn-block" type="button" data-claim="${esc(C.addr)}" ${state.busy ? 'disabled' : ''}>${state.busy ? t('btn.sending') : t('btn.claim', cmp(C.claimable))}</button>` : ''}`;
     else act = `<p class="note">${t('p.failed')}</p>${C.my > 0 ? `<button class="btn btn-ink btn-block" type="button" data-refund="${esc(C.addr)}" ${state.busy ? 'disabled' : ''}>${state.busy ? t('btn.sending') : t('btn.refund', amt(C.my, C.unit))}</button>` : ''}`;
     d.innerHTML = `
-      <div class="sheet-h">${logo(C.r, 56)}<div class="who"><b>${esc(C.name)} <span class="mono" style="font-size:14px;color:var(--muted)">${esc(C.tick)}</span></b><small>${t('pairs')} ${esc(nm(C.r))} · ${esc(t('by', short(C.creator)))}</small></div>${tag(C)}<button class="close" type="button" data-close aria-label="Close">✕</button></div>
-      <div><div class="bar ${barCls(C)}" style="height:6px"><i style="width:${C.progress * 100}%"></i></div><p class="note" style="margin-top:6px;font-size:14px"><b>${amt(C.raised, C.unit)}</b> / ${amt(C.goal, C.unit)} · ${pct(C.progress)} · ${t('buyersN', C.buyers)} · ${closeText(C, Date.now())}</p></div>
+      <div class="sheet-h">${logo(C.r, 56)}<div class="who"><b>${esc(C.name)} <span class="mono" style="font-size:14px;color:var(--muted)">${esc(C.tick)}</span></b><small>${t('pairs')} ${esc(nm(C.r))} · ${esc(t('by', short(C.creator)))}</small></div>${tag(C)}<button class="close link" type="button" data-copy="link" aria-label="${t('link.copy')}" title="${t('link.copy')}"><svg viewBox="0 0 24 24" fill="none"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="close" type="button" data-close aria-label="Close">✕</button></div>
+      <div><div class="bar ${barCls(C)}" style="height:6px"><i style="width:${C.progress * 100}%"></i></div><p class="note" style="margin-top:6px;font-size:14px"><b>${amt(C.raised, C.unit)}</b> / ${amt(C.goal, C.unit)}${usdTxt(C.goal, C.unit)} · ${pct(C.progress)} · ${t('buyersN', C.buyers)} · <span data-countdown="${esc(C.addr)}">${closeText(C, Date.now())}</span></p></div>
       <div class="kv">
         <div><small>${t('d.stock')}</small><b>${C.isBnb ? esc(net().symbol) : `<a href="${explorer(C.payToken, 'token')}" target="_blank" rel="noopener">${esc(C.unit)}</a>${pair ? ' · ' + esc(pair.issuer) : ''}`}</b></div>
         <div><small>${t('d.rest')}</small><b>${esc(nm(C.r))}${C.r.parent ? ' · ' + esc(C.r.parent) : ''}</b></div>
         <div><small>${t('d.min')}</small><b>${amt(C.min, C.unit)}</b></div>
         <div><small>${t('d.cap')}</small><b>${amt(C.cap, C.unit)}</b></div>
-        <div><small>${t('d.perUnit', esc(C.unit))}</small><b>${num(SUPPLY / C.goal)}</b></div>
+        <div><small>${t('d.perUnit', esc(C.unit))}</small><b>${big(SUPPLY / C.goal)}</b></div>
         <div><small>${t('d.pool')}</small><b>COIN/${esc(C.unit)} · 20%</b></div>
         <div><small>${t('d.opens')}</small><b>${dateFmt(C.openAt)}</b></div>
         <div><small>${t('d.closes')}</small><b>${dateFmt(C.closeAt)}</b></div>
         <div><small>${t('d.contract')}</small><b><a href="${explorer(C.addr)}" target="_blank" rel="noopener">${esc(short(C.addr))}</a></b></div>
         <div><small>${t('d.token')}</small><b><a href="${explorer(C.token, 'token')}" target="_blank" rel="noopener">${esc(short(C.token))}</a></b></div>
       </div>
-      <div class="buy">${act}</div>`;
+      <div class="buy">${act}</div>
+      <div class="act" id="act"><div class="act-h"><b>${t('chart.h')}</b></div><div class="skel" style="height:132px;border-radius:8px"></div></div>`;
+    loadActivity(C);
   }
+  const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2"/></svg>';
   function renderPairs() {
-    const host = $('#pairs-list'); if (!host) return;
-    host.innerHTML = Object.entries(PAIRS).map(([rid, p]) => { const r = REST[rid]; if (!r) return ''; return `<div>${logo(r, 30)}<span>${esc(nm(r))} · ${esc(p.stock)}</span><b>${esc(p.symbol)}</b><a href="https://bscscan.com/token/${p.address}" target="_blank" rel="noopener">${esc(p.issuer)}</a></div>`; }).join('');
+    const host = $('#pairs-list'); if (!host) return; const Cs = state.loaded && !state.loadError ? list() : []; const issuers = new Set();
+    host.innerHTML = PAIR_IDS.map((rid) => { const p = PAIRS[rid]; const r = REST[rid]; if (!r) return ''; issuers.add(p.issuer); const px = PX.usd[p.symbol]; const ch = PX.chg[p.symbol]; const n = Cs.filter((C) => C.rest === rid).length;
+      return `<div class="pair" data-open="r:${esc(rid)}">
+        <div class="pair-top">${logo(r, 44)}<div class="pair-name"><b>${esc(nm(r))}</b><small>${esc(p.stock)} · ${esc(r.parentName || r.name)}</small></div><span class="pair-sym">${esc(p.symbol)}</span></div>
+        <div class="pair-px">${px ? `<b>${usdStr(px)}</b>${ch != null ? `<span class="${ch >= 0 ? 'up' : 'down'}">${ch >= 0 ? '+' : ''}${ch.toFixed(2)}%</span>` : ''}<small>/ ${esc(p.symbol)}</small>` : `<span class="nopx">${t('pairs.nopx')}</span>`}</div>
+        <div class="pair-meta"><span class="iss iss-${p.issuer[0].toLowerCase()}">${esc(p.issuer)}</span><span class="ver"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 2.2 3.2-.5 1 3.1 2.9 1.5-1.2 3 1.2 3-2.9 1.5-1 3.1-3.2-.5L12 22l-2.4-2.2-3.2.5-1-3.1-2.9-1.5 1.2-3-1.2-3 2.9-1.5 1-3.1 3.2.5z" fill="currentColor" opacity=".18"/><path d="m8.5 12 2.3 2.3L15.5 9.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${t('pairs.verified')}</span><span style="margin-left:auto">${n ? t('r.coins', n) : t('r.none')}</span></div>
+        <div class="pair-addr"><span class="mono">${esc(short(p.address))}</span><button type="button" data-copy="${esc(p.address)}" aria-label="${t('copy.addr')}" title="${t('copy.addr')}">${COPY_SVG}</button><a href="https://bscscan.com/token/${p.address}" target="_blank" rel="noopener">BscScan</a></div>
+      </div>`; }).join('');
+    $('#pairs-n').textContent = t('pairs.n', PAIR_IDS.length, issuers.size);
+    $('#px-src').textContent = PX.at ? t('px.src') : '';
   }
-  function render() { renderStats(); renderWallet(); renderFeatured(); renderRows(); renderPreview(); }
+  function setOpen(id) {
+    state.open = id || null;
+    try { const h = !id ? '' : id.startsWith('r:') ? `#r/${id.slice(2)}` : `#coin/${state.chainId}/${id}`; history.replaceState(null, '', location.pathname + location.search + h); } catch {}
+    renderRows();
+  }
+  function route() {
+    const h = decodeURIComponent((location.hash || '').slice(1)); let m;
+    if (h === 'mainnet') { state.chainId = 56; return 'net'; } if (h === 'testnet') { state.chainId = 97; return 'net'; }
+    if ((m = h.match(/^coin\/(?:(\d+)\/)?(0x[0-9a-fA-F]{40})$/))) { if (m[1] && NETWORKS[m[1]]) state.chainId = Number(m[1]); try { state.open = E.getAddress(m[2]); } catch { state.open = m[2]; } return 'open'; }
+    if ((m = h.match(/^r\/([a-z0-9_-]+)$/)) && PAIRS[m[1]]) { state.open = 'r:' + m[1]; return 'open'; }
+    return null;
+  }
+  let lastAddrQ = '';
+  function addrSearch(v) {
+    const m = String(v).match(/0x[0-9a-fA-F]{40}/); const a = m ? m[0].toLowerCase() : ''; if (a === lastAddrQ) return; lastAddrQ = a; if (!a) return;
+    const C = state.coins.find((x) => x.addr.toLowerCase() === a || x.token.toLowerCase() === a); if (C) { setOpen(C.addr); return; }
+    const rid = PAIR_IDS.find((k) => PAIRS[k].address.toLowerCase() === a || Object.values(PAIRS[k].alt || {}).some((x) => String(x).toLowerCase() === a)); if (rid) { setOpen('r:' + rid); return; }
+    if (state.loaded) toast(t('search.noaddr', net().name));
+  }
+  function copyText(v) { const done = () => toast(t('copied')); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done).catch(() => toast(v)); else { try { const ta = document.createElement('textarea'); ta.value = v; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); } catch { toast(v); } } }
+  function render() { renderStats(); renderWallet(); renderFeatured(); renderRows(); renderPreview(); renderPairs(); renderFeed(); }
 
   /* ---------- create ---------- */
   function fillRestaurants() {
@@ -872,7 +1122,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     pv.innerHTML = `<span class="hint" style="font-weight:600">${t('launch.preview')}</span>
       <div class="pv-top">${logo(r, 56)}<div><b>${esc(d.tick || 'COIN')}</b><small>${esc(d.name || t('launch.yours'))} · ${esc(nm(r))} · ${esc(d.unit)}</small></div></div>
       <div class="bar live"><i style="width:0%"></i></div>
-      <div class="kv"><div><small>${t('pv.rate', esc(d.unit))}</small><b>${g ? num(SUPPLY / g) : '—'}</b></div><div><small>${t('pv.target')}</small><b>${amt(g, d.unit)}</b></div><div><small>${t('pv.min')}</small><b>${amt(g / 3, d.unit)}</b></div><div><small>${t('pv.cap')}</small><b>${amt(g / 10, d.unit)}</b></div><div><small>${t('pv.closes')}</small><b>${dateFmt(Date.now() + d.hours * 3600000)}</b></div><div><small>${t('pv.pool')}</small><b>COIN/${esc(d.unit)}</b></div></div>`;
+      <div class="kv"><div><small>${t('pv.rate', esc(d.unit))}</small><b>${g ? big(SUPPLY / g) : '—'}</b></div><div><small>${t('pv.target')}</small><b>${amt(g, d.unit)}${usdTxt(g, d.unit)}</b></div><div><small>${t('pv.min')}</small><b>${amt(g / 3, d.unit)}</b></div><div><small>${t('pv.cap')}</small><b>${amt(g / 10, d.unit)}</b></div><div><small>${t('pv.closes')}</small><b>${dateFmt(Date.now() + d.hours * 3600000)}</b></div><div><small>${t('pv.pool')}</small><b>COIN/${esc(d.unit)}</b></div></div>`;
   }
   async function launchCoin(e) {
     e.preventDefault();
@@ -912,10 +1162,14 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
   /* ---------- events ---------- */
   document.addEventListener('click', (e) => {
+    if (e.target.closest('a[href^="http"]')) return;
     const lang = e.target.closest('[data-lang]'); if (lang) { setLang(lang.dataset.lang); return; }
+    const cp = e.target.closest('[data-copy]'); if (cp) { const v = cp.dataset.copy; copyText(v === 'link' ? `${location.origin}${location.pathname}${state.open && state.open.startsWith('r:') ? `#r/${state.open.slice(2)}` : `#coin/${state.chainId}/${state.open}`}` : v); return; }
+    const mb = e.target.closest('[data-m]'); if (mb) { $$('.mbar button').forEach((x) => x.classList.toggle('is-on', x === mb)); const k = mb.dataset.m; state.open = null; renderRows();
+      if (k === 'home') $('#explore')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'search') { window.scrollTo({ top: 0, behavior: 'smooth' }); $('#q').focus(); } else if (k === 'create') $('#launch')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'wallet') { if (state.address) { setTab('mine'); $('#all')?.scrollIntoView({ behavior: 'smooth' }); } else connect(); } return; }
     if (e.target.closest('[data-connect], #connect')) { connect(); return; }
     if (e.target.closest('#refresh')) { loadCoins(); return; }
-    if (e.target.closest('[data-close], #scrim')) { state.open = null; renderRows(); return; }
+    if (e.target.closest('[data-close], #scrim')) { setOpen(null); return; }
     const chip = e.target.closest('[data-amt]'); if (chip) { const inp = $('#amt'); if (inp) inp.value = chip.dataset.amt; return; }
     const ap = e.target.closest('[data-approve]'); if (ap) { approve(ap.dataset.approve); return; }
     const b = e.target.closest('[data-buy]'); if (b) { buy(b.dataset.buy); return; }
@@ -923,7 +1177,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const c = e.target.closest('[data-claim]'); if (c) { sendTx(async (s) => new E.Contract(c.dataset.claim, RAISE_ABI, s).claim()); return; }
     const r = e.target.closest('[data-refund]'); if (r) { sendTx(async (s) => new E.Contract(r.dataset.refund, RAISE_ABI, s).refund()); return; }
     const cr = e.target.closest('[data-create]'); if (cr) { state.open = null; $('#c-rest').value = cr.dataset.create; renderPreview(); renderRows(); $('#launch')?.scrollIntoView({ behavior: 'smooth' }); $('#c-name').focus(); return; }
-    const open = e.target.closest('[data-open]'); if (open) { state.open = open.dataset.open; renderRows(); return; }
+    const open = e.target.closest('[data-open]'); if (open) { setOpen(open.dataset.open); return; }
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }
     if (e.target.closest('#cats-r')) { $('#cat').scrollBy({ left: 300, behavior: 'smooth' }); return; }
     if (e.target.closest('#cartbtn')) { setTab('mine'); $('#all')?.scrollIntoView({ behavior: 'smooth' }); return; }
@@ -935,12 +1189,13 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (e.target.closest('.side a')) { $('#side').classList.remove('is-open'); }
     const cat = e.target.closest('[data-cat]'); if (cat) { state.cat = cat.dataset.cat; $$('[data-cat]').forEach((x) => x.classList.toggle('is-on', x.dataset.cat === state.cat)); renderRows(); $('#all')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   });
-  $('#q').addEventListener('input', (e) => { state.q = e.target.value; renderRows(); });
+  $('#q').addEventListener('input', (e) => { state.q = e.target.value; renderRows(); addrSearch(e.target.value); });
+  window.addEventListener('hashchange', () => { const r = route(); if (r === 'open') renderRows(); else if (r === 'net') { state.coins = []; state.loaded = false; render(); loadCoins(); } });
   $('#sort').addEventListener('change', (e) => { state.sort = e.target.value; renderRows(); });
   $('#pay').addEventListener('change', (e) => { state.pay = e.target.value; renderRows(); });
   $('#launch-form').addEventListener('submit', launchCoin);
   ['c-name', 'c-tick', 'c-rest', 'c-goal', 'c-window'].forEach((id) => $('#' + id).addEventListener('input', renderPreview));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.open) { state.open = null; renderRows(); } });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.open) setOpen(null); });
 
   const root = document.documentElement; const themeBtn = $('#theme');
   const prefersLight = () => matchMedia('(prefers-color-scheme: light)').matches;
@@ -955,10 +1210,11 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   (function start() {
     let lang = null; try { lang = localStorage.getItem('bento.lang'); } catch {}
     if (!lang || !I18N[lang]) lang = 'en';
-    const h = (location.hash || '').replace('#', ''); if (h === 'mainnet') state.chainId = 56; if (h === 'testnet') state.chainId = 97;
+    $$('.cats .ic[data-ic]').forEach((el) => { el.innerHTML = ICONS[el.dataset.ic] || ''; });
+    if (E) route();
     setLang(lang);
     if (!E) { $('#rows').innerHTML = `<p class="empty">ethers.js failed to load.</p>`; return; }
-    loadCoins();
+    loadCoins(); loadPrices(); setInterval(loadPrices, 120000);
   })();
 })();
 </script>

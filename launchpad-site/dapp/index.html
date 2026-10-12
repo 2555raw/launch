@@ -103,29 +103,43 @@ p { margin: 0; }
 .shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); }
 .side { padding: 12px 12px 24px; position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 64px); overflow: auto; display: flex; flex-direction: column; gap: 2px; scrollbar-width: none; }
 .side::-webkit-scrollbar { display: none; }
-.side .grp { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding: 14px 12px 6px; }
-.side a, .side button { display: flex; align-items: center; gap: 12px; width: 100%; height: 44px; padding: 0 10px 0 8px; border-radius: 12px; font-weight: 500; font-size: 16px; color: var(--ink); background: transparent; border: 0; cursor: pointer; text-align: left; white-space: nowrap; transition: background .12s ease, transform .12s ease; }
-.side a:hover, .side button:hover { background: var(--surface); }
+.side .grp { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); padding: 18px 12px 8px; }
+.side .grp::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.side a, .side button { display: flex; align-items: center; gap: 12px; width: 100%; height: 46px; padding: 0 10px 0 8px; border-radius: 14px; font-weight: 600; font-size: 15px; color: var(--ink); background: transparent; border: 0; cursor: pointer; text-align: left; white-space: nowrap; transition: background .15s ease, transform .15s cubic-bezier(.2,.7,.2,1), box-shadow .15s ease; }
+.side a:hover, .side button:hover { background: var(--surface); transform: translateX(3px); }
 .side a:active, .side button:active { transform: scale(.985); }
-.side .ico { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; flex: none; background: var(--surface); color: var(--ink); transition: background .12s ease, color .12s ease; }
-.side .ico svg { width: 18px; height: 18px; }
-.side .ico.c1 { background: #FFF1D6; color: #B25E00; } .side .ico.c2 { background: #FDE2E2; color: #C8201B; } .side .ico.c3 { background: #E5F8EE; color: #05944F; }
-.side .ico.c4 { background: #E8EEFF; color: #2F55D4; } .side .ico.c5 { background: #F3E8FF; color: #7B3FE4; } .side .ico.c6 { background: #FFF4E5; color: #D9731A; } .side .ico.c7 { background: #E6F4F1; color: #0F766E; }
-.side .is-on { background: var(--green-soft); }
-.side .is-on .ico { background: var(--green); color: #fff; }
-.side .n { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); background: var(--surface); border-radius: 999px; padding: 2px 8px; }
-.side .is-on .n { background: #fff; color: var(--green-ink); }
-.side .wallet-card { margin-top: auto; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
+.side .ico { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--ink); color: var(--bg); box-shadow: 0 4px 10px rgba(0,0,0,.10); transition: transform .15s cubic-bezier(.2,.7,.2,1); }
+.side a:hover .ico, .side button:hover .ico { transform: scale(1.08) rotate(-4deg); }
+.side .ico svg { width: 19px; height: 19px; }
+.side .ico.c1 { background: linear-gradient(135deg, #FFB547, #FF7A00); color: #fff; } .side .ico.c2 { background: linear-gradient(135deg, #FF7A7A, #E02424); color: #fff; } .side .ico.c3 { background: linear-gradient(135deg, #3DDC84, #05944F); color: #fff; }
+.side .ico.c4 { background: linear-gradient(135deg, #6C8CFF, #2F55D4); color: #fff; } .side .ico.c5 { background: linear-gradient(135deg, #B28CFF, #7B3FE4); color: #fff; } .side .ico.c6 { background: linear-gradient(135deg, #FF9A5B, #D9731A); color: #fff; } .side .ico.c7 { background: linear-gradient(135deg, #4FD1C5, #0F766E); color: #fff; }
+.side .is-on { background: var(--ink); color: var(--bg); box-shadow: 0 10px 24px rgba(0,0,0,.16); }
+.side .is-on:hover { background: var(--ink); }
+.side .is-on .ico { background: var(--green); color: #fff; box-shadow: none; }
+.side .n { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--muted); background: var(--surface); border-radius: 999px; padding: 2px 8px; min-width: 24px; text-align: center; }
+.side .is-on .n { background: rgba(255,255,255,.2); color: #fff; }
+:root[data-theme="dark"] .side .is-on .n { background: rgba(0,0,0,.18); color: #000; }
+.side-tk { display: grid; gap: 2px; }
+.side-tk button { height: 40px; font-size: 13px; font-weight: 500; gap: 10px; padding: 0 10px 0 9px; border-radius: 12px; }
+.side-tk .logo { width: 26px; height: 26px; }
+.side-tk .sym { font-family: var(--mono); font-weight: 600; font-size: 12.5px; }
+.side-tk .px { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 600; text-align: right; line-height: 14px; }
+.side-tk .px i { display: block; font-style: normal; font-size: 11px; font-weight: 600; }
+.side-tk .px.na { color: var(--dim); font-weight: 500; }
+.side .wallet-card { margin-top: auto; position: relative; overflow: hidden; background: linear-gradient(140deg, #0B3D2E 0%, #0E8345 55%, #06C167 100%); color: #fff; border-radius: 18px; padding: 16px; display: grid; gap: 10px; box-shadow: 0 12px 28px rgba(14,131,69,.28); }
+.side .wallet-card::after { content: ''; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; border-radius: 999px; background: rgba(255,255,255,.14); }
+.side .wallet-card > * { position: relative; }
 .side .wallet-card .row1 { display: flex; align-items: center; gap: 10px; }
-.side .wallet-card .av { width: 36px; height: 36px; border-radius: 999px; background: linear-gradient(135deg, #06C167, #F0B90B); flex: none; }
+.side .wallet-card .av { width: 36px; height: 36px; border-radius: 999px; background: linear-gradient(135deg, #fff, #BDEFD3); flex: none; }
 .side .wallet-card b { display: block; font-family: var(--mono); font-size: 13px; font-weight: 500; }
-.side .wallet-card small { display: block; font-size: 12px; opacity: .7; }
-.side .wallet-card .bal { font-family: var(--mono); font-size: 20px; font-weight: 600; }
-.side .wallet-card .net { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; opacity: .85; }
-.side .wallet-card .net i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); }
-.side .wallet-card .btn { height: 36px; font-size: 13px; }
-.side .wallet-card .btn-white { background: #fff; color: #000; }
-.side .wallet-card p { font-size: 12.5px; opacity: .8; line-height: 1.4; }
+.side .wallet-card small { display: block; font-size: 12px; opacity: .8; }
+.side .wallet-card .bal { font-family: var(--mono); font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+.side .wallet-card .net { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; opacity: .9; }
+.side .wallet-card .net i { width: 8px; height: 8px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
+.side .wallet-card .btn { height: 38px; font-size: 13px; font-weight: 600; }
+.side .wallet-card .btn-white { background: #fff; color: #0B3D2E; }
+.side .wallet-card p { font-size: 13px; line-height: 18px; opacity: .92; }
+.side .wallet-card .usd { color: rgba(255,255,255,.8); }
 @media (max-height: 760px) { .side .wallet-card { margin-top: 12px; } }
 .content { padding: 8px 32px 80px 16px; min-width: 0; overflow-x: clip; }
 @media (max-width: 1000px) { .banners-wrap .arrow { display: none; } .shell { grid-template-columns: minmax(0, 1fr); } .side { display: none; } .side.is-open { display: block; position: fixed; inset: calc(64px + env(safe-area-inset-top, 0px)) auto 0 0; width: 260px; background: var(--bg); z-index: 45; box-shadow: 8px 0 30px rgba(0,0,0,.12); } .content { padding: 8px 16px 80px; } }
@@ -492,6 +506,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     <button type="button" data-tab="new"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="tab.new"></span></button>
     <button type="button" data-tab="graduating"><span class="ico c4"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 10 11l4 4 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span data-t="tab.graduating"></span></button>
     <button type="button" data-tab="graduated"><span class="ico c5"><svg viewBox="0 0 24 24" fill="none"><path d="m3 9 9-4 9 4-9 4-9-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 11v4c0 1.5 2.5 3 5 3s5-1.5 5-3v-4" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="tab.graduated"></span><span class="n" id="n-grad">0</span></button>
+    <div class="grp" data-t="grp.mkt"></div>
+    <div class="side-tk" id="side-tk"></div>
     <div class="grp" data-t="grp.food"></div>
     <button type="button" data-cat="burger"><span class="ico c1"><svg viewBox="0 0 24 24" fill="none"><path d="M4 10c0-3.3 3.6-6 8-6s8 2.7 8 6H4zM3 14h18M5 18h14a2 2 0 0 0 2-2v-1H3v1a2 2 0 0 0 2 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.burger"></span></button>
     <button type="button" data-cat="chicken"><span class="ico c2"><svg viewBox="0 0 24 24" fill="none"><path d="M15 4a5 5 0 0 1 2 9.6L10 20l-2-2-2-2 6.4-7A5 5 0 0 1 15 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.chicken"></span></button>
@@ -671,7 +687,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const I18N = {
     en: {
       'mode.raising': 'Raising', 'mode.graduated': 'Graduated', 'place.now': 'Now',
-      'nav.home': 'Home', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works', 'grp.coins': 'Coins', 'grp.food': 'By cuisine', 'grp.you': 'You', 'wc.off': 'Connect a wallet to buy and create coins on BNB Chain.', 'wc.on': 'Connected',
+      'nav.home': 'Home', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works', 'grp.coins': 'Coins', 'grp.mkt': 'Stock tokens', 'grp.food': 'By cuisine', 'grp.you': 'You', 'wc.off': 'Connect a wallet to buy and create coins on BNB Chain.', 'wc.on': 'Connected',
       'tab.trending': 'Trending', 'tab.new': 'New', 'tab.graduating': 'Graduating', 'tab.graduated': 'Graduated',
       'pill.live': 'Raising now', 'pill.pay': 'Paid in', 'pill.top': 'Most backed', 'pill.sort': 'Sort', 'f.all': 'All', 'ranked.more': 'More info',
       'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on BNB Chain', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Pair your coin with ${n}`, 'promo.pairP': (s, iss) => `${s} by ${iss} is live on BNB Chain. Raise in it, list against it.`,
@@ -708,7 +724,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'link.copy': 'Copy link', 'copied': 'Copied.', 'copy.addr': 'Copy address', 'search.noaddr': (n) => `No coin at that address on ${n}.`, 'm.search': 'Search', 'm.wallet': 'Wallet',
       'pairs.n': (n, i) => `${n} tokens · ${i} issuers`, 'pairs.verified': 'Verified on-chain', 'pairs.px': 'Price', 'pairs.nopx': 'Price unavailable', 'px.src': 'USD prices: CoinGecko, 24h change', 'iss.x': 'Backed Finance', 'iss.b': 'Binance', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}: factory not deployed yet. Deploy BentoFactory and set its address in the page config.`, 'st.factoryOk': (n) => `BentoFactory live on ${n}`,
-      'hero.eye': (n) => `Live on BNB Chain · ${n} verified stock tokens`, 'hero.h1': 'Launch a coin <em>paired</em> with a real restaurant stock.', 'hero.p': 'Pick McDonald\'s, Starbucks, Meituan or 15 more. The raise is paid in that restaurant\'s tokenized stock, and at graduation the coin lists against it on PancakeSwap with the liquidity burned.', 'hero.cta2': 'See restaurants', 'hero.live': 'raising now', 'hero.raised': 'raised so far', 'hero.coins': 'coins launched', 'hero.tokens': 'stock tokens', 'hero.fee': 'fee · LP burned', 'hero.today': 'today',
+      'hero.eye': (n) => `Live on BNB Chain · ${n} verified stock tokens`, 'hero.h1': 'Launch a coin <em>paired</em> with a real restaurant stock.', 'hero.p': 'Pick McDonald\'s, Starbucks, Meituan or 15 more. The raise is paid in that restaurant\'s tokenized stock, and at graduation the coin lists against it on PancakeSwap with the liquidity burned.', 'hero.cta2': 'See restaurants', 'hero.live': 'raising now', 'hero.raised': 'raised so far', 'hero.issuers': 'issuers', 'hero.tokens': 'stock tokens', 'hero.fee': 'fee · LP burned', 'hero.today': 'today',
       'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
       'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply, same for everyone', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of the raise + 20% of supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply, pro rata', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP tokens burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
       'ft.tag': 'A coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Factory contract', 'ft.src': 'Source code', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
@@ -720,7 +736,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     },
     zh: {
       'mode.raising': '募集中', 'mode.graduated': '已毕业', 'place.now': '实时',
-      'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 BNB 链上买入和创建代币。', 'wc.on': '已连接',
+      'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.mkt': '股票代币', 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 BNB 链上买入和创建代币。', 'wc.on': '已连接',
       'tab.trending': '热门', 'tab.new': '打新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
       'pill.live': '募集中', 'pill.pay': '支付币种', 'pill.top': '最多人买', 'pill.sort': '排序', 'f.all': '全部', 'ranked.more': '了解更多',
       'sec.featured': '当前精选', 'sec.new': '今日打新', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `让你的代币配对 ${n}`, 'promo.pairP': (s, iss) => `${iss} 发行的 ${s} 已在 BNB 链上线。以它募集，与它配对上市。`,
@@ -757,7 +773,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'link.copy': '复制链接', 'copied': '已复制。', 'copy.addr': '复制地址', 'search.noaddr': (n) => `${n} 上没有该地址的代币。`, 'm.search': '搜索', 'm.wallet': '钱包',
       'pairs.n': (n, i) => `${n} 个代币 · ${i} 家发行方`, 'pairs.verified': '链上已验证', 'pairs.px': '价格', 'pairs.nopx': '暂无价格', 'px.src': '美元价格：CoinGecko，24 小时涨跌', 'iss.x': 'Backed Finance', 'iss.b': '币安', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}：工厂合约尚未部署。请部署 BentoFactory 并在页面配置中填入地址。`, 'st.factoryOk': (n) => `BentoFactory 已在 ${n} 上线`,
-      'hero.eye': (n) => `已在 BNB 链上线 · ${n} 个已验证股票代币`, 'hero.h1': '发行一个与真实餐饮股票<em>配对</em>的代币。', 'hero.p': '选麦当劳、星巴克、美团或另外 15 家。募集以该品牌的股票代币支付，毕业后在 PancakeSwap 与它配对上市，流动性凭证销毁。', 'hero.cta2': '查看品牌', 'hero.live': '募集中', 'hero.raised': '累计募集', 'hero.coins': '已发行代币', 'hero.tokens': '股票代币', 'hero.fee': '手续费 · LP 已销毁', 'hero.today': '今日',
+      'hero.eye': (n) => `已在 BNB 链上线 · ${n} 个已验证股票代币`, 'hero.h1': '发行一个与真实餐饮股票<em>配对</em>的代币。', 'hero.p': '选麦当劳、星巴克、美团或另外 15 家。募集以该品牌的股票代币支付，毕业后在 PancakeSwap 与它配对上市，流动性凭证销毁。', 'hero.cta2': '查看品牌', 'hero.live': '募集中', 'hero.raised': '累计募集', 'hero.issuers': '发行方', 'hero.tokens': '股票代币', 'hero.fee': '手续费 · LP 已销毁', 'hero.today': '今日',
       'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
       'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量，人人相同', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '募集额的 99% + 供应量的 20%', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%，按比例', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
       'ft.tag': 'BNB 链上的代币发射台：每个代币配对一只餐饮股票代币，以它募集，与它配对上市。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '工厂合约', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
@@ -1189,7 +1205,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const host = $('#hero'); if (!host) return; const Cs = state.loaded && !state.loadError ? list() : []; const live = Cs.filter((C) => C.phase === 'live');
     $('#hero-eye').textContent = t('hero.eye', PAIR_IDS.length); $('#hero-h1').innerHTML = t('hero.h1'); $('#hero-p').textContent = t('hero.p');
     let usd = 0, anyUsd = false; for (const C of Cs) { const p = usdOf(C.unit); if (p) { anyUsd = true; usd += C.raised * p; } }
-    const stats = [[live.length, t('hero.live')], anyUsd ? [usdStr(usd), t('hero.raised')] : [Cs.length, t('hero.coins')], [PAIR_IDS.length, t('hero.tokens')], ['1%', t('hero.fee')]];
+    const stats = [[live.length, t('hero.live')], ...(anyUsd && usd > 0 ? [[usdStr(usd), t('hero.raised')]] : []), [PAIR_IDS.length, t('hero.tokens')], [new Set(Object.values(PAIRS).map((p) => p.issuer)).size, t('hero.issuers')], ['1%', t('hero.fee')]];
     const hs = $('#hero-stats'); if (hs.children.length !== stats.length) hs.innerHTML = stats.map(() => '<div><b></b><small></small></div>').join('');
     stats.forEach(([v, l], i) => { const d = hs.children[i]; setStat(d.querySelector('b'), v); d.querySelector('small').textContent = l; });
     const art = $('#hero-art'); if (!art.dataset.built || art.dataset.px !== String(PX.at)) { art.dataset.built = '1'; art.dataset.px = String(PX.at);
@@ -1207,6 +1223,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div class="pair-addr"><span class="mono">${esc(short(p.address))}</span><button type="button" data-copy="${esc(p.address)}" aria-label="${t('copy.addr')}" title="${t('copy.addr')}">${COPY_SVG}</button><a href="https://bscscan.com/token/${p.address}" target="_blank" rel="noopener">BscScan</a></div>
       </div>`; }).join('');
     $('#pairs-n').textContent = t('pairs.n', PAIR_IDS.length, issuers.size);
+    const tk = $('#side-tk'); if (tk) tk.innerHTML = ['mcdonalds', 'starbucks', 'meituan', 'wendys', 'haidilao'].filter((id) => PAIRS[id] && REST[id]).map((id) => { const p = PAIRS[id]; const px = PX.usd[p.symbol]; const c = PX.chg[p.symbol]; return `<button type="button" data-open="r:${id}">${logo(REST[id], 26)}<span class="sym">${esc(p.symbol)}</span>${px ? `<span class="px">${usdStr(px)}${c != null ? `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>` : ''}</span>` : `<span class="px na">—</span>`}</button>`; }).join('');
     $('#px-src').textContent = PX.at ? t('px.src') : '';
   }
   function setOpen(id) {

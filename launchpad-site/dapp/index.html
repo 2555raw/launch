@@ -4,7 +4,7 @@
 <meta property="og:title" content="Bento Launch"><meta property="og:description" content="Restaurant-paired coin launchpad on BNB Chain.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
 <style>
 /* Layout: a marketplace home in the proportions of a food-delivery site at 1920px.
    64px top bar (menu, wordmark, mode pill, place pill, 48px search, wallet),
@@ -18,8 +18,8 @@
   --line: #E6E6E6; --line-hi: #D4D4D4;
   --green: #06C167; --green-deep: #0E8345; --green-soft: #E5F8EE; --green-ink: #05944F; --salmon: #FF8080; --red: #E11900;
   --up: #05944F; --down: #E11900;
-  --font: 'Figtree', 'Noto Sans SC', system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
   color-scheme: light;
 }
 
@@ -42,7 +42,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
-h2 { font-size: 24px; line-height: 32px; letter-spacing: -.01em; } h3 { font-size: 18px; line-height: 24px; }
+h2 { font-size: 24px; line-height: 32px; letter-spacing: -.02em; } h3 { font-size: 18px; line-height: 24px; letter-spacing: -.01em; }
 p { margin: 0; }
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); }
@@ -70,7 +70,7 @@ p { margin: 0; }
 .hdr-in { display: flex; align-items: center; gap: 16px; height: 64px; padding: 0 16px 0 24px; }
 .burger { width: 40px; height: 40px; border: 0; background: transparent; border-radius: 999px; display: grid; place-items: center; cursor: pointer; margin-left: -8px; }
 .burger:hover { background: var(--surface); }
-.brand { font-weight: 800; font-size: 22px; letter-spacing: -.02em; white-space: nowrap; margin-right: 8px; }
+.brand { font-weight: 700; font-size: 22px; letter-spacing: -.03em; white-space: nowrap; margin-right: 8px; }
 .brand em { font-style: normal; font-weight: 500; }
 .mode { display: inline-flex; background: var(--surface); border-radius: 999px; padding: 4px; height: 48px; }
 .mode button { font-size: 14px; font-weight: 500; color: var(--ink); background: transparent; border: 0; padding: 0 16px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
@@ -293,7 +293,7 @@ p { margin: 0; }
 .hero-t { position: relative; min-width: 0; }
 .hero .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; line-height: 16px; font-weight: 600; color: var(--green-ink); background: var(--bg); border-radius: 999px; padding: 7px 12px; }
 .hero .eyebrow i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); animation: pulse 1.8s ease-out infinite; }
-.hero h1 { font-size: 44px; line-height: 1.08; letter-spacing: -.02em; font-weight: 700; margin: 18px 0 14px; max-width: 15ch; }
+.hero h1 { font-size: 44px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 18px 0 14px; max-width: 15ch; }
 .hero h1 em { font-style: normal; color: var(--green-ink); }
 .hero p { font-size: 16px; line-height: 24px; color: var(--prose); max-width: 52ch; }
 .hero-cta { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }

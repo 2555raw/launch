@@ -220,6 +220,8 @@ p { margin: 0; }
 .row-name small .star { color: var(--ink); font-weight: 500; }
 .row .heart { width: 32px; height: 32px; border-radius: 999px; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
 .row .heart:hover { background: var(--surface); }
+.row .heart.is-on { color: var(--red); }
+.row .heart.is-on svg { animation: rise .25s both; }
 .row .promo { display: inline-flex; font-size: 12px; font-weight: 500; padding: 3px 6px; border-radius: 4px; background: rgba(225,25,0,.1); color: var(--red); width: max-content; }
 .logo { width: 40px; height: 40px; border-radius: 999px; flex: none; display: grid; place-items: center; overflow: hidden; background: #FFFFFF; border: 1px solid var(--line); }
 .logo img { width: 100%; height: 100%; object-fit: contain; padding: 14%; display: block; }
@@ -640,7 +642,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div><h4 data-t="ft.legal"></h4><ul><li><a href="#" data-doc="risk" data-t="legal.risk"></a></li><li><a href="#" data-doc="terms" data-t="legal.terms"></a></li><li><a href="#" data-doc="privacy" data-t="legal.privacy"></a></li></ul></div>
       </div>
       <p data-t="footer"></p>
-      <div class="ft-b"><span>© <span id="year"></span> Bento Launch</span><span class="tagl" id="ft-net"><i></i><span></span></span><span class="tagl"><i style="background:#F0B90B"></i><span data-t="ft.unaudited"></span></span><span class="legal"><a href="#" data-doc="risk" data-t="legal.risk"></a><a href="#" data-doc="terms" data-t="legal.terms"></a></span></div>
+      <div class="ft-b"><span>© <span id="year"></span> Bento Launch</span><span class="tagl" id="ft-net"><i></i><span></span></span><span class="tagl ok" id="ft-block" hidden><i></i><span class="mono"></span></span><span class="tagl"><i style="background:#F0B90B"></i><span data-t="ft.unaudited"></span></span><span class="legal"><a href="#" data-doc="risk" data-t="legal.risk"></a><a href="#" data-doc="terms" data-t="legal.terms"></a></span></div>
     </footer>
   </main>
 </div>
@@ -649,10 +651,10 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 <div class="bottom" id="bottom"><span class="icon"></span><span><span data-t="bottom"></span> <a href="#" data-doc="risk" data-t="bottom.more"></a></span><button type="button" id="bottom-x" aria-label="Close">✕</button></div>
 <div class="modal" id="modal" hidden><div class="modal-c" role="dialog" aria-modal="true"><h3><span id="modal-h"></span><button class="close" type="button" data-modal-close aria-label="Close">✕</button></h3><div id="modal-b"></div></div></div>
 <nav class="mbar" id="mbar" aria-label="Mobile">
-  <button type="button" class="is-on" data-m="home"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="nav.home"></span></button>
-  <button type="button" data-m="search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.search"></span></button>
-  <button type="button" data-m="create"><span class="plus"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span><span data-t="nav.create"></span></button>
-  <button type="button" data-m="wallet"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M16 14h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.wallet"></span></button>
+  <button type="button" class="is-on" data-mb="home"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="nav.home"></span></button>
+  <button type="button" data-mb="search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.search"></span></button>
+  <button type="button" data-mb="create"><span class="plus"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span><span data-t="nav.create"></span></button>
+  <button type="button" data-mb="wallet"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M16 14h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.wallet"></span></button>
 </nav>
 <div class="toast" id="toast" role="status"></div>
 
@@ -668,7 +670,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     56: { name: 'BNB Chain', hex: '0x38', rpc: 'https://bsc-dataseed.binance.org', explorer: 'https://bscscan.com', symbol: 'BNB', factory: '' },
     97: { name: 'BNB Testnet', hex: '0x61', rpc: 'https://data-seed-prebsc-1-s1.binance.org:8545', explorer: 'https://testnet.bscscan.com', symbol: 'tBNB', factory: '' }
   };
-  const DEFAULT_CHAIN = 97;
+  const DEFAULT_CHAIN = 56;
   const SUPPLY = 1000000000;
   const FACTORY_ABI = [
     'function createCoin(string name, string symbol, string restaurantId, uint256 target, uint256 durationSeconds) returns (address)',
@@ -722,9 +724,10 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'feat.top': 'Closest to graduation', 'feat.big': 'Largest raise', 'feat.create': 'Launch your own coin', 'feat.createP': 'Pair it with McDonald\'s, Starbucks, Meituan or 15 more tokenized stocks.', 'feat.cta': 'Buy now', 'feat.ctaCreate': 'Create now',
       'feed.h': 'Live buys', 'bought': 'bought', 'ago': (s) => `${s} ago`, 'you.tag': 'you', 'chart.h': 'Raise over time', 'buys.n': (n) => `${n} buy${n === 1 ? '' : 's'}`, 'buys.none': 'No buys yet. Be the first.', 'buys.err': 'Could not load buys from the RPC.',
       'link.copy': 'Copy link', 'copied': 'Copied.', 'copy.addr': 'Copy address', 'search.noaddr': (n) => `No coin at that address on ${n}.`, 'm.search': 'Search', 'm.wallet': 'Wallet',
-      'pairs.n': (n, i) => `${n} tokens · ${i} issuers`, 'pairs.verified': 'Verified on-chain', 'pairs.px': 'Price', 'pairs.nopx': 'Price unavailable', 'px.src': 'USD prices: CoinGecko, 24h change', 'iss.x': 'Backed Finance', 'iss.b': 'Binance', 'iss.o': 'Ondo Finance',
+      'pairs.n': (n, i) => `${n} tokens · ${i} issuers`, 'pairs.verified': 'Verified on-chain', 'pairs.px': 'Price', 'pairs.nopx': 'Price unavailable', 'px.src': (at) => `USD prices: CoinGecko · 24h change · ${at}`, 'iss.x': 'Backed Finance', 'iss.b': 'Binance', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}: factory not deployed yet. Deploy BentoFactory and set its address in the page config.`, 'st.factoryOk': (n) => `BentoFactory live on ${n}`,
       'hero.eye': (n) => `Live on BNB Chain · ${n} verified stock tokens`, 'hero.h1': 'Launch a coin <em>paired</em> with a real restaurant stock.', 'hero.p': 'Pick McDonald\'s, Starbucks, Meituan or 15 more. The raise is paid in that restaurant\'s tokenized stock, and at graduation the coin lists against it on PancakeSwap with the liquidity burned.', 'hero.cta2': 'See restaurants', 'hero.live': 'raising now', 'hero.raised': 'raised so far', 'hero.issuers': 'issuers', 'hero.tokens': 'stock tokens', 'hero.fee': 'fee · LP burned', 'hero.today': 'today',
+      'r.exchange': 'Listed on', 'r.hq': 'Headquarters', 'r.founded': 'Founded', 'r.stores': 'Locations', 'fav.on': 'Saved to My coins.', 'fav.off': 'Removed from My coins.', 'btn.fav': 'Save', 'ft.block': (n) => `Block ${n}`,
       'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
       'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply, same for everyone', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of the raise + 20% of supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply, pro rata', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP tokens burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
       'ft.tag': 'A coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Factory contract', 'ft.src': 'Source code', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
@@ -771,9 +774,10 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'feat.top': '最接近毕业', 'feat.big': '最大募集', 'feat.create': '发行你自己的代币', 'feat.createP': '配对麦当劳、星巴克、美团等 18 个股票代币。', 'feat.cta': '立即打新', 'feat.ctaCreate': '立即创建',
       'feed.h': '实时买入', 'bought': '买入', 'ago': (s) => `${s}前`, 'you.tag': '我', 'chart.h': '募集走势', 'buys.n': (n) => `${n} 笔买入`, 'buys.none': '还没有人买入，抢先打新。', 'buys.err': '无法从 RPC 加载买入记录。',
       'link.copy': '复制链接', 'copied': '已复制。', 'copy.addr': '复制地址', 'search.noaddr': (n) => `${n} 上没有该地址的代币。`, 'm.search': '搜索', 'm.wallet': '钱包',
-      'pairs.n': (n, i) => `${n} 个代币 · ${i} 家发行方`, 'pairs.verified': '链上已验证', 'pairs.px': '价格', 'pairs.nopx': '暂无价格', 'px.src': '美元价格：CoinGecko，24 小时涨跌', 'iss.x': 'Backed Finance', 'iss.b': '币安', 'iss.o': 'Ondo Finance',
+      'pairs.n': (n, i) => `${n} 个代币 · ${i} 家发行方`, 'pairs.verified': '链上已验证', 'pairs.px': '价格', 'pairs.nopx': '暂无价格', 'px.src': (at) => `美元价格：CoinGecko · 24 小时涨跌 · ${at}`, 'iss.x': 'Backed Finance', 'iss.b': '币安', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}：工厂合约尚未部署。请部署 BentoFactory 并在页面配置中填入地址。`, 'st.factoryOk': (n) => `BentoFactory 已在 ${n} 上线`,
       'hero.eye': (n) => `已在 BNB 链上线 · ${n} 个已验证股票代币`, 'hero.h1': '发行一个与真实餐饮股票<em>配对</em>的代币。', 'hero.p': '选麦当劳、星巴克、美团或另外 15 家。募集以该品牌的股票代币支付，毕业后在 PancakeSwap 与它配对上市，流动性凭证销毁。', 'hero.cta2': '查看品牌', 'hero.live': '募集中', 'hero.raised': '累计募集', 'hero.issuers': '发行方', 'hero.tokens': '股票代币', 'hero.fee': '手续费 · LP 已销毁', 'hero.today': '今日',
+      'r.exchange': '上市', 'r.hq': '总部', 'r.founded': '成立', 'r.stores': '门店', 'fav.on': '已加入我的代币。', 'fav.off': '已从我的代币移除。', 'btn.fav': '收藏', 'ft.block': (n) => `区块 ${n}`,
       'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
       'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量，人人相同', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '募集额的 99% + 供应量的 20%', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%，按比例', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
       'ft.tag': 'BNB 链上的代币发射台：每个代币配对一只餐饮股票代币，以它募集，与它配对上市。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '工厂合约', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
@@ -856,9 +860,21 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     cn: '<svg viewBox="0 0 64 64"><ellipse cx="32" cy="50" rx="24" ry="6" fill="#D8B374"/><rect x="8" y="42" width="48" height="8" rx="3" fill="#E9C98A"/><path d="M12 42c0-12 9-20 20-20s20 8 20 20z" fill="#FBF3E4"/><path d="M12 42c0-12 9-20 20-20s20 8 20 20" stroke="#E0C7A0" stroke-width="2" fill="none"/><path d="M18 30l4 4 4-5 3 5 3-5 3 5 3-5 3 5 4-4" stroke="#E0C7A0" stroke-width="2" fill="none" stroke-linecap="round"/></svg>'
   };
 
+  /* ---------- public company facts shown on restaurant pages ---------- */
+  const ABOUT = {
+    mcdonalds: ['NYSE: MCD', 'Chicago, US', 1955, '43,000+'], starbucks: ['NASDAQ: SBUX', 'Seattle, US', 1971, '40,000+'], chipotle: ['NYSE: CMG', 'Newport Beach, US', 1993, '3,700+'],
+    tacobell: ['NYSE: YUM', 'Irvine, US', 1962, '8,800+'], kfc: ['NYSE: YUM', 'Louisville, US', 1952, '31,000+'], pizzahut: ['NYSE: YUM', 'Plano, US', 1958, '20,000+'],
+    burgerking: ['NYSE: QSR', 'Miami, US', 1954, '19,000+'], popeyes: ['NYSE: QSR', 'Miami, US', 1972, '5,000+'], timhortons: ['NYSE: QSR', 'Toronto, CA', 1964, '5,900+'],
+    dominos: ['NASDAQ: DPZ', 'Ann Arbor, US', 1960, '21,000+'], wendys: ['NASDAQ: WEN', 'Dublin, Ohio, US', 1969, '7,200+'], doordash: ['NASDAQ: DASH', 'San Francisco, US', 2013, ''],
+    ubereats: ['NYSE: UBER', 'San Francisco, US', 2014, ''], olivegarden: ['NYSE: DRI', 'Orlando, US', 1982, '900+'], texasroadhouse: ['NASDAQ: TXRH', 'Louisville, US', 1993, '750+'],
+    haidilao: ['HKEX: 6862', 'Beijing, CN', 1994, '1,300+'], meituan: ['HKEX: 3690', 'Beijing, CN', 2010, ''], mixue: ['HKEX: 2097', 'Zhengzhou, CN', 1997, '45,000+']
+  };
+  let FAV = new Set(); try { FAV = new Set(JSON.parse(localStorage.getItem('bento.fav') || '[]')); } catch {}
+  const saveFav = () => { try { localStorage.setItem('bento.fav', JSON.stringify([...FAV])); } catch {} };
+
   /* ---------- state ---------- */
   const state = { lang: 'en', chainId: DEFAULT_CHAIN, provider: null, address: null, balance: null, walletChain: null, coins: [], loaded: false, loadError: null,
-    tab: 'trending', cat: 'all', q: '', sort: 'progress', pay: 'all', top: false, liveOnly: false, open: null, busy: false, tokens: {}, myTok: {}, buys: {}, feed: [] };
+    tab: 'trending', cat: 'all', q: '', sort: 'progress', pay: 'all', top: false, liveOnly: false, open: null, busy: false, tokens: {}, myTok: {}, buys: {}, feed: [], block: null };
   let T = I18N.en, fmt = {};
   const t = (k, ...a) => { const v = T[k] ?? I18N.en[k] ?? k; return typeof v === 'function' ? v(...a) : v; };
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1005,6 +1021,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     } catch (e) { console.error(e); state.loaded = true; state.loadError = window.ethereum ? 'rpc' : 'nowallet'; }
     render();
     if (!state.loadError) loadFeed();
+    try { state.block = Number(await readProvider().getBlockNumber()); renderStats(); } catch {}
   }
   const phaseOf = (c, now) => c.finalized ? (c.graduated ? 'ok' : 'failed') : (c.closedAt || now >= c.closeAt) ? 'pending' : 'live';
   const list = () => { const now = Date.now(); return state.coins.map((c) => ({ ...c, phase: phaseOf(c, now), progress: Math.min(1, c.raised / c.goal), closeAtEff: c.closedAt || c.closeAt })); };
@@ -1056,7 +1073,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const promo = C.phase === 'live' && (now - C.openAt) < 24 * 3600000 ? `<span class="tag red">${t('promo.new')}</span>` : C.phase === 'live' && C.progress >= 0.5 ? `<span class="tag red">${t('promo.hot', pct(C.progress))}</span>` : tag(C);
     return `<div class="row${state.open === C.addr ? ' is-open' : ''}" data-id="${esc(C.addr)}" data-open="${esc(C.addr)}">
       <div class="row-img"><span class="wash" style="background:${esc(tile(C.r))}"></span>${logo(C.r, 88)}${promo}${C.my ? `<span class="you">${t('you', amt(C.my, C.unit))}</span>` : ''}<div class="bar ${barCls(C)}"><i style="width:${C.progress * 100}%"></i></div></div>
-      <div class="row-top"><div class="row-name"><b>${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small><span class="star">${pct(C.progress)}</span> (${C.buyers}) · ${esc(nm(C.r))} · ${amt(C.raised, C.unit)}${usdTxt(C.raised, C.unit)} · <span data-countdown="${esc(C.addr)}">${closeText(C, now)}</span></small></div><button class="heart" type="button" data-open="${esc(C.addr)}" aria-label="${t('btn.view')}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
+      <div class="row-top"><div class="row-name"><b>${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small><span class="star">${pct(C.progress)}</span> (${C.buyers}) · ${esc(nm(C.r))} · ${amt(C.raised, C.unit)}${usdTxt(C.raised, C.unit)} · <span data-countdown="${esc(C.addr)}">${closeText(C, now)}</span></small></div><button class="heart${FAV.has(C.addr) ? ' is-on' : ''}" type="button" data-fav="${esc(C.addr)}" aria-label="${t('btn.fav')}" aria-pressed="${FAV.has(C.addr)}"><svg width="22" height="22" viewBox="0 0 24 24" fill="${FAV.has(C.addr) ? 'currentColor' : 'none'}"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
     </div>`;
   }
   const PAIR_IDS = Object.keys(PAIRS);
@@ -1079,6 +1096,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div><small>${t('r.token')}</small><b><a href="https://bscscan.com/token/${pr.address}" target="_blank" rel="noopener">${esc(pr.symbol)}</a></b></div>
         <div><small>${t('r.issuer')}</small><b><a href="${ISSUER_URL[pr.issuer] || '#'}" target="_blank" rel="noopener">${esc(pr.issuer)}</a></b></div>
         <div><small>${t('r.stock')}</small><b>${esc(pr.stock)}</b></div>
+        ${ABOUT[rid] ? `<div><small>${t('r.exchange')}</small><b>${esc(ABOUT[rid][0])}</b></div><div><small>${t('r.hq')}</small><b>${esc(ABOUT[rid][1])}</b></div><div><small>${t('r.founded')}</small><b>${ABOUT[rid][2]}</b></div>${ABOUT[rid][3] ? `<div><small>${t('r.stores')}</small><b>${esc(ABOUT[rid][3])}</b></div>` : ''}` : ''}
         <div><small>${t('d.contract')}</small><b class="mono" style="font-size:12px">${esc(short(pr.address))}</b></div>
       </div>
       <button class="btn btn-ink btn-block" type="button" data-create="${esc(rid)}">${t('r.create', esc(nm(r)))}</button>
@@ -1087,11 +1105,12 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   function renderStats() {
     const Cs = list(); const live = Cs.filter((C) => C.phase === 'live'); const grad = Cs.filter((C) => C.phase === 'ok');
     $('#live-count').textContent = String(live.length); $('#netsel').value = String(state.chainId);
+    const fb = $('#ft-block'); fb.hidden = state.block == null; if (state.block != null) fb.querySelector('span').textContent = t('ft.block', num(state.block));
     const fn = $('#ft-net'); fn.classList.toggle('ok', Boolean(state.address && state.walletChain === state.chainId)); fn.querySelector('span').textContent = state.address ? t('ft.net', net().name) : net().name;
     $('#spec').innerHTML = [['spec.supply', num(SUPPLY)], ['spec.price', t('spec.priceV')], ['spec.min', t('spec.minV')], ['spec.cap', t('spec.capV')], ['spec.pool', t('spec.poolV')], ['spec.buyers', t('spec.buyersV')], ['spec.fee', t('spec.feeV')], ['spec.lp', t('spec.lpV')], ['spec.audit', t('spec.auditV')], ['spec.src', '<a href="https://github.com/2555raw/launch/blob/main/launchpad-site/contracts/BentoLaunch.sol" target="_blank" rel="noopener">BentoLaunch.sol</a>']].map(([k, v]) => `<div><small>${t(k)}</small><b>${v}</b></div>`).join('');
     $('#explorer-link').href = net().factory ? explorer(net().factory) : net().explorer;
     const st = $('#contracts'); st.className = 'status' + (net().factory ? ' ok' : ''); st.innerHTML = `<i></i>${net().factory ? `${t('st.factoryOk', esc(net().name))} · <a href="${explorer(net().factory)}" target="_blank" rel="noopener">${esc(net().factory)}</a>` : t('st.factory', esc(net().name))}`;
-    const mine = Cs.filter((C) => state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase()));
+    const mine = Cs.filter((C) => FAV.has(C.addr) || (state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase())));
     $('#cart-n').textContent = String(mine.length);
     for (const [id, v] of [['n-live', live.length], ['n-grad', grad.length], ['n-mine', mine.length]]) { const el = $('#' + id); const nv = String(v); if (el.textContent !== nv) { el.textContent = nv; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }
     const paySel = $('#pay'); const keep = paySel.value; const units = [...new Set(Cs.map((C) => C.unit))];
@@ -1127,7 +1146,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (tab === 'new') rows = rows.filter((C) => C.phase === 'live');
     if (tab === 'graduating') rows = rows.filter((C) => C.phase === 'live' && C.progress >= 0.3);
     if (tab === 'graduated') rows = rows.filter((C) => C.phase === 'ok' || C.phase === 'pending' || C.phase === 'failed');
-    if (tab === 'mine') rows = rows.filter((C) => state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase()));
+    if (tab === 'mine') rows = rows.filter((C) => FAV.has(C.addr) || (state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase())));
     const sort = state.top ? 'buyers' : tab === 'new' ? 'new' : state.sort;
     const cmpf = { progress: (a, b) => order[a.phase] - order[b.phase] || b.progress - a.progress || b.buyers - a.buyers, raised: (a, b) => b.raised - a.raised, buyers: (a, b) => b.buyers - a.buyers,
       time: (a, b) => order[a.phase] - order[b.phase] || a.closeAtEff - b.closeAtEff, new: (a, b) => b.openAt - a.openAt }[sort];
@@ -1224,7 +1243,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       </div>`; }).join('');
     $('#pairs-n').textContent = t('pairs.n', PAIR_IDS.length, issuers.size);
     const tk = $('#side-tk'); if (tk) tk.innerHTML = ['mcdonalds', 'starbucks', 'meituan', 'wendys', 'haidilao'].filter((id) => PAIRS[id] && REST[id]).map((id) => { const p = PAIRS[id]; const px = PX.usd[p.symbol]; const c = PX.chg[p.symbol]; return `<button type="button" data-open="r:${id}">${logo(REST[id], 26)}<span class="sym">${esc(p.symbol)}</span>${px ? `<span class="px">${usdStr(px)}${c != null ? `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>` : ''}</span>` : `<span class="px na">—</span>`}</button>`; }).join('');
-    $('#px-src').textContent = PX.at ? t('px.src') : '';
+    $('#px-src').textContent = PX.at ? t('px.src', new Intl.DateTimeFormat(T.locale, { hour: '2-digit', minute: '2-digit' }).format(PX.at)) : '';
   }
   function setOpen(id) {
     state.open = id || null;
@@ -1311,7 +1330,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (e.target.closest('a[href^="http"]')) return;
     const lang = e.target.closest('[data-lang]'); if (lang) { setLang(lang.dataset.lang); return; }
     const cp = e.target.closest('[data-copy]'); if (cp) { const v = cp.dataset.copy; copyText(v === 'link' ? `${location.origin}${location.pathname}${state.open && state.open.startsWith('r:') ? `#r/${state.open.slice(2)}` : `#coin/${state.chainId}/${state.open}`}` : v); return; }
-    const mb = e.target.closest('[data-m]'); if (mb) { $$('.mbar button').forEach((x) => x.classList.toggle('is-on', x === mb)); const k = mb.dataset.m; state.open = null; renderRows();
+    const mb = e.target.closest('[data-mb]'); if (mb) { $$('.mbar button').forEach((x) => x.classList.toggle('is-on', x === mb)); const k = mb.dataset.mb; state.open = null; renderRows();
       if (k === 'home') $('#explore')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'search') { window.scrollTo({ top: 0, behavior: 'smooth' }); $('#q').focus(); } else if (k === 'create') $('#launch')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'wallet') { if (state.address) { setTab('mine'); $('#all')?.scrollIntoView({ behavior: 'smooth' }); } else connect(); } return; }
     if (e.target.closest('[data-connect], #connect')) { connect(); return; }
     if (e.target.closest('#refresh')) { loadCoins(); return; }
@@ -1325,6 +1344,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const c = e.target.closest('[data-claim]'); if (c) { sendTx(async (s) => new E.Contract(c.dataset.claim, RAISE_ABI, s).claim()); return; }
     const r = e.target.closest('[data-refund]'); if (r) { sendTx(async (s) => new E.Contract(r.dataset.refund, RAISE_ABI, s).refund()); return; }
     const cr = e.target.closest('[data-create]'); if (cr) { state.open = null; $('#c-rest').value = cr.dataset.create; renderPreview(); renderRows(); $('#launch')?.scrollIntoView({ behavior: 'smooth' }); $('#c-name').focus(); return; }
+    const fv = e.target.closest('[data-fav]'); if (fv) { const a = fv.dataset.fav; if (FAV.has(a)) FAV.delete(a); else FAV.add(a); saveFav(); toast(t(FAV.has(a) ? 'fav.on' : 'fav.off')); renderStats(); renderRows(); return; }
     const open = e.target.closest('[data-open]'); if (open) { setOpen(open.dataset.open); return; }
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }
     if (e.target.closest('#cats-r')) { $('#cat').scrollBy({ left: 300, behavior: 'smooth' }); return; }

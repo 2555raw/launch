@@ -6,6 +6,7 @@ import { Crown, Medal, Trophy, Users } from 'lucide-react';
 import type { ClanType } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-store';
+import { useT } from '@/lib/i18n';
 import { CLAN_TYPE_LABEL } from '@/components/clan/types';
 import { Empty, PageHeader, Spinner, fmt } from '@/components/ui/primitives';
 import { Table, Td, Th, Tr } from '@/components/ui/table';
@@ -38,6 +39,7 @@ function Rank({ n }: { n: number }) {
 }
 
 function PlayersBoard() {
+  const t = useT();
   const me = useAuth((s) => s.user);
   const q = useInfiniteQuery({
     queryKey: ['leaderboard', 'players'],
@@ -45,21 +47,21 @@ function PlayersBoard() {
     initialPageParam: '',
     getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
-  if (q.isLoading) return <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> Ranking the realm…</div>;
-  if (q.error) return <Empty title="Could not load leaderboard" body={errorMessage(q.error)} action={<button className="btn-secondary" onClick={() => void q.refetch()}>Retry</button>} />;
+  if (q.isLoading) return <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> {t('Ranking the realm…')}</div>;
+  if (q.error) return <Empty title={t('Could not load leaderboard')} body={errorMessage(q.error)} action={<button className="btn-secondary" onClick={() => void q.refetch()}>{t('Retry')}</button>} />;
   const rows = q.data?.pages.flatMap((p) => p.items) ?? [];
-  if (rows.length === 0) return <Empty title="No players ranked yet" />;
+  if (rows.length === 0) return <Empty title={t('No players ranked yet')} />;
   return (
     <div className="card p-2 sm:p-4">
       <Table>
         <thead>
           <tr>
-            <Th className="w-16">Rank</Th>
-            <Th>Player</Th>
-            <Th className="text-right">Level</Th>
-            <Th className="text-right">Trophies</Th>
-            <Th className="text-right">Attacks won</Th>
-            <Th>Clan</Th>
+            <Th className="w-16">{t('Rank')}</Th>
+            <Th>{t('Player')}</Th>
+            <Th className="text-right">{t('Level')}</Th>
+            <Th className="text-right">{t('Trophies')}</Th>
+            <Th className="text-right">{t('Attacks won')}</Th>
+            <Th>{t('Clan')}</Th>
           </tr>
         </thead>
         <tbody>
@@ -70,7 +72,7 @@ function PlayersBoard() {
                 <Link href={`/players/${p.id}`} className="font-semibold text-slate-100 hover:text-ember-300">
                   {p.name}
                 </Link>
-                {p.id === me?.playerId && <span className="ml-2 text-[10px] uppercase text-ember-300">you</span>}
+                {p.id === me?.playerId && <span className="ml-2 text-[10px] uppercase text-ember-300">{t('you')}</span>}
               </Td>
               <Td className="text-right font-mono">{p.level}</Td>
               <Td className="text-right font-mono text-gold-300">{fmt(p.trophies)}</Td>
@@ -83,7 +85,7 @@ function PlayersBoard() {
       {q.hasNextPage && (
         <div className="mt-3 text-center">
           <button className="btn-secondary" onClick={() => void q.fetchNextPage()} disabled={q.isFetchingNextPage}>
-            {q.isFetchingNextPage ? <Spinner /> : null} Load more
+            {q.isFetchingNextPage ? <Spinner /> : null} {t('Load more')}
           </button>
         </div>
       )}
@@ -92,24 +94,25 @@ function PlayersBoard() {
 }
 
 function ClansBoard() {
+  const t = useT();
   const me = useAuth((s) => s.user);
   const myClan = useQuery({ queryKey: ['clan'], queryFn: () => api<{ clan: { id: string } | null }>('/game/clans/mine'), enabled: !!me?.playerId });
   const q = useQuery({ queryKey: ['leaderboard', 'clans'], queryFn: () => api<{ items: ClanRow[] }>('/game/leaderboard/clans?limit=100') });
-  if (q.isLoading) return <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> Ranking the clans…</div>;
-  if (q.error) return <Empty title="Could not load leaderboard" body={errorMessage(q.error)} action={<button className="btn-secondary" onClick={() => void q.refetch()}>Retry</button>} />;
+  if (q.isLoading) return <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> {t('Ranking the clans…')}</div>;
+  if (q.error) return <Empty title={t('Could not load leaderboard')} body={errorMessage(q.error)} action={<button className="btn-secondary" onClick={() => void q.refetch()}>{t('Retry')}</button>} />;
   const rows = q.data?.items ?? [];
-  if (rows.length === 0) return <Empty title="No clans yet" body="Found one from the Clan page." />;
+  if (rows.length === 0) return <Empty title={t('No clans yet')} body={t('Found one from the Clan page.')} />;
   return (
     <div className="card p-2 sm:p-4">
       <Table>
         <thead>
           <tr>
-            <Th className="w-16">Rank</Th>
-            <Th>Clan</Th>
-            <Th>Tag</Th>
-            <Th className="text-right">Trophies</Th>
-            <Th className="text-right">Members</Th>
-            <Th>Type</Th>
+            <Th className="w-16">{t('Rank')}</Th>
+            <Th>{t('Clan')}</Th>
+            <Th>{t('Tag')}</Th>
+            <Th className="text-right">{t('Trophies')}</Th>
+            <Th className="text-right">{t('Members')}</Th>
+            <Th>{t('Type')}</Th>
           </tr>
         </thead>
         <tbody>
@@ -120,7 +123,7 @@ function ClansBoard() {
               <Td className="font-mono text-xs text-slate-400">[{c.tag}]</Td>
               <Td className="text-right font-mono text-gold-300">{fmt(c.trophies)}</Td>
               <Td className="text-right font-mono">{c.members}/50</Td>
-              <Td><span className="badge">{CLAN_TYPE_LABEL[c.type]}</span></Td>
+              <Td><span className="badge">{t(CLAN_TYPE_LABEL[c.type])}</span></Td>
             </Tr>
           ))}
         </tbody>
@@ -130,10 +133,11 @@ function ClansBoard() {
 }
 
 export default function LeaderboardPage() {
+  const t = useT();
   const [tab, setTab] = useState<'players' | 'clans'>('players');
   return (
     <div className="mx-auto max-w-5xl">
-      <PageHeader title="Leaderboard" subtitle="The most decorated chiefs and clans of Emberhold." actions={<Tabs items={[{ key: 'players', label: <span className="flex items-center gap-1.5"><Trophy size={14} /> Players</span> }, { key: 'clans', label: <span className="flex items-center gap-1.5"><Users size={14} /> Clans</span> }]} value={tab} onChange={setTab} />} />
+      <PageHeader title={t('Leaderboard')} subtitle={t('The most decorated chiefs and clans of Emberhold.')} actions={<Tabs items={[{ key: 'players', label: <span className="flex items-center gap-1.5"><Trophy size={14} /> {t('Players')}</span> }, { key: 'clans', label: <span className="flex items-center gap-1.5"><Users size={14} /> {t('Clans')}</span> }]} value={tab} onChange={setTab} />} />
       {tab === 'players' ? <PlayersBoard /> : <ClansBoard />}
     </div>
   );

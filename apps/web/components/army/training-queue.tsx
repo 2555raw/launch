@@ -4,12 +4,14 @@ import { Hourglass, X } from 'lucide-react';
 import type { ArmyDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
 import { useNow } from '@/lib/hooks';
-import { TroopAvatar, troopName } from './troop-avatar';
+import { TroopAvatar, troopDisplayName } from './troop-avatar';
+import { useI18n } from '@/lib/i18n';
 import { ProgressBar } from '@/components/ui/progress';
 import { Spinner, timeLeft } from '@/components/ui/primitives';
 import { toast } from '@/components/ui/toast';
 
 export function TrainingQueue({ army }: { army: ArmyDTO }) {
+  const { locale, t } = useI18n();
   const now = useNow(1000);
   const qc = useQueryClient();
   const cancel = useMutation({
@@ -17,21 +19,21 @@ export function TrainingQueue({ army }: { army: ArmyDTO }) {
     onSuccess: (data) => {
       qc.setQueryData(['army'], data);
       void qc.invalidateQueries({ queryKey: ['village'] });
-      toast.success('Training cancelled', 'Elixir was refunded.');
+      toast.success(t('Training cancelled'), t('Elixir was refunded.'));
     },
-    onError: (e) => toast.error('Could not cancel', errorMessage(e)),
+    onError: (e) => toast.error(t('Could not cancel'), errorMessage(e)),
   });
 
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-          <Hourglass size={16} className="text-elixir-400" /> Training queue
+          <Hourglass size={16} className="text-elixir-400" /> {t('Training queue')}
         </div>
-        <span className="badge">{army.training.length} job{army.training.length === 1 ? '' : 's'}</span>
+        <span className="badge">{army.training.length === 1 ? t('{count} job', { count: army.training.length }) : t('{count} jobs', { count: army.training.length })}</span>
       </div>
       {army.training.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-500">The barracks are idle.</p>
+        <p className="mt-3 text-sm text-slate-500">{t('The barracks are idle.')}</p>
       ) : (
         <ul className="mt-3 space-y-2">
           {army.training.map((job) => {
@@ -46,18 +48,18 @@ export function TrainingQueue({ army }: { army: ArmyDTO }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2 text-sm">
                     <span className="truncate font-semibold text-slate-100">
-                      {job.count}× {troopName(job.troopType)}
+                      {t('{count}× {name}', { count: job.count, name: troopDisplayName(locale, job.troopType) })}
                     </span>
-                    <span className="font-mono text-xs text-slate-300">{queued ? 'queued' : timeLeft(job.completesAt, now)}</span>
+                    <span className="font-mono text-xs text-slate-300">{queued ? t('queued') : timeLeft(job.completesAt, now)}</span>
                   </div>
                   <ProgressBar value={queued ? 0 : elapsed} max={total} color="elixir" size="sm" className="mt-1.5" />
                 </div>
                 <button
                   className="btn-ghost p-1.5 text-slate-400 hover:text-rose-300"
-                  title="Cancel and refund"
+                  title={t('Cancel and refund')}
                   disabled={cancel.isPending}
                   onClick={() => {
-                    if (window.confirm(`Cancel training ${job.count}× ${troopName(job.troopType)}? The elixir will be refunded.`)) cancel.mutate(job.id);
+                    if (window.confirm(t('Cancel training {count}× {name}? The elixir will be refunded.', { count: job.count, name: troopDisplayName(locale, job.troopType) }))) cancel.mutate(job.id);
                   }}
                 >
                   {cancel.isPending && cancel.variables === job.id ? <Spinner /> : <X size={14} />}

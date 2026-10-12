@@ -7,6 +7,7 @@ import { SocialLinks } from '@/components/ui/brand-icons';
 import type { ProjectDTO, TokenMetricsDTO, TransactionStatus } from '@launch/types';
 import { robinhoodExplorerTxUrl, solanaExplorerTxUrl } from '@launch/config/chains';
 import { api, errorMessage } from '@/lib/api';
+import { useT } from '@/lib/i18n';
 import { toast } from '@/components/ui/toast';
 import { Empty, Spinner, shortAddr } from '@/components/ui/primitives';
 import { AddressLine, ChainBadge, ExtLink, ProjectLogo, SectionTitle, StatusPill, formatUnits } from '@/components/launchpad/common';
@@ -42,6 +43,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 export default function ProjectPage() {
+  const t = useT();
   const { slug } = useParams<{ slug: string }>();
   const qc = useQueryClient();
   const query = useQuery({ queryKey: ['project-page', slug], queryFn: () => api<ProjectResponse>(`/launchpad/projects/${slug}`), enabled: !!slug });
@@ -49,37 +51,37 @@ export default function ProjectPage() {
     mutationFn: () => api<{ metrics: TokenMetricsDTO }>(`/launchpad/projects/${slug}/refresh-metrics`, { method: 'POST' }),
     onSuccess: (res) => {
       qc.setQueryData(['project-page', slug], (old: ProjectResponse | undefined) => (old && old.project.token ? { ...old, project: { ...old.project, token: { ...old.project.token, metrics: res.metrics } } } : old));
-      toast.success('Metrics refreshed', res.metrics.source === 'dexscreener' ? 'Live DexScreener data loaded.' : 'No DEX pair indexed yet.');
+      toast.success(t('Metrics refreshed'), res.metrics.source === 'dexscreener' ? t('Live DexScreener data loaded.') : t('No DEX pair indexed yet.'));
     },
-    onError: (e) => toast.error('Could not refresh metrics', errorMessage(e)),
+    onError: (e) => toast.error(t('Could not refresh metrics'), errorMessage(e)),
   });
 
   if (query.isLoading)
     return (
       <div className="flex items-center gap-2 text-sm text-slate-400">
-        <Spinner /> Loading project…
+        <Spinner /> {t('Loading project…')}
       </div>
     );
   if (query.isError || !query.data)
     return (
       <Empty
-        title="Project not found"
+        title={t('Project not found')}
         body={query.error ? errorMessage(query.error) : undefined}
         action={
           <Link href="/projects" className="btn-secondary">
-            Back to projects
+            {t('Back to projects')}
           </Link>
         }
       />
     );
 
   const { project: p, transactions } = query.data;
-  const t = p.token;
+  const tok = p.token;
 
   return (
     <div className="mx-auto max-w-5xl">
       <Link href="/projects" className="mb-4 inline-block text-xs text-slate-400 hover:text-slate-200">
-        ← All projects
+        ← {t('All projects')}
       </Link>
 
       <header className="card flex flex-col gap-4 p-5 md:flex-row md:items-start">
@@ -92,15 +94,15 @@ export default function ProjectPage() {
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <ChainBadge chain={p.chain} network={p.network} />
-            {t && <span className="badge font-mono">{t.tokenProgram ?? (p.chain === 'SOLANA' ? 'SPL' : 'ERC20')}</span>}
-            <span className="text-xs text-slate-500">by {p.creator.username}</span>
+            {tok && <span className="badge font-mono">{tok.tokenProgram ?? (p.chain === 'SOLANA' ? 'SPL' : 'ERC20')}</span>}
+            <span className="text-xs text-slate-500">{t('by {name}', { name: p.creator.username })}</span>
           </div>
           <SocialLinks className="mt-3" links={{ website: p.website, twitter: p.twitter, discord: p.discord, telegram: p.telegram }} labels />
           {p.description && <p className="mt-3 whitespace-pre-line text-sm text-slate-300">{p.description}</p>}
         </div>
-        {t && p.chain === 'SOLANA' && (
-          <Link href={`/wallet?swap=${t.address}`} className="btn-primary shrink-0">
-            <ArrowLeftRight size={16} /> Trade on Launch
+        {tok && p.chain === 'SOLANA' && (
+          <Link href={`/wallet?swap=${tok.address}`} className="btn-primary shrink-0">
+            <ArrowLeftRight size={16} /> {t('Trade on Launch')}
           </Link>
         )}
       </header>
@@ -108,63 +110,63 @@ export default function ProjectPage() {
       <section className="mt-6">
         <SectionTitle
           actions={
-            t && (
+            tok && (
               <button className="btn-secondary text-xs" onClick={() => refresh.mutate()} disabled={refresh.isPending}>
-                {refresh.isPending ? <Spinner /> : <RefreshCw size={14} />} Refresh metrics
+                {refresh.isPending ? <Spinner /> : <RefreshCw size={14} />} {t('Refresh metrics')}
               </button>
             )
           }
         >
-          Market
+          {t('Market')}
         </SectionTitle>
-        <MetricsGrid metrics={t?.metrics ?? null} />
+        <MetricsGrid metrics={tok?.metrics ?? null} />
         <div className="mt-2">
-          <MetricsSourceNote metrics={t?.metrics ?? null} />
+          <MetricsSourceNote metrics={tok?.metrics ?? null} />
         </div>
       </section>
 
       <section className="mt-6">
-        <SectionTitle>Token</SectionTitle>
-        {t ? (
+        <SectionTitle>{t('Token')}</SectionTitle>
+        {tok ? (
           <div className="card divide-y divide-white/[0.05] px-4 py-2">
-            <Row label="Address">
-              <AddressLine address={t.address} explorerUrl={t.explorerUrl} chars={8} />
+            <Row label={t('Address')}>
+              <AddressLine address={tok.address} explorerUrl={tok.explorerUrl} chars={8} />
             </Row>
-            <Row label="Creator">
-              {p.creator.username} · <AddressLine address={t.creatorWallet} />
+            <Row label={t('Creator')}>
+              {p.creator.username} · <AddressLine address={tok.creatorWallet} />
             </Row>
-            <Row label="Total supply">
-              {formatUnits(t.supply, t.decimals)} {p.symbol}
+            <Row label={t('Total supply')}>
+              {formatUnits(tok.supply, tok.decimals)} {p.symbol}
             </Row>
-            <Row label="Decimals">{t.decimals}</Row>
-            <Row label="Token program">{t.tokenProgram ?? 'Data unavailable'}</Row>
-            <Row label="Metadata URI">{t.metadataUri ? <ExtLink href={t.metadataUri} className="break-all text-xs">{t.metadataUri}</ExtLink> : 'Data unavailable'}</Row>
-            <Row label="Mint authority revoked">{t.mintAuthorityRevoked ? <span className="text-mint-400">Yes — fixed supply</span> : <span className="text-gold-300">No — creator can mint more</span>}</Row>
-            <Row label="Creation transaction">
-              <AddressLine address={t.createTxSignature} explorerUrl={t.txExplorerUrl} chars={8} />
+            <Row label={t('Decimals')}>{tok.decimals}</Row>
+            <Row label={t('Token program')}>{tok.tokenProgram ?? t('Data unavailable')}</Row>
+            <Row label={t('Metadata URI')}>{tok.metadataUri ? <ExtLink href={tok.metadataUri} className="break-all text-xs">{tok.metadataUri}</ExtLink> : t('Data unavailable')}</Row>
+            <Row label={t('Mint authority revoked')}>{tok.mintAuthorityRevoked ? <span className="text-mint-400">{t('Yes — fixed supply')}</span> : <span className="text-gold-300">{t('No — creator can mint more')}</span>}</Row>
+            <Row label={t('Creation transaction')}>
+              <AddressLine address={tok.createTxSignature} explorerUrl={tok.txExplorerUrl} chars={8} />
             </Row>
-            <Row label="Created">{new Date(t.verifiedAt).toLocaleString()}</Row>
+            <Row label={t('Created')}>{new Date(tok.verifiedAt).toLocaleString()}</Row>
           </div>
         ) : (
-          <div className="card p-4 text-sm text-slate-400">This project has not been published on chain yet.</div>
+          <div className="card p-4 text-sm text-slate-400">{t('This project has not been published on chain yet.')}</div>
         )}
       </section>
 
       <section className="mt-6">
-        <SectionTitle>Transactions</SectionTitle>
+        <SectionTitle>{t('Transactions')}</SectionTitle>
         {transactions.length === 0 ? (
-          <div className="card p-4 text-sm text-slate-500">No transactions recorded for this token yet.</div>
+          <div className="card p-4 text-sm text-slate-500">{t('No transactions recorded for this token yet.')}</div>
         ) : (
           <div className="card overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-[11px] uppercase tracking-wide text-slate-500">
                 <tr>
-                  <th className="px-4 py-2">Kind</th>
-                  <th className="px-4 py-2">Status</th>
-                  <th className="px-4 py-2">From</th>
-                  <th className="px-4 py-2">Amount</th>
-                  <th className="px-4 py-2">Signature</th>
-                  <th className="px-4 py-2">When</th>
+                  <th className="px-4 py-2">{t('Kind')}</th>
+                  <th className="px-4 py-2">{t('Status')}</th>
+                  <th className="px-4 py-2">{t('From')}</th>
+                  <th className="px-4 py-2">{t('Amount')}</th>
+                  <th className="px-4 py-2">{t('Signature')}</th>
+                  <th className="px-4 py-2">{t('When')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.05]">
@@ -172,10 +174,10 @@ export default function ProjectPage() {
                   <tr key={tx.id}>
                     <td className="px-4 py-2 font-medium text-slate-100">{tx.kind.replace(/_/g, ' ').toLowerCase()}</td>
                     <td className="px-4 py-2">
-                      <span className={`badge ${tx.status === 'CONFIRMED' ? 'border-mint-500/40 text-mint-400' : tx.status === 'FAILED' ? 'border-rose-500/40 text-rose-300' : 'border-gold-500/40 text-gold-300'}`}>{tx.status.toLowerCase()}</span>
+                      <span className={`badge ${tx.status === 'CONFIRMED' ? 'border-mint-500/40 text-mint-400' : tx.status === 'FAILED' ? 'border-rose-500/40 text-rose-300' : 'border-gold-500/40 text-gold-300'}`}>{t(tx.status.toLowerCase())}</span>
                     </td>
                     <td className="px-4 py-2 font-mono text-xs">{tx.fromAddress ? shortAddr(tx.fromAddress, 4) : '—'}</td>
-                    <td className="px-4 py-2 font-mono text-xs">{tx.amount && t ? `${formatUnits(tx.amount, t.decimals)} ${p.symbol}` : '—'}</td>
+                    <td className="px-4 py-2 font-mono text-xs">{tx.amount && tok ? `${formatUnits(tx.amount, tok.decimals)} ${p.symbol}` : '—'}</td>
                     <td className="px-4 py-2 font-mono text-xs">
                       <ExtLink href={txUrl(p, tx.signature)}>{shortAddr(tx.signature, 6)}</ExtLink>
                     </td>

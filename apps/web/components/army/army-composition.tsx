@@ -2,21 +2,23 @@
 import { Swords } from 'lucide-react';
 import { TROOP_DEFINITIONS } from '@launch/game-engine';
 import type { ArmyDTO } from '@launch/types';
-import { TroopAvatar, troopName } from './troop-avatar';
+import { TroopAvatar, troopDisplayName } from './troop-avatar';
+import { useI18n } from '@/lib/i18n';
 import { fmt } from '@/components/ui/primitives';
 
 export function ArmyComposition({ army }: { army: ArmyDTO }) {
+  const { locale, t } = useI18n();
   const total = army.units.reduce((n, u) => n + u.count, 0);
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-          <Swords size={16} className="text-ember-400" /> Your army
+          <Swords size={16} className="text-ember-400" /> {t('Your army')}
         </div>
-        <span className="badge">{fmt(total)} units</span>
+        <span className="badge">{t('{count} units', { count: fmt(total) })}</span>
       </div>
       {army.units.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-500">No troops ready. Train some below and they will gather here.</p>
+        <p className="mt-3 text-sm text-slate-500">{t('No troops ready. Train some below and they will gather here.')}</p>
       ) : (
         <ul className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {army.units.map((u) => {
@@ -25,10 +27,10 @@ export function ArmyComposition({ army }: { army: ArmyDTO }) {
               <li key={u.troopType} className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] p-2">
                 <TroopAvatar type={u.troopType} size="sm" />
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold text-slate-100">{troopName(u.troopType)}</div>
+                  <div className="truncate text-sm font-semibold text-slate-100">{troopDisplayName(locale, u.troopType)}</div>
                   <div className="text-xs text-slate-400">
-                    <span className="font-mono text-white">×{u.count}</span> · lvl {u.level}
-                    {def && <span className="text-slate-600"> · {u.count * def.housing} housing</span>}
+                    <span className="font-mono text-white">×{u.count}</span> · {t('lvl {level}', { level: u.level })}
+                    {def && <span className="text-slate-600"> · {t('{count} housing', { count: u.count * def.housing })}</span>}
                   </div>
                 </div>
               </li>

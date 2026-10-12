@@ -2,10 +2,12 @@
 import { useCallback, useState } from 'react';
 import { useConnect, useConnection, useConnectors, useDisconnect, useSwitchChain } from 'wagmi';
 import { robinhoodChain } from '@/components/providers';
+import { useT } from '@/lib/i18n';
 import { walletErrorMessage } from './encoding';
 
 /** Injected (MetaMask-style) wallet connection scoped to Robinhood Chain. */
 export function useEvmWallet() {
+  const t = useT();
   const account = useConnection();
   const connectors = useConnectors();
   const connectMutation = useConnect();
@@ -19,7 +21,7 @@ export function useEvmWallet() {
   const connect = useCallback(async () => {
     setError(null);
     if (!connector) {
-      setError('No injected wallet found. Install MetaMask, Rabby or another EVM wallet.');
+      setError(t('No injected wallet found. Install MetaMask, Rabby or another EVM wallet.'));
       return;
     }
     try {
@@ -27,7 +29,7 @@ export function useEvmWallet() {
     } catch (e) {
       setError(walletErrorMessage(e));
     }
-  }, [connector, connectMutation]);
+  }, [connector, connectMutation, t]);
 
   const switchToRobinhood = useCallback(async () => {
     setError(null);

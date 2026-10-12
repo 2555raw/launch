@@ -7,6 +7,7 @@ import { Rocket, Search } from 'lucide-react';
 import clsx from 'clsx';
 import type { Chain, Paginated, ProjectDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
+import { useT } from '@/lib/i18n';
 import { Empty, PageHeader, Spinner } from '@/components/ui/primitives';
 import { ProjectCard } from '@/components/launchpad/project-card';
 
@@ -26,6 +27,7 @@ const CHAINS: { key: Chain | 'ALL'; label: string }[] = [
 ];
 
 function Discovery() {
+  const t = useT();
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -63,11 +65,11 @@ function Discovery() {
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader
-        title="Token projects"
-        subtitle="Every token launched here was created on chain by its creator's wallet and verified by the server. Market data comes from DexScreener when a pair exists."
+        title={t('Token projects')}
+        subtitle={t("Every token launched here was created on chain by its creator's wallet and verified by the server. Market data comes from DexScreener when a pair exists.")}
         actions={
           <Link href="/launchpad/new" className="btn-primary">
-            <Rocket size={16} /> Launch yours
+            <Rocket size={16} /> {t('Launch yours')}
           </Link>
         }
       />
@@ -76,15 +78,15 @@ function Discovery() {
         <div className="scroll-thin flex gap-1 overflow-x-auto pb-1">
           {SORTS.map((s) => (
             <button key={s.key} onClick={() => setParam({ sort: s.key })} className={clsx('shrink-0 rounded-xl px-3 py-1.5 text-sm font-medium transition', sort === s.key ? 'bg-ember-500/15 text-ember-300' : 'text-slate-400 hover:bg-white/[0.05] hover:text-slate-100')}>
-              {s.label}
+              {t(s.label)}
             </button>
           ))}
         </div>
         <div className="flex flex-1 flex-wrap items-center gap-2 lg:justify-end">
-          <select className="input w-auto" value={chain} onChange={(e) => setParam({ chain: e.target.value })} aria-label="Chain filter">
+          <select className="input w-auto" value={chain} onChange={(e) => setParam({ chain: e.target.value })} aria-label={t('Chain filter')}>
             {CHAINS.map((c) => (
               <option key={c.key} value={c.key}>
-                {c.label}
+                {t(c.label)}
               </option>
             ))}
           </select>
@@ -96,31 +98,31 @@ function Discovery() {
             }}
           >
             <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input className="input pl-8" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search name, symbol or address" />
+            <input className="input pl-8" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('Search name, symbol or address')} />
           </form>
         </div>
       </div>
 
       {query.isLoading ? (
         <div className="flex items-center gap-2 text-sm text-slate-400">
-          <Spinner /> Loading projects…
+          <Spinner /> {t('Loading projects…')}
         </div>
       ) : query.isError ? (
-        <Empty title="Could not load projects" body={errorMessage(query.error)} action={<button className="btn-secondary" onClick={() => void query.refetch()}>Retry</button>} />
+        <Empty title={t('Could not load projects')} body={errorMessage(query.error)} action={<button className="btn-secondary" onClick={() => void query.refetch()}>{t('Retry')}</button>} />
       ) : items.length === 0 ? (
         <Empty
-          title={q ? `No projects match "${q}"` : 'No published projects yet'}
-          body={q ? 'Try another name, symbol or token address.' : 'Be the first to launch a token.'}
+          title={q ? t('No projects match "{q}"', { q }) : t('No published projects yet')}
+          body={q ? t('Try another name, symbol or token address.') : t('Be the first to launch a token.')}
           action={
             <Link href="/launchpad/new" className="btn-primary">
-              <Rocket size={16} /> Create a token
+              <Rocket size={16} /> {t('Create a token')}
             </Link>
           }
         />
       ) : (
         <>
           <div className="mb-2 text-xs text-slate-500">
-            {total !== undefined ? `${total} project${total === 1 ? '' : 's'}` : `${items.length} loaded`} · sorted by {SORTS.find((s) => s.key === sort)?.label.toLowerCase()}
+            {total !== undefined ? (total === 1 ? t('{count} project', { count: total }) : t('{count} projects', { count: total })) : t('{count} loaded', { count: items.length })} · {t('sorted by {sort}', { sort: t(SORTS.find((s) => s.key === sort)?.label ?? '').toLowerCase() })}
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {items.map((p) => (
@@ -130,7 +132,7 @@ function Discovery() {
           {query.hasNextPage && (
             <div className="mt-6 flex justify-center">
               <button className="btn-secondary" onClick={() => void query.fetchNextPage()} disabled={query.isFetchingNextPage}>
-                {query.isFetchingNextPage && <Spinner />} Load more
+                {query.isFetchingNextPage && <Spinner />} {t('Load more')}
               </button>
             </div>
           )}
@@ -141,11 +143,12 @@ function Discovery() {
 }
 
 export default function ProjectsPage() {
+  const t = useT();
   return (
     <Suspense
       fallback={
         <div className="flex items-center gap-2 text-sm text-slate-400">
-          <Spinner /> Loading…
+          <Spinner /> {t('Loading…')}
         </div>
       }
     >

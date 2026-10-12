@@ -11,6 +11,8 @@ import { ShopPanel } from './ShopPanel';
 import { GameBottomBar, GameTopBar } from './GameHud';
 import { Spinner } from '@/components/ui/primitives';
 import { useNow } from '@/lib/hooks';
+import { useI18n } from '@/lib/i18n';
+import { buildingName } from '@/lib/i18n/game-data';
 
 type Mode = { kind: 'idle' } | { kind: 'place'; type: string } | { kind: 'move'; id: string };
 
@@ -21,6 +23,7 @@ function seedFrom(id: string): number {
 }
 
 export function VillageView() {
+  const { locale, t } = useI18n();
   const v = useVillage();
   const now = useNow(1000);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -114,7 +117,7 @@ export function VillageView() {
     <div className="fixed inset-0 overflow-hidden bg-[#1f4a2a]">
       {!village ? (
         <div className="grid h-full place-items-center text-slate-200">
-          <span className="inline-flex items-center gap-2"><Spinner /> Loading your village…</span>
+          <span className="inline-flex items-center gap-2"><Spinner /> {t('Loading your village…')}</span>
         </div>
       ) : (
         <IsoCanvas
@@ -154,15 +157,15 @@ export function VillageView() {
         <GameTopBar village={village} mode="village" />
         {village && (
           <div className="pointer-events-none absolute left-1/2 top-3 hidden -translate-x-1/2 items-center gap-2 text-xs md:flex">
-            <span className="rounded-full border border-black/40 bg-ink-950/85 px-3 py-1 text-slate-200"><Hammer size={12} className="mr-1 inline" />Builders {village.builders.total - village.builders.busy}/{village.builders.total}</span>
-            <span className="rounded-full border border-black/40 bg-ink-950/85 px-3 py-1 text-slate-200">Town Hall {village.townHallLevel}</span>
-            {village.shieldUntil && <span className="rounded-full border border-mint-500/40 bg-ink-950/85 px-3 py-1 text-mint-400"><ShieldCheck size={12} className="mr-1 inline" />Shield</span>}
+            <span className="rounded-full border border-black/40 bg-ink-950/85 px-3 py-1 text-slate-200"><Hammer size={12} className="mr-1 inline" />{t('Builders {free}/{total}', { free: village.builders.total - village.builders.busy, total: village.builders.total })}</span>
+            <span className="rounded-full border border-black/40 bg-ink-950/85 px-3 py-1 text-slate-200">{t('Town Hall {level}', { level: village.townHallLevel })}</span>
+            {village.shieldUntil && <span className="rounded-full border border-mint-500/40 bg-ink-950/85 px-3 py-1 text-mint-400"><ShieldCheck size={12} className="mr-1 inline" />{t('Shield')}</span>}
           </div>
         )}
         {mode.kind !== 'idle' && (
           <div className="pointer-events-auto absolute left-1/2 top-16 -translate-x-1/2 rounded-full border border-ember-500/50 bg-ink-950/90 px-4 py-1.5 text-xs text-ember-200 shadow-glow">
-            {mode.kind === 'place' ? `Placing ${BUILDING_DEFINITIONS[mode.type]?.name} · click a tile` : 'Drag the building to a new spot'}
-            <button className="ml-3 rounded-full bg-white/10 px-2 py-0.5 text-slate-200" onClick={() => setMode({ kind: 'idle' })}><X size={12} className="inline" /> stop</button>
+            {mode.kind === 'place' ? t('Placing {name} · click a tile', { name: buildingName(locale, mode.type, BUILDING_DEFINITIONS[mode.type]?.name ?? mode.type) }) : t('Drag the building to a new spot')}
+            <button className="ml-3 rounded-full bg-white/10 px-2 py-0.5 text-slate-200" onClick={() => setMode({ kind: 'idle' })}><X size={12} className="inline" /> {t('stop')}</button>
           </div>
         )}
         <GameBottomBar onShop={() => { setShopOpen((o) => !o); setSelectedId(null); }} />
@@ -195,7 +198,7 @@ export function VillageView() {
             onCancel={() => v.cancel.mutate(selected.id)}
             onSkip={() => v.skip.mutate(selected.id)}
             onRemove={() => {
-              if (window.confirm('Remove this building? Resources are not refunded.')) {
+              if (window.confirm(t('Remove this building? Resources are not refunded.'))) {
                 v.remove.mutate(selected.id);
                 setSelectedId(null);
               }

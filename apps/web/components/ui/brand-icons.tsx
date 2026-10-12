@@ -1,5 +1,6 @@
 'use client';
 import type { SVGProps } from 'react';
+import { tGlobal } from '@/lib/i18n';
 
 type P = SVGProps<SVGSVGElement> & { size?: number };
 const base = (size = 16, props: P) => ({ width: size, height: size, viewBox: '0 0 24 24', fill: 'currentColor', 'aria-hidden': true, ...props });
@@ -80,9 +81,9 @@ export function SocialLinks({ links, size = 16, labels = false, className = '' }
   return (
     <div className={`flex flex-wrap items-center gap-2 ${className}`}>
       {entries.map((k) => (
-        <a key={k} href={links[k] as string} target="_blank" rel="noopener noreferrer" title={SOCIAL_LABELS[k]} className={`inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-slate-300 transition ${SOCIAL_COLORS[k]}`}>
+        <a key={k} href={links[k] as string} target="_blank" rel="noopener noreferrer" title={tGlobal(SOCIAL_LABELS[k])} className={`inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-1 text-xs text-slate-300 transition ${SOCIAL_COLORS[k]}`}>
           <SocialIcon kind={k} size={size} />
-          {labels && <span>{SOCIAL_LABELS[k]}</span>}
+          {labels && <span>{tGlobal(SOCIAL_LABELS[k])}</span>}
         </a>
       ))}
     </div>

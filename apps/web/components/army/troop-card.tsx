@@ -5,7 +5,9 @@ import { Crosshair, Droplets, Feather, Gauge, Heart, Lock, Sword, Tent, Timer } 
 import type { TroopDefinition } from '@launch/game-engine';
 import type { ArmyDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
-import { TroopAvatar } from './troop-avatar';
+import { TroopAvatar, troopDisplayName } from './troop-avatar';
+import { useI18n } from '@/lib/i18n';
+import { troopDescription } from '@/lib/i18n/game-data';
 import { fmtDuration } from '@/components/ui/dates';
 import { Spinner, fmt } from '@/components/ui/primitives';
 import { toast } from '@/components/ui/toast';
@@ -33,6 +35,8 @@ function Stat({ icon: Icon, label, value, tone }: { icon: typeof Heart; label: s
 }
 
 export function TroopCard({ def, level, housingFree, elixir, barracksCount }: TroopCardProps) {
+  const { locale, t } = useI18n();
+  const name = troopDisplayName(locale, def.type);
   const qc = useQueryClient();
   const locked = level === undefined;
   const lvl = def.levels[Math.max(0, (level ?? 1) - 1)] ?? def.levels[0];
@@ -42,21 +46,21 @@ export function TroopCard({ def, level, housingFree, elixir, barracksCount }: Tr
   const cost = lvl.trainCost * count;
   const seconds = Math.ceil((def.trainTimeSec * count) / Math.max(1, barracksCount));
   const reason = useMemo(() => {
-    if (locked) return `Requires Barracks level ${def.requiredBarracksLevel}`;
-    if (count < 1 || count > MAX_PER_ORDER) return `Train 1–${MAX_PER_ORDER} at a time`;
-    if (count * def.housing > housingFree) return maxByHousing <= 0 ? 'Army camps are full' : `Only room for ${maxByHousing}`;
-    if (cost > elixir) return 'Not enough elixir';
+    if (locked) return t('Requires Barracks level {level}', { level: def.requiredBarracksLevel });
+    if (count < 1 || count > MAX_PER_ORDER) return t('Train 1–{max} at a time', { max: MAX_PER_ORDER });
+    if (count * def.housing > housingFree) return maxByHousing <= 0 ? t('Army camps are full') : t('Only room for {count}', { count: maxByHousing });
+    if (cost > elixir) return t('Not enough elixir');
     return null;
-  }, [locked, def, count, housingFree, maxByHousing, cost, elixir]);
+  }, [locked, def, count, housingFree, maxByHousing, cost, elixir, t]);
 
   const train = useMutation({
     mutationFn: () => api<{ army: ArmyDTO }>('/game/army/train', { method: 'POST', json: { troopType: def.type, count } }),
     onSuccess: (data) => {
       qc.setQueryData(['army'], data);
       void qc.invalidateQueries({ queryKey: ['village'] });
-      toast.success('Training started', `${count}× ${def.name} queued.`);
+      toast.success(t('Training started'), t('{count}× {name} queued.', { count, name }));
     },
-    onError: (e) => toast.error('Training failed', errorMessage(e)),
+    onError: (e) => toast.error(t('Training failed'), errorMessage(e)),
   });
 
   const setClamped = (n: number) => setCount(Math.max(1, Math.min(MAX_PER_ORDER, Number.isFinite(n) ? Math.floor(n) : 1)));
@@ -67,35 +71,35 @@ export function TroopCard({ def, level, housingFree, elixir, barracksCount }: Tr
         <TroopAvatar type={def.type} locked={locked} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-display text-base font-bold text-white">{def.name}</h3>
+            <h3 className="font-display text-base font-bold text-white">{name}</h3>
             {locked ? (
               <span className="badge gap-1 border-slate-500/30 text-slate-400">
-                <Lock size={10} /> Barracks {def.requiredBarracksLevel}
+                <Lock size={10} /> {t('Barracks {level}', { level: def.requiredBarracksLevel })}
               </span>
             ) : (
-              <span className="badge border-ember-500/30 text-ember-300">Level {level}</span>
+              <span className="badge border-ember-500/30 text-ember-300">{t('Level {level}', { level })}</span>
             )}
-            {def.isFlying && <span className="badge gap-1 border-sky-500/30 text-sky-300"><Feather size={10} /> Flying</span>}
-            {def.suicide && <span className="badge border-rose-500/30 text-rose-300">One use</span>}
+            {def.isFlying && <span className="badge gap-1 border-sky-500/30 text-sky-300"><Feather size={10} /> {t('Flying')}</span>}
+            {def.suicide && <span className="badge border-rose-500/30 text-rose-300">{t('One use')}</span>}
           </div>
-          <p className="mt-1 text-xs leading-relaxed text-slate-400">{def.description}</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-400">{troopDescription(locale, def.type, def.description)}</p>
         </div>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-1.5 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
-        <Stat icon={Heart} label="HP" value={fmt(lvl.hp)} tone="text-rose-400" />
-        <Stat icon={Sword} label="Damage" value={`${fmt(lvl.damage)}${def.splashRadius ? ' splash' : ''}`} tone="text-ember-400" />
-        <Stat icon={Gauge} label="Speed" value={`${def.moveSpeed} t/s`} tone="text-sky-400" />
-        <Stat icon={Crosshair} label="Range" value={def.range <= 0.5 ? 'melee' : `${def.range} tiles`} tone="text-mint-400" />
-        <Stat icon={Tent} label="Housing" value={String(def.housing)} />
-        <Stat icon={Timer} label="Train time" value={fmtDuration(def.trainTimeSec)} />
-        <Stat icon={Droplets} label="Cost" value={`${fmt(lvl.trainCost)} elixir`} tone="text-elixir-400" />
-        <Stat icon={Crosshair} label="Targets" value={def.targetPreference === 'any' ? 'anything' : `${def.targetPreference}s`} />
+        <Stat icon={Heart} label={t('HP')} value={fmt(lvl.hp)} tone="text-rose-400" />
+        <Stat icon={Sword} label={t('Damage')} value={`${fmt(lvl.damage)}${def.splashRadius ? ` ${t('splash')}` : ''}`} tone="text-ember-400" />
+        <Stat icon={Gauge} label={t('Speed')} value={`${def.moveSpeed} t/s`} tone="text-sky-400" />
+        <Stat icon={Crosshair} label={t('Range')} value={def.range <= 0.5 ? t('melee') : t('{range} tiles', { range: def.range })} tone="text-mint-400" />
+        <Stat icon={Tent} label={t('Housing')} value={String(def.housing)} />
+        <Stat icon={Timer} label={t('Train time')} value={fmtDuration(def.trainTimeSec)} />
+        <Stat icon={Droplets} label={t('Cost')} value={t('{amount} elixir', { amount: fmt(lvl.trainCost) })} tone="text-elixir-400" />
+        <Stat icon={Crosshair} label={t('Targets')} value={def.targetPreference === 'any' ? t('anything') : t(`${def.targetPreference}s`)} />
       </div>
 
       {locked ? (
         <div className="mt-3 flex items-center gap-2 rounded-xl border border-dashed border-white/10 px-3 py-2 text-xs text-slate-400">
-          <Lock size={12} /> Requires Barracks level {def.requiredBarracksLevel}
+          <Lock size={12} /> {t('Requires Barracks level {level}', { level: def.requiredBarracksLevel })}
         </div>
       ) : (
         <form
@@ -106,28 +110,28 @@ export function TroopCard({ def, level, housingFree, elixir, barracksCount }: Tr
           }}
         >
           <div className="flex items-center gap-2">
-            <button type="button" className="btn-secondary px-3 py-1.5" onClick={() => setClamped(count - 1)} disabled={count <= 1} aria-label="Fewer">
+            <button type="button" className="btn-secondary px-3 py-1.5" onClick={() => setClamped(count - 1)} disabled={count <= 1} aria-label={t('Fewer')}>
               −
             </button>
             <input className="input w-20 text-center font-mono" type="number" min={1} max={MAX_PER_ORDER} value={count} onChange={(e) => setClamped(Number(e.target.value))} />
-            <button type="button" className="btn-secondary px-3 py-1.5" onClick={() => setClamped(count + 1)} disabled={count >= MAX_PER_ORDER} aria-label="More">
+            <button type="button" className="btn-secondary px-3 py-1.5" onClick={() => setClamped(count + 1)} disabled={count >= MAX_PER_ORDER} aria-label={t('More')}>
               +
             </button>
-            <button type="button" className="btn-ghost px-2 py-1.5 text-xs" onClick={() => setClamped(Math.min(MAX_PER_ORDER, Math.max(1, maxByHousing)))} disabled={maxByHousing <= 0} title="Fill the remaining camp space">
-              Max
+            <button type="button" className="btn-ghost px-2 py-1.5 text-xs" onClick={() => setClamped(Math.min(MAX_PER_ORDER, Math.max(1, maxByHousing)))} disabled={maxByHousing <= 0} title={t('Fill the remaining camp space')}>
+              {t('Max')}
             </button>
           </div>
           <div className="flex items-center justify-between text-xs text-slate-400">
             <span>
-              Cost <span className={`font-mono ${cost > elixir ? 'text-rose-300' : 'text-elixir-400'}`}>{fmt(cost)}</span> elixir
+              {t('Cost')} <span className={`font-mono ${cost > elixir ? 'text-rose-300' : 'text-elixir-400'}`}>{fmt(cost)}</span> {t('elixir')}
             </span>
             <span>
-              ≈ <span className="font-mono text-slate-200">{fmtDuration(seconds)}</span> · {count * def.housing} housing
+              ≈ <span className="font-mono text-slate-200">{fmtDuration(seconds)}</span> · {t('{count} housing', { count: count * def.housing })}
             </span>
           </div>
           <button type="submit" className="btn-primary w-full" disabled={!!reason || train.isPending} title={reason ?? undefined}>
             {train.isPending ? <Spinner /> : null}
-            {reason ?? `Train ${count}× ${def.name}`}
+            {reason ?? t('Train {count}× {name}', { count, name })}
           </button>
         </form>
       )}

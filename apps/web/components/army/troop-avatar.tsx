@@ -2,6 +2,8 @@
 import clsx from 'clsx';
 import { Lock } from 'lucide-react';
 import { TROOP_DEFINITIONS } from '@launch/game-engine';
+import { useI18n, type Locale } from '@/lib/i18n';
+import { troopName as localizedTroop } from '@/lib/i18n/game-data';
 
 /** Deterministic gradient per troop type (falls back to a hash of the type for unknown troops). */
 const PALETTE: Record<string, string> = {
@@ -25,11 +27,18 @@ export function troopName(type: string): string {
   return TROOP_DEFINITIONS[type]?.name ?? type.replace(/_/g, ' ');
 }
 
+/** Locale-aware troop name: Chinese from the game-data dictionary when the locale is `zh`, otherwise the engine's English name. */
+export function troopDisplayName(locale: Locale, type: string): string {
+  return localizedTroop(locale, type, troopName(type));
+}
+
 export function TroopAvatar({ type, size = 'md', locked, className }: { type: string; size?: 'sm' | 'md' | 'lg'; locked?: boolean; className?: string }) {
+  const { locale } = useI18n();
   const name = troopName(type);
+  const label = troopDisplayName(locale, type);
   const dim = size === 'sm' ? 'h-8 w-8 text-sm' : size === 'lg' ? 'h-16 w-16 text-2xl' : 'h-11 w-11 text-lg';
   return (
-    <div className={clsx('relative grid shrink-0 place-items-center rounded-xl bg-gradient-to-br font-display font-extrabold text-ink-950 shadow-card', dim, troopGradient(type), locked && 'opacity-40 grayscale', className)} title={name} aria-label={name}>
+    <div className={clsx('relative grid shrink-0 place-items-center rounded-xl bg-gradient-to-br font-display font-extrabold text-ink-950 shadow-card', dim, troopGradient(type), locked && 'opacity-40 grayscale', className)} title={label} aria-label={label}>
       {name.slice(0, 1).toUpperCase()}
       {locked && (
         <span className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full bg-ink-800 text-slate-300 ring-1 ring-white/10">

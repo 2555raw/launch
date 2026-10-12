@@ -1,3 +1,5 @@
+import { tGlobal } from '@/lib/i18n';
+
 /** Browser-safe base64 helpers (no Node Buffer). */
 export function bytesToBase64(bytes: Uint8Array): string {
   let bin = '';
@@ -26,8 +28,8 @@ export function toSmallestUnits(amount: string, decimals: number): string | null
 export function walletErrorMessage(e: unknown): string {
   const msg = e instanceof Error ? e.message : String(e);
   const lower = msg.toLowerCase();
-  if (lower.includes('user rejected') || lower.includes('user denied') || lower.includes('rejected the request')) return 'You rejected the request in your wallet.';
-  if (lower.includes('insufficient') || lower.includes('debit an account but found no record') || lower.includes('exceeds the balance')) return 'Insufficient funds in the connected wallet to pay for this transaction.';
-  if (lower.includes('blockhash') && lower.includes('expired')) return 'The transaction expired before it was confirmed. Please try again.';
+  if (lower.includes('user rejected') || lower.includes('user denied') || lower.includes('rejected the request')) return tGlobal('You rejected the request in your wallet.');
+  if (lower.includes('insufficient') || lower.includes('debit an account but found no record') || lower.includes('exceeds the balance')) return tGlobal('Insufficient funds in the connected wallet to pay for this transaction.');
+  if (lower.includes('blockhash') && lower.includes('expired')) return tGlobal('The transaction expired before it was confirmed. Please try again.');
   return msg;
 }

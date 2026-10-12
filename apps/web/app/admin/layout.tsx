@@ -1,16 +1,18 @@
 'use client';
 import { Wrench } from 'lucide-react';
 import { useRequireAuth } from '@/lib/hooks';
+import { useT } from '@/lib/i18n';
 import { AdminNav } from '@/components/admin/admin-nav';
 import { STAFF_ROLES } from '@/components/admin/permissions';
 import { Spinner } from '@/components/ui/primitives';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const t = useT();
   const user = useRequireAuth({ roles: STAFF_ROLES });
   if (!user) {
     return (
       <div className="flex items-center gap-2 py-20 text-sm text-slate-400">
-        <Spinner /> Checking access…
+        <Spinner /> {t('Checking access…')}
       </div>
     );
   }
@@ -20,9 +22,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="flex items-center gap-2">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-ember-500/15 text-ember-300"><Wrench size={18} /></span>
           <div>
-            <div className="font-display text-lg font-bold text-white">Admin</div>
+            <div className="font-display text-lg font-bold text-white">{t('Admin')}</div>
             <div className="text-[11px] text-slate-500">
-              Signed in as {user.username} · <span className="uppercase">{user.role}</span>
+              {t('Signed in as {username}', { username: user.username })} · <span className="uppercase">{t(user.role)}</span>
             </div>
           </div>
         </div>

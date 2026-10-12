@@ -6,6 +6,7 @@ import { Ban, Castle, Search, ShieldCheck } from 'lucide-react';
 import type { Chain, UserRole, UserStatus } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
 import { useAuth } from '@/lib/auth-store';
+import { useT } from '@/lib/i18n';
 import { can } from '@/components/admin/permissions';
 import { StatusBadge } from '@/components/admin/status-badge';
 import { fmtDate } from '@/components/ui/dates';
@@ -31,54 +32,56 @@ interface AdminUser {
 const ROLES: UserRole[] = ['USER', 'MODERATOR', 'ADMIN', 'DEVELOPER'];
 
 function BanForm({ user, onClose }: { user: AdminUser; onClose: () => void }) {
+  const t = useT();
   const qc = useQueryClient();
   const [reason, setReason] = useState('');
   const [days, setDays] = useState<string>('');
   const ban = useMutation({
     mutationFn: () => api<{ ok: true }>(`/admin/users/${user.id}/ban`, { method: 'POST', json: { reason: reason.trim(), ...(days ? { days: Number(days) } : {}) } }),
     onSuccess: () => {
-      toast.success(`${user.username} banned`);
+      toast.success(t('{username} banned', { username: user.username }));
       void qc.invalidateQueries({ queryKey: ['admin', 'users'] });
       onClose();
     },
-    onError: (e) => toast.error('Ban failed', errorMessage(e)),
+    onError: (e) => toast.error(t('Ban failed'), errorMessage(e)),
   });
   return (
     <form
       className="card animate-rise mb-4 flex flex-wrap items-end gap-3 border-rose-500/30 p-4"
       onSubmit={(e) => {
         e.preventDefault();
-        if (reason.trim().length < 3) return toast.error('Reason required', 'Give at least 3 characters.');
-        if (window.confirm(`Ban ${user.username}${days ? ` for ${days} day(s)` : ' permanently'}?`)) ban.mutate();
+        if (reason.trim().length < 3) return toast.error(t('Reason required'), t('Give at least 3 characters.'));
+        if (window.confirm(days ? t('Ban {username} for {days} day(s)?', { username: user.username, days }) : t('Ban {username} permanently?', { username: user.username }))) ban.mutate();
       }}
     >
       <div className="min-w-[240px] flex-1">
-        <label className="label">Ban {user.username} — reason</label>
-        <input className="input" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} autoFocus placeholder="Why is this account being banned?" />
+        <label className="label">{t('Ban {username} — reason', { username: user.username })}</label>
+        <input className="input" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} autoFocus placeholder={t('Why is this account being banned?')} />
       </div>
       <div>
-        <label className="label">Days (blank = permanent)</label>
+        <label className="label">{t('Days (blank = permanent)')}</label>
         <input className="input w-32 font-mono" type="number" min={0} max={3650} value={days} onChange={(e) => setDays(e.target.value)} />
       </div>
       <button type="submit" className="btn-danger" disabled={ban.isPending}>
-        {ban.isPending ? <Spinner /> : <Ban size={16} />} Ban
+        {ban.isPending ? <Spinner /> : <Ban size={16} />} {t('Ban')}
       </button>
       <button type="button" className="btn-ghost" onClick={onClose}>
-        Cancel
+        {t('Cancel')}
       </button>
     </form>
   );
 }
 
 export default function AdminUsersPage() {
+  const t = useT();
   const me = useAuth((s) => s.user);
   const qc = useQueryClient();
   const [input, setInput] = useState('');
   const [q, setQ] = useState('');
   const [banTarget, setBanTarget] = useState<AdminUser | null>(null);
   useEffect(() => {
-    const t = setTimeout(() => setQ(input.trim()), 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setQ(input.trim()), 300);
+    return () => clearTimeout(timer);
   }, [input]);
 
   const users = useInfiniteQuery({
@@ -91,54 +94,54 @@ export default function AdminUsersPage() {
   const unban = useMutation({
     mutationFn: (id: string) => api<{ ok: true }>(`/admin/users/${id}/unban`, { method: 'POST' }),
     onSuccess: () => {
-      toast.success('User unbanned');
+      toast.success(t('User unbanned'));
       refresh();
     },
-    onError: (e) => toast.error('Unban failed', errorMessage(e)),
+    onError: (e) => toast.error(t('Unban failed'), errorMessage(e)),
   });
   const setRole = useMutation({
     mutationFn: ({ id, role }: { id: string; role: UserRole }) => api<{ ok: true }>(`/admin/users/${id}/role`, { method: 'POST', json: { role } }),
     onSuccess: (_d, v) => {
-      toast.success(`Role set to ${v.role}`);
+      toast.success(t('Role set to {role}', { role: t(v.role) }));
       refresh();
     },
-    onError: (e) => toast.error('Role change failed', errorMessage(e)),
+    onError: (e) => toast.error(t('Role change failed'), errorMessage(e)),
   });
 
   const rows = users.data?.pages.flatMap((p) => p.items) ?? [];
   return (
     <div>
       <PageHeader
-        title="Users"
-        subtitle="Search by username, email or wallet address."
+        title={t('Users')}
+        subtitle={t('Search by username, email or wallet address.')}
         actions={
           <div className="relative w-72">
             <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input className="input pl-8" placeholder="Search users" value={input} onChange={(e) => setInput(e.target.value)} />
+            <input className="input pl-8" placeholder={t('Search users')} value={input} onChange={(e) => setInput(e.target.value)} />
           </div>
         }
       />
       {banTarget && <BanForm user={banTarget} onClose={() => setBanTarget(null)} />}
       {users.isLoading ? (
-        <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> Loading users…</div>
+        <div className="flex items-center gap-2 py-10 text-sm text-slate-400"><Spinner /> {t('Loading users…')}</div>
       ) : users.error ? (
-        <Empty title="Could not load users" body={errorMessage(users.error)} action={<button className="btn-secondary" onClick={() => void users.refetch()}>Retry</button>} />
+        <Empty title={t('Could not load users')} body={errorMessage(users.error)} action={<button className="btn-secondary" onClick={() => void users.refetch()}>{t('Retry')}</button>} />
       ) : rows.length === 0 ? (
-        <Empty title="No users found" body={q ? `Nothing matches "${q}".` : undefined} />
+        <Empty title={t('No users found')} body={q ? t('Nothing matches "{q}".', { q }) : undefined} />
       ) : (
         <div className="card p-2 sm:p-4">
           <Table>
             <thead>
               <tr>
-                <Th>User</Th>
-                <Th>Role</Th>
-                <Th>Status</Th>
-                <Th>Player</Th>
-                <Th>Wallets</Th>
-                <Th className="text-right">Projects</Th>
-                <Th>Joined</Th>
-                <Th>Last login</Th>
-                <Th className="text-right">Actions</Th>
+                <Th>{t('User')}</Th>
+                <Th>{t('Role')}</Th>
+                <Th>{t('Status')}</Th>
+                <Th>{t('Player')}</Th>
+                <Th>{t('Wallets')}</Th>
+                <Th className="text-right">{t('Projects')}</Th>
+                <Th>{t('Joined')}</Th>
+                <Th>{t('Last login')}</Th>
+                <Th className="text-right">{t('Actions')}</Th>
               </tr>
             </thead>
             <tbody>
@@ -148,15 +151,15 @@ export default function AdminUsersPage() {
                   <Tr key={u.id} highlight={isSelf}>
                     <Td>
                       <div className="font-semibold text-slate-100">{u.username}</div>
-                      <div className="text-xs text-slate-500">{u.email ?? 'wallet-only'}</div>
+                      <div className="text-xs text-slate-500">{u.email ?? t('wallet-only')}</div>
                       <div className="font-mono text-[10px] text-slate-600">{u.id}</div>
                     </Td>
                     <Td>
                       {can(me?.role, 'changeRole') && !isSelf ? (
-                        <select className="input w-auto py-1 text-xs" value={u.role} disabled={setRole.isPending} onChange={(e) => window.confirm(`Change ${u.username}'s role to ${e.target.value}?`) ? setRole.mutate({ id: u.id, role: e.target.value as UserRole }) : undefined}>
+                        <select className="input w-auto py-1 text-xs" value={u.role} disabled={setRole.isPending} onChange={(e) => window.confirm(t("Change {username}'s role to {role}?", { username: u.username, role: t(e.target.value) })) ? setRole.mutate({ id: u.id, role: e.target.value as UserRole }) : undefined}>
                           {ROLES.map((r) => (
                             <option key={r} value={r}>
-                              {r}
+                              {t(r)}
                             </option>
                           ))}
                         </select>
@@ -169,7 +172,7 @@ export default function AdminUsersPage() {
                       {u.status === 'BANNED' && (
                         <div className="mt-1 max-w-[180px] text-[11px] text-slate-500">
                           {u.banReason}
-                          {u.bannedUntil ? ` · until ${fmtDate(u.bannedUntil)}` : ' · permanent'}
+                          {u.bannedUntil ? ` · ${t('until {date}', { date: fmtDate(u.bannedUntil) })}` : ` · ${t('permanent')}`}
                         </div>
                       )}
                     </Td>
@@ -178,7 +181,7 @@ export default function AdminUsersPage() {
                         <Link href={`/admin/villages?playerId=${u.player.id}`} className="flex items-center gap-1 text-slate-100 hover:text-ember-300">
                           <Castle size={12} /> {u.player.name}
                           <span className="text-xs text-slate-500">
-                            · lvl {u.player.level} · {fmt(u.player.trophies)}
+                            · {t('lvl {level} · {trophies}', { level: u.player.level, trophies: fmt(u.player.trophies) })}
                           </span>
                         </Link>
                       ) : (
@@ -194,12 +197,12 @@ export default function AdminUsersPage() {
                     <Td className="text-right">
                       {can(me?.role, 'ban') && !isSelf && u.role !== 'ADMIN' && (
                         u.status === 'BANNED' ? (
-                          <button className="btn-secondary px-2 py-1 text-xs" disabled={unban.isPending} onClick={() => window.confirm(`Unban ${u.username}?`) && unban.mutate(u.id)}>
-                            {unban.isPending && unban.variables === u.id ? <Spinner /> : <ShieldCheck size={12} />} Unban
+                          <button className="btn-secondary px-2 py-1 text-xs" disabled={unban.isPending} onClick={() => window.confirm(t('Unban {username}?', { username: u.username })) && unban.mutate(u.id)}>
+                            {unban.isPending && unban.variables === u.id ? <Spinner /> : <ShieldCheck size={12} />} {t('Unban')}
                           </button>
                         ) : (
                           <button className="btn-ghost px-2 py-1 text-xs text-rose-300 hover:bg-rose-500/10" onClick={() => setBanTarget(u)}>
-                            <Ban size={12} /> Ban
+                            <Ban size={12} /> {t('Ban')}
                           </button>
                         )
                       )}
@@ -212,7 +215,7 @@ export default function AdminUsersPage() {
           {users.hasNextPage && (
             <div className="mt-3 text-center">
               <button className="btn-secondary" onClick={() => void users.fetchNextPage()} disabled={users.isFetchingNextPage}>
-                {users.isFetchingNextPage ? <Spinner /> : null} Load more
+                {users.isFetchingNextPage ? <Spinner /> : null} {t('Load more')}
               </button>
             </div>
           )}

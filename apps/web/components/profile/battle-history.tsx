@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { ArrowRight, Shield, Star, Swords } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 import { ago, signed } from '@/components/ui/dates';
 import { compact } from '@/components/ui/primitives';
 
@@ -18,8 +19,9 @@ export interface BattleHistoryItem {
 }
 
 export function Stars({ n, size = 12 }: { n: number; size?: number }) {
+  const t = useT();
   return (
-    <span className="inline-flex gap-0.5" aria-label={`${n} stars`}>
+    <span className="inline-flex gap-0.5" aria-label={t('{n} stars', { n })}>
       {[0, 1, 2].map((i) => (
         <Star key={i} size={size} className={i < n ? 'fill-gold-400 text-gold-400' : 'text-slate-700'} />
       ))}
@@ -28,16 +30,17 @@ export function Stars({ n, size = 12 }: { n: number; size?: number }) {
 }
 
 export function BattleHistory({ battles, title = 'Battle log' }: { battles: BattleHistoryItem[]; title?: string }) {
+  const t = useT();
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-          <Swords size={16} className="text-ember-400" /> {title}
+          <Swords size={16} className="text-ember-400" /> {t(title)}
         </div>
         <span className="badge">{battles.length}</span>
       </div>
       {battles.length === 0 ? (
-        <p className="mt-3 text-sm text-slate-500">No battles yet.</p>
+        <p className="mt-3 text-sm text-slate-500">{t('No battles yet.')}</p>
       ) : (
         <ul className="mt-3 divide-y divide-white/[0.05]">
           {battles.map((b) => {
@@ -50,15 +53,15 @@ export function BattleHistory({ battles, title = 'Battle log' }: { battles: Batt
                   <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${attack ? 'bg-ember-500/15 text-ember-300' : 'bg-elixir-500/15 text-elixir-400'}`}>{attack ? <Swords size={16} /> : <Shield size={16} />}</span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2 text-sm">
-                      <span className="text-slate-400">{attack ? 'Attacked' : 'Defended against'}</span>
+                      <span className="text-slate-400">{attack ? t('Attacked') : t('Defended against')}</span>
                       <span className="font-semibold text-slate-100">{b.opponent.name}</span>
-                      <span className={`badge ${won ? 'border-mint-500/30 text-mint-400' : 'border-rose-500/30 text-rose-300'}`}>{won ? (attack ? 'Victory' : 'Held') : attack ? 'Defeat' : 'Raided'}</span>
+                      <span className={`badge ${won ? 'border-mint-500/30 text-mint-400' : 'border-rose-500/30 text-rose-300'}`}>{won ? (attack ? t('Victory') : t('Held')) : attack ? t('Defeat') : t('Raided')}</span>
                     </div>
                     <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-slate-500">
                       <Stars n={b.stars} />
-                      <span>{b.destructionPercent}% destroyed</span>
-                      <span className="text-gold-300">{compact(b.lootGold)} gold</span>
-                      <span className="text-elixir-400">{compact(b.lootElixir)} elixir</span>
+                      <span>{t('{pct}% destroyed', { pct: b.destructionPercent })}</span>
+                      <span className="text-gold-300">{t('{n} gold', { n: compact(b.lootGold) })}</span>
+                      <span className="text-elixir-400">{t('{n} elixir', { n: compact(b.lootElixir) })}</span>
                       <span>{ago(b.endedAt)}</span>
                     </div>
                   </div>

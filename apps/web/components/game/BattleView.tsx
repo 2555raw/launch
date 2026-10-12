@@ -9,6 +9,8 @@ import { api, errorMessage } from '@/lib/api';
 import { useSocket } from '@/lib/socket';
 import { toast } from '@/components/ui/toast';
 import { Spinner } from '@/components/ui/primitives';
+import { translate, useI18n } from '@/lib/i18n';
+import { buildingName, troopName } from '@/lib/i18n/game-data';
 import { IsoCanvas, type Camera } from './IsoCanvas';
 import { TerrainCache, drawBuilding, drawTroop } from './sprites';
 import { GameTopBar, RoundButton } from './GameHud';
@@ -24,6 +26,9 @@ interface Match {
 type Phase = { kind: 'idle' } | { kind: 'searching' } | { kind: 'preview'; match: Match } | { kind: 'joining'; match: Match } | { kind: 'battle'; match: Match } | { kind: 'result'; match: Match; result: BattleResultDTO };
 
 export function BattleView() {
+  const { locale, t } = useI18n();
+  const localeRef = useRef(locale);
+  localeRef.current = locale;
   const socket = useSocket();
   const qc = useQueryClient();
   const router = useRouter();
@@ -47,26 +52,28 @@ export function BattleView() {
   useEffect(() => {
     return socket.subscribe((msg: ServerMessage) => {
       const p = phaseRef.current;
+      const loc = localeRef.current;
+      const tr = (text: string, vars?: Record<string, string | number>) => translate(loc, text, vars);
       if (msg.type === 'battle:ready' && (p.kind === 'joining' || p.kind === 'battle')) {
         setArmy(msg.army);
         setPrepUntil(Date.now() + msg.prepMs);
         setPhase({ kind: 'battle', match: p.match });
-        setLog((l) => [`Battle ready. Deploy outside the red zone. ${Math.round(msg.prepMs / 1000)}s to plan.`, ...l]);
+        setLog((l) => [tr('Battle ready. Deploy outside the red zone. {seconds}s to plan.', { seconds: Math.round(msg.prepMs / 1000) }), ...l]);
       } else if (msg.type === 'battle:state' && p.kind === 'battle') {
         setState(msg.state);
         setArmy(msg.state.remainingArmy);
       } else if (msg.type === 'battle:event' && p.kind === 'battle') {
         const e = msg.event;
-        if (e.kind === 'rejected') toast.error('Deployment rejected', e.reason.replace(/_/g, ' ').toLowerCase());
-        if (e.kind === 'building_destroyed') setLog((l) => [`${BUILDING_DEFINITIONS[e.buildingType]?.name ?? e.buildingType} destroyed`, ...l].slice(0, 30));
-        if (e.kind === 'star') setLog((l) => [`★ ${e.stars} star${e.stars > 1 ? 's' : ''}!`, ...l].slice(0, 30));
+        if (e.kind === 'rejected') toast.error(tr('Deployment rejected'), e.reason.replace(/_/g, ' ').toLowerCase());
+        if (e.kind === 'building_destroyed') setLog((l) => [tr('{name} destroyed', { name: buildingName(loc, e.buildingType, BUILDING_DEFINITIONS[e.buildingType]?.name ?? e.buildingType) }), ...l].slice(0, 30));
+        if (e.kind === 'star') setLog((l) => [e.stars > 1 ? tr('★ {stars} stars!', { stars: e.stars }) : tr('★ {stars} star!', { stars: e.stars }), ...l].slice(0, 30));
       } else if (msg.type === 'battle:result' && (p.kind === 'battle' || p.kind === 'joining')) {
         setPhase({ kind: 'result', match: p.match, result: msg.result });
         void qc.invalidateQueries({ queryKey: ['village'] });
         void qc.invalidateQueries({ queryKey: ['army'] });
         void qc.invalidateQueries({ queryKey: ['player-me'] });
       } else if (msg.type === 'error' && (p.kind === 'joining' || p.kind === 'battle')) {
-        toast.error('Battle error', msg.message);
+        toast.error(tr('Battle error'), msg.message);
         if (p.kind === 'joining') setPhase({ kind: 'preview', match: p.match });
       }
     });
@@ -83,7 +90,7 @@ export function BattleView() {
       setSelectedTroop(Object.keys(m.army)[0] ?? null);
       setRev((r) => r + 1);
     } catch (e) {
-      toast.error('Matchmaking', errorMessage(e));
+      toast.error(t('Matchmaking'), errorMessage(e));
       setPhase({ kind: 'idle' });
     }
   };
@@ -95,7 +102,7 @@ export function BattleView() {
   const attack = () => {
     if (phase.kind !== 'preview') return;
     if (socket.status !== 'authed') {
-      toast.error('Realtime connection not ready', 'Reconnecting to the game server…');
+      toast.error(t('Realtime connection not ready'), t('Reconnecting to the game server…'));
       socket.connect();
       return;
     }
@@ -142,15 +149,15 @@ export function BattleView() {
       <div className="fixed inset-0 grid place-items-center bg-[#1f4a2a] bg-grid-faint bg-[size:28px_28px]">
         <div className="card mx-4 max-w-xl p-8 text-center">
           <Swords className="mx-auto text-ember-400" size={40} />
-          <h2 className="mt-3 font-display text-2xl font-bold text-white">Raid another village</h2>
-          <p className="mt-2 text-sm text-slate-400">Matchmaking picks an opponent close to your trophy count. You scout their base before committing. Once you join the battle, your army is spent whether you win or lose.</p>
+          <h2 className="mt-3 font-display text-2xl font-bold text-white">{t('Raid another village')}</h2>
+          <p className="mt-2 text-sm text-slate-400">{t('Matchmaking picks an opponent close to your trophy count. You scout their base before committing. Once you join the battle, your army is spent whether you win or lose.')}</p>
           <div className="mt-6 flex justify-center gap-2">
-            <button className="btn-secondary" onClick={() => router.push('/village')}><ArrowLeft size={16} /> Village</button>
+            <button className="btn-secondary" onClick={() => router.push('/village')}><ArrowLeft size={16} /> {t('Village')}</button>
             <button className="btn-primary" onClick={find} disabled={phase.kind === 'searching'}>
-              {phase.kind === 'searching' ? <Spinner /> : <Search size={16} />} {phase.kind === 'searching' ? 'Searching…' : 'Find opponent'}
+              {phase.kind === 'searching' ? <Spinner /> : <Search size={16} />} {phase.kind === 'searching' ? t('Searching…') : t('Find opponent')}
             </button>
           </div>
-          <div className="mt-3 text-xs text-slate-500">Realtime link: {socket.status}</div>
+          <div className="mt-3 text-xs text-slate-500">{t('Realtime link: {status}', { status: socket.status })}</div>
         </div>
       </div>
     );
@@ -180,7 +187,7 @@ export function BattleView() {
               <span className="flex items-center gap-1 rounded-full border border-elixir-500/30 bg-ink-950/85 px-3 py-1 text-elixir-400"><Flame size={12} /> +{state.lootElixir.toLocaleString()}</span>
             </div>
           )}
-          {phase.kind === 'battle' && prepUntil > now && !state?.troops.length && <span className="rounded-full border border-ember-500/40 bg-ink-950/85 px-3 py-1 text-ember-300">Planning {Math.ceil((prepUntil - now) / 1000)}s · tap a green tile to deploy</span>}
+          {phase.kind === 'battle' && prepUntil > now && !state?.troops.length && <span className="rounded-full border border-ember-500/40 bg-ink-950/85 px-3 py-1 text-ember-300">{t('Planning {seconds}s · tap a green tile to deploy', { seconds: Math.ceil((prepUntil - now) / 1000) })}</span>}
         </div>
 
         {/* battle log */}
@@ -195,43 +202,43 @@ export function BattleView() {
           <div className="pointer-events-auto absolute bottom-4 left-1/2 flex -translate-x-1/2 items-end gap-2">
             {Object.entries(army).map(([type, count]) => (
               <button key={type} onClick={() => setSelectedTroop(type)} disabled={count <= 0} className={`relative grid h-16 w-16 place-items-center rounded-2xl border-2 text-center transition ${selectedTroop === type ? 'border-ember-300 bg-gradient-to-b from-ember-500/40 to-ink-900 text-ember-100' : 'border-black/50 bg-gradient-to-b from-ink-700 to-ink-900 text-slate-200'} disabled:opacity-40`}>
-                <span className="font-display text-sm font-bold">{(TROOP_DEFINITIONS[type]?.name ?? type).slice(0, 6)}</span>
+                <span className="font-display text-sm font-bold">{troopName(locale, type, TROOP_DEFINITIONS[type]?.name ?? type).slice(0, 6)}</span>
                 <span className="absolute -top-2 right-1 rounded-full bg-ink-950 px-1.5 font-mono text-[11px] text-white">×{count}</span>
               </button>
             ))}
-            <RoundButton icon={<X size={22} />} label="End" onClick={endBattle} />
+            <RoundButton icon={<X size={22} />} label={t('End')} onClick={endBattle} />
           </div>
         )}
         {phase.kind === 'preview' && (
           <div className="pointer-events-auto absolute bottom-4 left-1/2 flex w-[min(96vw,760px)] -translate-x-1/2 flex-wrap items-center justify-between gap-3 rounded-2xl border border-black/50 bg-ink-950/90 p-3 shadow-lg">
             <div className="text-xs text-slate-300">
-              <div className="font-display text-sm font-semibold text-white">Scouting report</div>
-              <span className="text-gold-300">{match!.snapshot.buildings.reduce((s, b) => s + b.storedGold, 0).toLocaleString()} gold</span> · <span className="text-elixir-400">{match!.snapshot.buildings.reduce((s, b) => s + b.storedElixir, 0).toLocaleString()} elixir</span> · {match!.snapshot.buildings.filter((b) => BUILDING_DEFINITIONS[b.type]?.category === 'defense').length} defenses · {match!.snapshot.buildings.filter((b) => b.type === 'wall').length} walls
-              <div className="mt-1 text-slate-500">Your army: {Object.entries(army).map(([k, n]) => `${n} ${TROOP_DEFINITIONS[k]?.name ?? k}`).join(', ')}</div>
+              <div className="font-display text-sm font-semibold text-white">{t('Scouting report')}</div>
+              <span className="text-gold-300">{t('{amount} gold', { amount: match!.snapshot.buildings.reduce((s, b) => s + b.storedGold, 0).toLocaleString() })}</span> · <span className="text-elixir-400">{t('{amount} elixir', { amount: match!.snapshot.buildings.reduce((s, b) => s + b.storedElixir, 0).toLocaleString() })}</span> · {t('{count} defenses', { count: match!.snapshot.buildings.filter((b) => BUILDING_DEFINITIONS[b.type]?.category === 'defense').length })} · {t('{count} walls', { count: match!.snapshot.buildings.filter((b) => b.type === 'wall').length })}
+              <div className="mt-1 text-slate-500">{t('Your army: {list}', { list: Object.entries(army).map(([k, n]) => t('{count} {name}', { count: n, name: troopName(locale, k, TROOP_DEFINITIONS[k]?.name ?? k) })).join(', ') })}</div>
             </div>
             <div className="flex gap-2">
-              <button className="btn-secondary" onClick={() => router.push('/village')}><ArrowLeft size={14} /> Home</button>
-              <button className="btn-secondary" onClick={next}>Next</button>
-              <button className="btn-primary" onClick={attack}><Swords size={14} /> Attack!</button>
+              <button className="btn-secondary" onClick={() => router.push('/village')}><ArrowLeft size={14} /> {t('Home')}</button>
+              <button className="btn-secondary" onClick={next}>{t('Next')}</button>
+              <button className="btn-primary" onClick={attack}><Swords size={14} /> {t('Attack!')}</button>
             </div>
           </div>
         )}
-        {phase.kind === 'joining' && <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-black/50 text-slate-200"><span className="inline-flex items-center gap-2"><Spinner /> Entering battle…</span></div>}
+        {phase.kind === 'joining' && <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-black/50 text-slate-200"><span className="inline-flex items-center gap-2"><Spinner /> {t('Entering battle…')}</span></div>}
         {phase.kind === 'result' && (
           <div className="pointer-events-auto absolute inset-0 grid place-items-center bg-black/60 p-4">
             <div className="card w-full max-w-md p-6 text-center">
               <div className="flex justify-center gap-1">{[0, 1, 2].map((i) => <Star key={i} size={32} className={i < phase.result.stars ? 'fill-gold-400 text-gold-400' : 'text-slate-600'} />)}</div>
-              <h3 className="mt-2 font-display text-3xl font-extrabold text-white">{phase.result.victory ? 'Victory' : 'Defeat'}</h3>
-              <div className="mt-1 text-sm text-slate-400">{phase.result.destructionPercent}% destruction in {Math.round(phase.result.durationMs / 1000)}s</div>
+              <h3 className="mt-2 font-display text-3xl font-extrabold text-white">{phase.result.victory ? t('Victory') : t('Defeat')}</h3>
+              <div className="mt-1 text-sm text-slate-400">{t('{percent}% destruction in {seconds}s', { percent: phase.result.destructionPercent, seconds: Math.round(phase.result.durationMs / 1000) })}</div>
               <div className="mt-4 grid grid-cols-3 gap-2 text-sm">
-                <div className="stat"><div className="text-[10px] uppercase text-slate-500">Gold</div><div className="font-bold text-gold-400">+{phase.result.lootGold.toLocaleString()}</div></div>
-                <div className="stat"><div className="text-[10px] uppercase text-slate-500">Elixir</div><div className="font-bold text-elixir-400">+{phase.result.lootElixir.toLocaleString()}</div></div>
-                <div className="stat"><div className="text-[10px] uppercase text-slate-500">Trophies</div><div className={`font-bold ${phase.result.attackerTrophyDelta >= 0 ? 'text-mint-400' : 'text-rose-400'}`}>{phase.result.attackerTrophyDelta >= 0 ? '+' : ''}{phase.result.attackerTrophyDelta}</div></div>
+                <div className="stat"><div className="text-[10px] uppercase text-slate-500">{t('Gold')}</div><div className="font-bold text-gold-400">+{phase.result.lootGold.toLocaleString()}</div></div>
+                <div className="stat"><div className="text-[10px] uppercase text-slate-500">{t('Elixir')}</div><div className="font-bold text-elixir-400">+{phase.result.lootElixir.toLocaleString()}</div></div>
+                <div className="stat"><div className="text-[10px] uppercase text-slate-500">{t('Trophies')}</div><div className={`font-bold ${phase.result.attackerTrophyDelta >= 0 ? 'text-mint-400' : 'text-rose-400'}`}>{phase.result.attackerTrophyDelta >= 0 ? '+' : ''}{phase.result.attackerTrophyDelta}</div></div>
               </div>
-              <div className="mt-2 text-xs text-slate-500">+{phase.result.xpGained} XP · {Object.entries(phase.result.troopsUsed).map(([t, n]) => `${n} ${TROOP_DEFINITIONS[t]?.name ?? t}`).join(', ') || 'no troops used'}</div>
+              <div className="mt-2 text-xs text-slate-500">{t('+{xp} XP · {troops}', { xp: phase.result.xpGained, troops: Object.entries(phase.result.troopsUsed).map(([k, n]) => t('{count} {name}', { count: n, name: troopName(locale, k, TROOP_DEFINITIONS[k]?.name ?? k) })).join(', ') || t('no troops used') })}</div>
               <div className="mt-5 flex justify-center gap-2">
-                <button className="btn-secondary" onClick={() => router.push('/village')}>Return home</button>
-                <button className="btn-primary" onClick={find}><Search size={14} /> Find another</button>
+                <button className="btn-secondary" onClick={() => router.push('/village')}>{t('Return home')}</button>
+                <button className="btn-primary" onClick={find}><Search size={14} /> {t('Find another')}</button>
               </div>
             </div>
           </div>

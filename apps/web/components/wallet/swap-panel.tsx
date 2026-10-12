@@ -8,6 +8,7 @@ import { solanaExplorerTxUrl } from '@launch/config/chains';
 import { api, errorMessage } from '@/lib/api';
 import { SOLANA_NETWORK } from '@/lib/config';
 import { useAuth } from '@/lib/auth-store';
+import { useT } from '@/lib/i18n';
 import { toast } from '@/components/ui/toast';
 import { Spinner, shortAddr } from '@/components/ui/primitives';
 import { ExtLink, Field, formatUnits } from '@/components/launchpad/common';
@@ -48,15 +49,16 @@ const KNOWN_DECIMALS: Record<string, number> = { SOL: 9, USDC: 6, USDT: 6 };
 type MintChoice = 'SOL' | 'USDC' | 'USDT' | 'CUSTOM';
 
 function useMintDecimals(mint: string | null) {
+  const t = useT();
   const { connection } = useConnection();
   return useQuery({
     queryKey: ['mint-decimals', mint],
     queryFn: async () => {
       const info = await connection.getParsedAccountInfo(new PublicKey(mint as string));
       const data = info.value?.data;
-      if (!data || !('parsed' in data)) throw new Error('Not a token mint');
+      if (!data || !('parsed' in data)) throw new Error(t('Not a token mint'));
       const decimals = (data.parsed as { info?: { decimals?: number } }).info?.decimals;
-      if (typeof decimals !== 'number') throw new Error('Mint has no decimals field');
+      if (typeof decimals !== 'number') throw new Error(t('Mint has no decimals field'));
       return decimals;
     },
     enabled: !!mint && mint.length >= 32,
@@ -66,6 +68,7 @@ function useMintDecimals(mint: string | null) {
 }
 
 function MintSelect({ label, choice, custom, onChoice, onCustom, wellKnown }: { label: string; choice: MintChoice; custom: string; onChoice: (c: MintChoice) => void; onCustom: (v: string) => void; wellKnown: Record<string, string> }) {
+  const t = useT();
   return (
     <Field label={label}>
       <div className="flex gap-2">
@@ -75,15 +78,16 @@ function MintSelect({ label, choice, custom, onChoice, onCustom, wellKnown }: { 
               {k}
             </option>
           ))}
-          <option value="CUSTOM">Custom…</option>
+          <option value="CUSTOM">{t('Custom…')}</option>
         </select>
-        {choice === 'CUSTOM' && <input className="input font-mono text-xs" value={custom} onChange={(e) => onCustom(e.target.value.trim())} placeholder="Mint address" />}
+        {choice === 'CUSTOM' && <input className="input font-mono text-xs" value={custom} onChange={(e) => onCustom(e.target.value.trim())} placeholder={t('Mint address')} />}
       </div>
     </Field>
   );
 }
 
 export function SwapPanel({ preselectOutput }: { preselectOutput?: string | null }) {
+  const t = useT();
   const { connection } = useConnection();
   const wallet = useWallet();
   const { user } = useAuth();
@@ -137,8 +141,8 @@ export function SwapPanel({ preselectOutput }: { preselectOutput?: string | null
 
   const execute = useMutation({
     mutationFn: async () => {
-      if (!order?.transaction) throw new Error('No transaction in the quote. Connect a wallet so Jupiter can build one.');
-      if (!wallet.signTransaction || !taker) throw new Error('Connect a Solana wallet that can sign transactions');
+      if (!order?.transaction) throw new Error(t('No transaction in the quote. Connect a wallet so Jupiter can build one.'));
+      if (!wallet.signTransaction || !taker) throw new Error(t('Connect a Solana wallet that can sign transactions'));
       setStage('signing');
       const tx = VersionedTransaction.deserialize(base64ToBytes(order.transaction));
       const signed = await wallet.signTransaction(tx);
@@ -148,10 +152,10 @@ export function SwapPanel({ preselectOutput }: { preselectOutput?: string | null
     },
     onSuccess: (r) => {
       setResult(r);
-      if (r.status === 'Success') toast.success('Swap executed', r.signature ? shortAddr(r.signature, 8) : undefined);
-      else toast.error('Swap failed', r.error ?? `Jupiter code ${r.code}`);
+      if (r.status === 'Success') toast.success(t('Swap executed'), r.signature ? shortAddr(r.signature, 8) : undefined);
+      else toast.error(t('Swap failed'), r.error ?? t('Jupiter code {code}', { code: r.code }));
     },
-    onError: (e) => toast.error('Swap failed', walletErrorMessage(e) || errorMessage(e)),
+    onError: (e) => toast.error(t('Swap failed'), walletErrorMessage(e) || errorMessage(e)),
     onSettled: () => setStage('idle'),
   });
 
@@ -170,91 +174,91 @@ export function SwapPanel({ preselectOutput }: { preselectOutput?: string | null
   return (
     <div className="card p-4">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="font-display text-lg font-semibold text-white">Swap</h2>
-        <span className="badge">Jupiter v2 {config.data?.keyless ? '· keyless' : ''}</span>
+        <h2 className="font-display text-lg font-semibold text-white">{t('Swap')}</h2>
+        <span className="badge">Jupiter v2 {config.data?.keyless ? `· ${t('keyless')}` : ''}</span>
       </div>
-      <p className="mt-1 text-xs text-slate-500">Quotes and execution are routed through Jupiter&apos;s aggregator via our API; the transaction is signed by your wallet, never by the server.</p>
+      <p className="mt-1 text-xs text-slate-500">{t("Quotes and execution are routed through Jupiter's aggregator via our API; the transaction is signed by your wallet, never by the server.")}</p>
 
-      {config.isError && <div className="mt-3 rounded-xl border border-rose-500/30 bg-rose-500/5 p-3 text-sm text-rose-200">Swap configuration unavailable: {errorMessage(config.error)}</div>}
+      {config.isError && <div className="mt-3 rounded-xl border border-rose-500/30 bg-rose-500/5 p-3 text-sm text-rose-200">{t('Swap configuration unavailable: {error}', { error: errorMessage(config.error) })}</div>}
       {config.data && !executable && (
         <div className="mt-3 flex items-start gap-2 rounded-xl border border-gold-500/30 bg-gold-500/5 p-3 text-sm text-slate-200">
           <Info size={16} className="mt-0.5 shrink-0 text-gold-400" />
-          <span>Jupiter aggregates Solana mainnet liquidity. Quotes are live mainnet data; execution is disabled while this server runs on {config.data.network}.</span>
+          <span>{t('Jupiter aggregates Solana mainnet liquidity. Quotes are live mainnet data; execution is disabled while this server runs on {network}.', { network: config.data.network })}</span>
         </div>
       )}
-      {!user && <div className="mt-3 text-sm text-slate-400">Sign in to request quotes.</div>}
+      {!user && <div className="mt-3 text-sm text-slate-400">{t('Sign in to request quotes.')}</div>}
 
       <div className="mt-4 grid gap-3">
-        <MintSelect label="You pay" choice={inChoice} custom={inCustom} onChoice={setInChoice} onCustom={setInCustom} wellKnown={wellKnown} />
+        <MintSelect label={t('You pay')} choice={inChoice} custom={inCustom} onChoice={setInChoice} onCustom={setInCustom} wellKnown={wellKnown} />
         <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-          <Field label="Amount" hint={inChoice === 'CUSTOM' ? (inDecimalsQ.isLoading ? 'Reading mint decimals…' : inDecimalsQ.isError ? `Cannot read mint: ${inDecimalsQ.error.message}` : inDecimals !== null ? `${inDecimals} decimals` : undefined) : undefined}>
+          <Field label={t('Amount')} hint={inChoice === 'CUSTOM' ? (inDecimalsQ.isLoading ? t('Reading mint decimals…') : inDecimalsQ.isError ? t('Cannot read mint: {error}', { error: inDecimalsQ.error.message }) : inDecimals !== null ? t('{n} decimals', { n: inDecimals }) : undefined) : undefined}>
             <input className="input font-mono" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^\d.]/g, ''))} placeholder="0.0" />
           </Field>
-          <Field label="Slippage (bps)">
+          <Field label={t('Slippage (bps)')}>
             <input className="input w-28 font-mono" inputMode="numeric" value={slippage} onChange={(e) => setSlippage(e.target.value.replace(/\D/g, ''))} />
           </Field>
         </div>
         <div className="flex justify-center">
-          <button type="button" className="btn-ghost p-2" onClick={flip} title="Flip">
+          <button type="button" className="btn-ghost p-2" onClick={flip} title={t('Flip')}>
             <ArrowDownUp size={16} />
           </button>
         </div>
-        <MintSelect label="You receive" choice={outChoice} custom={outCustom} onChoice={setOutChoice} onCustom={setOutCustom} wellKnown={wellKnown} />
-        {outChoice === 'CUSTOM' && outDecimalsQ.isError && <div className="text-xs text-rose-300">Cannot read output mint: {outDecimalsQ.error.message}</div>}
+        <MintSelect label={t('You receive')} choice={outChoice} custom={outCustom} onChoice={setOutChoice} onCustom={setOutCustom} wellKnown={wellKnown} />
+        {outChoice === 'CUSTOM' && outDecimalsQ.isError && <div className="text-xs text-rose-300">{t('Cannot read output mint: {error}', { error: outDecimalsQ.error.message })}</div>}
       </div>
 
       <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 text-sm">
         {!canQuote ? (
-          <div className="text-slate-500">Enter an amount to get a live quote.</div>
+          <div className="text-slate-500">{t('Enter an amount to get a live quote.')}</div>
         ) : quote.isLoading ? (
           <div className="flex items-center gap-2 text-slate-400">
-            <Spinner /> Fetching quote…
+            <Spinner /> {t('Fetching quote…')}
           </div>
         ) : quote.isError ? (
           <div className="text-rose-300">{errorMessage(quote.error)}</div>
         ) : order ? (
           <div className="grid gap-1">
             <div className="flex justify-between">
-              <span className="text-slate-500">You receive</span>
+              <span className="text-slate-500">{t('You receive')}</span>
               <span className="font-display font-semibold text-white">
                 {outDecimals !== null ? formatUnits(order.outAmount, outDecimals, 6) : order.outAmount} {outChoice === 'CUSTOM' ? shortAddr(outputMint, 4) : outChoice}
               </span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-slate-500">Price impact</span>
-              <span className="text-slate-200">{order.priceImpactPct !== undefined ? `${Number(order.priceImpactPct).toFixed(3)}%` : 'Data unavailable'}</span>
+              <span className="text-slate-500">{t('Price impact')}</span>
+              <span className="text-slate-200">{order.priceImpactPct !== undefined ? `${Number(order.priceImpactPct).toFixed(3)}%` : t('Data unavailable')}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-slate-500">Router</span>
-              <span className="text-slate-200">{order.router ?? 'Data unavailable'}</span>
+              <span className="text-slate-500">{t('Router')}</span>
+              <span className="text-slate-200">{order.router ?? t('Data unavailable')}</span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-slate-500">Request id</span>
+              <span className="text-slate-500">{t('Request id')}</span>
               <span className="font-mono text-slate-400">{shortAddr(order.requestId, 6)}</span>
             </div>
             {order.errorMessage && <div className="text-xs text-rose-300">{order.errorMessage}</div>}
-            {!order.transaction && <div className="text-xs text-gold-300">Quote only: connect a Solana wallet to receive a signable transaction.</div>}
+            {!order.transaction && <div className="text-xs text-gold-300">{t('Quote only: connect a Solana wallet to receive a signable transaction.')}</div>}
           </div>
         ) : null}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button className="btn-primary" disabled={!executable || !order?.transaction || !taker || !linked || execute.isPending} onClick={() => execute.mutate()}>
-          {execute.isPending ? <Spinner /> : <ArrowDownUp size={16} />} {stage === 'signing' ? 'Sign in wallet…' : stage === 'executing' ? 'Executing…' : 'Swap'}
+          {execute.isPending ? <Spinner /> : <ArrowDownUp size={16} />} {stage === 'signing' ? t('Sign in wallet…') : stage === 'executing' ? t('Executing…') : t('Swap')}
         </button>
-        {taker && !linked && user && <span className="text-xs text-gold-300">Link the connected wallet to your account to execute swaps.</span>}
-        {!taker && user && <span className="text-xs text-slate-500">Connect a Solana wallet to execute.</span>}
+        {taker && !linked && user && <span className="text-xs text-gold-300">{t('Link the connected wallet to your account to execute swaps.')}</span>}
+        {!taker && user && <span className="text-xs text-slate-500">{t('Connect a Solana wallet to execute.')}</span>}
       </div>
 
       {result && (
         <div className={`mt-4 rounded-xl border p-3 text-sm ${result.status === 'Success' ? 'border-mint-500/30 bg-mint-500/5' : 'border-rose-500/30 bg-rose-500/5'}`}>
-          <div className="font-semibold text-white">{result.status === 'Success' ? 'Swap confirmed' : 'Swap failed'}</div>
+          <div className="font-semibold text-white">{result.status === 'Success' ? t('Swap confirmed') : t('Swap failed')}</div>
           {result.signature && (
             <div className="mt-1 break-all font-mono text-xs">
               <ExtLink href={solanaExplorerTxUrl(result.signature, SOLANA_NETWORK)}>{result.signature}</ExtLink>
             </div>
           )}
-          {result.totalOutputAmount && outDecimals !== null && <div className="mt-1 text-xs text-slate-300">Received {formatUnits(result.totalOutputAmount, outDecimals, 6)}</div>}
+          {result.totalOutputAmount && outDecimals !== null && <div className="mt-1 text-xs text-slate-300">{t('Received {amount}', { amount: formatUnits(result.totalOutputAmount, outDecimals, 6) })}</div>}
           {result.error && <div className="mt-1 text-xs text-rose-300">{result.error}</div>}
         </div>
       )}

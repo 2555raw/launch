@@ -5,12 +5,17 @@
   "description": "Tricker Launchpad — lanzamientos pareados a cadenas de restaurantes, con servidor, API, persistencia y acceso por wallet.",
   "scripts": {
     "start": "node server.js",
-    "test": "node test.js"
+    "test": "node test.js",
+    "compile": "node contracts/compile.js",
+    "deploy": "node contracts/deploy.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
     "ethers": "^6.13.4"
+  },
+  "devDependencies": {
+    "solc": "^0.8.28"
   }
 }

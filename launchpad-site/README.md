@@ -86,3 +86,38 @@ server.js     el servidor: estáticos, API, fichero de estado, firmas, cotizacio
 launches.js   el catálogo de lanzamientos
 test.js       pruebas de la API (node:test)
 ```
+
+## Bento Launch (dapp en BNB Chain)
+
+`dapp/index.html` es una segunda interfaz, independiente del servidor de arriba: un launchpad
+de coins en BNB Chain donde cada coin se crea pareada a un restaurante que cotiza. Es una
+página estática (HTML, CSS y JS con ethers.js desde cdnjs) que habla directamente con los
+contratos a través de la wallet del usuario (MetaMask o cualquier wallet inyectada).
+
+**Contratos** (`contracts/BentoLaunch.sol`, sin auditar):
+
+- `BentoFactory.createCoin(name, symbol, restaurantId, target, duration)` despliega un
+  `BentoToken` (1.000.000.000 de supply) y un `BentoRaise`.
+- `BentoRaise.buy()` acepta BNB mientras la ventana está abierta; tope por cartera = objetivo/10;
+  al llegar al objetivo la ventana cierra. Lo que sobra del tope o del objetivo se devuelve en la
+  misma transacción.
+- `finalize()` (cualquiera puede llamarlo al cerrar): si se alcanzó el mínimo (objetivo/3), el
+  99 % del BNB y el 20 % del supply van a un pool de PancakeSwap y se queman los LP; el 1 % del
+  BNB es la comisión de plataforma (`feeTo`). Si no, `refund()` devuelve el 100 % a cada comprador.
+- `claim()` reparte el 80 % restante del supply entre los compradores, proporcional a lo pagado.
+
+**Desplegar y conectar**
+
+```bash
+npm install
+npm run compile                                  # contracts/build/*.json
+PRIVATE_KEY=0x... npm run deploy -- testnet      # BNB testnet (chainId 97); mainnet: -- mainnet
+```
+
+Pega la dirección de `BentoFactory` en `NETWORKS[97].factory` (o `[56]`) de `dapp/index.html`
+y sirve la carpeta `dapp/` desde cualquier host estático. La página elige testnet por defecto;
+`#mainnet` en la URL cambia a la red principal. Dentro de claude.ai (iframe aislado) la wallet
+puede no inyectarse: entonces hay que abrir la página desde su propio dominio.
+
+Prueba el flujo completo en testnet (crear, comprar, finalizar, reclamar, reembolsar) antes de
+tocar mainnet. Los contratos manejan dinero real y nadie los ha auditado.

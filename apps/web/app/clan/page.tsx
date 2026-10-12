@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { PlayerSummaryDTO, VillageDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
 import { useRequireAuth } from '@/lib/hooks';
+import { useT } from '@/lib/i18n';
 import { ClanBrowse } from '@/components/clan/clan-browse';
 import { ClanChat } from '@/components/clan/clan-chat';
 import { ClanCreateForm } from '@/components/clan/clan-create-form';
@@ -18,6 +19,7 @@ import type { MyClanResponse } from '@/components/clan/types';
 import { Empty, PageHeader, Spinner } from '@/components/ui/primitives';
 
 export default function ClanPage() {
+  const t = useT();
   const user = useRequireAuth({ player: true });
   const enabled = !!user?.playerId;
   const mine = useQuery({ queryKey: ['clan'], queryFn: () => api<MyClanResponse>('/game/clans/mine'), enabled, refetchInterval: 30_000 });
@@ -26,11 +28,11 @@ export default function ClanPage() {
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   if (!user) return null;
-  if (mine.error) return <Empty title="Could not load clan" body={errorMessage(mine.error)} action={<button className="btn-secondary" onClick={() => void mine.refetch()}>Retry</button>} />;
+  if (mine.error) return <Empty title={t('Could not load clan')} body={errorMessage(mine.error)} action={<button className="btn-secondary" onClick={() => void mine.refetch()}>{t('Retry')}</button>} />;
   if (!mine.data) {
     return (
       <div className="flex items-center gap-2 py-20 text-sm text-slate-400">
-        <Spinner /> Loading clan…
+        <Spinner /> {t('Loading clan…')}
       </div>
     );
   }
@@ -43,7 +45,7 @@ export default function ClanPage() {
     const hasClanHall = buildings ? buildings.some((b) => b.type === 'clan_hall' && b.state !== 'CONSTRUCTING') : undefined;
     return (
       <div className="mx-auto max-w-6xl">
-        <PageHeader title="Clan" subtitle="Join forces: share troops, chat and climb the clan leaderboard together." />
+        <PageHeader title={t('Clan')} subtitle={t('Join forces: share troops, chat and climb the clan leaderboard together.')} />
         <div className="grid gap-4 lg:grid-cols-5">
           <div className="space-y-4 lg:col-span-3">
             <ClanInvites invites={invites} />

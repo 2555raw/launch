@@ -4,6 +4,7 @@ import { useMutation } from '@tanstack/react-query';
 import { FileJson, Pencil } from 'lucide-react';
 import type { ProjectDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
+import { useT } from '@/lib/i18n';
 import { toast } from '@/components/ui/toast';
 import { Spinner, shortAddr } from '@/components/ui/primitives';
 import { ChainBadge, ExtLink, ProjectLogo, formatWhole } from '../common';
@@ -19,13 +20,14 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 export function StepReview({ project, fixedSupply, revokeFreeze, prepared, onPrepared, onEdit, onBack, onNext }: { project: ProjectDTO; fixedSupply: boolean; revokeFreeze: boolean; prepared: PreparedLaunch | null; onPrepared: (p: PreparedLaunch) => void; onEdit: (step: number) => void; onBack: () => void; onNext: () => void }) {
+  const t = useT();
   const prepare = useMutation({
     mutationFn: () => api<PreparedLaunch>(`/launchpad/projects/${project.id}/prepare`, { method: 'POST' }),
     onSuccess: (p) => {
       onPrepared(p);
-      toast.success('Metadata published', 'The off-chain metadata JSON is ready. Next: sign the transaction.');
+      toast.success(t('Metadata published'), t('The off-chain metadata JSON is ready. Next: sign the transaction.'));
     },
-    onError: (e) => toast.error('Could not prepare launch', errorMessage(e)),
+    onError: (e) => toast.error(t('Could not prepare launch'), errorMessage(e)),
   });
   const current = prepared && prepared.project.id === project.id ? prepared : null;
   const sol = project.chain === 'SOLANA';
@@ -33,8 +35,8 @@ export function StepReview({ project, fixedSupply, revokeFreeze, prepared, onPre
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-xl font-semibold text-white">Review</h2>
-        <p className="mt-1 text-sm text-slate-400">Check everything. Preparing writes the metadata JSON that the token will point to; the on-chain part happens in the next step.</p>
+        <h2 className="font-display text-xl font-semibold text-white">{t('Review')}</h2>
+        <p className="mt-1 text-sm text-slate-400">{t('Check everything. Preparing writes the metadata JSON that the token will point to; the on-chain part happens in the next step.')}</p>
       </div>
 
       <div className="card p-4">
@@ -49,50 +51,50 @@ export function StepReview({ project, fixedSupply, revokeFreeze, prepared, onPre
           </div>
         </div>
         <div className="mt-4">
-          <Row label="Description">{project.description || <span className="text-slate-500">None</span>}</Row>
-          <Row label="Total supply">
-            {formatWhole(project.totalSupply)} {project.symbol} <span className="text-slate-500">· {project.decimals} decimals</span>
+          <Row label={t('Description')}>{project.description || <span className="text-slate-500">{t('None')}</span>}</Row>
+          <Row label={t('Total supply')}>
+            {formatWhole(project.totalSupply)} {project.symbol} <span className="text-slate-500">· {t('{n} decimals', { n: project.decimals })}</span>
           </Row>
-          <Row label="Fixed supply">{fixedSupply ? <span className="text-mint-400">Yes — {sol ? 'mint authority revoked' : 'minting disabled'}</span> : <span className="text-gold-300">No — you keep the ability to mint</span>}</Row>
-          {sol && <Row label="Freeze authority">{revokeFreeze ? <span className="text-mint-400">Revoked</span> : <span className="text-gold-300">Kept by creator wallet</span>}</Row>}
-          <Row label="Links">
+          <Row label={t('Fixed supply')}>{fixedSupply ? <span className="text-mint-400">{t('Yes — {how}', { how: sol ? t('mint authority revoked') : t('minting disabled') })}</span> : <span className="text-gold-300">{t('No — you keep the ability to mint')}</span>}</Row>
+          {sol && <Row label={t('Freeze authority')}>{revokeFreeze ? <span className="text-mint-400">{t('Revoked')}</span> : <span className="text-gold-300">{t('Kept by creator wallet')}</span>}</Row>}
+          <Row label={t('Links')}>
             {[project.website, project.twitter, project.discord, project.telegram].filter(Boolean).length === 0 ? (
-              <span className="text-slate-500">None</span>
+              <span className="text-slate-500">{t('None')}</span>
             ) : (
               <div className="flex flex-wrap gap-3 text-xs">
                 <SocialLinks links={{ website: project.website, twitter: project.twitter, discord: project.discord, telegram: project.telegram }} labels />
               </div>
             )}
           </Row>
-          <Row label="Logo">{project.logoUrl ? <ExtLink href={project.logoUrl}>Uploaded</ExtLink> : <span className="text-gold-300">Not uploaded (you can add it later only before launch)</span>}</Row>
+          <Row label={t('Logo')}>{project.logoUrl ? <ExtLink href={project.logoUrl}>{t('Uploaded')}</ExtLink> : <span className="text-gold-300">{t('Not uploaded (you can add it later only before launch)')}</span>}</Row>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <button className="btn-ghost text-xs" onClick={() => onEdit(2)}>
-            <Pencil size={14} /> Edit details
+            <Pencil size={14} /> {t('Edit details')}
           </button>
           <button className="btn-ghost text-xs" onClick={() => onEdit(3)}>
-            <Pencil size={14} /> Change logo
+            <Pencil size={14} /> {t('Change logo')}
           </button>
         </div>
       </div>
 
       <div className="card p-4">
         <div className="flex items-center gap-2 font-display font-semibold text-white">
-          <FileJson size={16} className="text-ember-400" /> Token metadata
+          <FileJson size={16} className="text-ember-400" /> {t('Token metadata')}
         </div>
         {current ? (
           <div className="mt-3 space-y-2 text-sm">
-            <div className="text-mint-400">Metadata JSON written.</div>
+            <div className="text-mint-400">{t('Metadata JSON written.')}</div>
             <div className="break-all font-mono text-xs text-slate-300">
               <ExtLink href={current.metadataUri}>{current.metadataUri}</ExtLink>
             </div>
-            <div className="text-xs text-slate-500">Linked {sol ? 'Solana' : 'Robinhood Chain'} wallets: {current.linkedWallets.map((w) => shortAddr(w, 4)).join(', ')}</div>
+            <div className="text-xs text-slate-500">{t('Linked {chain} wallets: {list}', { chain: sol ? 'Solana' : 'Robinhood Chain', list: current.linkedWallets.map((w) => shortAddr(w, 4)).join(', ') })}</div>
           </div>
         ) : (
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <p className="text-sm text-slate-400">Generates the JSON file (name, symbol, description, image, links) that the token&apos;s URI points to and marks the project as awaiting signature.</p>
+            <p className="text-sm text-slate-400">{t("Generates the JSON file (name, symbol, description, image, links) that the token's URI points to and marks the project as awaiting signature.")}</p>
             <button className="btn-primary" disabled={prepare.isPending} onClick={() => prepare.mutate()}>
-              {prepare.isPending && <Spinner />} Prepare launch
+              {prepare.isPending && <Spinner />} {t('Prepare launch')}
             </button>
           </div>
         )}
@@ -100,10 +102,10 @@ export function StepReview({ project, fixedSupply, revokeFreeze, prepared, onPre
 
       <div className="flex justify-between">
         <button type="button" className="btn-ghost" onClick={onBack}>
-          Back
+          {t('Back')}
         </button>
         <button type="button" className="btn-primary" disabled={!current} onClick={onNext}>
-          Continue to signing
+          {t('Continue to signing')}
         </button>
       </div>
     </div>

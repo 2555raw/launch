@@ -8,8 +8,10 @@ import clsx from 'clsx';
 import { api } from '@/lib/api';
 import { useAuth } from '@/lib/auth-store';
 import { useSocket } from '@/lib/socket';
+import { useT } from '@/lib/i18n';
 import type { NotificationDTO, VillageDTO } from '@launch/types';
 import { compact } from '@/components/ui/primitives';
+import { LanguageSwitcher } from '@/components/ui/language-switcher';
 import { SiteFooter } from './footer';
 
 const GAME_ROUTES = ['/village', '/attack'];
@@ -31,6 +33,7 @@ const WEB3_NAV = [
 ];
 
 export function Shell({ children }: { children: React.ReactNode }) {
+  const t = useT();
   const pathname = usePathname();
   const { user, ready, logout } = useAuth();
   const [open, setOpen] = useState(false);
@@ -54,7 +57,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       {items.map((n) => (
         <li key={n.href}>
           <Link href={n.href} className={clsx('flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition', pathname.startsWith(n.href) ? 'bg-ember-500/15 text-ember-300' : 'text-slate-400 hover:bg-white/[0.05] hover:text-slate-100')}>
-            <n.icon size={16} /> {n.label}
+            <n.icon size={16} /> {t(n.label)}
           </Link>
         </li>
       ))}
@@ -67,31 +70,34 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-ember-400 to-elixir-500 font-display text-lg font-extrabold text-ink-950">L</span>
         <div>
           <div className="font-display text-base font-bold leading-tight text-white">Launch</div>
-          <div className="text-[11px] text-slate-500">Emberhold · Launchpad</div>
+          <div className="text-[11px] text-slate-500">{t('Emberhold · Launchpad')}</div>
         </div>
       </Link>
-      <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Game</div>
+      <div className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('Game')}</div>
       <NavList items={GAME_NAV} />
-      <div className="mb-2 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Web3</div>
+      <div className="mb-2 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('Web3')}</div>
       <NavList items={WEB3_NAV} />
       {isStaff && (
         <>
-          <div className="mb-2 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">Staff</div>
+          <div className="mb-2 mt-5 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">{t('Staff')}</div>
           <NavList items={[{ href: '/admin', label: 'Admin', icon: Wrench }]} />
         </>
       )}
       <div className="mt-auto pt-4">
+        <div className="mb-3">
+          <LanguageSwitcher />
+        </div>
         {user ? (
           <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
             <div className="truncate text-sm font-semibold text-slate-100">{user.username}</div>
             <div className="text-[11px] text-slate-500">{user.role.toLowerCase()}</div>
             <button onClick={() => void logout()} className="btn-ghost mt-2 w-full justify-start px-2 py-1 text-xs">
-              <LogOut size={14} /> Sign out
+              <LogOut size={14} /> {t('Sign out')}
             </button>
           </div>
         ) : ready ? (
           <Link href="/login" className="btn-primary w-full">
-            Sign in
+            {t('Sign in')}
           </Link>
         ) : null}
       </div>
@@ -104,12 +110,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
       {open && (
         <div className="fixed inset-0 z-50 flex lg:hidden">
           <div className="h-full">{sidebar}</div>
-          <button className="flex-1 bg-black/60" onClick={() => setOpen(false)} aria-label="Close menu" />
+          <button className="flex-1 bg-black/60" onClick={() => setOpen(false)} aria-label={t('Close menu')} />
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b border-white/[0.06] bg-ink-950/80 px-4 backdrop-blur">
-          <button className="btn-ghost p-2 lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Menu">
+          <button className="btn-ghost p-2 lg:hidden" onClick={() => setOpen((o) => !o)} aria-label={t('Menu')}>
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>
           {res && (
@@ -120,11 +126,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
             </div>
           )}
           <div className="ml-auto flex items-center gap-2">
+            <LanguageSwitcher compact />
             {user?.playerId && <NotificationBell />}
-            <span className={clsx('hidden h-2 w-2 rounded-full sm:block', socket.status === 'authed' ? 'bg-mint-500' : 'bg-slate-600')} title={`Realtime: ${socket.status}`} />
+            <span className={clsx('hidden h-2 w-2 rounded-full sm:block', socket.status === 'authed' ? 'bg-mint-500' : 'bg-slate-600')} title={t('Realtime: {status}', { status: socket.status })} />
             {!user && ready && (
               <Link href="/register" className="btn-primary hidden sm:inline-flex">
-                Play free
+                {t('Play free')}
               </Link>
             )}
           </div>
@@ -137,6 +144,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
 }
 
 function NotificationBell() {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const { notifications, unread, setNotifications } = useSocket();
   const q = useQuery({ queryKey: ['notifications'], queryFn: () => api<{ notifications: NotificationDTO[]; unread: number }>('/game/notifications'), refetchInterval: 60_000 });
@@ -149,15 +157,15 @@ function NotificationBell() {
   };
   return (
     <div className="relative">
-      <button className="btn-ghost relative p-2" onClick={() => { setOpen((o) => !o); if (!open && unread) void markRead(); }} aria-label="Notifications">
+      <button className="btn-ghost relative p-2" onClick={() => { setOpen((o) => !o); if (!open && unread) void markRead(); }} aria-label={t('Notifications')}>
         <Bell size={18} />
         {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-ember-500 px-1 text-[10px] font-bold text-ink-950">{unread}</span>}
       </button>
       {open && (
         <div className="card absolute right-0 mt-2 w-80 p-2">
-          <div className="px-2 py-1 text-xs font-semibold uppercase text-slate-500">Notifications</div>
+          <div className="px-2 py-1 text-xs font-semibold uppercase text-slate-500">{t('Notifications')}</div>
           <div className="scroll-thin max-h-80 overflow-y-auto">
-            {notifications.length === 0 && <div className="px-2 py-4 text-sm text-slate-500">Nothing yet.</div>}
+            {notifications.length === 0 && <div className="px-2 py-4 text-sm text-slate-500">{t('Nothing yet.')}</div>}
             {notifications.map((n) => (
               <div key={n.id} className="rounded-lg px-2 py-2 text-sm hover:bg-white/[0.04]">
                 <div className="font-medium text-slate-100">{n.title}</div>

@@ -1,6 +1,7 @@
 'use client';
 import { Loader2 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { tGlobal } from '@/lib/i18n';
 
 export function Spinner({ className = '' }: { className?: string }) {
   return <Loader2 className={`animate-spin ${className}`} size={16} />;
@@ -40,12 +41,12 @@ export function Stat({ label, value, hint, accent }: { label: string; value: Rea
 }
 
 export function fmt(n: number | null | undefined, digits = 0): string {
-  if (n === null || n === undefined || Number.isNaN(n)) return 'Data unavailable';
+  if (n === null || n === undefined || Number.isNaN(n)) return tGlobal('Data unavailable');
   return n.toLocaleString(undefined, { maximumFractionDigits: digits });
 }
 
 export function fmtUsd(n: number | null | undefined): string {
-  if (n === null || n === undefined || Number.isNaN(n)) return 'Data unavailable';
+  if (n === null || n === undefined || Number.isNaN(n)) return tGlobal('Data unavailable');
   if (n < 0.01 && n > 0) return `$${n.toPrecision(3)}`;
   return `$${n.toLocaleString(undefined, { maximumFractionDigits: n < 1 ? 4 : 2 })}`;
 }
@@ -58,7 +59,7 @@ export function compact(n: number | null | undefined): string {
 export function timeLeft(iso: string | null, now = Date.now()): string {
   if (!iso) return '';
   const ms = new Date(iso).getTime() - now;
-  if (ms <= 0) return 'done';
+  if (ms <= 0) return tGlobal('done');
   const s = Math.ceil(ms / 1000);
   if (s < 60) return `${s}s`;
   const m = Math.floor(s / 60);

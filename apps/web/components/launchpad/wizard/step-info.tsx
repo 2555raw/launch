@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Chain, ProjectDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
+import { useT } from '@/lib/i18n';
 import { toast } from '@/components/ui/toast';
 import { Spinner } from '@/components/ui/primitives';
 import { Field, formatWhole } from '../common';
@@ -36,6 +37,7 @@ function fromProject(p: ProjectDTO | null, chain: Chain): FormState {
 
 const URL_RE = /^https?:\/\/.+/i;
 
+/** Error strings are English dictionary keys; they are translated where rendered. */
 function validate(f: FormState, chain: Chain): Partial<Record<keyof FormState, string>> {
   const e: Partial<Record<keyof FormState, string>> = {};
   if (!f.name.trim()) e.name = 'Required';
@@ -68,6 +70,7 @@ export function StepInfo({
   onSaved: (p: ProjectDTO) => void;
   onBack: () => void;
 }) {
+  const t = useT();
   const qc = useQueryClient();
   const [form, setForm] = useState<FormState>(() => fromProject(project, chain));
   const [touched, setTouched] = useState(false);
@@ -96,10 +99,10 @@ export function StepInfo({
     onSuccess: (p) => {
       qc.setQueryData(['project', p.id], (old: { project: ProjectDTO; transactions: unknown[] } | undefined) => ({ project: p, transactions: old?.transactions ?? [] }));
       void qc.invalidateQueries({ queryKey: ['launchpad', 'mine'] });
-      toast.success(project ? 'Draft updated' : 'Draft created');
+      toast.success(project ? t('Draft updated') : t('Draft created'));
       onSaved(p);
     },
-    onError: (e) => toast.error('Could not save project', errorMessage(e)),
+    onError: (e) => toast.error(t('Could not save project'), errorMessage(e)),
   });
 
   const submit = (ev: React.FormEvent) => {
@@ -108,28 +111,28 @@ export function StepInfo({
     if (Object.keys(errors).length) return;
     save.mutate();
   };
-  const err = (k: keyof FormState) => (touched ? errors[k] : undefined);
+  const err = (k: keyof FormState) => (touched && errors[k] ? t(errors[k] as string) : undefined);
 
   return (
     <form onSubmit={submit} className="space-y-6">
       <div>
-        <h2 className="font-display text-xl font-semibold text-white">Token information</h2>
-        <p className="mt-1 text-sm text-slate-400">Name, symbol and supply are written on chain and cannot be changed after launch.</p>
+        <h2 className="font-display text-xl font-semibold text-white">{t('Token information')}</h2>
+        <p className="mt-1 text-sm text-slate-400">{t('Name, symbol and supply are written on chain and cannot be changed after launch.')}</p>
       </div>
 
       <div className="card grid gap-4 p-4 sm:grid-cols-2">
-        <Field label="Name" error={err('name')} hint={`${form.name.length}/32`}>
+        <Field label={t('Name')} error={err('name')} hint={`${form.name.length}/32`}>
           <input className="input" value={form.name} maxLength={32} onChange={(e) => set('name', e.target.value)} placeholder="Ember Coin" />
         </Field>
-        <Field label="Symbol" error={err('symbol')} hint="Uppercase, max 10">
+        <Field label={t('Symbol')} error={err('symbol')} hint={t('Uppercase, max 10')}>
           <input className="input font-mono uppercase" value={form.symbol} maxLength={10} onChange={(e) => set('symbol', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} placeholder="EMBER" />
         </Field>
         <div className="sm:col-span-2">
-          <Field label="Description" error={err('description')} hint={`${form.description.length}/2000 · included in the off-chain metadata`}>
-            <textarea className="input min-h-24" value={form.description} maxLength={2000} onChange={(e) => set('description', e.target.value)} placeholder="What is this token for?" />
+          <Field label={t('Description')} error={err('description')} hint={`${form.description.length}/2000 · ${t('included in the off-chain metadata')}`}>
+            <textarea className="input min-h-24" value={form.description} maxLength={2000} onChange={(e) => set('description', e.target.value)} placeholder={t('What is this token for?')} />
           </Field>
         </div>
-        <Field label="Website" error={err('website')}>
+        <Field label={t('Website')} error={err('website')}>
           <input className="input" value={form.website} onChange={(e) => set('website', e.target.value)} placeholder="https://" />
         </Field>
         <Field label="X / Twitter" error={err('twitter')}>
@@ -144,25 +147,25 @@ export function StepInfo({
       </div>
 
       <div className="card grid gap-4 p-4 sm:grid-cols-2">
-        <Field label="Total supply (whole tokens)" error={err('totalSupply')} hint={/^\d+$/.test(form.totalSupply) ? `${formatWhole(form.totalSupply)} ${form.symbol || 'tokens'}` : undefined}>
+        <Field label={t('Total supply (whole tokens)')} error={err('totalSupply')} hint={/^\d+$/.test(form.totalSupply) ? `${formatWhole(form.totalSupply)} ${form.symbol || t('tokens')}` : undefined}>
           <input className="input font-mono" inputMode="numeric" value={form.totalSupply} onChange={(e) => set('totalSupply', e.target.value.replace(/\D/g, ''))} placeholder="1000000000" />
         </Field>
-        <Field label="Decimals" error={err('decimals')} hint={chain === 'SOLANA' ? '0 – 9 (default 9)' : '0 – 18 (default 18)'}>
+        <Field label={t('Decimals')} error={err('decimals')} hint={chain === 'SOLANA' ? t('0 – 9 (default 9)') : t('0 – 18 (default 18)')}>
           <input className="input font-mono" type="number" min={0} max={maxDecimals(chain)} value={form.decimals} onChange={(e) => set('decimals', Number(e.target.value))} />
         </Field>
         <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 sm:col-span-2">
           <input type="checkbox" className="mt-0.5 accent-ember-500" checked={fixedSupply} onChange={(e) => onFlags({ fixedSupply: e.target.checked })} />
           <span>
-            <span className="block text-sm font-medium text-slate-100">Fixed supply</span>
-            <span className="block text-xs text-slate-400">{chain === 'SOLANA' ? 'Revokes the mint authority in the creation transaction: no more tokens can ever be minted.' : 'Disables minting in the constructor: the contract owner cannot mint additional tokens.'}</span>
+            <span className="block text-sm font-medium text-slate-100">{t('Fixed supply')}</span>
+            <span className="block text-xs text-slate-400">{chain === 'SOLANA' ? t('Revokes the mint authority in the creation transaction: no more tokens can ever be minted.') : t('Disables minting in the constructor: the contract owner cannot mint additional tokens.')}</span>
           </span>
         </label>
         {chain === 'SOLANA' && (
           <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 sm:col-span-2">
             <input type="checkbox" className="mt-0.5 accent-ember-500" checked={revokeFreeze} onChange={(e) => onFlags({ revokeFreeze: e.target.checked })} />
             <span>
-              <span className="block text-sm font-medium text-slate-100">Revoke freeze authority</span>
-              <span className="block text-xs text-slate-400">Nobody (including you) will be able to freeze holders&apos; token accounts. Recommended for community tokens.</span>
+              <span className="block text-sm font-medium text-slate-100">{t('Revoke freeze authority')}</span>
+              <span className="block text-xs text-slate-400">{t("Nobody (including you) will be able to freeze holders' token accounts. Recommended for community tokens.")}</span>
             </span>
           </label>
         )}
@@ -170,10 +173,10 @@ export function StepInfo({
 
       <div className="flex justify-between">
         <button type="button" className="btn-ghost" onClick={onBack}>
-          Back
+          {t('Back')}
         </button>
         <button type="submit" className="btn-primary" disabled={save.isPending}>
-          {save.isPending && <Spinner />} {project ? 'Save & continue' : 'Create draft & continue'}
+          {save.isPending && <Spinner />} {project ? t('Save & continue') : t('Create draft & continue')}
         </button>
       </div>
     </form>

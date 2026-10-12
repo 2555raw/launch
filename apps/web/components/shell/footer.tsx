@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { SocialLinks } from '@/components/ui/brand-icons';
 import { SolanaIcon } from '@/components/ui/brand-icons';
 import { SOLANA_NETWORK, ROBINHOOD_CHAIN_NETWORK } from '@/lib/config';
+import { useT } from '@/lib/i18n';
 
 const COMMUNITY = {
   discord: process.env.NEXT_PUBLIC_DISCORD_URL,
@@ -13,6 +14,7 @@ const COMMUNITY = {
 };
 
 export function SiteFooter() {
+  const t = useT();
   return (
     <footer className="mt-12 border-t border-white/[0.06] px-4 py-8 text-sm text-slate-500 md:px-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -22,9 +24,9 @@ export function SiteFooter() {
         </div>
         <SocialLinks links={COMMUNITY} labels />
         <div className="flex gap-4 text-xs">
-          <Link href="/projects" className="hover:text-slate-300">Projects</Link>
-          <Link href="/leaderboard" className="hover:text-slate-300">Leaderboard</Link>
-          <Link href="/settings" className="hover:text-slate-300">Settings</Link>
+          <Link href="/projects" className="hover:text-slate-300">{t('Projects')}</Link>
+          <Link href="/leaderboard" className="hover:text-slate-300">{t('Leaderboard')}</Link>
+          <Link href="/settings" className="hover:text-slate-300">{t('Settings')}</Link>
         </div>
       </div>
     </footer>

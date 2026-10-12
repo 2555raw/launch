@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import type { VillageDTO } from '@launch/types';
 import { X } from 'lucide-react';
+import { tGlobal, useI18n } from '@/lib/i18n';
+import { buildingDescription, buildingName, categoryLabel } from '@/lib/i18n/game-data';
 import { CostLine } from './BuildingPanel';
 import type { CatalogEntry } from './useVillage';
 
@@ -16,7 +18,7 @@ const CATS = [
 ] as const;
 
 function fmtSec(s: number): string {
-  if (s === 0) return 'Instant';
+  if (s === 0) return tGlobal('Instant');
   if (s < 60) return `${s}s`;
   if (s < 3600) return `${Math.round(s / 60)}m`;
   if (s < 86400) return `${(s / 3600).toFixed(1)}h`;
@@ -24,6 +26,7 @@ function fmtSec(s: number): string {
 }
 
 export function ShopPanel({ catalog, village, onPlace, onClose }: { catalog: CatalogEntry[]; village: VillageDTO; onPlace: (type: string) => void; onClose: () => void }) {
+  const { locale, t } = useI18n();
   const [cat, setCat] = useState<string>('all');
   const counts = new Map<string, number>();
   for (const b of village.buildings) counts.set(b.type, (counts.get(b.type) ?? 0) + 1);
@@ -31,12 +34,12 @@ export function ShopPanel({ catalog, village, onPlace, onClose }: { catalog: Cat
   return (
     <div className="card flex h-full max-h-[calc(100vh-8rem)] flex-col p-4">
       <div className="mb-3 flex items-center justify-between">
-        <div className="font-display text-lg font-bold text-white">Shop</div>
-        <button className="btn-ghost p-1" onClick={onClose} aria-label="Close"><X size={16} /></button>
+        <div className="font-display text-lg font-bold text-white">{t('Shop')}</div>
+        <button className="btn-ghost p-1" onClick={onClose} aria-label={t('Close')}><X size={16} /></button>
       </div>
       <div className="mb-3 flex flex-wrap gap-1">
         {CATS.map(([k, label]) => (
-          <button key={k} onClick={() => setCat(k)} className={`rounded-lg px-2 py-1 text-xs ${cat === k ? 'bg-ember-500/20 text-ember-300' : 'text-slate-400 hover:bg-white/[0.05]'}`}>{label}</button>
+          <button key={k} onClick={() => setCat(k)} className={`rounded-lg px-2 py-1 text-xs ${cat === k ? 'bg-ember-500/20 text-ember-300' : 'text-slate-400 hover:bg-white/[0.05]'}`}>{categoryLabel(locale, k, label)}</button>
         ))}
       </div>
       <div className="scroll-thin -mr-2 flex-1 space-y-2 overflow-y-auto pr-2">
@@ -52,16 +55,16 @@ export function ShopPanel({ catalog, village, onPlace, onClose }: { catalog: Cat
             <div key={c.type} className="rounded-xl border border-white/[0.06] bg-ink-800/60 p-3">
               <div className="flex items-start justify-between gap-2">
                 <div>
-                  <div className="text-sm font-semibold text-slate-100">{c.name}</div>
-                  <div className="text-[11px] text-slate-500">{c.size}×{c.size} · {fmtSec(l1.buildTimeSec)} · {have}/{c.maxCount} built</div>
+                  <div className="text-sm font-semibold text-slate-100">{buildingName(locale, c.type, c.name)}</div>
+                  <div className="text-[11px] text-slate-500">{c.size}×{c.size} · {fmtSec(l1.buildTimeSec)} · {t('{have}/{max} built', { have, max: c.maxCount })}</div>
                 </div>
-                <span className="badge">{c.category}</span>
+                <span className="badge">{categoryLabel(locale, c.category, c.category)}</span>
               </div>
-              <p className="mt-1 text-xs text-slate-400">{c.description}</p>
+              <p className="mt-1 text-xs text-slate-400">{buildingDescription(locale, c.type, c.description)}</p>
               <div className="mt-2 flex items-center justify-between text-xs">
                 <CostLine cost={cost} />
                 <button className="btn-primary px-3 py-1 text-xs" disabled={locked || full || !affordable} onClick={() => onPlace(c.type)}>
-                  {locked ? `Town Hall ${l1.requiredTownHall}` : full ? 'Max built' : !affordable ? 'Too expensive' : 'Place'}
+                  {locked ? t('Town Hall {level}', { level: l1.requiredTownHall }) : full ? t('Max built') : !affordable ? t('Too expensive') : t('Place')}
                 </button>
               </div>
             </div>

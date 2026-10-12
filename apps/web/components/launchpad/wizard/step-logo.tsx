@@ -6,6 +6,7 @@ import type { ApiError, ProjectDTO } from '@launch/types';
 import { API_URL } from '@/lib/config';
 import { useAuth } from '@/lib/auth-store';
 import { errorMessage, refreshAccessToken } from '@/lib/api';
+import { tGlobal, useT } from '@/lib/i18n';
 import { toast } from '@/components/ui/toast';
 import { Spinner } from '@/components/ui/primitives';
 import { ProjectLogo } from '../common';
@@ -31,12 +32,13 @@ async function uploadLogo(projectId: string, file: File, token: string | null): 
     } catch {
       /* ignore */
     }
-    throw new Error(err?.error.message ?? `Upload failed (${res.status})`);
+    throw new Error(err?.error.message ?? tGlobal('Upload failed ({status})', { status: res.status }));
   }
   return ((await res.json()) as { project: ProjectDTO }).project;
 }
 
 export function StepLogo({ project, onBack, onNext }: { project: ProjectDTO; onBack: () => void; onNext: () => void }) {
+  const t = useT();
   const qc = useQueryClient();
   const accessToken = useAuth((s) => s.accessToken);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -52,8 +54,8 @@ export function StepLogo({ project, onBack, onNext }: { project: ProjectDTO; onB
       setPreview(null);
       return;
     }
-    if (!ACCEPT.includes(f.type)) return setLocalError('Logo must be PNG, JPEG, WebP or SVG.');
-    if (f.size > MAX_BYTES) return setLocalError('Logo must be under 2 MB.');
+    if (!ACCEPT.includes(f.type)) return setLocalError(t('Logo must be PNG, JPEG, WebP or SVG.'));
+    if (f.size > MAX_BYTES) return setLocalError(t('Logo must be under 2 MB.'));
     setFile(f);
     setPreview(URL.createObjectURL(f));
   };
@@ -62,28 +64,28 @@ export function StepLogo({ project, onBack, onNext }: { project: ProjectDTO; onB
     mutationFn: () => uploadLogo(project.id, file as File, accessToken),
     onSuccess: (p) => {
       qc.setQueryData(['project', p.id], (old: { project: ProjectDTO; transactions: unknown[] } | undefined) => ({ project: p, transactions: old?.transactions ?? [] }));
-      toast.success('Logo uploaded');
+      toast.success(t('Logo uploaded'));
       pick(null);
     },
-    onError: (e) => toast.error('Upload failed', errorMessage(e)),
+    onError: (e) => toast.error(t('Upload failed'), errorMessage(e)),
   });
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-display text-xl font-semibold text-white">Logo</h2>
-        <p className="mt-1 text-sm text-slate-400">Shown in discovery, on the project page and referenced from the token metadata. PNG, JPEG, WebP or SVG up to 2 MB; square images look best.</p>
+        <h2 className="font-display text-xl font-semibold text-white">{t('Logo')}</h2>
+        <p className="mt-1 text-sm text-slate-400">{t('Shown in discovery, on the project page and referenced from the token metadata. PNG, JPEG, WebP or SVG up to 2 MB; square images look best.')}</p>
       </div>
 
       <div className="card grid gap-6 p-4 md:grid-cols-[auto_1fr]">
         <div className="flex flex-col items-center gap-2">
           {preview ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={preview} alt="Logo preview" className="h-32 w-32 rounded-2xl object-cover" />
+            <img src={preview} alt={t('Logo preview')} className="h-32 w-32 rounded-2xl object-cover" />
           ) : (
             <ProjectLogo logoUrl={project.logoUrl} name={project.name} symbol={project.symbol} size={128} />
           )}
-          <div className="text-xs text-slate-500">{preview ? 'New (not uploaded yet)' : project.logoUrl ? 'Current logo' : 'No logo yet'}</div>
+          <div className="text-xs text-slate-500">{preview ? t('New (not uploaded yet)') : project.logoUrl ? t('Current logo') : t('No logo yet')}</div>
         </div>
         <div className="space-y-3">
           <input ref={inputRef} type="file" accept={ACCEPT.join(',')} className="hidden" onChange={(e) => pick(e.target.files?.[0] ?? null)} />
@@ -103,17 +105,17 @@ export function StepLogo({ project, onBack, onNext }: { project: ProjectDTO; onB
                 {file.name} · {(file.size / 1024).toFixed(0)} KB
               </span>
             ) : (
-              <span>Click to choose a file or drop it here</span>
+              <span>{t('Click to choose a file or drop it here')}</span>
             )}
           </button>
           {localError && <div className="text-xs text-rose-300">{localError}</div>}
           <div className="flex flex-wrap gap-2">
             <button type="button" className="btn-primary" disabled={!file || upload.isPending} onClick={() => upload.mutate()}>
-              {upload.isPending ? <Spinner /> : <Upload size={16} />} Upload logo
+              {upload.isPending ? <Spinner /> : <Upload size={16} />} {t('Upload logo')}
             </button>
             {file && (
               <button type="button" className="btn-ghost" onClick={() => pick(null)}>
-                Clear
+                {t('Clear')}
               </button>
             )}
           </div>
@@ -122,10 +124,10 @@ export function StepLogo({ project, onBack, onNext }: { project: ProjectDTO; onB
 
       <div className="flex justify-between">
         <button type="button" className="btn-ghost" onClick={onBack}>
-          Back
+          {t('Back')}
         </button>
         <button type="button" className="btn-primary" onClick={onNext} disabled={upload.isPending}>
-          {project.logoUrl ? 'Continue' : 'Skip for now'}
+          {project.logoUrl ? t('Continue') : t('Skip for now')}
         </button>
       </div>
     </div>

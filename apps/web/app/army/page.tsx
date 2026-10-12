@@ -5,6 +5,7 @@ import type { BuildingDefinition, TroopDefinition } from '@launch/game-engine';
 import type { ArmyDTO, VillageDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
 import { useRequireAuth } from '@/lib/hooks';
+import { useT } from '@/lib/i18n';
 import { ArmyComposition } from '@/components/army/army-composition';
 import { HousingBar } from '@/components/army/housing-bar';
 import { ResearchPanel } from '@/components/army/research-panel';
@@ -15,6 +16,7 @@ import { Empty, PageHeader, Spinner } from '@/components/ui/primitives';
 type Catalog = { troops: TroopDefinition[]; buildings: BuildingDefinition[] };
 
 export default function ArmyPage() {
+  const t = useT();
   const user = useRequireAuth({ player: true });
   const enabled = !!user?.playerId;
 
@@ -32,11 +34,11 @@ export default function ArmyPage() {
 
   if (!user) return null;
   const error = army.error ?? catalog.error ?? village.error;
-  if (error && !army.data) return <Empty title="Could not load your army" body={errorMessage(error)} action={<button className="btn-secondary" onClick={() => void army.refetch()}>Retry</button>} />;
+  if (error && !army.data) return <Empty title={t('Could not load your army')} body={errorMessage(error)} action={<button className="btn-secondary" onClick={() => void army.refetch()}>{t('Retry')}</button>} />;
   if (!army.data || !catalog.data) {
     return (
       <div className="flex items-center gap-2 py-20 text-sm text-slate-400">
-        <Spinner /> Mustering the troops…
+        <Spinner /> {t('Mustering the troops…')}
       </div>
     );
   }
@@ -45,14 +47,14 @@ export default function ArmyPage() {
 
   return (
     <div className="mx-auto max-w-6xl">
-      <PageHeader title="Army" subtitle={`Barracks level ${barracksLevel || '—'} · ${barracksCount} working barracks · Laboratory ${labLevel ? `level ${labLevel}` : 'not built'}`} />
+      <PageHeader title={t('Army')} subtitle={t('Barracks level {level} · {count} working barracks · Laboratory {lab}', { level: barracksLevel || '—', count: barracksCount, lab: labLevel ? t('level {level}', { level: labLevel }) : t('not built') })} />
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <HousingBar army={a} />
           <ArmyComposition army={a} />
           <TrainingQueue army={a} />
           <section>
-            <h2 className="mb-3 font-display text-lg font-bold text-white">Troops</h2>
+            <h2 className="mb-3 font-display text-lg font-bold text-white">{t('Troops')}</h2>
             <div className="grid gap-4 md:grid-cols-2">
               {troops.map((def) => (
                 <TroopCard key={def.type} def={def} level={a.troopLevels[def.type]} housingFree={housingFree} elixir={elixir} barracksCount={barracksCount} />

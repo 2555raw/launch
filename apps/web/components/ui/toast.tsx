@@ -1,6 +1,7 @@
 'use client';
 import { create } from 'zustand';
 import { X } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 interface Toast {
   id: number;
@@ -31,6 +32,7 @@ export const toast = {
 };
 
 export function ToastHost() {
+  const tr = useT();
   const { toasts, dismiss } = useToasts();
   return (
     <div className="pointer-events-none fixed bottom-4 right-4 z-[100] flex w-[min(92vw,360px)] flex-col gap-2">
@@ -41,7 +43,7 @@ export function ToastHost() {
               <div className="font-semibold text-slate-100">{t.title}</div>
               {t.body && <div className="mt-0.5 text-xs text-slate-300 break-words">{t.body}</div>}
             </div>
-            <button onClick={() => dismiss(t.id)} className="text-slate-400 hover:text-white" aria-label="Dismiss">
+            <button onClick={() => dismiss(t.id)} className="text-slate-400 hover:text-white" aria-label={tr('Dismiss')}>
               <X size={14} />
             </button>
           </div>

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { MessageSquare, Send } from 'lucide-react';
 import type { ClanMessageDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
+import { useT } from '@/lib/i18n';
 import { useSocket } from '@/lib/socket';
 import { Spinner } from '@/components/ui/primitives';
 import { toast } from '@/components/ui/toast';
@@ -10,6 +11,7 @@ import { toast } from '@/components/ui/toast';
 const MAX_LEN = 500;
 
 export function ClanChat({ clanId, initial, myPlayerId }: { clanId: string; initial: ClanMessageDTO[]; myPlayerId: string }) {
+  const t = useT();
   const { status, send, subscribe } = useSocket();
   const [messages, setMessages] = useState<ClanMessageDTO[]>(initial);
   const [text, setText] = useState('');
@@ -52,7 +54,7 @@ export function ClanChat({ clanId, initial, myPlayerId }: { clanId: string; init
       }
       setText('');
     } catch (e) {
-      toast.error('Message not sent', errorMessage(e));
+      toast.error(t('Message not sent'), errorMessage(e));
     } finally {
       setSending(false);
     }
@@ -62,14 +64,14 @@ export function ClanChat({ clanId, initial, myPlayerId }: { clanId: string; init
     <div className="card flex h-[520px] flex-col p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 font-display text-sm font-semibold text-white">
-          <MessageSquare size={16} className="text-elixir-400" /> Clan chat
+          <MessageSquare size={16} className="text-elixir-400" /> {t('Clan chat')}
         </div>
         <span className={`badge gap-1 ${live ? 'border-mint-500/30 text-mint-400' : 'text-slate-400'}`}>
-          <i className={`h-1.5 w-1.5 rounded-full ${live ? 'bg-mint-400' : 'bg-slate-500'}`} /> {live ? 'live' : 'offline mode'}
+          <i className={`h-1.5 w-1.5 rounded-full ${live ? 'bg-mint-400' : 'bg-slate-500'}`} /> {live ? t('live') : t('offline mode')}
         </span>
       </div>
       <div ref={listRef} className="scroll-thin mt-3 flex-1 space-y-2 overflow-y-auto pr-1">
-        {messages.length === 0 && <p className="py-8 text-center text-xs text-slate-500">No messages yet. Say hello to your clan.</p>}
+        {messages.length === 0 && <p className="py-8 text-center text-xs text-slate-500">{t('No messages yet. Say hello to your clan.')}</p>}
         {messages.map((m) => {
           const own = m.playerId === myPlayerId;
           return (
@@ -84,8 +86,8 @@ export function ClanChat({ clanId, initial, myPlayerId }: { clanId: string; init
         })}
       </div>
       <form onSubmit={(e) => void submit(e)} className="mt-3 flex gap-2">
-        <input className="input" placeholder="Message your clan…" value={text} onChange={(e) => setText(e.target.value)} maxLength={MAX_LEN} />
-        <button type="submit" className="btn-primary shrink-0 px-3" disabled={!text.trim() || sending} aria-label="Send">
+        <input className="input" placeholder={t('Message your clan…')} value={text} onChange={(e) => setText(e.target.value)} maxLength={MAX_LEN} />
+        <button type="submit" className="btn-primary shrink-0 px-3" disabled={!text.trim() || sending} aria-label={t('Send')}>
           {sending ? <Spinner /> : <Send size={16} />}
         </button>
       </form>

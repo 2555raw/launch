@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { WS_URL } from './config';
 import { useAuth } from './auth-store';
 import { toast } from '@/components/ui/toast';
+import { tGlobal } from './i18n';
 
 type Listener = (msg: ServerMessage) => void;
 
@@ -46,7 +47,7 @@ export const useSocket = create<SocketState>((set, get) => ({
         return;
       }
       if (msg.type === 'auth:ok') set({ status: 'authed' });
-      if (msg.type === 'auth:error') toast.error('Realtime connection', msg.message);
+      if (msg.type === 'auth:error') toast.error(tGlobal('Realtime connection'), msg.message);
       if (msg.type === 'notification') {
         set((s) => ({ notifications: [msg.notification, ...s.notifications].slice(0, 50), unread: s.unread + 1 }));
         toast.info(msg.notification.title, msg.notification.body);

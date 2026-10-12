@@ -12,6 +12,7 @@ import { ROBINHOOD_CHAIN_NETWORKS } from '@launch/config/chains';
 import { ROBINHOOD_CHAIN_NETWORK, ROBINHOOD_CHAIN_RPC_URL, SOLANA_RPC_URL } from '@/lib/config';
 import { useAuth } from '@/lib/auth-store';
 import { ToastHost } from '@/components/ui/toast';
+import { I18nProvider } from '@/lib/i18n';
 import '@solana/wallet-adapter-react-ui/styles.css';
 
 function chainFor<N extends 'mainnet' | 'testnet'>(network: N) {
@@ -51,8 +52,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ConnectionProvider endpoint={SOLANA_RPC_URL}>
           <WalletProvider wallets={wallets} autoConnect>
             <WalletModalProvider>
-              {children}
-              <ToastHost />
+              <I18nProvider>
+                {children}
+                <ToastHost />
+              </I18nProvider>
             </WalletModalProvider>
           </WalletProvider>
         </ConnectionProvider>

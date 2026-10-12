@@ -277,6 +277,36 @@ p { margin: 0; }
 .doc p, .doc li { font-size: 15px; color: var(--prose); line-height: 22px; }
 .doc ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
 
+/* ---- hero ---- */
+.hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 24px; align-items: center; background: var(--green-soft); border-radius: 24px; padding: 44px 48px; margin: 8px 0 28px; animation: rise .5s cubic-bezier(.2,.7,.2,1) both; }
+.hero::before { content: ''; position: absolute; right: -8%; bottom: -45%; width: 58%; aspect-ratio: 1; border-radius: 999px; background: radial-gradient(closest-side, rgba(6,193,103,.30), transparent 72%); pointer-events: none; }
+.hero-t { position: relative; min-width: 0; }
+.hero .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; line-height: 16px; font-weight: 600; color: var(--green-ink); background: var(--bg); border-radius: 999px; padding: 7px 12px; }
+.hero .eyebrow i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); animation: pulse 1.8s ease-out infinite; }
+.hero h1 { font-size: 44px; line-height: 1.08; letter-spacing: -.02em; font-weight: 700; margin: 18px 0 14px; max-width: 15ch; }
+.hero h1 em { font-style: normal; color: var(--green-ink); }
+.hero p { font-size: 16px; line-height: 24px; color: var(--prose); max-width: 52ch; }
+.hero-cta { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
+.hero-cta .btn { height: 48px; padding: 0 22px; font-size: 16px; }
+.hero-cta .btn-white { box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.hero-stats { display: flex; gap: 32px; margin-top: 30px; flex-wrap: wrap; }
+.hero-stats b { display: block; font-family: var(--mono); font-size: 24px; line-height: 28px; font-weight: 600; letter-spacing: -.01em; }
+.hero-stats small { display: block; font-size: 13px; line-height: 18px; color: var(--muted); margin-top: 2px; }
+.hero-art { position: relative; height: 330px; }
+.hero-art .orb { position: absolute; animation: float var(--d, 4s) ease-in-out infinite; animation-delay: var(--dl, 0s); }
+.hero-art .orb .logo { width: 100%; height: 100%; border: 0; box-shadow: 0 18px 40px rgba(0,0,0,.14); }
+.hero-art .orb .chip { position: absolute; left: 50%; bottom: -12px; transform: translateX(-50%); white-space: nowrap; background: var(--bg); color: var(--ink); border-radius: 999px; padding: 4px 10px; font-family: var(--mono); font-size: 12px; font-weight: 600; box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+.hero-art .orb .chip i { font-style: normal; margin-left: 4px; }
+.hero-marq { display: none; min-width: 0; width: 100%; }
+.hero-marq .feed-c { gap: 14px; padding-right: 14px; }
+.hero-marq .logo { box-shadow: 0 6px 16px rgba(0,0,0,.10); border: 0; }
+@media (max-width: 1100px) { .hero { grid-template-columns: 1fr; padding: 32px 28px; } .hero-art { display: none; } .hero h1 { font-size: 36px; } .hero-marq { display: block; overflow: hidden; margin-top: 26px; } }
+@media (max-width: 600px) { .hero { padding: 28px 20px 24px; border-radius: 18px; margin-top: 4px; } .hero h1 { font-size: 30px; } .hero-stats { gap: 18px 24px; } .hero-stats b { font-size: 20px; } .hero-cta .btn { flex: 1; padding: 0 12px; } div.bottom { height: auto; min-height: 44px; padding-top: 8px; padding-bottom: 8px; font-size: 12px; line-height: 15px; } }
+.rcard .px-chip, .px-chip { position: absolute; right: 10px; bottom: 14px; background: var(--bg); color: var(--ink); border-radius: 999px; padding: 4px 10px; font-family: var(--mono); font-size: 12px; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,.14); }
+.px-chip i { font-style: normal; margin-left: 4px; }
+.banner .pxl { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--mono); font-size: 13px; font-weight: 600; background: rgba(255,255,255,.22); border-radius: 999px; padding: 4px 10px; }
+.banner.g3 .pxl { background: rgba(0,0,0,.08); }
+
 /* ---- brand mark ---- */
 .brand { display: inline-flex; align-items: center; gap: 9px; }
 .brand .mark { width: 30px; height: 30px; flex: none; }
@@ -380,7 +410,7 @@ p { margin: 0; }
 @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
 @keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
 .cats-wrap, .filters, .ranked, .banners-wrap, .sec { animation: rise .45s cubic-bezier(.2,.7,.2,1) both; }
-.filters { animation-delay: .05s; } .ranked { animation-delay: .08s; } .banners-wrap { animation-delay: .12s; } #sec-rest { animation-delay: .18s; } #sec-featured { animation-delay: .22s; } #sec-new { animation-delay: .26s; } #all { animation-delay: .3s; }
+.cats-wrap { animation-delay: .06s; } .filters { animation-delay: .1s; } .ranked { animation-delay: .08s; } .banners-wrap { animation-delay: .12s; } #sec-rest { animation-delay: .18s; } #sec-featured { animation-delay: .22s; } #sec-new { animation-delay: .26s; } #all { animation-delay: .3s; }
 .row { transition: transform .18s cubic-bezier(.2,.7,.2,1); }
 .row:hover { transform: translateY(-3px); }
 .row-img { transition: box-shadow .18s ease; }
@@ -479,6 +509,17 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
   <main class="content">
     <section id="explore">
+      <div class="hero" id="hero">
+        <div class="hero-t">
+          <span class="eyebrow"><i></i><span id="hero-eye"></span></span>
+          <h1 id="hero-h1"></h1>
+          <p id="hero-p"></p>
+          <div class="hero-cta"><a class="btn btn-ink" href="#launch" data-t="nav.create"></a><a class="btn btn-white" href="#sec-rest" data-t="hero.cta2"></a></div>
+          <div class="hero-stats" id="hero-stats"></div>
+          <div class="hero-marq" id="hero-marq"></div>
+        </div>
+        <div class="hero-art" id="hero-art" aria-hidden="true"></div>
+      </div>
       <div class="cats-wrap">
         <div class="cats" id="cat">
           <button type="button" class="is-on" data-cat="all"><span class="ic" data-ic="all"></span><span data-t="f.allCats"></span></button>
@@ -667,6 +708,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'link.copy': 'Copy link', 'copied': 'Copied.', 'copy.addr': 'Copy address', 'search.noaddr': (n) => `No coin at that address on ${n}.`, 'm.search': 'Search', 'm.wallet': 'Wallet',
       'pairs.n': (n, i) => `${n} tokens · ${i} issuers`, 'pairs.verified': 'Verified on-chain', 'pairs.px': 'Price', 'pairs.nopx': 'Price unavailable', 'px.src': 'USD prices: CoinGecko, 24h change', 'iss.x': 'Backed Finance', 'iss.b': 'Binance', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}: factory not deployed yet. Deploy BentoFactory and set its address in the page config.`, 'st.factoryOk': (n) => `BentoFactory live on ${n}`,
+      'hero.eye': (n) => `Live on BNB Chain · ${n} verified stock tokens`, 'hero.h1': 'Launch a coin <em>paired</em> with a real restaurant stock.', 'hero.p': 'Pick McDonald\'s, Starbucks, Meituan or 15 more. The raise is paid in that restaurant\'s tokenized stock, and at graduation the coin lists against it on PancakeSwap with the liquidity burned.', 'hero.cta2': 'See restaurants', 'hero.live': 'raising now', 'hero.raised': 'raised so far', 'hero.coins': 'coins launched', 'hero.tokens': 'stock tokens', 'hero.fee': 'fee · LP burned', 'hero.today': 'today',
       'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
       'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply, same for everyone', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of the raise + 20% of supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply, pro rata', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP tokens burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
       'ft.tag': 'A coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Factory contract', 'ft.src': 'Source code', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
@@ -715,6 +757,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'link.copy': '复制链接', 'copied': '已复制。', 'copy.addr': '复制地址', 'search.noaddr': (n) => `${n} 上没有该地址的代币。`, 'm.search': '搜索', 'm.wallet': '钱包',
       'pairs.n': (n, i) => `${n} 个代币 · ${i} 家发行方`, 'pairs.verified': '链上已验证', 'pairs.px': '价格', 'pairs.nopx': '暂无价格', 'px.src': '美元价格：CoinGecko，24 小时涨跌', 'iss.x': 'Backed Finance', 'iss.b': '币安', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}：工厂合约尚未部署。请部署 BentoFactory 并在页面配置中填入地址。`, 'st.factoryOk': (n) => `BentoFactory 已在 ${n} 上线`,
+      'hero.eye': (n) => `已在 BNB 链上线 · ${n} 个已验证股票代币`, 'hero.h1': '发行一个与真实餐饮股票<em>配对</em>的代币。', 'hero.p': '选麦当劳、星巴克、美团或另外 15 家。募集以该品牌的股票代币支付，毕业后在 PancakeSwap 与它配对上市，流动性凭证销毁。', 'hero.cta2': '查看品牌', 'hero.live': '募集中', 'hero.raised': '累计募集', 'hero.coins': '已发行代币', 'hero.tokens': '股票代币', 'hero.fee': '手续费 · LP 已销毁', 'hero.today': '今日',
       'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
       'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量，人人相同', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '募集额的 99% + 供应量的 20%', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%，按比例', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
       'ft.tag': 'BNB 链上的代币发射台：每个代币配对一只餐饮股票代币，以它募集，与它配对上市。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '工厂合约', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
@@ -817,6 +860,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     $('#q').placeholder = t('search');
     $$('#lang button').forEach((b) => b.classList.toggle('is-on', b.dataset.lang === lang));
     try { localStorage.setItem('bento.lang', lang); } catch {}
+    const art = $('#hero-art'); if (art) delete art.dataset.built; const mq = $('#hero-marq'); if (mq) delete mq.dataset.built;
     fillRestaurants(); renderPairs(); render();
   }
   const amt = (v, s) => fmt.amt.format(Number(v)) + ' ' + s;
@@ -1004,7 +1048,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const r = REST[rid]; const pr = PAIRS[rid]; if (!r || !pr) return '';
     const n = list().filter((C) => C.rest === rid).length;
     return `<div class="row rcard${state.open === 'r:' + rid ? ' is-open' : ''}" data-open="r:${esc(rid)}">
-      <div class="row-img"><span class="wash" style="background:${esc(tile(r))}"></span>${logo(r, 88)}<span class="tag">${esc(pr.symbol)}</span></div>
+      <div class="row-img"><span class="wash" style="background:${esc(tile(r))}"></span>${logo(r, 88)}<span class="tag">${esc(pr.symbol)}</span>${pxChip(pr.symbol)}</div>
       <div class="row-top"><div class="row-name"><b>${esc(nm(r))}</b><small><span class="tk">${esc(pr.symbol)}</span> · ${esc(pr.issuer)} · ${n ? t('r.coins', n) : t('r.none')}</small></div><button class="heart" type="button" data-open="r:${esc(rid)}" aria-label="${t('btn.view')}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
     </div>`;
   }
@@ -1051,7 +1095,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const host = $('#featured'); const Cs = list(); const live = Cs.filter((C) => C.phase === 'live');
     const top = [...live].sort((a, b) => b.progress - a.progress)[0]; const big = [...live].filter((C) => C !== top).sort((a, b) => b.goal - a.goal)[0];
     const bn = (k, C, sub, cls) => C ? `<div class="banner ${cls}" data-open="${esc(C.addr)}"><div><h3>${esc(C.tick)} · ${esc(nm(C.r))}</h3><p>${t(k)} · ${sub}</p></div><span class="cta">${t('feat.cta')} ${esc(C.tick)}</span><div class="art">${logo(C.r, 120)}</div></div>` : '';
-    const pb = (rid, cls) => { const r = REST[rid]; const pr = PAIRS[rid]; return `<div class="banner ${cls}" data-open="r:${esc(rid)}"><div><h3>${t('promo.pair', esc(nm(r)), esc(pr.symbol))}</h3><p>${t('promo.pairP', esc(pr.symbol), esc(pr.issuer))}</p></div><span class="cta">${t('feat.ctaCreate')} · ${esc(pr.symbol)}</span><div class="art">${logo(r, 120)}</div></div>`; };
+    const pb = (rid, cls) => { const r = REST[rid]; const pr = PAIRS[rid]; return `<div class="banner ${cls}" data-open="r:${esc(rid)}"><div><h3>${t('promo.pair', esc(nm(r)), esc(pr.symbol))}</h3><p>${t('promo.pairP', esc(pr.symbol), esc(pr.issuer))}</p>${PX.usd[pr.symbol] ? `<span class="pxl">${esc(pr.symbol)} ${usdStr(PX.usd[pr.symbol])}${PX.chg[pr.symbol] != null ? ` <span>${PX.chg[pr.symbol] >= 0 ? '▲' : '▼'} ${Math.abs(PX.chg[pr.symbol]).toFixed(2)}% ${t('hero.today')}</span>` : ''}</span>` : ''}</div><span class="cta">${t('feat.ctaCreate')} · ${esc(pr.symbol)}</span><div class="art">${logo(r, 120)}</div></div>`; };
     const promos = ['mcdonalds', 'meituan', 'starbucks'].filter((id) => PAIRS[id]);
     host.innerHTML = (top ? bn('feat.top', top, `${pct(top.progress)} · ${amt(top.raised, top.unit)} / ${amt(top.goal, top.unit)}`, 'g1') : pb(promos[0], 'g1'))
       + (big ? bn('feat.big', big, `${amt(big.goal, big.unit)} · ${t('buyersN', big.buyers)}`, 'g2') : pb(promos[1], 'g2'))
@@ -1135,6 +1179,23 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       <div class="act" id="act"><div class="act-h"><b>${t('chart.h')}</b></div><div class="skel" style="height:132px;border-radius:8px"></div></div>`;
     loadActivity(C);
   }
+  const chg = (sym) => { const c = PX.chg[sym]; return c == null ? '' : `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>`; };
+  const pxChip = (sym) => PX.usd[sym] ? `<span class="px-chip">${usdStr(PX.usd[sym])}${chg(sym)}</span>` : '';
+  const HERO_ORBS = [['mcdonalds', 124, '6%', '6%', 4.2, 0, true], ['starbucks', 96, '46%', '0%', 5.1, -1.3, false], ['meituan', 112, '74%', '20%', 4.6, -2.4, true], ['chipotle', 72, '30%', '56%', 3.9, -0.7, false], ['wendys', 86, '54%', '52%', 4.9, -3.1, true], ['haidilao', 66, '82%', '68%', 4.4, -1.9, false], ['dominos', 58, '4%', '70%', 5.3, -2.8, false]];
+  const tweened = new Set();
+  function setStat(el, value) { if (typeof value !== 'number' || tweened.has(el) || matchMedia('(prefers-reduced-motion: reduce)').matches) { el.textContent = typeof value === 'number' ? num(value) : value; return; }
+    tweened.add(el); const t0 = performance.now(); const step = (now) => { const k = Math.min(1, (now - t0) / 900); el.textContent = num(Math.round(value * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+  function renderHero() {
+    const host = $('#hero'); if (!host) return; const Cs = state.loaded && !state.loadError ? list() : []; const live = Cs.filter((C) => C.phase === 'live');
+    $('#hero-eye').textContent = t('hero.eye', PAIR_IDS.length); $('#hero-h1').innerHTML = t('hero.h1'); $('#hero-p').textContent = t('hero.p');
+    let usd = 0, anyUsd = false; for (const C of Cs) { const p = usdOf(C.unit); if (p) { anyUsd = true; usd += C.raised * p; } }
+    const stats = [[live.length, t('hero.live')], anyUsd ? [usdStr(usd), t('hero.raised')] : [Cs.length, t('hero.coins')], [PAIR_IDS.length, t('hero.tokens')], ['1%', t('hero.fee')]];
+    const hs = $('#hero-stats'); if (hs.children.length !== stats.length) hs.innerHTML = stats.map(() => '<div><b></b><small></small></div>').join('');
+    stats.forEach(([v, l], i) => { const d = hs.children[i]; setStat(d.querySelector('b'), v); d.querySelector('small').textContent = l; });
+    const art = $('#hero-art'); if (!art.dataset.built || art.dataset.px !== String(PX.at)) { art.dataset.built = '1'; art.dataset.px = String(PX.at);
+      art.innerHTML = HERO_ORBS.filter(([id]) => REST[id] && PAIRS[id]).map(([id, sz, l, tp, d, dl, chip]) => `<span class="orb" style="width:${sz}px;height:${sz}px;left:${l};top:${tp};--d:${d}s;--dl:${dl}s" data-open="r:${id}">${logo(REST[id], sz)}${chip && PX.usd[PAIRS[id].symbol] ? `<span class="chip">${esc(PAIRS[id].symbol)} ${usdStr(PX.usd[PAIRS[id].symbol])}${chg(PAIRS[id].symbol)}</span>` : ''}</span>`).join(''); }
+    const mq = $('#hero-marq'); if (!mq.dataset.built) { mq.dataset.built = '1'; const items = PAIR_IDS.map((id) => `<span data-open="r:${id}">${logo(REST[id], 44)}</span>`).join(''); mq.innerHTML = `<div class="feed-t" style="--dur:${PAIR_IDS.length * 2.2}s"><span class="feed-c">${items}</span><span class="feed-c" aria-hidden="true">${items}</span></div>`; }
+  }
   const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2"/></svg>';
   function renderPairs() {
     const host = $('#pairs-list'); if (!host) return; const Cs = state.loaded && !state.loadError ? list() : []; const issuers = new Set();
@@ -1168,7 +1229,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (state.loaded) toast(t('search.noaddr', net().name));
   }
   function copyText(v) { const done = () => toast(t('copied')); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done).catch(() => toast(v)); else { try { const ta = document.createElement('textarea'); ta.value = v; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); } catch { toast(v); } } }
-  function render() { renderStats(); renderWallet(); renderFeatured(); renderRows(); renderPreview(); renderPairs(); renderFeed(); }
+  function render() { renderStats(); renderWallet(); renderHero(); renderFeatured(); renderRows(); renderPreview(); renderPairs(); renderFeed(); }
 
   /* ---------- create ---------- */
   function fillRestaurants() {

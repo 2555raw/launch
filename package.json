@@ -17,7 +17,7 @@
     "dev:api": "npm run dev -w @launch/api",
     "dev:game-server": "npm run dev -w @launch/game-server",
     "dev:web": "npm run dev -w @launch/web",
-    "build": "npm run build:packages && npm run build -w @launch/api -w @launch/game-server -w @launch/web",
+    "build": "npm run db:generate && npm run build:packages && npm run build -w @launch/api -w @launch/game-server -w @launch/web",
     "build:packages": "npm run build -w @launch/types -w @launch/config -w @launch/game-engine -w @launch/database -w @launch/game-core -w @launch/solana -w @launch/evm -w @launch/robinhood",
     "start:api": "npm run start -w @launch/api",
     "start:game-server": "npm run start -w @launch/game-server",

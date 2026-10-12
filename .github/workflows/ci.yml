@@ -37,7 +37,7 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: cp .env.example .env && sed -i "s/^JWT_SECRET=.*/JWT_SECRET=$JWT_SECRET/; s/^CREDENTIALS_ENCRYPTION_KEY=.*/CREDENTIALS_ENCRYPTION_KEY=$CREDENTIALS_ENCRYPTION_KEY/; s#^DATABASE_URL=.*#DATABASE_URL=$DATABASE_URL#" .env
-      - run: npm run build:packages
       - run: npm run db:generate && NODE_ENV=test npm run db:migrate
+      - run: npm run build:packages
       - run: npm test
       - run: npm run build -w @launch/api -w @launch/game-server

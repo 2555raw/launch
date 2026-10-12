@@ -11,8 +11,8 @@ import { fileURLToPath } from 'node:url';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sh = (cmd) => execSync(cmd, { cwd: root, stdio: 'inherit', env: { ...process.env, NODE_ENV: 'test' } });
 
+sh('npm run generate -w @launch/database'); // Prisma client first, then the TypeScript packages
 sh('npm run build:packages');
-sh('npm run generate -w @launch/database');
 const suites = ['@launch/game-engine', '@launch/game-core', '@launch/solana', '@launch/evm', '@launch/robinhood', '@launch/api', '@launch/game-server', '@launch/web'];
 let failed = false;
 for (const s of suites) {

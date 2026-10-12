@@ -18,8 +18,8 @@ if (!existsSync(envPath)) {
   console.log('• .env already exists, leaving it alone');
 }
 const sh = (cmd) => execSync(cmd, { cwd: root, stdio: 'inherit' });
+sh('npm run db:generate'); // the Prisma client must exist before the TypeScript packages compile
 sh('npm run build:packages');
-sh('npm run db:generate');
 sh('npm run db:migrate');
 sh('npm run db:seed');
 console.log('\n✓ Setup complete. Run `npm run dev`.');

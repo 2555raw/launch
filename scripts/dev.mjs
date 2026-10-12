@@ -45,10 +45,11 @@ function once(name, args) {
 }
 
 try {
+  console.log('→ Generating Prisma client…');
+  await once('prisma', ['run', 'generate', '-w', '@launch/database']);
   console.log('→ Building shared packages…');
   for (const p of packages) await once(p.replace('@launch/', 'build:'), ['run', 'build', '-w', p]);
-  console.log('→ Generating Prisma client and applying migrations…');
-  await once('prisma', ['run', 'generate', '-w', '@launch/database']);
+  console.log('→ Applying migrations…');
   await once('migrate', ['run', 'migrate:deploy', '-w', '@launch/database']);
 } catch (e) {
   console.error(e.message);

@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { ProjectDTO } from '@launch/types';
 import { api, errorMessage } from '@/lib/api';
 import { useRequireAuth } from '@/lib/hooks';
+import { useT } from '@/lib/i18n';
 import { Empty, PageHeader, Spinner } from '@/components/ui/primitives';
 import { StatusPill } from '@/components/launchpad/common';
 import { Stepper } from '@/components/launchpad/wizard/stepper';
@@ -17,6 +18,7 @@ import { StepSign } from '@/components/launchpad/wizard/step-sign';
 import { StepDone } from '@/components/launchpad/wizard/step-done';
 
 function Wizard() {
+  const t = useT();
   const user = useRequireAuth();
   const { state, update } = useWizardState();
   const [prepared, setPrepared] = useState<PreparedLaunch | null>(null);
@@ -50,17 +52,17 @@ function Wizard() {
   if (state.projectId && projectQ.isLoading) {
     body = (
       <div className="flex items-center gap-2 text-sm text-slate-400">
-        <Spinner /> Loading project…
+        <Spinner /> {t('Loading project…')}
       </div>
     );
   } else if (state.projectId && projectQ.isError) {
     body = (
       <Empty
-        title="Project not found"
+        title={t('Project not found')}
         body={errorMessage(projectQ.error)}
         action={
           <Link href="/launchpad/new" className="btn-primary">
-            Start a new project
+            {t('Start a new project')}
           </Link>
         }
       />
@@ -84,8 +86,8 @@ function Wizard() {
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader
-        title="Create a token"
-        subtitle={`Step ${step} of ${STEPS.length} · ${STEPS[step - 1]}`}
+        title={t('Create a token')}
+        subtitle={t('Step {step} of {total} · {name}', { step, total: STEPS.length, name: t(STEPS[step - 1]) })}
         actions={
           project && (
             <div className="flex items-center gap-2 text-xs text-slate-400">
@@ -102,11 +104,12 @@ function Wizard() {
 }
 
 export default function NewProjectPage() {
+  const t = useT();
   return (
     <Suspense
       fallback={
         <div className="flex items-center gap-2 text-sm text-slate-400">
-          <Spinner /> Loading…
+          <Spinner /> {t('Loading…')}
         </div>
       }
     >

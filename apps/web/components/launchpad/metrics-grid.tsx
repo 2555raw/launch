@@ -1,6 +1,7 @@
 'use client';
 import type { TokenMetricsDTO } from '@launch/types';
 import { fmt, fmtUsd } from '@/components/ui/primitives';
+import { useT } from '@/lib/i18n';
 import { ExtLink } from './common';
 
 function Cell({ label, value, unavailable }: { label: string; value: string; unavailable: boolean }) {
@@ -13,36 +14,38 @@ function Cell({ label, value, unavailable }: { label: string; value: string; una
 }
 
 export function MetricsSourceNote({ metrics }: { metrics: TokenMetricsDTO | null }) {
+  const t = useT();
   if (metrics?.source === 'dexscreener') {
     return (
       <div className="text-xs text-slate-400">
-        Market data: DexScreener{metrics.dexId ? ` (${metrics.dexId})` : ''}
+        {t('Market data: DexScreener')}{metrics.dexId ? ` (${metrics.dexId})` : ''}
         {metrics.dexUrl && (
           <>
             {' · '}
-            <ExtLink href={metrics.dexUrl}>Open pair</ExtLink>
+            <ExtLink href={metrics.dexUrl}>{t('Open pair')}</ExtLink>
           </>
         )}
-        {' · '}updated {new Date(metrics.fetchedAt).toLocaleTimeString()}
+        {' · '}{t('updated {time}', { time: new Date(metrics.fetchedAt).toLocaleTimeString() })}
       </div>
     );
   }
-  return <div className="text-xs text-slate-500">No DEX pair indexed yet{metrics ? ` · checked ${new Date(metrics.fetchedAt).toLocaleTimeString()}` : ''}</div>;
+  return <div className="text-xs text-slate-500">{t('No DEX pair indexed yet')}{metrics ? ` · ${t('checked {time}', { time: new Date(metrics.fetchedAt).toLocaleTimeString() })}` : ''}</div>;
 }
 
 export function MetricsGrid({ metrics }: { metrics: TokenMetricsDTO | null }) {
+  const t = useT();
   const m = metrics;
   const usd = (v: number | null | undefined) => ({ value: fmtUsd(v), unavailable: v === null || v === undefined });
   const num = (v: number | null | undefined) => ({ value: fmt(v), unavailable: v === null || v === undefined });
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-      <Cell label="Price (USD)" {...usd(m?.priceUsd)} />
-      <Cell label="Market cap" {...usd(m?.marketCapUsd)} />
-      <Cell label="FDV" {...usd(m?.fdvUsd)} />
-      <Cell label="Liquidity" {...usd(m?.liquidityUsd)} />
-      <Cell label="24h volume" {...usd(m?.volume24hUsd)} />
-      <Cell label="24h transactions" {...num(m?.txns24h)} />
-      <Cell label="Holders" {...num(m?.holders)} />
+      <Cell label={t('Price (USD)')} {...usd(m?.priceUsd)} />
+      <Cell label={t('Market cap')} {...usd(m?.marketCapUsd)} />
+      <Cell label={t('FDV')} {...usd(m?.fdvUsd)} />
+      <Cell label={t('Liquidity')} {...usd(m?.liquidityUsd)} />
+      <Cell label={t('24h volume')} {...usd(m?.volume24hUsd)} />
+      <Cell label={t('24h transactions')} {...num(m?.txns24h)} />
+      <Cell label={t('Holders')} {...num(m?.holders)} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import type { ProjectDTO } from '@launch/types';
 import { fmtUsd } from '@/components/ui/primitives';
 import { ChainBadge, ProjectLogo } from './common';
 import { SocialLinks } from '@/components/ui/brand-icons';
+import { useT } from '@/lib/i18n';
 
 function Metric({ label, value }: { label: string; value: number | null | undefined }) {
   const unavailable = value === null || value === undefined;
@@ -16,6 +17,7 @@ function Metric({ label, value }: { label: string; value: number | null | undefi
 }
 
 export function ProjectCard({ project }: { project: ProjectDTO }) {
+  const t = useT();
   const m = project.token?.metrics ?? null;
   return (
     <Link href={`/projects/${project.slug}`} className="card group flex flex-col gap-3 p-4 transition hover:border-ember-500/40 hover:shadow-glow">
@@ -29,10 +31,10 @@ export function ProjectCard({ project }: { project: ProjectDTO }) {
         <SocialLinks size={12} links={{ twitter: project.twitter, discord: project.discord, telegram: project.telegram, website: project.website }} />
       </div>
       <div className="grid grid-cols-2 gap-x-3 gap-y-2 border-t border-white/[0.06] pt-3">
-        <Metric label="Price" value={m?.priceUsd} />
-        <Metric label="Market cap" value={m?.marketCapUsd} />
-        <Metric label="Liquidity" value={m?.liquidityUsd} />
-        <Metric label="24h volume" value={m?.volume24hUsd} />
+        <Metric label={t('Price')} value={m?.priceUsd} />
+        <Metric label={t('Market cap')} value={m?.marketCapUsd} />
+        <Metric label={t('Liquidity')} value={m?.liquidityUsd} />
+        <Metric label={t('24h volume')} value={m?.volume24hUsd} />
       </div>
     </Link>
   );

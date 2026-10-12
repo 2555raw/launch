@@ -1,4 +1,5 @@
 'use client';
+import { useT } from '@/lib/i18n';
 
 const TONES: Record<string, string> = {
   // user status / generic
@@ -27,6 +28,7 @@ const TONES: Record<string, string> = {
 };
 
 export function StatusBadge({ value }: { value: string | null | undefined }) {
+  const t = useT();
   if (!value) return <span className="badge text-slate-500">—</span>;
-  return <span className={`badge ${TONES[value] ?? ''}`}>{value.toLowerCase().replace(/_/g, ' ')}</span>;
+  return <span className={`badge ${TONES[value] ?? ''}`}>{t(value.toLowerCase().replace(/_/g, ' '))}</span>;
 }

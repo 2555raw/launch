@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
 import { Castle, Coins, FileText, Flag, LayoutDashboard, Rocket, ScrollText, Settings2, Swords, Users, UsersRound } from 'lucide-react';
+import { useT } from '@/lib/i18n';
 
 export const ADMIN_TABS = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard },
@@ -20,13 +21,14 @@ export const ADMIN_TABS = [
 
 export function AdminNav() {
   const pathname = usePathname();
+  const t = useT();
   return (
-    <nav className="scroll-thin -mx-1 flex gap-1 overflow-x-auto px-1 pb-1" aria-label="Admin sections">
-      {ADMIN_TABS.map((t) => {
-        const active = t.href === '/admin' ? pathname === '/admin' : pathname.startsWith(t.href);
+    <nav className="scroll-thin -mx-1 flex gap-1 overflow-x-auto px-1 pb-1" aria-label={t('Admin sections')}>
+      {ADMIN_TABS.map((tab) => {
+        const active = tab.href === '/admin' ? pathname === '/admin' : pathname.startsWith(tab.href);
         return (
-          <Link key={t.href} href={t.href} className={clsx('flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm transition', active ? 'bg-ember-500/15 text-ember-300' : 'text-slate-400 hover:bg-white/[0.05] hover:text-slate-100')}>
-            <t.icon size={14} /> {t.label}
+          <Link key={tab.href} href={tab.href} className={clsx('flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm transition', active ? 'bg-ember-500/15 text-ember-300' : 'text-slate-400 hover:bg-white/[0.05] hover:text-slate-100')}>
+            <tab.icon size={14} /> {t(tab.label)}
           </Link>
         );
       })}

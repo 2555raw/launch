@@ -5,6 +5,7 @@ import { useState, type ReactNode } from 'react';
 import clsx from 'clsx';
 import type { Chain, ProjectStatus } from '@launch/types';
 import { shortAddr } from '@/components/ui/primitives';
+import { useT } from '@/lib/i18n';
 
 export const CHAIN_LABEL: Record<Chain, string> = { SOLANA: 'Solana', ROBINHOOD: 'Robinhood Chain' };
 
@@ -14,11 +15,12 @@ export function networkLabel(chain: Chain, network: string): string {
 }
 
 export function ChainBadge({ chain, network, className }: { chain: Chain; network?: string; className?: string }) {
+  const t = useT();
   return (
     <span className={clsx('badge gap-1.5', chain === 'SOLANA' ? 'border-elixir-500/40 text-elixir-400' : 'border-mint-500/40 text-mint-400', className)}>
       {chain === 'SOLANA' ? <SolanaIcon size={10} /> : <span className="h-1.5 w-1.5 rounded-full bg-mint-400" />}
       {CHAIN_LABEL[chain]}
-      {network && <span className="text-slate-500">· {networkLabel(chain, network)}</span>}
+      {network && <span className="text-slate-500">· {t(networkLabel(chain, network))}</span>}
     </span>
   );
 }
@@ -33,10 +35,12 @@ const STATUS_STYLE: Record<ProjectStatus, string> = {
 const STATUS_TEXT: Record<ProjectStatus, string> = { DRAFT: 'Draft', AWAITING_SIGNATURE: 'Awaiting signature', VERIFYING: 'Verifying', PUBLISHED: 'Published', FAILED: 'Failed' };
 
 export function StatusPill({ status }: { status: ProjectStatus }) {
-  return <span className={clsx('badge', STATUS_STYLE[status])}>{STATUS_TEXT[status]}</span>;
+  const t = useT();
+  return <span className={clsx('badge', STATUS_STYLE[status])}>{t(STATUS_TEXT[status])}</span>;
 }
 
 export function CopyButton({ value, label = 'Copy', className }: { value: string; label?: string; className?: string }) {
+  const t = useT();
   const [done, setDone] = useState(false);
   const copy = async () => {
     try {
@@ -48,7 +52,7 @@ export function CopyButton({ value, label = 'Copy', className }: { value: string
     }
   };
   return (
-    <button type="button" onClick={() => void copy()} className={clsx('btn-ghost p-1.5', className)} aria-label={label} title={label}>
+    <button type="button" onClick={() => void copy()} className={clsx('btn-ghost p-1.5', className)} aria-label={t(label)} title={t(label)}>
       {done ? <Check size={14} className="text-mint-400" /> : <Copy size={14} />}
     </button>
   );
@@ -65,12 +69,13 @@ export function ExtLink({ href, children, className }: { href: string; children:
 
 /** Address with copy button and optional explorer link. */
 export function AddressLine({ address, explorerUrl, chars = 6 }: { address: string; explorerUrl?: string; chars?: number }) {
+  const t = useT();
   return (
     <span className="inline-flex items-center gap-1 font-mono text-sm text-slate-200">
       <span title={address}>{shortAddr(address, chars)}</span>
       <CopyButton value={address} label="Copy address" />
       {explorerUrl && (
-        <a href={explorerUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost p-1.5" aria-label="Open in explorer" title="Open in explorer">
+        <a href={explorerUrl} target="_blank" rel="noopener noreferrer" className="btn-ghost p-1.5" aria-label={t('Open in explorer')} title={t('Open in explorer')}>
           <ExternalLink size={14} />
         </a>
       )}
@@ -80,10 +85,11 @@ export function AddressLine({ address, explorerUrl, chars = 6 }: { address: stri
 
 /** Logo image or initials placeholder. */
 export function ProjectLogo({ logoUrl, name, symbol, size = 48 }: { logoUrl: string | null; name: string; symbol: string; size?: number }) {
+  const t = useT();
   const initials = (symbol || name).slice(0, 3).toUpperCase();
   if (logoUrl) {
     // eslint-disable-next-line @next/next/no-img-element
-    return <img src={logoUrl} alt={`${name} logo`} width={size} height={size} className="shrink-0 rounded-xl object-cover" style={{ width: size, height: size }} />;
+    return <img src={logoUrl} alt={t('{name} logo', { name })} width={size} height={size} className="shrink-0 rounded-xl object-cover" style={{ width: size, height: size }} />;
   }
   return (
     <div className="grid shrink-0 place-items-center rounded-xl bg-gradient-to-br from-ember-500/60 to-elixir-500/60 font-display font-bold text-white" style={{ width: size, height: size, fontSize: size / 3.2 }}>

@@ -93,12 +93,32 @@ p { margin: 0; }
 
 /* ---- shell ---- */
 .shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); }
-.side { padding: 8px 16px 24px; position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 64px); overflow: auto; }
-.side a, .side button { display: flex; align-items: center; gap: 14px; width: 100%; height: 40px; padding: 0 10px 0 12px; border-radius: 8px; font-weight: 500; font-size: 16px; color: var(--ink); background: transparent; border: 0; cursor: pointer; text-align: left; white-space: nowrap; }
+.side { padding: 12px 12px 24px; position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 64px); overflow: auto; display: flex; flex-direction: column; gap: 2px; scrollbar-width: none; }
+.side::-webkit-scrollbar { display: none; }
+.side .grp { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding: 14px 12px 6px; }
+.side a, .side button { display: flex; align-items: center; gap: 12px; width: 100%; height: 44px; padding: 0 10px 0 8px; border-radius: 12px; font-weight: 500; font-size: 15px; color: var(--ink); background: transparent; border: 0; cursor: pointer; text-align: left; white-space: nowrap; transition: background .12s ease, transform .12s ease; }
 .side a:hover, .side button:hover { background: var(--surface); }
-.side .is-on { background: var(--surface); box-shadow: inset 4px 0 0 var(--ink); }
-.side svg { width: 20px; height: 20px; flex: none; }
-.side hr { border: 0; border-top: 1px solid var(--line); margin: 12px 0; }
+.side a:active, .side button:active { transform: scale(.985); }
+.side .ico { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; flex: none; background: var(--surface); color: var(--ink); transition: background .12s ease, color .12s ease; }
+.side .ico svg { width: 18px; height: 18px; }
+.side .ico.c1 { background: #FFF1D6; color: #B25E00; } .side .ico.c2 { background: #FDE2E2; color: #C8201B; } .side .ico.c3 { background: #E5F8EE; color: #05944F; }
+.side .ico.c4 { background: #E8EEFF; color: #2F55D4; } .side .ico.c5 { background: #F3E8FF; color: #7B3FE4; } .side .ico.c6 { background: #FFF4E5; color: #D9731A; } .side .ico.c7 { background: #E6F4F1; color: #0F766E; }
+.side .is-on { background: var(--green-soft); }
+.side .is-on .ico { background: var(--green); color: #fff; }
+.side .n { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); background: var(--surface); border-radius: 999px; padding: 2px 8px; }
+.side .is-on .n { background: #fff; color: var(--green-ink); }
+.side .wallet-card { margin-top: auto; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
+.side .wallet-card .row1 { display: flex; align-items: center; gap: 10px; }
+.side .wallet-card .av { width: 36px; height: 36px; border-radius: 999px; background: linear-gradient(135deg, #06C167, #F0B90B); flex: none; }
+.side .wallet-card b { display: block; font-family: var(--mono); font-size: 13px; font-weight: 500; }
+.side .wallet-card small { display: block; font-size: 12px; opacity: .7; }
+.side .wallet-card .bal { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+.side .wallet-card .net { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; opacity: .85; }
+.side .wallet-card .net i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); }
+.side .wallet-card .btn { height: 36px; font-size: 13px; }
+.side .wallet-card .btn-white { background: #fff; color: #000; }
+.side .wallet-card p { font-size: 12.5px; opacity: .8; line-height: 1.4; }
+@media (max-height: 760px) { .side .wallet-card { margin-top: 12px; } }
 .content { padding: 8px 32px 80px 16px; min-width: 0; overflow-x: clip; }
 @media (max-width: 1000px) { .banners-wrap .arrow { display: none; } .shell { grid-template-columns: minmax(0, 1fr); } .side { display: none; } .side.is-open { display: block; position: fixed; inset: calc(64px + env(safe-area-inset-top, 0px)) auto 0 0; width: 260px; background: var(--bg); z-index: 45; box-shadow: 8px 0 30px rgba(0,0,0,.12); } .content { padding: 8px 16px 80px; } }
 
@@ -241,6 +261,38 @@ p { margin: 0; }
 .pairs span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .pairs a { font-family: var(--mono); font-size: 12px; color: var(--muted); text-decoration: underline; }
 
+/* ---- motion ---- */
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+@keyframes sweep { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+.cats-wrap, .filters, .ranked, .banners-wrap, .sec { animation: rise .45s cubic-bezier(.2,.7,.2,1) both; }
+.filters { animation-delay: .05s; } .ranked { animation-delay: .08s; } .banners-wrap { animation-delay: .12s; } #sec-rest { animation-delay: .18s; } #sec-featured { animation-delay: .22s; } #sec-new { animation-delay: .26s; } #all { animation-delay: .3s; }
+.row { transition: transform .18s cubic-bezier(.2,.7,.2,1); }
+.row:hover { transform: translateY(-3px); }
+.row-img { transition: box-shadow .18s ease; }
+.row:hover .row-img { box-shadow: 0 10px 28px rgba(0,0,0,.14); }
+.row-img .logo { transition: transform .25s cubic-bezier(.2,.7,.2,1); }
+.row:hover .row-img .logo { transform: scale(1.06); }
+.banner { transition: transform .2s cubic-bezier(.2,.7,.2,1), filter .2s ease; }
+.banner:hover { transform: translateY(-2px); filter: brightness(1.04); }
+.banner .art .logo { animation: float 3.2s ease-in-out infinite; }
+.banner:nth-child(2) .art .logo { animation-delay: -1.1s; } .banner:nth-child(3) .art .logo { animation-delay: -2.2s; }
+.cats button .ic { transition: transform .18s cubic-bezier(.2,.7,.2,1); }
+.cats button:hover .ic { transform: translateY(-3px) scale(1.08); }
+.bar { position: relative; }
+.bar.live i { position: relative; overflow: hidden; }
+.bar.live i::after { content: ''; position: absolute; inset: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); animation: sweep 2.2s ease-in-out infinite; }
+.bar i { transition: width .6s cubic-bezier(.2,.7,.2,1); }
+.btn, .pill, .arrow, .heart, .cart, .burger { transition: transform .12s ease, background .15s ease, filter .15s ease; }
+.btn:active, .pill:active, .arrow:active, .heart:active { transform: scale(.96); }
+.heart:hover svg { transform: scale(1.12); } .heart svg { transition: transform .15s ease; }
+.tag.red { animation: rise .3s both; }
+.skel { border-radius: 8px; background: linear-gradient(90deg, var(--surface) 25%, var(--surface-hi) 50%, var(--surface) 75%); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+.skel-card { display: grid; gap: 10px; } .skel-card .i { aspect-ratio: 375 / 133; } .skel-card .l1 { height: 18px; width: 60%; } .skel-card .l2 { height: 14px; width: 80%; }
+.side .n { transition: transform .2s ease; }
+.side .n.bump { animation: rise .35s both; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 footer { padding: 32px 0 0; font-size: 13px; color: var(--muted); line-height: 1.5; border-top: 1px solid var(--line); margin-top: 24px; }
 footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; color: var(--ink); font-weight: 500; }
 .bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 35; background: #B88900; color: #fff; height: 56px; padding: 0 16px; padding-bottom: env(safe-area-inset-bottom, 0px); display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 16px; }
@@ -269,22 +321,25 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
 <div class="shell" id="top">
   <aside class="side" id="side">
-    <a href="#explore" class="is-on"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="nav.home"></span></a>
-    <button type="button" data-tab="trending"><svg viewBox="0 0 24 24" fill="none"><path d="M13 3s1 3-1 6 3 4 3 7a4 4 0 0 1-8 0c0-2 1-3 1-3s0 2 2 2c0-4 3-5 3-12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="tab.trending"></span></button>
-    <button type="button" data-tab="new"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="tab.new"></span></button>
-    <button type="button" data-tab="graduating"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 10 11l4 4 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-t="tab.graduating"></span></button>
-    <button type="button" data-tab="graduated"><svg viewBox="0 0 24 24" fill="none"><path d="m3 9 9-4 9 4-9 4-9-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 11v4c0 1.5 2.5 3 5 3s5-1.5 5-3v-4" stroke="currentColor" stroke-width="2"/></svg><span data-t="tab.graduated"></span></button>
-    <button type="button" data-cat="burger"><svg viewBox="0 0 24 24" fill="none"><path d="M4 10c0-3.3 3.6-6 8-6s8 2.7 8 6H4zM3 14h18M5 18h14a2 2 0 0 0 2-2v-1H3v1a2 2 0 0 0 2 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="cat.burger"></span></button>
-    <button type="button" data-cat="chicken"><svg viewBox="0 0 24 24" fill="none"><path d="M15 4a5 5 0 0 1 2 9.6L10 20l-2-2-2-2 6.4-7A5 5 0 0 1 15 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="cat.chicken"></span></button>
-    <button type="button" data-cat="pizza"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 21 20H3L12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="16" r="1.5" fill="currentColor"/><circle cx="15" cy="16" r="1.5" fill="currentColor"/></svg><span data-t="cat.pizza"></span></button>
-    <button type="button" data-cat="cafe"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8zM16 10h2a2 2 0 0 1 0 4h-2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="cat.cafe"></span></button>
-    <button type="button" data-cat="tea"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4h10l-1.5 16h-7L7 4zM9 4l6-2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="cat.tea"></span></button>
-    <button type="button" data-cat="delivery"><svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="17" r="3" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="17" r="3" stroke="currentColor" stroke-width="2"/><path d="M6 17h6l3-8h4M9 9h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="cat.delivery"></span></button>
-    <hr>
-    <a href="#launch"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c3 2 6 6 6 10a6 6 0 0 1-12 0c0-4 3-8 6-10z" stroke="currentColor" stroke-width="2"/><path d="M9 21h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="nav.create"></span></a>
-    <button type="button" data-tab="mine"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2"/></svg><span data-t="nav.mine"></span></button>
-    <a href="#docs"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14H6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="nav.docs"></span></a>
-    <button type="button" id="connect-side" data-connect><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M16 13h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="wallet.connect"></span></button>
+    <a href="#explore" class="is-on"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.home"></span></a>
+    <div class="grp" data-t="grp.coins"></div>
+    <button type="button" data-tab="trending"><span class="ico c6"><svg viewBox="0 0 24 24" fill="none"><path d="M13 3s1 3-1 6 3 4 3 7a4 4 0 0 1-8 0c0-2 1-3 1-3s0 2 2 2c0-4 3-5 3-12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="tab.trending"></span><span class="n" id="n-live">0</span></button>
+    <button type="button" data-tab="new"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="tab.new"></span></button>
+    <button type="button" data-tab="graduating"><span class="ico c4"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 10 11l4 4 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span data-t="tab.graduating"></span></button>
+    <button type="button" data-tab="graduated"><span class="ico c5"><svg viewBox="0 0 24 24" fill="none"><path d="m3 9 9-4 9 4-9 4-9-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 11v4c0 1.5 2.5 3 5 3s5-1.5 5-3v-4" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="tab.graduated"></span><span class="n" id="n-grad">0</span></button>
+    <div class="grp" data-t="grp.food"></div>
+    <button type="button" data-cat="burger"><span class="ico c1"><svg viewBox="0 0 24 24" fill="none"><path d="M4 10c0-3.3 3.6-6 8-6s8 2.7 8 6H4zM3 14h18M5 18h14a2 2 0 0 0 2-2v-1H3v1a2 2 0 0 0 2 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.burger"></span></button>
+    <button type="button" data-cat="chicken"><span class="ico c2"><svg viewBox="0 0 24 24" fill="none"><path d="M15 4a5 5 0 0 1 2 9.6L10 20l-2-2-2-2 6.4-7A5 5 0 0 1 15 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.chicken"></span></button>
+    <button type="button" data-cat="pizza"><span class="ico c6"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 21 20H3L12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="16" r="1.5" fill="currentColor"/><circle cx="15" cy="16" r="1.5" fill="currentColor"/></svg></span><span data-t="cat.pizza"></span></button>
+    <button type="button" data-cat="cafe"><span class="ico c7"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8zM16 10h2a2 2 0 0 1 0 4h-2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.cafe"></span></button>
+    <button type="button" data-cat="tea"><span class="ico c5"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4h10l-1.5 16h-7L7 4zM9 4l6-2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.tea"></span></button>
+    <button type="button" data-cat="delivery"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="17" r="3" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="17" r="3" stroke="currentColor" stroke-width="2"/><path d="M6 17h6l3-8h4M9 9h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="cat.delivery"></span></button>
+    <button type="button" data-cat="cn"><span class="ico c2"><svg viewBox="0 0 24 24" fill="none"><path d="M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8H4zM3 18h18" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 11c1-1.5 2.5-2 4-2s3 .5 4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="cat.cn"></span></button>
+    <div class="grp" data-t="grp.you"></div>
+    <a href="#launch"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c3 2 6 6 6 10a6 6 0 0 1-12 0c0-4 3-8 6-10z" stroke="currentColor" stroke-width="2"/><path d="M9 21h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.create"></span></a>
+    <button type="button" data-tab="mine"><span class="ico c4"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="nav.mine"></span><span class="n" id="n-mine">0</span></button>
+    <a href="#docs"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14H6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.docs"></span></a>
+    <div class="wallet-card" id="wallet-card"></div>
   </aside>
 
   <main class="content">
@@ -416,7 +471,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const I18N = {
     en: {
       'mode.raising': 'Raising', 'mode.graduated': 'Graduated', 'place.now': 'Now',
-      'nav.home': 'Home', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works',
+      'nav.home': 'Home', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works', 'grp.coins': 'Coins', 'grp.food': 'By cuisine', 'grp.you': 'You', 'wc.off': 'Connect a wallet to buy and create coins on BNB Chain.', 'wc.on': 'Connected',
       'tab.trending': 'Trending', 'tab.new': 'New', 'tab.graduating': 'Graduating', 'tab.graduated': 'Graduated',
       'pill.live': 'Raising now', 'pill.pay': 'Paid in', 'pill.top': 'Most backed', 'pill.sort': 'Sort', 'f.all': 'All', 'ranked.more': 'More info',
       'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on BNB Chain', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Pair your coin with ${n}`, 'promo.pairP': (s, iss) => `${s} by ${iss} is live on BNB Chain. Raise in it, list against it.`,
@@ -453,7 +508,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     },
     zh: {
       'mode.raising': '募集中', 'mode.graduated': '已毕业', 'place.now': '实时',
-      'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明',
+      'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 BNB 链上买入和创建代币。', 'wc.on': '已连接',
       'tab.trending': '热门', 'tab.new': '最新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
       'pill.live': '募集中', 'pill.pay': '支付币种', 'pill.top': '最多人买', 'pill.sort': '排序', 'f.all': '全部', 'ranked.more': '了解更多',
       'sec.featured': '当前精选', 'sec.new': '今日新发', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `让你的代币配对 ${n}`, 'promo.pairP': (s, iss) => `${iss} 发行的 ${s} 已在 BNB 链上线。以它募集，与它配对上市。`,
@@ -686,19 +741,23 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       <div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('r.coinsH')} · ${coins.length}</p>${coins.length ? coins.map((C) => `<div class="row" data-open="${esc(C.addr)}" style="grid-template-columns:40px 1fr auto;align-items:center;gap:10px;margin-bottom:8px">${logo(C.r, 40)}<div class="row-name"><b style="font-size:15px">${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small>${pct(C.progress)} · ${amt(C.raised, C.unit)} / ${amt(C.goal, C.unit)}</small></div>${tag(C)}</div>`).join('') : `<p class="hint">${t('r.none')}</p>`}</div>`;
   }
   function renderStats() {
-    const Cs = list(); const live = Cs.filter((C) => C.phase === 'live');
+    const Cs = list(); const live = Cs.filter((C) => C.phase === 'live'); const grad = Cs.filter((C) => C.phase === 'ok');
     $('#live-count').textContent = String(live.length); $('#net-name').textContent = net().name;
     $('#explorer-link').href = net().factory ? explorer(net().factory) : net().explorer;
     $('#contracts').innerHTML = net().factory ? `BentoFactory · <a href="${explorer(net().factory)}" target="_blank" rel="noopener" style="text-decoration:underline">${esc(net().factory)}</a> · ${esc(net().name)}` : `${esc(net().name)}: factory not deployed yet.`;
     const mine = Cs.filter((C) => state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase()));
     $('#cart-n').textContent = String(mine.length);
+    for (const [id, v] of [['n-live', live.length], ['n-grad', grad.length], ['n-mine', mine.length]]) { const el = $('#' + id); const nv = String(v); if (el.textContent !== nv) { el.textContent = nv; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }
     const paySel = $('#pay'); const keep = paySel.value; const units = [...new Set(Cs.map((C) => C.unit))];
     paySel.innerHTML = `<option value="all">${t('f.all')}</option>` + units.map((u) => `<option value="${esc(u)}">${esc(u)}</option>`).join(''); paySel.value = units.includes(keep) ? keep : 'all';
   }
   function renderWallet() {
     const b = $('#connect'); const chip = $('#player');
-    if (!state.address) { b.hidden = false; b.textContent = t('wallet.connect'); chip.hidden = true; $('#connect-side').hidden = false; }
-    else { b.hidden = true; chip.hidden = false; $('#p-addr').textContent = short(state.address); $('#p-cash').textContent = state.balance == null ? '' : amt(state.balance, net().symbol); $('#connect-side').hidden = true; }
+    const wc = $('#wallet-card');
+    if (!state.address) { b.hidden = false; b.textContent = t('wallet.connect'); chip.hidden = true;
+      wc.innerHTML = `<p>${t('wc.off')}</p><button class="btn btn-white btn-block" type="button" data-connect>${t('wallet.connect')}</button>`; }
+    else { b.hidden = true; chip.hidden = false; $('#p-addr').textContent = short(state.address); $('#p-cash').textContent = state.balance == null ? '' : amt(state.balance, net().symbol);
+      wc.innerHTML = `<div class="row1"><span class="av"></span><div><b>${esc(short(state.address))}</b><small>${t('wc.on')}</small></div></div><div class="bal">${state.balance == null ? '…' : amt(state.balance, net().symbol)}</div><span class="net"><i></i>${esc(net().name)}</span>`; }
     const n = $('#notice-text');
     if (!state.address) n.innerHTML = t('n.nowallet'); else if (state.walletChain !== state.chainId) n.innerHTML = t('n.wrongnet', net().name); else n.innerHTML = t('n.ok', state.balance == null ? '…' : amt(state.balance, net().symbol), net().name);
   }
@@ -732,7 +791,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const host = $('#rows'); const now = Date.now(); const Cs = list();
     const fr = $('#featured-rail'), nr = $('#new-rail');
     renderRest();
-    if (!state.loaded) { host.innerHTML = `<p class="empty">${t('board.loading')}</p>`; fr.innerHTML = nr.innerHTML = ''; $('#sec-featured').hidden = $('#sec-new').hidden = true; renderDrawer(); return; }
+    if (!state.loaded) { const sk = `<div class="skel-card"><div class="skel i"></div><div class="skel l1"></div><div class="skel l2"></div></div>`; host.innerHTML = sk.repeat(4); fr.innerHTML = nr.innerHTML = ''; $('#sec-featured').hidden = $('#sec-new').hidden = true; renderDrawer(); return; }
     if (state.loadError) { const msg = state.loadError === 'nofactory' ? t('board.nofactory') : state.loadError === 'nowallet' ? t('board.nowallet') : t('board.loading');
       host.innerHTML = `<p class="empty">${msg}${state.loadError === 'nowallet' ? `<br><br><button class="btn btn-ink" type="button" data-connect>${t('wallet.connect')}</button>` : ''}</p>`; fr.innerHTML = nr.innerHTML = ''; $('#sec-featured').hidden = $('#sec-new').hidden = true; renderDrawer(); return; }
     const live = Cs.filter((C) => C.phase === 'live');

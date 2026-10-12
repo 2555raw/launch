@@ -1,4 +1,7 @@
 <title>Bento Launch</title>
+<meta name="description" content="Coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it on PancakeSwap.">
+<meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
+<meta property="og:title" content="Bento Launch"><meta property="og:description" content="Restaurant-paired coin launchpad on BNB Chain.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+SC:wght@400;500;700&display=swap">
@@ -32,11 +35,13 @@
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.4; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.btn:focus-visible, .pill:focus-visible { outline-offset: 3px; }
 a { color: inherit; text-decoration: none; }
 button, input, select, textarea { font: inherit; color: inherit; }
 h1, h2, h3 { margin: 0; font-weight: 700; letter-spacing: -.01em; line-height: 1.2; }
-h2 { font-size: 26px; } h3 { font-size: 18px; }
+h2 { font-size: 24px; line-height: 32px; letter-spacing: -.01em; } h3 { font-size: 18px; line-height: 24px; }
 p { margin: 0; }
 .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .muted { color: var(--muted); }
@@ -72,6 +77,9 @@ p { margin: 0; }
 .place { display: inline-flex; align-items: center; gap: 6px; height: 48px; padding: 0 16px; border-radius: 999px; font-size: 14px; font-weight: 500; white-space: nowrap; background: transparent; border: 0; cursor: pointer; }
 .place:hover { background: var(--surface); }
 .place .sep { color: var(--muted); font-weight: 400; }
+.place select { appearance: none; -webkit-appearance: none; background: transparent; border: 0; outline: 0; font: inherit; font-weight: 500; color: inherit; cursor: pointer; padding: 0; }
+.place select option { color: #000; }
+@media (max-width: 1100px) { #refresh { display: none; } }
 .search { flex: 1 1 60px; min-width: 0; display: flex; align-items: center; gap: 12px; height: 48px; background: var(--surface); border-radius: 999px; padding: 0 20px; color: var(--ink); }
 .search input { background: transparent; border: 0; outline: 0; width: 100%; font-size: 16px; color: var(--ink); }
 .search input::placeholder { color: var(--muted); }
@@ -96,7 +104,7 @@ p { margin: 0; }
 .side { padding: 12px 12px 24px; position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 64px); overflow: auto; display: flex; flex-direction: column; gap: 2px; scrollbar-width: none; }
 .side::-webkit-scrollbar { display: none; }
 .side .grp { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding: 14px 12px 6px; }
-.side a, .side button { display: flex; align-items: center; gap: 12px; width: 100%; height: 44px; padding: 0 10px 0 8px; border-radius: 12px; font-weight: 500; font-size: 15px; color: var(--ink); background: transparent; border: 0; cursor: pointer; text-align: left; white-space: nowrap; transition: background .12s ease, transform .12s ease; }
+.side a, .side button { display: flex; align-items: center; gap: 12px; width: 100%; height: 44px; padding: 0 10px 0 8px; border-radius: 12px; font-weight: 500; font-size: 16px; color: var(--ink); background: transparent; border: 0; cursor: pointer; text-align: left; white-space: nowrap; transition: background .12s ease, transform .12s ease; }
 .side a:hover, .side button:hover { background: var(--surface); }
 .side a:active, .side button:active { transform: scale(.985); }
 .side .ico { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; flex: none; background: var(--surface); color: var(--ink); transition: background .12s ease, color .12s ease; }
@@ -142,7 +150,7 @@ p { margin: 0; }
 .pill.is-on { background: var(--ink); color: var(--bg); }
 .pill select { background: transparent; border: 0; outline: 0; font-weight: 500; cursor: pointer; color: inherit; }
 .pill select option { color: #000; }
-.ranked { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+.ranked { font-size: 14px; line-height: 20px; color: var(--muted); margin-bottom: 20px; }
 .ranked a { text-decoration: underline; color: var(--ink); }
 .rule { border: 0; border-top: 1px solid var(--line); margin: 0 0 24px; }
 
@@ -153,7 +161,7 @@ p { margin: 0; }
 @media (max-width: 760px) { .banners { grid-template-columns: 1fr; } }
 .banner { position: relative; overflow: hidden; border-radius: 16px; height: 216px; padding: 24px; color: #fff; display: grid; align-content: space-between; cursor: pointer; }
 .banner.g1 { background: var(--green); } .banner.g2 { background: var(--green-deep); } .banner.g3 { background: var(--salmon); color: #1a1a1a; }
-.banner h3 { font-size: 20px; font-weight: 700; max-width: 55%; color: inherit; }
+.banner h3 { font-size: 22px; line-height: 28px; font-weight: 700; max-width: 55%; color: inherit; }
 .banner p { font-size: 14px; margin-top: 6px; max-width: 55%; opacity: .95; }
 .banner .cta { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: #fff; color: #000; font-size: 14px; font-weight: 500; width: max-content; }
 .banner .art { position: absolute; right: 0; top: 0; bottom: 0; width: 48%; display: grid; place-items: center; }
@@ -192,9 +200,9 @@ p { margin: 0; }
 .rcard .row-name small .tk { font-family: var(--mono); color: var(--ink); font-weight: 500; }
 .row-top { display: flex; align-items: flex-start; gap: 8px; }
 .row-name { min-width: 0; flex: 1; }
-.row-name b { display: block; font-size: 18px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-name b { display: block; font-size: 18px; line-height: 24px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .row-name b .tk { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-left: 8px; font-weight: 500; }
-.row-name small { display: block; color: var(--muted); font-size: 14px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row-name small { display: block; color: var(--muted); font-size: 14px; line-height: 20px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .row-name small .star { color: var(--ink); font-weight: 500; }
 .row .heart { width: 32px; height: 32px; border-radius: 999px; border: 0; background: transparent; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
 .row .heart:hover { background: var(--surface); }
@@ -204,6 +212,10 @@ p { margin: 0; }
 .logo.is-mono { background: var(--surface); color: var(--ink); font-weight: 700; }
 .logo.is-mono::after { content: attr(data-m); }
 .empty { padding: 40px 16px; text-align: center; color: var(--muted); font-size: 16px; grid-column: 1 / -1; }
+.empty-card { grid-column: 1 / -1; display: grid; justify-items: center; gap: 8px; text-align: center; padding: 48px 24px; border: 1px dashed var(--line-hi); border-radius: 16px; }
+.empty-card b { font-size: 18px; font-weight: 500; }
+.empty-card p { color: var(--muted); max-width: 520px; font-size: 14px; line-height: 20px; }
+.empty-card .btn { margin-top: 8px; }
 
 /* ---- side sheet ---- */
 .sheet { position: fixed; top: 0; right: 0; bottom: 0; width: min(480px, 100vw); background: var(--bg); z-index: 60; box-shadow: -12px 0 40px rgba(0,0,0,.18); padding: 20px 24px 32px; overflow: auto; display: grid; gap: 16px; align-content: start; transform: translateX(100%); transition: transform .22s ease; }
@@ -215,7 +227,7 @@ p { margin: 0; }
 .sheet-h .who { min-width: 0; flex: 1; }
 .sheet-h .who b { display: block; font-size: 22px; font-weight: 700; }
 .sheet-h .who small { display: block; color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sheet .close { width: 36px; height: 36px; border-radius: 999px; border: 0; background: var(--surface); cursor: pointer; font-size: 16px; }
+.sheet .close, .modal .close { width: 36px; height: 36px; border-radius: 999px; border: 0; background: var(--surface); cursor: pointer; font-size: 16px; color: var(--ink); }
 .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .kv div { background: var(--surface); border-radius: 8px; padding: 10px 12px; min-width: 0; }
 .kv small { display: block; font-size: 12px; color: var(--muted); }
@@ -240,7 +252,7 @@ p { margin: 0; }
 .panel label { display: grid; gap: 6px; font-size: 14px; font-weight: 500; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 560px) { .two { grid-template-columns: 1fr; } }
-.hint { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.hint { font-size: 14px; color: var(--muted); line-height: 20px; }
 .err { font-size: 13px; color: var(--down); }
 .pv-top { display: flex; align-items: center; gap: 12px; }
 .pv-top .logo { width: 56px; height: 56px; }
@@ -249,11 +261,21 @@ p { margin: 0; }
 
 /* ---- docs ---- */
 .docs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.doc .step { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 999px; background: var(--ink); color: var(--bg); font-family: var(--mono); font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+.spec { margin-top: 16px; border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.spec-h { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.spec-h h3 { font-size: 18px; }
+.spec-h small { color: var(--muted); font-size: 14px; margin-left: auto; }
+.spec-g { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.spec-g div { padding: 14px 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-width: 0; }
+.spec-g small { display: block; font-size: 13px; line-height: 18px; color: var(--muted); }
+.spec-g b { display: block; font-family: var(--mono); font-size: 14px; line-height: 20px; font-weight: 500; margin-top: 2px; overflow-wrap: anywhere; }
+.spec-g a { text-decoration: underline; }
 @media (max-width: 1000px) { .docs { grid-template-columns: 1fr; } }
 .doc { background: var(--surface); border-radius: 16px; padding: 20px; }
 .doc h3 { margin-bottom: 8px; }
-.doc p, .doc li { font-size: 14px; color: var(--prose); line-height: 1.55; }
-.doc ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.doc p, .doc li { font-size: 15px; color: var(--prose); line-height: 22px; }
+.doc ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
 
 /* ---- brand mark ---- */
 .brand { display: inline-flex; align-items: center; gap: 9px; }
@@ -384,12 +406,33 @@ p { margin: 0; }
 .side .n { transition: transform .2s ease; }
 .side .n.bump { animation: rise .35s both; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
-footer { padding: 32px 0 0; font-size: 13px; color: var(--muted); line-height: 1.5; border-top: 1px solid var(--line); margin-top: 24px; }
+footer { padding: 40px 0 0; font-size: 14px; line-height: 20px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 24px; }
+.ft { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+@media (max-width: 900px) { .ft { grid-template-columns: 1fr 1fr; } }
+.ft .brand { font-size: 20px; margin: 0 0 10px; }
+.ft p { max-width: 360px; }
+.ft h4 { margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--ink); }
+.ft ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ft a { color: var(--ink); }
+.ft a:hover { text-decoration: underline; }
+.ft-b { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 20px 0 8px; border-top: 1px solid var(--line); font-size: 13px; }
+.ft-b .tagl { display: inline-flex; align-items: center; gap: 6px; }
+.ft-b .tagl i { width: 8px; height: 8px; border-radius: 999px; background: var(--dim); }
+.ft-b .tagl.ok i { background: var(--green); }
+.ft-b .legal { margin-left: auto; display: flex; gap: 16px; }
 footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; color: var(--ink); font-weight: 500; }
-.bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 35; background: #B88900; color: #fff; height: 56px; padding: 0 16px; padding-bottom: env(safe-area-inset-bottom, 0px); display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 16px; }
-.bottom .icon { width: 32px; height: 32px; border-radius: 999px; border: 2px solid #fff; display: grid; place-items: center; font-size: 14px; flex: none; }
-.bottom span { flex: 1; text-align: center; }
-.bottom button { width: 36px; height: 36px; border: 0; background: transparent; color: #fff; font-size: 20px; cursor: pointer; }
+.bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 35; background: var(--ink); color: var(--bg); height: 44px; padding: 0 12px 0 16px; padding-bottom: env(safe-area-inset-bottom, 0px); display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 13px; line-height: 16px; }
+.bottom a { text-decoration: underline; white-space: nowrap; }
+.modal { position: fixed; inset: 0; z-index: 80; background: rgba(0,0,0,.45); display: grid; place-items: center; padding: 16px; }
+.modal-c { background: var(--bg); color: var(--ink); border-radius: 16px; width: min(640px, 100%); max-height: min(80vh, 760px); overflow: auto; padding: 24px 28px 28px; display: grid; gap: 12px; }
+.modal-c h3 { font-size: 22px; line-height: 28px; display: flex; align-items: center; }
+.modal-c h3 .close { margin-left: auto; }
+.modal-c p { font-size: 15px; line-height: 22px; color: var(--prose); }
+.modal-c p b { font-weight: 600; color: var(--ink); }
+.bottom .icon { width: 8px; height: 8px; border-radius: 999px; background: #F0B90B; flex: none; }
+.bottom > span:not(.icon) { flex: 1; }
+.bottom button { width: 32px; height: 32px; border: 0; background: transparent; color: inherit; font-size: 16px; cursor: pointer; border-radius: 999px; }
+.bottom button:hover { background: rgba(255,255,255,.12); }
 .toast { position: fixed; left: 50%; bottom: calc(72px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 12px); opacity: 0; background: var(--ink); color: var(--bg); border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 500; max-width: min(92vw, 520px); z-index: 70; transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
 .toast.is-on { opacity: 1; transform: translate(-50%, 0); }
 </style>
@@ -398,12 +441,13 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   <button class="burger" id="burger" type="button" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
   <a class="brand" href="#top"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8"/><path d="M12 2v28M2 15h10M12 15h18" stroke-width="2" opacity=".35"/><circle cx="21" cy="8.5" r="3.6" fill="#06C167"/></svg><span>Bento <em>Launch</em></span></a>
   <div class="mode" id="tabs"><button type="button" class="is-on" data-tab="trending" data-t="mode.raising"></button><button type="button" data-tab="graduated" data-t="mode.graduated"></button></div>
-  <button class="place" type="button" id="refresh"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg><span id="net-name">BNB Chain</span><span class="sep">·</span><span data-t="place.now"></span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+  <label class="place" id="place"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg><select id="netsel" aria-label="Network"><option value="56">BNB Chain</option><option value="97">BNB Testnet</option></select><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></label>
+  <button class="cart" type="button" id="refresh" aria-label="Refresh" title="Refresh"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="q" type="search" autocomplete="off"></label>
   <div class="hdr-right">
     <button class="cart" type="button" id="cartbtn" aria-label="My coins"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/></svg><span class="n" id="cart-n">0</span></button>
     <div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="zh">中文</button></div>
-    <button class="textbtn" id="theme" type="button" aria-label="Theme">☾</button>
+    <button class="cart" id="theme" type="button" aria-label="Theme"></button>
     <button class="textbtn" id="connect" type="button" data-t="wallet.connect"></button>
     <div class="addr" id="player" hidden><i></i><b id="p-addr"></b><span id="p-cash"></span></div>
     <a class="btn btn-gray" href="#launch" data-t="nav.create"></a>
@@ -515,10 +559,11 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     <section class="sec" id="docs">
       <div class="sec-h"><h2 data-t="docs.h2"></h2></div>
       <div class="docs">
-        <div class="doc"><h3 data-t="docs.1h"></h3><ul><li data-t="docs.1a"></li><li data-t="docs.1b"></li><li data-t="docs.1c"></li><li data-t="docs.1d"></li></ul></div>
-        <div class="doc"><h3 data-t="docs.2h"></h3><ul><li data-t="docs.2a"></li><li data-t="docs.2b"></li><li data-t="docs.2c"></li><li data-t="docs.2d"></li></ul></div>
-        <div class="doc"><h3 data-t="docs.3h"></h3><ul><li data-t="docs.3a"></li><li data-t="docs.3b"></li><li data-t="docs.3c"></li><li data-t="docs.3d"></li></ul></div>
+        <div class="doc"><span class="step">1</span><h3 data-t="docs.1h"></h3><ul><li data-t="docs.1a"></li><li data-t="docs.1b"></li><li data-t="docs.1c"></li><li data-t="docs.1d"></li></ul></div>
+        <div class="doc"><span class="step">2</span><h3 data-t="docs.2h"></h3><ul><li data-t="docs.2a"></li><li data-t="docs.2b"></li><li data-t="docs.2c"></li><li data-t="docs.2d"></li></ul></div>
+        <div class="doc"><span class="step">3</span><h3 data-t="docs.3h"></h3><ul><li data-t="docs.3a"></li><li data-t="docs.3b"></li><li data-t="docs.3c"></li><li data-t="docs.3d"></li></ul></div>
       </div>
+      <div class="spec"><div class="spec-h"><h3 data-t="spec.h"></h3><small data-t="spec.sub"></small></div><div class="spec-g" id="spec"></div></div>
     </section>
 
     <hr class="divider">
@@ -531,14 +576,21 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     </section>
 
     <footer>
-      <div class="links"><a href="#explore" data-t="nav.home"></a><a href="#launch" data-t="nav.create"></a><a href="#docs" data-t="nav.docs"></a><a id="explorer-link" href="#" target="_blank" rel="noopener">BscScan</a></div>
-      <div>© <span id="year"></span> Bento Launch · <span data-t="footer"></span></div>
+      <div class="ft">
+        <div><a class="brand" href="#top"><svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="28" height="28" rx="8"/><path d="M12 2v28M2 15h10M12 15h18" stroke-width="2" opacity=".35"/><circle cx="21" cy="8.5" r="3.6" fill="#06C167"/></svg><span>Bento <em>Launch</em></span></a><p data-t="ft.tag"></p></div>
+        <div><h4 data-t="ft.product"></h4><ul><li><a href="#explore" data-t="nav.home"></a></li><li><a href="#launch" data-t="nav.create"></a></li><li><a href="#pairs" data-t="docs.4h"></a></li><li><a href="#docs" data-t="nav.docs"></a></li></ul></div>
+        <div><h4 data-t="ft.protocol"></h4><ul><li><a id="explorer-link" href="#" target="_blank" rel="noopener" data-t="ft.factory"></a></li><li><a href="https://github.com/2555raw/launch" target="_blank" rel="noopener" data-t="ft.src"></a></li><li><a href="https://pancakeswap.finance" target="_blank" rel="noopener">PancakeSwap</a></li><li><a href="https://www.bnbchain.org" target="_blank" rel="noopener">BNB Chain</a></li></ul></div>
+        <div><h4 data-t="ft.legal"></h4><ul><li><a href="#" data-doc="risk" data-t="legal.risk"></a></li><li><a href="#" data-doc="terms" data-t="legal.terms"></a></li><li><a href="#" data-doc="privacy" data-t="legal.privacy"></a></li></ul></div>
+      </div>
+      <p data-t="footer"></p>
+      <div class="ft-b"><span>© <span id="year"></span> Bento Launch</span><span class="tagl" id="ft-net"><i></i><span></span></span><span class="tagl"><i style="background:#F0B90B"></i><span data-t="ft.unaudited"></span></span><span class="legal"><a href="#" data-doc="risk" data-t="legal.risk"></a><a href="#" data-doc="terms" data-t="legal.terms"></a></span></div>
     </footer>
   </main>
 </div>
 <div class="scrim" id="scrim"></div>
 <aside class="sheet" id="drawer" aria-live="polite"></aside>
-<div class="bottom" id="bottom"><span class="icon">!</span><span data-t="bottom"></span><button type="button" id="bottom-x" aria-label="Close">✕</button></div>
+<div class="bottom" id="bottom"><span class="icon"></span><span><span data-t="bottom"></span> <a href="#" data-doc="risk" data-t="bottom.more"></a></span><button type="button" id="bottom-x" aria-label="Close">✕</button></div>
+<div class="modal" id="modal" hidden><div class="modal-c" role="dialog" aria-modal="true"><h3><span id="modal-h"></span><button class="close" type="button" data-modal-close aria-label="Close">✕</button></h3><div id="modal-b"></div></div></div>
 <nav class="mbar" id="mbar" aria-label="Mobile">
   <button type="button" class="is-on" data-m="home"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="nav.home"></span></button>
   <button type="button" data-m="search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.search"></span></button>
@@ -604,17 +656,24 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'launch.btn': 'Create coin', 'launch.saving': 'Confirm in wallet…', 'launch.signin': 'Connect your wallet to create a coin.', 'launch.tick.bad': 'Ticker: 2 to 8 letters or digits.', 'launch.name.bad': 'Name: 2 to 32 characters.', 'launch.rest.bad': 'Pick a restaurant.', 'launch.goal.bad': 'Target must be a positive number.', 'launch.done': (t) => `${t} is live on the board.`, 'launch.preview': 'Preview', 'launch.yours': 'Your coin',
       'pv.rate': (s) => `Tokens per ${s}`, 'pv.target': 'Target', 'pv.min': 'Minimum', 'pv.cap': 'Cap / wallet', 'pv.closes': 'Closes', 'pv.pool': 'Pool at graduation',
       'docs.h2': 'How it works',
-      'docs.1h': '1 · Paired with a real stock token', 'docs.1a': 'Every coin is paired with a restaurant whose stock exists as a token on BNB Chain: McDonald\'s is MCDx, Starbucks SBUXx, Meituan MEITx, Haidilao HAIDLx, Mixue MIXUx, Wendy\'s WENB and so on (xStocks by Backed, bStocks by Binance, Ondo Stocks).', 'docs.1b': 'The pairing is not a label: the raise is paid in that stock token and the coin lists in a pool against it.', 'docs.1c': 'Restaurants without a tokenized stock on BNB Chain (Luckin, Chagee, Guming, KFC China…) cannot be paired yet. We add them when an issuer lists them.', 'docs.1d': 'The restaurant itself does not take part. The stock token is issued by a third party and tracks the share price.',
-      'docs.2h': '2 · The raise', 'docs.2a': 'Creating a coin deploys its token (1,000,000,000) and a raise contract from your wallet. You set the target in the stock token and the duration.', 'docs.2b': 'Buyers approve the stock token and buy. Everyone gets the same rate: target ÷ supply. Each wallet can put in at most one tenth of the target.', 'docs.2c': 'The contract keeps the funds. Nobody, including the creator, can withdraw before finalize.', 'docs.2d': 'Reaching the target closes the raise instantly; otherwise it closes at the deadline.',
-      'docs.3h': '3 · Graduation or refund', 'docs.3a': 'Once closed, anyone can press Finalize. If at least one third of the target was raised, the coin graduates.', 'docs.3b': 'Graduation puts 99% of the stock tokens and 20% of the supply into a PancakeSwap v2 pool COIN/STOCK and burns the liquidity tokens, so the pool cannot be pulled. 1% goes to the platform.', 'docs.3c': 'Buyers then claim the other 80% of the supply in proportion to what they paid.', 'docs.3d': 'If the minimum was not reached, every buyer gets 100% back with Refund.',
+      'docs.1h': 'Paired with a real stock token', 'docs.1a': 'Every coin is paired with a restaurant whose stock exists as a token on BNB Chain: McDonald\'s is MCDx, Starbucks SBUXx, Meituan MEITx, Haidilao HAIDLx, Mixue MIXUx, Wendy\'s WENB and so on (xStocks by Backed, bStocks by Binance, Ondo Stocks).', 'docs.1b': 'The pairing is not a label: the raise is paid in that stock token and the coin lists in a pool against it.', 'docs.1c': 'Restaurants without a tokenized stock on BNB Chain (Luckin, Chagee, Guming, KFC China…) cannot be paired yet. We add them when an issuer lists them.', 'docs.1d': 'The restaurant itself does not take part. The stock token is issued by a third party and tracks the share price.',
+      'docs.2h': 'The raise', 'docs.2a': 'Creating a coin deploys its token (1,000,000,000) and a raise contract from your wallet. You set the target in the stock token and the duration.', 'docs.2b': 'Buyers approve the stock token and buy. Everyone gets the same rate: target ÷ supply. Each wallet can put in at most one tenth of the target.', 'docs.2c': 'The contract keeps the funds. Nobody, including the creator, can withdraw before finalize.', 'docs.2d': 'Reaching the target closes the raise instantly; otherwise it closes at the deadline.',
+      'docs.3h': 'Graduation or refund', 'docs.3a': 'Once closed, anyone can press Finalize. If at least one third of the target was raised, the coin graduates.', 'docs.3b': 'Graduation puts 99% of the stock tokens and 20% of the supply into a PancakeSwap v2 pool COIN/STOCK and burns the liquidity tokens, so the pool cannot be pulled. 1% goes to the platform.', 'docs.3c': 'Buyers then claim the other 80% of the supply in proportion to what they paid.', 'docs.3d': 'If the minimum was not reached, every buyer gets 100% back with Refund.',
       'docs.4h': 'Verified pairs on BNB Chain', 'docs.4p': 'Every token below was checked on-chain (name, symbol, decimals, supply) and is what a raise paired with that restaurant is paid in. Open a card for the token, its issuer and the coins already paired with it, or copy the address into the search box. The launch contracts are open source (contracts/BentoLaunch.sol) and unaudited: test on BNB Testnet first.',
-      'bottom': 'Real money · unaudited user-created contracts · you can lose everything you put in',
+      'bottom': 'Real money. Coins are unaudited contracts created by users; you can lose everything you put in.',
       'footer': 'Restaurant brands and logos belong to their owners and are not affiliated with this site. Stock tokens are issued by third parties. Nothing here is financial advice or an offer.',
       'feat.top': 'Closest to graduation', 'feat.big': 'Largest raise', 'feat.create': 'Launch your own coin', 'feat.createP': 'Pair it with McDonald\'s, Starbucks, Meituan or 15 more tokenized stocks.', 'feat.cta': 'Buy now', 'feat.ctaCreate': 'Create now',
       'feed.h': 'Live buys', 'bought': 'bought', 'ago': (s) => `${s} ago`, 'you.tag': 'you', 'chart.h': 'Raise over time', 'buys.n': (n) => `${n} buy${n === 1 ? '' : 's'}`, 'buys.none': 'No buys yet. Be the first.', 'buys.err': 'Could not load buys from the RPC.',
       'link.copy': 'Copy link', 'copied': 'Copied.', 'copy.addr': 'Copy address', 'search.noaddr': (n) => `No coin at that address on ${n}.`, 'm.search': 'Search', 'm.wallet': 'Wallet',
       'pairs.n': (n, i) => `${n} tokens · ${i} issuers`, 'pairs.verified': 'Verified on-chain', 'pairs.px': 'Price', 'pairs.nopx': 'Price unavailable', 'px.src': 'USD prices: CoinGecko, 24h change', 'iss.x': 'Backed Finance', 'iss.b': 'Binance', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}: factory not deployed yet. Deploy BentoFactory and set its address in the page config.`, 'st.factoryOk': (n) => `BentoFactory live on ${n}`,
+      'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
+      'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply, same for everyone', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of the raise + 20% of supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply, pro rata', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP tokens burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
+      'ft.tag': 'A coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Factory contract', 'ft.src': 'Source code', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
+      'legal.risk': 'Risk disclosure', 'legal.terms': 'Terms of use', 'legal.privacy': 'Privacy',
+      'legal.riskB': ['<b>You can lose everything you put in.</b> Coins are created by users through unaudited smart contracts. A raise can close below its minimum, a graduated coin can fall to zero, and nothing here guarantees any value.', '<b>The contracts hold the funds, not us.</b> Nobody, including the creator of a coin or the operators of this site, can withdraw from a raise before it finalizes. Refunds and claims are executed by the contract only.', '<b>Stock tokens are issued by third parties.</b> MCDx, SBUXx, MEITx and the rest are issued by Backed, Binance or Ondo. Their price, redemption and availability depend on those issuers, not on the restaurants and not on this site.', '<b>Restaurants are not involved.</b> Names and logos identify the stock token a coin is paired with. No restaurant sponsors, endorses or issues anything here.', '<b>Nothing here is advice.</b> This site shows on-chain data and lets you send transactions from your own wallet. It is not an offer, a solicitation or financial advice, and it may be unavailable to you under local law.'],
+      'legal.termsB': ['This website is an interface to open-source smart contracts on BNB Chain. By using it you confirm that you are allowed to use crypto assets in your jurisdiction and that you act on your own account and at your own risk.', 'Every action (creating a coin, buying, finalizing, claiming, refunding) is a transaction signed in your wallet. We do not hold keys, funds or tokens and cannot reverse, cancel or recover transactions.', 'The contracts are provided as is, without warranty. They are unaudited; bugs may exist and may cause loss of funds. A 1% fee on graduated raises is paid to the platform address set in the factory.', 'Coin names, tickers and raises are created by users. We do not review them and we may hide any of them from this interface without notice. Hiding does not affect the contract.', 'Brands and logos belong to their owners and are used only to identify the stock token each coin is paired with.'],
+      'legal.privacyB': ['This page stores only your language, theme and a short-lived price cache in your browser (localStorage). It sets no cookies and has no accounts.', 'Wallet addresses and transactions are public on BNB Chain. Reading the board uses your wallet\'s RPC or a public BNB Chain node; prices come from CoinGecko. Those services see your IP address under their own policies.', 'We do not run analytics or trackers on this page.'],
       'units': { d: 'd', h: 'h', m: 'min' }, locale: 'en-US'
     },
     zh: {
@@ -645,17 +704,24 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'launch.btn': '创建代币', 'launch.saving': '请在钱包中确认…', 'launch.signin': '连接钱包后即可创建代币。', 'launch.tick.bad': '代码：2 到 8 个字母或数字。', 'launch.name.bad': '名称：2 到 32 个字符。', 'launch.rest.bad': '请选择餐饮品牌。', 'launch.goal.bad': '目标必须为正数。', 'launch.done': (t) => `${t} 已上板。`, 'launch.preview': '预览', 'launch.yours': '你的代币',
       'pv.rate': (s) => `每 ${s} 代币数`, 'pv.target': '目标', 'pv.min': '最低额', 'pv.cap': '单钱包上限', 'pv.closes': '截止', 'pv.pool': '毕业时池子',
       'docs.h2': '玩法说明',
-      'docs.1h': '1 · 配对真实的股票代币', 'docs.1a': '每个代币配对一家在 BNB 链上有股票代币的餐饮品牌：麦当劳是 MCDx，星巴克 SBUXx，美团 MEITx，海底捞 HAIDLx，蜜雪冰城 MIXUx，温蒂 WENB 等（Backed 的 xStocks、币安的 bStocks、Ondo Stocks）。', 'docs.1b': '配对不是标签：募集以该股票代币支付，代币毕业后在与它的池子中交易。', 'docs.1c': 'BNB 链上没有股票代币的品牌（瑞幸、霸王茶姬、古茗、百胜中国等）暂不能配对。发行方上线后我们会加入。', 'docs.1d': '餐饮品牌本身不参与。股票代币由第三方发行，跟踪股价。',
-      'docs.2h': '2 · 募集', 'docs.2a': '创建代币会从你的钱包部署代币（1,000,000,000）与募集合约。你以股票代币设定目标和时长。', 'docs.2b': '买家授权股票代币后买入。所有人汇率相同：目标 ÷ 供应量。每个钱包最多投入目标的十分之一。', 'docs.2c': '资金由合约保管。结算前包括创建者在内任何人都无法提取。', 'docs.2d': '达到目标即刻结束；否则到期结束。',
-      'docs.3h': '3 · 毕业或退款', 'docs.3a': '结束后任何人都可以点击“结算”。若募集额达到目标的三分之一，代币毕业。', 'docs.3b': '毕业时 99% 的股票代币与 20% 的供应量进入 PancakeSwap v2 的 COIN/股票 池，并销毁流动性凭证，池子无法撤走。1% 归平台。', 'docs.3c': '随后买家按投入比例领取其余 80% 的供应量。', 'docs.3d': '若未达最低额，每位买家可通过“退款”取回 100%。',
+      'docs.1h': '配对真实的股票代币', 'docs.1a': '每个代币配对一家在 BNB 链上有股票代币的餐饮品牌：麦当劳是 MCDx，星巴克 SBUXx，美团 MEITx，海底捞 HAIDLx，蜜雪冰城 MIXUx，温蒂 WENB 等（Backed 的 xStocks、币安的 bStocks、Ondo Stocks）。', 'docs.1b': '配对不是标签：募集以该股票代币支付，代币毕业后在与它的池子中交易。', 'docs.1c': 'BNB 链上没有股票代币的品牌（瑞幸、霸王茶姬、古茗、百胜中国等）暂不能配对。发行方上线后我们会加入。', 'docs.1d': '餐饮品牌本身不参与。股票代币由第三方发行，跟踪股价。',
+      'docs.2h': '募集', 'docs.2a': '创建代币会从你的钱包部署代币（1,000,000,000）与募集合约。你以股票代币设定目标和时长。', 'docs.2b': '买家授权股票代币后买入。所有人汇率相同：目标 ÷ 供应量。每个钱包最多投入目标的十分之一。', 'docs.2c': '资金由合约保管。结算前包括创建者在内任何人都无法提取。', 'docs.2d': '达到目标即刻结束；否则到期结束。',
+      'docs.3h': '毕业或退款', 'docs.3a': '结束后任何人都可以点击“结算”。若募集额达到目标的三分之一，代币毕业。', 'docs.3b': '毕业时 99% 的股票代币与 20% 的供应量进入 PancakeSwap v2 的 COIN/股票 池，并销毁流动性凭证，池子无法撤走。1% 归平台。', 'docs.3c': '随后买家按投入比例领取其余 80% 的供应量。', 'docs.3d': '若未达最低额，每位买家可通过“退款”取回 100%。',
       'docs.4h': 'BNB 链上已验证的配对', 'docs.4p': '以下每个代币都经过链上核验（名称、代码、精度、供应量），配对该品牌的募集就以它支付。点开卡片查看代币、发行方和已配对的代币，或把地址复制到搜索框。发射合约开源（contracts/BentoLaunch.sol），未经审计：请先在 BNB 测试网测试。',
-      'bottom': '真实资金 · 用户创建的未审计合约 · 投入可能全部损失',
+      'bottom': '真实资金。代币是用户创建的未审计合约，投入可能全部损失。',
       'footer': '餐饮品牌与标志归其所有者所有，与本站无关联。股票代币由第三方发行。本站内容不构成任何财务建议或要约。',
       'feat.top': '最接近毕业', 'feat.big': '最大募集', 'feat.create': '发行你自己的代币', 'feat.createP': '配对麦当劳、星巴克、美团等 18 个股票代币。', 'feat.cta': '立即打新', 'feat.ctaCreate': '立即创建',
       'feed.h': '实时买入', 'bought': '买入', 'ago': (s) => `${s}前`, 'you.tag': '我', 'chart.h': '募集走势', 'buys.n': (n) => `${n} 笔买入`, 'buys.none': '还没有人买入，抢先打新。', 'buys.err': '无法从 RPC 加载买入记录。',
       'link.copy': '复制链接', 'copied': '已复制。', 'copy.addr': '复制地址', 'search.noaddr': (n) => `${n} 上没有该地址的代币。`, 'm.search': '搜索', 'm.wallet': '钱包',
       'pairs.n': (n, i) => `${n} 个代币 · ${i} 家发行方`, 'pairs.verified': '链上已验证', 'pairs.px': '价格', 'pairs.nopx': '暂无价格', 'px.src': '美元价格：CoinGecko，24 小时涨跌', 'iss.x': 'Backed Finance', 'iss.b': '币安', 'iss.o': 'Ondo Finance',
       'st.factory': (n) => `${n}：工厂合约尚未部署。请部署 BentoFactory 并在页面配置中填入地址。`, 'st.factoryOk': (n) => `BentoFactory 已在 ${n} 上线`,
+      'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
+      'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量，人人相同', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '募集额的 99% + 供应量的 20%', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%，按比例', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
+      'ft.tag': 'BNB 链上的代币发射台：每个代币配对一只餐饮股票代币，以它募集，与它配对上市。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '工厂合约', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
+      'legal.risk': '风险提示', 'legal.terms': '使用条款', 'legal.privacy': '隐私',
+      'legal.riskB': ['<b>投入可能全部损失。</b>代币由用户通过未审计的智能合约创建。募集可能未达最低额而结束，毕业的代币也可能归零，这里没有任何价值保证。', '<b>资金由合约保管，不在我们手中。</b>结算前，包括代币创建者和本站运营者在内，任何人都无法从募集中提取资金。退款与领取只由合约执行。', '<b>股票代币由第三方发行。</b>MCDx、SBUXx、MEITx 等由 Backed、币安或 Ondo 发行。其价格、赎回和可用性取决于这些发行方，与餐饮品牌和本站无关。', '<b>餐饮品牌不参与。</b>名称与标志仅用于标识代币所配对的股票代币。没有任何餐饮品牌赞助、背书或发行这里的任何内容。', '<b>本站不提供建议。</b>本站展示链上数据，并让你用自己的钱包发送交易。它不构成要约、招揽或财务建议，在你所在地可能不可用。'],
+      'legal.termsB': ['本网站是 BNB 链上开源智能合约的界面。使用即表示你确认所在司法辖区允许你使用加密资产，且你自行承担风险。', '每个操作（创建、买入、结算、领取、退款）都是你在钱包中签名的交易。我们不保管私钥、资金或代币，无法撤销、取消或找回交易。', '合约按现状提供，不作任何保证。合约未经审计，可能存在漏洞并导致资金损失。毕业募集的 1% 费用支付给工厂中设定的平台地址。', '代币名称、代码与募集由用户创建。我们不审核，并可在不通知的情况下在本界面隐藏任何内容。隐藏不影响合约。', '品牌与标志归其所有者所有，仅用于标识代币所配对的股票代币。'],
+      'legal.privacyB': ['本页只在你的浏览器（localStorage）中保存语言、主题和短时价格缓存。不设 cookie，没有账户。', '钱包地址与交易在 BNB 链上公开。读取看板使用你钱包的 RPC 或公共 BNB 链节点；价格来自 CoinGecko。这些服务会按各自政策看到你的 IP 地址。', '本页不运行分析或追踪脚本。'],
       'units': { d: '天', h: '小时', m: '分' }, locale: 'zh-CN'
     }
   };
@@ -960,7 +1026,9 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   }
   function renderStats() {
     const Cs = list(); const live = Cs.filter((C) => C.phase === 'live'); const grad = Cs.filter((C) => C.phase === 'ok');
-    $('#live-count').textContent = String(live.length); $('#net-name').textContent = net().name;
+    $('#live-count').textContent = String(live.length); $('#netsel').value = String(state.chainId);
+    const fn = $('#ft-net'); fn.classList.toggle('ok', Boolean(state.address && state.walletChain === state.chainId)); fn.querySelector('span').textContent = state.address ? t('ft.net', net().name) : net().name;
+    $('#spec').innerHTML = [['spec.supply', num(SUPPLY)], ['spec.price', t('spec.priceV')], ['spec.min', t('spec.minV')], ['spec.cap', t('spec.capV')], ['spec.pool', t('spec.poolV')], ['spec.buyers', t('spec.buyersV')], ['spec.fee', t('spec.feeV')], ['spec.lp', t('spec.lpV')], ['spec.audit', t('spec.auditV')], ['spec.src', '<a href="https://github.com/2555raw/launch/blob/main/launchpad-site/contracts/BentoLaunch.sol" target="_blank" rel="noopener">BentoLaunch.sol</a>']].map(([k, v]) => `<div><small>${t(k)}</small><b>${v}</b></div>`).join('');
     $('#explorer-link').href = net().factory ? explorer(net().factory) : net().explorer;
     const st = $('#contracts'); st.className = 'status' + (net().factory ? ' ok' : ''); st.innerHTML = `<i></i>${net().factory ? `${t('st.factoryOk', esc(net().name))} · <a href="${explorer(net().factory)}" target="_blank" rel="noopener">${esc(net().factory)}</a>` : t('st.factory', esc(net().name))}`;
     const mine = Cs.filter((C) => state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase()));
@@ -1011,14 +1079,14 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     renderRest();
     if (!state.loaded) { const sk = `<div class="skel-card"><div class="skel i"></div><div class="skel l1"></div><div class="skel l2"></div></div>`; host.innerHTML = sk.repeat(4); fr.innerHTML = nr.innerHTML = ''; $('#sec-featured').hidden = $('#sec-new').hidden = true; renderDrawer(); return; }
     if (state.loadError) { const msg = state.loadError === 'nofactory' ? t('board.nofactory') : state.loadError === 'nowallet' ? t('board.nowallet') : t('board.loading');
-      host.innerHTML = `<p class="empty">${msg}${state.loadError === 'nowallet' ? `<br><br><button class="btn btn-ink" type="button" data-connect>${t('wallet.connect')}</button>` : ''}</p>`; fr.innerHTML = nr.innerHTML = ''; $('#sec-featured').hidden = $('#sec-new').hidden = true; renderDrawer(); return; }
+      host.innerHTML = state.loadError === 'nofactory' ? `<div class="empty-card"><b>${t('nofactory.h')}</b><p>${msg}</p></div>` : `<div class="empty-card"><b>${msg}</b>${state.loadError === 'nowallet' ? `<button class="btn btn-ink" type="button" data-connect>${t('wallet.connect')}</button>` : ''}</div>`; fr.innerHTML = nr.innerHTML = ''; $('#sec-featured').hidden = $('#sec-new').hidden = true; renderDrawer(); return; }
     const live = Cs.filter((C) => C.phase === 'live');
     fr.innerHTML = [...live].sort((a, b) => b.progress - a.progress || b.buyers - a.buyers).slice(0, 8).map((C) => card(C, now)).join('') || `<p class="empty">${t('board.empty')}</p>`;
     nr.innerHTML = [...live].sort((a, b) => b.openAt - a.openAt).slice(0, 8).map((C) => card(C, now)).join('') || `<p class="empty">${t('board.empty')}</p>`;
     $('#sec-featured').hidden = $('#sec-new').hidden = !live.length;
     renderRest();
     const rows = filtered(Cs);
-    host.innerHTML = rows.length ? rows.map((C) => card(C, now)).join('') : `<p class="empty">${t(Cs.length ? 'board.nomatch' : 'board.empty')}</p>`;
+    host.innerHTML = rows.length ? rows.map((C) => card(C, now)).join('') : Cs.length ? `<p class="empty">${t('board.nomatch')}</p>` : `<div class="empty-card"><b>${t('empty.h')}</b><p>${t('empty.p')}</p><a class="btn btn-ink" href="#launch">${t('nav.create')}</a></div>`;
     renderDrawer();
   }
   function renderDrawer() {
@@ -1169,6 +1237,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       if (k === 'home') $('#explore')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'search') { window.scrollTo({ top: 0, behavior: 'smooth' }); $('#q').focus(); } else if (k === 'create') $('#launch')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'wallet') { if (state.address) { setTab('mine'); $('#all')?.scrollIntoView({ behavior: 'smooth' }); } else connect(); } return; }
     if (e.target.closest('[data-connect], #connect')) { connect(); return; }
     if (e.target.closest('#refresh')) { loadCoins(); return; }
+    const doc = e.target.closest('[data-doc]'); if (doc) { e.preventDefault(); openDoc(doc.dataset.doc); return; }
+    if (e.target.closest('[data-modal-close]') || e.target === $('#modal')) { $('#modal').hidden = true; return; }
     if (e.target.closest('[data-close], #scrim')) { setOpen(null); return; }
     const chip = e.target.closest('[data-amt]'); if (chip) { const inp = $('#amt'); if (inp) inp.value = chip.dataset.amt; return; }
     const ap = e.target.closest('[data-approve]'); if (ap) { approve(ap.dataset.approve); return; }
@@ -1195,13 +1265,16 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   $('#pay').addEventListener('change', (e) => { state.pay = e.target.value; renderRows(); });
   $('#launch-form').addEventListener('submit', launchCoin);
   ['c-name', 'c-tick', 'c-rest', 'c-goal', 'c-window'].forEach((id) => $('#' + id).addEventListener('input', renderPreview));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.open) setOpen(null); });
+  document.addEventListener('keydown', (e) => { if (e.key !== 'Escape') return; if (!$('#modal').hidden) { $('#modal').hidden = true; return; } if (state.open) setOpen(null); });
+  function openDoc(k) { const m = $('#modal'); $('#modal-h').textContent = t('legal.' + k); $('#modal-b').innerHTML = (T['legal.' + k + 'B'] || I18N.en['legal.' + k + 'B']).map((p) => `<p>${p}</p>`).join(''); m.hidden = false; m.querySelector('.close').focus(); }
+  $('#netsel').addEventListener('change', (e) => { state.chainId = Number(e.target.value); state.coins = []; state.loaded = false; state.loadError = null; state.open = null; state.buys = {}; chainRef.at = 0; render(); loadCoins(); loadPrices(); });
 
   const root = document.documentElement; const themeBtn = $('#theme');
   const prefersLight = () => matchMedia('(prefers-color-scheme: light)').matches;
-  function applyTheme(th) { root.dataset.theme = th; themeBtn.textContent = th === 'light' ? '☾' : '☀'; try { localStorage.setItem('bento.theme', th); } catch {} }
+  const THEME_ICON = { light: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>', dark: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' };
+  function applyTheme(th) { root.dataset.theme = th; themeBtn.innerHTML = THEME_ICON[th] || THEME_ICON.light; try { localStorage.setItem('bento.theme', th); } catch {} }
   let savedTheme = null; try { savedTheme = localStorage.getItem('bento.theme'); } catch {}
-  if (savedTheme) applyTheme(savedTheme); else themeBtn.textContent = '☾';
+  if (savedTheme) applyTheme(savedTheme); else themeBtn.innerHTML = THEME_ICON.light;
   themeBtn.addEventListener('click', () => applyTheme((root.dataset.theme || 'light') === 'light' ? 'dark' : 'light'));
   $('#year').textContent = String(new Date().getFullYear());
   setInterval(() => { const now = Date.now(); $$('[data-countdown]').forEach((el) => { const C = list().find((x) => x.addr === el.dataset.countdown); if (C) el.textContent = closeText(C, now); }); }, 1000);

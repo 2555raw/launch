@@ -28,6 +28,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { verifyMessage, getAddress, isAddress } = require('ethers');
 const CATALOG = require('./launches');
+const { giftsApi } = require('./gifts');
 
 const ROOT = __dirname;
 const PORT = process.env.PORT || 8080;
@@ -205,7 +206,7 @@ const TYPES = {
   '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon',
   '.txt': 'text/plain; charset=utf-8', '.md': 'text/markdown; charset=utf-8'
 };
-const PRIVATE = new Set(['server.js', 'launches.js', 'test.js', 'package.json', 'package-lock.json', '.gitignore']);
+const PRIVATE = new Set(['server.js', 'launches.js', 'gifts.js', 'test.js', 'package.json', 'package-lock.json', '.gitignore']);
 
 function send(res, code, body, headers = {}) {
   const json = typeof body !== 'string' && !Buffer.isBuffer(body);
@@ -283,6 +284,8 @@ async function api(req, res, url) {
     const data = await getQuotes();
     return send(res, 200, { at: quotes.at || null, available: Object.keys(data).length > 0, quotes: data });
   }
+
+  if (p.startsWith('/api/gifts/')) return giftsApi(req, res, url, { send, fail, readJson, limited, store, save });
 
   if (req.method === 'GET' && p === '/api/me') {
     const s = sessionOf(req);

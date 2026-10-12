@@ -34,6 +34,7 @@
 :root[data-theme="dark"][lang="zh"] { --up: #FF6B5E; --down: #3DDC84; }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 :focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
@@ -103,41 +104,33 @@ p { margin: 0; }
 .shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); }
 .side { padding: 12px 12px 24px; position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 64px); overflow: auto; display: flex; flex-direction: column; gap: 2px; scrollbar-width: none; }
 .side::-webkit-scrollbar { display: none; }
-.side .grp { display: flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); padding: 18px 12px 8px; }
-.side .grp::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-.side a, .side button { display: flex; align-items: center; gap: 12px; width: 100%; height: 46px; padding: 0 10px 0 8px; border-radius: 14px; font-weight: 600; font-size: 15px; color: var(--ink); background: transparent; border: 0; cursor: pointer; text-align: left; white-space: nowrap; transition: background .15s ease, transform .15s cubic-bezier(.2,.7,.2,1), box-shadow .15s ease; }
-.side a:hover, .side button:hover { background: var(--surface); transform: translateX(3px); }
-.side a:active, .side button:active { transform: scale(.985); }
-.side .ico { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--ink); color: var(--bg); box-shadow: 0 4px 10px rgba(0,0,0,.10); transition: transform .15s cubic-bezier(.2,.7,.2,1); }
-.side a:hover .ico, .side button:hover .ico { transform: scale(1.08) rotate(-4deg); }
-.side .ico svg { width: 19px; height: 19px; }
-.side .ico.c1 { background: linear-gradient(135deg, #FFB547, #FF7A00); color: #fff; } .side .ico.c2 { background: linear-gradient(135deg, #FF7A7A, #E02424); color: #fff; } .side .ico.c3 { background: linear-gradient(135deg, #3DDC84, #05944F); color: #fff; }
-.side .ico.c4 { background: linear-gradient(135deg, #6C8CFF, #2F55D4); color: #fff; } .side .ico.c5 { background: linear-gradient(135deg, #B28CFF, #7B3FE4); color: #fff; } .side .ico.c6 { background: linear-gradient(135deg, #FF9A5B, #D9731A); color: #fff; } .side .ico.c7 { background: linear-gradient(135deg, #4FD1C5, #0F766E); color: #fff; }
-.side .is-on { background: var(--ink); color: var(--bg); box-shadow: 0 10px 24px rgba(0,0,0,.16); }
-.side .is-on:hover { background: var(--ink); }
-.side .is-on .ico { background: var(--green); color: #fff; box-shadow: none; }
-.side .n { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--muted); background: var(--surface); border-radius: 999px; padding: 2px 8px; min-width: 24px; text-align: center; }
-.side .is-on .n { background: rgba(255,255,255,.2); color: #fff; }
-:root[data-theme="dark"] .side .is-on .n { background: rgba(0,0,0,.18); color: #000; }
+.side > * { flex: none; }
+.side .grp { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--dim); padding: 20px 12px 6px; }
+.side a, .side button { display: flex; align-items: center; gap: 12px; width: 100%; height: 44px; padding: 0 12px; border-radius: 12px; font-weight: 500; font-size: 16px; color: var(--ink); background: transparent; border: 0; cursor: pointer; text-align: left; white-space: nowrap; transition: background .12s ease; }
+.side a:hover, .side button:hover { background: var(--surface); }
+.side a:active, .side button:active { background: var(--surface-hi); }
+.side .ico { width: 24px; height: 24px; display: grid; place-items: center; flex: none; color: var(--ink); background: transparent; }
+.side .ico svg { width: 22px; height: 22px; }
+.side .is-on { background: var(--surface); font-weight: 700; }
+.side .is-on:hover { background: var(--surface-hi); }
+.side .n { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--muted); }
 .side-tk { display: grid; gap: 2px; }
-.side-tk button { height: 40px; font-size: 13px; font-weight: 500; gap: 10px; padding: 0 10px 0 9px; border-radius: 12px; }
-.side-tk .logo { width: 26px; height: 26px; }
+.side-tk button { height: 40px; font-size: 14px; font-weight: 500; gap: 10px; padding: 0 12px; border-radius: 12px; }
+.side-tk .logo { width: 24px; height: 24px; }
 .side-tk .sym { font-family: var(--mono); font-weight: 600; font-size: 12.5px; }
 .side-tk .px { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 600; text-align: right; line-height: 14px; }
 .side-tk .px i { display: block; font-style: normal; font-size: 11px; font-weight: 600; }
 .side-tk .px.na { color: var(--dim); font-weight: 500; }
-.side .wallet-card { margin-top: auto; position: relative; overflow: hidden; background: linear-gradient(140deg, #0B3D2E 0%, #0E8345 55%, #06C167 100%); color: #fff; border-radius: 18px; padding: 16px; display: grid; gap: 10px; box-shadow: 0 12px 28px rgba(14,131,69,.28); }
-.side .wallet-card::after { content: ''; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; border-radius: 999px; background: rgba(255,255,255,.14); }
-.side .wallet-card > * { position: relative; }
+.side .wallet-card { margin-top: auto; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
 .side .wallet-card .row1 { display: flex; align-items: center; gap: 10px; }
-.side .wallet-card .av { width: 36px; height: 36px; border-radius: 999px; background: linear-gradient(135deg, #fff, #BDEFD3); flex: none; }
+.side .wallet-card .av { width: 36px; height: 36px; border-radius: 999px; background: var(--green); flex: none; }
 .side .wallet-card b { display: block; font-family: var(--mono); font-size: 13px; font-weight: 500; }
 .side .wallet-card small { display: block; font-size: 12px; opacity: .8; }
 .side .wallet-card .bal { font-family: var(--mono); font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
 .side .wallet-card .net { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; opacity: .9; }
-.side .wallet-card .net i { width: 8px; height: 8px; border-radius: 999px; background: #fff; box-shadow: 0 0 0 3px rgba(255,255,255,.25); }
+.side .wallet-card .net i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); }
 .side .wallet-card .btn { height: 38px; font-size: 13px; font-weight: 600; }
-.side .wallet-card .btn-white { background: #fff; color: #0B3D2E; }
+.side .wallet-card .btn-white { background: var(--bg); color: var(--ink); }
 .side .wallet-card p { font-size: 13px; line-height: 18px; opacity: .92; }
 .side .wallet-card .usd { color: rgba(255,255,255,.8); }
 @media (max-height: 760px) { .side .wallet-card { margin-top: 12px; } }
@@ -352,6 +345,33 @@ p { margin: 0; }
 .gift-row b { display: block; font-size: 15px; font-weight: 600; }
 .gift-row small { display: block; color: var(--muted); font-size: 13px; }
 .gift-row .btn { height: 36px; font-size: 13px; }
+
+/* ---- gift checkout sheet ---- */
+.gs-card { border-radius: 16px; padding: 18px; color: #fff; position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; }
+.gs-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,0) 45%, rgba(0,0,0,.18)); }
+.gs-card > * { position: relative; } .gs-card .logo { width: 48px; height: 48px; border: 0; }
+.gs-card b { display: block; font-size: 18px; font-weight: 700; } .gs-card small { display: block; font-size: 13px; opacity: .9; }
+.gs-card.is-dark { color: #111; }
+.gs-card .gs-val { margin-left: auto; font-family: var(--mono); font-size: 26px; font-weight: 600; }
+.amts { display: flex; gap: 8px; flex-wrap: wrap; }
+.amts button { height: 40px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--line); background: var(--bg); font-family: var(--mono); font-size: 14px; font-weight: 600; cursor: pointer; color: var(--ink); }
+.amts button.is-on { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.gs-sum { display: grid; gap: 6px; padding: 12px 14px; border-radius: 12px; background: var(--surface); font-size: 14px; }
+.gs-sum div { display: flex; justify-content: space-between; gap: 12px; } .gs-sum b { font-family: var(--mono); font-weight: 600; } .gs-sum .tot { font-size: 16px; padding-top: 6px; border-top: 1px solid var(--line-hi); }
+.gs-pay { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.gs-pay .btn { height: 48px; font-size: 15px; font-weight: 600; }
+.gs-pay .btn small { font-weight: 500; opacity: .75; margin-left: 6px; font-family: var(--mono); }
+.gs-step { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--muted); }
+.gs-step i { width: 18px; height: 18px; border-radius: 999px; border: 2px solid var(--line-hi); border-top-color: var(--green); animation: spin .8s linear infinite; flex: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.code { border: 2px dashed var(--green); border-radius: 14px; padding: 16px; display: grid; gap: 8px; background: var(--green-soft); }
+.code b { font-family: var(--mono); font-size: 20px; font-weight: 600; letter-spacing: .04em; word-break: break-all; }
+.code p { font-size: 13px; line-height: 19px; color: var(--prose); white-space: pre-wrap; }
+.code .row2 { display: flex; gap: 8px; flex-wrap: wrap; }
+.gs-list { display: grid; gap: 6px; }
+.gs-list button { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); cursor: pointer; font: inherit; color: var(--ink); }
+.gs-list .logo { width: 28px; height: 28px; } .gs-list b { font-family: var(--mono); font-weight: 600; margin-left: auto; } .gs-list small { color: var(--muted); }
+.gift .cta.in { background: var(--green); color: #fff; }
 
 /* ---- brand mark ---- */
 .brand { display: inline-flex; align-items: center; gap: 9px; }
@@ -767,6 +787,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'hero.eye': (n) => `Live on BNB Chain · ${n} verified stock tokens`, 'hero.h1': 'Launch a coin <em>paired</em> with a real restaurant stock.', 'hero.p': 'Pick McDonald\'s, Starbucks, Meituan or 15 more. The raise is paid in that restaurant\'s tokenized stock, and at graduation the coin lists against it on PancakeSwap with the liquidity burned.', 'hero.cta2': 'See restaurants', 'hero.live': 'raising now', 'hero.raised': 'raised so far', 'hero.issuers': 'issuers', 'hero.tokens': 'stock tokens', 'hero.fee': 'fee · LP burned', 'hero.today': 'today',
       'r.exchange': 'Listed on', 'r.hq': 'Headquarters', 'r.founded': 'Founded', 'r.stores': 'Locations', 'fav.on': 'Saved to My coins.', 'fav.off': 'Removed from My coins.', 'btn.fav': 'Save', 'ft.block': (n) => `Block ${n}`,
       'nav.gifts': 'Gift cards', 'gift.h2': 'Gift cards, paid in crypto', 'gift.all': 'All restaurants on Bitrefill', 'gift.p': 'eGift cards sold and emailed by Bitrefill. Pay with', 'gift.egift': 'eGift card', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `up to ${b}`, 'gift.buy': 'Buy on Bitrefill', 'gift.browse': 'Browse on Bitrefill', 'gift.works': (c) => `Works in ${c}`, 'gift.na': 'No listing yet', 'gift.sheet': 'Gift card', 'gift.sheetP': 'Bought on Bitrefill, delivered by email in minutes.', 'gift.sheetNa': 'Bitrefill has no listing for this brand yet.', 'gift.note': 'Gift cards are sold by Bitrefill, not by this site, and are unrelated to the coins and stock tokens.',
+      'gs.h': 'Buy gift card', 'gs.amount': 'Amount', 'gs.custom': 'Other', 'gs.face': 'Card value', 'gs.fee': (p) => `Service fee ${p}%`, 'gs.total': 'Total', 'gs.payBnb': 'Pay with BNB', 'gs.payUsdt': 'Pay with USDT', 'gs.step1': 'Confirm the payment in your wallet…', 'gs.step2': 'Payment sent. Waiting for confirmation…', 'gs.step3': 'Confirmed. Ordering your card…', 'gs.done': 'Your gift card', 'gs.copy': 'Copy code', 'gs.saved': 'Saved in this browser. Keep a copy: it cannot be re-issued.', 'gs.failed': 'The card could not be issued. Your payment is recorded; contact support with this order id and we will refund or re-issue.', 'gs.processing': 'Still being issued. This page keeps checking; you can also come back later.', 'gs.mine': 'Your gift cards', 'gs.ext': 'In-site checkout is not enabled on this deployment. You can buy this card on Bitrefill instead.', 'gs.out': 'Out of stock right now.', 'gs.range': (a, b) => `Any amount from ${a} to ${b}`, 'gs.net': 'Payments go to the site wallet on BNB Chain. Gift cards are issued by Bitrefill and are final.', 'gs.quoteErr': 'Could not get a price. Try again.', 'gs.order': 'Order', 'gift.buyHere': 'Buy here',
       'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
       'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply, same for everyone', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of the raise + 20% of supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply, pro rata', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP tokens burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
       'ft.tag': 'A coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Factory contract', 'ft.src': 'Source code', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
@@ -818,6 +839,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'hero.eye': (n) => `已在 BNB 链上线 · ${n} 个已验证股票代币`, 'hero.h1': '发行一个与真实餐饮股票<em>配对</em>的代币。', 'hero.p': '选麦当劳、星巴克、美团或另外 15 家。募集以该品牌的股票代币支付，毕业后在 PancakeSwap 与它配对上市，流动性凭证销毁。', 'hero.cta2': '查看品牌', 'hero.live': '募集中', 'hero.raised': '累计募集', 'hero.issuers': '发行方', 'hero.tokens': '股票代币', 'hero.fee': '手续费 · LP 已销毁', 'hero.today': '今日',
       'r.exchange': '上市', 'r.hq': '总部', 'r.founded': '成立', 'r.stores': '门店', 'fav.on': '已加入我的代币。', 'fav.off': '已从我的代币移除。', 'btn.fav': '收藏', 'ft.block': (n) => `区块 ${n}`,
       'nav.gifts': '礼品卡', 'gift.h2': '用加密货币买礼品卡', 'gift.all': 'Bitrefill 全部餐饮品牌', 'gift.p': '电子礼品卡由 Bitrefill 出售并邮件发送。支持', 'gift.egift': '电子礼品卡', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `最高 ${b}`, 'gift.buy': '在 Bitrefill 购买', 'gift.browse': '去 Bitrefill 浏览', 'gift.works': (c) => `仅限${c}使用`, 'gift.na': '暂无上架', 'gift.sheet': '礼品卡', 'gift.sheetP': '在 Bitrefill 购买，几分钟内邮件送达。', 'gift.sheetNa': 'Bitrefill 尚未上架该品牌。', 'gift.note': '礼品卡由 Bitrefill 出售，与本站、代币和股票代币无关。',
+      'gs.h': '购买礼品卡', 'gs.amount': '面额', 'gs.custom': '其他', 'gs.face': '卡面值', 'gs.fee': (p) => `服务费 ${p}%`, 'gs.total': '合计', 'gs.payBnb': '用 BNB 支付', 'gs.payUsdt': '用 USDT 支付', 'gs.step1': '请在钱包中确认付款…', 'gs.step2': '已发送，等待确认…', 'gs.step3': '已确认，正在出卡…', 'gs.done': '你的礼品卡', 'gs.copy': '复制卡号', 'gs.saved': '已保存在此浏览器。请自行备份：卡号无法重新发放。', 'gs.failed': '出卡失败。付款已记录，请凭此订单号联系客服退款或补发。', 'gs.processing': '仍在出卡中。本页会持续检查，你也可以稍后再来。', 'gs.mine': '我的礼品卡', 'gs.ext': '此部署未开启站内结账。你可以到 Bitrefill 购买这张卡。', 'gs.out': '暂时缺货。', 'gs.range': (a, b) => `${a} 至 ${b} 任意金额`, 'gs.net': '付款进入本站在 BNB 链上的钱包。礼品卡由 Bitrefill 发放，售出不退。', 'gs.quoteErr': '无法获取价格，请重试。', 'gs.order': '订单', 'gift.buyHere': '在本站购买',
       'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
       'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量，人人相同', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '募集额的 99% + 供应量的 20%', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%，按比例', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
       'ft.tag': 'BNB 链上的代币发射台：每个代币配对一只餐饮股票代币，以它募集，与它配对上市。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '工厂合约', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
@@ -877,7 +899,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     ['quanjude','QJD','Quanjude','002186.SZ','China Quanjude Group (SZSE: 002186)','casual','Ethereum',0.03,40000000,240000,80000,3000,210,282],
     ['timschina','TIMSCN','Tims China','THCH','TH International Limited (NASDAQ: THCH)','cafe','Solana',0.01,80000000,160000,50000,2500,-3,45]
   ].map(([id, tick, name, parent, parentName, cat]) => ({ id, tick, name, parent, parentName, cat }));
-  const NAME_ZH = { mcdonalds: '麦当劳', burgerking: '汉堡王', wendys: '温蒂汉堡', shakeshack: 'Shake Shack', jackinthebox: 'Jack in the Box', tacobell: '塔可钟', chipotle: 'Chipotle', cava: 'CAVA', sweetgreen: 'Sweetgreen', starbucks: '星巴克', timhortons: 'Tim Hortons', dutchbros: 'Dutch Bros', krispykreme: 'Krispy Kreme', dominos: '达美乐', pizzahut: '必胜客', papajohns: '棒约翰', kfc: '肯德基', popeyes: 'Popeyes', wingstop: 'Wingstop', doordash: 'DoorDash', ubereats: 'Uber Eats', olivegarden: 'Olive Garden', texasroadhouse: 'Texas Roadhouse', applebees: "Applebee's", chilis: "Chili's", cheesecake: 'Cheesecake Factory', outback: 'Outback', meituan: '美团', haidilao: '海底捞', mixue: '蜜雪冰城', luckin: '瑞幸咖啡', yumchina: '百胜中国', chagee: '霸王茶姬', guming: '古茗', chabaidao: '茶百道', nayuki: '奈雪的茶', auntea: '沪上阿姨', xiabu: '呷哺呷哺', jiumaojiu: '太二酸菜鱼', dpcdash: '达美乐中国', xiaocaiyuan: '小菜园', greentea: '绿茶餐厅', ajisen: '味千拉面', cafedecoral: '大家乐', quanjude: '全聚德', timschina: 'Tims天好咖啡' };
+  const NAME_ZH = { mcdonalds: '麦当劳', burgerking: '汉堡王', wendys: '温蒂汉堡', shakeshack: 'Shake Shack', jackinthebox: 'Jack in the Box', tacobell: '塔可钟', chipotle: 'Chipotle', cava: 'CAVA', sweetgreen: 'Sweetgreen', starbucks: '星巴克', timhortons: 'Tims 天好咖啡', dutchbros: 'Dutch Bros', krispykreme: 'Krispy Kreme', dominos: '达美乐', pizzahut: '必胜客', papajohns: '棒约翰', kfc: '肯德基', popeyes: '博派斯', wingstop: 'Wingstop', doordash: 'DoorDash', ubereats: 'Uber Eats 优食', olivegarden: '橄榄园', texasroadhouse: '德州鲜切牛排', applebees: "Applebee's", chilis: "Chili's", cheesecake: 'Cheesecake Factory', outback: 'Outback', meituan: '美团', haidilao: '海底捞', mixue: '蜜雪冰城', luckin: '瑞幸咖啡', yumchina: '百胜中国', chagee: '霸王茶姬', guming: '古茗', chabaidao: '茶百道', nayuki: '奈雪的茶', auntea: '沪上阿姨', xiabu: '呷哺呷哺', jiumaojiu: '太二酸菜鱼', dpcdash: '达美乐中国', xiaocaiyuan: '小菜园', greentea: '绿茶餐厅', ajisen: '味千拉面', cafedecoral: '大家乐', quanjude: '全聚德', timschina: 'Tims天好咖啡' };
   const REST = Object.fromEntries(RESTAURANTS.map((r) => [r.id, r]));
   const DOMAINS = {"mcdonalds":"mcdonalds.com","burgerking":"bk.com","wendys":"wendys.com","shakeshack":"shakeshack.com","jackinthebox":"jackinthebox.com","tacobell":"tacobell.com","chipotle":"chipotle.com","cava":"cava.com","sweetgreen":"sweetgreen.com","starbucks":"starbucks.com","timhortons":"timhortons.com","dutchbros":"dutchbros.com","krispykreme":"krispykreme.com","dominos":"dominos.com","pizzahut":"pizzahut.com","papajohns":"papajohns.com","kfc":"kfc.com","popeyes":"popeyes.com","wingstop":"wingstop.com","doordash":"doordash.com","ubereats":"ubereats.com","olivegarden":"olivegarden.com","texasroadhouse":"texasroadhouse.com","applebees":"applebees.com","chilis":"chilis.com","cheesecake":"thecheesecakefactory.com","outback":"outback.com","meituan":"meituan.com","haidilao":"haidilao.com","mixue":"mxbc.com","luckin":"luckincoffee.com","yumchina":"yumchina.com","chagee":"chagee.com","guming":"gumingnc.com","chabaidao":"chapanda.com","nayuki":"naixue.com","auntea":"hsay.cn","xiabu":"xiabu.com","jiumaojiu":"jiumaojiu.com","dpcdash":"dominos.com.cn","xiaocaiyuan":"xiaocaiyuan.cn","greentea":"greenteagroup.com","ajisen":"ajisen.com.hk","cafedecoral":"cafedecoral.com","quanjude":"quanjude.com.cn","timschina":"timschina.com"};
   const TILES = {"ajisen": "#480018", "applebees": "#a81818", "burgerking": "#c01800", "cafedecoral": "#d80000", "cava": "#f0c000", "chabaidao": "#1848d8", "cheesecake": "#f0d878", "chilis": "#d81818", "chipotle": "#a81818", "dominos": "#d81830", "doordash": "#f03000", "dpcdash": "#d81830", "dutchbros": "#003060", "haidilao": "#d80000", "jackinthebox": "#a80030", "kfc": "#000000", "krispykreme": "#006048", "luckin": "#0018a8", "mcdonalds": "#f0c000", "meituan": "#f0c000", "mixue": "#d80000", "olivegarden": "#484848", "outback": "#a81800", "papajohns": "#f00000", "pizzahut": "#d81818", "popeyes": "#f07818", "shakeshack": "#48a830", "starbucks": "#006030", "sweetgreen": "#004830", "tacobell": "#481890", "texasroadhouse": "#d83018", "timhortons": "#c00030", "timschina": "#c00018", "ubereats": "#00c060", "wendys": "#c01818", "wingstop": "#006030", "yumchina": "#d81818"};
@@ -909,6 +931,14 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     ubereats: ['NYSE: UBER', 'San Francisco, US', 2014, ''], olivegarden: ['NYSE: DRI', 'Orlando, US', 1982, '900+'], texasroadhouse: ['NASDAQ: TXRH', 'Louisville, US', 1993, '750+'],
     haidilao: ['HKEX: 6862', 'Beijing, CN', 1994, '1,300+'], meituan: ['HKEX: 3690', 'Beijing, CN', 2010, ''], mixue: ['HKEX: 2097', 'Zhengzhou, CN', 1997, '45,000+']
   };
+  const PARENT_ZH = { mcdonalds: '麦当劳公司', starbucks: '星巴克公司', chipotle: 'Chipotle 墨西哥烧烤', tacobell: '百胜餐饮集团', kfc: '百胜餐饮集团', pizzahut: '百胜餐饮集团', burgerking: '餐饮品牌国际', popeyes: '餐饮品牌国际', timhortons: '餐饮品牌国际', dominos: '达美乐披萨公司', wendys: '温蒂公司', doordash: 'DoorDash 公司', ubereats: '优步科技', olivegarden: '达登餐饮', texasroadhouse: '德州鲜切牛排公司', haidilao: '海底捞国际控股', meituan: '美团', mixue: '蜜雪集团' };
+  const HQ_ZH = { mcdonalds: '美国芝加哥', starbucks: '美国西雅图', chipotle: '美国纽波特比奇', tacobell: '美国尔湾', kfc: '美国路易斯维尔', pizzahut: '美国普莱诺', burgerking: '美国迈阿密', popeyes: '美国迈阿密', timhortons: '加拿大多伦多', dominos: '美国安娜堡', wendys: '美国俄亥俄州都柏林', doordash: '美国旧金山', ubereats: '美国旧金山', olivegarden: '美国奥兰多', texasroadhouse: '美国路易斯维尔', haidilao: '中国北京', meituan: '中国北京', mixue: '中国郑州' };
+  const EXCH_ZH = { NYSE: '纽交所', NASDAQ: '纳斯达克', HKEX: '港交所' };
+  const pn = (r) => state.lang === 'zh' && PARENT_ZH[r.id] ? PARENT_ZH[r.id] : (r.parentName || r.name);
+  const hq = (rid) => state.lang === 'zh' && HQ_ZH[rid] ? HQ_ZH[rid] : ABOUT[rid][1];
+  const exch = (rid) => state.lang === 'zh' ? ABOUT[rid][0].replace(/^(NYSE|NASDAQ|HKEX)/, (x) => EXCH_ZH[x] || x) : ABOUT[rid][0];
+  const COUNTRY = { US: { en: 'the US', zh: '美国' }, CA: { en: 'Canada', zh: '加拿大' } };
+  const cn = (c) => (COUNTRY[c] || {})[state.lang] || c;
   let FAV = new Set(); try { FAV = new Set(JSON.parse(localStorage.getItem('bento.fav') || '[]')); } catch {}
   const saveFav = () => { try { localStorage.setItem('bento.fav', JSON.stringify([...FAV])); } catch {} };
 
@@ -920,6 +950,16 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     ubereats: ['uber-eats-usa', 20, 500, 'USD', 'us', 'US'], olivegarden: ['olive-garden-usa', null, 2000, 'USD', 'us', 'US'], texasroadhouse: ['texas-roadhouse-usa', 5, 100, 'USD', 'us', 'US'], timhortons: ['tim-hortons-canada', 5, 100, 'CAD', 'ca', 'CA'],
     mcdonalds: [null], wendys: [null], popeyes: [null]
   };
+  const GAPI = { at: 0, configured: false, products: {}, loaded: false };
+  let MYGIFTS = []; try { MYGIFTS = JSON.parse(localStorage.getItem('bento.gifts') || '[]'); } catch {}
+  const saveGifts = () => { try { localStorage.setItem('bento.gifts', JSON.stringify(MYGIFTS.slice(-50))); } catch {} };
+  async function loadGiftApi() {
+    try { const r = await fetch('/api/gifts/catalog', { cache: 'no-store' }); if (!r.ok) throw new Error(String(r.status)); const j = await r.json();
+      GAPI.configured = Boolean(j.configured); GAPI.margin = j.margin; GAPI.merchant = j.merchant; GAPI.products = Object.fromEntries((j.products || []).map((p) => [p.rid, p])); }
+    catch { GAPI.configured = false; }
+    GAPI.loaded = true; GAPI.at = Date.now(); const rail = $('#gift-rail'); if (rail) delete rail.dataset.builtLang; render();
+  }
+  const GS = { rid: null, value: null, custom: '', quote: null, step: null, order: null, err: null, timer: null };
   const GIFT_ORDER = ['starbucks', 'chipotle', 'burgerking', 'dominos', 'tacobell', 'ubereats', 'doordash', 'pizzahut', 'kfc', 'olivegarden', 'texasroadhouse', 'timhortons', 'mcdonalds', 'wendys', 'popeyes'];
   const giftUrl = (rid) => { const g = GIFTS[rid]; const u = g && g[0] ? `https://www.bitrefill.com/${g[4]}/en/gift-cards/${g[0]}/` : 'https://www.bitrefill.com/us/en/gift-cards/restaurants/'; return GIFT_REF ? `${u}?ref=${encodeURIComponent(GIFT_REF)}` : u; };
   const money = (v, cur) => new Intl.NumberFormat('en-US', { style: 'currency', currency: cur || 'USD', maximumFractionDigits: 0 }).format(v);
@@ -928,12 +968,14 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   function giftCard(rid) {
     const r = REST[rid]; const g = GIFTS[rid]; if (!r) return ''; const listed = Boolean(g && g[0]); const bg = tile(r);
     const range = listed ? (g[1] ? t('gift.from', money(g[1], g[3]), money(g[2], g[3])) : t('gift.upto', money(g[2], g[3]))) : '';
-    return `<a class="gift${isDarkHex(bg) ? ' is-dark' : ''}" href="${giftUrl(rid)}" target="_blank" rel="noopener" style="background:${esc(bg)}">
-      <div class="gift-h">${logo(r, 40)}<div><b>${esc(nm(r))}</b><small>${t('gift.egift')}${listed ? ' · ' + t('gift.works', g[5]) : ''}</small></div><span class="tag">Bitrefill</span></div>
-      <div class="gift-amt">${listed ? esc(range) : t('gift.na')}<small>${listed ? esc(money(g[2], g[3])) + ' max' : ''}</small></div>
-      <div class="gift-f"><span class="chips">${giftChips(g).map((c) => `<span>${esc(c)}</span>`).join('')}</span><span class="cta">${t(listed ? 'gift.buy' : 'gift.browse')} ↗</span></div></a>`;
+    const inSite = GAPI.configured && GAPI.products[rid] && listed;
+    const openTag = inSite ? `<div class="gift${isDarkHex(bg) ? ' is-dark' : ''}" data-open="g:${esc(rid)}" style="background:${esc(bg)}">` : `<a class="gift${isDarkHex(bg) ? ' is-dark' : ''}" href="${giftUrl(rid)}" target="_blank" rel="noopener" style="background:${esc(bg)}">`;
+    return openTag + `
+      <div class="gift-h">${logo(r, 40)}<div><b>${esc(nm(r))}</b><small>${t('gift.egift')}${listed ? ' · ' + t('gift.works', cn(g[5])) : ''}</small></div><span class="tag">Bitrefill</span></div>
+      <div class="gift-amt">${listed ? esc(range) : t('gift.na')}<small>${listed ? esc(t('gift.upto', money(g[2], g[3]))) : ''}</small></div>
+      <div class="gift-f"><span class="chips">${giftChips(g).map((c) => `<span>${esc(c)}</span>`).join('')}</span><span class="cta${inSite ? ' in' : ''}">${inSite ? t('gift.buyHere') : t(listed ? 'gift.buy' : 'gift.browse') + ' ↗'}</span></div>${inSite ? '</div>' : '</a>'}`;
   }
-  function renderGifts() { const host = $('#gift-rail'); if (host && host.dataset.lang !== state.lang) { host.innerHTML = GIFT_ORDER.filter((id) => REST[id]).map(giftCard).join(''); host.dataset.lang = state.lang; } }
+  function renderGifts() { const host = $('#gift-rail'); if (host && host.dataset.builtLang !== state.lang) { host.innerHTML = GIFT_ORDER.filter((id) => REST[id]).map(giftCard).join(''); host.dataset.builtLang = state.lang; } }
 
   /* ---------- state ---------- */
   const state = { lang: 'en', chainId: DEFAULT_CHAIN, provider: null, address: null, balance: null, walletChain: null, coins: [], loaded: false, loadError: null,
@@ -1153,17 +1195,17 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const d = $('#drawer'); const r = REST[rid]; const pr = PAIRS[rid]; if (!r || !pr) return;
     const coins = list().filter((C) => C.rest === rid);
     d.innerHTML = `
-      <div class="sheet-h">${logo(r, 56)}<div class="who"><b>${esc(nm(r))}</b><small>${esc(r.parentName)}${r.parent ? ' · ' + esc(r.parent) : ''}</small></div><span class="tag">${esc(pr.symbol)}</span><button class="close link" type="button" data-copy="link" aria-label="${t('link.copy')}" title="${t('link.copy')}"><svg viewBox="0 0 24 24" fill="none"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="close" type="button" data-close aria-label="Close">✕</button></div>
+      <div class="sheet-h">${logo(r, 56)}<div class="who"><b>${esc(nm(r))}</b><small>${esc(pn(r))}${r.parent ? ' · ' + esc(r.parent) : ''}</small></div><span class="tag">${esc(pr.symbol)}</span><button class="close link" type="button" data-copy="link" aria-label="${t('link.copy')}" title="${t('link.copy')}"><svg viewBox="0 0 24 24" fill="none"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="close" type="button" data-close aria-label="Close">✕</button></div>
       <div class="kv">
         <div><small>${t('pairs.px')}</small><b>${PX.usd[pr.symbol] ? `${usdStr(PX.usd[pr.symbol])}${PX.chg[pr.symbol] != null ? ` <span class="${PX.chg[pr.symbol] >= 0 ? 'up' : 'down'}" style="font-size:12px">${PX.chg[pr.symbol] >= 0 ? '+' : ''}${PX.chg[pr.symbol].toFixed(2)}%</span>` : ''}` : '—'}</b></div>
         <div><small>${t('r.token')}</small><b><a href="https://bscscan.com/token/${pr.address}" target="_blank" rel="noopener">${esc(pr.symbol)}</a></b></div>
         <div><small>${t('r.issuer')}</small><b><a href="${ISSUER_URL[pr.issuer] || '#'}" target="_blank" rel="noopener">${esc(pr.issuer)}</a></b></div>
         <div><small>${t('r.stock')}</small><b>${esc(pr.stock)}</b></div>
-        ${ABOUT[rid] ? `<div><small>${t('r.exchange')}</small><b>${esc(ABOUT[rid][0])}</b></div><div><small>${t('r.hq')}</small><b>${esc(ABOUT[rid][1])}</b></div><div><small>${t('r.founded')}</small><b>${ABOUT[rid][2]}</b></div>${ABOUT[rid][3] ? `<div><small>${t('r.stores')}</small><b>${esc(ABOUT[rid][3])}</b></div>` : ''}` : ''}
+        ${ABOUT[rid] ? `<div><small>${t('r.exchange')}</small><b>${esc(exch(rid))}</b></div><div><small>${t('r.hq')}</small><b>${esc(hq(rid))}</b></div><div><small>${t('r.founded')}</small><b>${ABOUT[rid][2]}</b></div>${ABOUT[rid][3] ? `<div><small>${t('r.stores')}</small><b>${esc(ABOUT[rid][3])}</b></div>` : ''}` : ''}
         <div><small>${t('d.contract')}</small><b class="mono" style="font-size:12px">${esc(short(pr.address))}</b></div>
       </div>
       <button class="btn btn-ink btn-block" type="button" data-create="${esc(rid)}">${t('r.create', esc(nm(r)))}</button>
-      ${GIFTS[rid] ? `<div class="gift-row"><span class="gi"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 8v13M12 8c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><b>${t('gift.sheet')}${GIFTS[rid][0] ? ` · ${GIFTS[rid][1] ? t('gift.from', money(GIFTS[rid][1], GIFTS[rid][3]), money(GIFTS[rid][2], GIFTS[rid][3])) : t('gift.upto', money(GIFTS[rid][2], GIFTS[rid][3]))}` : ''}</b><small>${t(GIFTS[rid][0] ? 'gift.sheetP' : 'gift.sheetNa')}</small></div><a class="btn btn-gray" href="${giftUrl(rid)}" target="_blank" rel="noopener">${t(GIFTS[rid][0] ? 'gift.buy' : 'gift.browse')} ↗</a></div>` : ''}
+      ${GIFTS[rid] ? `<div class="gift-row"><span class="gi"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 8v13M12 8c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><b>${t('gift.sheet')}${GIFTS[rid][0] ? ` · ${GIFTS[rid][1] ? t('gift.from', money(GIFTS[rid][1], GIFTS[rid][3]), money(GIFTS[rid][2], GIFTS[rid][3])) : t('gift.upto', money(GIFTS[rid][2], GIFTS[rid][3]))}` : ''}</b><small>${t(GIFTS[rid][0] ? 'gift.sheetP' : 'gift.sheetNa')}</small></div>${GAPI.configured && GAPI.products[rid] && GIFTS[rid][0] ? `<button class="btn btn-ink" type="button" data-open="g:${esc(rid)}">${t('gift.buyHere')}</button>` : `<a class="btn btn-gray" href="${giftUrl(rid)}" target="_blank" rel="noopener">${t(GIFTS[rid][0] ? 'gift.buy' : 'gift.browse')} ↗</a>`}</div>` : ''}
       <div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('r.coinsH')} · ${coins.length}</p>${coins.length ? coins.map((C) => `<div class="row" data-open="${esc(C.addr)}" style="grid-template-columns:40px 1fr auto;align-items:center;gap:10px;margin-bottom:8px">${logo(C.r, 40)}<div class="row-name"><b style="font-size:15px">${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small>${pct(C.progress)} · ${amt(C.raised, C.unit)} / ${amt(C.goal, C.unit)}</small></div>${tag(C)}</div>`).join('') : `<p class="hint">${t('r.none')}</p>`}</div>`;
   }
   function renderStats() {
@@ -1232,8 +1274,55 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     host.innerHTML = rows.length ? rows.map((C) => card(C, now)).join('') : Cs.length ? `<p class="empty">${t('board.nomatch')}</p>` : `<div class="empty-card"><b>${t('empty.h')}</b><p>${t('empty.p')}</p><a class="btn btn-ink" href="#launch">${t('nav.create')}</a></div>`;
     renderDrawer();
   }
+  function giftSheet(rid) {
+    const d = $('#drawer'); const r = REST[rid]; const g = GIFTS[rid]; const p = GAPI.products[rid]; if (!r || !g) return;
+    if (GS.rid !== rid) { Object.assign(GS, { rid, value: null, custom: '', quote: null, step: null, order: null, err: null }); clearTimeout(GS.timer); }
+    const bg = tile(r); const cur = (p && p.currency) || g[3]; const dark = isDarkHex(bg);
+    const head = `<div class="sheet-h"><div class="who"><b>${t('gs.h')}</b><small>${esc(nm(r))} · ${t('gift.egift')}</small></div><button class="close" type="button" data-close aria-label="Close">✕</button></div>
+      <div class="gs-card${dark ? ' is-dark' : ''}" style="background:${esc(bg)}">${logo(r, 48)}<div><b>${esc(nm(r))}</b><small>${t('gift.works', cn(g[5]))} · Bitrefill</small></div><span class="gs-val">${GS.value ? esc(money(GS.value, cur)) : ''}</span></div>`;
+    const mine = MYGIFTS.filter((o) => o.rid === rid);
+    const list = mine.length ? `<div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('gs.mine')}</p><div class="gs-list">${mine.slice().reverse().map((o) => `<button type="button" data-gorder="${esc(o.id)}">${logo(r, 28)}<span>${esc(dateFmt(o.at))} <small>· ${t('gs.order')} ${esc(o.id.slice(0, 8))}</small></span><b>${esc(money(o.value, o.currency))}</b></button>`).join('')}</div></div>` : '';
+    if (!GAPI.configured || !p) { d.innerHTML = head + `<p class="hint">${t('gs.ext')}</p><a class="btn btn-ink btn-block" href="${giftUrl(rid)}" target="_blank" rel="noopener">${t('gift.buy')} ↗</a>` + list; return; }
+    if (GS.order) {
+      const o = GS.order; let body;
+      if (o.status === 'delivered') { const rd = o.redemption || {}; const code = rd.code || ''; body = `<div class="code"><small style="font-weight:600;color:var(--green-ink)">${t('gs.done')} · ${esc(money(o.value, o.currency))}</small>${code ? `<b>${esc(code)}${rd.pin ? ` · PIN ${esc(rd.pin)}` : ''}</b>` : ''}${rd.instructions ? `<p>${esc(rd.instructions)}</p>` : ''}<div class="row2">${code ? `<button class="btn btn-ink" type="button" data-copy="${esc(code)}">${t('gs.copy')}</button>` : ''}${rd.link ? `<a class="btn btn-gray" href="${esc(rd.link)}" target="_blank" rel="noopener">Bitrefill ↗</a>` : ''}<a class="btn btn-gray" href="${explorer(o.txHash, 'tx')}" target="_blank" rel="noopener">BscScan ↗</a></div></div><p class="hint">${t('gs.saved')} ${t('gs.order')} <span class="mono">${esc(o.id)}</span></p>`; }
+      else if (o.status === 'failed') body = `<p class="err">${t('gs.failed')}</p><p class="hint mono">${t('gs.order')} ${esc(o.id)} · ${esc(o.error || '')}</p>`;
+      else body = `<div class="gs-step"><i></i>${t('gs.processing')}</div><p class="hint mono">${t('gs.order')} ${esc(o.id)}</p>`;
+      d.innerHTML = head + body + list; return;
+    }
+    if (GS.step) { d.innerHTML = head + `<div class="gs-step"><i></i>${t('gs.step' + GS.step)}</div>${GS.quote ? `<p class="hint">${t('gs.net')}</p>` : ''}` + list; return; }
+    const packs = p.packages && p.packages.length ? p.packages : [5, 10, 15, 20, 25, 50, 100, 200, 500, 1000].filter((v) => v >= p.min && v <= p.max).slice(0, 6);
+    const q = GS.quote; const fee = q ? Math.round((q.priceUsd - q.faceUsd) * 100) / 100 : null;
+    d.innerHTML = head + `
+      <label class="hint" style="font-weight:600;color:var(--ink)">${t('gs.amount')}<div class="amts" style="margin-top:8px">${packs.map((v) => `<button type="button" data-gamt="${v}" class="${GS.value === v && !GS.custom ? 'is-on' : ''}">${esc(money(v, cur))}</button>`).join('')}${p.packages && p.packages.length ? '' : `<input class="input" id="gcustom" type="number" min="${p.min}" max="${p.max}" step="${p.step || 1}" placeholder="${t('gs.custom')}" value="${esc(GS.custom)}" style="width:120px;padding:8px 12px;font-family:var(--mono)">`}</div></label>
+      ${!p.packages || !p.packages.length ? `<p class="hint">${t('gs.range', money(p.min, cur), money(p.max, cur))}</p>` : ''}
+      ${p.inStock === false ? `<p class="err">${t('gs.out')}</p>` : ''}
+      ${q ? `<div class="gs-sum"><div><span>${t('gs.face')}</span><b>${esc(money(q.value, q.currency))}${q.currency !== 'USD' ? ` <span class="usd">≈ ${usdStr(q.faceUsd)}</span>` : ''}</b></div><div><span>${t('gs.fee', (q.margin * 100).toFixed(0))}</span><b>${usdStr(fee)}</b></div><div class="tot"><span>${t('gs.total')}</span><b>${usdStr(q.priceUsd)}</b></div></div>
+        ${state.address ? `<div class="gs-pay"><button class="btn btn-ink" type="button" data-gpay="BNB">${t('gs.payBnb')}<small>${q.pay.BNB.amount} BNB</small></button><button class="btn btn-gray" type="button" data-gpay="USDT">${t('gs.payUsdt')}<small>${q.pay.USDT.amount}</small></button></div>` : `<button class="btn btn-ink btn-block" type="button" data-connect>${t('wallet.connect')}</button>`}
+        <p class="hint">${t('gs.net')}</p>` : ''}
+      ${GS.err ? `<p class="err">${esc(GS.err)}</p>` : ''}` + list;
+  }
+  async function giftQuote(rid, value) {
+    GS.value = value; GS.quote = null; GS.err = null; renderRows();
+    try { const r = await fetch('/api/gifts/quote', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ productId: GIFTS[rid][0], value }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); if (GS.rid === rid && GS.value === value) { GS.quote = j; renderRows(); } }
+    catch (e) { GS.err = e.message || t('gs.quoteErr'); renderRows(); }
+  }
+  async function giftPay(token) {
+    const q = GS.quote; if (!q || !state.address) return; GS.err = null; GS.step = 1; renderRows();
+    try {
+      if (state.chainId !== 56) { state.chainId = 56; }
+      const s = await signer();
+      const tx = token === 'BNB' ? await s.sendTransaction({ to: q.merchant, value: BigInt(q.pay.BNB.wei) }) : await new E.Contract('0x55d398326f99059fF775485246999027B3197955', ['function transfer(address,uint256) returns (bool)'], s).transfer(q.merchant, BigInt(q.pay.USDT.wei));
+      GS.step = 2; renderRows(); await tx.wait(); GS.step = 3; renderRows();
+      const r = await fetch('/api/gifts/order', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ quoteId: q.id, txHash: tx.hash }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status);
+      GS.order = j; GS.step = null; MYGIFTS.push({ id: j.id, rid: j.rid, value: j.value, currency: j.currency, at: Date.now() }); saveGifts(); renderRows(); if (j.status === 'processing') giftWatch(j.id);
+    } catch (e) { console.error(e); GS.step = null; GS.err = e && e.message === 'net' ? t('e.net') : (e && e.shortMessage) || (e && e.message) || t('e.tx'); renderRows(); }
+  }
+  function giftWatch(id) { clearTimeout(GS.timer); GS.timer = setTimeout(async () => { try { const r = await fetch('/api/gifts/orders/' + id); const j = await r.json(); if (GS.order && GS.order.id === id) { GS.order = j; renderRows(); if (j.status === 'processing') giftWatch(id); } } catch { giftWatch(id); } }, 4000); }
+  async function giftOpenOrder(id) { GS.step = 1; renderRows(); try { const r = await fetch('/api/gifts/orders/' + id); const j = await r.json(); if (!r.ok) throw new Error(j.error); GS.order = j; GS.step = null; renderRows(); if (j.status === 'processing') giftWatch(id); } catch (e) { GS.step = null; GS.err = e.message; renderRows(); } }
   function renderDrawer() {
     const d = $('#drawer');
+    if (state.open && state.open.startsWith('g:')) { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); giftSheet(state.open.slice(2)); return; }
     if (state.open && state.open.startsWith('r:')) { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); renderRestSheet(state.open.slice(2)); return; }
     const C = state.open ? list().find((x) => x.addr === state.open) : null;
     d.classList.toggle('is-open', Boolean(C)); $('#scrim').classList.toggle('is-open', Boolean(C));
@@ -1300,7 +1389,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const host = $('#pairs-list'); if (!host) return; const Cs = state.loaded && !state.loadError ? list() : []; const issuers = new Set();
     host.innerHTML = PAIR_IDS.map((rid) => { const p = PAIRS[rid]; const r = REST[rid]; if (!r) return ''; issuers.add(p.issuer); const px = PX.usd[p.symbol]; const ch = PX.chg[p.symbol]; const n = Cs.filter((C) => C.rest === rid).length;
       return `<div class="pair" data-open="r:${esc(rid)}">
-        <div class="pair-top">${logo(r, 44)}<div class="pair-name"><b>${esc(nm(r))}</b><small>${esc(p.stock)} · ${esc(r.parentName || r.name)}</small></div><span class="pair-sym">${esc(p.symbol)}</span></div>
+        <div class="pair-top">${logo(r, 44)}<div class="pair-name"><b>${esc(nm(r))}</b><small>${esc(p.stock)} · ${esc(pn(r))}</small></div><span class="pair-sym">${esc(p.symbol)}</span></div>
         <div class="pair-px">${px ? `<b>${usdStr(px)}</b>${ch != null ? `<span class="${ch >= 0 ? 'up' : 'down'}">${ch >= 0 ? '+' : ''}${ch.toFixed(2)}%</span>` : ''}<small>/ ${esc(p.symbol)}</small>` : `<span class="nopx">${t('pairs.nopx')}</span>`}</div>
         <div class="pair-meta"><span class="iss iss-${p.issuer[0].toLowerCase()}">${esc(p.issuer)}</span><span class="ver"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 2.2 3.2-.5 1 3.1 2.9 1.5-1.2 3 1.2 3-2.9 1.5-1 3.1-3.2-.5L12 22l-2.4-2.2-3.2.5-1-3.1-2.9-1.5 1.2-3-1.2-3 2.9-1.5 1-3.1 3.2.5z" fill="currentColor" opacity=".18"/><path d="m8.5 12 2.3 2.3L15.5 9.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>${t('pairs.verified')}</span><span style="margin-left:auto">${n ? t('r.coins', n) : t('r.none')}</span></div>
         <div class="pair-addr"><span class="mono">${esc(short(p.address))}</span><button type="button" data-copy="${esc(p.address)}" aria-label="${t('copy.addr')}" title="${t('copy.addr')}">${COPY_SVG}</button><a href="https://bscscan.com/token/${p.address}" target="_blank" rel="noopener">BscScan</a></div>
@@ -1311,7 +1400,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   }
   function setOpen(id) {
     state.open = id || null;
-    try { const h = !id ? '' : id.startsWith('r:') ? `#r/${id.slice(2)}` : `#coin/${state.chainId}/${id}`; history.replaceState(null, '', location.pathname + location.search + h); } catch {}
+    try { const h = !id ? '' : id.startsWith('g:') ? `#gift/${id.slice(2)}` : id.startsWith('r:') ? `#r/${id.slice(2)}` : `#coin/${state.chainId}/${id}`; history.replaceState(null, '', location.pathname + location.search + h); } catch {}
     renderRows();
   }
   function route() {
@@ -1319,6 +1408,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (h === 'mainnet') { state.chainId = 56; return 'net'; } if (h === 'testnet') { state.chainId = 97; return 'net'; }
     if ((m = h.match(/^coin\/(?:(\d+)\/)?(0x[0-9a-fA-F]{40})$/))) { if (m[1] && NETWORKS[m[1]]) state.chainId = Number(m[1]); try { state.open = E.getAddress(m[2]); } catch { state.open = m[2]; } return 'open'; }
     if ((m = h.match(/^r\/([a-z0-9_-]+)$/)) && PAIRS[m[1]]) { state.open = 'r:' + m[1]; return 'open'; }
+    if ((m = h.match(/^gift\/([a-z0-9_-]+)$/)) && GIFTS[m[1]]) { state.open = 'g:' + m[1]; return 'open'; }
     return null;
   }
   let lastAddrQ = '';
@@ -1393,7 +1483,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   document.addEventListener('click', (e) => {
     if (e.target.closest('a[href^="http"]')) return;
     const lang = e.target.closest('[data-lang]'); if (lang) { setLang(lang.dataset.lang); return; }
-    const cp = e.target.closest('[data-copy]'); if (cp) { const v = cp.dataset.copy; copyText(v === 'link' ? `${location.origin}${location.pathname}${state.open && state.open.startsWith('r:') ? `#r/${state.open.slice(2)}` : `#coin/${state.chainId}/${state.open}`}` : v); return; }
+    const cp = e.target.closest('[data-copy]'); if (cp) { const v = cp.dataset.copy; copyText(v === 'link' ? `${location.origin}${location.pathname}${state.open && state.open.startsWith('g:') ? `#gift/${state.open.slice(2)}` : state.open && state.open.startsWith('r:') ? `#r/${state.open.slice(2)}` : `#coin/${state.chainId}/${state.open}`}` : v); return; }
     const mb = e.target.closest('[data-mb]'); if (mb) { $$('.mbar button').forEach((x) => x.classList.toggle('is-on', x === mb)); const k = mb.dataset.mb; state.open = null; renderRows();
       if (k === 'home') $('#explore')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'search') { window.scrollTo({ top: 0, behavior: 'smooth' }); $('#q').focus(); } else if (k === 'create') $('#launch')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'wallet') { if (state.address) { setTab('mine'); $('#all')?.scrollIntoView({ behavior: 'smooth' }); } else connect(); } return; }
     if (e.target.closest('[data-connect], #connect')) { connect(); return; }
@@ -1408,6 +1498,9 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const c = e.target.closest('[data-claim]'); if (c) { sendTx(async (s) => new E.Contract(c.dataset.claim, RAISE_ABI, s).claim()); return; }
     const r = e.target.closest('[data-refund]'); if (r) { sendTx(async (s) => new E.Contract(r.dataset.refund, RAISE_ABI, s).refund()); return; }
     const cr = e.target.closest('[data-create]'); if (cr) { state.open = null; $('#c-rest').value = cr.dataset.create; renderPreview(); renderRows(); $('#launch')?.scrollIntoView({ behavior: 'smooth' }); $('#c-name').focus(); return; }
+    const ga = e.target.closest('[data-gamt]'); if (ga) { GS.custom = ''; giftQuote(GS.rid, Number(ga.dataset.gamt)); return; }
+    const gp = e.target.closest('[data-gpay]'); if (gp) { giftPay(gp.dataset.gpay); return; }
+    const go = e.target.closest('[data-gorder]'); if (go) { giftOpenOrder(go.dataset.gorder); return; }
     const fv = e.target.closest('[data-fav]'); if (fv) { const a = fv.dataset.fav; if (FAV.has(a)) FAV.delete(a); else FAV.add(a); saveFav(); toast(t(FAV.has(a) ? 'fav.on' : 'fav.off')); renderStats(); renderRows(); return; }
     const open = e.target.closest('[data-open]'); if (open) { setOpen(open.dataset.open); return; }
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }
@@ -1421,6 +1514,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (e.target.closest('.side a')) { $('#side').classList.remove('is-open'); }
     const cat = e.target.closest('[data-cat]'); if (cat) { state.cat = cat.dataset.cat; $$('[data-cat]').forEach((x) => x.classList.toggle('is-on', x.dataset.cat === state.cat)); renderRows(); $('#all')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   });
+  document.addEventListener('change', (e) => { if (e.target.id === 'gcustom') { const v = Number(e.target.value); GS.custom = e.target.value; if (v > 0) giftQuote(GS.rid, v); } });
   $('#q').addEventListener('input', (e) => { state.q = e.target.value; renderRows(); addrSearch(e.target.value); });
   window.addEventListener('hashchange', () => { const r = route(); if (r === 'open') renderRows(); else if (r === 'net') { state.coins = []; state.loaded = false; render(); loadCoins(); } });
   $('#sort').addEventListener('change', (e) => { state.sort = e.target.value; renderRows(); });
@@ -1449,7 +1543,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (E) route();
     setLang(lang);
     if (!E) { $('#rows').innerHTML = `<p class="empty">ethers.js failed to load.</p>`; return; }
-    loadCoins(); loadPrices(); setInterval(loadPrices, 120000);
+    loadCoins(); loadPrices(); setInterval(loadPrices, 120000); loadGiftApi();
   })();
 })();
 </script>

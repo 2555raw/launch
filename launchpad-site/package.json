@@ -8,7 +8,8 @@
     "test": "node test.js",
     "compile": "node contracts/compile.js",
     "deploy": "node contracts/deploy.js",
-    "test:contracts": "node contracts/test/run.js"
+    "test:contracts": "node contracts/test/run.js",
+    "test:gifts": "node test-gifts.js"
   },
   "engines": {
     "node": ">=20"

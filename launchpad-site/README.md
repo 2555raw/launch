@@ -144,6 +144,27 @@ las coins se pagan en tBNB (o en un ERC20 de prueba con `STOCK_TEST=0x...`).
   usa los logotipos oficiales y, si quieres fotos reales, hay que aportarlas y colocarlas en
   `dapp/logos/<id>.png`.
 
+**Tarjetas de regalo vendidas desde la propia web**
+
+`gifts.js` convierte la web en revendedor de tarjetas de regalo de Bitrefill: el visitante
+elige marca y valor, paga en BNB Chain (BNB o USDT) a la cartera del sitio, el servidor
+verifica la transacción en cadena, compra la tarjeta con el saldo de la cuenta Bitrefill por
+API y muestra el código en la página (también queda guardado en el navegador). Variables:
+
+| Variable | Qué es |
+| --- | --- |
+| `BITREFILL_API_KEY` | token de la cuenta Bitrefill (o `BITREFILL_API_ID` + `BITREFILL_API_SECRET` en cuentas business) |
+| `MERCHANT_ADDRESS` | dirección en BNB Chain que recibe los pagos |
+| `GIFT_MARGIN` | comisión sobre el valor de la tarjeta, por defecto `0.04` (4 %) |
+| `GIFT_TEST` | `1` para pedir el producto de prueba de Bitrefill en vez del real |
+| `BSC_RPC` | nodo JSON-RPC, por defecto bsc-dataseed |
+
+Sin `BITREFILL_API_KEY` y `MERCHANT_ADDRESS` la sección sigue visible pero cada tarjeta
+enlaza a Bitrefill. La cuenta Bitrefill necesita saldo cargado (las tarjetas se pagan con
+`payment_method: balance`). Rutas: `GET /api/gifts/catalog`, `POST /api/gifts/quote`,
+`POST /api/gifts/order`, `GET /api/gifts/orders/:id`. `npm run test:gifts` recorre el flujo
+contra un RPC y un Bitrefill simulados (14 comprobaciones).
+
 **Pruebas**
 
 ```bash

@@ -26,7 +26,7 @@ Variables de entorno:
 | Variable | Qué hace | Por defecto |
 | --- | --- | --- |
 | `PORT` | puerto de escucha (Railway lo pone) | `8080` |
-| `DATA_DIR` | carpeta del fichero de estado `launchpad.json` | `./data` |
+| `DATA_DIR` | carpeta del fichero de estado `launchpad.json` (en Railway: un volumen montado en `/data`) | `./data` |
 | `SEED_DEMO` | siembra aportaciones de demostración la primera vez | apagado |
 | `RATE_LIMIT` | escrituras por minuto y por IP | `30` |
 
@@ -116,6 +116,16 @@ China, Chipotle sólo tiene CMGx…) no se pueden parear todavía.
 
 **Desplegar y conectar**
 
+La página pide al servidor `GET /api/config` (dirección de la factory por cadena, red por
+defecto, enlaces sociales) y enruta por path (`/gifts`, `/coins`, `/r/mcdonalds`…), así que
+no hay que reconstruir nada al desplegar la factory. Dos caminos:
+
+- Desde `/admin` → **Launchpad**: con `DEPLOYER_KEY` en el servidor (una clave con tBNB del
+  faucet para testnet), el panel enseña la dirección y el saldo del desplegador y un botón
+  «Deploy factory» que despliega `BentoFactory`, registra los 18 restaurantes y guarda la
+  dirección en el almacén. La página la usa al momento.
+- Por línea de comandos:
+
 ```bash
 npm install
 npm run compile                                  # contracts/build/*.json
@@ -123,11 +133,22 @@ PRIVATE_KEY=0x... npm run deploy -- testnet      # registra todos los restaurant
 PRIVATE_KEY=0x... npm run deploy -- mainnet      # registra los 18 pares de pairs.json
 ```
 
-Pega la dirección de `BentoFactory` en `NETWORKS[97].factory` (o `[56]`) de `dapp/index.html`
-y sirve la carpeta `dapp/` desde cualquier host estático. `#mainnet` en la URL cambia a la red
-principal. Dentro de claude.ai (iframe aislado) la wallet puede no inyectarse: entonces hay que
+y luego `FACTORY_97=0x…` (o `FACTORY_56`) en el entorno. `DEFAULT_CHAIN` fuerza la red por
+defecto; si no, es la primera que tenga factory. `#mainnet` o `#testnet` en la URL cambian de
+red. Dentro de claude.ai (iframe aislado) la wallet puede no inyectarse: entonces hay que
 abrir la página desde su propio dominio. En testnet los tokens de acciones no existen, así que
 las coins se pagan en tBNB (o en un ERC20 de prueba con `STOCK_TEST=0x...`).
+
+**Lo que sirve el servidor para la página**
+
+- `GET /api/prices` y `GET /api/chart?cg=<id>&days=1|7|30`: CoinGecko con caché en el
+  servidor (una petición por minuto para todos; con `COINGECKO_API_KEY` se usa la clave demo).
+  La página prueba primero el servidor y, si no hay, va directa a CoinGecko y a Chainlink.
+- Rutas con metadatos propios: `/`, `/gifts`, `/coins`, `/launch`, `/docs`, `/pairs`,
+  `/account`, `/r/<id>`, `/gift/<id>`, `/coin/<chain>/<addr>` sirven la misma página con su
+  `<title>`, descripción, Open Graph (foto del restaurante) y canonical; `/sitemap.xml` y
+  `/robots.txt`. Todo con gzip. `X_URL` pone tu perfil de X en los enlaces.
+- Fotos en WebP (`dapp/photos/*.webp`, créditos en `photos/credits.json`).
 
 **Qué hace la página además de comprar**
 
@@ -140,9 +161,8 @@ las coins se pagan en tBNB (o en un ERC20 de prueba con `STOCK_TEST=0x...`).
 - Buscador que acepta una dirección `0x…` o un enlace de BscScan y abre esa coin o ese token.
 - Iconos propios de categoría, marca propia, barra inferior en móvil, números en 万/亿 y
   textos de 打新 en chino.
-- Las fotos de los restaurantes no se pueden obtener legalmente de forma automática: la página
-  usa los logotipos oficiales y, si quieres fotos reales, hay que aportarlas y colocarlas en
-  `dapp/logos/<id>.png`.
+- Fotos reales de Wikimedia Commons (licencias CC, créditos en la página) y logotipos
+  oficiales en `dapp/logos/<id>.png`; desde `/admin` se pueden subir fotos propias.
 
 **Tienda de tarjetas de regalo (compra dentro de la web)**
 
@@ -182,14 +202,22 @@ simulados (26 comprobaciones, firmas de webhooks incluidas).
 1. Cuenta Bitrefill con API y saldo cargado.
 2. Cuenta NOWPayments (API key + IPN secret) y/o Stripe (clave secreta + webhook).
 3. Dominio verificado en Resend para los emails.
-4. Factory del launchpad desplegada (testnet primero) y su dirección en la página.
-5. Auditoría del contrato antes de mainnet.
+4. Factory del launchpad desplegada (testnet primero): enviar ~0,05 tBNB al desplegador que
+   enseña `/admin` → Launchpad y pulsar «Deploy factory».
+5. Dominio propio (`SITE_URL`) y perfil de X (`X_URL`).
+6. Auditoría del contrato antes de mainnet.
 
 **Pruebas**
 
 ```bash
+npm test                 # API del servidor
+npm run test:gifts       # tienda: 26 comprobaciones con proveedores simulados
 npm run test:contracts   # 28 comprobaciones de los contratos en una EVM en proceso
+npm run test:dapp        # la página en Chromium contra una wallet y una tienda simuladas
 ```
+
+`.github/workflows/launchpad.yml` ejecuta los cuatro en cada push. El harness del navegador
+(`tools/dapp-harness.js`) necesita Playwright (`npx playwright install chromium`).
 
 `contracts/test/run.js` compila `BentoLaunch.sol` y los mocks (`contracts/test/Mocks.sol`:
 un token de acción y un router de PancakeSwap) y ejecuta en `@ethereumjs/vm` el ciclo
@@ -213,6 +241,6 @@ compra (gráfico, cinta en vivo), enlaces profundos, búsqueda por dirección, c
 4. Auditoría externa de `BentoLaunch.sol`: nadie la ha hecho y el contrato custodia dinero
    real. Hasta entonces la página lo avisa en la barra inferior.
 5. Decidir `FEE_TO` (la comisión del 1 %) y quién es dueño del registro de restaurantes.
-6. Desplegar en mainnet, pegar la dirección de la factory en `NETWORKS[56].factory`, servir
-   `dapp/` desde un dominio propio (dentro de claude.ai la wallet no se inyecta) y
-   verificar el código fuente de la factory en BscScan.
+6. Desplegar en mainnet desde `/admin` (o `FACTORY_56` en el entorno), servir desde un
+   dominio propio (dentro de claude.ai la wallet no se inyecta) y verificar el código fuente
+   de la factory en BscScan.

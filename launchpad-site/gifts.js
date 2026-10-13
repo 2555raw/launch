@@ -214,4 +214,4 @@ async function shopApi(req, res, url, h) {
   return fail(res, 404, 'no such route');
 }
 
-module.exports = { shopApi, CATALOG, px, verifyPayment, _test: { USDT, TRANSFER } };
+module.exports = { shopApi, CATALOG, px, verifyPayment, isAdmin, _test: { USDT, TRANSFER } };

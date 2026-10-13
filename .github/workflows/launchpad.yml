@@ -1,0 +1,43 @@
+# Tests for launchpad-site (BNB Bite): API, gift-card shop, contracts and the
+# browser harness of the dapp page against a fake wallet and a fake shop API.
+name: launchpad-site tests
+
+on:
+  push:
+    paths: ['launchpad-site/**', '.github/workflows/launchpad.yml']
+  pull_request:
+    paths: ['launchpad-site/**', '.github/workflows/launchpad.yml']
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: launchpad-site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: launchpad-site/package-lock.json
+      - run: npm ci
+      - name: API tests
+        run: npm test
+      - name: Gift-card shop tests
+        run: npm run test:gifts
+      - name: Contract tests
+        run: npm run test:contracts
+      - name: Install Playwright Chromium
+        run: npx --yes playwright@1.47.2 install --with-deps chromium
+      - name: Dapp browser harness
+        run: |
+          npm i --no-save playwright@1.47.2
+          node tools/dapp-harness.js dapp out
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dapp-screenshots
+          path: launchpad-site/out
+          if-no-files-found: ignore

@@ -2,14 +2,15 @@
   "name": "launchpad-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Tricker Launchpad — lanzamientos pareados a cadenas de restaurantes, con servidor, API, persistencia y acceso por wallet.",
+  "description": "BNB Bite: restaurant gift cards for any crypto and a BNB Chain launchpad where every coin is paired with a tokenized restaurant stock.",
   "scripts": {
     "start": "node server.js",
     "test": "node test.js",
     "compile": "node contracts/compile.js",
     "deploy": "node contracts/deploy.js",
     "test:contracts": "node contracts/test/run.js",
-    "test:gifts": "node test-gifts.js"
+    "test:gifts": "node test-gifts.js",
+    "test:dapp": "node tools/dapp-harness.js dapp out"
   },
   "engines": {
     "node": ">=20"

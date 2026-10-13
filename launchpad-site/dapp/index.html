@@ -315,6 +315,38 @@ p { margin: 0; }
 .banner .pxl { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--mono); font-size: 13px; font-weight: 600; background: rgba(255,255,255,.22); border-radius: 999px; padding: 4px 10px; }
 .banner.g3 .pxl { background: rgba(0,0,0,.08); }
 
+/* ---- stock cards + price chart ---- */
+.rail.stocks { grid-auto-columns: minmax(230px, 1fr); }
+@media (min-width: 1500px) { .rail.stocks { grid-auto-columns: calc((100% - 64px) / 5); } }
+@media (max-width: 1499px) and (min-width: 1100px) { .rail.stocks { grid-auto-columns: calc((100% - 48px) / 4); } }
+.stk { border: 1px solid var(--line); border-radius: 14px; padding: 14px 14px 10px; cursor: pointer; display: grid; gap: 8px; background: var(--card); transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .18s ease; min-width: 0; }
+.stk:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.08); }
+.stk .top { display: flex; align-items: center; gap: 10px; }
+.stk .top .logo { width: 32px; height: 32px; }
+.stk .top b { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stk .top small { display: block; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.stk .px { display: flex; align-items: baseline; gap: 8px; font-family: var(--mono); }
+.stk .px b { font-size: 20px; font-weight: 600; } .stk .px i { font-style: normal; font-size: 12px; font-weight: 600; }
+.stk svg { width: 100%; height: 44px; display: block; }
+.stk .spark { fill: none; stroke-width: 1.6; stroke-linejoin: round; }
+.stk .spark.up { stroke: var(--up); } .stk .spark.down { stroke: var(--down); }
+.stk .sparkfill.up { fill: var(--up); opacity: .10; } .stk .sparkfill.down { fill: var(--down); opacity: .10; }
+.pxc { display: grid; gap: 10px; }
+.pxc .h { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.pxc .h b { font-family: var(--mono); font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
+.pxc .h i { font-style: normal; font-family: var(--mono); font-size: 14px; font-weight: 600; }
+.pxc .h small { color: var(--muted); font-size: 13px; }
+.pxc .ranges { margin-left: auto; display: inline-flex; background: var(--surface); border-radius: 999px; padding: 3px; }
+.pxc .ranges button { border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; cursor: pointer; color: var(--muted); }
+.pxc .ranges button.is-on { background: var(--bg); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.pxc svg { width: 100%; height: auto; display: block; }
+.pxc .line { fill: none; stroke-width: 2; stroke-linejoin: round; } .pxc .line.up { stroke: var(--up); } .pxc .line.down { stroke: var(--down); }
+.pxc .area.up { fill: var(--up); opacity: .10; } .pxc .area.down { fill: var(--down); opacity: .10; }
+.pxc .ax { font-family: var(--mono); font-size: 9px; fill: var(--muted); }
+.pxc .grid { stroke: var(--line); stroke-width: 1; }
+.pxc .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.pxc .live i { width: 7px; height: 7px; border-radius: 999px; background: var(--up); animation: pulse 1.8s ease-out infinite; }
+
 /* ---- faq / why ---- */
 .why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 @media (max-width: 1000px) { .why { grid-template-columns: 1fr; } }
@@ -633,7 +665,6 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
   <main class="content">
     <section id="explore">
-      <div class="mkts" id="tape" hidden></div>
       <div class="hero" id="hero">
         <div class="hero-t">
           <span class="eyebrow"><i></i><span id="hero-eye"></span></span>
@@ -678,6 +709,11 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <button class="arrow r" type="button" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
 
+      <div class="sec" id="sec-stocks" hidden>
+        <div class="sec-h"><h2 data-t="sec.stocks"></h2><a class="all" href="#pairs" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="stock-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="stock-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
+        <div class="rail stocks" id="stock-rail"></div>
+      </div>
+      <hr class="divider">
       <div class="sec" id="sec-rest">
         <div class="sec-h"><h2 data-t="sec.rest"></h2><a class="all" href="#docs" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="rest-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="rest-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
         <div class="rail" id="rest-rail"></div>
@@ -828,7 +864,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'nav.home': 'Home', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works', 'grp.coins': 'Coins', 'grp.mkt': 'Stock tokens', 'mkts': 'Markets', 'mkts.all': (n) => `All ${n} tokens`, 'grp.food': 'By cuisine', 'grp.you': 'You', 'wc.off': 'Connect a wallet to buy and create coins on BNB Chain.', 'wc.on': 'Connected',
       'tab.trending': 'Trending', 'tab.new': 'New', 'tab.graduating': 'Graduating', 'tab.graduated': 'Graduated',
       'pill.live': 'Raising now', 'pill.pay': 'Paid in', 'pill.top': 'Most backed', 'pill.sort': 'Sort', 'f.all': 'All', 'ranked.more': 'More info',
-      'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on BNB Chain', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Launch on ${n}`, 'promo.pairP': (s, iss) => `Raise in ${s}, the ${iss} stock token, and list against it.`,
+      'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'sec.stocks': 'Stock tokens, live', 'px.live': 'Live · updates every minute', 'px.err': 'Chart unavailable right now', 'px.range': { 1: '1D', 7: '7D', 30: '30D' }, 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on BNB Chain', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Launch on ${n}`, 'promo.pairP': (s, iss) => `Raise in ${s}, the ${iss} stock token, and list against it.`,
       'wallet.connect': 'Connect wallet', 'wallet.connecting': 'Connecting…', 'wallet.none': 'No wallet found. Install MetaMask (or any BNB Chain wallet) and reload. Inside claude.ai the wallet may not be injected: open this page from its own domain.',
       'st.live': 'raising', 'board.loading': 'Loading coins from the chain…', 'board.nomatch': 'No coins match.', 'board.empty': 'No coins yet. Create the first one.',
       'board.nowallet': 'Connect a wallet to load the board from BNB Chain.', 'board.nofactory': 'Contracts are not deployed on this network yet. Deploy BentoFactory (see How it works) and set its address in the page config.',
@@ -886,7 +922,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.mkt': '股票代币', 'mkts': '行情', 'mkts.all': (n) => `全部 ${n} 个代币`, 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 BNB 链上买入和创建代币。', 'wc.on': '已连接',
       'tab.trending': '热门', 'tab.new': '打新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
       'pill.live': '募集中', 'pill.pay': '支付币种', 'pill.top': '最多人买', 'pill.sort': '排序', 'f.all': '全部', 'ranked.more': '了解更多',
-      'sec.featured': '当前精选', 'sec.new': '今日打新', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `在 ${n} 上发行`, 'promo.pairP': (s, iss) => `以 ${iss} 的股票代币 ${s} 募集，并与之配对上市。`,
+      'sec.featured': '当前精选', 'sec.new': '今日打新', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'sec.stocks': '股票代币实时行情', 'px.live': '实时 · 每分钟更新', 'px.err': '暂时无法加载图表', 'px.range': { 1: '1日', 7: '7日', 30: '30日' }, 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `在 ${n} 上发行`, 'promo.pairP': (s, iss) => `以 ${iss} 的股票代币 ${s} 募集，并与之配对上市。`,
       'wallet.connect': '连接钱包', 'wallet.connecting': '连接中…', 'wallet.none': '未检测到钱包。请安装 MetaMask（或任意 BNB 链钱包）后刷新。在 claude.ai 内钱包可能无法注入：请从独立域名打开本页。',
       'st.live': '募集中', 'board.loading': '正在从链上加载…', 'board.nomatch': '没有匹配的代币。', 'board.empty': '还没有代币。创建第一个吧。',
       'board.nowallet': '连接钱包后从 BNB 链加载。', 'board.nofactory': '合约尚未部署到此网络。请部署 BentoFactory（见玩法说明）并在页面配置中填入地址。',
@@ -1294,6 +1330,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const coins = list().filter((C) => C.rest === rid);
     d.innerHTML = `${photoOf(r) ? `<div class="sheet-photo" style="background-image:url(${photoOf(r)})">${logo(r, 56)}</div>` : ''}
       <div class="sheet-h">${logo(r, 56)}<div class="who"><b>${esc(nm(r))}</b><small>${esc(pn(r))}${r.parent ? ' · ' + esc(r.parent) : ''}</small></div><span class="tag">${esc(pr.symbol)}</span><button class="close link" type="button" data-copy="link" aria-label="${t('link.copy')}" title="${t('link.copy')}"><svg viewBox="0 0 24 24" fill="none"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="close" type="button" data-close aria-label="Close">✕</button></div>
+      ${priceBlock(rid)}
       <div class="kv">
         <div><small>${t('pairs.px')}</small><b>${PX.usd[pr.symbol] ? `${usdStr(PX.usd[pr.symbol])}${PX.chg[pr.symbol] != null ? ` <span class="${PX.chg[pr.symbol] >= 0 ? 'up' : 'down'}" style="font-size:12px">${PX.chg[pr.symbol] >= 0 ? '+' : ''}${PX.chg[pr.symbol].toFixed(2)}%</span>` : ''}` : '—'}</b></div>
         <div><small>${t('r.token')}</small><b><a href="https://bscscan.com/token/${pr.address}" target="_blank" rel="noopener">${esc(pr.symbol)}</a></b></div>
@@ -1483,7 +1520,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const d = $('#drawer');
     if (state.open === 'a:') { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); accountSheet(); return; }
     if (state.open && state.open.startsWith('g:')) { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); giftSheet(state.open.slice(2)); drawQr(); return; }
-    if (state.open && state.open.startsWith('r:')) { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); renderRestSheet(state.open.slice(2)); return; }
+    if (state.open && state.open.startsWith('r:')) { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); renderRestSheet(state.open.slice(2)); if (!chTimer) chartTick(); return; }
+    clearTimeout(chTimer); chTimer = null;
     const C = state.open ? list().find((x) => x.addr === state.open) : null;
     d.classList.toggle('is-open', Boolean(C)); $('#scrim').classList.toggle('is-open', Boolean(C));
     if (!C) return;
@@ -1542,6 +1580,55 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (Cs.length) { if (hs.children.length !== stats.length) hs.innerHTML = stats.map(() => '<div><b></b><small></small></div>').join(''); stats.forEach(([v, l], i) => { const d = hs.children[i]; setStat(d.querySelector('b'), v); d.querySelector('small').textContent = l; }); }
     const art = $('#hero-art'); if (!art.dataset.built) { art.dataset.built = '1'; const pick = HERO_PHOTOS.filter((k) => PHOTO_CREDITS[k]); const k = pick[Math.floor(Date.now() / 864e5) % pick.length] || 'burger'; art.style.backgroundImage = `url(photos/${k}.jpg)`; }
   }
+  /* ---------- price history (CoinGecko market_chart), cached per token and range ---------- */
+  const CH = {}; let chDays = 1; let chTimer = null;
+  const chKey = (cg, d) => `${cg}:${d}`;
+  async function loadChart(cg, days, force) {
+    const k = chKey(cg, days); const c = CH[k]; const ttl = days === 1 ? 60000 : 10 * 60000;
+    if (c && !force && Date.now() - c.at < ttl) return c.points; if (c && c.pending) return c.pending;
+    const p = (async () => { try { const r = await fetch(`https://api.coingecko.com/api/v3/coins/${encodeURIComponent(cg)}/market_chart?vs_currency=usd&days=${days}`); if (!r.ok) throw new Error(String(r.status)); const j = await r.json(); const pts = (j.prices || []).map(([t0, v]) => [t0, Number(v)]).filter((x) => x[1] > 0); CH[k] = { at: Date.now(), points: pts }; try { localStorage.setItem('bento.ch.' + k, JSON.stringify(CH[k])); } catch {} return pts; }
+      catch (e) { if (c && c.points) { c.at = Date.now() - ttl + 30000; return c.points; } let saved = null; try { saved = JSON.parse(localStorage.getItem('bento.ch.' + k) || 'null'); } catch {} if (saved && saved.points) { CH[k] = { at: 0, points: saved.points }; return saved.points; } CH[k] = { at: Date.now() - ttl + 30000, points: null }; return null; } })();
+    (CH[k] ||= {}).pending = p; const out = await p; if (CH[k]) delete CH[k].pending; return out;
+  }
+  const dir = (pts) => pts && pts.length > 1 && pts[pts.length - 1][1] >= pts[0][1] ? 'up' : 'down';
+  function sparkSvg(pts) {
+    if (!pts || pts.length < 2) return '<svg viewBox="0 0 200 44"></svg>';
+    const W = 200, H = 44, lo = Math.min(...pts.map((p) => p[1])), hi = Math.max(...pts.map((p) => p[1])); const t0 = pts[0][0], t1 = pts[pts.length - 1][0];
+    const x = (tt) => ((tt - t0) / Math.max(1, t1 - t0) * W).toFixed(1), y = (v) => (4 + (1 - (v - lo) / Math.max(1e-9, hi - lo)) * (H - 8)).toFixed(1);
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(p[0])} ${y(p[1])}`).join(' '); const k = dir(pts);
+    return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path class="sparkfill ${k}" d="${d} L${W} ${H} L0 ${H} Z"/><path class="spark ${k}" d="${d}"/></svg>`;
+  }
+  function priceChartSvg(pts, days) {
+    const W = 432, H = 180, L = 8, R = 8, Tp = 12, B = 22;
+    if (!pts || pts.length < 2) return `<svg viewBox="0 0 ${W} ${H}"><text class="ax" x="${L}" y="${H / 2}">${esc(t('px.err'))}</text></svg>`;
+    const lo = Math.min(...pts.map((p) => p[1])), hi = Math.max(...pts.map((p) => p[1])); const t0 = pts[0][0], t1 = pts[pts.length - 1][0];
+    const x = (tt) => (L + (tt - t0) / Math.max(1, t1 - t0) * (W - L - R)).toFixed(1), y = (v) => (Tp + (1 - (v - lo) / Math.max(1e-9, hi - lo)) * (H - Tp - B)).toFixed(1);
+    const d = pts.map((p, i) => `${i ? 'L' : 'M'}${x(p[0])} ${y(p[1])}`).join(' '); const k = dir(pts);
+    const fmtT = new Intl.DateTimeFormat(T.locale, days === 1 ? { hour: '2-digit', minute: '2-digit' } : { day: 'numeric', month: 'short' });
+    const ticks = [0, .25, .5, .75, 1].map((f) => t0 + (t1 - t0) * f);
+    return `<svg viewBox="0 0 ${W} ${H}" role="img"><line class="grid" x1="${L}" x2="${W - R}" y1="${y(hi)}" y2="${y(hi)}"/><line class="grid" x1="${L}" x2="${W - R}" y1="${y(lo)}" y2="${y(lo)}"/>
+      <path class="area ${k}" d="${d} L${x(t1)} ${H - B} L${x(t0)} ${H - B} Z"/><path class="line ${k}" d="${d}"/>
+      <text class="ax" x="${W - R}" y="${Number(y(hi)) - 3}" text-anchor="end">${esc(usdStr(hi))}</text><text class="ax" x="${W - R}" y="${Number(y(lo)) - 3}" text-anchor="end">${esc(usdStr(lo))}</text>
+      ${ticks.map((tt, i) => `<text class="ax" x="${x(tt)}" y="${H - 7}" text-anchor="${i === 0 ? 'start' : i === 4 ? 'end' : 'middle'}">${esc(fmtT.format(tt))}</text>`).join('')}</svg>`;
+  }
+  function priceBlock(rid) {
+    const p = PAIRS[rid]; if (!p || !p.cg) return '';
+    const pts = (CH[chKey(p.cg, chDays)] || {}).points; const last = pts && pts.length ? pts[pts.length - 1][1] : PX.usd[p.symbol]; const first = pts && pts.length ? pts[0][1] : null;
+    const chg = first ? (last - first) / first * 100 : PX.chg[p.symbol]; const k = chg == null ? '' : chg >= 0 ? 'up' : 'down';
+    return `<div class="pxc" id="pxc"><div class="h"><b>${last ? esc(usdStr(last)) : '—'}</b>${chg != null ? `<i class="${k}">${chg >= 0 ? '+' : ''}${chg.toFixed(2)}%</i>` : ''}<small>${esc(p.symbol)} · USD</small><span class="ranges">${[1, 7, 30].map((d) => `<button type="button" data-days="${d}" class="${d === chDays ? 'is-on' : ''}">${esc((T['px.range'] || I18N.en['px.range'])[d])}</button>`).join('')}</span></div>${priceChartSvg(pts, chDays)}<span class="live"><i></i>${t('px.live')}</span></div>`;
+  }
+  function chartTick() {
+    clearTimeout(chTimer); if (!state.open || !state.open.startsWith('r:')) return; const rid = state.open.slice(2); const p = PAIRS[rid]; if (!p || !p.cg) return;
+    loadChart(p.cg, chDays).then(() => { if (state.open === 'r:' + rid) { const el = $('#pxc'); if (el) el.outerHTML = priceBlock(rid); } }).finally(() => { chTimer = setTimeout(chartTick, 60000); });
+  }
+  const STOCK_RAIL = ['mcdonalds', 'starbucks', 'meituan', 'wendys', 'chipotle', 'haidilao', 'dominos', 'ubereats', 'mixue', 'burgerking'];
+  function renderStocks() {
+    const sec = $('#sec-stocks'); const host = $('#stock-rail'); if (!sec || !host) return;
+    const ids = STOCK_RAIL.filter((id) => PAIRS[id] && REST[id] && !REST[id].hidden && PX.usd[PAIRS[id].symbol]);
+    sec.hidden = !ids.length; if (!ids.length) return;
+    host.innerHTML = ids.map((id) => { const p = PAIRS[id]; const c = PX.chg[p.symbol]; const pts = (CH[chKey(p.cg, 1)] || {}).points; const k = pts ? dir(pts) : (c >= 0 ? 'up' : 'down'); return `<div class="stk" data-open="r:${id}"><div class="top">${logo(REST[id], 32)}<div style="min-width:0"><b>${esc(nm(REST[id]))}</b><small>${esc(p.symbol)} · ${esc(p.issuer)}</small></div></div><div class="px"><b>${esc(usdStr(PX.usd[p.symbol]))}</b>${c != null ? `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>` : ''}</div>${sparkSvg(pts)}</div>`; }).join('');
+    ids.forEach((id, i) => { const p = PAIRS[id]; if (!CH[chKey(p.cg, 1)] || !CH[chKey(p.cg, 1)].points) setTimeout(() => loadChart(p.cg, 1).then((pts) => { if (pts) { const el = host.querySelector(`.stk[data-open="r:${id}"] svg`); if (el) el.outerHTML = sparkSvg(pts); } }), i * 700); });
+  }
   const COPY_SVG = '<svg viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2"/></svg>';
   function renderPairs() {
     const host = $('#pairs-list'); if (!host) return; const Cs = state.loaded && !state.loadError ? list() : []; const issuers = new Set();
@@ -1553,8 +1640,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div class="pair-addr"><span class="mono">${esc(short(p.address))}</span><button type="button" data-copy="${esc(p.address)}" aria-label="${t('copy.addr')}" title="${t('copy.addr')}">${COPY_SVG}</button><a href="https://bscscan.com/token/${p.address}" target="_blank" rel="noopener">BscScan</a></div>
       </div>`; }).join('');
     $('#pairs-n').textContent = t('pairs.n', PAIR_IDS.length, issuers.size);
-    const tape = $('#tape'); if (tape) { const items = PAIR_IDS.filter((id) => PX.usd[PAIRS[id].symbol]).slice(0, 8).map((id) => { const p = PAIRS[id]; const c = PX.chg[p.symbol]; return `<a class="mk" href="#r/${id}" data-open="r:${id}">${logo(REST[id], 16)}<b>${esc(p.symbol)}</b><span>${usdStr(PX.usd[p.symbol])}</span>${c != null ? `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>` : ''}</a>`; }).join('');
-      tape.hidden = !items; if (items && tape.dataset.px !== String(PX.at) + state.lang) { tape.dataset.px = String(PX.at) + state.lang; tape.innerHTML = `<span class="lbl">${t('mkts')}</span>${items}<a class="all" href="#pairs">${t('mkts.all', PAIR_IDS.length)}</a>`; } }
+    renderStocks();
     $('#px-src').textContent = PX.at ? t('px.src', new Intl.DateTimeFormat(T.locale, { hour: '2-digit', minute: '2-digit' }).format(PX.at)) : '';
   }
   function setOpen(id) {
@@ -1665,6 +1751,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (e.target.closest('[data-acct-sign]')) { accountSign(); return; }
     const gp = e.target.closest('[data-gpay]'); if (gp) { giftPay(gp.dataset.gpay); return; }
     const go = e.target.closest('[data-gorder]'); if (go) { giftOpenOrder(go.dataset.gorder); return; }
+    const dd = e.target.closest('[data-days]'); if (dd) { chDays = Number(dd.dataset.days); clearTimeout(chTimer); chTimer = null; renderRows(); chartTick(); return; }
     const fv = e.target.closest('[data-fav]'); if (fv) { const a = fv.dataset.fav; if (FAV.has(a)) FAV.delete(a); else FAV.add(a); saveFav(); toast(t(FAV.has(a) ? 'fav.on' : 'fav.off')); renderStats(); renderRows(); return; }
     const open = e.target.closest('[data-open]'); if (open) { setOpen(open.dataset.open); return; }
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }

@@ -1,7 +1,7 @@
-<title>Bento Launch</title>
-<meta name="description" content="Coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it on PancakeSwap.">
+<title>BNB Bite</title>
+<meta name="description" content="BNB Bite: restaurant gift cards paid with any crypto or card, and a BNB Chain launchpad where every coin is paired with a real tokenized restaurant stock.">
 <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark)">
-<meta property="og:title" content="Bento Launch"><meta property="og:description" content="Restaurant-paired coin launchpad on BNB Chain.">
+<meta property="og:title" content="BNB Bite"><meta property="og:description" content="Restaurant gift cards for crypto and a restaurant-paired launchpad on BNB Chain."><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
@@ -16,7 +16,7 @@
   --bg: #FFFFFF; --bg-alt: #FAFAFA; --card: #FFFFFF; --surface: #F3F3F3; --surface-hi: #E8E8E8; --tile: #F6F6F6;
   --ink: #000000; --muted: #545454; --dim: #8A8A8A; --prose: #333333;
   --line: #E6E6E6; --line-hi: #D4D4D4;
-  --green: #06C167; --green-deep: #0E8345; --green-soft: #E5F8EE; --green-ink: #05944F; --salmon: #FF8080; --red: #E11900;
+  --green: #F0B90B; --green-deep: #C99A00; --green-soft: #FFF6D8; --green-ink: #7A5A00; --salmon: #FFE7A3; --red: #E11900;
   --up: #05944F; --down: #E11900;
   --font: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
   --mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
@@ -27,7 +27,7 @@
   --bg: #121212; --bg-alt: #181818; --card: #1A1A1A; --surface: #262626; --surface-hi: #333333; --tile: #222222;
   --ink: #F5F5F5; --muted: #B0B0B0; --dim: #7A7A7A; --prose: #DDDDDD;
   --line: #2C2C2C; --line-hi: #3C3C3C;
-  --green-soft: rgba(6,193,103,.14); --green-ink: #3DDC84; --up: #3DDC84; --down: #FF6B5E;
+  --green-soft: rgba(240,185,11,.16); --green-ink: #F5C84B; --up: #3DDC84; --down: #FF6B5E;
   color-scheme: dark;
 }
 :root[lang="zh"] { --up: #E11900; --down: #05944F; }
@@ -87,7 +87,7 @@ p { margin: 0; }
 .hdr-right { display: flex; align-items: center; gap: 8px; flex: none; }
 .cart { position: relative; width: 40px; height: 40px; border: 0; background: transparent; border-radius: 999px; display: grid; place-items: center; cursor: pointer; }
 .cart:hover { background: var(--surface); }
-.cart .n { position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; border-radius: 999px; background: var(--green); color: #fff; font-size: 11px; font-weight: 700; display: grid; place-items: center; padding: 0 5px; }
+.cart .n { position: absolute; top: 2px; right: 0; min-width: 18px; height: 18px; border-radius: 999px; background: var(--green); color: #111; font-size: 11px; font-weight: 700; display: grid; place-items: center; padding: 0 5px; }
 .textbtn { height: 40px; padding: 0 12px; border: 0; background: transparent; border-radius: 999px; font-size: 14px; font-weight: 500; cursor: pointer; white-space: nowrap; }
 .textbtn:hover { background: var(--surface); }
 .lang { display: inline-flex; background: var(--surface); border-radius: 999px; padding: 3px; }
@@ -162,7 +162,7 @@ p { margin: 0; }
 @media (max-width: 1200px) { .banners { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 760px) { .banners { grid-template-columns: 1fr; } }
 .banner { position: relative; overflow: hidden; border-radius: 16px; height: 216px; padding: 24px; color: #fff; display: grid; align-content: space-between; cursor: pointer; }
-.banner.g1 { background: var(--green); } .banner.g2 { background: var(--green-deep); } .banner.g3 { background: var(--salmon); color: #1a1a1a; }
+.banner.g1 { background: #F0B90B; color: #111; } .banner.g2 { background: #111; color: #fff; } .banner.g3 { background: #FFE7A3; color: #111; }
 .banner h3 { font-size: 22px; line-height: 28px; font-weight: 700; max-width: 55%; color: inherit; }
 .banner p { font-size: 14px; margin-top: 6px; max-width: 55%; opacity: .95; }
 .banner .cta { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: #fff; color: #000; font-size: 14px; font-weight: 500; width: max-content; }
@@ -305,6 +305,20 @@ p { margin: 0; }
 .banner .pxl { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--mono); font-size: 13px; font-weight: 600; background: rgba(255,255,255,.22); border-radius: 999px; padding: 4px 10px; }
 .banner.g3 .pxl { background: rgba(0,0,0,.08); }
 
+/* ---- faq / why ---- */
+.why { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 1000px) { .why { grid-template-columns: 1fr; } }
+.why div { border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+.why h3 { font-size: 17px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+.why h3 i { width: 32px; height: 32px; border-radius: 10px; background: var(--green-soft); color: var(--green-ink); display: grid; place-items: center; font-style: normal; }
+.why p { font-size: 15px; line-height: 22px; color: var(--prose); }
+.faq { display: grid; gap: 8px; max-width: 860px; }
+.faq details { border: 1px solid var(--line); border-radius: 12px; padding: 0 18px; }
+.faq summary { cursor: pointer; font-weight: 600; font-size: 15px; padding: 14px 0; list-style: none; display: flex; align-items: center; }
+.faq summary::after { content: '+'; margin-left: auto; font-size: 20px; color: var(--muted); }
+.faq details[open] summary::after { content: '–'; }
+.faq p { font-size: 15px; line-height: 22px; color: var(--prose); padding: 0 0 16px; }
+
 /* ---- ticker tape ---- */
 .tape { overflow: hidden; height: 36px; margin: 4px 0 12px; border-bottom: 1px solid var(--line); display: flex; align-items: center; }
 .tape .feed-t { --dur: 60s; }
@@ -331,7 +345,7 @@ p { margin: 0; }
 .gift-f .chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .gift-f .chips span { font-family: var(--mono); font-size: 11px; font-weight: 600; background: rgba(255,255,255,.9); color: #111; border-radius: 6px; padding: 3px 7px; }
 .gift-f .cta { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; background: #fff; color: #000; font-size: 13px; font-weight: 600; white-space: nowrap; }
-.gift .cta.in { background: var(--green); color: #fff; }
+.gift .cta.in { background: var(--green); color: #111; }
 .gift-pay { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); margin: -4px 0 16px; }
 .gift-pay b { font-weight: 600; color: var(--ink); }
 .gift-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; }
@@ -342,6 +356,26 @@ p { margin: 0; }
 .gift-row .btn { height: 36px; font-size: 13px; }
 
 /* ---- gift checkout sheet ---- */
+.gs-field { display: grid; gap: 6px; font-size: 14px; font-weight: 600; }
+.gs-field small { font-weight: 400; color: var(--muted); }
+.gs-field .input { font-size: 15px; padding: 11px 14px; }
+.methods { display: grid; gap: 8px; }
+.methods button { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; padding: 12px 14px; border: 2px solid var(--line); border-radius: 12px; background: var(--bg); cursor: pointer; font: inherit; color: var(--ink); }
+.methods button.is-on { border-color: var(--ink); }
+.methods button[disabled] { opacity: .45; cursor: not-allowed; }
+.methods b { display: block; font-size: 15px; font-weight: 600; } .methods small { display: block; color: var(--muted); font-size: 13px; }
+.methods .mi { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--surface); flex: none; font-family: var(--mono); font-weight: 700; font-size: 12px; }
+.gs-crypto { display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; }
+.gs-crypto .qr { width: 168px; height: 168px; margin: 0 auto; background: #fff; padding: 8px; border-radius: 10px; }
+.gs-crypto .qr img, .gs-crypto .qr canvas { width: 152px; height: 152px; display: block; }
+.gs-crypto .amt { font-family: var(--mono); font-size: 20px; font-weight: 600; text-align: center; word-break: break-all; }
+.gs-crypto .addr { font-family: var(--mono); font-size: 12.5px; word-break: break-all; background: var(--surface); border-radius: 8px; padding: 10px 12px; }
+.gs-crypto .row2 { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.gs-crypto .row2 .btn { height: 36px; font-size: 13px; }
+.gs-stat { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--surface); }
+.gs-stat.delivered { background: var(--green-soft); color: var(--green-ink); } .gs-stat.failed, .gs-stat.expired { background: rgba(225,25,0,.1); color: var(--down); }
+.gs-list button .gs-stat { margin-left: 8px; }
+
 .gs-card { border-radius: 16px; padding: 18px; color: #fff; position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; }
 .gs-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.22), rgba(255,255,255,0) 45%, rgba(0,0,0,.18)); }
 .gs-card > * { position: relative; } .gs-card .logo { width: 48px; height: 48px; border: 0; }
@@ -388,7 +422,7 @@ p { margin: 0; }
 
 /* ---- brand mark ---- */
 .brand { display: inline-flex; align-items: baseline; }
-.brand em { color: var(--green-ink); font-weight: 500; }
+.brand em { color: #C99A00; font-weight: 500; }
 
 /* ---- category icons ---- */
 
@@ -473,7 +507,7 @@ p { margin: 0; }
   .mbar button { display: grid; justify-items: center; align-content: center; gap: 3px; border: 0; background: transparent; color: var(--muted); font-size: 11px; font-weight: 600; cursor: pointer; }
   .mbar button svg { width: 24px; height: 24px; }
   .mbar button.is-on { color: var(--ink); }
-  .mbar button .plus { width: 40px; height: 40px; border-radius: 999px; background: var(--green); color: #fff; display: grid; place-items: center; margin-top: -2px; }
+  .mbar button .plus { width: 40px; height: 40px; border-radius: 999px; background: var(--green); color: #111; display: grid; place-items: center; margin-top: -2px; }
   .mbar button .plus svg { width: 22px; height: 22px; }
   .content { padding-bottom: 150px; }
   div.bottom { bottom: calc(60px + env(safe-area-inset-bottom, 0px)); padding-bottom: 0; }
@@ -546,7 +580,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
 <header class="hdr"><div class="hdr-in">
   <button class="burger" id="burger" type="button" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-  <a class="brand" href="#top">bento<em>launch</em></a>
+  <a class="brand" href="#top">bnb<em>bite</em></a>
   <label class="place" id="place"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg><select id="netsel" aria-label="Network"><option value="56">BNB Chain</option><option value="97">BNB Testnet</option></select><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></label>
   <button class="cart" type="button" id="refresh" aria-label="Refresh" title="Refresh"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="q" type="search" autocomplete="off"></label>
@@ -580,6 +614,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     <button type="button" data-cat="cn"><span class="ico c2"><svg viewBox="0 0 24 24" fill="none"><path d="M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8H4zM3 18h18" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 11c1-1.5 2.5-2 4-2s3 .5 4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="cat.cn"></span></button>
     <div class="grp" data-t="grp.you"></div>
     <a href="#launch"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c3 2 6 6 6 10a6 6 0 0 1-12 0c0-4 3-8 6-10z" stroke="currentColor" stroke-width="2"/><path d="M9 21h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.create"></span></a>
+    <a href="#account" data-open="a:"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M7 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.orders"></span></a>
     <button type="button" data-tab="mine"><span class="ico c4"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="nav.mine"></span><span class="n" id="n-mine">0</span></button>
     <a href="#docs"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14H6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.docs"></span></a>
     <div class="wallet-card" id="wallet-card"></div>
@@ -609,6 +644,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
           <button type="button" data-cat="tea"><span class="ic" data-ic="tea"></span><span data-t="cat.tea"></span></button>
           <button type="button" data-cat="hotpot"><span class="ic" data-ic="hotpot"></span><span data-t="cat.hotpot"></span></button>
           <button type="button" data-cat="delivery"><span class="ic" data-ic="delivery"></span><span data-t="cat.delivery"></span></button>
+          <button type="button" data-cat="healthy"><span class="ic" data-ic="healthy"></span><span data-t="cat.healthy"></span></button>
+          <button type="button" data-cat="dessert"><span class="ic" data-ic="dessert"></span><span data-t="cat.dessert"></span></button>
           <button type="button" data-cat="casual"><span class="ic" data-ic="casual"></span><span data-t="cat.casual"></span></button>
           <button type="button" data-cat="cn"><span class="ic" data-ic="cn"></span><span data-t="cat.cn"></span></button>
         </div>
@@ -692,6 +729,22 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     </section>
 
     <hr class="divider">
+    <section class="sec" id="why">
+      <div class="sec-h"><h2 data-t="why.h2"></h2></div>
+      <div class="why">
+        <div><h3><i>1</i><span data-t="why.1h"></span></h3><p data-t="why.1p"></p></div>
+        <div><h3><i>2</i><span data-t="why.2h"></span></h3><p data-t="why.2p"></p></div>
+        <div><h3><i>3</i><span data-t="why.3h"></span></h3><p data-t="why.3p"></p></div>
+      </div>
+    </section>
+
+    <hr class="divider">
+    <section class="sec" id="faq">
+      <div class="sec-h"><h2 data-t="faq.h2"></h2></div>
+      <div class="faq" id="faq-list"></div>
+    </section>
+
+    <hr class="divider">
     <section class="sec" id="pairs">
       <div class="sec-h"><h2 data-t="docs.4h"></h2><span class="muted" id="pairs-n"></span></div>
       <p class="hint" data-t="docs.4p" style="margin:-8px 0 14px;max-width:860px"></p>
@@ -702,13 +755,13 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
     <footer>
       <div class="ft">
-        <div><a class="brand" href="#top">bento<em>launch</em></a><p data-t="ft.tag"></p></div>
-        <div><h4 data-t="ft.product"></h4><ul><li><a href="#explore" data-t="nav.home"></a></li><li><a href="#launch" data-t="nav.create"></a></li><li><a href="#gifts" data-t="nav.gifts"></a></li><li><a href="#pairs" data-t="docs.4h"></a></li><li><a href="#docs" data-t="nav.docs"></a></li></ul></div>
+        <div><a class="brand" href="#top">bnb<em>bite</em></a><p data-t="ft.tag"></p></div>
+        <div><h4 data-t="ft.product"></h4><ul><li><a href="#explore" data-t="nav.home"></a></li><li><a href="#launch" data-t="nav.create"></a></li><li><a href="#gifts" data-t="nav.gifts"></a></li><li><a href="#pairs" data-t="docs.4h"></a></li><li><a href="#docs" data-t="nav.docs"></a></li><li><a href="#faq" data-t="faq.h2"></a></li></ul></div>
         <div><h4 data-t="ft.protocol"></h4><ul><li><a id="explorer-link" href="#" target="_blank" rel="noopener" data-t="ft.factory"></a></li><li><a href="https://github.com/2555raw/launch" target="_blank" rel="noopener" data-t="ft.src"></a></li><li><a href="https://pancakeswap.finance" target="_blank" rel="noopener">PancakeSwap</a></li><li><a href="https://www.bnbchain.org" target="_blank" rel="noopener">BNB Chain</a></li></ul></div>
-        <div><h4 data-t="ft.legal"></h4><ul><li><a href="#" data-doc="risk" data-t="legal.risk"></a></li><li><a href="#" data-doc="terms" data-t="legal.terms"></a></li><li><a href="#" data-doc="privacy" data-t="legal.privacy"></a></li><li><a href="#" data-doc="photos" data-t="legal.photos"></a></li></ul></div>
+        <div><h4 data-t="ft.legal"></h4><ul><li><a href="#" data-doc="risk" data-t="legal.risk"></a></li><li><a href="#" data-doc="terms" data-t="legal.terms"></a></li><li><a href="#" data-doc="privacy" data-t="legal.privacy"></a></li><li><a href="#" data-doc="refund" data-t="legal.refund"></a></li><li><a href="#" data-doc="cookies" data-t="legal.cookies"></a></li><li><a href="#" data-doc="photos" data-t="legal.photos"></a></li></ul></div>
       </div>
       <p><span data-t="footer"></span> <span data-t="gift.note"></span></p>
-      <div class="ft-b"><span>© <span id="year"></span> Bento Launch</span><span class="tagl" id="ft-net"><i></i><span></span></span><span class="tagl ok" id="ft-block" hidden><i></i><span class="mono"></span></span><span class="tagl"><i style="background:#F0B90B"></i><span data-t="ft.unaudited"></span></span><span class="legal"><a href="#" data-doc="risk" data-t="legal.risk"></a><a href="#" data-doc="terms" data-t="legal.terms"></a></span></div>
+      <div class="ft-b"><span>© <span id="year"></span> BNB Bite</span><span class="tagl" id="ft-net"><i></i><span></span></span><span class="tagl ok" id="ft-block" hidden><i></i><span class="mono"></span></span><span class="tagl"><i style="background:#F0B90B"></i><span data-t="ft.unaudited"></span></span><span class="legal"><a href="#" data-doc="risk" data-t="legal.risk"></a><a href="#" data-doc="terms" data-t="legal.terms"></a></span></div>
     </footer>
   </main>
 </div>
@@ -720,11 +773,12 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   <button type="button" class="is-on" data-mb="home"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="nav.home"></span></button>
   <button type="button" data-mb="search"><svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.search"></span></button>
   <button type="button" data-mb="create"><span class="plus"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span><span data-t="nav.create"></span></button>
-  <button type="button" data-mb="wallet"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M16 14h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.wallet"></span></button>
+  <button type="button" data-mb="wallet"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M16 14h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.account"></span></button>
 </nav>
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
 <script>
 (function () {
   'use strict';
@@ -764,7 +818,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'board.nowallet': 'Connect a wallet to load the board from BNB Chain.', 'board.nofactory': 'Contracts are not deployed on this network yet. Deploy BentoFactory (see How it works) and set its address in the page config.',
       'board.note': 'Restaurant names and logos identify the tokenized stock each coin is paired with. Restaurants do not take part in, sponsor or issue anything here. Coins are unaudited contracts created by users; buying them can lose everything you put in.',
       'f.allCats': 'All', 'ph.live': 'Raising', 'ph.pending': 'Awaiting finalize', 'chip.ok': 'Graduated', 'chip.failed': 'Refunding',
-      'cat.burger': 'Burgers', 'cat.mex': 'Mexican', 'cat.cafe': 'Coffee', 'cat.tea': 'Tea', 'cat.pizza': 'Pizza', 'cat.chicken': 'Chicken', 'cat.hotpot': 'Hot pot', 'cat.delivery': 'Delivery', 'cat.casual': 'Steak & dining', 'cat.cn': 'China',
+      'cat.burger': 'Burgers', 'cat.mex': 'Mexican', 'cat.cafe': 'Coffee', 'cat.tea': 'Tea', 'cat.pizza': 'Pizza', 'cat.chicken': 'Chicken', 'cat.hotpot': 'Hot pot', 'cat.delivery': 'Delivery', 'cat.casual': 'Steak & dining', 'cat.cn': 'China', 'cat.healthy': 'Healthy', 'cat.dessert': 'Desserts',
       'search': 'Search coins, restaurants or paste a contract address', 'sort.progress': 'Progress', 'sort.raised': 'Raised', 'sort.time': 'Ending soon', 'sort.new': 'Newest',
       'pairs': 'Pairs with', 'closesIn': (t) => `${t} left`, 'closedAt': (d, full) => `closed ${d}${full ? ' · filled' : ''}`, 'buyersN': (n) => `${n} buyer${n === 1 ? '' : 's'}`, 'you': (v) => `you ${v}`, 'by': (n) => `by ${n}`, 'paidIn': (s) => `paid in ${s}`,
       'promo.new': 'New', 'promo.hot': (p) => `${p} funded`,
@@ -795,7 +849,13 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'hero.eye': (n) => `Live on BNB Chain · ${n} verified stock tokens`, 'hero.h1': 'Launch a coin <em>paired</em> with a real restaurant stock.', 'hero.p': 'Pick a restaurant. The raise is paid in its tokenized stock, and the coin lists against it on PancakeSwap with the liquidity burned.', 'hero.cta2': 'Browse restaurants', 'hero.live': 'raising now', 'hero.raised': 'raised so far', 'hero.issuers': 'issuers', 'hero.tokens': 'stock tokens', 'hero.fee': 'fee · LP burned', 'hero.today': 'today',
       'r.exchange': 'Listed on', 'r.hq': 'Headquarters', 'r.founded': 'Founded', 'r.stores': 'Locations', 'fav.on': 'Saved to My coins.', 'fav.off': 'Removed from My coins.', 'btn.fav': 'Save', 'ft.block': (n) => `Block ${n}`,
       'nav.gifts': 'Gift cards', 'gift.h2': 'Gift cards for crypto', 'gift.all': 'All restaurants on Bitrefill', 'gift.p': 'eGift cards sold and emailed by Bitrefill. Pay with', 'gift.egift': 'eGift card', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `up to ${b}`, 'gift.buy': 'Buy on Bitrefill', 'gift.browse': 'Browse on Bitrefill', 'gift.works': (c) => `Works in ${c}`, 'gift.na': 'No listing yet', 'gift.sheet': 'Gift card', 'gift.sheetP': 'Bought on Bitrefill, delivered by email in minutes.', 'gift.sheetNa': 'Bitrefill has no listing for this brand yet.', 'gift.note': 'Gift cards are sold by Bitrefill, not by this site, and are unrelated to the coins and stock tokens.',
-      'gs.h': 'Buy gift card', 'gs.amount': 'Amount', 'gs.custom': 'Other', 'gs.face': 'Card value', 'gs.fee': (p) => `Service fee ${p}%`, 'gs.total': 'Total', 'gs.payBnb': 'Pay with BNB', 'gs.payUsdt': 'Pay with USDT', 'gs.step1': 'Confirm the payment in your wallet…', 'gs.step2': 'Payment sent. Waiting for confirmation…', 'gs.step3': 'Confirmed. Ordering your card…', 'gs.done': 'Your gift card', 'gs.copy': 'Copy code', 'gs.saved': 'Saved in this browser. Keep a copy: it cannot be re-issued.', 'gs.failed': 'The card could not be issued. Your payment is recorded; contact support with this order id and we will refund or re-issue.', 'gs.processing': 'Still being issued. This page keeps checking; you can also come back later.', 'gs.mine': 'Your gift cards', 'gs.ext': 'In-site checkout is not enabled on this deployment. You can buy this card on Bitrefill instead.', 'gs.out': 'Out of stock right now.', 'gs.range': (a, b) => `Any amount from ${a} to ${b}`, 'gs.net': 'Payments go to the site wallet on BNB Chain. Gift cards are issued by Bitrefill and are final.', 'gs.quoteErr': 'Could not get a price. Try again.', 'gs.order': 'Order', 'gift.buyHere': 'Buy here',
+      'gs.h': 'Buy gift card', 'gs.amount': 'Amount', 'gs.custom': 'Other', 'gs.face': 'Card value', 'gs.fee': (p) => `Service fee ${p}%`, 'gs.total': 'Total', 'gs.payBnb': 'Pay with BNB', 'gs.payUsdt': 'Pay with USDT', 'gs.step1': 'Confirm the payment in your wallet…', 'gs.step2': 'Payment sent. Waiting for confirmation…', 'gs.step3': 'Confirmed. Ordering your card…', 'gs.done': 'Your gift card', 'gs.copy': 'Copy code', 'gs.saved': 'Saved in this browser and emailed to the recipient. Keep a copy: it cannot be re-issued.', 'gs.failed': 'The card could not be issued. Your payment is recorded; we refund or re-issue within 5 business days. Quote this order id.', 'gs.processing': 'Payment received. Issuing your card…', 'gs.mine': 'Your gift cards', 'gs.ext': 'In-site checkout is not enabled on this deployment. You can buy this card on Bitrefill instead.', 'gs.out': 'Out of stock right now.', 'gs.range': (a, b) => `Any amount from ${a} to ${b}`, 'gs.net': 'Gift cards are issued by Bitrefill and are final.', 'gs.quoteErr': 'Could not get a price. Try again.', 'gs.order': 'Order', 'gift.buyHere': 'Buy here', 'gift.unavail': 'Not available yet',
+      'gs.to': 'Recipient email', 'gs.toP': 'The card is emailed here', 'gs.msg': 'Message (optional)', 'gs.msgP': 'A few words for the recipient', 'gs.next': 'Continue to payment', 'gs.method': 'Pay with', 'gs.mWallet': 'BNB Chain wallet', 'gs.mWalletP': 'BNB or USDT from the wallet you connected', 'gs.mCrypto': 'Any crypto', 'gs.mCryptoP': 'Bitcoin, Ethereum, Solana, USDT and 300+ more', 'gs.mCard': 'Bank card', 'gs.mCardP': 'Visa, Mastercard and more through Stripe', 'gs.coin': 'Coin', 'gs.creating': 'Creating your order…', 'gs.sendExact': (a, c) => `Send exactly ${a} ${c}`, 'gs.toAddr': 'to this address', 'gs.network': 'Network', 'gs.memo': 'Memo / tag (required)', 'gs.expires': (t) => `Expires in ${t}`, 'gs.waiting': 'Waiting for your payment. This page updates by itself.', 'gs.detected': 'Payment detected, waiting for network confirmations…', 'gs.cardGo': 'Open Stripe Checkout', 'gs.cardWait': 'Finish the payment in the Stripe tab. This page updates when it is done.', 'gs.expired': 'This order expired without payment. Start again.', 'gs.refunded': 'This order was refunded.', 'gs.cancelled': 'Payment cancelled. You can try again.', 'gs.back': 'Back', 'gs.copyAddr': 'Copy address', 'gs.copyAmt': 'Copy amount', 'gs.status': { pending: 'Awaiting payment', paid: 'Paid', processing: 'Issuing', delivered: 'Delivered', failed: 'Failed', expired: 'Expired', refunded: 'Refunded' },
+      'acct.h': 'My account', 'acct.orders': 'Gift card orders', 'acct.none': 'No orders yet.', 'acct.signin': 'Sign in with your wallet to see orders bought from any device.', 'acct.sign': 'Sign in', 'acct.signing': 'Check your wallet…', 'acct.local': 'Orders on this device', 'acct.coins': 'Launchpad participations', 'acct.nocoins': 'No participations yet.', 'nav.orders': 'My orders', 'm.account': 'Account',
+      'bottom.more': 'Risk notice',      'why.h2': 'Why BNB Bite', 'why.1h': 'Pay the way you want', 'why.1p': 'Gift cards can be paid with a BNB Chain wallet, with any of 300+ cryptocurrencies through our payment partner, or with a bank card. The card is emailed in minutes and stays in your account.', 'why.2h': 'Real stock tokens, real pools', 'why.2p': 'Launchpad coins are paired with tokenized restaurant stocks that exist on BNB Chain. The raise is paid in that token and the liquidity is burned at graduation, so nobody can pull it.', 'why.3h': 'Nothing hidden', 'why.3p': 'Open-source contracts, every parameter written in the contract, prices and 24h changes from public data, and clear notices about what is unaudited or not yet available.',
+      'faq.h2': 'Questions', 'faqs': [['Is the gift card real?', 'Yes. Cards are issued by Bitrefill, a licensed gift card reseller, only after your payment is confirmed. We never generate codes ourselves. If supply is not configured on a deployment, the card is shown as unavailable instead.'], ['Which cryptocurrencies can I pay with?', 'BNB and USDT directly from your wallet on BNB Chain, or any coin supported by our payment partner: Bitcoin, Ethereum, Solana, USDT on several networks, XRP, Litecoin, Dogecoin, TON and more. You get an address and an exact amount; the order updates by itself once the network confirms.'], ['Can I pay by card?', 'Yes, through Stripe Checkout. Card details are entered on Stripe\'s page and never reach our server.'], ['How is the gift card delivered?', 'On the order page as soon as it is issued, by email to the recipient you entered, and in your account if you were signed in with your wallet.'], ['Can I get a refund?', 'Gift cards are final once issued. If a card could not be issued after you paid, we refund or re-issue it; see the refund policy.'], ['What is the launchpad?', 'A place to launch a coin paired with a real restaurant stock token. Buyers pay the raise in that token; at graduation the coin lists on PancakeSwap against it with the liquidity burned. The contracts are open source and unaudited: start on BNB Testnet.'], ['Are the restaurants partners?', 'No. Names, logos and photos identify the brand a gift card or a stock token refers to. No restaurant sponsors, endorses or issues anything here.']],
+      'legal.refund': 'Refund policy', 'legal.cookies': 'Cookies', 'legal.refundB': ['<b>Gift cards are final.</b> A code is a bearer instrument: once it has been issued and shown or emailed, it cannot be cancelled or refunded, whatever the payment method.', '<b>If we could not issue the card</b> after your payment was confirmed (supplier error, out of stock), we refund the full amount to the wallet or card you paid with, or re-issue the card, within 5 business days. Contact support with your order id.', '<b>Crypto payments that arrive late, short or to the wrong network</b> cannot always be matched to an order. Send exactly the amount shown, on the network shown, before the timer expires. Partial or expired payments are refunded manually minus network fees when they can be identified.', '<b>Launchpad raises</b> are governed by the contract: refunds happen on-chain through the Refund button when a raise closes below its minimum. We cannot reverse on-chain transactions.'],
+      'legal.cookiesB': ['This site sets no tracking cookies. It stores your language, theme, saved coins and the ids of your gift card orders in your browser\'s localStorage so you can find them again on this device.', 'Stripe sets its own cookies on its checkout page when you pay by card. Our payment partner and CoinGecko see your IP address when the page asks them for a price, under their own policies.', 'You can clear everything from your browser settings at any time. Orders remain reachable through the link in the email.'],
       'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
       'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply, same for everyone', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of the raise + 20% of supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply, pro rata', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP tokens burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
       'ft.tag': 'A coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Factory contract', 'ft.src': 'Source code', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
@@ -816,7 +876,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'board.nowallet': '连接钱包后从 BNB 链加载。', 'board.nofactory': '合约尚未部署到此网络。请部署 BentoFactory（见玩法说明）并在页面配置中填入地址。',
       'board.note': '餐饮品牌名称与标志用于标识每个代币所配对的股票代币。餐饮品牌不参与、不赞助、不发行任何内容。代币由用户创建的未审计合约发行，买入可能损失全部投入。',
       'f.allCats': '全部', 'ph.live': '募集中', 'ph.pending': '待结算', 'chip.ok': '已毕业', 'chip.failed': '退款中',
-      'cat.burger': '汉堡', 'cat.mex': '墨西哥菜', 'cat.cafe': '咖啡', 'cat.tea': '茶饮', 'cat.pizza': '披萨', 'cat.chicken': '炸鸡', 'cat.hotpot': '火锅', 'cat.delivery': '外卖', 'cat.casual': '牛排正餐', 'cat.cn': '中国',
+      'cat.burger': '汉堡', 'cat.mex': '墨西哥菜', 'cat.cafe': '咖啡', 'cat.tea': '茶饮', 'cat.pizza': '披萨', 'cat.chicken': '炸鸡', 'cat.hotpot': '火锅', 'cat.delivery': '外卖', 'cat.casual': '牛排正餐', 'cat.cn': '中国', 'cat.healthy': '健康轻食', 'cat.dessert': '甜品',
       'search': '搜索代币、品牌，或粘贴合约地址', 'sort.progress': '进度', 'sort.raised': '募集额', 'sort.time': '即将截止', 'sort.new': '最新',
       'pairs': '配对', 'closesIn': (t) => `剩余 ${t}`, 'closedAt': (d, full) => `${d} 结束${full ? ' · 募满' : ''}`, 'buyersN': (n) => `${n} 位买家`, 'you': (v) => `我 ${v}`, 'by': (n) => `${n}`, 'paidIn': (s) => `以 ${s} 支付`,
       'promo.new': '打新', 'promo.hot': (p) => `已募 ${p}`,
@@ -847,7 +907,13 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'hero.eye': (n) => `已在 BNB 链上线 · ${n} 个已验证股票代币`, 'hero.h1': '发行一个与真实餐饮股票<em>配对</em>的代币。', 'hero.p': '选一家餐饮品牌。募集以它的股票代币支付，毕业后在 PancakeSwap 与它配对上市，流动性凭证销毁。', 'hero.cta2': '查看品牌', 'hero.live': '募集中', 'hero.raised': '累计募集', 'hero.issuers': '发行方', 'hero.tokens': '股票代币', 'hero.fee': '手续费 · LP 已销毁', 'hero.today': '今日',
       'r.exchange': '上市', 'r.hq': '总部', 'r.founded': '成立', 'r.stores': '门店', 'fav.on': '已加入我的代币。', 'fav.off': '已从我的代币移除。', 'btn.fav': '收藏', 'ft.block': (n) => `区块 ${n}`,
       'nav.gifts': '礼品卡', 'gift.h2': '加密货币买礼品卡', 'gift.all': 'Bitrefill 全部餐饮品牌', 'gift.p': '电子礼品卡由 Bitrefill 出售并邮件发送。支持', 'gift.egift': '电子礼品卡', 'gift.from': (a, b) => `${a} – ${b}`, 'gift.upto': (b) => `最高 ${b}`, 'gift.buy': '在 Bitrefill 购买', 'gift.browse': '去 Bitrefill 浏览', 'gift.works': (c) => `仅限${c}使用`, 'gift.na': '暂无上架', 'gift.sheet': '礼品卡', 'gift.sheetP': '在 Bitrefill 购买，几分钟内邮件送达。', 'gift.sheetNa': 'Bitrefill 尚未上架该品牌。', 'gift.note': '礼品卡由 Bitrefill 出售，与本站、代币和股票代币无关。',
-      'gs.h': '购买礼品卡', 'gs.amount': '面额', 'gs.custom': '其他', 'gs.face': '卡面值', 'gs.fee': (p) => `服务费 ${p}%`, 'gs.total': '合计', 'gs.payBnb': '用 BNB 支付', 'gs.payUsdt': '用 USDT 支付', 'gs.step1': '请在钱包中确认付款…', 'gs.step2': '已发送，等待确认…', 'gs.step3': '已确认，正在出卡…', 'gs.done': '你的礼品卡', 'gs.copy': '复制卡号', 'gs.saved': '已保存在此浏览器。请自行备份：卡号无法重新发放。', 'gs.failed': '出卡失败。付款已记录，请凭此订单号联系客服退款或补发。', 'gs.processing': '仍在出卡中。本页会持续检查，你也可以稍后再来。', 'gs.mine': '我的礼品卡', 'gs.ext': '此部署未开启站内结账。你可以到 Bitrefill 购买这张卡。', 'gs.out': '暂时缺货。', 'gs.range': (a, b) => `${a} 至 ${b} 任意金额`, 'gs.net': '付款进入本站在 BNB 链上的钱包。礼品卡由 Bitrefill 发放，售出不退。', 'gs.quoteErr': '无法获取价格，请重试。', 'gs.order': '订单', 'gift.buyHere': '在本站购买',
+      'gs.h': '购买礼品卡', 'gs.amount': '面额', 'gs.custom': '其他', 'gs.face': '卡面值', 'gs.fee': (p) => `服务费 ${p}%`, 'gs.total': '合计', 'gs.payBnb': '用 BNB 支付', 'gs.payUsdt': '用 USDT 支付', 'gs.step1': '请在钱包中确认付款…', 'gs.step2': '已发送，等待确认…', 'gs.step3': '已确认，正在出卡…', 'gs.done': '你的礼品卡', 'gs.copy': '复制卡号', 'gs.saved': '已保存在此浏览器并发送到收件邮箱。请自行备份：卡号无法重新发放。', 'gs.failed': '出卡失败。付款已记录，5 个工作日内退款或补发。请提供此订单号。', 'gs.processing': '已收到付款，正在出卡…', 'gs.mine': '我的礼品卡', 'gs.ext': '此部署未开启站内结账。你可以到 Bitrefill 购买这张卡。', 'gs.out': '暂时缺货。', 'gs.range': (a, b) => `${a} 至 ${b} 任意金额`, 'gs.net': '礼品卡由 Bitrefill 发放，售出不退。', 'gs.quoteErr': '无法获取价格，请重试。', 'gs.order': '订单', 'gift.buyHere': '在本站购买', 'gift.unavail': '暂不可购买',
+      'gs.to': '收件邮箱', 'gs.toP': '礼品卡发送到这里', 'gs.msg': '留言（可选）', 'gs.msgP': '给收件人的几句话', 'gs.next': '去支付', 'gs.method': '支付方式', 'gs.mWallet': 'BNB 链钱包', 'gs.mWalletP': '用已连接的钱包支付 BNB 或 USDT', 'gs.mCrypto': '任意加密货币', 'gs.mCryptoP': '比特币、以太坊、Solana、USDT 等 300 多种', 'gs.mCard': '银行卡', 'gs.mCardP': '通过 Stripe 支持 Visa、Mastercard 等', 'gs.coin': '币种', 'gs.creating': '正在创建订单…', 'gs.sendExact': (a, c) => `请发送精确金额 ${a} ${c}`, 'gs.toAddr': '到此地址', 'gs.network': '网络', 'gs.memo': 'Memo / 标签（必填）', 'gs.expires': (t) => `${t} 后过期`, 'gs.waiting': '等待付款。本页会自动更新。', 'gs.detected': '已检测到付款，等待网络确认…', 'gs.cardGo': '打开 Stripe 结账', 'gs.cardWait': '请在 Stripe 页面完成支付，完成后本页自动更新。', 'gs.expired': '订单已过期未付款。请重新开始。', 'gs.refunded': '此订单已退款。', 'gs.cancelled': '支付已取消，可以重试。', 'gs.back': '返回', 'gs.copyAddr': '复制地址', 'gs.copyAmt': '复制金额', 'gs.status': { pending: '待付款', paid: '已付款', processing: '出卡中', delivered: '已送达', failed: '失败', expired: '已过期', refunded: '已退款' },
+      'acct.h': '我的账户', 'acct.orders': '礼品卡订单', 'acct.none': '还没有订单。', 'acct.signin': '用钱包登录后可查看在任何设备购买的订单。', 'acct.sign': '登录', 'acct.signing': '请查看钱包…', 'acct.local': '本设备上的订单', 'acct.coins': '发射台参与记录', 'acct.nocoins': '暂无参与记录。', 'nav.orders': '我的订单', 'm.account': '账户',
+      'bottom.more': '风险提示',      'why.h2': '为什么选 BNB Bite', 'why.1h': '想怎么付就怎么付', 'why.1p': '礼品卡可用 BNB 链钱包支付，也可通过支付伙伴用 300 多种加密货币支付，或用银行卡。几分钟内邮件送达，并保存在你的账户里。', 'why.2h': '真实股票代币，真实池子', 'why.2p': '发射台代币配对 BNB 链上真实存在的餐饮股票代币。募集以该代币支付，毕业时流动性销毁，任何人都无法撤走。', 'why.3h': '没有隐藏', 'why.3p': '合约开源，所有参数写在合约里，价格与 24 小时涨跌来自公开数据，并清楚标注哪些未审计或暂不可用。',
+      'faq.h2': '常见问题', 'faqs': [['礼品卡是真的吗？', '是。卡由持牌礼品卡经销商 Bitrefill 在付款确认后发放，我们从不自行生成卡号。若某部署未配置供货，卡会显示为暂不可购买。'], ['可以用哪些加密货币支付？', '可在 BNB 链上用钱包直接支付 BNB 和 USDT，或通过支付伙伴用比特币、以太坊、Solana、多条链上的 USDT、XRP、莱特币、狗狗币、TON 等支付。你会得到地址和精确金额，网络确认后订单自动更新。'], ['可以用银行卡吗？', '可以，通过 Stripe Checkout。卡信息在 Stripe 页面输入，不会经过我们的服务器。'], ['礼品卡如何送达？', '出卡后立刻显示在订单页，同时邮件发送给你填写的收件人；若你用钱包登录，也会保存在账户中。'], ['可以退款吗？', '礼品卡一经发放即为最终交易。若付款后无法出卡，我们会退款或补发，详见退款政策。'], ['发射台是什么？', '在这里发行一个与真实餐饮股票代币配对的代币。买家以该代币支付募集；毕业时代币在 PancakeSwap 与之配对上市，流动性销毁。合约开源但未审计，请先在 BNB 测试网使用。'], ['这些餐厅是合作方吗？', '不是。名称、标志和照片仅用于标识礼品卡或股票代币对应的品牌。没有任何餐饮品牌赞助、背书或发行这里的内容。']],
+      'legal.refund': '退款政策', 'legal.cookies': 'Cookie', 'legal.refundB': ['<b>礼品卡为最终交易。</b>卡号属于不记名凭证：一旦发放并显示或邮件发送，无论何种支付方式均不能取消或退款。', '<b>若付款确认后无法出卡</b>（供应商故障、缺货），我们会在 5 个工作日内全额退回到你支付的钱包或银行卡，或补发礼品卡。请凭订单号联系客服。', '<b>迟到、金额不足或发错网络的加密货币付款</b>不一定能匹配到订单。请在倒计时结束前，按显示的网络和精确金额支付。可识别的部分付款或过期付款将扣除网络费后人工退回。', '<b>发射台募集</b>由合约管理：募集未达最低额结束时，通过“退款”按钮在链上退款。我们无法撤销链上交易。'],
+      'legal.cookiesB': ['本站不设追踪 cookie。为了在本设备上再次找到，浏览器 localStorage 中保存你的语言、主题、收藏的代币和礼品卡订单号。', '用银行卡付款时，Stripe 会在其结账页设置自己的 cookie。页面请求价格时，支付伙伴和 CoinGecko 会按各自政策看到你的 IP 地址。', '你可随时在浏览器设置中清除。订单仍可通过邮件中的链接访问。'],
       'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
       'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量，人人相同', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '募集额的 99% + 供应量的 20%', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%，按比例', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
       'ft.tag': 'BNB 链上的代币发射台：每个代币配对一只餐饮股票代币，以它募集，与它配对上市。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '工厂合约', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
@@ -867,12 +933,12 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     ['jackinthebox','JACK','Jack in the Box','JACK','Jack in the Box Inc.','burger','Solana',0.015,60000000,240000,80000,3000,204,276],
     ['tacobell','TACO','Taco Bell','YUM','Yum! Brands, Inc.','mex','Solana',0.018,100000000,360000,90000,4000,-12,60],
     ['chipotle','CHIP','Chipotle','CMG','Chipotle Mexican Grill, Inc.','mex','Base',0.09,50000000,900000,300000,10000,36,108],
-    ['cava','CAVA','CAVA','CAVA','CAVA Group, Inc.','casual','Base',0.05,40000000,400000,120000,5000,84,156],
-    ['sweetgreen','SG','Sweetgreen','SG','Sweetgreen, Inc.','casual','Solana',0.012,80000000,240000,80000,3000,132,204],
+    ['cava','CAVA','CAVA','CAVA','CAVA Group, Inc.','healthy','Base',0.05,40000000,400000,120000,5000,84,156],
+    ['sweetgreen','SG','Sweetgreen','SG','Sweetgreen, Inc.','healthy','Solana',0.012,80000000,240000,80000,3000,132,204],
     ['starbucks','SBUX','Starbucks','SBUX','Starbucks Corporation','cafe','Ethereum',0.12,80000000,1920000,500000,15000,-48,24],
     ['timhortons','TIMS','Tim Hortons','QSR','Restaurant Brands International','cafe','Base',0.02,70000000,280000,90000,4000,60,132],
     ['dutchbros','BROS','Dutch Bros','BROS','Dutch Bros Inc.','cafe','Solana',0.025,50000000,250000,80000,3000,108,180],
-    ['krispykreme','DNUT','Krispy Kreme','DNUT','Krispy Kreme, Inc.','cafe','Base',0.01,90000000,180000,60000,2500,156,228],
+    ['krispykreme','DNUT','Krispy Kreme','DNUT','Krispy Kreme, Inc.','dessert','Base',0.01,90000000,180000,60000,2500,156,228],
     ['dominos','DOM',"Domino's",'DPZ',"Domino's Pizza, Inc.",'pizza','Base',0.05,60000000,600000,180000,6000,60,132],
     ['pizzahut','HUT','Pizza Hut','YUM','Yum! Brands, Inc.','pizza','Ethereum',0.04,50000000,400000,150000,5000,-20,30],
     ['papajohns','PAPA',"Papa John's",'PZZA',"Papa John's International, Inc.",'pizza','Solana',0.03,50000000,300000,100000,4000,180,252],
@@ -912,8 +978,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const DOMAINS = {"mcdonalds":"mcdonalds.com","burgerking":"bk.com","wendys":"wendys.com","shakeshack":"shakeshack.com","jackinthebox":"jackinthebox.com","tacobell":"tacobell.com","chipotle":"chipotle.com","cava":"cava.com","sweetgreen":"sweetgreen.com","starbucks":"starbucks.com","timhortons":"timhortons.com","dutchbros":"dutchbros.com","krispykreme":"krispykreme.com","dominos":"dominos.com","pizzahut":"pizzahut.com","papajohns":"papajohns.com","kfc":"kfc.com","popeyes":"popeyes.com","wingstop":"wingstop.com","doordash":"doordash.com","ubereats":"ubereats.com","olivegarden":"olivegarden.com","texasroadhouse":"texasroadhouse.com","applebees":"applebees.com","chilis":"chilis.com","cheesecake":"thecheesecakefactory.com","outback":"outback.com","meituan":"meituan.com","haidilao":"haidilao.com","mixue":"mxbc.com","luckin":"luckincoffee.com","yumchina":"yumchina.com","chagee":"chagee.com","guming":"gumingnc.com","chabaidao":"chapanda.com","nayuki":"naixue.com","auntea":"hsay.cn","xiabu":"xiabu.com","jiumaojiu":"jiumaojiu.com","dpcdash":"dominos.com.cn","xiaocaiyuan":"xiaocaiyuan.cn","greentea":"greenteagroup.com","ajisen":"ajisen.com.hk","cafedecoral":"cafedecoral.com","quanjude":"quanjude.com.cn","timschina":"timschina.com"};
   const TILES = {"ajisen": "#480018", "applebees": "#a81818", "burgerking": "#c01800", "cafedecoral": "#d80000", "cava": "#f0c000", "chabaidao": "#1848d8", "cheesecake": "#f0d878", "chilis": "#d81818", "chipotle": "#a81818", "dominos": "#d81830", "doordash": "#f03000", "dpcdash": "#d81830", "dutchbros": "#003060", "haidilao": "#d80000", "jackinthebox": "#a80030", "kfc": "#000000", "krispykreme": "#006048", "luckin": "#0018a8", "mcdonalds": "#f0c000", "meituan": "#f0c000", "mixue": "#d80000", "olivegarden": "#484848", "outback": "#a81800", "papajohns": "#f00000", "pizzahut": "#d81818", "popeyes": "#f07818", "shakeshack": "#48a830", "starbucks": "#006030", "sweetgreen": "#004830", "tacobell": "#481890", "texasroadhouse": "#d83018", "timhortons": "#c00030", "timschina": "#c00018", "ubereats": "#00c060", "wendys": "#c01818", "wingstop": "#006030", "yumchina": "#d81818"};
   const PAIRS = {"mcdonalds": {"symbol": "MCDx", "address": "0x80a77a372c1e12accda84299492f404902e2da67", "issuer": "xStocks", "stock": "MCD", "alt": {"MCDon": "0x995add4ba29a628a57930a8a185c62ca044ec090"}, "cg": "mcdonald-s-xstock"}, "starbucks": {"symbol": "SBUXx", "address": "0x5667c2d45acb2933ce129b53615aaf17c69f262c", "issuer": "xStocks", "stock": "SBUX", "alt": {"SBUXon": "0x94d7754541b829a87321d56121bc544167ac490d"}, "cg": "starbucks-xstock"}, "chipotle": {"symbol": "CMGx", "address": "0xdad1865dd327fd305df6ec6accede2b5faaec9ca", "issuer": "xStocks", "stock": "CMG", "alt": {"CMGon": "0xaed5985afc12aa09d87f55b4b1e6bc3b8f7b0208"}, "cg": "chipotle-mexican-grill-xstock"}, "tacobell": {"symbol": "YUMx", "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM", "cg": "yum-brands-xstock"}, "kfc": {"symbol": "YUMx", "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM", "cg": "yum-brands-xstock"}, "pizzahut": {"symbol": "YUMx", "address": "0xf946c949d70e6fb9245b708176e9060e05cffd30", "issuer": "xStocks", "stock": "YUM", "cg": "yum-brands-xstock"}, "burgerking": {"symbol": "QSRx", "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR", "cg": "restaurant-brands-international-xstock"}, "popeyes": {"symbol": "QSRx", "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR", "cg": "restaurant-brands-international-xstock"}, "timhortons": {"symbol": "QSRx", "address": "0xc6437a260bf2b7e9d9e402b2ef7e9a84d3622046", "issuer": "xStocks", "stock": "QSR", "cg": "restaurant-brands-international-xstock"}, "dominos": {"symbol": "DPZx", "address": "0x14e7901b89158e80a953cfef3cebe065f9cb8eef", "issuer": "xStocks", "stock": "DPZ", "cg": "domino-s-pizza-xstock"}, "wendys": {"symbol": "WENB", "address": "0xded1c5fb38c262beb9cff1e1116eff3c5bf278cd", "issuer": "bStocks", "stock": "WEN", "alt": {"WENon": "0x79ed7f4d9668e8e7aaadd12a711d19064840b9a5"}, "cg": "wendy-s-bstocks-tokenized-stock"}, "doordash": {"symbol": "DASHx", "address": "0xf38665a4a42a1e7eeb36a5f26d1757b788e64a4f", "issuer": "xStocks", "stock": "DASH", "alt": {"DASHon": "0x7567c2a46bce46373b454682f3d95e6535bde144"}, "cg": "doordash-xstock"}, "ubereats": {"symbol": "UBERon", "address": "0xde9d6036fca870f7efc5a82722ae694c371ac909", "issuer": "Ondo", "stock": "UBER", "cg": "uber-ondo-tokenized-stock"}, "olivegarden": {"symbol": "DRIx", "address": "0xd80840f51367e5f22d29c2de161d86fe992ebf77", "issuer": "xStocks", "stock": "DRI", "cg": "darden-restaurants-xstock"}, "texasroadhouse": {"symbol": "TXRHx", "address": "0x013678d2039f27ac8531dd994411b6f6c502d889", "issuer": "xStocks", "stock": "TXRH", "cg": "texas-roadhouse-xstock"}, "haidilao": {"symbol": "HAIDLx", "address": "0x19a04945109738c9b8f936b2e3277c82fee707f3", "issuer": "xStocks", "stock": "6862.HK", "cg": "haidilao-international-xstock"}, "meituan": {"symbol": "MEITx", "address": "0x0024af2ca56e822ad487c0bedc52a82028a55f86", "issuer": "xStocks", "stock": "3690.HK", "cg": "meituan-xstock"}, "mixue": {"symbol": "MIXUx", "address": "0x8fa39ff32b316e2296630aa05bdd6a4a2e4b7598", "issuer": "xStocks", "stock": "2097.HK", "cg": "mixue-xstock"}};
-  const PHOTO_CREDITS = {"mcdonalds": {"title": "File:Big Mac BLT - Busan, Korea.jpg", "page": "https://commons.wikimedia.org/wiki/File:Big_Mac_BLT_-_Busan,_Korea.jpg", "artist": "EighteenChild", "license": "CC0"}, "starbucks": {"title": "File:Starbucks Frappuccino (24564745748).jpg", "page": "https://commons.wikimedia.org/wiki/File:Starbucks_Frappuccino_(24564745748).jpg", "artist": "Push Doctor", "license": "CC BY 2.0"}, "chipotle": {"title": "File:Burrito rice bowl.jpg", "page": "https://commons.wikimedia.org/wiki/File:Burrito_rice_bowl.jpg", "artist": "JaredMcKenzie", "license": "CC0"}, "tacobell": {"title": "File:(El Flaco) Al Pastor Tacos.jpg", "page": "https://commons.wikimedia.org/wiki/File:(El_Flaco)_Al_Pastor_Tacos.jpg", "artist": "City Foodsters", "license": "CC BY 2.0"}, "kfc": {"title": "File:Chicken bucket from KFC in Dhaka Bangladesh.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chicken_bucket_from_KFC_in_Dhaka_Bangladesh.jpg", "artist": "Sm faysal", "license": "CC BY-SA 4.0"}, "pizzahut": {"title": "File:Pizza Hut Express Personal Pan Pizza Target Dadeland Station Florida 2026.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pizza_Hut_Express_Personal_Pan_Pizza_Target_Dadeland_Station_Florida_2026.jpg", "artist": "Phillip Pessar", "license": "CC BY 4.0"}, "burgerking": {"title": "File:Burger King Triple Whopper with cheese.jpg", "page": "https://commons.wikimedia.org/wiki/File:Burger_King_Triple_Whopper_with_cheese.jpg", "artist": "Beau96080 at English Wikipedia", "license": "Public domain"}, "popeyes": {"title": "File:Hot Honey Sandwich - Popeyes 2025-08-17.jpg", "page": "https://commons.wikimedia.org/wiki/File:Hot_Honey_Sandwich_-_Popeyes_2025-08-17.jpg", "artist": "Andy Li", "license": "CC0"}, "timhortons": {"title": "File:Cappuccino with latte art on Coffee Right in Brno, Brno-City District.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cappuccino_with_latte_art_on_Coffee_Right_in_Brno,_Brno-City_District.jpg", "artist": "Frettie", "license": "CC BY 3.0"}, "dominos": {"title": "File:Pepperoni pizza- boella co. 2024-02-17.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pepperoni_pizza-_boella_co._2024-02-17.jpg", "artist": "Andy Li", "license": "CC0"}, "wendys": {"title": "File:A Dave's double at Wendy's in Stratford (51657183734).jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Dave%27s_double_at_Wendy%27s_in_Stratford_(51657183734).jpg", "artist": "Daniel from Glasgow, United Kingdom", "license": "CC BY 2.0"}, "doordash": {"title": "File:A Takeaway Bag being Delivered through a Car Window.jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Takeaway_Bag_being_Delivered_through_a_Car_Window.jpg", "artist": "Meanwell Packaging", "license": "CC BY 2.0"}, "ubereats": {"title": "File:Uber Eats Bag at Namba.jpg", "page": "https://commons.wikimedia.org/wiki/File:Uber_Eats_Bag_at_Namba.jpg", "artist": "Mr.ちゅらさん", "license": "CC BY-SA 4.0"}, "olivegarden": {"title": "File:2019-02-16 21 01 03 A roll of bread at the Olive Garden in Fair Lakes, Fairfax County, Virginia.jpg", "page": "https://commons.wikimedia.org/wiki/File:2019-02-16_21_01_03_A_roll_of_bread_at_the_Olive_Garden_in_Fair_Lakes,_Fairfax_County,_Virginia.jpg", "artist": "Famartin", "license": "CC BY-SA 4.0"}, "texasroadhouse": {"title": "File:Grilled flank steak.jpg", "page": "https://commons.wikimedia.org/wiki/File:Grilled_flank_steak.jpg", "artist": "Wikiuser100", "license": "CC BY-SA 4.0"}, "haidilao": {"title": "File:Chongqing Hot Pot.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chongqing_Hot_Pot.jpg", "artist": "Zhou Guanhuai", "license": "CC BY-SA 4.0"}, "meituan": {"title": "File:A Meituan Bike waiting at Ganjiakou (20221011173428).jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Meituan_Bike_waiting_at_Ganjiakou_(20221011173428).jpg", "artist": "N509FZ", "license": "CC BY-SA 4.0"}, "mixue": {"title": "File:20250331 Mixue Ice Cream & Tea at World Square, Sydney.jpg", "page": "https://commons.wikimedia.org/wiki/File:20250331_Mixue_Ice_Cream_%26_Tea_at_World_Square,_Sydney.jpg", "artist": "Windmemories", "license": "CC BY-SA 4.0"}, "all": {"title": "File:Nori bento with grilled salmon lunch box of Lawson.jpg", "page": "https://commons.wikimedia.org/wiki/File:Nori_bento_with_grilled_salmon_lunch_box_of_Lawson.jpg", "artist": "毒島みるく", "license": "CC0"}, "burger": {"title": "File:Cheeseburger.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cheeseburger.jpg", "artist": "Renee Comet (photographer)", "license": "Public domain"}, "chicken": {"title": "File:Fried chicken Burger in Milan, Italy.jpg", "page": "https://commons.wikimedia.org/wiki/File:Fried_chicken_Burger_in_Milan,_Italy.jpg", "artist": "Pava", "license": "CC BY-SA 3.0 it"}, "pizza": {"title": "File:Pepperoni Pizza from Fellini’s Pizza.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pepperoni_Pizza_from_Fellini%E2%80%99s_Pizza.jpg", "artist": "BullDawg2021", "license": "CC BY 4.0"}, "mex": {"title": "File:Tacos - al pastor, pollo and a sunkist.jpg", "page": "https://commons.wikimedia.org/wiki/File:Tacos_-_al_pastor,_pollo_and_a_sunkist.jpg", "artist": "Paul  Bailey", "license": "CC BY-SA 2.0"}, "cafe": {"title": "File:Cup of coffee with latte art 2016.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cup_of_coffee_with_latte_art_2016.jpg", "artist": "Abdulrohmatt", "license": "CC BY-SA 4.0"}, "tea": {"title": "File:Bubble Tea Becher.jpg", "page": "https://commons.wikimedia.org/wiki/File:Bubble_Tea_Becher.jpg", "artist": "Liwe-photos Photography", "license": "CC BY-SA 3.0 de"}, "hotpot": {"title": "File:Chengdu Hot Pot Yuanyangguo style 2019.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chengdu_Hot_Pot_Yuanyangguo_style_2019.jpg", "artist": "Breaknet2025", "license": "CC BY 4.0"}, "delivery": {"title": "File:Domino's Pizza delivery scooter in Southern Taiwan 20070220.jpg", "page": "https://commons.wikimedia.org/wiki/File:Domino%27s_Pizza_delivery_scooter_in_Southern_Taiwan_20070220.jpg", "artist": "Joe Lewis", "license": "CC BY-SA 2.0"}, "casual": {"title": "File:Grilled meat (steaks) near Hostákov, Vladislav, Třebíč District.jpg", "page": "https://commons.wikimedia.org/wiki/File:Grilled_meat_(steaks)_near_Host%C3%A1kov,_Vladislav,_T%C5%99eb%C3%AD%C4%8D_District.jpg", "artist": "Frettie", "license": "CC BY 3.0"}, "cn": {"title": "File:A xiaolongbao at Beijing Dumpling Shop in Sham Shui Po.jpg", "page": "https://commons.wikimedia.org/wiki/File:A_xiaolongbao_at_Beijing_Dumpling_Shop_in_Sham_Shui_Po.jpg", "artist": "Peachyeung316", "license": "CC BY-SA 4.0"}};
-  const photoOf = (r) => PHOTO_CREDITS[r.id] ? `photos/${r.id}.jpg` : PHOTO_CREDITS[r.cat] ? `photos/${r.cat}.jpg` : '';
+  const PHOTO_CREDITS = {"mcdonalds": {"title": "File:Big Mac BLT - Busan, Korea.jpg", "page": "https://commons.wikimedia.org/wiki/File:Big_Mac_BLT_-_Busan,_Korea.jpg", "artist": "EighteenChild", "license": "CC0"}, "starbucks": {"title": "File:Starbucks Frappuccino (24564745748).jpg", "page": "https://commons.wikimedia.org/wiki/File:Starbucks_Frappuccino_(24564745748).jpg", "artist": "Push Doctor", "license": "CC BY 2.0"}, "chipotle": {"title": "File:Burrito rice bowl.jpg", "page": "https://commons.wikimedia.org/wiki/File:Burrito_rice_bowl.jpg", "artist": "JaredMcKenzie", "license": "CC0"}, "tacobell": {"title": "File:(El Flaco) Al Pastor Tacos.jpg", "page": "https://commons.wikimedia.org/wiki/File:(El_Flaco)_Al_Pastor_Tacos.jpg", "artist": "City Foodsters", "license": "CC BY 2.0"}, "kfc": {"title": "File:Chicken bucket from KFC in Dhaka Bangladesh.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chicken_bucket_from_KFC_in_Dhaka_Bangladesh.jpg", "artist": "Sm faysal", "license": "CC BY-SA 4.0"}, "pizzahut": {"title": "File:Pizza Hut Express Personal Pan Pizza Target Dadeland Station Florida 2026.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pizza_Hut_Express_Personal_Pan_Pizza_Target_Dadeland_Station_Florida_2026.jpg", "artist": "Phillip Pessar", "license": "CC BY 4.0"}, "burgerking": {"title": "File:Burger King Triple Whopper with cheese.jpg", "page": "https://commons.wikimedia.org/wiki/File:Burger_King_Triple_Whopper_with_cheese.jpg", "artist": "Beau96080 at English Wikipedia", "license": "Public domain"}, "popeyes": {"title": "File:Hot Honey Sandwich - Popeyes 2025-08-17.jpg", "page": "https://commons.wikimedia.org/wiki/File:Hot_Honey_Sandwich_-_Popeyes_2025-08-17.jpg", "artist": "Andy Li", "license": "CC0"}, "timhortons": {"title": "File:Cappuccino with latte art on Coffee Right in Brno, Brno-City District.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cappuccino_with_latte_art_on_Coffee_Right_in_Brno,_Brno-City_District.jpg", "artist": "Frettie", "license": "CC BY 3.0"}, "dominos": {"title": "File:Pepperoni pizza- boella co. 2024-02-17.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pepperoni_pizza-_boella_co._2024-02-17.jpg", "artist": "Andy Li", "license": "CC0"}, "wendys": {"title": "File:A Dave's double at Wendy's in Stratford (51657183734).jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Dave%27s_double_at_Wendy%27s_in_Stratford_(51657183734).jpg", "artist": "Daniel from Glasgow, United Kingdom", "license": "CC BY 2.0"}, "doordash": {"title": "File:A Takeaway Bag being Delivered through a Car Window.jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Takeaway_Bag_being_Delivered_through_a_Car_Window.jpg", "artist": "Meanwell Packaging", "license": "CC BY 2.0"}, "ubereats": {"title": "File:Uber Eats Bag at Namba.jpg", "page": "https://commons.wikimedia.org/wiki/File:Uber_Eats_Bag_at_Namba.jpg", "artist": "Mr.ちゅらさん", "license": "CC BY-SA 4.0"}, "olivegarden": {"title": "File:2019-02-16 21 01 03 A roll of bread at the Olive Garden in Fair Lakes, Fairfax County, Virginia.jpg", "page": "https://commons.wikimedia.org/wiki/File:2019-02-16_21_01_03_A_roll_of_bread_at_the_Olive_Garden_in_Fair_Lakes,_Fairfax_County,_Virginia.jpg", "artist": "Famartin", "license": "CC BY-SA 4.0"}, "texasroadhouse": {"title": "File:Grilled flank steak.jpg", "page": "https://commons.wikimedia.org/wiki/File:Grilled_flank_steak.jpg", "artist": "Wikiuser100", "license": "CC BY-SA 4.0"}, "haidilao": {"title": "File:Chongqing Hot Pot.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chongqing_Hot_Pot.jpg", "artist": "Zhou Guanhuai", "license": "CC BY-SA 4.0"}, "meituan": {"title": "File:A Meituan Bike waiting at Ganjiakou (20221011173428).jpg", "page": "https://commons.wikimedia.org/wiki/File:A_Meituan_Bike_waiting_at_Ganjiakou_(20221011173428).jpg", "artist": "N509FZ", "license": "CC BY-SA 4.0"}, "mixue": {"title": "File:20250331 Mixue Ice Cream & Tea at World Square, Sydney.jpg", "page": "https://commons.wikimedia.org/wiki/File:20250331_Mixue_Ice_Cream_%26_Tea_at_World_Square,_Sydney.jpg", "artist": "Windmemories", "license": "CC BY-SA 4.0"}, "all": {"title": "File:Nori bento with grilled salmon lunch box of Lawson.jpg", "page": "https://commons.wikimedia.org/wiki/File:Nori_bento_with_grilled_salmon_lunch_box_of_Lawson.jpg", "artist": "毒島みるく", "license": "CC0"}, "burger": {"title": "File:Cheeseburger.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cheeseburger.jpg", "artist": "Renee Comet (photographer)", "license": "Public domain"}, "chicken": {"title": "File:Fried chicken Burger in Milan, Italy.jpg", "page": "https://commons.wikimedia.org/wiki/File:Fried_chicken_Burger_in_Milan,_Italy.jpg", "artist": "Pava", "license": "CC BY-SA 3.0 it"}, "pizza": {"title": "File:Pepperoni Pizza from Fellini’s Pizza.jpg", "page": "https://commons.wikimedia.org/wiki/File:Pepperoni_Pizza_from_Fellini%E2%80%99s_Pizza.jpg", "artist": "BullDawg2021", "license": "CC BY 4.0"}, "mex": {"title": "File:Tacos - al pastor, pollo and a sunkist.jpg", "page": "https://commons.wikimedia.org/wiki/File:Tacos_-_al_pastor,_pollo_and_a_sunkist.jpg", "artist": "Paul  Bailey", "license": "CC BY-SA 2.0"}, "cafe": {"title": "File:Cup of coffee with latte art 2016.jpg", "page": "https://commons.wikimedia.org/wiki/File:Cup_of_coffee_with_latte_art_2016.jpg", "artist": "Abdulrohmatt", "license": "CC BY-SA 4.0"}, "tea": {"title": "File:Bubble Tea Becher.jpg", "page": "https://commons.wikimedia.org/wiki/File:Bubble_Tea_Becher.jpg", "artist": "Liwe-photos Photography", "license": "CC BY-SA 3.0 de"}, "hotpot": {"title": "File:Chengdu Hot Pot Yuanyangguo style 2019.jpg", "page": "https://commons.wikimedia.org/wiki/File:Chengdu_Hot_Pot_Yuanyangguo_style_2019.jpg", "artist": "Breaknet2025", "license": "CC BY 4.0"}, "delivery": {"title": "File:Domino's Pizza delivery scooter in Southern Taiwan 20070220.jpg", "page": "https://commons.wikimedia.org/wiki/File:Domino%27s_Pizza_delivery_scooter_in_Southern_Taiwan_20070220.jpg", "artist": "Joe Lewis", "license": "CC BY-SA 2.0"}, "casual": {"title": "File:Grilled meat (steaks) near Hostákov, Vladislav, Třebíč District.jpg", "page": "https://commons.wikimedia.org/wiki/File:Grilled_meat_(steaks)_near_Host%C3%A1kov,_Vladislav,_T%C5%99eb%C3%AD%C4%8D_District.jpg", "artist": "Frettie", "license": "CC BY 3.0"}, "cn": {"title": "File:A xiaolongbao at Beijing Dumpling Shop in Sham Shui Po.jpg", "page": "https://commons.wikimedia.org/wiki/File:A_xiaolongbao_at_Beijing_Dumpling_Shop_in_Sham_Shui_Po.jpg", "artist": "Peachyeung316", "license": "CC BY-SA 4.0"}, "healthy": {"title": "File:Avocado salad in Argentina.jpg", "page": "https://commons.wikimedia.org/wiki/File:Avocado_salad_in_Argentina.jpg", "artist": "Horacio Cambeiro", "license": "CC BY-SA 3.0"}, "dessert": {"title": "File:Krispy Kreme Dozen Doughnuts 2.jpg", "page": "https://commons.wikimedia.org/wiki/File:Krispy_Kreme_Dozen_Doughnuts_2.jpg", "artist": "Unisouth", "license": "CC BY 3.0"}};
+  const photoOf = (r) => r.photo ? r.photo : PHOTO_CREDITS[r.id] ? `photos/${r.id}.jpg` : PHOTO_CREDITS[r.cat] ? `photos/${r.cat}.jpg` : '';
   const ISSUER_URL = { xStocks: 'https://xstocks.com', bStocks: 'https://www.binance.com/en/bstocks', Ondo: 'https://ondo.finance' };
   const CN = new Set(['meituan', 'haidilao', 'mixue', 'luckin', 'yumchina', 'chagee', 'guming', 'chabaidao', 'nayuki', 'auntea', 'xiabu', 'jiumaojiu', 'dpcdash', 'xiaocaiyuan', 'greentea', 'ajisen', 'cafedecoral', 'quanjude', 'timschina']);
 
@@ -963,13 +1029,17 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const GAPI = { at: 0, configured: false, products: {}, loaded: false };
   let MYGIFTS = []; try { MYGIFTS = JSON.parse(localStorage.getItem('bento.gifts') || '[]'); } catch {}
   const saveGifts = () => { try { localStorage.setItem('bento.gifts', JSON.stringify(MYGIFTS.slice(-50))); } catch {} };
+  const OVR = {};
   async function loadGiftApi() {
     try { const r = await fetch('/api/gifts/catalog', { cache: 'no-store' }); if (!r.ok) throw new Error(String(r.status)); const j = await r.json();
-      GAPI.configured = Boolean(j.configured); GAPI.margin = j.margin; GAPI.merchant = j.merchant; GAPI.products = Object.fromEntries((j.products || []).map((p) => [p.rid, p])); }
-    catch { GAPI.configured = false; }
+      GAPI.configured = Boolean(j.supply); GAPI.supply = Boolean(j.supply); GAPI.methods = j.methods || {}; GAPI.margin = j.margin; GAPI.merchant = j.merchant; GAPI.products = Object.fromEntries((j.products || []).map((p) => [p.rid, p])); }
+    catch { GAPI.configured = false; GAPI.supply = false; GAPI.methods = {}; }
+    try { const r = await fetch('/api/catalog', { cache: 'no-store' }); if (r.ok) { const j = await r.json(); Object.assign(OVR, j.overrides || {}); for (const [rid, o] of Object.entries(OVR)) { if (REST[rid]) { if (o.name) REST[rid].name = o.name; if (o.nameZh) NAME_ZH[rid] = o.nameZh; if (o.cat) REST[rid].cat = o.cat; if (o.blurb) REST[rid].blurb = o.blurb; if (o.photo) REST[rid].photo = o.photo; if (o.hidden) REST[rid].hidden = true; } } } } catch {}
     GAPI.loaded = true; GAPI.at = Date.now(); const rail = $('#gift-rail'); if (rail) delete rail.dataset.builtLang; render();
+    const q = new URLSearchParams(location.search); const oid = q.get('order'); if (oid && /^[a-f0-9]{24}$/.test(oid)) { giftOpenOrder(oid); try { history.replaceState(null, '', location.pathname + location.hash); } catch {} }
+    if (TOK) accountLoad();
   }
-  const GS = { rid: null, value: null, custom: '', quote: null, step: null, order: null, err: null, timer: null };
+  const GS = { rid: null, value: null, custom: '', email: '', message: '', method: null, currency: 'btc', order: null, step: null, err: null, timer: null, currencies: null };
   const GIFT_ORDER = ['starbucks', 'chipotle', 'burgerking', 'dominos', 'tacobell', 'ubereats', 'doordash', 'pizzahut', 'kfc', 'olivegarden', 'texasroadhouse', 'timhortons', 'mcdonalds', 'wendys', 'popeyes'];
   const giftUrl = (rid) => { const g = GIFTS[rid]; const u = g && g[0] ? `https://www.bitrefill.com/${g[4]}/en/gift-cards/${g[0]}/` : 'https://www.bitrefill.com/us/en/gift-cards/restaurants/'; return GIFT_REF ? `${u}?ref=${encodeURIComponent(GIFT_REF)}` : u; };
   const money = (v, cur) => new Intl.NumberFormat('en-US', { style: 'currency', currency: cur || 'USD', maximumFractionDigits: 0 }).format(v);
@@ -978,13 +1048,13 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   function giftCard(rid) {
     const r = REST[rid]; const g = GIFTS[rid]; if (!r) return ''; const listed = Boolean(g && g[0]); const bg = tile(r);
     const range = listed ? (g[1] ? t('gift.from', money(g[1], g[3]), money(g[2], g[3])) : t('gift.upto', money(g[2], g[3]))) : '';
-    const inSite = GAPI.configured && GAPI.products[rid] && listed;
+    const inSite = GAPI.products[rid] && GAPI.products[rid].available && listed;
     const sty = photoOf(r) ? `background-color:${esc(bg)};background-image:url(${photoOf(r)})` : `background:${esc(bg)}`;
     const openTag = inSite ? `<div class="gift" data-open="g:${esc(rid)}" style="${sty}">` : `<a class="gift" href="${giftUrl(rid)}" target="_blank" rel="noopener" style="${sty}">`;
     return openTag + `
       <div class="gift-h">${logo(r, 40)}<div><b>${esc(nm(r))}</b><small>${t('gift.egift')} · Bitrefill${listed ? ' · ' + t('gift.works', cn(g[5])) : ''}</small></div></div>
       <div class="gift-amt">${listed ? esc(range) : t('gift.na')}<small>${listed ? esc(t('gift.upto', money(g[2], g[3]))) : ''}</small></div>
-      <div class="gift-f"><span class="chips">${giftChips(g).map((c) => `<span>${esc(c)}</span>`).join('')}</span><span class="cta${inSite ? ' in' : ''}">${inSite ? t('gift.buyHere') : t(listed ? 'gift.buy' : 'gift.browse') + ' ↗'}</span></div>${inSite ? '</div>' : '</a>'}`;
+      <div class="gift-f"><span class="chips">${giftChips(g).map((c) => `<span>${esc(c)}</span>`).join('')}</span><span class="cta${inSite ? ' in' : ''}">${inSite ? t('gift.buyHere') : GAPI.loaded && GAPI.supply === false && listed ? t('gift.buy') + ' ↗' : listed && GAPI.loaded ? t('gift.unavail') : t(listed ? 'gift.buy' : 'gift.browse') + ' ↗'}</span></div>${inSite ? '</div>' : '</a>'}`;
   }
   function renderGifts() { const host = $('#gift-rail'); if (host && host.dataset.builtLang !== state.lang) { host.innerHTML = GIFT_ORDER.filter((id) => REST[id]).map(giftCard).join(''); host.dataset.builtLang = state.lang; } }
 
@@ -1008,6 +1078,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     $('#q').placeholder = t('search');
     $$('#lang button').forEach((b) => b.classList.toggle('is-on', b.dataset.lang === lang));
     try { localStorage.setItem('bento.lang', lang); } catch {}
+    const fq = $('#faq-list'); if (fq) fq.innerHTML = (T.faqs || I18N.en.faqs).map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('');
     fillRestaurants(); renderPairs(); render();
   }
   const amt = (v, s) => fmt.amt.format(Number(v)) + ' ' + s;
@@ -1192,6 +1263,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     </div>`;
   }
   const PAIR_IDS = Object.keys(PAIRS);
+  const visible = (rid) => REST[rid] && !REST[rid].hidden;
   function rcard(rid) {
     const r = REST[rid]; const pr = PAIRS[rid]; if (!r || !pr) return '';
     const n = list().filter((C) => C.rest === rid).length;
@@ -1200,7 +1272,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       <div class="row-top"><div class="row-name"><b>${esc(nm(r))}</b><small><span class="tk">${esc(pr.symbol)}</span> · ${esc(pr.issuer)} · ${n ? t('r.coins', n) : t('r.none')}</small></div><button class="heart" type="button" data-open="r:${esc(rid)}" aria-label="${t('btn.view')}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></button></div>
     </div>`;
   }
-  function renderRest() { const host = $('#rest-rail'); if (host) host.innerHTML = PAIR_IDS.map(rcard).join(''); }
+  function renderRest() { const host = $('#rest-rail'); if (host) host.innerHTML = PAIR_IDS.filter(visible).map(rcard).join(''); }
   function renderRestSheet(rid) {
     const d = $('#drawer'); const r = REST[rid]; const pr = PAIRS[rid]; if (!r || !pr) return;
     const coins = list().filter((C) => C.rest === rid);
@@ -1214,8 +1286,9 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         ${ABOUT[rid] ? `<div><small>${t('r.exchange')}</small><b>${esc(exch(rid))}</b></div><div><small>${t('r.hq')}</small><b>${esc(hq(rid))}</b></div><div><small>${t('r.founded')}</small><b>${ABOUT[rid][2]}</b></div>${ABOUT[rid][3] ? `<div><small>${t('r.stores')}</small><b>${esc(ABOUT[rid][3])}</b></div>` : ''}` : ''}
         <div><small>${t('d.contract')}</small><b class="mono" style="font-size:12px">${esc(short(pr.address))}</b></div>
       </div>
+      ${r.blurb ? `<p class="hint" style="font-size:15px;line-height:22px;color:var(--prose)">${esc(r.blurb)}</p>` : ''}
       <button class="btn btn-ink btn-block" type="button" data-create="${esc(rid)}">${t('r.create', esc(nm(r)))}</button>
-      ${GIFTS[rid] ? `<div class="gift-row"><span class="gi"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 8v13M12 8c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><b>${t('gift.sheet')}${GIFTS[rid][0] ? ` · ${GIFTS[rid][1] ? t('gift.from', money(GIFTS[rid][1], GIFTS[rid][3]), money(GIFTS[rid][2], GIFTS[rid][3])) : t('gift.upto', money(GIFTS[rid][2], GIFTS[rid][3]))}` : ''}</b><small>${t(GIFTS[rid][0] ? 'gift.sheetP' : 'gift.sheetNa')}</small></div>${GAPI.configured && GAPI.products[rid] && GIFTS[rid][0] ? `<button class="btn btn-ink" type="button" data-open="g:${esc(rid)}">${t('gift.buyHere')}</button>` : `<a class="btn btn-gray" href="${giftUrl(rid)}" target="_blank" rel="noopener">${t(GIFTS[rid][0] ? 'gift.buy' : 'gift.browse')} ↗</a>`}</div>` : ''}
+      ${GIFTS[rid] ? `<div class="gift-row"><span class="gi"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 8v13M12 8c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><b>${t('gift.sheet')}${GIFTS[rid][0] ? ` · ${GIFTS[rid][1] ? t('gift.from', money(GIFTS[rid][1], GIFTS[rid][3]), money(GIFTS[rid][2], GIFTS[rid][3])) : t('gift.upto', money(GIFTS[rid][2], GIFTS[rid][3]))}` : ''}</b><small>${t(GIFTS[rid][0] ? 'gift.sheetP' : 'gift.sheetNa')}</small></div>${GAPI.products[rid] && GAPI.products[rid].available && GIFTS[rid][0] ? `<button class="btn btn-ink" type="button" data-open="g:${esc(rid)}">${t('gift.buyHere')}</button>` : `<a class="btn btn-gray" href="${giftUrl(rid)}" target="_blank" rel="noopener">${t(GIFTS[rid][0] ? 'gift.buy' : 'gift.browse')} ↗</a>`}</div>` : ''}
       <div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('r.coinsH')} · ${coins.length}</p>${coins.length ? coins.map((C) => `<div class="row" data-open="${esc(C.addr)}" style="grid-template-columns:40px 1fr auto;align-items:center;gap:10px;margin-bottom:8px">${logo(C.r, 40)}<div class="row-name"><b style="font-size:15px">${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small>${pct(C.progress)} · ${amt(C.raised, C.unit)} / ${amt(C.goal, C.unit)}</small></div>${tag(C)}</div>`).join('') : `<p class="hint">${t('r.none')}</p>`}</div>`;
   }
   function renderStats() {
@@ -1284,55 +1357,116 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     host.innerHTML = rows.length ? rows.map((C) => card(C, now)).join('') : Cs.length ? `<p class="empty">${t('board.nomatch')}</p>` : `<div class="empty-card"><b>${t('empty.h')}</b><p>${t('empty.p')}</p><a class="btn btn-ink" href="#launch">${t('nav.create')}</a></div>`;
     renderDrawer();
   }
+  let TOK = null; try { TOK = localStorage.getItem('bento.tok'); } catch {}
+  const authH = () => TOK ? { authorization: 'Bearer ' + TOK } : {};
+  async function api(p, body, extra) { const r = await fetch(p, body !== undefined ? { method: 'POST', headers: { 'content-type': 'application/json', ...authH(), ...(extra || {}) }, body: JSON.stringify(body) } : { headers: { ...authH(), ...(extra || {}) }, cache: 'no-store' }); const j = await r.json().catch(() => ({})); if (!r.ok) { const e = new Error(j.error || String(r.status)); e.code = r.status; throw e; } return j; }
+  async function serverLogin() {
+    if (!state.address || !state.provider) throw new Error('no wallet');
+    const n = await api('/api/auth/nonce', { address: state.address }); const sig = await (await state.provider.getSigner()).signMessage(n.message);
+    const v = await api('/api/auth/verify', { address: state.address, signature: sig }); TOK = v.token; try { localStorage.setItem('bento.tok', TOK); } catch {} return TOK;
+  }
+  const stat = (st) => `<span class="gs-stat ${esc(st)}">${esc((T['gs.status'] || I18N.en['gs.status'])[st] || st)}</span>`;
+  const remember = (o) => { if (!MYGIFTS.some((x) => x.id === o.id)) { MYGIFTS.push({ id: o.id, rid: o.rid, value: o.value, currency: o.currency, at: o.createdAt || Date.now(), status: o.status }); } else { const x = MYGIFTS.find((y) => y.id === o.id); x.status = o.status; } saveGifts(); };
   function giftSheet(rid) {
     const d = $('#drawer'); const r = REST[rid]; const g = GIFTS[rid]; const p = GAPI.products[rid]; if (!r || !g) return;
-    if (GS.rid !== rid) { Object.assign(GS, { rid, value: null, custom: '', quote: null, step: null, order: null, err: null }); clearTimeout(GS.timer); }
-    const bg = tile(r); const cur = (p && p.currency) || g[3]; const dark = isDarkHex(bg);
+    if (GS.rid !== rid) { Object.assign(GS, { rid, value: null, custom: '', method: null, order: null, step: null, err: null }); clearTimeout(GS.timer); }
+    const bg = tile(r); const cur = (p && p.currency) || g[3]; const photo = photoOf(r);
     const head = `<div class="sheet-h"><div class="who"><b>${t('gs.h')}</b><small>${esc(nm(r))} · ${t('gift.egift')}</small></div><button class="close" type="button" data-close aria-label="Close">✕</button></div>
-      <div class="gs-card${dark ? ' is-dark' : ''}" style="background:${esc(bg)}">${logo(r, 48)}<div><b>${esc(nm(r))}</b><small>${t('gift.works', cn(g[5]))} · Bitrefill</small></div><span class="gs-val">${GS.value ? esc(money(GS.value, cur)) : ''}</span></div>`;
+      <div class="gs-card" style="background:${esc(bg)}${photo ? `;background-image:linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.15)),url(${photo});background-size:cover;background-position:center` : ''}">${logo(r, 48)}<div><b>${esc(nm(r))}</b><small>${t('gift.works', cn(g[5]))} · Bitrefill</small></div><span class="gs-val">${GS.value ? esc(money(GS.value, cur)) : ''}</span></div>`;
     const mine = MYGIFTS.filter((o) => o.rid === rid);
-    const list = mine.length ? `<div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('gs.mine')}</p><div class="gs-list">${mine.slice().reverse().map((o) => `<button type="button" data-gorder="${esc(o.id)}">${logo(r, 28)}<span>${esc(dateFmt(o.at))} <small>· ${t('gs.order')} ${esc(o.id.slice(0, 8))}</small></span><b>${esc(money(o.value, o.currency))}</b></button>`).join('')}</div></div>` : '';
-    if (!GAPI.configured || !p) { d.innerHTML = head + `<p class="hint">${t('gs.ext')}</p><a class="btn btn-ink btn-block" href="${giftUrl(rid)}" target="_blank" rel="noopener">${t('gift.buy')} ↗</a>` + list; return; }
-    if (GS.order) {
-      const o = GS.order; let body;
-      if (o.status === 'delivered') { const rd = o.redemption || {}; const code = rd.code || ''; body = `<div class="code"><small style="font-weight:600;color:var(--green-ink)">${t('gs.done')} · ${esc(money(o.value, o.currency))}</small>${code ? `<b>${esc(code)}${rd.pin ? ` · PIN ${esc(rd.pin)}` : ''}</b>` : ''}${rd.instructions ? `<p>${esc(rd.instructions)}</p>` : ''}<div class="row2">${code ? `<button class="btn btn-ink" type="button" data-copy="${esc(code)}">${t('gs.copy')}</button>` : ''}${rd.link ? `<a class="btn btn-gray" href="${esc(rd.link)}" target="_blank" rel="noopener">Bitrefill ↗</a>` : ''}<a class="btn btn-gray" href="${explorer(o.txHash, 'tx')}" target="_blank" rel="noopener">BscScan ↗</a></div></div><p class="hint">${t('gs.saved')} ${t('gs.order')} <span class="mono">${esc(o.id)}</span></p>`; }
-      else if (o.status === 'failed') body = `<p class="err">${t('gs.failed')}</p><p class="hint mono">${t('gs.order')} ${esc(o.id)} · ${esc(o.error || '')}</p>`;
-      else body = `<div class="gs-step"><i></i>${t('gs.processing')}</div><p class="hint mono">${t('gs.order')} ${esc(o.id)}</p>`;
-      d.innerHTML = head + body + list; return;
-    }
-    if (GS.step) { d.innerHTML = head + `<div class="gs-step"><i></i>${t('gs.step' + GS.step)}</div>${GS.quote ? `<p class="hint">${t('gs.net')}</p>` : ''}` + list; return; }
+    const list = mine.length ? `<div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('gs.mine')}</p><div class="gs-list">${mine.slice().reverse().map((o) => `<button type="button" data-gorder="${esc(o.id)}">${logo(r, 28)}<span>${esc(dateFmt(o.at))}${stat(o.status || 'delivered')}</span><b>${esc(money(o.value, o.currency))}</b></button>`).join('')}</div></div>` : '';
+    if (!p || !p.available) { d.innerHTML = head + `<p class="hint">${GAPI.loaded && !GAPI.supply ? t('gs.ext') : t('gift.unavail')}</p><a class="btn btn-gray btn-block" href="${giftUrl(rid)}" target="_blank" rel="noopener">${t('gift.buy')} ↗</a>` + list; return; }
+    if (GS.order) { d.innerHTML = head + orderHtml(GS.order) + list; return; }
+    if (GS.step) { d.innerHTML = head + `<div class="gs-step"><i></i>${typeof GS.step === 'string' ? t(GS.step) : t('gs.step' + GS.step)}</div>` + list; return; }
     const packs = p.packages && p.packages.length ? p.packages : [5, 10, 15, 20, 25, 50, 100, 200, 500, 1000].filter((v) => v >= p.min && v <= p.max).slice(0, 6);
-    const q = GS.quote; const fee = q ? Math.round((q.priceUsd - q.faceUsd) * 100) / 100 : null;
+    const face = GS.value ? (cur === 'CAD' && PX.cadPerUsd ? GS.value / PX.cadPerUsd : GS.value) : 0; const total = face ? Math.ceil(face * (1 + (GAPI.margin || 0.04)) * 100) / 100 : 0;
+    const M = GAPI.methods || {}; const canWallet = M.wallet && state.address;
     d.innerHTML = head + `
       <label class="hint" style="font-weight:600;color:var(--ink)">${t('gs.amount')}<div class="amts" style="margin-top:8px">${packs.map((v) => `<button type="button" data-gamt="${v}" class="${GS.value === v && !GS.custom ? 'is-on' : ''}">${esc(money(v, cur))}</button>`).join('')}${p.packages && p.packages.length ? '' : `<input class="input" id="gcustom" type="number" min="${p.min}" max="${p.max}" step="${p.step || 1}" placeholder="${t('gs.custom')}" value="${esc(GS.custom)}" style="width:120px;padding:8px 12px;font-family:var(--mono)">`}</div></label>
       ${!p.packages || !p.packages.length ? `<p class="hint">${t('gs.range', money(p.min, cur), money(p.max, cur))}</p>` : ''}
+      <label class="gs-field">${t('gs.to')}<input class="input" id="gemail" type="email" placeholder="${t('gs.toP')}" value="${esc(GS.email)}" autocomplete="email"></label>
+      <label class="gs-field">${t('gs.msg')}<input class="input" id="gmsg" maxlength="300" placeholder="${t('gs.msgP')}" value="${esc(GS.message)}"></label>
+      <div class="gs-field">${t('gs.method')}<div class="methods">
+        <button type="button" data-gm="wallet" class="${GS.method === 'wallet' ? 'is-on' : ''}" ${M.wallet ? '' : 'disabled'}><span class="mi">BNB</span><span><b>${t('gs.mWallet')}</b><small>${t('gs.mWalletP')}</small></span></button>
+        <button type="button" data-gm="crypto" class="${GS.method === 'crypto' ? 'is-on' : ''}" ${M.crypto ? '' : 'disabled'}><span class="mi">₿</span><span><b>${t('gs.mCrypto')}</b><small>${t('gs.mCryptoP')}</small></span></button>
+        <button type="button" data-gm="card" class="${GS.method === 'card' ? 'is-on' : ''}" ${M.card ? '' : 'disabled'}><span class="mi">💳</span><span><b>${t('gs.mCard')}</b><small>${t('gs.mCardP')}</small></span></button>
+      </div></div>
+      ${GS.method === 'crypto' ? `<label class="gs-field">${t('gs.coin')}<select class="select" id="gcur">${(GS.currencies || [{ code: 'btc', name: 'Bitcoin' }]).map((c) => `<option value="${esc(c.code)}" ${GS.currency === c.code ? 'selected' : ''}>${esc(c.name)} (${esc(c.code.toUpperCase())})</option>`).join('')}</select></label>` : ''}
+      ${GS.value ? `<div class="gs-sum"><div><span>${t('gs.face')}</span><b>${esc(money(GS.value, cur))}${cur !== 'USD' ? ` <span class="usd">≈ ${usdStr(face)}</span>` : ''}</b></div><div><span>${t('gs.fee', ((GAPI.margin || 0.04) * 100).toFixed(0))}</span><b>${usdStr(total - face)}</b></div><div class="tot"><span>${t('gs.total')}</span><b>${usdStr(total)}</b></div></div>` : ''}
       ${p.inStock === false ? `<p class="err">${t('gs.out')}</p>` : ''}
-      ${q ? `<div class="gs-sum"><div><span>${t('gs.face')}</span><b>${esc(money(q.value, q.currency))}${q.currency !== 'USD' ? ` <span class="usd">≈ ${usdStr(q.faceUsd)}</span>` : ''}</b></div><div><span>${t('gs.fee', (q.margin * 100).toFixed(0))}</span><b>${usdStr(fee)}</b></div><div class="tot"><span>${t('gs.total')}</span><b>${usdStr(q.priceUsd)}</b></div></div>
-        ${state.address ? `<div class="gs-pay"><button class="btn btn-ink" type="button" data-gpay="BNB">${t('gs.payBnb')}<small>${q.pay.BNB.amount} BNB</small></button><button class="btn btn-gray" type="button" data-gpay="USDT">${t('gs.payUsdt')}<small>${q.pay.USDT.amount}</small></button></div>` : `<button class="btn btn-ink btn-block" type="button" data-connect>${t('wallet.connect')}</button>`}
-        <p class="hint">${t('gs.net')}</p>` : ''}
+      ${GS.method === 'wallet' && !canWallet ? `<button class="btn btn-ink btn-block" type="button" data-connect>${t('wallet.connect')}</button>` : `<button class="btn btn-ink btn-block" type="button" data-gnext ${GS.value && GS.method && p.inStock !== false ? '' : 'disabled'}>${t('gs.next')}</button>`}
+      <p class="hint">${t('gs.net')}</p>
       ${GS.err ? `<p class="err">${esc(GS.err)}</p>` : ''}` + list;
   }
-  async function giftQuote(rid, value) {
-    GS.value = value; GS.quote = null; GS.err = null; renderRows();
-    try { const r = await fetch('/api/gifts/quote', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ productId: GIFTS[rid][0], value }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); if (GS.rid === rid && GS.value === value) { GS.quote = j; renderRows(); } }
-    catch (e) { GS.err = e.message || t('gs.quoteErr'); renderRows(); }
+  function orderHtml(o) {
+    const pay = o.pay || {}; const rd = o.redemption || {}; const code = rd.code || '';
+    const idLine = `<p class="hint mono" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${t('gs.order')} ${esc(o.id)} ${stat(o.status)}${o.recipient && o.recipient.email ? ` · ${esc(o.recipient.email)}` : ''}</p>`;
+    if (o.status === 'delivered') return `<div class="code"><small style="font-weight:600;color:var(--green-ink)">${t('gs.done')} · ${esc(money(o.value, o.currency))}</small>${code ? `<b>${esc(code)}${rd.pin ? ` · PIN ${esc(rd.pin)}` : ''}</b>` : ''}${rd.instructions ? `<p>${esc(rd.instructions)}</p>` : ''}<div class="row2">${code ? `<button class="btn btn-ink" type="button" data-copy="${esc(code)}">${t('gs.copy')}</button>` : ''}${rd.link ? `<a class="btn btn-gray" href="${esc(rd.link)}" target="_blank" rel="noopener">Bitrefill ↗</a>` : ''}${pay.txHash ? `<a class="btn btn-gray" href="${explorer(pay.txHash, 'tx')}" target="_blank" rel="noopener">BscScan ↗</a>` : ''}</div></div><p class="hint">${t('gs.saved')}</p>${idLine}`;
+    if (o.status === 'failed') return `<p class="err">${t('gs.failed')}</p>${idLine}<p class="hint mono">${esc(o.error || '')}</p>`;
+    if (o.status === 'expired') return `<p class="err">${t('gs.expired')}</p>${idLine}<button class="btn btn-gray" type="button" data-gback>${t('gs.back')}</button>`;
+    if (o.status === 'refunded') return `<p class="hint">${t('gs.refunded')}</p>${idLine}`;
+    if (o.status === 'paid' || o.status === 'processing') return `<div class="gs-step"><i></i>${t('gs.processing')}</div>${idLine}`;
+    /* pending */
+    if (pay.method === 'wallet') { const a = pay.amounts || {}; return `<div class="gs-sum"><div><span>${t('gs.face')}</span><b>${esc(money(o.value, o.currency))}</b></div><div class="tot"><span>${t('gs.total')}</span><b>${usdStr(o.priceUsd)}</b></div></div>
+      ${state.address ? `<div class="gs-pay"><button class="btn btn-ink" type="button" data-gpay="BNB">${t('gs.payBnb')}<small>${a.BNB ? a.BNB.amount : ''} BNB</small></button><button class="btn btn-gray" type="button" data-gpay="USDT">${t('gs.payUsdt')}<small>${a.USDT ? a.USDT.amount : ''}</small></button></div>` : `<button class="btn btn-ink btn-block" type="button" data-connect>${t('wallet.connect')}</button>`}${idLine}${GS.err ? `<p class="err">${esc(GS.err)}</p>` : ''}`; }
+    if (pay.method === 'crypto') { const left = pay.expiresAt ? Math.max(0, pay.expiresAt - Date.now()) : 0; const uri = `${esc(pay.payAddress || '')}`; return `<div class="gs-crypto">
+      <div class="amt">${t('gs.sendExact', esc(String(pay.payAmount)), esc(String(pay.payCurrency || '').toUpperCase()))}</div><p class="hint" style="text-align:center">${t('gs.toAddr')}${pay.network ? ` · ${t('gs.network')}: <b>${esc(pay.network)}</b>` : ''}</p>
+      <div class="qr" id="gqr" data-qr="${uri}"></div><div class="addr">${uri}</div>${pay.memo ? `<p class="hint"><b>${t('gs.memo')}:</b> <span class="mono">${esc(pay.memo)}</span></p>` : ''}
+      <div class="row2"><button class="btn btn-gray" type="button" data-copy="${uri}">${t('gs.copyAddr')}</button><button class="btn btn-gray" type="button" data-copy="${esc(String(pay.payAmount))}">${t('gs.copyAmt')}</button></div>
+      <div class="gs-step"><i></i>${pay.providerStatus === 'confirming' || pay.providerStatus === 'partially_paid' ? t('gs.detected') : t('gs.waiting')}${left ? ` · ${t('gs.expires', remaining(left))}` : ''}</div></div>${idLine}`; }
+    if (pay.method === 'card') return `<a class="btn btn-ink btn-block" href="${esc(pay.url || '#')}" target="_blank" rel="noopener">${t('gs.cardGo')} ↗</a><p class="hint">${t('gs.cardWait')}</p>${new URLSearchParams(location.search).get('cancelled') ? `<p class="hint">${t('gs.cancelled')}</p>` : ''}${idLine}`;
+    return idLine;
+  }
+  function drawQr() { const el = $('#gqr'); if (!el || el.dataset.done || !window.QRCode) return; el.dataset.done = '1'; try { new QRCode(el, { text: el.dataset.qr, width: 152, height: 152, correctLevel: QRCode.CorrectLevel.M }); } catch {} }
+  async function giftNext() {
+    const rid = GS.rid; const p = GAPI.products[rid]; if (!p || !GS.value || !GS.method) return;
+    GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || ''; GS.currency = ($('#gcur') || {}).value || GS.currency;
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(GS.email || '')) { GS.err = t('gs.toP'); renderRows(); $('#gemail')?.focus(); return; }
+    GS.err = null; GS.step = 'gs.creating'; renderRows();
+    try { const o = await api('/api/gifts/checkout', { productId: p.id, value: GS.value, email: GS.email, message: GS.message, method: GS.method, currency: GS.currency }); GS.order = o; GS.step = null; remember(o); renderRows(); drawQr();
+      if (GS.method === 'card' && o.pay && o.pay.url) { window.open(o.pay.url, '_blank', 'noopener'); } if (o.status === 'pending' && GS.method !== 'wallet') giftWatch(o.id); }
+    catch (e) { GS.step = null; GS.err = e.message; renderRows(); }
+  }
+  /* Gift card payments always settle on BNB mainnet (56): switch the wallet there for the transaction without changing the network the app is browsing. */
+  async function paySigner() {
+    if (!window.ethereum || !state.address) throw new Error('no wallet');
+    const main = NETWORKS[56];
+    try { await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: main.hex }] }); }
+    catch (e) { if (e && e.code === 4902) await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{ chainId: main.hex, chainName: main.name, nativeCurrency: { name: 'BNB', symbol: 'BNB', decimals: 18 }, rpcUrls: [main.rpc], blockExplorerUrls: [main.explorer] }] }); else throw new Error('net'); }
+    const p = new E.BrowserProvider(window.ethereum); const n = await p.getNetwork(); if (Number(n.chainId) !== 56) throw new Error('net'); return p.getSigner();
   }
   async function giftPay(token) {
-    const q = GS.quote; if (!q || !state.address) return; GS.err = null; GS.step = 1; renderRows();
+    const o = GS.order; if (!o || !state.address || !o.pay || !o.pay.amounts) return; GS.err = null; GS.step = 1; renderRows();
     try {
-      if (state.chainId !== 56) { state.chainId = 56; }
-      const s = await signer();
-      const tx = token === 'BNB' ? await s.sendTransaction({ to: q.merchant, value: BigInt(q.pay.BNB.wei) }) : await new E.Contract('0x55d398326f99059fF775485246999027B3197955', ['function transfer(address,uint256) returns (bool)'], s).transfer(q.merchant, BigInt(q.pay.USDT.wei));
+      const s = await paySigner(); const a = o.pay.amounts;
+      const tx = token === 'BNB' ? await s.sendTransaction({ to: o.pay.merchant, value: BigInt(a.BNB.wei) }) : await new E.Contract('0x55d398326f99059fF775485246999027B3197955', ['function transfer(address,uint256) returns (bool)'], s).transfer(o.pay.merchant, BigInt(a.USDT.wei));
       GS.step = 2; renderRows(); await tx.wait(); GS.step = 3; renderRows();
-      const r = await fetch('/api/gifts/order', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ quoteId: q.id, txHash: tx.hash }) }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status);
-      GS.order = j; GS.step = null; MYGIFTS.push({ id: j.id, rid: j.rid, value: j.value, currency: j.currency, at: Date.now() }); saveGifts(); renderRows(); if (j.status === 'processing') giftWatch(j.id);
+      const j = await api(`/api/gifts/orders/${o.id}/tx`, { txHash: tx.hash }); GS.order = j; GS.step = null; remember(j); renderRows(); if (j.status === 'processing' || j.status === 'paid') giftWatch(j.id);
     } catch (e) { console.error(e); GS.step = null; GS.err = e && e.message === 'net' ? t('e.net') : (e && e.shortMessage) || (e && e.message) || t('e.tx'); renderRows(); }
   }
-  function giftWatch(id) { clearTimeout(GS.timer); GS.timer = setTimeout(async () => { try { const r = await fetch('/api/gifts/orders/' + id); const j = await r.json(); if (GS.order && GS.order.id === id) { GS.order = j; renderRows(); if (j.status === 'processing') giftWatch(id); } } catch { giftWatch(id); } }, 4000); }
-  async function giftOpenOrder(id) { GS.step = 1; renderRows(); try { const r = await fetch('/api/gifts/orders/' + id); const j = await r.json(); if (!r.ok) throw new Error(j.error); GS.order = j; GS.step = null; renderRows(); if (j.status === 'processing') giftWatch(id); } catch (e) { GS.step = null; GS.err = e.message; renderRows(); } }
+  function giftWatch(id) { clearTimeout(GS.timer); GS.timer = setTimeout(async () => { try { const j = await api('/api/gifts/orders/' + id); if (GS.order && GS.order.id === id) { GS.order = j; remember(j); renderRows(); drawQr(); if (['pending', 'paid', 'processing'].includes(j.status)) giftWatch(id); } } catch { giftWatch(id); } }, 5000); }
+  async function giftOpenOrder(id) {
+    GS.step = 'gs.creating'; renderRows();
+    try { const j = await api('/api/gifts/orders/' + id); if (state.open !== 'g:' + j.rid) { GS.rid = j.rid; state.open = 'g:' + j.rid; } GS.order = j; GS.step = null; remember(j); if (TOK && j.buyer && !j.buyer.address) api(`/api/gifts/orders/${id}/claim`, {}).catch(() => {}); renderRows(); drawQr(); if (['pending', 'paid', 'processing'].includes(j.status)) giftWatch(id); }
+    catch (e) { GS.step = null; GS.err = e.message; renderRows(); }
+  }
+  /* ---- account sheet ---- */
+  const ACC = { orders: null, busy: false, err: null };
+  async function accountLoad() { if (!TOK) return; try { const j = await api('/api/me/orders'); ACC.orders = j.orders; ACC.err = null; } catch (e) { if (e.code === 401) { TOK = null; try { localStorage.removeItem('bento.tok'); } catch {} } ACC.err = e.message; } renderRows(); }
+  async function accountSign() { ACC.busy = true; ACC.err = null; renderRows(); try { if (!state.address) await connect(); await serverLogin(); await accountLoad(); for (const o of MYGIFTS) api(`/api/gifts/orders/${o.id}/claim`, {}).catch(() => {}); } catch (e) { ACC.err = (e && e.shortMessage) || e.message; } ACC.busy = false; renderRows(); }
+  function accountSheet() {
+    const d = $('#drawer'); const Cs = list(); const mine = Cs.filter((C) => state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase()));
+    const row = (o) => { const r = REST[o.rid] || { id: o.rid, name: o.name || o.rid, cat: 'casual' }; return `<button type="button" data-gorder="${esc(o.id)}">${logo(r, 28)}<span>${esc(nm(r))} · ${esc(dateFmt(o.createdAt || o.at))}${stat(o.status || 'delivered')}</span><b>${esc(money(o.value, o.currency))}</b></button>`; };
+    const server = ACC.orders || []; const localOnly = MYGIFTS.filter((o) => !server.some((x) => x.id === o.id)).slice().reverse();
+    d.innerHTML = `<div class="sheet-h"><div class="who"><b>${t('acct.h')}</b><small>${state.address ? esc(short(state.address)) + ' · ' + esc(net().name) : t('wc.off')}</small></div><button class="close" type="button" data-close aria-label="Close">✕</button></div>
+      ${TOK && ACC.orders ? '' : `<div class="gs-crypto" style="gap:10px"><p class="hint">${t('acct.signin')}</p><button class="btn btn-ink" type="button" data-acct-sign ${ACC.busy ? 'disabled' : ''}>${ACC.busy ? t('acct.signing') : t('acct.sign')}</button>${ACC.err ? `<p class="err">${esc(ACC.err)}</p>` : ''}</div>`}
+      <div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('acct.orders')}</p>${server.length ? `<div class="gs-list">${server.map(row).join('')}</div>` : ''}${localOnly.length ? `<p class="hint" style="margin:10px 0 6px">${t('acct.local')}</p><div class="gs-list">${localOnly.map(row).join('')}</div>` : ''}${!server.length && !localOnly.length ? `<p class="hint">${t('acct.none')}</p>` : ''}</div>
+      <div><p class="hint" style="font-weight:600;margin-bottom:8px">${t('acct.coins')}</p>${mine.length ? mine.map((C) => `<div class="row" data-open="${esc(C.addr)}" style="grid-template-columns:40px 1fr auto;align-items:center;gap:10px;margin-bottom:8px">${logo(C.r, 40)}<div class="row-name"><b style="font-size:15px">${esc(C.name)}<span class="tk">${esc(C.tick)}</span></b><small>${t('you', amt(C.my, C.unit))} · ${pct(C.progress)}</small></div>${tag(C)}</div>`).join('') : `<p class="hint">${t('acct.nocoins')}</p>`}</div>`;
+  }
   function renderDrawer() {
     const d = $('#drawer');
-    if (state.open && state.open.startsWith('g:')) { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); giftSheet(state.open.slice(2)); return; }
+    if (state.open === 'a:') { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); accountSheet(); return; }
+    if (state.open && state.open.startsWith('g:')) { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); giftSheet(state.open.slice(2)); drawQr(); return; }
     if (state.open && state.open.startsWith('r:')) { d.classList.add('is-open'); $('#scrim').classList.add('is-open'); renderRestSheet(state.open.slice(2)); return; }
     const C = state.open ? list().find((x) => x.addr === state.open) : null;
     d.classList.toggle('is-open', Boolean(C)); $('#scrim').classList.toggle('is-open', Boolean(C));
@@ -1409,7 +1543,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   }
   function setOpen(id) {
     state.open = id || null;
-    try { const h = !id ? '' : id.startsWith('g:') ? `#gift/${id.slice(2)}` : id.startsWith('r:') ? `#r/${id.slice(2)}` : `#coin/${state.chainId}/${id}`; history.replaceState(null, '', location.pathname + location.search + h); } catch {}
+    try { const h = !id ? '' : id === 'a:' ? '#account' : id.startsWith('g:') ? `#gift/${id.slice(2)}` : id.startsWith('r:') ? `#r/${id.slice(2)}` : `#coin/${state.chainId}/${id}`; history.replaceState(null, '', location.pathname + location.search + h); } catch {}
     renderRows();
   }
   function route() {
@@ -1418,6 +1552,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if ((m = h.match(/^coin\/(?:(\d+)\/)?(0x[0-9a-fA-F]{40})$/))) { if (m[1] && NETWORKS[m[1]]) state.chainId = Number(m[1]); try { state.open = E.getAddress(m[2]); } catch { state.open = m[2]; } return 'open'; }
     if ((m = h.match(/^r\/([a-z0-9_-]+)$/)) && PAIRS[m[1]]) { state.open = 'r:' + m[1]; return 'open'; }
     if ((m = h.match(/^gift\/([a-z0-9_-]+)$/)) && GIFTS[m[1]]) { state.open = 'g:' + m[1]; return 'open'; }
+    if (h === 'account') { state.open = 'a:'; return 'open'; }
     return null;
   }
   let lastAddrQ = '';
@@ -1494,7 +1629,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const lang = e.target.closest('[data-lang]'); if (lang) { setLang(lang.dataset.lang); return; }
     const cp = e.target.closest('[data-copy]'); if (cp) { const v = cp.dataset.copy; copyText(v === 'link' ? `${location.origin}${location.pathname}${state.open && state.open.startsWith('g:') ? `#gift/${state.open.slice(2)}` : state.open && state.open.startsWith('r:') ? `#r/${state.open.slice(2)}` : `#coin/${state.chainId}/${state.open}`}` : v); return; }
     const mb = e.target.closest('[data-mb]'); if (mb) { $$('.mbar button').forEach((x) => x.classList.toggle('is-on', x === mb)); const k = mb.dataset.mb; state.open = null; renderRows();
-      if (k === 'home') $('#explore')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'search') { window.scrollTo({ top: 0, behavior: 'smooth' }); $('#q').focus(); } else if (k === 'create') $('#launch')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'wallet') { if (state.address) { setTab('mine'); $('#all')?.scrollIntoView({ behavior: 'smooth' }); } else connect(); } return; }
+      if (k === 'home') $('#explore')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'search') { window.scrollTo({ top: 0, behavior: 'smooth' }); $('#q').focus(); } else if (k === 'create') $('#launch')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'wallet') { setOpen('a:'); } return; }
     if (e.target.closest('[data-connect], #connect')) { connect(); return; }
     if (e.target.closest('#refresh')) { loadCoins(); return; }
     const doc = e.target.closest('[data-doc]'); if (doc) { e.preventDefault(); openDoc(doc.dataset.doc); return; }
@@ -1507,7 +1642,11 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const c = e.target.closest('[data-claim]'); if (c) { sendTx(async (s) => new E.Contract(c.dataset.claim, RAISE_ABI, s).claim()); return; }
     const r = e.target.closest('[data-refund]'); if (r) { sendTx(async (s) => new E.Contract(r.dataset.refund, RAISE_ABI, s).refund()); return; }
     const cr = e.target.closest('[data-create]'); if (cr) { state.open = null; $('#c-rest').value = cr.dataset.create; renderPreview(); renderRows(); $('#launch')?.scrollIntoView({ behavior: 'smooth' }); $('#c-name').focus(); return; }
-    const ga = e.target.closest('[data-gamt]'); if (ga) { GS.custom = ''; giftQuote(GS.rid, Number(ga.dataset.gamt)); return; }
+    const ga = e.target.closest('[data-gamt]'); if (ga) { GS.custom = ''; GS.value = Number(ga.dataset.gamt); GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; renderRows(); return; }
+    const gm = e.target.closest('[data-gm]'); if (gm && !gm.disabled) { GS.method = gm.dataset.gm; GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; if (GS.method === 'crypto' && !GS.currencies) api('/api/gifts/currencies').then((j) => { GS.currencies = j.currencies; renderRows(); }).catch(() => {}); renderRows(); return; }
+    if (e.target.closest('[data-gnext]')) { giftNext(); return; }
+    if (e.target.closest('[data-gback]')) { GS.order = null; GS.err = null; renderRows(); return; }
+    if (e.target.closest('[data-acct-sign]')) { accountSign(); return; }
     const gp = e.target.closest('[data-gpay]'); if (gp) { giftPay(gp.dataset.gpay); return; }
     const go = e.target.closest('[data-gorder]'); if (go) { giftOpenOrder(go.dataset.gorder); return; }
     const fv = e.target.closest('[data-fav]'); if (fv) { const a = fv.dataset.fav; if (FAV.has(a)) FAV.delete(a); else FAV.add(a); saveFav(); toast(t(FAV.has(a) ? 'fav.on' : 'fav.off')); renderStats(); renderRows(); return; }
@@ -1523,7 +1662,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (e.target.closest('.side a')) { $('#side').classList.remove('is-open'); }
     const cat = e.target.closest('[data-cat]'); if (cat) { state.cat = cat.dataset.cat; $$('[data-cat]').forEach((x) => x.classList.toggle('is-on', x.dataset.cat === state.cat)); renderRows(); $('#all')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
   });
-  document.addEventListener('change', (e) => { if (e.target.id === 'gcustom') { const v = Number(e.target.value); GS.custom = e.target.value; if (v > 0) giftQuote(GS.rid, v); } });
+  document.addEventListener('change', (e) => { if (e.target.id === 'gcustom') { const v = Number(e.target.value); GS.custom = e.target.value; GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; if (v > 0) { GS.value = v; renderRows(); } } if (e.target.id === 'gcur') GS.currency = e.target.value; });
+  document.addEventListener('input', (e) => { if (e.target.id === 'gemail') GS.email = e.target.value; if (e.target.id === 'gmsg') GS.message = e.target.value; });
   $('#q').addEventListener('input', (e) => { state.q = e.target.value; renderRows(); addrSearch(e.target.value); });
   window.addEventListener('hashchange', () => { const r = route(); if (r === 'open') renderRows(); else if (r === 'net') { state.coins = []; state.loaded = false; render(); loadCoins(); } });
   $('#sort').addEventListener('change', (e) => { state.sort = e.target.value; renderRows(); });

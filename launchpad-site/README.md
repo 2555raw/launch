@@ -87,7 +87,7 @@ launches.js   el catálogo de lanzamientos
 test.js       pruebas de la API (node:test)
 ```
 
-## Bento Launch (dapp en BNB Chain)
+## BNB Bite (dapp en BNB Chain)
 
 `dapp/index.html` es una segunda interfaz, independiente del servidor de arriba: un launchpad
 de coins en BNB Chain donde cada coin se crea **pareada a la acción tokenizada de un
@@ -144,26 +144,46 @@ las coins se pagan en tBNB (o en un ERC20 de prueba con `STOCK_TEST=0x...`).
   usa los logotipos oficiales y, si quieres fotos reales, hay que aportarlas y colocarlas en
   `dapp/logos/<id>.png`.
 
-**Tarjetas de regalo vendidas desde la propia web**
+**Tienda de tarjetas de regalo (compra dentro de la web)**
 
-`gifts.js` convierte la web en revendedor de tarjetas de regalo de Bitrefill: el visitante
-elige marca y valor, paga en BNB Chain (BNB o USDT) a la cartera del sitio, el servidor
-verifica la transacción en cadena, compra la tarjeta con el saldo de la cuenta Bitrefill por
-API y muestra el código en la página (también queda guardado en el navegador). Variables:
+`gifts.js` + `services/` convierten la web en una tienda: el visitante elige marca y valor,
+pone el email del destinatario y un mensaje, elige cómo pagar, y recibe el código en la
+página, por email y en su cuenta. Nada se simula: sin proveedor configurado las tarjetas
+aparecen como «no disponibles» y enlazan a Bitrefill.
 
-| Variable | Qué es |
+Flujo: `POST /api/gifts/checkout` crea el pedido (`pending`) → el pago se confirma en el
+servidor (transacción en BNB Chain verificada por RPC, IPN firmado de NOWPayments o webhook
+firmado de Stripe) → `paid` → se compra la tarjeta por API de Bitrefill con el saldo de la
+cuenta (`processing`) → `delivered` con el código, o `failed` (el admin puede reintentar o
+marcar `refunded`). Estados: pending, paid, processing, delivered, failed, expired, refunded.
+
+| Variable | Qué activa |
 | --- | --- |
-| `BITREFILL_API_KEY` | token de la cuenta Bitrefill (o `BITREFILL_API_ID` + `BITREFILL_API_SECRET` en cuentas business) |
-| `MERCHANT_ADDRESS` | dirección en BNB Chain que recibe los pagos |
-| `GIFT_MARGIN` | comisión sobre el valor de la tarjeta, por defecto `0.04` (4 %) |
-| `GIFT_TEST` | `1` para pedir el producto de prueba de Bitrefill en vez del real |
-| `BSC_RPC` | nodo JSON-RPC, por defecto bsc-dataseed |
+| `BITREFILL_API_KEY` (o `_ID` + `_SECRET`) | suministro: compra real de tarjetas con el saldo de tu cuenta Bitrefill |
+| `MERCHANT_ADDRESS` | pago con wallet en BNB Chain (BNB o USDT) a tu dirección |
+| `NOWPAYMENTS_API_KEY`, `NOWPAYMENTS_IPN_SECRET` | pago con cualquier cripto (300+ monedas); `NOWPAYMENTS_SANDBOX=1` para el sandbox |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | pago con tarjeta (Stripe Checkout alojado; claves `sk_test_` para pruebas) |
+| `RESEND_API_KEY`, `MAIL_FROM` | envío del código por email (Resend) |
+| `ADMIN_KEY` | panel `/admin` y API `/api/admin/*` (cabecera `x-admin-key`, comparación en tiempo constante) |
+| `SITE_URL`, `BRAND_NAME`, `GIFT_MARGIN`, `GIFT_TEST`, `BSC_RPC` | URL pública (callbacks), marca, margen (0.04 = 4 %), producto de prueba de Bitrefill, nodo |
 
-Sin `BITREFILL_API_KEY` y `MERCHANT_ADDRESS` la sección sigue visible pero cada tarjeta
-enlaza a Bitrefill. La cuenta Bitrefill necesita saldo cargado (las tarjetas se pagan con
-`payment_method: balance`). Rutas: `GET /api/gifts/catalog`, `POST /api/gifts/quote`,
-`POST /api/gifts/order`, `GET /api/gifts/orders/:id`. `npm run test:gifts` recorre el flujo
-contra un RPC y un Bitrefill simulados (14 comprobaciones).
+Webhooks a registrar en cada proveedor: `POST /api/webhooks/nowpayments` y
+`POST /api/webhooks/stripe`. Rutas públicas: `GET /api/gifts/catalog`, `GET /api/gifts/currencies`,
+`POST /api/gifts/checkout`, `GET /api/gifts/orders/:id`, `POST /api/gifts/orders/:id/tx`,
+`POST /api/gifts/orders/:id/claim`, `GET /api/me/orders` (login por firma de wallet),
+`GET /api/catalog`. Admin: resumen, pedidos, reintento de emisión, cambio de estado con nota,
+reenvío de email, overrides del catálogo (nombre, foto subida, categoría, descripción,
+ocultar) y registro de actividad.
+
+`npm run test:gifts` recorre todo contra RPC, Bitrefill, NOWPayments, Stripe y Resend
+simulados (26 comprobaciones, firmas de webhooks incluidas).
+
+**Lo que falta para operar de verdad** (todo está programado; sólo faltan las credenciales):
+1. Cuenta Bitrefill con API y saldo cargado.
+2. Cuenta NOWPayments (API key + IPN secret) y/o Stripe (clave secreta + webhook).
+3. Dominio verificado en Resend para los emails.
+4. Factory del launchpad desplegada (testnet primero) y su dirección en la página.
+5. Auditoría del contrato antes de mainnet.
 
 **Pruebas**
 

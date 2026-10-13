@@ -1,31 +1,29 @@
-/* Gift cards sold from this site: the visitor pays on BNB Chain (BNB or USDT
- * to MERCHANT_ADDRESS), the server verifies the transaction on-chain, orders
- * the card from Bitrefill's API with the account balance and hands the
- * redemption code back. Nothing is custodied here: the only state is the
- * list of orders (tx hash, product, status, code).
+/* Shop backend: gift card catalog, checkout, payments (wallet on BNB Chain,
+ * any crypto through NOWPayments, cards through Stripe), on-chain and webhook
+ * verification, fulfilment through Bitrefill, email delivery, buyer orders,
+ * catalog overrides and the admin API. State lives in store.giftOrders,
+ * store.catalogOverrides and store.adminLog (persisted by server.js).
  *
- *   BITREFILL_API_KEY      Bearer token (personal) or
- *   BITREFILL_API_ID / BITREFILL_API_SECRET   Basic auth (business)
- *   MERCHANT_ADDRESS       BNB Chain address that receives payments
- *   BSC_RPC                JSON-RPC (default bsc-dataseed)
- *   GIFT_MARGIN            fee on top of face value, default 0.04 (4 %)
- *   GIFT_TEST=1            order Bitrefill's test product instead of the real one
- *
- * Without BITREFILL_* + MERCHANT_ADDRESS the catalog reports configured:false
- * and the page falls back to linking the Bitrefill listing. */
+ * Env: MERCHANT_ADDRESS, BSC_RPC, GIFT_MARGIN, BITREFILL_*, NOWPAYMENTS_*,
+ * STRIPE_*, RESEND_API_KEY, MAIL_FROM, ADMIN_KEY, SITE_URL, BRAND_NAME. */
 'use strict';
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const bitrefill = require('./services/bitrefill');
+const nowp = require('./services/nowpayments');
+const stripe = require('./services/stripe');
+const email = require('./services/email');
 
-const API = process.env.BITREFILL_API || 'https://api.bitrefill.com/v2';
-const USDT = '0x55d398326f99059ff775485246999027b3197955'; // BEP-20 USDT, 18 decimals
+const USDT = '0x55d398326f99059ff775485246999027b3197955';
 const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const MARGIN = Number(process.env.GIFT_MARGIN ?? 0.04);
 const RPC = process.env.BSC_RPC || 'https://bsc-dataseed.binance.org';
 const MERCHANT = (process.env.MERCHANT_ADDRESS || '').toLowerCase();
-const TEST = /^(1|true|yes)$/i.test(process.env.GIFT_TEST || '');
+const BRAND = process.env.BRAND_NAME || 'BNB Bite';
+const ADMIN_KEY = process.env.ADMIN_KEY || '';
+const siteUrl = (req) => (process.env.SITE_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers['x-forwarded-host'] || req.headers.host}`).replace(/\/$/, '');
 
-/* Catalog: restaurant id -> Bitrefill product. Ranges are the listing values
- * seen on 2026-10-12; live packages replace them when the API is configured. */
 const CATALOG = [
   ['starbucks', 'starbucks-usa', 'Starbucks', 'US', 'USD', 5, 500], ['chipotle', 'chipotle-usa', 'Chipotle', 'US', 'USD', 5, 250],
   ['tacobell', 'taco-bell-usa', 'Taco Bell', 'US', 'USD', 5, 500], ['kfc', 'kfc-usa', 'KFC', 'US', 'USD', 70, 100],
@@ -35,148 +33,185 @@ const CATALOG = [
   ['texasroadhouse', 'texas-roadhouse-usa', 'Texas Roadhouse', 'US', 'USD', 5, 100], ['timhortons', 'tim-hortons-canada', 'Tim Hortons', 'CA', 'CAD', 5, 100]
 ].map(([rid, id, name, country, currency, min, max]) => ({ rid, id, name, country, currency, min, max, packages: null, inStock: true }));
 
-function auth() {
-  if (process.env.BITREFILL_API_KEY) return 'Bearer ' + process.env.BITREFILL_API_KEY;
-  if (process.env.BITREFILL_API_ID && process.env.BITREFILL_API_SECRET) return 'Basic ' + Buffer.from(`${process.env.BITREFILL_API_ID}:${process.env.BITREFILL_API_SECRET}`).toString('base64');
-  return null;
-}
-const configured = () => Boolean(auth() && MERCHANT);
+const supplyReady = () => bitrefill.configured();
+const methods = () => ({ wallet: Boolean(MERCHANT), crypto: nowp.configured(), card: stripe.configured() });
 
-async function br(method, path, body) {
-  const res = await fetch(API + path, { method, headers: { authorization: auth(), 'content-type': 'application/json', accept: 'application/json' }, body: body ? JSON.stringify(body) : undefined });
-  const j = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(`bitrefill ${res.status} ${j.message || j.error_code || ''}`.trim());
-  return j.data ?? j;
-}
-
-/* ---- live product data, cached 15 min ---- */
-const live = { at: 0, pending: null };
-async function refreshCatalog() {
-  if (!auth()) return;
-  if (Date.now() - live.at < 15 * 60 * 1000) return;
-  if (live.pending) return live.pending;
-  live.pending = (async () => {
-    for (const p of CATALOG) {
-      try {
-        const d = await br('GET', `/products/${encodeURIComponent(p.id)}`);
-        p.inStock = d.in_stock !== false; p.currency = d.currency || p.currency;
-        if (Array.isArray(d.packages) && d.packages.length) p.packages = d.packages.map((k) => ({ id: k.id, value: Number(k.value), price: Number(k.price) }));
-        if (d.range && d.range.min != null) { p.min = Number(d.range.min); p.max = Number(d.range.max); p.step = Number(d.range.step) || 1; }
-      } catch (e) { console.error('gifts: product', p.id, e.message); }
-    }
-    live.at = Date.now(); live.pending = null;
-  })();
-  return live.pending;
-}
-
-/* ---- prices: BNB/USD and CAD/USD from CoinGecko, cached 2 min ---- */
+/* ---- prices: BNB/USD and CAD/USD, cached 2 min ---- */
 const px = { at: 0, bnb: 0, cadPerUsd: 0 };
 async function prices() {
   if (Date.now() - px.at < 120000 && px.bnb) return px;
-  try {
-    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,tether&vs_currencies=usd,cad');
-    const j = await r.json(); const bnb = Number(j.binancecoin?.usd); const cad = Number(j.tether?.cad) || Number(j.binancecoin?.cad) / bnb;
-    if (bnb > 0) { px.bnb = bnb; px.cadPerUsd = cad > 0 ? cad : px.cadPerUsd || 1.37; px.at = Date.now(); }
-  } catch (e) { console.error('gifts: prices', e.message); }
+  try { const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,tether&vs_currencies=usd,cad'); const j = await r.json(); const bnb = Number(j.binancecoin?.usd); const cad = Number(j.tether?.cad) || Number(j.binancecoin?.cad) / bnb; if (bnb > 0) { px.bnb = bnb; px.cadPerUsd = cad > 0 ? cad : px.cadPerUsd || 1.37; px.at = Date.now(); } }
+  catch (e) { console.error('prices', e.message); }
   if (!px.bnb) throw new Error('no price feed');
   return px;
 }
-
-/* ---- quotes live 15 minutes in memory ---- */
-const quotes = new Map();
-function makeQuote(p, value) {
-  const faceUsd = p.currency === 'CAD' ? value / px.cadPerUsd : value;
-  const priceUsd = Math.ceil(faceUsd * (1 + MARGIN) * 100) / 100;
-  const bnb = Math.ceil(priceUsd / px.bnb * 1e6) / 1e6;
-  const q = { id: crypto.randomBytes(12).toString('hex'), productId: p.id, rid: p.rid, name: p.name, value, currency: p.currency, faceUsd: Math.round(faceUsd * 100) / 100, margin: MARGIN, priceUsd,
-    pay: { BNB: { amount: bnb, wei: BigInt(Math.round(bnb * 1e6)) * 10n ** 12n }, USDT: { amount: priceUsd, wei: BigInt(Math.round(priceUsd * 100)) * 10n ** 16n } }, merchant: MERCHANT, expiresAt: Date.now() + 15 * 60 * 1000 };
-  quotes.set(q.id, q);
-  for (const [k, v] of quotes) if (v.expiresAt < Date.now()) quotes.delete(k);
-  return q;
-}
-const pub = (q) => ({ ...q, pay: { BNB: { amount: q.pay.BNB.amount, wei: q.pay.BNB.wei.toString() }, USDT: { amount: q.pay.USDT.amount, wei: q.pay.USDT.wei.toString() } } });
+function priceOf(p, value) { const faceUsd = p.currency === 'CAD' ? value / px.cadPerUsd : value; const priceUsd = Math.ceil(faceUsd * (1 + MARGIN) * 100) / 100; return { faceUsd: Math.round(faceUsd * 100) / 100, priceUsd }; }
+function walletAmounts(priceUsd) { const bnb = Math.ceil(priceUsd / px.bnb * 1e6) / 1e6; return { BNB: { amount: bnb, wei: (BigInt(Math.round(bnb * 1e6)) * 10n ** 12n).toString() }, USDT: { amount: priceUsd, wei: (BigInt(Math.round(priceUsd * 100)) * 10n ** 16n).toString() } }; }
 
 /* ---- on-chain payment check ---- */
-async function rpc(method, params) {
-  const r = await fetch(RPC, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
-  const j = await r.json(); if (j.error) throw new Error(j.error.message); return j.result;
-}
-async function verifyPayment(q, txHash) {
+async function rpc(method, params) { const r = await fetch(RPC, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) }); const j = await r.json(); if (j.error) throw new Error(j.error.message); return j.result; }
+async function verifyPayment(order, txHash) {
   const [tx, rc] = await Promise.all([rpc('eth_getTransactionByHash', [txHash]), rpc('eth_getTransactionReceipt', [txHash])]);
   if (!tx) throw new Error('transaction not found');
   if (!rc || !rc.blockNumber) throw new Error('not confirmed yet');
   if (rc.status !== '0x1') throw new Error('transaction failed');
-  const to = (tx.to || '').toLowerCase();
-  if (to === MERCHANT) { const v = BigInt(tx.value); if (v * 1000n < q.pay.BNB.wei * 995n) throw new Error('amount below quote'); return { token: 'BNB', from: tx.from, amount: v.toString() }; }
+  const want = order.pay.amounts; const to = (tx.to || '').toLowerCase();
+  if (to === MERCHANT) { const v = BigInt(tx.value); if (v * 1000n < BigInt(want.BNB.wei) * 995n) throw new Error('amount below quote'); return { token: 'BNB', from: tx.from, amount: v.toString() }; }
   if (to === USDT) {
     const log = (rc.logs || []).find((l) => l.address.toLowerCase() === USDT && l.topics[0] === TRANSFER && ('0x' + l.topics[2].slice(26)).toLowerCase() === MERCHANT);
     if (!log) throw new Error('no USDT transfer to the merchant in this transaction');
-    const v = BigInt(log.data); if (v * 1000n < q.pay.USDT.wei * 995n) throw new Error('amount below quote');
+    const v = BigInt(log.data); if (v * 1000n < BigInt(want.USDT.wei) * 995n) throw new Error('amount below quote');
     return { token: 'USDT', from: tx.from, amount: v.toString() };
   }
   throw new Error('transaction does not pay the merchant');
 }
 
-/* ---- fulfilment ---- */
-async function fulfil(order, store, save) {
+/* ---- orders ---- */
+const valid = (s) => typeof s === 'string' && s.length < 400;
+const isEmail = (s) => typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s) && s.length < 200;
+function publicOrder(o) {
+  const pay = o.pay || {};
+  return { id: o.id, rid: o.rid, productId: o.productId, name: o.name, value: o.value, currency: o.currency, faceUsd: o.faceUsd, priceUsd: o.priceUsd, margin: o.margin, status: o.status, error: o.error || null, createdAt: o.createdAt, paidAt: o.paidAt || null, deliveredAt: o.deliveredAt || null,
+    recipient: o.recipient ? { email: o.recipient.email, message: o.recipient.message || '' } : null, buyer: o.buyer ? { address: o.buyer.address || null } : null,
+    pay: { method: pay.method, token: pay.token || null, txHash: pay.txHash || null, provider: pay.provider || null, payAddress: pay.payAddress || null, payAmount: pay.payAmount || null, payCurrency: pay.payCurrency || null, network: pay.network || null, memo: pay.memo || null, url: pay.url || null, expiresAt: pay.expiresAt || null, amounts: pay.amounts || null, merchant: pay.method === 'wallet' ? MERCHANT : null, providerStatus: pay.providerStatus || null },
+    redemption: o.status === 'delivered' ? o.redemption : null, emailSent: Boolean(o.emailSent) };
+}
+async function markPaid(order, info, store, save) {
+  if (order.status !== 'pending') return;
+  order.status = 'paid'; order.paidAt = Date.now(); Object.assign(order.pay, info); await save();
+  const product = CATALOG.find((x) => x.id === order.productId);
+  await bitrefill.fulfil(order, product, save);
+  await deliverEmail(order, save);
+}
+async function deliverEmail(order, save, site) {
+  if (order.status !== 'delivered' || order.emailSent || !email.configured()) return;
+  try { const m = email.giftEmail(order, BRAND, site || process.env.SITE_URL || ''); const to = order.recipient && order.recipient.email; if (to) { await email.send({ to, ...m }); order.emailSent = true; await save(); } }
+  catch (e) { console.error('email', order.id, e.message); order.emailError = e.message; await save(); }
+}
+/* Refreshes a pending/processing order against its provider. */
+async function refresh(order, store, save, req) {
+  const pay = order.pay || {};
   try {
-    const p = CATALOG.find((x) => x.id === order.productId);
-    const item = TEST ? { product_id: 'test-gift-card-code', value: order.value, quantity: 1 } : { product_id: p.id, quantity: 1 };
-    if (!TEST) { const pk = p.packages && p.packages.find((k) => k.value === order.value); if (pk) item.package_id = pk.id; else item.value = order.value; }
-    const inv = await br('POST', '/invoices', { products: [item], payment_method: 'balance', auto_pay: true });
-    order.invoiceId = inv.id; order.bitrefillOrderId = inv.orders && inv.orders[0] && inv.orders[0].id; order.status = 'processing'; save();
-    await pollOrder(order, store, save);
-  } catch (e) { order.status = 'failed'; order.error = e.message; console.error('gifts: fulfil', order.id, e.message); save(); }
+    if (order.status === 'pending' && pay.method === 'crypto' && pay.providerId) {
+      if (pay.expiresAt && Date.now() > pay.expiresAt + 30 * 60 * 1000 && pay.providerStatus !== 'confirming') { }
+      const st = await nowp.status(pay.providerId); pay.providerStatus = st.status;
+      if (nowp.PAID.has(st.status)) await markPaid(order, { paidAmount: st.actuallyPaid }, store, save);
+      else if (st.status === 'expired' || st.status === 'failed') { order.status = st.status === 'expired' ? 'expired' : 'failed'; order.error = 'payment ' + st.status; await save(); }
+      else await save();
+    } else if (order.status === 'pending' && pay.method === 'card' && pay.providerId) {
+      const s = await stripe.getSession(pay.providerId); pay.providerStatus = s.status;
+      if (s.paid) await markPaid(order, {}, store, save); else if (s.status === 'expired') { order.status = 'expired'; await save(); } else await save();
+    } else if (order.status === 'processing') { await bitrefill.pollOrder(order, save, 3); await deliverEmail(order, save, req && siteUrl(req)); }
+    else if (order.status === 'delivered' && !order.emailSent) await deliverEmail(order, save, req && siteUrl(req));
+  } catch (e) { console.error('refresh', order.id, e.message); }
 }
-async function pollOrder(order, store, save) {
-  if (!order.bitrefillOrderId) return;
-  for (let i = 0; i < 10; i++) {
-    const o = await br('GET', `/orders/${encodeURIComponent(order.bitrefillOrderId)}`);
-    if (o.status === 'delivered') { order.status = 'delivered'; order.deliveredAt = Date.now(); const ri = o.redemption_info; order.redemption = typeof ri === 'string' ? { instructions: ri } : (ri || {}); if (o.product && o.product._href) order.redemption.link = order.redemption.link || o.product._href; save(); return; }
-    if (o.status === 'failed' || o.status === 'refunded') { order.status = 'failed'; order.error = 'bitrefill ' + o.status; save(); return; }
-    await new Promise((r) => setTimeout(r, 2000));
-  }
-}
+const adminLog = (store, entry) => { (store.adminLog ||= []).push({ at: Date.now(), ...entry }); if (store.adminLog.length > 2000) store.adminLog.splice(0, store.adminLog.length - 2000); };
+function isAdmin(req) { const k = req.headers['x-admin-key']; if (!ADMIN_KEY || !k) return false; try { return crypto.timingSafeEqual(Buffer.from(String(k)), Buffer.from(ADMIN_KEY)); } catch { return false; } }
+function readRaw(req, limit = 256 * 1024) { return new Promise((resolve, reject) => { let size = 0; const chunks = []; req.on('data', (c) => { size += c.length; if (size > limit) { reject(new Error('too large')); req.destroy(); } else chunks.push(c); }); req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8'))); req.on('error', reject); }); }
 
 /* ---- HTTP ---- */
-function publicOrder(o) { return { id: o.id, rid: o.rid, productId: o.productId, name: o.name, value: o.value, currency: o.currency, priceUsd: o.priceUsd, token: o.token, txHash: o.txHash, status: o.status, error: o.error || null, createdAt: o.createdAt, deliveredAt: o.deliveredAt || null, redemption: o.status === 'delivered' ? o.redemption : null }; }
-
-async function giftsApi(req, res, url, { send, fail, readJson, limited, store, save }) {
-  const p = url.pathname; store.giftOrders ||= {};
-  if (req.method === 'GET' && p === '/api/gifts/catalog') {
-    await refreshCatalog().catch(() => {});
-    return send(res, 200, { configured: configured(), test: TEST, merchant: MERCHANT || null, margin: MARGIN, products: CATALOG.map((x) => ({ rid: x.rid, id: x.id, name: x.name, country: x.country, currency: x.currency, min: x.min, max: x.max, step: x.step || 1, packages: x.packages && x.packages.map((k) => k.value), inStock: x.inStock })) });
-  }
+async function shopApi(req, res, url, h) {
+  const { send, fail, limited, store, save, sessionOf } = h; const p = url.pathname; store.giftOrders ||= {}; store.catalogOverrides ||= {};
   let m;
+  /* public, GET */
+  if (req.method === 'GET' && p === '/api/gifts/catalog') {
+    await bitrefill.refreshCatalog(CATALOG).catch(() => {});
+    return send(res, 200, { configured: supplyReady(), supply: supplyReady(), methods: methods(), test: bitrefill.TEST, sandbox: nowp.SANDBOX, merchant: MERCHANT || null, margin: MARGIN, brand: BRAND, email: email.configured(),
+      products: CATALOG.map((x) => ({ rid: x.rid, id: x.id, name: x.name, country: x.country, currency: x.currency, min: x.min, max: x.max, step: x.step || 1, packages: x.packages && x.packages.map((k) => k.value), inStock: x.inStock, available: supplyReady() && x.inStock && Object.values(methods()).some(Boolean) })) });
+  }
+  if (req.method === 'GET' && p === '/api/gifts/currencies') return send(res, 200, { currencies: await nowp.currencies() });
+  if (req.method === 'GET' && p === '/api/catalog') return send(res, 200, { overrides: store.catalogOverrides });
   if (req.method === 'GET' && (m = /^\/api\/gifts\/orders\/([a-f0-9]{24})$/.exec(p))) {
     const o = store.giftOrders[m[1]]; if (!o) return fail(res, 404, 'no such order');
-    if (o.status === 'processing' && configured()) await pollOrder(o, store, save).catch(() => {});
-    return send(res, 200, publicOrder(o));
+    await refresh(o, store, save, req); return send(res, 200, publicOrder(o));
   }
+  if (req.method === 'GET' && p === '/api/me/orders') {
+    const s = sessionOf(req); if (!s) return fail(res, 401, 'sign in first');
+    const mine = Object.values(store.giftOrders).filter((o) => o.buyer && o.buyer.address && o.buyer.address.toLowerCase() === s.address.toLowerCase()).sort((a, b) => b.createdAt - a.createdAt);
+    return send(res, 200, { address: s.address, orders: mine.map(publicOrder) });
+  }
+  /* admin */
+  if (p.startsWith('/api/admin/')) {
+    if (!isAdmin(req)) return fail(res, ADMIN_KEY ? 401 : 503, ADMIN_KEY ? 'admin key required' : 'ADMIN_KEY is not set');
+    if (req.method === 'GET' && p === '/api/admin/summary') {
+      const all = Object.values(store.giftOrders); const by = {}; for (const o of all) by[o.status] = (by[o.status] || 0) + 1;
+      const revenue = all.filter((o) => ['paid', 'processing', 'delivered'].includes(o.status)).reduce((a, o) => a + (o.priceUsd - o.faceUsd), 0);
+      let balance = null; if (bitrefill.configured()) { try { balance = await bitrefill.balance(); } catch (e) { balance = { error: e.message }; } }
+      return send(res, 200, { orders: all.length, byStatus: by, marginUsd: Math.round(revenue * 100) / 100, salesUsd: Math.round(all.filter((o) => o.status === 'delivered').reduce((a, o) => a + o.priceUsd, 0) * 100) / 100, supply: supplyReady(), methods: methods(), email: email.configured(), bitrefillBalance: balance, contributions: (store.contributions || []).length, log: (store.adminLog || []).slice(-50).reverse() });
+    }
+    if (req.method === 'GET' && p === '/api/admin/orders') { const all = Object.values(store.giftOrders).sort((a, b) => b.createdAt - a.createdAt).slice(0, 500); return send(res, 200, { orders: all.map((o) => ({ ...publicOrder(o), recipient: o.recipient, buyer: o.buyer, redemption: o.redemption || null, fulfil: o.fulfil || null, notes: o.notes || [] })) }); }
+    if (req.method !== 'POST') return fail(res, 404, 'no such route');
+    let body; try { body = JSON.parse(await readRaw(req, 3 * 1024 * 1024) || '{}'); } catch { return fail(res, 400, 'bad json'); }
+    if ((m = /^\/api\/admin\/orders\/([a-f0-9]{24})\/(retry|status|email)$/.exec(p))) {
+      const o = store.giftOrders[m[1]]; if (!o) return fail(res, 404, 'no such order');
+      if (m[2] === 'retry') { if (!['paid', 'failed', 'processing'].includes(o.status)) return fail(res, 409, 'only paid, processing or failed orders can be retried'); o.status = 'paid'; o.error = null; o.fulfil = null; await save(); await bitrefill.fulfil(o, CATALOG.find((x) => x.id === o.productId), save); await deliverEmail(o, save, siteUrl(req)); adminLog(store, { action: 'retry', order: o.id }); return send(res, 200, publicOrder(o)); }
+      if (m[2] === 'status') { const allowed = ['pending', 'paid', 'processing', 'delivered', 'failed', 'expired', 'refunded']; if (!allowed.includes(body.status)) return fail(res, 400, 'bad status'); (o.notes ||= []).push({ at: Date.now(), from: o.status, to: body.status, note: valid(body.note) ? body.note : '' }); o.status = body.status; await save(); adminLog(store, { action: 'status', order: o.id, to: body.status }); return send(res, 200, publicOrder(o)); }
+      if (m[2] === 'email') { o.emailSent = false; await deliverEmail(o, save, siteUrl(req)); return send(res, 200, { sent: Boolean(o.emailSent), error: o.emailError || null }); }
+    }
+    if (p === '/api/admin/catalog') { if (!body || typeof body.overrides !== 'object') return fail(res, 400, 'overrides object required'); for (const [rid, v] of Object.entries(body.overrides)) { if (!/^[a-z0-9_-]{1,40}$/.test(rid)) continue; if (v === null) { delete store.catalogOverrides[rid]; continue; } const o = {}; for (const k of ['name', 'nameZh', 'photo', 'cat', 'blurb']) if (valid(v[k])) o[k] = v[k]; if (typeof v.hidden === 'boolean') o.hidden = v.hidden; store.catalogOverrides[rid] = { ...(store.catalogOverrides[rid] || {}), ...o }; } await save(); adminLog(store, { action: 'catalog', keys: Object.keys(body.overrides) }); return send(res, 200, { overrides: store.catalogOverrides }); }
+    if (p === '/api/admin/upload') {
+      const mm = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(body.dataUrl || '')); if (!mm) return fail(res, 400, 'dataUrl must be a jpeg, png or webp image');
+      const buf = Buffer.from(mm[2], 'base64'); if (buf.length > 2 * 1024 * 1024) return fail(res, 413, 'image over 2 MB');
+      const dir = path.join(h.dataDir, 'uploads'); fs.mkdirSync(dir, { recursive: true }); const name = crypto.createHash('sha1').update(buf).digest('hex').slice(0, 16) + '.' + (mm[1] === 'jpeg' ? 'jpg' : mm[1]); fs.writeFileSync(path.join(dir, name), buf);
+      adminLog(store, { action: 'upload', file: name }); await save(); return send(res, 201, { url: '/uploads/' + name });
+    }
+    return fail(res, 404, 'no such route');
+  }
+  /* webhooks: raw body, signature checked, no rate limit */
+  if (req.method === 'POST' && p === '/api/webhooks/nowpayments') {
+    const raw = await readRaw(req); if (!nowp.verifyIpn(raw, req.headers['x-nowpayments-sig'])) return fail(res, 401, 'bad signature');
+    const j = JSON.parse(raw); const o = store.giftOrders[String(j.order_id || '')]; if (!o) return fail(res, 404, 'unknown order');
+    o.pay.providerStatus = j.payment_status; if (nowp.PAID.has(j.payment_status)) await markPaid(o, { paidAmount: Number(j.actually_paid || 0) }, store, save); else if (j.payment_status === 'expired') { if (o.status === 'pending') o.status = 'expired'; await save(); } else await save();
+    return send(res, 200, { ok: true });
+  }
+  if (req.method === 'POST' && p === '/api/webhooks/stripe') {
+    const raw = await readRaw(req); const ev = stripe.verifyWebhook(raw, req.headers['stripe-signature']); if (!ev) return fail(res, 401, 'bad signature');
+    if (ev.type === 'checkout.session.completed' || ev.type === 'checkout.session.async_payment_succeeded') { const s = ev.data && ev.data.object; const o = store.giftOrders[String((s.metadata && s.metadata.order_id) || s.client_reference_id || '')]; if (o && s.payment_status === 'paid') await markPaid(o, {}, store, save); }
+    if (ev.type === 'checkout.session.expired') { const s = ev.data.object; const o = store.giftOrders[String((s.metadata && s.metadata.order_id) || '')]; if (o && o.status === 'pending') { o.status = 'expired'; await save(); } }
+    return send(res, 200, { received: true });
+  }
+  /* public, POST */
   if (req.method !== 'POST') return fail(res, 404, 'no such route');
   if (limited(req)) return fail(res, 429, 'too many requests, slow down');
-  let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, e.message); }
-  if (p === '/api/gifts/quote') {
-    if (!configured()) return fail(res, 503, 'in-site checkout is not enabled on this deployment');
+  let body; try { body = JSON.parse(await readRaw(req) || '{}'); } catch { return fail(res, 400, 'bad json'); }
+
+  if (p === '/api/gifts/checkout') {
+    if (!supplyReady()) return fail(res, 503, 'gift card supply is not configured on this deployment');
     const prod = CATALOG.find((x) => x.id === body.productId); const value = Number(body.value);
     if (!prod) return fail(res, 400, 'unknown product'); if (!prod.inStock) return fail(res, 409, 'out of stock');
     if (!(value > 0)) return fail(res, 400, 'bad value');
     if (prod.packages ? !prod.packages.some((k) => k.value === value) : (value < prod.min || value > prod.max)) return fail(res, 400, `value must be ${prod.packages ? 'one of ' + prod.packages.map((k) => k.value).join(', ') : `between ${prod.min} and ${prod.max}`}`);
+    if (!isEmail(body.email)) return fail(res, 400, 'a valid recipient email is required');
+    const method = String(body.method || ''); const avail = methods(); if (!avail[method]) return fail(res, 400, `payment method ${method || '(none)'} is not available`);
     try { await prices(); } catch (e) { return fail(res, 503, e.message); }
-    return send(res, 200, pub(makeQuote(prod, value)));
-  }
-  if (p === '/api/gifts/order') {
-    if (!configured()) return fail(res, 503, 'in-site checkout is not enabled on this deployment');
-    const q = quotes.get(String(body.quoteId || '')); if (!q || q.expiresAt < Date.now()) return fail(res, 410, 'quote expired, ask for a new one');
-    const txHash = String(body.txHash || '').toLowerCase(); if (!/^0x[0-9a-f]{64}$/.test(txHash)) return fail(res, 400, 'bad tx hash');
-    if (Object.values(store.giftOrders).some((o) => o.txHash === txHash)) return fail(res, 409, 'this transaction was already used');
-    let paid; try { paid = await verifyPayment(q, txHash); } catch (e) { return fail(res, 402, e.message); }
-    const order = { id: crypto.randomBytes(12).toString('hex'), rid: q.rid, productId: q.productId, name: q.name, value: q.value, currency: q.currency, priceUsd: q.priceUsd, token: paid.token, paidWei: paid.amount, payer: paid.from, txHash, status: 'paid', createdAt: Date.now() };
-    store.giftOrders[order.id] = order; quotes.delete(q.id); await save();
-    await fulfil(order, store, save);
+    const { faceUsd, priceUsd } = priceOf(prod, value);
+    const s = sessionOf(req);
+    const order = { id: crypto.randomBytes(12).toString('hex'), kind: 'gift', rid: prod.rid, productId: prod.id, name: prod.name, value, currency: prod.currency, faceUsd, priceUsd, margin: MARGIN,
+      recipient: { email: body.email.trim(), message: valid(body.message) ? body.message.trim().slice(0, 300) : '' }, buyer: { address: s ? s.address : null, email: isEmail(body.buyerEmail) ? body.buyerEmail : body.email.trim() },
+      pay: { method }, status: 'pending', createdAt: Date.now() };
+    try {
+      if (method === 'wallet') order.pay = { method, amounts: walletAmounts(priceUsd), expiresAt: Date.now() + 15 * 60 * 1000 };
+      else if (method === 'crypto') { const cur = String(body.currency || 'btc').toLowerCase(); if (!/^[a-z0-9]{2,20}$/.test(cur)) return fail(res, 400, 'bad currency'); order.pay = { method, ...(await nowp.createPayment(order, cur, siteUrl(req) + '/api/webhooks/nowpayments')) }; }
+      else if (method === 'card') order.pay = { method, ...(await stripe.createSession(order, siteUrl(req))) };
+    } catch (e) { return fail(res, 502, e.message); }
+    store.giftOrders[order.id] = order; await save();
     return send(res, 201, publicOrder(order));
+  }
+  if ((m = /^\/api\/gifts\/orders\/([a-f0-9]{24})\/tx$/.exec(p))) {
+    const o = store.giftOrders[m[1]]; if (!o) return fail(res, 404, 'no such order');
+    if (o.pay.method !== 'wallet') return fail(res, 400, 'not a wallet order'); if (o.status !== 'pending') return fail(res, 409, 'order is ' + o.status);
+    const txHash = String(body.txHash || '').toLowerCase(); if (!/^0x[0-9a-f]{64}$/.test(txHash)) return fail(res, 400, 'bad tx hash');
+    if (Object.values(store.giftOrders).some((x) => x.pay && x.pay.txHash === txHash)) return fail(res, 409, 'this transaction was already used');
+    let paid; try { paid = await verifyPayment(o, txHash); } catch (e) { return fail(res, 402, e.message); }
+    await markPaid(o, { token: paid.token, txHash, payer: paid.from, paidWei: paid.amount }, store, save);
+    return send(res, 200, publicOrder(o));
+  }
+  if ((m = /^\/api\/gifts\/orders\/([a-f0-9]{24})\/claim$/.exec(p))) {
+    /* attaches an order bought while signed out to the wallet now signed in */
+    const o = store.giftOrders[m[1]]; const s = sessionOf(req); if (!o || !s) return fail(res, o ? 401 : 404, o ? 'sign in first' : 'no such order');
+    if (!o.buyer.address) { o.buyer.address = s.address; await save(); } return send(res, 200, publicOrder(o));
   }
   return fail(res, 404, 'no such route');
 }
 
-module.exports = { giftsApi, CATALOG, configured, verifyPayment, makeQuote, quotes, px, _test: { USDT, TRANSFER } };
+module.exports = { shopApi, CATALOG, px, verifyPayment, _test: { USDT, TRANSFER } };

@@ -28,7 +28,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { verifyMessage, getAddress, isAddress } = require('ethers');
 const CATALOG = require('./launches');
-const { giftsApi } = require('./gifts');
+const { shopApi } = require('./gifts');
 
 const ROOT = __dirname;
 const PORT = process.env.PORT || 8080;
@@ -206,7 +206,7 @@ const TYPES = {
   '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon',
   '.txt': 'text/plain; charset=utf-8', '.md': 'text/markdown; charset=utf-8'
 };
-const PRIVATE = new Set(['server.js', 'launches.js', 'gifts.js', 'test.js', 'package.json', 'package-lock.json', '.gitignore']);
+const PRIVATE = new Set(['server.js', 'launches.js', 'gifts.js', 'test.js', 'test-gifts.js', 'package.json', 'package-lock.json', '.gitignore']);
 
 function send(res, code, body, headers = {}) {
   const json = typeof body !== 'string' && !Buffer.isBuffer(body);
@@ -246,10 +246,12 @@ function serveStatic(req, res, rel) {
   // La raíz es el dapp de BNB Chain (dapp/index.html y dapp/logos); la mesa
   // clásica sigue en /index.html, /app.js y /styles.css.
   if (rel === '/' || rel === '/dapp' || rel === '/dapp/') rel = '/dapp/index.html';
+  else if (rel === '/admin' || rel === '/admin/') rel = '/dapp/admin.html';
   else if (rel.startsWith('/logos/') || rel.startsWith('/photos/')) rel = '/dapp' + rel;
+  else if (/^\/uploads\/[a-f0-9]{16}\.(jpg|png|webp)$/.test(rel)) { const up = path.join(DATA_DIR, rel); return fs.readFile(up, (err, body) => { if (err) return fail(res, 404, 'nothing here'); res.writeHead(200, { 'content-type': TYPES[path.extname(up)] || 'application/octet-stream', 'cache-control': 'public, max-age=86400' }); res.end(body); }); }
   if (rel.endsWith('/')) rel += 'index.html';
   const file = path.join(ROOT, path.normalize(rel));
-  if (!file.startsWith(ROOT + path.sep) || PRIVATE.has(path.basename(file)) || file.includes(path.sep + 'data' + path.sep) || file.includes('node_modules')) {
+  if (!file.startsWith(ROOT + path.sep) || PRIVATE.has(path.basename(file)) || file.includes(path.sep + 'data' + path.sep) || file.includes('node_modules') || file.includes(path.sep + 'services' + path.sep)) {
     return fail(res, 404, 'nothing here');
   }
   fs.readFile(file, (err, body) => {
@@ -285,7 +287,7 @@ async function api(req, res, url) {
     return send(res, 200, { at: quotes.at || null, available: Object.keys(data).length > 0, quotes: data });
   }
 
-  if (p.startsWith('/api/gifts/')) return giftsApi(req, res, url, { send, fail, readJson, limited, store, save });
+  if (p.startsWith('/api/gifts/') || p.startsWith('/api/admin/') || p.startsWith('/api/webhooks/') || p === '/api/catalog' || p === '/api/me/orders') return shopApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, dataDir: DATA_DIR });
 
   if (req.method === 'GET' && p === '/api/me') {
     const s = sessionOf(req);

@@ -172,5 +172,17 @@
   "page": "https://commons.wikimedia.org/wiki/File:A_xiaolongbao_at_Beijing_Dumpling_Shop_in_Sham_Shui_Po.jpg",
   "artist": "Peachyeung316",
   "license": "CC BY-SA 4.0"
+ },
+ "healthy": {
+  "title": "File:Avocado salad in Argentina.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Avocado_salad_in_Argentina.jpg",
+  "artist": "Horacio Cambeiro",
+  "license": "CC BY-SA 3.0"
+ },
+ "dessert": {
+  "title": "File:Krispy Kreme Dozen Doughnuts 2.jpg",
+  "page": "https://commons.wikimedia.org/wiki/File:Krispy_Kreme_Dozen_Doughnuts_2.jpg",
+  "artist": "Unisouth",
+  "license": "CC BY 3.0"
  }
 }

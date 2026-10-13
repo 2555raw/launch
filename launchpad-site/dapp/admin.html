@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>BNB Bite · Admin</title>
+<style>
+:root { --bg:#fff; --ink:#111; --muted:#666; --line:#e6e6e6; --surface:#f4f4f4; --gold:#F0B90B; --red:#E11900; --green:#05944F; font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; }
+* { box-sizing: border-box; } body { margin:0; background:var(--bg); color:var(--ink); font-size:15px; line-height:1.5; }
+header { display:flex; align-items:center; gap:16px; padding:0 24px; height:60px; border-bottom:1px solid var(--line); position:sticky; top:0; background:var(--bg); z-index:5; }
+.brand { font-weight:800; font-size:22px; letter-spacing:-.04em; } .brand em { font-style:normal; color:#C99A00; font-weight:500; }
+header nav { display:flex; gap:4px; margin-left:12px; } header nav button { border:0; background:transparent; padding:8px 12px; border-radius:999px; font:inherit; font-weight:600; cursor:pointer; color:var(--muted); } header nav button.is-on { background:var(--surface); color:var(--ink); }
+header .key { margin-left:auto; display:flex; gap:8px; align-items:center; font-size:13px; color:var(--muted); }
+input, select, textarea, button { font:inherit; } .input { padding:9px 12px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); } .btn { padding:9px 14px; border-radius:999px; border:0; background:var(--ink); color:var(--bg); font-weight:600; cursor:pointer; } .btn.gray { background:var(--surface); color:var(--ink); } .btn.sm { padding:5px 10px; font-size:13px; }
+main { padding:24px; max-width:1400px; margin:0 auto; } section[hidden] { display:none; }
+.cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; margin-bottom:24px; } .card { border:1px solid var(--line); border-radius:14px; padding:14px 16px; } .card small { display:block; color:var(--muted); font-size:13px; } .card b { font-size:22px; font-family:ui-monospace,Menlo,Consolas,monospace; font-weight:600; }
+table { width:100%; border-collapse:collapse; font-size:14px; } th, td { text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top; } th { font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); } td .mono { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px; }
+.st { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:600; background:var(--surface); } .st.delivered { background:#E5F8EE; color:var(--green); } .st.failed, .st.expired { background:#fde7e7; color:var(--red); } .st.pending { background:#FFF6D8; color:#7A5A00; }
+.ok { color:var(--green); } .bad { color:var(--red); } .muted { color:var(--muted); }
+.row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.grid2 { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px; } .cat { border:1px solid var(--line); border-radius:14px; padding:14px; display:grid; gap:8px; } .cat img { width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:8px; background:var(--surface); }
+.log { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:12.5px; white-space:pre-wrap; background:var(--surface); border-radius:10px; padding:12px; max-height:360px; overflow:auto; }
+details { border:1px solid var(--line); border-radius:10px; padding:8px 12px; margin-top:8px; } summary { cursor:pointer; font-weight:600; }
+#toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:8px; font-size:14px; opacity:0; transition:opacity .2s; pointer-events:none; } #toast.on { opacity:1; }
+.lock { max-width:420px; margin:80px auto; display:grid; gap:12px; text-align:center; } .lock p { color:var(--muted); }
+</style></head><body>
+<header><span class="brand">bnb<em>bite</em></span><span class="muted">Admin</span>
+  <nav id="nav" hidden><button data-v="overview" class="is-on">Overview</button><button data-v="orders">Orders</button><button data-v="catalog">Establishments</button><button data-v="log">Activity</button></nav>
+  <span class="key" id="who" hidden><span id="status"></span><button class="btn gray sm" id="logout">Sign out</button></span></header>
+<main>
+  <div class="lock" id="lock"><h2 style="margin:0">Admin access</h2><p>Enter the ADMIN_KEY configured on the server. It is checked on every request and never stored on the server side.</p><input class="input" id="key" type="password" placeholder="ADMIN_KEY" autocomplete="current-password"><button class="btn" id="enter">Enter</button><p class="bad" id="lockerr"></p></div>
+  <section id="v-overview" hidden><div class="cards" id="cards"></div><h3>Integrations</h3><div class="row" id="integ"></div><h3 style="margin-top:24px">Recent activity</h3><div class="log" id="log1"></div></section>
+  <section id="v-orders" hidden><div class="row" style="margin-bottom:12px"><input class="input" id="q" placeholder="Search id, email, brand, status"><select class="input" id="fs"><option value="">All statuses</option><option>pending</option><option>paid</option><option>processing</option><option>delivered</option><option>failed</option><option>expired</option><option>refunded</option></select><button class="btn gray" id="reload">Reload</button></div><div style="overflow:auto"><table><thead><tr><th>Order</th><th>Card</th><th>Recipient</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead><tbody id="orders"></tbody></table></div></section>
+  <section id="v-catalog" hidden><p class="muted">Overrides apply on top of the built-in catalog: display name, Chinese name, category, short description, photo and visibility. Photos must be yours or licensed; they are served from this server.</p><div class="grid2" id="cats"></div></section>
+  <section id="v-log" hidden><div class="log" id="log2"></div></section>
+</main>
+<div id="toast"></div>
+<script>
+(function () {
+  const $ = (s) => document.querySelector(s); let KEY = sessionStorage.getItem('bb.admin') || ''; let DATA = null;
+  const toast = (m) => { const el = $('#toast'); el.textContent = m; el.classList.add('on'); setTimeout(() => el.classList.remove('on'), 2500); };
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  async function api(p, body) { const r = await fetch(p, { method: body === undefined ? 'GET' : 'POST', headers: { 'x-admin-key': KEY, 'content-type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body), cache: 'no-store' }); const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.error || r.status); return j; }
+  const money = (v, c) => new Intl.NumberFormat('en-US', { style: 'currency', currency: c || 'USD' }).format(v);
+  const when = (ms) => ms ? new Date(ms).toLocaleString() : '';
+  function view(v) { document.querySelectorAll('#nav button').forEach((b) => b.classList.toggle('is-on', b.dataset.v === v)); ['overview', 'orders', 'catalog', 'log'].forEach((k) => { $('#v-' + k).hidden = k !== v; }); if (v === 'orders') loadOrders(); if (v === 'catalog') loadCatalog(); if (v === 'log') $('#log2').textContent = (DATA.log || []).map((l) => `${when(l.at)}  ${l.action}  ${JSON.stringify(Object.fromEntries(Object.entries(l).filter(([k]) => k !== 'at' && k !== 'action')))}`).join('\n') || 'No activity yet.'; }
+  async function enter() { KEY = $('#key').value.trim(); try { DATA = await api('/api/admin/summary'); sessionStorage.setItem('bb.admin', KEY); $('#lock').hidden = true; $('#nav').hidden = false; $('#who').hidden = false; renderOverview(); view('overview'); } catch (e) { $('#lockerr').textContent = e.message; } }
+  function renderOverview() {
+    const d = DATA; const by = d.byStatus || {};
+    $('#cards').innerHTML = [['Orders', d.orders], ['Delivered', by.delivered || 0], ['Pending', by.pending || 0], ['Failed', by.failed || 0], ['Sales (USD)', money(d.salesUsd)], ['Margin earned', money(d.marginUsd)], ['Bitrefill balance', d.bitrefillBalance && d.bitrefillBalance.balance != null ? money(d.bitrefillBalance.balance, d.bitrefillBalance.currency) : '—']].map(([k, v]) => `<div class="card"><small>${esc(k)}</small><b>${esc(v)}</b></div>`).join('');
+    const m = d.methods || {}; $('#integ').innerHTML = [['Bitrefill supply', d.supply], ['Wallet payments (BNB/USDT)', m.wallet], ['Any crypto (NOWPayments)', m.crypto], ['Cards (Stripe)', m.card], ['Email (Resend)', d.email]].map(([k, v]) => `<span class="st ${v ? 'delivered' : 'failed'}">${esc(k)}: ${v ? 'on' : 'off'}</span>`).join('');
+    $('#log1').textContent = (d.log || []).slice(0, 15).map((l) => `${when(l.at)}  ${l.action}  ${l.order || l.file || (l.keys || []).join(',') || ''}`).join('\n') || 'No activity yet.';
+    $('#status').textContent = `${d.orders} orders · supply ${d.supply ? 'on' : 'off'}`;
+  }
+  let ORDERS = [];
+  async function loadOrders() { try { ORDERS = (await api('/api/admin/orders')).orders; renderOrders(); } catch (e) { toast(e.message); } }
+  function renderOrders() {
+    const q = $('#q').value.trim().toLowerCase(); const fs = $('#fs').value;
+    const rows = ORDERS.filter((o) => (!fs || o.status === fs) && (!q || [o.id, o.name, o.rid, o.status, o.recipient && o.recipient.email, o.buyer && o.buyer.address, o.pay && o.pay.txHash].some((x) => String(x || '').toLowerCase().includes(q))));
+    $('#orders').innerHTML = rows.map((o) => { const p = o.pay || {}; const rd = o.redemption || {}; return `<tr><td><span class="mono">${esc(o.id)}</span><br><span class="muted">${esc(when(o.createdAt))}</span></td><td><b>${esc(o.name)}</b> ${esc(money(o.value, o.currency))}<br><span class="muted">price ${esc(money(o.priceUsd))}</span></td><td>${esc(o.recipient && o.recipient.email)}<br><span class="muted">${esc(o.buyer && o.buyer.address ? o.buyer.address.slice(0, 10) + '…' : 'guest')} · email ${o.emailSent ? '<span class="ok">sent</span>' : '<span class="muted">no</span>'}</span></td><td>${esc(p.method)}${p.token ? ' ' + esc(p.token) : ''}${p.provider ? ' · ' + esc(p.provider) : ''}${p.providerStatus ? ' · ' + esc(p.providerStatus) : ''}<br>${p.txHash ? `<a class="mono" href="https://bscscan.com/tx/${esc(p.txHash)}" target="_blank" rel="noopener">${esc(p.txHash.slice(0, 14))}…</a>` : ''}</td><td><span class="st ${esc(o.status)}">${esc(o.status)}</span>${o.error ? `<br><span class="bad">${esc(o.error)}</span>` : ''}${rd.code ? `<details><summary>code</summary><span class="mono">${esc(rd.code)}${rd.pin ? ' PIN ' + esc(rd.pin) : ''}</span><br>${esc(rd.instructions || '')}</details>` : ''}</td><td><div class="row">${['paid', 'processing', 'failed'].includes(o.status) ? `<button class="btn sm" data-a="retry" data-id="${o.id}">Retry fulfilment</button>` : ''}${o.status === 'delivered' ? `<button class="btn gray sm" data-a="email" data-id="${o.id}">Resend email</button>` : ''}<select class="input" style="padding:4px 8px" data-a="status" data-id="${o.id}"><option value="">Set status…</option>${['pending', 'paid', 'processing', 'delivered', 'failed', 'expired', 'refunded'].map((s) => `<option ${s === o.status ? 'disabled' : ''}>${s}</option>`).join('')}</select></div>${(o.notes || []).map((n) => `<div class="muted" style="font-size:12px">${esc(when(n.at))}: ${esc(n.from)} → ${esc(n.to)} ${esc(n.note || '')}</div>`).join('')}</td></tr>`; }).join('') || '<tr><td colspan="6" class="muted">No orders.</td></tr>';
+  }
+  let CAT = null; let OVR = {};
+  async function loadCatalog() {
+    try { const page = await (await fetch('/', { cache: 'no-store' })).text(); const m = /const RESTAURANTS = (\[[\s\S]*?\])\.map\(/.exec(page); CAT = m ? JSON.parse(m[1].replace(/'/g, '"')) : []; } catch { CAT = []; }
+    try { OVR = (await api('/api/catalog')).overrides || {}; } catch {}
+    const cats = ['burger', 'chicken', 'pizza', 'mex', 'cafe', 'tea', 'hotpot', 'delivery', 'casual', 'cn', 'healthy', 'dessert'];
+    $('#cats').innerHTML = CAT.map((r) => { const [id, , name, , parentName, cat] = r; const o = OVR[id] || {}; const photo = o.photo || `/photos/${id}.jpg`; return `<div class="cat" data-id="${esc(id)}"><img src="${esc(photo)}" alt="" onerror="this.src='/photos/${esc(cat)}.jpg'"><div class="row"><b>${esc(name)}</b><span class="muted">${esc(parentName)}</span><label style="margin-left:auto;font-size:13px"><input type="checkbox" data-f="hidden" ${o.hidden ? 'checked' : ''}> hidden</label></div>
+      <input class="input" data-f="name" placeholder="Display name" value="${esc(o.name || '')}"><input class="input" data-f="nameZh" placeholder="中文名" value="${esc(o.nameZh || '')}"><select class="input" data-f="cat"><option value="">Category (${esc(cat)})</option>${cats.map((c) => `<option ${o.cat === c ? 'selected' : ''}>${c}</option>`).join('')}</select><input class="input" data-f="blurb" maxlength="160" placeholder="Short description" value="${esc(o.blurb || '')}">
+      <div class="row"><input type="file" accept="image/jpeg,image/png,image/webp" data-f="file"><button class="btn sm" data-a="save">Save</button><button class="btn gray sm" data-a="reset">Reset</button></div></div>`; }).join('');
+  }
+  async function saveCat(card, reset) {
+    const id = card.dataset.id; if (reset) { await api('/api/admin/catalog', { overrides: { [id]: null } }); toast('Reset ' + id); return loadCatalog(); }
+    const o = {}; for (const f of ['name', 'nameZh', 'cat', 'blurb']) { const v = card.querySelector(`[data-f="${f}"]`).value.trim(); if (v) o[f] = v; } o.hidden = card.querySelector('[data-f="hidden"]').checked;
+    const file = card.querySelector('[data-f="file"]').files[0];
+    if (file) { if (file.size > 2 * 1024 * 1024) return toast('Image over 2 MB'); const dataUrl = await new Promise((r) => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(file); }); const up = await api('/api/admin/upload', { dataUrl }); o.photo = up.url; }
+    await api('/api/admin/catalog', { overrides: { [id]: o } }); toast('Saved ' + id); loadCatalog();
+  }
+  document.addEventListener('click', async (e) => {
+    const nb = e.target.closest('#nav button'); if (nb) return view(nb.dataset.v);
+    if (e.target.id === 'enter') return enter(); if (e.target.id === 'logout') { sessionStorage.removeItem('bb.admin'); location.reload(); } if (e.target.id === 'reload') return loadOrders();
+    const a = e.target.closest('[data-a]'); if (!a || a.tagName === 'SELECT') return;
+    try { if (a.dataset.a === 'retry') { await api(`/api/admin/orders/${a.dataset.id}/retry`, {}); toast('Retried'); loadOrders(); } if (a.dataset.a === 'email') { const r = await api(`/api/admin/orders/${a.dataset.id}/email`, {}); toast(r.sent ? 'Email sent' : 'Email not sent: ' + (r.error || 'not configured')); loadOrders(); } if (a.dataset.a === 'save') saveCat(a.closest('.cat')); if (a.dataset.a === 'reset') saveCat(a.closest('.cat'), true); } catch (err) { toast(err.message); }
+  });
+  document.addEventListener('change', async (e) => { if (e.target.dataset.a === 'status' && e.target.value) { const note = prompt('Note for this status change (optional)') || ''; try { await api(`/api/admin/orders/${e.target.dataset.id}/status`, { status: e.target.value, note }); toast('Status updated'); loadOrders(); } catch (err) { toast(err.message); } } });
+  document.addEventListener('input', (e) => { if (e.target.id === 'q' || e.target.id === 'fs') renderOrders(); });
+  $('#key').addEventListener('keydown', (e) => { if (e.key === 'Enter') enter(); });
+  if (KEY) { $('#key').value = KEY; enter(); }
+})();
+</script></body></html>

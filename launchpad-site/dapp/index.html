@@ -792,24 +792,6 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div class="hero-art" id="hero-art" aria-hidden="true"></div>
         <div class="hero-chips" id="hero-chips"></div>
       </div>
-      <div class="cats-wrap">
-        <div class="cats" id="cat">
-          <button type="button" class="is-on" data-cat="all"><span class="ic" data-ic="all"></span><span data-t="f.allCats"></span></button>
-          <button type="button" data-cat="burger"><span class="ic" data-ic="burger"></span><span data-t="cat.burger"></span></button>
-          <button type="button" data-cat="chicken"><span class="ic" data-ic="chicken"></span><span data-t="cat.chicken"></span></button>
-          <button type="button" data-cat="pizza"><span class="ic" data-ic="pizza"></span><span data-t="cat.pizza"></span></button>
-          <button type="button" data-cat="mex"><span class="ic" data-ic="mex"></span><span data-t="cat.mex"></span></button>
-          <button type="button" data-cat="cafe"><span class="ic" data-ic="cafe"></span><span data-t="cat.cafe"></span></button>
-          <button type="button" data-cat="tea"><span class="ic" data-ic="tea"></span><span data-t="cat.tea"></span></button>
-          <button type="button" data-cat="hotpot"><span class="ic" data-ic="hotpot"></span><span data-t="cat.hotpot"></span></button>
-          <button type="button" data-cat="delivery"><span class="ic" data-ic="delivery"></span><span data-t="cat.delivery"></span></button>
-          <button type="button" data-cat="healthy"><span class="ic" data-ic="healthy"></span><span data-t="cat.healthy"></span></button>
-          <button type="button" data-cat="dessert"><span class="ic" data-ic="dessert"></span><span data-t="cat.dessert"></span></button>
-          <button type="button" data-cat="casual"><span class="ic" data-ic="casual"></span><span data-t="cat.casual"></span></button>
-          <button type="button" data-cat="cn"><span class="ic" data-ic="cn"></span><span data-t="cat.cn"></span></button>
-        </div>
-        <button class="arrow" type="button" id="cats-r" aria-label="More"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      </div>
       <p class="ranked"><span id="notice-text"></span> <a href="#docs" data-t="ranked.more"></a></p>
       <hr class="rule">
       <div class="feed" id="feed" hidden><span class="feed-l"><i></i><span data-t="feed.h"></span></span><div class="feed-s" id="feed-s"></div></div>
@@ -1945,7 +1927,6 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const fv = e.target.closest('[data-fav]'); if (fv) { const a = fv.dataset.fav; if (FAV.has(a)) FAV.delete(a); else FAV.add(a); saveFav(); toast(t(FAV.has(a) ? 'fav.on' : 'fav.off')); renderStats(); renderRows(); return; }
     const open = e.target.closest('[data-open]'); if (open) { setOpen(open.dataset.open); return; }
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }
-    if (e.target.closest('#cats-r')) { $('#cat').scrollBy({ left: 300, behavior: 'smooth' }); return; }
     if (e.target.closest('#cartbtn')) { setTab('mine'); go('coins'); return; }
     const tab = e.target.closest('[data-tab]'); if (tab) { setTab(tab.dataset.tab); go('coins'); return; }
     if (e.target.closest('#burger')) { $('#side').classList.toggle('is-open'); return; }
@@ -1982,7 +1963,6 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   (function start() {
     let lang = null; try { lang = localStorage.getItem('bento.lang'); } catch {}
     if (!lang || !I18N[lang]) lang = 'en';
-    $$('.cats .ic[data-ic]').forEach((el) => { el.innerHTML = LINE[el.dataset.ic] || LINE.all; });
     if (E) route();
     if (!VIEW) setView('home');
     setLang(lang);

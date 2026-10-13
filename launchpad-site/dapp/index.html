@@ -702,12 +702,6 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         </div>
         <button class="arrow" type="button" id="cats-r" aria-label="More"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
-      <div class="filters">
-        <button type="button" class="pill" id="pill-live"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20 12 12 20l-8-8V4h8l8 8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/></svg><span data-t="pill.live"></span></button>
-        <label class="pill"><span data-t="pill.pay"></span><select id="pay"><option value="all" data-t="f.all"></option></select></label>
-        <button type="button" class="pill" id="pill-top"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="m12 3 2.7 5.6 6.3.9-4.5 4.4 1 6.1L12 17l-5.5 3 1-6.1L3 9.5l6.3-.9L12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="pill.top"></span></button>
-        <label class="pill"><span data-t="pill.sort"></span><select id="sort"><option value="progress" data-t="sort.progress"></option><option value="raised" data-t="sort.raised"></option><option value="time" data-t="sort.time"></option><option value="new" data-t="sort.new"></option></select></label>
-      </div>
       <p class="ranked"><span id="notice-text"></span> <a href="#docs" data-t="ranked.more"></a></p>
       <hr class="rule">
       <div class="feed" id="feed" hidden><span class="feed-l"><i></i><span data-t="feed.h"></span></span><div class="feed-s" id="feed-s"></div></div>
@@ -1364,7 +1358,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const mine = Cs.filter((C) => FAV.has(C.addr) || (state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase())));
     $('#cart-n').textContent = String(mine.length);
     for (const [id, v] of [['n-live', live.length], ['n-grad', grad.length], ['n-mine', mine.length]]) { const el = $('#' + id); const nv = String(v); if (el.textContent !== nv) { el.textContent = nv; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }
-    const paySel = $('#pay'); const keep = paySel.value; const units = [...new Set(Cs.map((C) => C.unit))];
+    const paySel = $('#pay'); if (!paySel) return; const keep = paySel.value; const units = [...new Set(Cs.map((C) => C.unit))];
     paySel.innerHTML = `<option value="all">${t('f.all')}</option>` + units.map((u) => `<option value="${esc(u)}">${esc(u)}</option>`).join(''); paySel.value = units.includes(keep) ? keep : 'all';
   }
   function renderWallet() {
@@ -1768,8 +1762,6 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (e.target.closest('#cats-r')) { $('#cat').scrollBy({ left: 300, behavior: 'smooth' }); return; }
     if (e.target.closest('#cartbtn')) { setTab('mine'); $('#all')?.scrollIntoView({ behavior: 'smooth' }); return; }
     const tab = e.target.closest('[data-tab]'); if (tab) { setTab(tab.dataset.tab); if (tab.closest('.side')) $('#all')?.scrollIntoView({ behavior: 'smooth' }); return; }
-    if (e.target.closest('#pill-live')) { state.liveOnly = !state.liveOnly; $('#pill-live').classList.toggle('is-on', state.liveOnly); renderRows(); return; }
-    if (e.target.closest('#pill-top')) { state.top = !state.top; $('#pill-top').classList.toggle('is-on', state.top); renderRows(); return; }
     if (e.target.closest('#burger')) { $('#side').classList.toggle('is-open'); return; }
     if (e.target.closest('#bottom-x')) { $('#bottom').hidden = true; return; }
     if (e.target.closest('.side a')) { $('#side').classList.remove('is-open'); }
@@ -1779,8 +1771,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   document.addEventListener('input', (e) => { if (e.target.id === 'gemail') GS.email = e.target.value; if (e.target.id === 'gmsg') GS.message = e.target.value; });
   $('#q').addEventListener('input', (e) => { state.q = e.target.value; renderRows(); addrSearch(e.target.value); });
   window.addEventListener('hashchange', () => { const r = route(); if (r === 'open') renderRows(); else if (r === 'net') { state.coins = []; state.loaded = false; render(); loadCoins(); } });
-  $('#sort').addEventListener('change', (e) => { state.sort = e.target.value; renderRows(); });
-  $('#pay').addEventListener('change', (e) => { state.pay = e.target.value; renderRows(); });
+  $('#sort')?.addEventListener('change', (e) => { state.sort = e.target.value; renderRows(); });
+  $('#pay')?.addEventListener('change', (e) => { state.pay = e.target.value; renderRows(); });
   $('#launch-form').addEventListener('submit', launchCoin);
   ['c-name', 'c-tick', 'c-rest', 'c-goal', 'c-window'].forEach((id) => $('#' + id).addEventListener('input', renderPreview));
   document.addEventListener('keydown', (e) => { if (e.key !== 'Escape') return; if (!$('#modal').hidden) { $('#modal').hidden = true; return; } if (state.open) setOpen(null); });

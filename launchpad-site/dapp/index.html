@@ -605,8 +605,6 @@ main > section[hidden], main > hr.divider { display: none; }
 @keyframes flashUp { 0% { background: rgba(6,193,103,.32); } 100% { background: rgba(6,193,103,0); } }
 @keyframes flashDown { 0% { background: rgba(224,58,58,.28); } 100% { background: rgba(224,58,58,0); } }
 @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.09); } }
-@keyframes glow { 0%, 100% { transform: translate(0, 0) scale(1); opacity: .8; } 50% { transform: translate(-40px, 40px) scale(1.2); opacity: 1; } }
-@keyframes glow2 { 0%, 100% { transform: translate(0, 0) scale(1); opacity: .55; } 50% { transform: translate(40px, -40px) scale(1.15); opacity: .85; } }
 @keyframes pop { 0% { transform: scale(.88); } 60% { transform: scale(1.06); } 100% { transform: scale(1); } }
 @keyframes shine { from { transform: translateX(-130%) skewX(-20deg); } to { transform: translateX(260%) skewX(-20deg); } }
 @keyframes growY { from { transform: scaleY(0); } to { transform: scaleY(1); } }
@@ -619,9 +617,6 @@ main > section.v-in { animation: viewin .42s cubic-bezier(.2,.7,.2,1) both; }
 .js-io .reveal.is-in { opacity: 1; transform: none; }
 .js-io .reveal:nth-child(2) { transition-delay: .08s; } .js-io .reveal:nth-child(3) { transition-delay: .16s; } .js-io .reveal:nth-child(4) { transition-delay: .24s; }
 /* hero */
-.hero::before, .hero::after { content: ''; position: absolute; border-radius: 50%; pointer-events: none; filter: blur(14px); }
-.hero::before { width: 600px; height: 600px; left: -140px; top: -200px; background: radial-gradient(circle, rgba(240,185,11,.62), transparent 60%); animation: glow 9s ease-in-out infinite; }
-.hero::after { width: 460px; height: 460px; right: 36%; bottom: -240px; background: radial-gradient(circle, rgba(255,90,31,.44), transparent 60%); animation: glow2 12s ease-in-out infinite; }
 .hero-t > * { animation: rise .6s cubic-bezier(.2,.7,.2,1) both; }
 .hero-t > :nth-child(1) { animation-delay: .05s; } .hero-t > :nth-child(2) { animation-delay: .13s; } .hero-t > :nth-child(3) { animation-delay: .21s; } .hero-t > :nth-child(4) { animation-delay: .29s; } .hero-t > :nth-child(5) { animation-delay: .37s; }
 .hero-art { animation: kenburns 24s ease-in-out infinite alternate; transform-origin: 60% 40%; }

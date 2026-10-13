@@ -317,6 +317,13 @@ p { margin: 0; }
 .banner .pxl { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; font-family: var(--mono); font-size: 13px; font-weight: 600; background: rgba(255,255,255,.22); border-radius: 999px; padding: 4px 10px; }
 .banner.g3 .pxl { background: rgba(0,0,0,.08); }
 
+/* ---- views ---- */
+main > section[hidden], main > hr.divider { display: none; }
+#coin-tabs { margin-left: 0; height: 40px; }
+#coin-tabs button { padding: 0 12px; font-size: 13px; }
+#coin-tabs button.is-on { background: var(--bg); box-shadow: 0 1px 4px rgba(0,0,0,.14); }
+@media (max-width: 760px) { #all .sec-h { flex-wrap: wrap; } #coin-tabs { order: 3; width: 100%; overflow-x: auto; } }
+
 /* ---- stock cards + price chart ---- */
 .rail.stocks { grid-auto-columns: minmax(230px, 1fr); }
 @media (min-width: 1500px) { .rail.stocks { grid-auto-columns: calc((100% - 64px) / 5); } }
@@ -593,7 +600,7 @@ p { margin: 0; }
 .side .n.bump { animation: rise .35s both; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 footer { padding: 40px 0 0; font-size: 14px; line-height: 20px; color: var(--muted); border-top: 1px solid var(--line); margin-top: 24px; }
-.ft { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 24px; margin-bottom: 32px; }
+.ft { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 24px; margin-bottom: 28px; }
 @media (max-width: 900px) { .ft { grid-template-columns: 1fr 1fr; } }
 .ft .brand { font-size: 22px; margin: 0 0 10px; }
 .ft p { max-width: 360px; }
@@ -601,7 +608,9 @@ footer { padding: 40px 0 0; font-size: 14px; line-height: 20px; color: var(--mut
 .ft ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .ft a { color: var(--ink); }
 .ft a:hover { text-decoration: underline; }
-.ft-b { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 20px 0 8px; border-top: 1px solid var(--line); font-size: 13px; }
+.ft-b { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; padding: 20px 0 8px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.ft-b .legal a { color: var(--muted); }
+.ft-b .legal a:hover { color: var(--ink); }
 .ft-b .tagl { display: inline-flex; align-items: center; gap: 6px; }
 .ft-b .tagl i { width: 8px; height: 8px; border-radius: 999px; background: var(--dim); }
 .ft-b .tagl.ok i { background: var(--green); }
@@ -648,7 +657,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
 <div class="shell" id="top">
   <aside class="side" id="side">
-    <a href="#explore" class="is-on"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.home"></span></a>
+    <a href="#home" class="is-on"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.home"></span></a>
     <a href="#gifts" id="nav-gifts"><span class="ico c6"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 8v13M12 8c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.gifts"></span></a>
 
     <div class="grp" data-t="grp.coins"></div>
@@ -679,7 +688,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
           <span class="eyebrow"><i></i><span id="hero-eye"></span></span>
           <h1 id="hero-h1"></h1>
           <p id="hero-p"></p>
-          <div class="hero-cta"><a class="btn btn-ink" href="#launch" data-t="nav.create"></a><a class="btn btn-white" href="#sec-rest" data-t="hero.cta2"></a></div>
+          <div class="hero-cta"><a class="btn btn-ink" href="#launch" data-t="nav.create"></a><a class="btn btn-white" href="#pairs" data-t="hero.cta2"></a></div>
           <div class="hero-stats" id="hero-stats" hidden></div>
         </div>
         <div class="hero-art" id="hero-art" aria-hidden="true"></div>
@@ -723,29 +732,36 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       </div>
       <hr class="divider">
       <div class="sec" id="gifts">
-        <div class="sec-h"><h2 data-t="gift.h2"></h2><a class="all" href="https://www.bitrefill.com/us/en/gift-cards/restaurants/" target="_blank" rel="noopener" data-t="gift.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="gift-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="gift-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
+        <div class="sec-h"><h2 data-t="gift.h2"></h2><a class="all" href="#gifts" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="gift-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="gift-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
         <p class="gift-pay"><span data-t="gift.p"></span><b>Bitcoin</b><b>Lightning</b><b>USDT</b><b>USDC</b><b>Binance Pay</b><b>Apple Pay</b></p>
         <div class="rail" id="gift-rail"></div>
       </div>
       <hr class="divider">
       <div class="sec" id="sec-featured">
-        <div class="sec-h"><h2 data-t="sec.featured"></h2><a class="all" href="#all" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="featured-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="featured-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
+        <div class="sec-h"><h2 data-t="sec.featured"></h2><a class="all" href="#coins" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="featured-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="featured-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
         <div class="rail" id="featured-rail"></div>
       </div>
       <hr class="divider">
       <div class="sec" id="sec-new">
-        <div class="sec-h"><h2 data-t="sec.new"></h2><a class="all" href="#all" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="new-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="new-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
+        <div class="sec-h"><h2 data-t="sec.new"></h2><a class="all" href="#coins" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="new-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="new-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
         <div class="rail" id="new-rail"></div>
       </div>
-      <hr class="divider">
+    </section>
+
+    <section class="sec" id="coins">
       <div class="sec" id="all">
-        <div class="sec-h"><h2 id="h1" data-t="sec.allCoins"></h2><span class="muted"><span id="live-count">—</span> <span data-t="st.live"></span></span></div>
+        <div class="sec-h"><h2 id="h1" data-t="sec.allCoins"></h2><span class="mode" id="coin-tabs"><button type="button" data-tab="trending" data-t="tab.trending"></button><button type="button" data-tab="new" data-t="tab.new"></button><button type="button" data-tab="graduating" data-t="tab.graduating"></button><button type="button" data-tab="graduated" data-t="tab.graduated"></button><button type="button" data-tab="mine" data-t="nav.mine"></button></span><span class="muted"><span id="live-count">—</span> <span data-t="st.live"></span></span></div>
         <div class="grid" id="rows"><p class="empty" data-t="board.loading"></p></div>
         <p class="hint" style="margin-top:16px" data-t="board.note"></p>
       </div>
     </section>
 
-    <hr class="divider">
+    <section class="sec" id="giftshop">
+      <div class="sec-h"><h2 data-t="gift.h2"></h2><a class="all" href="https://www.bitrefill.com/us/en/gift-cards/restaurants/" target="_blank" rel="noopener" data-t="gift.all"></a></div>
+      <p class="gift-pay"><span data-t="gift.p"></span><b>Bitcoin</b><b>Lightning</b><b>USDT</b><b>USDC</b><b>Binance Pay</b><b>Apple Pay</b></p>
+      <div class="grid" id="gift-grid"></div>
+    </section>
+
     <section class="sec" id="launch">
       <div class="sec-h"><h2 data-t="launch.h2"></h2></div>
       <div class="launch">
@@ -811,11 +827,10 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     <footer>
       <div class="ft">
         <div><a class="brand" href="#top">bnb<em>bite</em></a><p data-t="ft.tag"></p><div class="social"><a id="x-link" href="https://x.com/" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.2L23.3 22h-6.6l-5.2-6.8L5.6 22H2.4l7.7-8.8L2 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.3 3.9H5.4L17.7 20z"/></svg></a><a href="https://github.com/2555raw/launch" target="_blank" rel="noopener" aria-label="GitHub"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.7.5.7 5.5.7 11.8c0 5 3.2 9.2 7.7 10.7.6.1.8-.2.8-.5v-2c-3.1.7-3.8-1.3-3.8-1.3-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.1.1 1.7 1.2 1.7 1.2 1 1.7 2.7 1.2 3.3.9.1-.7.4-1.2.7-1.5-2.5-.3-5.1-1.3-5.1-5.6 0-1.2.4-2.2 1.2-3-.1-.3-.5-1.5.1-3 0 0 .9-.3 3.1 1.2a10.6 10.6 0 0 1 5.6 0c2.2-1.5 3.1-1.2 3.1-1.2.6 1.5.2 2.7.1 3 .8.8 1.2 1.8 1.2 3 0 4.3-2.6 5.3-5.1 5.6.4.4.8 1 .8 2.1v3.1c0 .3.2.6.8.5 4.5-1.5 7.7-5.7 7.7-10.7C23.3 5.5 18.3.5 12 .5z"/></svg></a></div></div>
-        <div><h4 data-t="ft.product"></h4><ul><li><a href="#explore" data-t="nav.home"></a></li><li><a href="#launch" data-t="nav.create"></a></li><li><a href="#gifts" data-t="nav.gifts"></a></li><li><a href="#pairs" data-t="docs.4h"></a></li><li><a href="#docs" data-t="nav.docs"></a></li><li><a href="#faq" data-t="faq.h2"></a></li></ul></div>
-        <div><h4 data-t="ft.protocol"></h4><ul><li><a id="explorer-link" href="#" target="_blank" rel="noopener" data-t="ft.factory"></a></li><li><a href="https://github.com/2555raw/launch" target="_blank" rel="noopener" data-t="ft.src"></a></li><li><a href="https://pancakeswap.finance" target="_blank" rel="noopener">PancakeSwap</a></li><li><a href="https://www.bnbchain.org" target="_blank" rel="noopener">BNB Chain</a></li></ul></div>
-        <div><h4 data-t="ft.legal"></h4><ul><li><a href="#" data-doc="risk" data-t="legal.risk"></a></li><li><a href="#" data-doc="terms" data-t="legal.terms"></a></li><li><a href="#" data-doc="privacy" data-t="legal.privacy"></a></li><li><a href="#" data-doc="refund" data-t="legal.refund"></a></li><li><a href="#" data-doc="cookies" data-t="legal.cookies"></a></li></ul></div>
+        <div><h4 data-t="ft.product"></h4><ul><li><a href="#gifts" data-t="nav.gifts"></a></li><li><a href="#launch" data-t="ft.launchpad"></a></li><li><a href="#docs" data-t="nav.docs"></a></li><li><a href="#faq" data-t="faq.h2"></a></li></ul></div>
+        <div><h4 data-t="ft.legal"></h4><ul><li><a href="#" data-doc="terms" data-t="legal.terms"></a></li><li><a href="#" data-doc="privacy" data-t="legal.privacy"></a></li><li><a href="#" data-doc="refund" data-t="legal.refund"></a></li></ul></div>
       </div>
-      <div class="ft-b"><span>© <span id="year"></span> BNB Bite</span><span class="tagl" id="ft-net"><i></i><span></span></span><span class="tagl ok" id="ft-block" hidden><i></i><span class="mono"></span></span><span class="tagl"><i style="background:#F0B90B"></i><span data-t="ft.unaudited"></span></span><span class="legal"><a href="#" data-doc="risk" data-t="legal.risk"></a><a href="#" data-doc="terms" data-t="legal.terms"></a><a href="#" data-doc="photos" data-t="legal.photos" class="muted" style="font-size:12px"></a></span></div>
+      <div class="ft-b"><span>© <span id="year"></span> BNB Bite</span><span class="tagl" id="ft-net"><i></i><span></span></span><span class="tagl ok" id="ft-block" hidden><i></i><span class="mono"></span></span><span class="tagl"><i style="background:#F0B90B"></i><span data-t="ft.unaudited"></span></span><span class="legal"><a id="explorer-link" href="#" target="_blank" rel="noopener" data-t="ft.factory"></a><a href="https://github.com/2555raw/launch" target="_blank" rel="noopener" data-t="ft.src"></a><a href="#" data-doc="risk" data-t="legal.risk"></a><a href="#" data-doc="cookies" data-t="legal.cookies"></a><a href="#" data-doc="photos" data-t="legal.photos" class="muted"></a></span></div>
     </footer>
   </main>
 </div>
@@ -912,7 +927,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'legal.cookiesB': ['This site sets no tracking cookies. It stores your language, theme, saved coins and the ids of your gift card orders in your browser\'s localStorage so you can find them again on this device.', 'Stripe sets its own cookies on its checkout page when you pay by card. Our payment partner and CoinGecko see your IP address when the page asks them for a price, under their own policies.', 'You can clear everything from your browser settings at any time. Orders remain reachable through the link in the email.'],
       'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
       'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of raise + 20% supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
-      'ft.tag': 'Restaurant gift cards paid with any crypto or card, and a BNB Chain launchpad where every coin is paired with a real restaurant stock.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Factory contract', 'ft.src': 'Source code', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
+      'ft.tag': 'Restaurant gift cards paid with any crypto or card, and a BNB Chain launchpad where every coin is paired with a real restaurant stock.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Contract', 'ft.launchpad': 'Launchpad', 'ft.src': 'Source', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
       'legal.risk': 'Risk disclosure', 'legal.terms': 'Terms of use', 'legal.privacy': 'Privacy', 'legal.photos': 'Photo credits', 'legal.photosP': 'Food and storefront photos come from Wikimedia Commons under the licenses listed here. They illustrate the cuisine or the brand and are not provided by the restaurants.',
       'legal.riskB': ['<b>You can lose everything you put in.</b> Coins are created by users through unaudited smart contracts. A raise can close below its minimum, a graduated coin can fall to zero, and nothing here guarantees any value.', '<b>The contracts hold the funds, not us.</b> Nobody, including the creator of a coin or the operators of this site, can withdraw from a raise before it finalizes. Refunds and claims are executed by the contract only.', '<b>Stock tokens are issued by third parties.</b> MCDx, SBUXx, MEITx and the rest are issued by Backed, Binance or Ondo. Their price, redemption and availability depend on those issuers, not on the restaurants and not on this site.', '<b>Restaurants are not involved.</b> Names and logos identify the stock token a coin is paired with. No restaurant sponsors, endorses or issues anything here.', '<b>Nothing here is advice.</b> This site shows on-chain data and lets you send transactions from your own wallet. It is not an offer, a solicitation or financial advice, and it may be unavailable to you under local law.'],
       'legal.termsB': ['This website is an interface to open-source smart contracts on BNB Chain. By using it you confirm that you are allowed to use crypto assets in your jurisdiction and that you act on your own account and at your own risk.', 'Every action (creating a coin, buying, finalizing, claiming, refunding) is a transaction signed in your wallet. We do not hold keys, funds or tokens and cannot reverse, cancel or recover transactions.', 'The contracts are provided as is, without warranty. They are unaudited; bugs may exist and may cause loss of funds. A 1% fee on graduated raises is paid to the platform address set in the factory.', 'Coin names, tickers and raises are created by users. We do not review them and we may hide any of them from this interface without notice. Hiding does not affect the contract.', 'Brands and logos belong to their owners and are used only to identify the stock token each coin is paired with.'],
@@ -970,7 +985,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'legal.cookiesB': ['本站不设追踪 cookie。为了在本设备上再次找到，浏览器 localStorage 中保存你的语言、主题、收藏的代币和礼品卡订单号。', '用银行卡付款时，Stripe 会在其结账页设置自己的 cookie。页面请求价格时，支付伙伴和 CoinGecko 会按各自政策看到你的 IP 地址。', '你可随时在浏览器设置中清除。订单仍可通过邮件中的链接访问。'],
       'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
       'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '99% 募集额 + 20% 供应量', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
-      'ft.tag': '用任意加密货币或银行卡购买餐饮礼品卡，以及每个代币都配对真实餐饮股票的 BNB 链发射台。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '工厂合约', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
+      'ft.tag': '用任意加密货币或银行卡购买餐饮礼品卡，以及每个代币都配对真实餐饮股票的 BNB 链发射台。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '合约', 'ft.launchpad': '发射台', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
       'legal.risk': '风险提示', 'legal.terms': '使用条款', 'legal.privacy': '隐私', 'legal.photos': '图片来源', 'legal.photosP': '美食与门店照片来自维基共享资源，许可证见下表。照片仅用于展示菜系或品牌，并非餐饮品牌提供。',
       'legal.riskB': ['<b>投入可能全部损失。</b>代币由用户通过未审计的智能合约创建。募集可能未达最低额而结束，毕业的代币也可能归零，这里没有任何价值保证。', '<b>资金由合约保管，不在我们手中。</b>结算前，包括代币创建者和本站运营者在内，任何人都无法从募集中提取资金。退款与领取只由合约执行。', '<b>股票代币由第三方发行。</b>MCDx、SBUXx、MEITx 等由 Backed、币安或 Ondo 发行。其价格、赎回和可用性取决于这些发行方，与餐饮品牌和本站无关。', '<b>餐饮品牌不参与。</b>名称与标志仅用于标识代币所配对的股票代币。没有任何餐饮品牌赞助、背书或发行这里的任何内容。', '<b>本站不提供建议。</b>本站展示链上数据，并让你用自己的钱包发送交易。它不构成要约、招揽或财务建议，在你所在地可能不可用。'],
       'legal.termsB': ['本网站是 BNB 链上开源智能合约的界面。使用即表示你确认所在司法辖区允许你使用加密资产，且你自行承担风险。', '每个操作（创建、买入、结算、领取、退款）都是你在钱包中签名的交易。我们不保管私钥、资金或代币，无法撤销、取消或找回交易。', '合约按现状提供，不作任何保证。合约未经审计，可能存在漏洞并导致资金损失。毕业募集的 1% 费用支付给工厂中设定的平台地址。', '代币名称、代码与募集由用户创建。我们不审核，并可在不通知的情况下在本界面隐藏任何内容。隐藏不影响合约。', '品牌与标志归其所有者所有，仅用于标识代币所配对的股票代币。'],
@@ -1110,7 +1125,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       <div class="gift-amt">${listed ? esc(range) : t('gift.na')}<small>${listed ? esc(t('gift.upto', money(g[2], g[3]))) : ''}</small></div>
       <div class="gift-f"><span class="chips">${giftChips(g).map((c) => `<span>${esc(c)}</span>`).join('')}</span><span class="cta${inSite ? ' in' : ''}">${inSite ? t('gift.buyHere') : GAPI.loaded && GAPI.supply === false && listed ? t('gift.buy') + ' ↗' : listed && GAPI.loaded ? t('gift.unavail') : t(listed ? 'gift.buy' : 'gift.browse') + ' ↗'}</span></div>${inSite ? '</div>' : '</a>'}`;
   }
-  function renderGifts() { const host = $('#gift-rail'); if (host && host.dataset.builtLang !== state.lang) { host.innerHTML = GIFT_ORDER.filter((id) => REST[id]).map(giftCard).join(''); host.dataset.builtLang = state.lang; } }
+  function renderGifts() { const html = GIFT_ORDER.filter((id) => REST[id] && !REST[id].hidden).map(giftCard).join(''); const host = $('#gift-rail'); if (host && host.dataset.builtLang !== state.lang) { host.innerHTML = html; host.dataset.builtLang = state.lang; } const grid = $('#gift-grid'); if (grid && !grid.closest('section').hidden) grid.innerHTML = html; }
 
   /* ---------- state ---------- */
   const state = { lang: 'en', chainId: DEFAULT_CHAIN, provider: null, address: null, balance: null, walletChain: null, coins: [], loaded: false, loadError: null,
@@ -1651,8 +1666,25 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     try { const h = !id ? '' : id === 'a:' ? '#account' : id.startsWith('g:') ? `#gift/${id.slice(2)}` : id.startsWith('r:') ? `#r/${id.slice(2)}` : `#coin/${state.chainId}/${id}`; history.replaceState(null, '', location.pathname + location.search + h); } catch {}
     renderRows();
   }
+  const VIEWS = { home: ['explore'], coins: ['coins'], gifts: ['giftshop'], launch: ['launch'], docs: ['docs', 'why', 'faq'], pairs: ['pairs'] };
+  const VIEW_OF = { '': 'home', home: 'home', top: 'home', explore: 'home', 'sec-rest': 'home', all: 'coins', coins: 'coins', gifts: 'gifts', giftshop: 'gifts', launch: 'launch', docs: 'docs', why: 'docs', faq: 'docs', pairs: 'pairs' };
+  const VIEW_TITLE = { home: '', coins: 'sec.allCoins', gifts: 'gift.h2', launch: 'launch.h2', docs: 'docs.h2', pairs: 'docs.4h' };
+  let VIEW = null;
+  function setView(v, anchor) {
+    if (!VIEWS[v]) v = 'home'; const changed = VIEW !== v; VIEW = v;
+    $$('main > section').forEach((sec) => { sec.hidden = !VIEWS[v].includes(sec.id); });
+    document.querySelector('main').dataset.view = v;
+    $$('.side a[href^="#"]').forEach((a) => a.classList.toggle('is-on', VIEW_OF[a.getAttribute('href').slice(1)] === v && !a.dataset.open));
+    $$('.mbar button[data-mb]').forEach((b) => b.classList.toggle('is-on', (b.dataset.mb === 'home' && v === 'home') || (b.dataset.mb === 'create' && v === 'launch')));
+    document.title = (VIEW_TITLE[v] ? t(VIEW_TITLE[v]) + ' · ' : '') + 'BNB Bite';
+    if (changed) window.scrollTo(0, 0);
+    if (anchor && anchor !== VIEWS[v][0]) { const el = $('#' + anchor); if (el && !el.hidden) el.scrollIntoView({ block: 'start' }); }
+    if (changed && v === 'gifts') { const g = $('#gift-rail'); if (g) delete g.dataset.builtLang; renderGifts(); }
+  }
+  const go = (v) => { if (location.hash !== '#' + v) location.hash = '#' + v; else setView(v); };
   function route() {
     const h = decodeURIComponent((location.hash || '').slice(1)); let m;
+    if (h in VIEW_OF) { setView(VIEW_OF[h], h); return 'view'; }
     if (h === 'mainnet') { state.chainId = 56; return 'net'; } if (h === 'testnet') { state.chainId = 97; return 'net'; }
     if ((m = h.match(/^coin\/(?:(\d+)\/)?(0x[0-9a-fA-F]{40})$/))) { if (m[1] && NETWORKS[m[1]]) state.chainId = Number(m[1]); try { state.open = E.getAddress(m[2]); } catch { state.open = m[2]; } return 'open'; }
     if ((m = h.match(/^r\/([a-z0-9_-]+)$/)) && PAIRS[m[1]]) { state.open = 'r:' + m[1]; return 'open'; }
@@ -1707,7 +1739,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     try { const f = new E.Contract(net().factory, FACTORY_ABI, p); const stock = await f.stockOf(d.r.id); if (stock !== E.ZeroAddress) dec = (await tokenMeta(p, stock)).decimals; } catch {}
     const ok = await sendTx(async (s) => new E.Contract(net().factory, FACTORY_ABI, s).createCoin(d.name, d.tick, d.r.id, E.parseUnits(String(d.goal), dec), BigInt(d.hours * 3600)));
     btn.disabled = false; btn.textContent = t('launch.btn');
-    if (ok) { toast(t('launch.done', d.tick)); $('#c-name').value = ''; $('#c-tick').value = ''; setTab('new'); $('#explore')?.scrollIntoView({ behavior: 'smooth' }); }
+    if (ok) { toast(t('launch.done', d.tick)); $('#c-name').value = ''; $('#c-tick').value = ''; setTab('new'); go('coins'); }
   }
   async function approve(addr) {
     const C = list().find((x) => x.addr === addr); if (!C || C.isBnb) return;
@@ -1734,7 +1766,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const lang = e.target.closest('[data-lang]'); if (lang) { setLang(lang.dataset.lang); return; }
     const cp = e.target.closest('[data-copy]'); if (cp) { const v = cp.dataset.copy; copyText(v === 'link' ? `${location.origin}${location.pathname}${state.open && state.open.startsWith('g:') ? `#gift/${state.open.slice(2)}` : state.open && state.open.startsWith('r:') ? `#r/${state.open.slice(2)}` : `#coin/${state.chainId}/${state.open}`}` : v); return; }
     const mb = e.target.closest('[data-mb]'); if (mb) { $$('.mbar button').forEach((x) => x.classList.toggle('is-on', x === mb)); const k = mb.dataset.mb; state.open = null; renderRows();
-      if (k === 'home') $('#explore')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'search') { window.scrollTo({ top: 0, behavior: 'smooth' }); $('#q').focus(); } else if (k === 'create') $('#launch')?.scrollIntoView({ behavior: 'smooth' }); else if (k === 'wallet') { setOpen('a:'); } return; }
+      if (k === 'home') go('home'); else if (k === 'search') { go('coins'); $('#q').focus(); } else if (k === 'create') go('launch'); else if (k === 'wallet') { setOpen('a:'); } return; }
     if (e.target.closest('[data-connect], #connect')) { connect(); return; }
     if (e.target.closest('#refresh')) { loadCoins(); return; }
     const doc = e.target.closest('[data-doc]'); if (doc) { e.preventDefault(); openDoc(doc.dataset.doc); return; }
@@ -1746,30 +1778,30 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const f = e.target.closest('[data-finalize]'); if (f) { sendTx(async (s) => new E.Contract(f.dataset.finalize, RAISE_ABI, s).finalize()); return; }
     const c = e.target.closest('[data-claim]'); if (c) { sendTx(async (s) => new E.Contract(c.dataset.claim, RAISE_ABI, s).claim()); return; }
     const r = e.target.closest('[data-refund]'); if (r) { sendTx(async (s) => new E.Contract(r.dataset.refund, RAISE_ABI, s).refund()); return; }
-    const cr = e.target.closest('[data-create]'); if (cr) { state.open = null; $('#c-rest').value = cr.dataset.create; renderPreview(); renderRows(); $('#launch')?.scrollIntoView({ behavior: 'smooth' }); $('#c-name').focus(); return; }
+    const cr = e.target.closest('[data-create]'); if (cr) { state.open = null; $('#c-rest').value = cr.dataset.create; renderPreview(); renderRows(); go('launch'); $('#c-name').focus(); return; }
     const ga = e.target.closest('[data-gamt]'); if (ga) { GS.custom = ''; GS.value = Number(ga.dataset.gamt); GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; renderRows(); return; }
     const gm = e.target.closest('[data-gm]'); if (gm && !gm.disabled) { GS.method = gm.dataset.gm; GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; if (GS.method === 'crypto' && !GS.currencies) api('/api/gifts/currencies').then((j) => { GS.currencies = j.currencies; renderRows(); }).catch(() => {}); renderRows(); return; }
     if (e.target.closest('[data-gnext]')) { giftNext(); return; }
     if (e.target.closest('[data-gback]')) { GS.order = null; GS.err = null; renderRows(); return; }
     if (e.target.closest('[data-acct-sign]')) { accountSign(); return; }
     const gp = e.target.closest('[data-gpay]'); if (gp) { giftPay(gp.dataset.gpay); return; }
-    const go = e.target.closest('[data-gorder]'); if (go) { giftOpenOrder(go.dataset.gorder); return; }
+    const gor = e.target.closest('[data-gorder]'); if (gor) { giftOpenOrder(gor.dataset.gorder); return; }
     const dd = e.target.closest('[data-days]'); if (dd) { chDays = Number(dd.dataset.days); clearTimeout(chTimer); chTimer = null; renderRows(); chartTick(); return; }
     const fv = e.target.closest('[data-fav]'); if (fv) { const a = fv.dataset.fav; if (FAV.has(a)) FAV.delete(a); else FAV.add(a); saveFav(); toast(t(FAV.has(a) ? 'fav.on' : 'fav.off')); renderStats(); renderRows(); return; }
     const open = e.target.closest('[data-open]'); if (open) { setOpen(open.dataset.open); return; }
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }
     if (e.target.closest('#cats-r')) { $('#cat').scrollBy({ left: 300, behavior: 'smooth' }); return; }
-    if (e.target.closest('#cartbtn')) { setTab('mine'); $('#all')?.scrollIntoView({ behavior: 'smooth' }); return; }
-    const tab = e.target.closest('[data-tab]'); if (tab) { setTab(tab.dataset.tab); if (tab.closest('.side')) $('#all')?.scrollIntoView({ behavior: 'smooth' }); return; }
+    if (e.target.closest('#cartbtn')) { setTab('mine'); go('coins'); return; }
+    const tab = e.target.closest('[data-tab]'); if (tab) { setTab(tab.dataset.tab); go('coins'); return; }
     if (e.target.closest('#burger')) { $('#side').classList.toggle('is-open'); return; }
     if (e.target.closest('#bottom-x')) { $('#bottom').hidden = true; return; }
     if (e.target.closest('.side a')) { $('#side').classList.remove('is-open'); }
-    const cat = e.target.closest('[data-cat]'); if (cat) { state.cat = cat.dataset.cat; $$('[data-cat]').forEach((x) => x.classList.toggle('is-on', x.dataset.cat === state.cat)); renderRows(); $('#all')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    const cat = e.target.closest('[data-cat]'); if (cat) { state.cat = cat.dataset.cat; $$('[data-cat]').forEach((x) => x.classList.toggle('is-on', x.dataset.cat === state.cat)); renderRows(); go('coins'); }
   });
   document.addEventListener('change', (e) => { if (e.target.id === 'gcustom') { const v = Number(e.target.value); GS.custom = e.target.value; GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; if (v > 0) { GS.value = v; renderRows(); } } if (e.target.id === 'gcur') GS.currency = e.target.value; });
   document.addEventListener('input', (e) => { if (e.target.id === 'gemail') GS.email = e.target.value; if (e.target.id === 'gmsg') GS.message = e.target.value; });
-  $('#q').addEventListener('input', (e) => { state.q = e.target.value; renderRows(); addrSearch(e.target.value); });
-  window.addEventListener('hashchange', () => { const r = route(); if (r === 'open') renderRows(); else if (r === 'net') { state.coins = []; state.loaded = false; render(); loadCoins(); } });
+  $('#q').addEventListener('input', (e) => { state.q = e.target.value; if (e.target.value && VIEW !== 'coins' && !/0x[0-9a-fA-F]{40}/.test(e.target.value)) go('coins'); renderRows(); addrSearch(e.target.value); });
+  window.addEventListener('hashchange', () => { const r = route(); if (r === 'open') { if (!VIEW) setView('home'); renderRows(); } else if (r === 'net') { state.coins = []; state.loaded = false; render(); loadCoins(); } else if (r === null && !VIEW) setView('home'); });
   $('#sort')?.addEventListener('change', (e) => { state.sort = e.target.value; renderRows(); });
   $('#pay')?.addEventListener('change', (e) => { state.pay = e.target.value; renderRows(); });
   $('#launch-form').addEventListener('submit', launchCoin);
@@ -1797,6 +1829,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (!lang || !I18N[lang]) lang = 'en';
     $$('.cats .ic[data-ic]').forEach((el) => { const k = el.dataset.ic; el.innerHTML = PHOTO_CREDITS[k] ? `<img src="photos/${k}.jpg" alt="" loading="lazy">` : (ICONS[k] || ''); });
     if (E) route();
+    if (!VIEW) setView('home');
     setLang(lang);
     if (!E) { $('#rows').innerHTML = `<p class="empty">ethers.js failed to load.</p>`; return; }
     const SOCIAL = { x: 'https://x.com/intent/post?text=' + encodeURIComponent('BNB Bite · restaurant gift cards for any crypto, launchpad on BNB Chain') + '&url=' + encodeURIComponent(location.origin + location.pathname) }; /* set x to your profile url once you have one, e.g. https://x.com/yourhandle */

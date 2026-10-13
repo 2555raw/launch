@@ -17,7 +17,7 @@
   --ink: #000000; --muted: #545454; --dim: #8A8A8A; --prose: #333333;
   --line: #E6E6E6; --line-hi: #D4D4D4;
   --green: #F0B90B; --green-deep: #C99A00; --green-soft: #FFF6D8; --green-ink: #7A5A00; --salmon: #FFE7A3; --red: #E11900;
-  --up: #05944F; --down: #E11900;
+  --up: #05944F; --down: #E11900; --accent2: #FF5A1F;
   --font: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
   --mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
   color-scheme: light;
@@ -48,7 +48,8 @@ p { margin: 0; }
 .muted { color: var(--muted); }
 .up { color: var(--up); } .down { color: var(--down); }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 40px; padding: 0 16px; border-radius: 999px; font-weight: 500; font-size: 14px; border: 0; cursor: pointer; white-space: nowrap; }
-.btn-ink { background: var(--ink); color: var(--bg); }
+.btn-ink { background: var(--green); color: #111; }
+.btn-ink:hover { filter: brightness(.96); }
 .btn-ink:disabled { opacity: .35; cursor: not-allowed; }
 .btn-gray { background: var(--surface); color: var(--ink); }
 .btn-gray:hover { background: var(--surface-hi); }
@@ -60,7 +61,7 @@ p { margin: 0; }
 .tag.live { background: var(--green-soft); color: var(--green-ink); }
 .tag.ok { background: var(--green-soft); color: var(--green-ink); }
 .tag.failed { background: rgba(225,25,0,.1); color: var(--down); }
-.tag.red { background: var(--red); color: #fff; }
+.tag.red { background: var(--accent2); color: #fff; }
 .bar { height: 4px; background: var(--surface-hi); border-radius: 2px; overflow: hidden; }
 .bar i { display: block; height: 100%; background: var(--green); border-radius: 2px; }
 .bar.ok i { background: var(--green-deep); } .bar.failed i { background: var(--down); } .bar.soon i { background: var(--line-hi); }
@@ -111,7 +112,7 @@ p { margin: 0; }
 .side a:active, .side button:active { background: var(--surface-hi); }
 .side .ico { width: 24px; height: 24px; display: grid; place-items: center; flex: none; color: var(--ink); background: transparent; }
 .side .ico svg { width: 22px; height: 22px; }
-.side .is-on { background: var(--surface); font-weight: 700; }
+.side .is-on { background: var(--green-soft); font-weight: 700; box-shadow: inset 3px 0 0 var(--green); }
 .side .is-on:hover { background: var(--surface-hi); }
 .side .n { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--muted); }
 .side .wallet-card { margin-top: auto; background: var(--ink); color: var(--bg); border-radius: 16px; padding: 16px; display: grid; gap: 10px; }
@@ -119,7 +120,7 @@ p { margin: 0; }
 .side .wallet-card .av { width: 36px; height: 36px; border-radius: 999px; background: var(--green); flex: none; }
 .side .wallet-card b { display: block; font-family: var(--mono); font-size: 13px; font-weight: 500; }
 .side .wallet-card small { display: block; font-size: 12px; opacity: .8; }
-.side .wallet-card .bal { font-family: var(--mono); font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+.side .wallet-card .bal { font-family: var(--mono); font-size: 22px; font-weight: 600; letter-spacing: -.01em; color: var(--green); }
 .side .wallet-card .net { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; opacity: .9; }
 .side .wallet-card .net i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); }
 .side .wallet-card .btn { height: 38px; font-size: 13px; font-weight: 600; }
@@ -137,7 +138,7 @@ p { margin: 0; }
 .cats button { flex: none; display: grid; justify-items: center; gap: 8px; width: 90px; padding: 6px 0; border: 0; background: transparent; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--ink); line-height: 1.2; text-align: center; }
 .cats button .ic { height: 64px; width: 64px; border-radius: 999px; overflow: hidden; background: var(--surface); }
 .cats button .ic img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cats button.is-on .ic { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
+.cats button.is-on .ic { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--green); }
 .cats button.is-on .ic { position: relative; }
 .cats button.is-on span:last-child { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 .cats button span:last-child { max-width: 84px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -149,7 +150,7 @@ p { margin: 0; }
 .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 4px 0 12px; }
 .pill { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; border-radius: 999px; background: var(--surface); border: 0; font-size: 14px; font-weight: 500; color: var(--ink); cursor: pointer; white-space: nowrap; }
 .pill:hover { background: var(--surface-hi); }
-.pill.is-on { background: var(--ink); color: var(--bg); }
+.pill.is-on { background: var(--green); color: #111; }
 .pill select { background: transparent; border: 0; outline: 0; font-weight: 500; cursor: pointer; color: inherit; }
 .pill select option { color: #000; }
 .ranked { font-size: 14px; line-height: 20px; color: var(--muted); margin-bottom: 20px; }
@@ -162,7 +163,7 @@ p { margin: 0; }
 @media (max-width: 1200px) { .banners { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 760px) { .banners { grid-template-columns: 1fr; } }
 .banner { position: relative; overflow: hidden; border-radius: 16px; height: 216px; padding: 24px; color: #fff; display: grid; align-content: space-between; cursor: pointer; }
-.banner.g1 { background: #F0B90B; color: #111; } .banner.g2 { background: #111; color: #fff; } .banner.g3 { background: #FFE7A3; color: #111; }
+.banner.g1 { background: #F0B90B; color: #111; } .banner.g2 { background: #111; color: #fff; } .banner.g3 { background: var(--accent2); color: #fff; }
 .banner h3 { font-size: 22px; line-height: 28px; font-weight: 700; max-width: 55%; color: inherit; }
 .banner p { font-size: 14px; margin-top: 6px; max-width: 55%; opacity: .95; }
 .banner .cta { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 999px; background: #fff; color: #000; font-size: 14px; font-weight: 500; width: max-content; }
@@ -177,7 +178,7 @@ p { margin: 0; }
 .sec { margin-bottom: 36px; }
 .sec-h { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
 .sec-h h2 { margin-right: auto; }
-.sec-h .all { font-size: 16px; font-weight: 500; }
+.sec-h .all { font-size: 16px; font-weight: 500; color: var(--green-ink); }
 .sec-h .arrows { display: flex; gap: 8px; }
 .sec-h .arrow:disabled { opacity: .35; cursor: default; }
 .rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(300px, 1fr); gap: 16px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory; }
@@ -274,29 +275,38 @@ p { margin: 0; }
 .spec-g { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
 .spec-g div { padding: 14px 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); min-width: 0; }
 .spec-g small { display: block; font-size: 13px; line-height: 18px; color: var(--muted); }
-.spec-g b { display: block; font-family: var(--mono); font-size: 14px; line-height: 20px; font-weight: 500; margin-top: 2px; overflow-wrap: anywhere; }
+.spec-g b { display: block; font-size: 15px; line-height: 20px; font-weight: 600; margin-top: 2px; overflow-wrap: anywhere; }
 .spec-g a { text-decoration: underline; }
 @media (max-width: 1000px) { .docs { grid-template-columns: 1fr; } }
 .doc { background: var(--surface); border-radius: 16px; padding: 20px; }
 .doc h3 { margin-bottom: 8px; }
+.doc p { font-size: 15px; line-height: 22px; color: var(--prose); }
+.rules { margin-top: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 0 18px; }
+.rules summary { cursor: pointer; font-weight: 600; font-size: 15px; padding: 14px 0; list-style: none; display: flex; }
+.rules summary::after { content: '+'; margin-left: auto; color: var(--muted); font-size: 20px; }
+.rules[open] summary::after { content: '–'; }
+.rules .docs { padding: 0 0 18px; }
+.rules h4 { margin: 0 0 8px; font-size: 14px; }
+.rules li { font-size: 14px; line-height: 20px; color: var(--prose); }
+.rules ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
 .doc p, .doc li { font-size: 15px; color: var(--prose); line-height: 22px; }
 .doc ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
 
 /* ---- hero ---- */
-.hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; background: var(--green-soft); border-radius: 20px; margin: 8px 0 28px; min-height: 380px; }
+.hero { position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; background: #111; color: #fff; border-radius: 20px; margin: 8px 0 28px; min-height: 380px; }
 .hero-t { position: relative; min-width: 0; padding: 44px 24px 44px 44px; z-index: 1; }
-.hero .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; line-height: 16px; font-weight: 600; color: var(--green-ink); background: var(--bg); border-radius: 999px; padding: 7px 12px; }
+.hero .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; line-height: 16px; font-weight: 600; color: #F5C84B; background: rgba(240,185,11,.14); border-radius: 999px; padding: 7px 12px; }
 .hero .eyebrow i { width: 8px; height: 8px; border-radius: 999px; background: var(--green); }
 .hero h1 { font-size: 42px; line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 18px 0 14px; max-width: 15ch; }
-.hero h1 em { font-style: normal; color: var(--green-ink); }
-.hero p { font-size: 16px; line-height: 24px; color: var(--prose); max-width: 46ch; }
+.hero h1 em { font-style: normal; color: #F0B90B; }
+.hero p { font-size: 16px; line-height: 24px; color: #CFCFCF; max-width: 46ch; }
 .hero-cta { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; }
 .hero-cta .btn { height: 48px; padding: 0 22px; font-size: 16px; }
-.hero-cta .btn-white { box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+.hero-cta .btn-white { background: rgba(255,255,255,.12); color: #fff; }
 .hero-stats { display: flex; gap: 32px; margin-top: 28px; flex-wrap: wrap; }
 .hero-stats[hidden] { display: none; }
-.hero-stats b { display: block; font-family: var(--mono); font-size: 22px; line-height: 28px; font-weight: 600; }
-.hero-stats small { display: block; font-size: 13px; line-height: 18px; color: var(--muted); margin-top: 2px; }
+.hero-stats b { display: block; font-family: var(--mono); font-size: 22px; line-height: 28px; font-weight: 600; color: #F0B90B; }
+.hero-stats small { display: block; font-size: 13px; line-height: 18px; color: #A8A8A8; margin-top: 2px; }
 .hero-art { position: absolute; top: 0; right: 0; bottom: 0; width: 52%; background-size: cover; background-position: center; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 28%); mask-image: linear-gradient(90deg, transparent 0, #000 28%); }
 @media (max-width: 1100px) { .hero { grid-template-columns: 1fr; min-height: 0; } .hero-t { padding: 28px 24px 28px; } .hero-art { position: relative; width: auto; height: 200px; order: -1; -webkit-mask-image: none; mask-image: none; } .hero h1 { font-size: 34px; } }
 @media (max-width: 600px) { .hero { border-radius: 16px; margin-top: 4px; } .hero-t { padding: 22px 18px 22px; } .hero-art { height: 170px; } .hero h1 { font-size: 30px; } .hero-stats { gap: 18px 24px; } .hero-stats b { font-size: 20px; } .hero-cta .btn { flex: 1; padding: 0 12px; } div.bottom { height: auto; min-height: 44px; padding-top: 8px; padding-bottom: 8px; font-size: 12px; line-height: 15px; } }
@@ -319,16 +329,17 @@ p { margin: 0; }
 .faq details[open] summary::after { content: '–'; }
 .faq p { font-size: 15px; line-height: 22px; color: var(--prose); padding: 0 0 16px; }
 
-/* ---- ticker tape ---- */
-.tape { overflow: hidden; height: 36px; margin: 4px 0 12px; border-bottom: 1px solid var(--line); display: flex; align-items: center; }
-.tape .feed-t { --dur: 60s; }
-.tape:hover .feed-t { animation-play-state: paused; }
-.tape .feed-c { gap: 28px; padding-right: 28px; }
-.tape-i { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
-.tape-i .logo { width: 18px; height: 18px; }
-.tape-i b { font-family: var(--mono); font-weight: 600; }
-.tape-i span { font-family: var(--mono); color: var(--muted); }
-.tape-i i { font-style: normal; font-family: var(--mono); font-size: 12px; font-weight: 600; }
+/* ---- markets row ---- */
+.mkts { display: flex; align-items: center; gap: 0; height: 40px; margin: 4px 0 12px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; font-size: 13px; }
+.mkts::-webkit-scrollbar { display: none; }
+.mkts .lbl { color: var(--muted); font-weight: 600; padding-right: 18px; flex: none; }
+.mkts a.mk { display: inline-flex; align-items: center; gap: 7px; padding: 0 16px; border-left: 1px solid var(--line); height: 22px; white-space: nowrap; color: var(--ink); flex: none; }
+.mkts a.mk:hover b { text-decoration: underline; }
+.mkts .logo { width: 16px; height: 16px; }
+.mkts b { font-weight: 600; }
+.mkts span { font-family: var(--mono); color: var(--muted); }
+.mkts i { font-style: normal; font-family: var(--mono); font-size: 12px; font-weight: 600; }
+.mkts .all { margin-left: auto; padding-left: 16px; color: var(--muted); text-decoration: underline; flex: none; }
 
 /* ---- gift cards ---- */
 .gift { position: relative; display: grid; grid-template-rows: auto 1fr auto; gap: 12px; aspect-ratio: 1.586; min-height: 190px; border-radius: 16px; padding: 18px; color: #fff; overflow: hidden; cursor: pointer; background-size: cover; background-position: center; transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .18s ease; box-shadow: 0 2px 10px rgba(0,0,0,.08); }
@@ -590,7 +601,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     <button class="cart" id="theme" type="button" aria-label="Theme"></button>
     <button class="textbtn" id="connect" type="button" data-t="wallet.connect"></button>
     <div class="addr" id="player" hidden><i></i><b id="p-addr"></b><span id="p-cash"></span></div>
-    <a class="btn btn-gray" href="#launch" data-t="nav.create"></a>
+    <a class="btn btn-ink" href="#launch" data-t="nav.create"></a>
   </div>
 </div></header>
 
@@ -622,7 +633,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 
   <main class="content">
     <section id="explore">
-      <div class="tape" id="tape" hidden><div class="feed-t" id="tape-t"></div></div>
+      <div class="mkts" id="tape" hidden></div>
       <div class="hero" id="hero">
         <div class="hero-t">
           <span class="eyebrow"><i></i><span id="hero-eye"></span></span>
@@ -721,10 +732,15 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     <section class="sec" id="docs">
       <div class="sec-h"><h2 data-t="docs.h2"></h2></div>
       <div class="docs">
-        <div class="doc"><span class="step">1</span><h3 data-t="docs.1h"></h3><ul><li data-t="docs.1a"></li><li data-t="docs.1b"></li><li data-t="docs.1c"></li><li data-t="docs.1d"></li></ul></div>
-        <div class="doc"><span class="step">2</span><h3 data-t="docs.2h"></h3><ul><li data-t="docs.2a"></li><li data-t="docs.2b"></li><li data-t="docs.2c"></li><li data-t="docs.2d"></li></ul></div>
-        <div class="doc"><span class="step">3</span><h3 data-t="docs.3h"></h3><ul><li data-t="docs.3a"></li><li data-t="docs.3b"></li><li data-t="docs.3c"></li><li data-t="docs.3d"></li></ul></div>
+        <div class="doc"><span class="step">1</span><h3 data-t="docs.1h"></h3><p data-t="docs.1s"></p></div>
+        <div class="doc"><span class="step">2</span><h3 data-t="docs.2h"></h3><p data-t="docs.2s"></p></div>
+        <div class="doc"><span class="step">3</span><h3 data-t="docs.3h"></h3><p data-t="docs.3s"></p></div>
       </div>
+      <details class="rules"><summary data-t="docs.full"></summary><div class="docs">
+        <div><h4 data-t="docs.1h"></h4><ul><li data-t="docs.1a"></li><li data-t="docs.1b"></li><li data-t="docs.1c"></li><li data-t="docs.1d"></li></ul></div>
+        <div><h4 data-t="docs.2h"></h4><ul><li data-t="docs.2a"></li><li data-t="docs.2b"></li><li data-t="docs.2c"></li><li data-t="docs.2d"></li></ul></div>
+        <div><h4 data-t="docs.3h"></h4><ul><li data-t="docs.3a"></li><li data-t="docs.3b"></li><li data-t="docs.3c"></li><li data-t="docs.3d"></li></ul></div>
+      </div></details>
       <div class="spec"><div class="spec-h"><h3 data-t="spec.h"></h3><small data-t="spec.sub"></small></div><div class="spec-g" id="spec"></div></div>
     </section>
 
@@ -809,7 +825,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   const I18N = {
     en: {
       'mode.raising': 'Raising', 'mode.graduated': 'Graduated', 'place.now': 'Now',
-      'nav.home': 'Home', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works', 'grp.coins': 'Coins', 'grp.mkt': 'Stock tokens', 'grp.food': 'By cuisine', 'grp.you': 'You', 'wc.off': 'Connect a wallet to buy and create coins on BNB Chain.', 'wc.on': 'Connected',
+      'nav.home': 'Home', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works', 'grp.coins': 'Coins', 'grp.mkt': 'Stock tokens', 'mkts': 'Markets', 'mkts.all': (n) => `All ${n} tokens`, 'grp.food': 'By cuisine', 'grp.you': 'You', 'wc.off': 'Connect a wallet to buy and create coins on BNB Chain.', 'wc.on': 'Connected',
       'tab.trending': 'Trending', 'tab.new': 'New', 'tab.graduating': 'Graduating', 'tab.graduated': 'Graduated',
       'pill.live': 'Raising now', 'pill.pay': 'Paid in', 'pill.top': 'Most backed', 'pill.sort': 'Sort', 'f.all': 'All', 'ranked.more': 'More info',
       'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on BNB Chain', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Launch on ${n}`, 'promo.pairP': (s, iss) => `Raise in ${s}, the ${iss} stock token, and list against it.`,
@@ -834,7 +850,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'launch.hint': (s) => `Creating a coin deploys a token and a raise contract from your wallet (you pay gas). Buyers pay in ${s}. Supply 1,000,000,000. Minimum = target ÷ 3, cap per wallet = target ÷ 10. At graduation 99% of the ${s} raised plus 20% of supply go into a COIN/${s} PancakeSwap pool; 80% of supply is claimed by buyers; 1% of the raise is the platform fee.`,
       'launch.btn': 'Create coin', 'launch.saving': 'Confirm in wallet…', 'launch.signin': 'Connect your wallet to create a coin.', 'launch.tick.bad': 'Ticker: 2 to 8 letters or digits.', 'launch.name.bad': 'Name: 2 to 32 characters.', 'launch.rest.bad': 'Pick a restaurant.', 'launch.goal.bad': 'Target must be a positive number.', 'launch.done': (t) => `${t} is live on the board.`, 'launch.preview': 'Preview', 'launch.yours': 'Your coin',
       'pv.rate': (s) => `Tokens per ${s}`, 'pv.target': 'Target', 'pv.min': 'Minimum', 'pv.cap': 'Cap / wallet', 'pv.closes': 'Closes', 'pv.pool': 'Pool at graduation',
-      'docs.h2': 'How it works',
+      'docs.h2': 'How the launchpad works', 'docs.full': 'Full rules', 'docs.1s': 'Every coin is paired with a restaurant whose stock exists as a token on BNB Chain (MCDx, SBUXx, MEITx and more). The raise is paid in that token.', 'docs.2s': 'Set a target and a duration. Everyone pays the same rate, each wallet can put in a tenth of the target, and the contract holds the funds until the raise closes.', 'docs.3s': 'Reach a third of the target and the coin graduates: 99% of the funds and 20% of the supply go to a PancakeSwap pool with the liquidity burned, and buyers claim the other 80%. Otherwise everyone gets 100% back.',
       'docs.1h': 'Paired with a real stock token', 'docs.1a': 'Every coin is paired with a restaurant whose stock exists as a token on BNB Chain: McDonald\'s is MCDx, Starbucks SBUXx, Meituan MEITx, Haidilao HAIDLx, Mixue MIXUx, Wendy\'s WENB and so on (xStocks by Backed, bStocks by Binance, Ondo Stocks).', 'docs.1b': 'The pairing is not a label: the raise is paid in that stock token and the coin lists in a pool against it.', 'docs.1c': 'Restaurants without a tokenized stock on BNB Chain (Luckin, Chagee, Guming, KFC China…) cannot be paired yet. We add them when an issuer lists them.', 'docs.1d': 'The restaurant itself does not take part. The stock token is issued by a third party and tracks the share price.',
       'docs.2h': 'The raise', 'docs.2a': 'Creating a coin deploys its token (1,000,000,000) and a raise contract from your wallet. You set the target in the stock token and the duration.', 'docs.2b': 'Buyers approve the stock token and buy. Everyone gets the same rate: target ÷ supply. Each wallet can put in at most one tenth of the target.', 'docs.2c': 'The contract keeps the funds. Nobody, including the creator, can withdraw before finalize.', 'docs.2d': 'Reaching the target closes the raise instantly; otherwise it closes at the deadline.',
       'docs.3h': 'Graduation or refund', 'docs.3a': 'Once closed, anyone can press Finalize. If at least one third of the target was raised, the coin graduates.', 'docs.3b': 'Graduation puts 99% of the stock tokens and 20% of the supply into a PancakeSwap v2 pool COIN/STOCK and burns the liquidity tokens, so the pool cannot be pulled. 1% goes to the platform.', 'docs.3c': 'Buyers then claim the other 80% of the supply in proportion to what they paid.', 'docs.3d': 'If the minimum was not reached, every buyer gets 100% back with Refund.',
@@ -857,7 +873,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'legal.refund': 'Refund policy', 'legal.cookies': 'Cookies', 'legal.refundB': ['<b>Gift cards are final.</b> A code is a bearer instrument: once it has been issued and shown or emailed, it cannot be cancelled or refunded, whatever the payment method.', '<b>If we could not issue the card</b> after your payment was confirmed (supplier error, out of stock), we refund the full amount to the wallet or card you paid with, or re-issue the card, within 5 business days. Contact support with your order id.', '<b>Crypto payments that arrive late, short or to the wrong network</b> cannot always be matched to an order. Send exactly the amount shown, on the network shown, before the timer expires. Partial or expired payments are refunded manually minus network fees when they can be identified.', '<b>Launchpad raises</b> are governed by the contract: refunds happen on-chain through the Refund button when a raise closes below its minimum. We cannot reverse on-chain transactions.'],
       'legal.cookiesB': ['This site sets no tracking cookies. It stores your language, theme, saved coins and the ids of your gift card orders in your browser\'s localStorage so you can find them again on this device.', 'Stripe sets its own cookies on its checkout page when you pay by card. Our payment partner and CoinGecko see your IP address when the page asks them for a price, under their own policies.', 'You can clear everything from your browser settings at any time. Orders remain reachable through the link in the email.'],
       'bottom.more': 'Risk notice', 'empty.h': 'No coins on this network yet', 'empty.p': 'Pick one of the 18 restaurants with a tokenized stock on BNB Chain and launch the first coin paired with it.', 'nofactory.h': 'Not live on this network yet',
-      'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply, same for everyone', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of the raise + 20% of supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply, pro rata', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP tokens burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
+      'spec.h': 'Parameters', 'spec.sub': 'Fixed in the contract, the same for every coin', 'spec.supply': 'Supply per coin', 'spec.price': 'Price', 'spec.priceV': 'target ÷ supply', 'spec.min': 'Minimum to graduate', 'spec.minV': 'target ÷ 3', 'spec.cap': 'Cap per wallet', 'spec.capV': 'target ÷ 10', 'spec.pool': 'To the pool', 'spec.poolV': '99% of raise + 20% supply', 'spec.buyers': 'To buyers', 'spec.buyersV': '80% of supply', 'spec.fee': 'Platform fee', 'spec.feeV': '1% of the raise', 'spec.lp': 'Liquidity', 'spec.lpV': 'LP burned', 'spec.audit': 'Audit', 'spec.auditV': 'None yet', 'spec.src': 'Source',
       'ft.tag': 'A coin launchpad on BNB Chain where every coin is paired with a tokenized restaurant stock: the raise is paid in it and the coin lists against it.', 'ft.product': 'Product', 'ft.protocol': 'Protocol', 'ft.legal': 'Legal', 'ft.factory': 'Factory contract', 'ft.src': 'Source code', 'ft.unaudited': 'Unaudited contracts', 'ft.net': (n) => `Connected to ${n}`,
       'legal.risk': 'Risk disclosure', 'legal.terms': 'Terms of use', 'legal.privacy': 'Privacy', 'legal.photos': 'Photo credits', 'legal.photosP': 'Food and storefront photos come from Wikimedia Commons under the licenses listed here. They illustrate the cuisine or the brand and are not provided by the restaurants.',
       'legal.riskB': ['<b>You can lose everything you put in.</b> Coins are created by users through unaudited smart contracts. A raise can close below its minimum, a graduated coin can fall to zero, and nothing here guarantees any value.', '<b>The contracts hold the funds, not us.</b> Nobody, including the creator of a coin or the operators of this site, can withdraw from a raise before it finalizes. Refunds and claims are executed by the contract only.', '<b>Stock tokens are issued by third parties.</b> MCDx, SBUXx, MEITx and the rest are issued by Backed, Binance or Ondo. Their price, redemption and availability depend on those issuers, not on the restaurants and not on this site.', '<b>Restaurants are not involved.</b> Names and logos identify the stock token a coin is paired with. No restaurant sponsors, endorses or issues anything here.', '<b>Nothing here is advice.</b> This site shows on-chain data and lets you send transactions from your own wallet. It is not an offer, a solicitation or financial advice, and it may be unavailable to you under local law.'],
@@ -867,7 +883,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     },
     zh: {
       'mode.raising': '募集中', 'mode.graduated': '已毕业', 'place.now': '实时',
-      'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.mkt': '股票代币', 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 BNB 链上买入和创建代币。', 'wc.on': '已连接',
+      'nav.home': '首页', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.mkt': '股票代币', 'mkts': '行情', 'mkts.all': (n) => `全部 ${n} 个代币`, 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 BNB 链上买入和创建代币。', 'wc.on': '已连接',
       'tab.trending': '热门', 'tab.new': '打新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
       'pill.live': '募集中', 'pill.pay': '支付币种', 'pill.top': '最多人买', 'pill.sort': '排序', 'f.all': '全部', 'ranked.more': '了解更多',
       'sec.featured': '当前精选', 'sec.new': '今日打新', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'BNB 链上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `在 ${n} 上发行`, 'promo.pairP': (s, iss) => `以 ${iss} 的股票代币 ${s} 募集，并与之配对上市。`,
@@ -892,7 +908,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'launch.hint': (s) => `创建代币会从你的钱包部署代币合约与募集合约（你支付 gas）。买家以 ${s} 支付。总供应量 1,000,000,000。最低额 = 目标 ÷ 3，单钱包上限 = 目标 ÷ 10。毕业时 99% 的 ${s} 与 20% 的供应量进入 COIN/${s} PancakeSwap 池；80% 供应量由买家领取；1% 为平台费。`,
       'launch.btn': '创建代币', 'launch.saving': '请在钱包中确认…', 'launch.signin': '连接钱包后即可创建代币。', 'launch.tick.bad': '代码：2 到 8 个字母或数字。', 'launch.name.bad': '名称：2 到 32 个字符。', 'launch.rest.bad': '请选择餐饮品牌。', 'launch.goal.bad': '目标必须为正数。', 'launch.done': (t) => `${t} 已上板。`, 'launch.preview': '预览', 'launch.yours': '你的代币',
       'pv.rate': (s) => `每 ${s} 代币数`, 'pv.target': '目标', 'pv.min': '最低额', 'pv.cap': '单钱包上限', 'pv.closes': '截止', 'pv.pool': '毕业时池子',
-      'docs.h2': '玩法说明',
+      'docs.h2': '发射台怎么玩', 'docs.full': '完整规则', 'docs.1s': '每个代币配对一家在 BNB 链上有股票代币的餐饮品牌（MCDx、SBUXx、MEITx 等），募集以该代币支付。', 'docs.2s': '设定目标和时长。所有人汇率相同，每个钱包最多投入目标的十分之一，资金由合约保管直到募集结束。', 'docs.3s': '募到目标的三分之一即毕业：99% 资金和 20% 供应量进入 PancakeSwap 池并销毁流动性，买家领取其余 80%。否则全部 100% 退回。',
       'docs.1h': '配对真实的股票代币', 'docs.1a': '每个代币配对一家在 BNB 链上有股票代币的餐饮品牌：麦当劳是 MCDx，星巴克 SBUXx，美团 MEITx，海底捞 HAIDLx，蜜雪冰城 MIXUx，温蒂 WENB 等（Backed 的 xStocks、币安的 bStocks、Ondo Stocks）。', 'docs.1b': '配对不是标签：募集以该股票代币支付，代币毕业后在与它的池子中交易。', 'docs.1c': 'BNB 链上没有股票代币的品牌（瑞幸、霸王茶姬、古茗、百胜中国等）暂不能配对。发行方上线后我们会加入。', 'docs.1d': '餐饮品牌本身不参与。股票代币由第三方发行，跟踪股价。',
       'docs.2h': '募集', 'docs.2a': '创建代币会从你的钱包部署代币（1,000,000,000）与募集合约。你以股票代币设定目标和时长。', 'docs.2b': '买家授权股票代币后买入。所有人汇率相同：目标 ÷ 供应量。每个钱包最多投入目标的十分之一。', 'docs.2c': '资金由合约保管。结算前包括创建者在内任何人都无法提取。', 'docs.2d': '达到目标即刻结束；否则到期结束。',
       'docs.3h': '毕业或退款', 'docs.3a': '结束后任何人都可以点击“结算”。若募集额达到目标的三分之一，代币毕业。', 'docs.3b': '毕业时 99% 的股票代币与 20% 的供应量进入 PancakeSwap v2 的 COIN/股票 池，并销毁流动性凭证，池子无法撤走。1% 归平台。', 'docs.3c': '随后买家按投入比例领取其余 80% 的供应量。', 'docs.3d': '若未达最低额，每位买家可通过“退款”取回 100%。',
@@ -915,7 +931,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
       'legal.refund': '退款政策', 'legal.cookies': 'Cookie', 'legal.refundB': ['<b>礼品卡为最终交易。</b>卡号属于不记名凭证：一旦发放并显示或邮件发送，无论何种支付方式均不能取消或退款。', '<b>若付款确认后无法出卡</b>（供应商故障、缺货），我们会在 5 个工作日内全额退回到你支付的钱包或银行卡，或补发礼品卡。请凭订单号联系客服。', '<b>迟到、金额不足或发错网络的加密货币付款</b>不一定能匹配到订单。请在倒计时结束前，按显示的网络和精确金额支付。可识别的部分付款或过期付款将扣除网络费后人工退回。', '<b>发射台募集</b>由合约管理：募集未达最低额结束时，通过“退款”按钮在链上退款。我们无法撤销链上交易。'],
       'legal.cookiesB': ['本站不设追踪 cookie。为了在本设备上再次找到，浏览器 localStorage 中保存你的语言、主题、收藏的代币和礼品卡订单号。', '用银行卡付款时，Stripe 会在其结账页设置自己的 cookie。页面请求价格时，支付伙伴和 CoinGecko 会按各自政策看到你的 IP 地址。', '你可随时在浏览器设置中清除。订单仍可通过邮件中的链接访问。'],
       'bottom.more': '风险提示', 'empty.h': '此网络上还没有代币', 'empty.p': '从 18 家在 BNB 链上有股票代币的餐饮品牌中选一家，发行第一个与之配对的代币。', 'nofactory.h': '此网络尚未上线',
-      'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量，人人相同', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '募集额的 99% + 供应量的 20%', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%，按比例', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
+      'spec.h': '参数', 'spec.sub': '写在合约里，所有代币相同', 'spec.supply': '每个代币供应量', 'spec.price': '价格', 'spec.priceV': '目标 ÷ 供应量', 'spec.min': '毕业最低额', 'spec.minV': '目标 ÷ 3', 'spec.cap': '单钱包上限', 'spec.capV': '目标 ÷ 10', 'spec.pool': '进入池子', 'spec.poolV': '99% 募集额 + 20% 供应量', 'spec.buyers': '分给买家', 'spec.buyersV': '供应量的 80%', 'spec.fee': '平台费', 'spec.feeV': '募集额的 1%', 'spec.lp': '流动性', 'spec.lpV': 'LP 凭证已销毁', 'spec.audit': '审计', 'spec.auditV': '尚无', 'spec.src': '源码',
       'ft.tag': 'BNB 链上的代币发射台：每个代币配对一只餐饮股票代币，以它募集，与它配对上市。', 'ft.product': '产品', 'ft.protocol': '协议', 'ft.legal': '法律', 'ft.factory': '工厂合约', 'ft.src': '源代码', 'ft.unaudited': '合约未经审计', 'ft.net': (n) => `已连接 ${n}`,
       'legal.risk': '风险提示', 'legal.terms': '使用条款', 'legal.privacy': '隐私', 'legal.photos': '图片来源', 'legal.photosP': '美食与门店照片来自维基共享资源，许可证见下表。照片仅用于展示菜系或品牌，并非餐饮品牌提供。',
       'legal.riskB': ['<b>投入可能全部损失。</b>代币由用户通过未审计的智能合约创建。募集可能未达最低额而结束，毕业的代币也可能归零，这里没有任何价值保证。', '<b>资金由合约保管，不在我们手中。</b>结算前，包括代币创建者和本站运营者在内，任何人都无法从募集中提取资金。退款与领取只由合约执行。', '<b>股票代币由第三方发行。</b>MCDx、SBUXx、MEITx 等由 Backed、币安或 Ondo 发行。其价格、赎回和可用性取决于这些发行方，与餐饮品牌和本站无关。', '<b>餐饮品牌不参与。</b>名称与标志仅用于标识代币所配对的股票代币。没有任何餐饮品牌赞助、背书或发行这里的任何内容。', '<b>本站不提供建议。</b>本站展示链上数据，并让你用自己的钱包发送交易。它不构成要约、招揽或财务建议，在你所在地可能不可用。'],
@@ -1537,8 +1553,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
         <div class="pair-addr"><span class="mono">${esc(short(p.address))}</span><button type="button" data-copy="${esc(p.address)}" aria-label="${t('copy.addr')}" title="${t('copy.addr')}">${COPY_SVG}</button><a href="https://bscscan.com/token/${p.address}" target="_blank" rel="noopener">BscScan</a></div>
       </div>`; }).join('');
     $('#pairs-n').textContent = t('pairs.n', PAIR_IDS.length, issuers.size);
-    const tape = $('#tape'); if (tape) { const items = PAIR_IDS.filter((id) => PX.usd[PAIRS[id].symbol]).map((id) => { const p = PAIRS[id]; const c = PX.chg[p.symbol]; return `<span class="tape-i" data-open="r:${id}">${logo(REST[id], 18)}<b>${esc(p.symbol)}</b><span>${usdStr(PX.usd[p.symbol])}</span>${c != null ? `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>` : ''}</span>`; }).join('');
-      tape.hidden = !items; if (items && tape.dataset.px !== String(PX.at)) { tape.dataset.px = String(PX.at); $('#tape-t').innerHTML = `<span class="feed-c">${items}</span><span class="feed-c" aria-hidden="true">${items}</span>`; } }
+    const tape = $('#tape'); if (tape) { const items = PAIR_IDS.filter((id) => PX.usd[PAIRS[id].symbol]).slice(0, 8).map((id) => { const p = PAIRS[id]; const c = PX.chg[p.symbol]; return `<a class="mk" href="#r/${id}" data-open="r:${id}">${logo(REST[id], 16)}<b>${esc(p.symbol)}</b><span>${usdStr(PX.usd[p.symbol])}</span>${c != null ? `<i class="${c >= 0 ? 'up' : 'down'}">${c >= 0 ? '+' : ''}${c.toFixed(2)}%</i>` : ''}</a>`; }).join('');
+      tape.hidden = !items; if (items && tape.dataset.px !== String(PX.at) + state.lang) { tape.dataset.px = String(PX.at) + state.lang; tape.innerHTML = `<span class="lbl">${t('mkts')}</span>${items}<a class="all" href="#pairs">${t('mkts.all', PAIR_IDS.length)}</a>`; } }
     $('#px-src').textContent = PX.at ? t('px.src', new Intl.DateTimeFormat(T.locale, { hour: '2-digit', minute: '2-digit' }).format(PX.at)) : '';
   }
   function setOpen(id) {

@@ -102,7 +102,13 @@ p { margin: 0; }
 @media (max-width: 600px) { .lang, #cartbtn { display: none; } #connect { padding: 0 8px; font-size: 13px; } .addr span { display: none; } .addr { padding: 0 10px 0 8px; } .search { padding: 0 12px; gap: 8px; } .brand em { display: none; } .hdr-in { padding: 0 10px; } }
 
 /* ---- shell ---- */
-.shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); }
+.shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); transition: grid-template-columns .28s cubic-bezier(.2,.7,.2,1); }
+.shell.collapsed { grid-template-columns: 0px minmax(0, 1fr); }
+.shell.collapsed .side { visibility: hidden; opacity: 0; padding-left: 0; padding-right: 0; overflow: hidden; }
+.side { transition: opacity .2s ease, visibility .2s; }
+.side-scrim { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 44; opacity: 0; pointer-events: none; transition: opacity .2s ease; }
+.side-scrim.is-on { opacity: 1; pointer-events: auto; }
+@keyframes sideIn { from { transform: translateX(-100%); } to { transform: none; } }
 .side { padding: 12px 12px 24px; position: sticky; top: calc(64px + env(safe-area-inset-top, 0px)); align-self: start; height: calc(100vh - 64px); overflow: auto; display: flex; flex-direction: column; gap: 2px; scrollbar-width: none; }
 .side::-webkit-scrollbar { display: none; }
 .side > * { flex: none; }
@@ -131,7 +137,7 @@ p { margin: 0; }
 .side .wallet-card .usd { color: rgba(255,255,255,.8); }
 @media (max-height: 760px) { .side .wallet-card { margin-top: 12px; } }
 .content { padding: 8px 32px 80px 16px; min-width: 0; overflow-x: clip; }
-@media (max-width: 1000px) { .banners-wrap .arrow { display: none; } .shell { grid-template-columns: minmax(0, 1fr); } .side { display: none; } .side.is-open { display: block; position: fixed; inset: calc(64px + env(safe-area-inset-top, 0px)) auto 0 0; width: 260px; background: var(--bg); z-index: 45; box-shadow: 8px 0 30px rgba(0,0,0,.12); } .content { padding: 8px 16px 80px; } }
+@media (max-width: 1000px) { .banners-wrap .arrow { display: none; } .shell { grid-template-columns: minmax(0, 1fr); } .side { display: none; } .side.is-open { display: block; position: fixed; inset: calc(64px + env(safe-area-inset-top, 0px)) auto 0 0; width: 260px; background: var(--bg); z-index: 45; box-shadow: 8px 0 30px rgba(0,0,0,.12); animation: sideIn .25s cubic-bezier(.2,.7,.2,1) both; } .shell.collapsed { grid-template-columns: minmax(0, 1fr); } .shell.collapsed .side.is-open { visibility: visible; opacity: 1; padding: 12px 12px 24px; } .content { padding: 8px 16px 80px; } }
 
 /* ---- category strip ---- */
 .cats-wrap { position: relative; margin-bottom: 12px; }
@@ -916,6 +922,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   </main>
 </div>
 <div class="scrim" id="scrim"></div>
+<div class="side-scrim" id="side-scrim"></div>
 <aside class="sheet" id="drawer" role="dialog" aria-modal="true" aria-live="polite"></aside>
 <div class="bottom" id="bottom"><span class="icon"></span><span><span data-t="bottom"></span> <a href="#" data-doc="risk" data-t="bottom.more"></a></span><button type="button" id="bottom-x" aria-label="Close">✕</button></div>
 <div class="modal" id="modal" hidden><div class="modal-c" role="dialog" aria-modal="true"><h3><span id="modal-h"></span><button class="close" type="button" data-modal-close aria-label="Close">✕</button></h3><div id="modal-b"></div></div></div>
@@ -1929,9 +1936,10 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }
     if (e.target.closest('#cartbtn')) { setTab('mine'); go('coins'); return; }
     const tab = e.target.closest('[data-tab]'); if (tab) { setTab(tab.dataset.tab); go('coins'); return; }
-    if (e.target.closest('#burger')) { $('#side').classList.toggle('is-open'); return; }
+    if (e.target.closest('#burger')) { if (matchMedia('(max-width: 1000px)').matches) { const on = $('#side').classList.toggle('is-open'); $('#side-scrim').classList.toggle('is-on', on); $('#burger').setAttribute('aria-expanded', String(on)); } else { const c = $('.shell').classList.toggle('collapsed'); $('#burger').setAttribute('aria-expanded', String(!c)); try { localStorage.setItem('bento.side', c ? '0' : '1'); } catch {} } return; }
+    if (e.target.closest('#side-scrim')) { $('#side').classList.remove('is-open'); $('#side-scrim').classList.remove('is-on'); return; }
     if (e.target.closest('#bottom-x')) { $('#bottom').hidden = true; return; }
-    if (e.target.closest('.side a')) { $('#side').classList.remove('is-open'); }
+    if (e.target.closest('.side a')) { $('#side').classList.remove('is-open'); $('#side-scrim').classList.remove('is-on'); }
     const cat = e.target.closest('[data-cat]'); if (cat) { state.cat = cat.dataset.cat; $$('[data-cat]').forEach((x) => x.classList.toggle('is-on', x.dataset.cat === state.cat)); renderRows(); go('coins'); }
   });
   document.addEventListener('change', (e) => { if (e.target.id === 'gcustom') { const v = Number(e.target.value); GS.custom = e.target.value; GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; if (v > 0) { GS.value = v; renderRows(); } } if (e.target.id === 'gcur') GS.currency = e.target.value; });
@@ -1942,7 +1950,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   $('#pay')?.addEventListener('change', (e) => { state.pay = e.target.value; renderRows(); });
   $('#launch-form').addEventListener('submit', launchCoin);
   ['c-name', 'c-tick', 'c-rest', 'c-goal', 'c-window'].forEach((id) => $('#' + id).addEventListener('input', renderPreview));
-  document.addEventListener('keydown', (e) => { if (e.key !== 'Escape') return; if (!$('#modal').hidden) { $('#modal').hidden = true; return; } if (state.open) setOpen(null); });
+  document.addEventListener('keydown', (e) => { if (e.key !== 'Escape') return; if ($('#side').classList.contains('is-open')) { $('#side').classList.remove('is-open'); $('#side-scrim').classList.remove('is-on'); return; } if (!$('#modal').hidden) { $('#modal').hidden = true; return; } if (state.open) setOpen(null); });
   function openDoc(k) { const m = $('#modal'); $('#modal-h').textContent = t('legal.' + k);
     if (k === 'photos') $('#modal-b').innerHTML = `<p>${t('legal.photosP')}</p><div class="credits">${Object.entries(PHOTO_CREDITS).map(([id, c]) => `<div><img src="photos/${id}.webp" alt="" loading="lazy"><span><a href="${esc(c.page)}" target="_blank" rel="noopener">${esc(c.title.replace(/^File:/, ''))}</a><br>${esc(c.artist || 'Wikimedia Commons')} · ${esc(c.license)}</span></div>`).join('')}</div>`;
     else $('#modal-b').innerHTML = (T['legal.' + k + 'B'] || I18N.en['legal.' + k + 'B']).map((p) => `<p>${p}</p>`).join('');
@@ -1969,6 +1977,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     if (!E) { $('#rows').innerHTML = `<p class="empty">ethers.js failed to load.</p>`; return; }
     const SOCIAL = { x: 'https://x.com/intent/post?text=' + encodeURIComponent('BNB Bite · restaurant gift cards for any crypto, launchpad on BNB Chain') + '&url=' + encodeURIComponent(location.origin + location.pathname) }; /* set x to your profile url once you have one, e.g. https://x.com/yourhandle */
     $$('#x-link, #x-link2').forEach((a) => { a.href = SOCIAL.x; });
+    try { if (localStorage.getItem('bento.side') === '0' && !matchMedia('(max-width: 1000px)').matches) { $('.shell').classList.add('collapsed'); $('#burger').setAttribute('aria-expanded', 'false'); } } catch {}
     revealInit(); staggerIn(); loadConfig().then(() => { if (E) route(); loadCoins(); loadPrices(); setInterval(loadPrices, 120000); loadGiftApi(); });
   })();
 })();

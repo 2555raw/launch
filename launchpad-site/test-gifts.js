@@ -44,9 +44,9 @@ const mails = []; const mailS = http.createServer(async (req, res) => { const b 
   ok((await j('/api/gifts/currencies')).body.currencies.some((c) => c.code === 'btc'), 'crypto currency list');
   let r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 25, method: 'wallet' }); ok(r.code === 400 && /email/.test(r.body.error), 'checkout requires a recipient email');
   r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 25, email: 'friend@example.com', message: 'Enjoy!', method: 'wallet' }); const w = r.body;
-  ok(r.code === 201 && w.status === 'pending' && w.priceUsd === 26 && w.pay.amounts.BNB.amount === 0.052 && w.pay.merchant === MERCHANT, 'wallet checkout: pending order with BNB and USDT amounts');
-  addTx('0x' + '01'.repeat(32), { to: MERCHANT, value: 51n * 10n ** 15n }); r = await j(`/api/gifts/orders/${w.id}/tx`, { txHash: '0x' + '01'.repeat(32) }); ok(r.code === 402 && /below/.test(r.body.error), 'BNB below the quote is refused');
-  addTx('0x' + '02'.repeat(32), { to: MERCHANT, value: 52n * 10n ** 15n }); r = await j(`/api/gifts/orders/${w.id}/tx`, { txHash: '0x' + '02'.repeat(32) });
+  ok(r.code === 201 && w.status === 'pending' && w.priceUsd === 25.5 && w.pay.amounts.BNB.amount === 0.051 && w.pay.merchant === MERCHANT, 'wallet checkout: pending order with BNB and USDT amounts (2% wallet discount)');
+  addTx('0x' + '01'.repeat(32), { to: MERCHANT, value: 50n * 10n ** 15n }); r = await j(`/api/gifts/orders/${w.id}/tx`, { txHash: '0x' + '01'.repeat(32) }); ok(r.code === 402 && /below/.test(r.body.error), 'BNB below the quote is refused');
+  addTx('0x' + '02'.repeat(32), { to: MERCHANT, value: 51n * 10n ** 15n }); r = await j(`/api/gifts/orders/${w.id}/tx`, { txHash: '0x' + '02'.repeat(32) });
   ok(r.code === 200 && r.body.status === 'delivered' && /6032/.test(r.body.redemption.instructions) && r.body.pay.token === 'BNB', 'wallet payment verified on-chain -> Bitrefill -> delivered');
   ok(mails.length === 1 && mails[0].to[0] === 'friend@example.com' && /6032-1234/.test(mails[0].html) && /Enjoy!/.test(mails[0].html), 'recipient got the code and the message by email');
   r = await j(`/api/gifts/orders/${w.id}/tx`, { txHash: '0x' + '02'.repeat(32) }); ok(r.code === 409, 'a delivered order cannot be paid again');
@@ -84,5 +84,31 @@ const mails = []; const mailS = http.createServer(async (req, res) => { const b 
   const png = 'data:image/png;base64,' + Buffer.from('\x89PNG\r\n\x1a\n' + 'x'.repeat(100), 'latin1').toString('base64'); r = await j('/api/admin/upload', { dataUrl: png }, A);
   ok(r.code === 201 && /^\/uploads\/[a-f0-9]{16}\.png$/.test(r.body.url) && (await fetch(base + r.body.url)).status === 200, 'admin can upload a photo and it is served');
   await new Promise((r) => setTimeout(r, 300)); const saved = JSON.parse(fs.readFileSync(path.join(process.env.DATA_DIR, 'launchpad.json'), 'utf8')); ok(Object.keys(saved.giftOrders).length === 5 && saved.adminLog.length >= 3, 'orders and admin log persisted');
+  // scheduled delivery, keep-in-account, wallet discount, referrals
+  r = await j('/api/gifts/catalog'); ok(r.body.walletDiscount === 0.02 && r.body.refShare === 0.25 && r.body.countries.includes('CA'), 'catalog reports the wallet discount, referral share and countries');
+  const ref = ethers.Wallet.createRandom().address;
+  r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 25, email: 'later@example.com', method: 'wallet', deliverAt: new Date(Date.now() + 3600 * 1000).toISOString(), ref }); const sch = r.body;
+  ok(r.code === 201 && sch.priceUsd === 25.5 && sch.discount === 0.02 && sch.deliverAt > Date.now() && sch.ref === ref.toLowerCase(), 'wallet checkout applies the 2% discount, keeps deliverAt and the referrer');
+  const mailsBefore = mails.length; addTx('0x' + '03'.repeat(32), { to: MERCHANT, value: 51n * 10n ** 15n }); r = await j(`/api/gifts/orders/${sch.id}/tx`, { txHash: '0x' + '03'.repeat(32) });
+  ok(r.body.status === 'delivered' && r.body.redemption.instructions && mails.length === mailsBefore && !r.body.emailSent, 'scheduled order is delivered now but the email waits for its time');
+  const giftsMod = require('./gifts'); const st = require('./server').store; st.giftOrders[sch.id].deliverAt = Date.now() - 1000; await giftsMod.startJobs(st, async () => {})(); ok(mails.length === mailsBefore + 1 && mails[mails.length - 1].to[0] === 'later@example.com', 'the minute job sends the scheduled email once it is due');
+  r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, method: 'wallet', forMe: true }); ok(r.code === 400, 'keep-in-account needs a signed-in wallet');
+  r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, method: 'wallet', forMe: true }, { authorization: 'Bearer ' + tok }); ok(r.code === 201 && r.body.forMe && r.body.recipient.email === null && r.body.buyer.address === wallet.address, 'signed-in buyer can keep the card in the account without an email');
+  r = await j('/api/me/referrals', undefined, { authorization: 'Bearer ' + tok }); ok(r.code === 200 && /\/gifts\?ref=0x/.test(r.body.link) && r.body.earnedUsd === 0, 'buyer gets a referral link');
+  const w2 = ethers.Wallet.createRandom(); const n3 = await j('/api/auth/nonce', { address: w2.address }); const tok2 = (await j('/api/auth/verify', { address: w2.address, signature: await w2.signMessage(n3.body.message) })).body.token;
+  r = await j('/api/gifts/checkout', { productId: 'chipotle-usa', value: 20, email: 'r@example.com', method: 'wallet', ref: w2.address }); addTx('0x' + '04'.repeat(32), { to: MERCHANT, value: 41n * 10n ** 15n }); await j(`/api/gifts/orders/${r.body.id}/tx`, { txHash: '0x' + '04'.repeat(32) });
+  r = await j('/api/me/referrals', undefined, { authorization: 'Bearer ' + tok2 }); ok(r.body.delivered === 1 && r.body.earnedUsd === 0.1 && r.body.pendingUsd === 0.1, 'referrer earns 25% of the margin on a delivered order (20 * 2% * 25% = 0.10)');
+  r = await j(`/api/admin/referrals/${w2.address.toLowerCase()}/paid`, { amountUsd: 0.1, txHash: '0xabc' }, A); ok(r.body.pendingUsd === 0 && (await j('/api/admin/referrals', undefined, A)).body.referrers.length >= 1, 'admin records a referral payout');
+  r = await fetch(base + '/api/gifts/preview?rid=starbucks&value=25&message=Hola'); ok(r.status === 200 && /text\/html/.test(r.headers.get('content-type')) && /Hola/.test(await r.text()), 'email preview renders the message');
+  // community: comments, alerts, newsletter, support, status
+  const coin = '0x' + '77'.repeat(20);
+  r = await j(`/api/comments/${coin}`, { text: 'hello' }); ok(r.code === 401, 'comments need a signed-in wallet');
+  r = await j(`/api/comments/${coin}`, { text: '  gm   everyone ' }, { authorization: 'Bearer ' + tok }); ok(r.code === 201 && r.body.text === 'gm everyone' && r.body.address === wallet.address, 'signed-in wallet posts a comment');
+  r = await j(`/api/comments/${coin}`, { text: 'again' }, { authorization: 'Bearer ' + tok }); ok(r.code === 429, 'one comment every 20 seconds per wallet');
+  r = await j(`/api/comments/${coin}`); ok(r.body.comments.length === 1, 'comments are listed publicly');
+  r = await j('/api/alerts', { email: 'alert@example.com', coin, chain: '97' }); ok(r.code === 201 && r.body.willEmail === true && (await j(`/api/alerts/count?coin=${coin}`)).body.count === 1, 'alert subscription stored');
+  r = await j('/api/newsletter', { email: 'news@example.com', lang: 'es' }); r = await j('/api/newsletter', { email: 'NEWS@example.com' }); ok(r.code === 201 && (await j('/api/admin/newsletter', undefined, A)).body.subscribers.length === 1, 'newsletter deduplicates emails');
+  r = await j('/api/support', { email: 'help@example.com', subject: 'Order', message: 'Where is my card?', order: w.id }); ok(r.code === 201 && (await j('/api/admin/support', undefined, A)).body.requests[0].order === w.id, 'support request stored with the order id');
+  r = await j('/api/status'); ok(r.code === 200 && r.body.supply === true && r.body.ordersDelivered >= 5 && r.body.lastDelivered[0].rid, 'public status lists supply and latest deliveries');
   console.log(`\n${passed} passed`); server.close(); for (const s of [rpcS, brS, npS, stS, mailS]) s.close(); process.exit(0);
 })().catch((e) => { console.error('FAIL', e); process.exit(1); });

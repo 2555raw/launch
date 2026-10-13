@@ -186,6 +186,8 @@ marcar `refunded`). Estados: pending, paid, processing, delivered, failed, expir
 | `RESEND_API_KEY`, `MAIL_FROM` | envío del código por email (Resend) |
 | `ADMIN_KEY` | panel `/admin` y API `/api/admin/*` (cabecera `x-admin-key`, comparación en tiempo constante) |
 | `SITE_URL`, `BRAND_NAME`, `GIFT_MARGIN`, `GIFT_TEST`, `BSC_RPC` | URL pública (callbacks), marca, margen (0.04 = 4 %), producto de prueba de Bitrefill, nodo |
+| `GIFT_WALLET_DISCOUNT`, `GIFT_REF_SHARE`, `SUPPORT_EMAIL`, `X_URL` | descuento al pagar con wallet (0.02), parte del margen para referidos (0.25), buzón de soporte, perfil de X |
+| `DEPLOYER_KEY`, `FACTORY_56`, `FACTORY_97`, `DEFAULT_CHAIN`, `COINGECKO_API_KEY` | clave para desplegar la factory desde /admin, direcciones de factory, red por defecto, clave demo de CoinGecko |
 
 Webhooks a registrar en cada proveedor: `POST /api/webhooks/nowpayments` y
 `POST /api/webhooks/stripe`. Rutas públicas: `GET /api/gifts/catalog`, `GET /api/gifts/currencies`,
@@ -196,7 +198,28 @@ reenvío de email, overrides del catálogo (nombre, foto subida, categoría, des
 ocultar) y registro de actividad.
 
 `npm run test:gifts` recorre todo contra RPC, Bitrefill, NOWPayments, Stripe y Resend
-simulados (26 comprobaciones, firmas de webhooks incluidas).
+simulados (44 comprobaciones: firmas de webhooks, entrega programada, descuento, referidos,
+comentarios, alertas, newsletter, soporte y estado).
+
+**Lo que hace además (todo probado)**
+
+- Tienda: selector de país, entrega programada (el email sale a la hora elegida; el job de
+  cada minuto lo envía), vista previa del email (`/api/gifts/preview`), descuento al pagar con
+  wallet (`GIFT_WALLET_DISCOUNT`, 2 % por defecto), «guardar en mi cuenta» sin email,
+  referidos (`?ref=0x…`, `GIFT_REF_SHARE` = 25 % del margen, `/api/me/referrals`, pagos
+  anotados desde `/admin` → Community).
+- Launchpad: perfil público por wallet (`/u/0x…`), ranking (`/leaderboard`), calendario de
+  cierres (`/calendar`), simulador de tokens en la ficha, imagen para compartir (Web Share o
+  descarga), precio en PancakeSwap tras graduar (`/api/pool`, con histórico), comentarios por
+  coin firmados con la wallet (`/api/comments/:addr`), alertas por email (`/api/alerts`: al
+  graduar, al abrir reembolsos y 2 h antes de cerrar; un job cada 2 min lee la cadena y
+  envía con Resend), titulares de prensa por restaurante (`/api/news`, Google News RSS).
+- Contenido: guías (`/guides/...`: comprar cripto, tarjeta con USDT, acciones tokenizadas,
+  recaudación emparejada), estado público (`/status`, `/api/status`), ayuda con formulario
+  (`/api/support`, reenviado a `SUPPORT_EMAIL`), newsletter (`/api/newsletter`, CSV en admin).
+- App instalable (PWA): `manifest.webmanifest`, `sw.js` (página network-first, fotos en
+  caché), iconos en `dapp/icons/`.
+- Idiomas: inglés, español y chino, con las mismas 470 claves cada uno.
 
 **Lo que falta para operar de verdad** (todo está programado; sólo faltan las credenciales):
 1. Cuenta Bitrefill con API y saldo cargado.
@@ -211,7 +234,7 @@ simulados (26 comprobaciones, firmas de webhooks incluidas).
 
 ```bash
 npm test                 # API del servidor
-npm run test:gifts       # tienda: 26 comprobaciones con proveedores simulados
+npm run test:gifts       # tienda y comunidad: 44 comprobaciones con proveedores simulados
 npm run test:contracts   # 28 comprobaciones de los contratos en una EVM en proceso
 npm run test:dapp        # la página en Chromium contra una wallet y una tienda simuladas
 ```

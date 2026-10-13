@@ -122,21 +122,34 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewp
 const server = http.createServer((req, res) => {
   const u = decodeURIComponent(req.url.split('?')[0]);
   if (u === '/') { res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' }); return res.end(html); }
-  if (u.startsWith('/api/gifts/') || u === '/api/catalog' || u === '/api/me/orders' || u.startsWith('/api/auth/') || u.startsWith('/api/webhooks/')) {
+  if (u.startsWith('/api/')) {
     const out = (code, body) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(body)); };
     const MER = '0x00000000000000000000000000000000000000aa';
-    const mk = (o) => ({ id: o.id, rid: o.rid, productId: o.productId, name: o.rid, value: o.value, currency: 'USD', faceUsd: o.value, priceUsd: Math.ceil(o.value * 1.04 * 100) / 100, margin: 0.04, status: o.status, error: null, createdAt: o.createdAt, recipient: { email: o.email, message: o.message || '' }, buyer: { address: null }, pay: o.pay, redemption: o.status === 'delivered' ? { code: '6032-1234-5678-9012', pin: '4321', instructions: 'Redeem at starbucks.com/card', link: 'https://www.bitrefill.com/x' } : null, emailSent: o.status === 'delivered' });
+    const mk = (o) => ({ id: o.id, rid: o.rid, productId: o.productId, name: o.rid, value: o.value, currency: 'USD', faceUsd: o.value, priceUsd: Math.ceil(o.value * (o.pay.method === 'wallet' ? 1.02 : 1.04) * 100) / 100, margin: o.pay.method === 'wallet' ? 0.02 : 0.04, discount: o.pay.method === 'wallet' ? 0.02 : 0, deliverAt: o.deliverAt || null, forMe: Boolean(o.forMe), ref: o.ref || null, status: o.status, error: null, createdAt: o.createdAt, recipient: { email: o.email, message: o.message || '' }, buyer: { address: null }, pay: o.pay, redemption: o.status === 'delivered' ? { code: '6032-1234-5678-9012', pin: '4321', instructions: 'Redeem at starbucks.com/card', link: 'https://www.bitrefill.com/x' } : null, emailSent: o.status === 'delivered' });
     global.__orders ||= {};
-    if (u === '/api/gifts/catalog') return out(200, { supply: true, configured: true, methods: { wallet: true, crypto: true, card: true }, margin: 0.04, merchant: MER, email: true, products: [['starbucks', 'starbucks-usa', [10, 25, 50, 100]], ['chipotle', 'chipotle-usa', null], ['burgerking', 'burger-king-usa', null]].map(([rid, id, packages]) => ({ rid, id, name: rid, country: 'US', currency: 'USD', min: 5, max: 250, step: 1, packages, inStock: true, available: true })) });
+    if (u === '/api/gifts/catalog') return out(200, { supply: true, configured: true, methods: { wallet: true, crypto: true, card: true }, margin: 0.04, walletDiscount: 0.02, refShare: 0.25, countries: ['US', 'CA'], merchant: MER, email: true, products: [['starbucks', 'starbucks-usa', [10, 25, 50, 100], 'US', 'USD'], ['chipotle', 'chipotle-usa', null, 'US', 'USD'], ['burgerking', 'burger-king-usa', null, 'US', 'USD'], ['timhortons', 'tim-hortons-canada', null, 'CA', 'CAD']].map(([rid, id, packages, country, currency]) => ({ rid, id, name: rid, country, currency, min: 5, max: 250, step: 1, packages, inStock: true, available: true })) });
+    if (u === '/api/config') return out(200, { paths: false, factories: {}, defaultChain: 97, social: { x: 'https://x.com/bnbbite' } });
+    if (u === '/api/gifts/preview') { res.writeHead(200, { 'content-type': 'text/html' }); return res.end('<h2>preview</h2>'); }
+    if (u === '/api/status') return out(200, { brand: 'BNB Bite', time: Date.now(), uptimeSec: 3600, supply: true, methods: { wallet: true, crypto: true, card: false }, email: true, chains: { 56: { block: 1, factory: null, ok: true }, 97: { block: 2, factory: '0x000000000000000000000000000000000000FAC7', ok: true } }, ordersDelivered: 2, ordersPending: 0, lastDelivered: [{ rid: 'starbucks', value: 25, currency: 'USD', at: Date.now(), method: 'wallet' }], alerts: 1, subscribers: 3 });
+    if (u === '/api/news') return out(200, { items: [{ title: 'McDonald\'s opens 500 new stores', link: 'https://example.com/news', at: Date.now() - 3600000, source: 'Example News' }] });
+    if (u === '/api/pool') return out(200, { graduated: true, pair: '0x00000000000000000000000000000000000000ab', price: 0.001, liquidity: 1, marketCap: 1000000, token: '0x000000000000000000000000000000000000001e', points: [[Date.now() - 60000, 0.0009], [Date.now(), 0.001]] });
+    if (u === '/api/alerts/count') return out(200, { count: 1 });
+    if (u === '/api/me/referrals') return out(200, { address: '0x1111111111111111111111111111111111111111', share: 0.25, orders: 2, delivered: 1, earnedUsd: 0.25, paidUsd: 0, pendingUsd: 0.25, payouts: [], recent: [], link: 'http://x.test/gifts?ref=0x1111111111111111111111111111111111111111' });
+    global.__comments ||= [];
+    if (req.method === 'GET' && u.startsWith('/api/comments/')) return out(200, { comments: global.__comments });
     if (u === '/api/gifts/currencies') return out(200, { currencies: [{ code: 'btc', name: 'Bitcoin' }, { code: 'eth', name: 'Ethereum' }, { code: 'sol', name: 'Solana' }] });
     if (u === '/api/catalog') return out(200, { overrides: { mcdonalds: { blurb: 'Big Mac since 1967' } } });
     let b = ''; req.on('data', (c) => b += c); req.on('end', () => { const j = b ? JSON.parse(b) : {}; let m;
       if (u === '/api/gifts/checkout') { const id = (Object.keys(global.__orders).length + 1).toString(16).padStart(24, 'a'); const price = Math.ceil(j.value * 1.04 * 100) / 100;
         const pay = j.method === 'wallet' ? { method: 'wallet', merchant: MER, amounts: { BNB: { amount: 0.05, wei: '50000000000000000' }, USDT: { amount: price, wei: String(BigInt(Math.round(price * 100)) * 10n ** 16n) } }, expiresAt: Date.now() + 900000 } : j.method === 'crypto' ? { method: 'crypto', provider: 'nowpayments', payAddress: 'bc1qharnessaddress000', payAmount: 0.00042, payCurrency: j.currency || 'btc', network: 'btc', expiresAt: Date.now() + 1200000, providerStatus: 'waiting' } : { method: 'card', provider: 'stripe', url: 'https://checkout.stripe.com/c/pay/cs_test' };
-        global.__orders[id] = { id, rid: j.productId.replace('-usa', '').replace('burger-king', 'burgerking'), productId: j.productId, value: j.value, email: j.email, message: j.message, status: 'pending', createdAt: Date.now(), pay, polls: 0 }; return out(201, mk(global.__orders[id])); }
+        global.__orders[id] = { id, rid: j.productId.replace('-usa', '').replace('burger-king', 'burgerking'), productId: j.productId, value: j.value, email: j.email, message: j.message, status: 'pending', createdAt: Date.now(), pay, polls: 0, deliverAt: j.deliverAt ? new Date(j.deliverAt).getTime() : null, forMe: Boolean(j.forMe), ref: j.ref || null }; return out(201, mk(global.__orders[id])); }
       if ((m = /^\/api\/gifts\/orders\/([a-f0-9]{24})\/tx$/.exec(u))) { const o = global.__orders[m[1]]; if (!o) return out(404, { error: 'no' }); o.status = 'delivered'; o.pay = { ...o.pay, token: 'BNB', txHash: j.txHash }; return out(200, mk(o)); }
       if ((m = /^\/api\/gifts\/orders\/([a-f0-9]{24})\/claim$/.exec(u))) { const o = global.__orders[m[1]]; return o ? out(200, mk(o)) : out(404, { error: 'no' }); }
       if ((m = /^\/api\/gifts\/orders\/([a-f0-9]{24})$/.exec(u))) { const o = global.__orders[m[1]]; if (!o) return out(404, { error: 'no' }); if (o.status === 'pending' && o.pay.method === 'crypto') { o.polls++; if (o.polls >= 2) o.status = 'delivered'; else o.pay.providerStatus = 'confirming'; } return out(200, mk(o)); }
+      if (u.startsWith('/api/comments/')) { if (!req.headers.authorization) return out(401, { error: 'sign in' }); const c = { id: 'c1', address: '0x1111111111111111111111111111111111111111', text: j.text, at: Date.now() }; global.__comments.push(c); return out(201, c); }
+      if (u === '/api/alerts') return out(201, { ok: true, id: 'a1', willEmail: true });
+      if (u === '/api/newsletter') return out(201, { ok: true });
+      if (u === '/api/support') return out(201, { ok: true, id: 's1' });
       if (u === '/api/auth/nonce') return out(200, { message: 'Sign in to harness: ' + j.address });
       if (u === '/api/auth/verify') return out(200, { token: 'harness-token-00000000000000', address: j.address });
       if (u === '/api/me/orders') return out(200, { address: '0x1111111111111111111111111111111111111111', orders: Object.values(global.__orders).map(mk) });
@@ -192,6 +205,11 @@ const server = http.createServer((req, res) => {
   R.cartN = await pg.locator('#cart-n').textContent();
   await pg.waitForFunction(() => document.querySelectorAll('#act .buy-r').length === 2, null, { timeout: 15000 });
   R.activity = { buys: await pg.locator('#act .buy-r').count(), chart: await pg.locator('#act svg.chart').count(), first: await pg.locator('#act .buy-r').first().textContent() };
+  await pg.locator('#amt').fill('0.02'); await pg.waitForTimeout(100);
+  R.sim = await pg.locator('#sim').textContent();
+  R.shareBtn = await pg.locator('[data-share]').count();
+  R.alertBox = await pg.locator('.alert-box').count(); await pg.locator('#aemail').fill('watch@example.com'); await pg.locator('[data-alert]').click(); await pg.waitForFunction(() => document.querySelector('#toast').classList.contains('is-on'), null, { timeout: 5000 }); R.alertToast = await pg.locator('#toast').textContent();
+  R.commentsBox = await pg.locator('#comments').count();
   await pg.screenshot({ path: path.join(OUT, 'shot-drawer.png') });
   R.hash = await pg.evaluate(() => location.hash);
   await pg.waitForFunction(() => !document.querySelector('#feed').hidden, null, { timeout: 15000 });
@@ -214,6 +232,14 @@ const server = http.createServer((req, res) => {
   R.stockSearch = await pg.locator('#drawer .who b').textContent();
   await pg.keyboard.press('Escape');
   await pg.locator('#q').fill('');
+  await pg.evaluate(() => { location.hash = '#calendar'; }); await pg.waitForTimeout(500); R.calendar = await pg.locator('#cal-body .cal-row').count();
+  await pg.evaluate(() => { location.hash = '#leaderboard'; }); await pg.waitForTimeout(800); R.leaderboard = { coins: await pg.locator('#lb-body .lb-col').first().locator('.lb-row').count(), buyers: await pg.locator('#lb-body .lb-col').nth(1).locator('.lb-row').count() }; await pg.screenshot({ path: path.join(OUT, 'shot-leaderboard.png') });
+  await pg.locator('#lb-body .lb-row').first().click(); await pg.waitForSelector('[data-profile]'); await pg.locator('#drawer [data-profile]').click(); await pg.waitForTimeout(600); R.profile = { visible: await pg.evaluate(() => !document.querySelector('#profile').hidden), created: await pg.locator('#profile-body .lb-col').first().locator('.lb-row').count(), hash: await pg.evaluate(() => location.hash) }; await pg.screenshot({ path: path.join(OUT, 'shot-profile.png') });
+  await pg.evaluate(() => { location.hash = '#status'; }); await pg.waitForTimeout(600); R.status = { tiles: await pg.locator('.st-tile').count(), last: await pg.locator('.st-row').count() };
+  await pg.evaluate(() => { location.hash = '#help'; }); await pg.waitForTimeout(300); await pg.locator('#support-form [name="email"]').fill('me@example.com'); await pg.locator('#support-form [name="message"]').fill('Where is my card? Order a1b2'); await pg.locator('#support-form button').click(); await pg.waitForFunction(() => /Sent/.test(document.querySelector('#support-note').textContent), null, { timeout: 5000 }); R.support = await pg.locator('#support-note').textContent();
+  await pg.locator('#nl-email').fill('news@example.com'); await pg.locator('#nl-form button').click(); await pg.waitForFunction(() => /Subscribed/.test(document.querySelector('#nl-note').textContent), null, { timeout: 5000 }); R.newsletter = await pg.locator('#nl-note').textContent();
+  await pg.evaluate(() => { location.hash = '#r/mcdonalds'; }); await pg.waitForSelector('#news .news a', { timeout: 5000 }); R.news = await pg.locator('#news .news a b').first().textContent(); await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
+  await pg.evaluate(() => { location.hash = '#pairs'; }); await pg.waitForTimeout(300);
   R.pairs = { n: await pg.locator('#pairs-list .pair').count(), label: await pg.locator('#pairs-n').textContent(), first: await pg.locator('#pairs-list .pair').first().textContent(), status: await pg.locator('#contracts').textContent() };
   await pg.evaluate(() => window.scrollTo(0, 0)); await pg.waitForTimeout(400); await pg.screenshot({ path: path.join(OUT, 'shot-cover.png') });
   await pg.evaluate(() => { location.hash = '#pairs'; }); await pg.waitForTimeout(400); await pg.screenshot({ path: path.join(OUT, 'shot-pairs.png') });
@@ -238,6 +264,7 @@ const server = http.createServer((req, res) => {
   await pg.locator('[data-finalize]').click();
   await pg.waitForFunction(() => document.querySelector('[data-claim]'), null, { timeout: 15000 });
   R.claimBtn = await pg.locator('[data-claim]').textContent();
+  await pg.waitForSelector('#pool .pool', { timeout: 5000 }); R.pool = await pg.locator('#pool .pool').textContent();
   await pg.locator('[data-claim]').click();
   await pg.waitForFunction(() => !document.querySelector('[data-claim]'), null, { timeout: 15000 });
   await pg.keyboard.press('Escape');
@@ -255,12 +282,15 @@ const server = http.createServer((req, res) => {
   await pg.locator('#gemail').fill('friend@example.com'); await pg.locator('#gmsg').fill('Enjoy!');
   await pg.locator('[data-gm="wallet"]').click();
   R.giftSum = await pg.locator('.gs-sum').textContent();
+  R.giftPreview = await pg.locator('a[href^="/api/gifts/preview"]').count();
+  await pg.locator('[data-gwhen="later"]').click(); await pg.waitForSelector('#gdate'); const tomorrow = new Date(Date.now() + 86400000); await pg.locator('#gdate').fill(tomorrow.toISOString().slice(0, 16)); R.giftWhen = await pg.locator('#gdate').inputValue();
   await pg.locator('[data-gnext]').click();
   await pg.waitForSelector('[data-gpay="BNB"]', { timeout: 10000 });
   R.giftPending = await pg.locator('.gs-stat').first().textContent();
   await pg.locator('[data-gpay="BNB"]').click();
   await pg.waitForSelector('.code b', { timeout: 20000 });
   R.giftCode = await pg.locator('.code b').textContent();
+  R.giftScheduled = await pg.evaluate(() => /scheduled for/.test(document.querySelector('#drawer').textContent));
   await pg.screenshot({ path: path.join(OUT, 'shot-gift.png') });
   R.giftHash = await pg.evaluate(() => location.hash);
   R.giftSaved = await pg.evaluate(() => JSON.parse(localStorage.getItem('bento.gifts') || '[]').length);
@@ -280,6 +310,12 @@ const server = http.createServer((req, res) => {
   await pg.locator('.side [data-open="a:"]').click(); await pg.waitForSelector('[data-acct-sign]');
   await pg.locator('[data-acct-sign]').click(); await pg.waitForSelector('.gs-list [data-gorder]', { timeout: 10000 });
   R.account = { orders: await pg.locator('.gs-list [data-gorder]').count(), hash: await pg.evaluate(() => location.hash) };
+  await pg.waitForSelector('.ref-box', { timeout: 5000 }); R.referral = await pg.locator('.ref-box input').inputValue();
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
+  await pg.evaluate(() => { location.hash = '#gifts'; }); await pg.waitForTimeout(400); R.countries = { chips: await pg.locator('#gift-countries button').count(), all: await pg.locator('#gift-grid .gift').count() }; await pg.locator('#gift-countries [data-country="CA"]').click(); await pg.waitForTimeout(200); R.countries.ca = await pg.locator('#gift-grid .gift').count(); await pg.locator('#gift-countries [data-country="all"]').click();
+  await pg.locator('#gift-grid .gift[data-open="g:starbucks"]').click(); await pg.waitForSelector('#gforme'); R.forMe = await pg.locator('#gforme').count(); await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
+  await pg.locator('.side [data-tab="graduated"]').click(); await pg.locator('#rows .row:not(.rcard) .row-img').first().click(); await pg.waitForSelector('#ctext', { timeout: 5000 }); await pg.locator('#ctext').fill('Great coin, LFG'); await pg.locator('[data-cpost]').click(); await pg.waitForSelector('.cm', { timeout: 5000 }); R.comment = await pg.locator('.cm p').first().textContent(); await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
+  await pg.locator('.side [data-open="a:"]').click(); await pg.waitForSelector('.gs-list [data-gorder]');
   await pg.screenshot({ path: path.join(OUT, 'shot-account.png') });
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
   await pg.evaluate(() => { location.hash = '#docs'; }); await pg.waitForTimeout(300);

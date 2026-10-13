@@ -30,6 +30,8 @@ const { verifyMessage, getAddress, isAddress } = require('ethers');
 const CATALOG = require('./launches');
 const { shopApi } = require('./gifts');
 const factory = require('./factory');
+const gifts = require('./gifts');
+const community = require('./community');
 const zlib = require('zlib');
 
 const ROOT = __dirname;
@@ -226,9 +228,9 @@ setInterval(pruneSessions, 15 * 60 * 1000).unref();
 const TYPES = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon',
-  '.txt': 'text/plain; charset=utf-8', '.md': 'text/markdown; charset=utf-8'
+  '.txt': 'text/plain; charset=utf-8', '.md': 'text/markdown; charset=utf-8', '.webmanifest': 'application/manifest+json', '.xml': 'application/xml; charset=utf-8'
 };
-const PRIVATE = new Set(['server.js', 'launches.js', 'gifts.js', 'factory.js', 'test.js', 'test-gifts.js', 'package.json', 'package-lock.json', '.gitignore']);
+const PRIVATE = new Set(['server.js', 'launches.js', 'gifts.js', 'factory.js', 'community.js', 'test.js', 'test-gifts.js', 'package.json', 'package-lock.json', '.gitignore']);
 
 function gzipOk(req, type, body) { return req && /\bgzip\b/.test(req.headers['accept-encoding'] || '') && /^(text\/|application\/(json|javascript)|image\/svg)/.test(type) && body.length > 1024; }
 function send(res, code, body, headers = {}) {
@@ -271,7 +273,9 @@ function serveStatic(req, res, rel) {
   if (rel === '/sitemap.xml') return send(res, 200, sitemap(req), { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' });
   if (rel === '/robots.txt') return send(res, 200, `User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\nSitemap: ${(process.env.SITE_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers['x-forwarded-host'] || req.headers.host}`).replace(/\/$/, '')}/sitemap.xml\n`, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' });
   if (rel === '/admin' || rel === '/admin/') rel = '/dapp/admin.html';
-  else if (rel.startsWith('/logos/') || rel.startsWith('/photos/')) rel = '/dapp' + rel;
+  else if (rel.startsWith('/logos/') || rel.startsWith('/photos/') || rel.startsWith('/icons/')) rel = '/dapp' + rel;
+  else if (rel === '/manifest.webmanifest') rel = '/dapp/manifest.webmanifest';
+  else if (rel === '/sw.js') { return fs.readFile(path.join(ROOT, 'dapp', 'sw.js'), (err, body) => { if (err) return fail(res, 404, 'nothing here'); res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'no-cache', 'service-worker-allowed': '/' }); res.end(body); }); }
   else if (/^\/uploads\/[a-f0-9]{16}\.(jpg|png|webp)$/.test(rel)) { const up = path.join(DATA_DIR, rel); return fs.readFile(up, (err, body) => { if (err) return fail(res, 404, 'nothing here'); res.writeHead(200, { 'content-type': TYPES[path.extname(up)] || 'application/octet-stream', 'cache-control': 'public, max-age=86400' }); res.end(body); }); }
   if (rel.endsWith('/')) rel += 'index.html';
   const file = path.join(ROOT, path.normalize(rel));
@@ -315,7 +319,16 @@ const VIEW_META = {
   launch: ['Create a coin · BNB Bite', 'Launch a coin paired with a real restaurant stock token. The raise is paid in that token and lists on PancakeSwap with the liquidity burned.'],
   docs: ['How the launchpad works · BNB Bite', 'Paired raises, graduation, refunds and the fixed parameters of every BNB Bite coin.'],
   pairs: ['Verified pairs on BNB Chain · BNB Bite', 'The tokenized restaurant stocks (xStocks, bStocks, Ondo) verified on-chain that BNB Bite coins pair with.'],
-  account: ['Your account · BNB Bite', 'Your gift card orders and coins on BNB Bite.']
+  account: ['Your account · BNB Bite', 'Your gift card orders and coins on BNB Bite.'],
+  leaderboard: ['Leaderboard · BNB Bite', 'Top coins by amount raised and the most active buyers on BNB Bite this week.'],
+  calendar: ['Calendar · BNB Bite', 'Upcoming closes and graduations of BNB Bite coins.'],
+  guides: ['Guides · BNB Bite', 'How to buy crypto, how to pay a gift card with USDT, what a tokenized stock is, and how a paired raise works.'],
+  'guides/buy-crypto': ['How to buy crypto and set up a wallet · BNB Bite', 'Three steps to get BNB or USDT on BNB Chain with MetaMask or Binance, then use it on BNB Bite.'],
+  'guides/gift-card-usdt': ['Buy a Starbucks gift card with USDT · BNB Bite', 'Step by step: choose the card, pay with USDT or any crypto, get the code by email in minutes.'],
+  'guides/tokenized-stocks': ['What is a tokenized stock? · BNB Bite', 'MCDx, SBUXx and the other restaurant stock tokens on BNB Chain: who issues them, how they track the stock, where they trade.'],
+  'guides/paired-raise': ['How a paired raise works · BNB Bite', 'Target, minimum, cap per wallet, graduation to PancakeSwap and refunds, explained with an example.'],
+  status: ['Status · BNB Bite', 'Live status of gift card supply, payments, email and BNB Chain, with the latest deliveries.'],
+  help: ['Help · BNB Bite', 'Answers to common questions and a way to reach us about an order or a coin.']
 };
 const escAttr = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function pageFor(req, rel) {
@@ -331,6 +344,7 @@ function pageFor(req, rel) {
     if (fs.existsSync(path.join(ROOT, 'dapp', 'photos', m[2] + '.webp'))) image = `${base}/photos/${m[2]}.webp`;
   }
   else if (/^coin\/\d+\/0x[0-9a-fA-F]{40}$/.test(key)) { title = 'Coin · BNB Bite'; desc = 'A coin launched on BNB Bite, paired with a tokenized restaurant stock.'; }
+  else if ((m = /^u\/(0x[0-9a-fA-F]{40})$/.exec(key))) { title = `${m[1].slice(0, 6)}…${m[1].slice(-4)} · BNB Bite`; desc = 'Coins created and bought by this wallet on BNB Bite.'; }
   if (!image) image = `${base}/photos/all.webp`;
   let html = src.html
     .replace(/<title>[^<]*<\/title>/, `<title>${escAttr(title)}</title>`)
@@ -338,9 +352,9 @@ function pageFor(req, rel) {
     .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${escAttr(title)}">`)
     .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${escAttr(desc)}">`)
     .replace('<meta property="og:type" content="website">', `<meta property="og:type" content="website"><meta property="og:url" content="${escAttr(base + rel)}"><meta property="og:image" content="${escAttr(image)}"><meta name="twitter:image" content="${escAttr(image)}"><link rel="canonical" href="${escAttr(base + rel)}">`);
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script>window.BNB_CFG={paths:true}</script>\n${html}\n</html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png"><link rel="icon" href="/icons/icon-192.png" type="image/png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="BNB Bite"><script>window.BNB_CFG={paths:true}</script>\n${html}\n</html>`;
 }
-const PAGE_ROUTE = /^\/(gifts|coins|launch|docs|pairs|account|r\/[a-z0-9_-]+|gift\/[a-z0-9_-]+|coin\/\d+\/0x[0-9a-fA-F]{40})\/?$/;
+const PAGE_ROUTE = /^\/(gifts|coins|launch|docs|pairs|account|leaderboard|calendar|guides|guides\/[a-z0-9-]+|status|help|r\/[a-z0-9_-]+|gift\/[a-z0-9_-]+|coin\/\d+\/0x[0-9a-fA-F]{40}|u\/0x[0-9a-fA-F]{40})\/?$/;
 function servePage(req, res, rel) {
   let html; try { html = pageFor(req, rel); } catch (e) { console.error('page', e.message); return fail(res, 500, 'page unavailable'); }
   send(res, 200, html, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-cache' });
@@ -348,7 +362,7 @@ function servePage(req, res, rel) {
 function sitemap(req) {
   const base = (process.env.SITE_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers['x-forwarded-host'] || req.headers.host}`).replace(/\/$/, '');
   const src = pageSource();
-  const urls = ['/', '/gifts', '/coins', '/launch', '/docs', '/pairs', ...Object.keys(src.rest).flatMap((id) => [`/r/${id}`, `/gift/${id}`])];
+  const urls = ['/', '/gifts', '/coins', '/launch', '/docs', '/pairs', '/leaderboard', '/calendar', '/guides', '/guides/buy-crypto', '/guides/gift-card-usdt', '/guides/tokenized-stocks', '/guides/paired-raise', '/status', '/help', ...Object.keys(src.rest).flatMap((id) => [`/r/${id}`, `/gift/${id}`])];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${escAttr(base + u)}</loc></url>`).join('\n')}\n</urlset>\n`;
 }
 
@@ -390,7 +404,8 @@ async function api(req, res, url) {
     return send(res, 200, { at: quotes.at || null, available: Object.keys(data).length > 0, quotes: data });
   }
 
-  if (p.startsWith('/api/gifts/') || p.startsWith('/api/admin/') || p.startsWith('/api/webhooks/') || p === '/api/catalog' || p === '/api/me/orders') return shopApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, dataDir: DATA_DIR });
+  if (p.startsWith('/api/comments/') || p.startsWith('/api/alerts') || p === '/api/newsletter' || p === '/api/support' || p === '/api/status' || p === '/api/news' || p === '/api/pool' || /^\/api\/admin\/(newsletter|support|alerts|comments)/.test(p)) return community.communityApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, isAdmin: gifts.isAdmin, shop: { supply: () => require('./services/bitrefill').configured(), methods: () => ({ wallet: Boolean(process.env.MERCHANT_ADDRESS), crypto: require('./services/nowpayments').configured(), card: require('./services/stripe').configured() }) } });
+  if (p.startsWith('/api/gifts/') || p.startsWith('/api/admin/') || p.startsWith('/api/webhooks/') || p === '/api/catalog' || p === '/api/me/orders' || p === '/api/me/referrals') return shopApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, dataDir: DATA_DIR });
 
   if (req.method === 'GET' && p === '/api/me') {
     const s = sessionOf(req);
@@ -474,6 +489,7 @@ function handler(req, res) {
 
 function start(port = PORT) {
   load();
+  gifts.startJobs(store, save); community.startJobs(store, save);
   const server = http.createServer(handler);
   return new Promise((resolve) => server.listen(port, () => {
     console.log(`Tricker Launchpad on :${server.address().port} · data in ${DATA_FILE}${SEED_DEMO ? ' · demo seeded' : ''}`);

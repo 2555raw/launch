@@ -18,6 +18,8 @@ const email = require('./services/email');
 const USDT = '0x55d398326f99059ff775485246999027b3197955';
 const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const MARGIN = Number(process.env.GIFT_MARGIN ?? 0.04);
+const DISCOUNT = Math.min(MARGIN, Math.max(0, Number(process.env.GIFT_WALLET_DISCOUNT ?? 0.02))); // off the margin when paying with a BNB Chain wallet
+const REF_SHARE = Math.min(1, Math.max(0, Number(process.env.GIFT_REF_SHARE ?? 0.25)));       // share of the margin paid to the referrer
 const RPC = process.env.BSC_RPC || 'https://bsc-dataseed.binance.org';
 const MERCHANT = (process.env.MERCHANT_ADDRESS || '').toLowerCase();
 const BRAND = process.env.BRAND_NAME || 'BNB Bite';
@@ -45,7 +47,7 @@ async function prices() {
   if (!px.bnb) throw new Error('no price feed');
   return px;
 }
-function priceOf(p, value) { const faceUsd = p.currency === 'CAD' ? value / px.cadPerUsd : value; const priceUsd = Math.ceil(faceUsd * (1 + MARGIN) * 100) / 100; return { faceUsd: Math.round(faceUsd * 100) / 100, priceUsd }; }
+function priceOf(p, value, method) { const faceUsd = p.currency === 'CAD' ? value / px.cadPerUsd : value; const m = method === 'wallet' ? MARGIN - DISCOUNT : MARGIN; const priceUsd = Math.ceil(faceUsd * (1 + m) * 100) / 100; return { faceUsd: Math.round(faceUsd * 100) / 100, priceUsd, margin: m }; }
 function walletAmounts(priceUsd) { const bnb = Math.ceil(priceUsd / px.bnb * 1e6) / 1e6; return { BNB: { amount: bnb, wei: (BigInt(Math.round(bnb * 1e6)) * 10n ** 12n).toString() }, USDT: { amount: priceUsd, wei: (BigInt(Math.round(priceUsd * 100)) * 10n ** 16n).toString() } }; }
 
 /* ---- on-chain payment check ---- */
@@ -71,8 +73,8 @@ const valid = (s) => typeof s === 'string' && s.length < 400;
 const isEmail = (s) => typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s) && s.length < 200;
 function publicOrder(o) {
   const pay = o.pay || {};
-  return { id: o.id, rid: o.rid, productId: o.productId, name: o.name, value: o.value, currency: o.currency, faceUsd: o.faceUsd, priceUsd: o.priceUsd, margin: o.margin, status: o.status, error: o.error || null, createdAt: o.createdAt, paidAt: o.paidAt || null, deliveredAt: o.deliveredAt || null,
-    recipient: o.recipient ? { email: o.recipient.email, message: o.recipient.message || '' } : null, buyer: o.buyer ? { address: o.buyer.address || null } : null,
+  return { id: o.id, rid: o.rid, productId: o.productId, name: o.name, value: o.value, currency: o.currency, faceUsd: o.faceUsd, priceUsd: o.priceUsd, margin: o.margin, discount: o.discount || 0, status: o.status, error: o.error || null, createdAt: o.createdAt, paidAt: o.paidAt || null, deliveredAt: o.deliveredAt || null, deliverAt: o.deliverAt || null, forMe: Boolean(o.forMe), ref: o.ref || null,
+    recipient: o.recipient ? { email: o.recipient.email || null, message: o.recipient.message || '' } : null, buyer: o.buyer ? { address: o.buyer.address || null } : null,
     pay: { method: pay.method, token: pay.token || null, txHash: pay.txHash || null, provider: pay.provider || null, payAddress: pay.payAddress || null, payAmount: pay.payAmount || null, payCurrency: pay.payCurrency || null, network: pay.network || null, memo: pay.memo || null, url: pay.url || null, expiresAt: pay.expiresAt || null, amounts: pay.amounts || null, merchant: pay.method === 'wallet' ? MERCHANT : null, providerStatus: pay.providerStatus || null },
     redemption: o.status === 'delivered' ? o.redemption : null, emailSent: Boolean(o.emailSent) };
 }
@@ -85,8 +87,29 @@ async function markPaid(order, info, store, save) {
 }
 async function deliverEmail(order, save, site) {
   if (order.status !== 'delivered' || order.emailSent || !email.configured()) return;
+  if (order.deliverAt && Date.now() < order.deliverAt) return; // scheduled: the minute job sends it when due
   try { const m = email.giftEmail(order, BRAND, site || process.env.SITE_URL || ''); const to = order.recipient && order.recipient.email; if (to) { await email.send({ to, ...m }); order.emailSent = true; await save(); } }
   catch (e) { console.error('email', order.id, e.message); order.emailError = e.message; await save(); }
+}
+/* Minute job: scheduled emails that are now due, and pending orders that expired. */
+function startJobs(store, save) {
+  const tick = async () => { try {
+    const now = Date.now();
+    for (const o of Object.values(store.giftOrders || {})) {
+      if (o.status === 'delivered' && !o.emailSent && o.deliverAt && o.deliverAt <= now && o.recipient && o.recipient.email) await deliverEmail(o, save);
+      if (o.status === 'pending' && o.pay && o.pay.method === 'wallet' && o.pay.expiresAt && now > o.pay.expiresAt + 60 * 60 * 1000) { o.status = 'expired'; await save(); }
+    }
+  } catch (e) { console.error('gift jobs', e.message); } };
+  const t = setInterval(tick, 60 * 1000); t.unref(); return tick;
+}
+/* Referral earnings for an address: a share of the margin on delivered orders it referred. */
+function referrals(store, address) {
+  const me = String(address || '').toLowerCase(); const rows = Object.values(store.giftOrders || {}).filter((o) => o.ref === me);
+  const delivered = rows.filter((o) => o.status === 'delivered');
+  const earned = delivered.reduce((a, o) => a + Math.max(0, o.priceUsd - o.faceUsd) * REF_SHARE, 0);
+  const paid = ((store.refPayouts || {})[me] || []).reduce((a, p) => a + Number(p.amountUsd || 0), 0);
+  return { address: me, share: REF_SHARE, orders: rows.length, delivered: delivered.length, earnedUsd: Math.round(earned * 100) / 100, paidUsd: Math.round(paid * 100) / 100, pendingUsd: Math.round((earned - paid) * 100) / 100, payouts: (store.refPayouts || {})[me] || [],
+    recent: delivered.slice(-10).reverse().map((o) => ({ at: o.deliveredAt || o.paidAt || o.createdAt, rid: o.rid, faceUsd: o.faceUsd, earnedUsd: Math.round(Math.max(0, o.priceUsd - o.faceUsd) * REF_SHARE * 100) / 100 })) };
 }
 /* Refreshes a pending/processing order against its provider. */
 async function refresh(order, store, save, req) {
@@ -116,10 +139,17 @@ async function shopApi(req, res, url, h) {
   /* public, GET */
   if (req.method === 'GET' && p === '/api/gifts/catalog') {
     await bitrefill.refreshCatalog(CATALOG).catch(() => {});
-    return send(res, 200, { configured: supplyReady(), supply: supplyReady(), methods: methods(), test: bitrefill.TEST, sandbox: nowp.SANDBOX, merchant: MERCHANT || null, margin: MARGIN, brand: BRAND, email: email.configured(),
+    return send(res, 200, { configured: supplyReady(), supply: supplyReady(), methods: methods(), test: bitrefill.TEST, sandbox: nowp.SANDBOX, merchant: MERCHANT || null, margin: MARGIN, walletDiscount: DISCOUNT, refShare: REF_SHARE, countries: [...new Set(CATALOG.map((x) => x.country))], brand: BRAND, email: email.configured(),
       products: CATALOG.map((x) => ({ rid: x.rid, id: x.id, name: x.name, country: x.country, currency: x.currency, min: x.min, max: x.max, step: x.step || 1, packages: x.packages && x.packages.map((k) => k.value), inStock: x.inStock, available: supplyReady() && x.inStock && Object.values(methods()).some(Boolean) })) });
   }
   if (req.method === 'GET' && p === '/api/gifts/currencies') return send(res, 200, { currencies: await nowp.currencies() });
+  if (req.method === 'GET' && p === '/api/gifts/preview') {
+    const q = url.searchParams; const prod = CATALOG.find((x) => x.rid === q.get('rid')) || CATALOG[0]; const value = Number(q.get('value')) || prod.min;
+    const sample = { id: 'preview', name: prod.name, value, currency: prod.currency, recipient: { message: valid(q.get('message') || '') ? String(q.get('message') || '').slice(0, 300) : '' }, redemption: { code: '•••• •••• •••• ••••', instructions: 'The real code and redemption steps appear here once the order is paid.' } };
+    const m = email.giftEmail(sample, BRAND, siteUrl(req));
+    return send(res, 200, `<!doctype html><meta charset="utf-8"><title>${m.subject}</title><body style="margin:0;padding:16px;background:#f4f4f4">${m.html}</body>`, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'content-security-policy': "default-src 'none'; style-src 'unsafe-inline'; img-src https: data:" });
+  }
+  if (req.method === 'GET' && p === '/api/me/referrals') { const s = sessionOf(req); if (!s) return fail(res, 401, 'sign in first'); return send(res, 200, { ...referrals(store, s.address), link: siteUrl(req) + '/gifts?ref=' + s.address }); }
   if (req.method === 'GET' && p === '/api/catalog') return send(res, 200, { overrides: store.catalogOverrides });
   if (req.method === 'GET' && (m = /^\/api\/gifts\/orders\/([a-f0-9]{24})$/.exec(p))) {
     const o = store.giftOrders[m[1]]; if (!o) return fail(res, 404, 'no such order');
@@ -139,6 +169,7 @@ async function shopApi(req, res, url, h) {
       let balance = null; if (bitrefill.configured()) { try { balance = await bitrefill.balance(); } catch (e) { balance = { error: e.message }; } }
       return send(res, 200, { orders: all.length, byStatus: by, marginUsd: Math.round(revenue * 100) / 100, salesUsd: Math.round(all.filter((o) => o.status === 'delivered').reduce((a, o) => a + o.priceUsd, 0) * 100) / 100, supply: supplyReady(), methods: methods(), email: email.configured(), bitrefillBalance: balance, contributions: (store.contributions || []).length, log: (store.adminLog || []).slice(-50).reverse() });
     }
+    if (req.method === 'GET' && p === '/api/admin/referrals') { const by = {}; for (const o of Object.values(store.giftOrders)) if (o.ref) by[o.ref] = true; return send(res, 200, { share: REF_SHARE, referrers: Object.keys(by).map((a) => referrals(store, a)).sort((x, y) => y.pendingUsd - x.pendingUsd) }); }
     if (req.method === 'GET' && p === '/api/admin/orders') { const all = Object.values(store.giftOrders).sort((a, b) => b.createdAt - a.createdAt).slice(0, 500); return send(res, 200, { orders: all.map((o) => ({ ...publicOrder(o), recipient: o.recipient, buyer: o.buyer, redemption: o.redemption || null, fulfil: o.fulfil || null, notes: o.notes || [] })) }); }
     if (req.method !== 'POST') return fail(res, 404, 'no such route');
     let body; try { body = JSON.parse(await readRaw(req, 3 * 1024 * 1024) || '{}'); } catch { return fail(res, 400, 'bad json'); }
@@ -148,6 +179,7 @@ async function shopApi(req, res, url, h) {
       if (m[2] === 'status') { const allowed = ['pending', 'paid', 'processing', 'delivered', 'failed', 'expired', 'refunded']; if (!allowed.includes(body.status)) return fail(res, 400, 'bad status'); (o.notes ||= []).push({ at: Date.now(), from: o.status, to: body.status, note: valid(body.note) ? body.note : '' }); o.status = body.status; await save(); adminLog(store, { action: 'status', order: o.id, to: body.status }); return send(res, 200, publicOrder(o)); }
       if (m[2] === 'email') { o.emailSent = false; await deliverEmail(o, save, siteUrl(req)); return send(res, 200, { sent: Boolean(o.emailSent), error: o.emailError || null }); }
     }
+    if ((m = /^\/api\/admin\/referrals\/(0x[0-9a-f]{40})\/paid$/.exec(p))) { const amt = Number(body.amountUsd); if (!(amt > 0)) return fail(res, 400, 'amountUsd required'); ((store.refPayouts ||= {})[m[1]] ||= []).push({ at: Date.now(), amountUsd: Math.round(amt * 100) / 100, txHash: valid(body.txHash) ? body.txHash : null, note: valid(body.note) ? body.note : '' }); await save(); adminLog(store, { action: 'ref-payout', address: m[1], amountUsd: amt }); return send(res, 200, referrals(store, m[1])); }
     if (p === '/api/admin/catalog') { if (!body || typeof body.overrides !== 'object') return fail(res, 400, 'overrides object required'); for (const [rid, v] of Object.entries(body.overrides)) { if (!/^[a-z0-9_-]{1,40}$/.test(rid)) continue; if (v === null) { delete store.catalogOverrides[rid]; continue; } const o = {}; for (const k of ['name', 'nameZh', 'photo', 'cat', 'blurb']) if (valid(v[k])) o[k] = v[k]; if (typeof v.hidden === 'boolean') o.hidden = v.hidden; store.catalogOverrides[rid] = { ...(store.catalogOverrides[rid] || {}), ...o }; } await save(); adminLog(store, { action: 'catalog', keys: Object.keys(body.overrides) }); return send(res, 200, { overrides: store.catalogOverrides }); }
     if (p === '/api/admin/upload') {
       const mm = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(body.dataUrl || '')); if (!mm) return fail(res, 400, 'dataUrl must be a jpeg, png or webp image');
@@ -181,13 +213,16 @@ async function shopApi(req, res, url, h) {
     if (!prod) return fail(res, 400, 'unknown product'); if (!prod.inStock) return fail(res, 409, 'out of stock');
     if (!(value > 0)) return fail(res, 400, 'bad value');
     if (prod.packages ? !prod.packages.some((k) => k.value === value) : (value < prod.min || value > prod.max)) return fail(res, 400, `value must be ${prod.packages ? 'one of ' + prod.packages.map((k) => k.value).join(', ') : `between ${prod.min} and ${prod.max}`}`);
-    if (!isEmail(body.email)) return fail(res, 400, 'a valid recipient email is required');
-    const method = String(body.method || ''); const avail = methods(); if (!avail[method]) return fail(res, 400, `payment method ${method || '(none)'} is not available`);
-    try { await prices(); } catch (e) { return fail(res, 503, e.message); }
-    const { faceUsd, priceUsd } = priceOf(prod, value);
     const s = sessionOf(req);
-    const order = { id: crypto.randomBytes(12).toString('hex'), kind: 'gift', rid: prod.rid, productId: prod.id, name: prod.name, value, currency: prod.currency, faceUsd, priceUsd, margin: MARGIN,
-      recipient: { email: body.email.trim(), message: valid(body.message) ? body.message.trim().slice(0, 300) : '' }, buyer: { address: s ? s.address : null, email: isEmail(body.buyerEmail) ? body.buyerEmail : body.email.trim() },
+    const forMe = body.forMe === true && Boolean(s);
+    if (!forMe && !isEmail(body.email)) return fail(res, 400, s ? 'a valid recipient email is required (or tick "keep it in my account")' : 'a valid recipient email is required');
+    const method = String(body.method || ''); const avail = methods(); if (!avail[method]) return fail(res, 400, `payment method ${method || '(none)'} is not available`);
+    let deliverAt = null; if (body.deliverAt) { deliverAt = new Date(body.deliverAt).getTime(); if (!Number.isFinite(deliverAt)) return fail(res, 400, 'bad deliverAt'); if (deliverAt > Date.now() + 366 * 24 * 3600 * 1000) return fail(res, 400, 'deliverAt must be within a year'); if (deliverAt < Date.now() + 60 * 1000) deliverAt = null; }
+    const ref = typeof body.ref === 'string' && /^0x[0-9a-fA-F]{40}$/.test(body.ref) && (!s || body.ref.toLowerCase() !== s.address.toLowerCase()) ? body.ref.toLowerCase() : null;
+    try { await prices(); } catch (e) { return fail(res, 503, e.message); }
+    const { faceUsd, priceUsd, margin } = priceOf(prod, value, method);
+    const order = { id: crypto.randomBytes(12).toString('hex'), kind: 'gift', rid: prod.rid, productId: prod.id, name: prod.name, value, currency: prod.currency, faceUsd, priceUsd, margin, discount: method === 'wallet' ? DISCOUNT : 0, deliverAt, forMe, ref,
+      recipient: { email: forMe ? (isEmail(body.email) ? body.email.trim() : null) : body.email.trim(), message: valid(body.message) ? body.message.trim().slice(0, 300) : '' }, buyer: { address: s ? s.address : null, email: isEmail(body.buyerEmail) ? body.buyerEmail : (isEmail(body.email) ? body.email.trim() : null) },
       pay: { method }, status: 'pending', createdAt: Date.now() };
     try {
       if (method === 'wallet') order.pay = { method, amounts: walletAmounts(priceUsd), expiresAt: Date.now() + 15 * 60 * 1000 };
@@ -214,4 +249,4 @@ async function shopApi(req, res, url, h) {
   return fail(res, 404, 'no such route');
 }
 
-module.exports = { shopApi, CATALOG, px, verifyPayment, isAdmin, _test: { USDT, TRANSFER } };
+module.exports = { shopApi, CATALOG, px, verifyPayment, isAdmin, startJobs, referrals, deliverEmail, DISCOUNT, REF_SHARE, _test: { USDT, TRANSFER } };

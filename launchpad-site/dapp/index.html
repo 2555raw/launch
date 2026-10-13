@@ -34,6 +34,25 @@
 :root[data-theme="dark"][lang="zh"] { --up: #FF6B5E; --down: #3DDC84; }
 
 * { box-sizing: border-box; }
+/* ---- scroll-linked entrances: elements animate in when they reach the viewport ---- */
+@keyframes rvin { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+@keyframes rvinx { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+@keyframes rvinl { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: none; } }
+@keyframes rvinz { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+.js-io .rv:not(.is-in) { opacity: 0; }
+.js-io .rv.is-in { animation: rvin .65s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: var(--d, 0ms); }
+.js-io .rail > .rv.is-in { animation-name: rvinx; }
+.js-io .sec-h.rv.is-in, .js-io h2.rv.is-in { animation-name: rvinl; }
+.js-io .gift.rv.is-in, .js-io .st-tile.rv.is-in { animation-name: rvinz; }
+.js-io .rv.is-in .row-img, .js-io .rv.is-in .art { animation: rvimg .9s cubic-bezier(.2,.7,.2,1) backwards; animation-delay: var(--d, 0ms); }
+@keyframes rvimg { from { transform: scale(1.06); } to { transform: none; } }
+.scrollbar { position: fixed; top: 0; left: 0; height: 2px; width: 100%; background: var(--green); transform-origin: left; transform: scaleX(0); z-index: 99; pointer-events: none; }
+.totop { position: fixed; right: 20px; bottom: 76px; width: 44px; height: 44px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink); display: grid; place-items: center; cursor: pointer; z-index: 48; box-shadow: 0 8px 24px rgba(0,0,0,.14); opacity: 0; transform: translateY(16px) scale(.9); pointer-events: none; transition: opacity .25s ease, transform .25s cubic-bezier(.2,.7,.2,1); }
+.totop.is-on { opacity: 1; transform: none; pointer-events: auto; }
+.totop:hover { transform: translateY(-3px); } .totop svg { width: 20px; height: 20px; }
+@media (max-width: 1000px) { .totop { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); right: 14px; } }
+.hdr .brand { transition: transform .25s cubic-bezier(.2,.7,.2,1); } .hdr.is-scrolled .brand { transform: scale(.94); }
+@media (prefers-reduced-motion: reduce) { .js-io .rv:not(.is-in) { opacity: 1; } .totop { transition: none; } }
 [hidden] { display: none !important; }
 html, body { height: 100%; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
@@ -1024,6 +1043,8 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   <button type="button" data-mb="wallet"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M16 14h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-t="m.account"></span></button>
 </nav>
 <div class="toast" id="toast" role="status"></div>
+<div class="scrollbar" id="scrollbar" aria-hidden="true"></div>
+<button class="totop" id="totop" type="button" aria-label="Back to top"><svg viewBox="0 0 24 24" fill="none"><path d="M12 19V5m-7 7 7-7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
@@ -2038,7 +2059,20 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
   let stagT = 0;
   function staggerIn(sel) { const els = $$(sel || STAGGER_HOSTS).filter((el) => !el.closest('section[hidden]')); els.forEach((el) => { el.classList.remove('stagger'); void el.offsetWidth; el.classList.add('stagger'); }); clearTimeout(stagT); stagT = setTimeout(() => $$('.stagger').forEach((el) => el.classList.remove('stagger')), 1500); }
   const IO = 'IntersectionObserver' in window ? new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) e.target.classList.add('is-in'); }), { rootMargin: '0px 0px -6% 0px', threshold: 0 }) : null;
-  function revealInit() { if (!IO) return; document.documentElement.classList.add('js-io'); $$('main > section .sec, .banners-wrap, .spec, .rules, .why > div, .docs > .doc, .launch > *').forEach((el) => { el.classList.add('reveal'); IO.observe(el); }); }
+  const RV_SEL = '.row, .stk, .gift, .pair, .lb-row, .cal-row, .guide-card, .st-tile, .doc, .why > div, .faq details, .banner, .sec-h, .spec, .rules, .st-nums, .article p, .article h3, .article ul';
+  const IO2 = 'IntersectionObserver' in window ? new IntersectionObserver((es) => { let i = 0; for (const e of es) { if (!e.isIntersecting) continue; const el = e.target; el.style.setProperty('--d', Math.min(i++, 9) * 60 + 'ms'); el.classList.add('is-in'); IO2.unobserve(el); } }, { rootMargin: '0px 0px -6% 0px', threshold: 0.04 }) : null;
+  function rvScan(root) { if (!IO2 || root.nodeType !== 1) return; if (root.matches(RV_SEL) && !root.classList.contains('rv')) { root.classList.add('rv'); IO2.observe(root); } root.querySelectorAll(RV_SEL).forEach((el) => { if (el.classList.contains('rv')) return; el.classList.add('rv'); IO2.observe(el); }); }
+  const PLX = '.hero-art, .banner .art.photo, .gift, .row-img.photo, .sheet-photo'; let plxQ = false;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function onScrollFx() { plxQ = false; const vh = innerHeight; const h = document.documentElement;
+    if (!reduced) document.querySelectorAll(PLX).forEach((el) => { const r = el.getBoundingClientRect(); if (r.bottom < -40 || r.top > vh + 40) return; const k = (r.top + r.height / 2 - vh / 2) / vh; el.style.backgroundPositionY = `calc(50% + ${(-k * 36).toFixed(1)}px)`; });
+    const sb = $('#scrollbar'); if (sb) sb.style.transform = `scaleX(${(h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight)).toFixed(4)})`;
+    const tt = $('#totop'); if (tt) tt.classList.toggle('is-on', window.scrollY > 600); }
+  window.addEventListener('scroll', () => { if (!plxQ) { plxQ = true; requestAnimationFrame(onScrollFx); } }, { passive: true });
+  window.addEventListener('resize', () => { if (!plxQ) { plxQ = true; requestAnimationFrame(onScrollFx); } });
+  function revealInit() { if (!IO) return; document.documentElement.classList.add('js-io');
+    if (IO2) { rvScan(document.body); new MutationObserver((ms) => { for (const m of ms) for (const n of m.addedNodes) rvScan(n); setTimeout(onScrollFx, 50); }).observe(document.body, { childList: true, subtree: true }); }
+    setTimeout(onScrollFx, 100); $$('main > section .sec, .banners-wrap, .spec, .rules, .why > div, .docs > .doc, .launch > *').forEach((el) => { el.classList.add('reveal'); IO.observe(el); }); }
   function setView(v, anchor) {
     if (!VIEWS[v]) v = 'home'; const changed = VIEW !== v; VIEW = v;
     $$('main > section').forEach((sec) => { sec.hidden = !VIEWS[v].includes(sec.id); });
@@ -2333,6 +2367,7 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
     const gw = e.target.closest('[data-gwhen]'); if (gw) { GS.when = gw.dataset.gwhen; GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; renderRows(); return; }
     const gc = e.target.closest('[data-country]'); if (gc) { GIFT_COUNTRY = gc.dataset.country; renderGifts(); return; }
     if (e.target.closest('#install')) { installApp(); return; }
+    if (e.target.closest('#totop')) { window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' }); return; }
     const open = e.target.closest('[data-open]'); if (open) { setOpen(open.dataset.open); return; }
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }
     if (e.target.closest('#cartbtn')) { setTab('mine'); go('coins'); return; }

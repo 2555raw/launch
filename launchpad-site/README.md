@@ -219,7 +219,7 @@ comentarios, alertas, newsletter, soporte y estado).
   (`/api/support`, reenviado a `SUPPORT_EMAIL`), newsletter (`/api/newsletter`, CSV en admin).
 - App instalable (PWA): `manifest.webmanifest`, `sw.js` (página network-first, fotos en
   caché), iconos en `dapp/icons/`.
-- Idiomas: inglés, español y chino, con las mismas 470 claves cada uno.
+- Idiomas: inglés y chino, con las mismas claves cada uno.
 
 **Lo que falta para operar de verdad** (todo está programado; sólo faltan las credenciales):
 1. Cuenta Bitrefill con API y saldo cargado.

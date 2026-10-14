@@ -170,13 +170,36 @@ async function fetchQuotes() {
    one per visitor (the free tier answers 429 quickly otherwise). Stale data is
    served when CoinGecko fails. */
 const CG = { prices: { at: 0, data: null, pending: null }, charts: new Map() };
+/* The page keys prices by the CoinGecko id of each pair's own token; many xStocks have no
+   market data there, so the same share's other on-chain issues (Ondo, Dinari, Robinhood,
+   Reality) stand in. They are 1:1 mirrors of the same stock, so the price is the same. */
+const CG_ALT = {
+  'starbucks-xstock': ['starbucks-ondo-tokenized-stock', 'starbucks-rstock', 'starbucks-dinari-tokenized-stock'],
+  'chipotle-mexican-grill-xstock': ['chipotle-ondo-tokenized-stock', 'chipotle-mexican-grill-rstock'],
+  'yum-brands-xstock': ['yum-brands-dinari-tokenized-stock', 'yum-brands-rstock'],
+  'restaurant-brands-international-xstock': ['restaurant-brands-international-rstock'],
+  'doordash-xstock': ['doordash-ondo-tokenized-stock', 'doordash-rstock'],
+  'domino-s-pizza-xstock': ['domino-s-pizza-inc-rstock'],
+  'darden-restaurants-xstock': ['darden-restaurants-inc-rstock'],
+  'texas-roadhouse-xstock': ['texas-roadhouse-inc-rstock'],
+  'mcdonald-s-xstock': ['mcdonald-s-ondo-tokenized-stock', 'mcdonald-s-rstock'],
+  'uber-ondo-tokenized-stock': ['uber-technologies-rstock', 'uber-xstock'],
+  'wendy-s-bstocks-tokenized-stock': ['wendy-s-rstock'],
+  'haidilao-international-xstock': [], 'meituan-xstock': [], 'mixue-xstock': [],
+};
 function cgIds() {
   try { const pairs = JSON.parse(fs.readFileSync(path.join(ROOT, 'contracts', 'pairs.json'), 'utf8')); return ['binancecoin', ...new Set(Object.values(pairs).map((p) => p && p.cg).filter(Boolean))]; } catch { return ['binancecoin']; }
+}
+const cgAllIds = () => [...new Set(cgIds().flatMap((id) => [id, ...(CG_ALT[id] || [])]))];
+/* collapse the raw CoinGecko answer onto the primary ids: first id with a price wins */
+function cgCollapse(raw) {
+  const out = {}; for (const id of cgIds()) { const hit = [id, ...(CG_ALT[id] || [])].map((k) => raw[k]).find((v) => v && v.usd != null); if (hit) out[id] = { usd: hit.usd, usd_24h_change: hit.usd_24h_change ?? null }; }
+  return out;
 }
 async function cgFetch(u) { const r = await fetch(u, { headers: { accept: 'application/json', ...(process.env.COINGECKO_API_KEY ? { 'x-cg-demo-api-key': process.env.COINGECKO_API_KEY } : {}) }, signal: AbortSignal.timeout(9000) }); if (!r.ok) throw new Error('coingecko ' + r.status); return r.json(); }
 function cgPrices() {
   const c = CG.prices; if (c.data && Date.now() - c.at < 60 * 1000) return Promise.resolve(c.data);
-  if (!c.pending) c.pending = cgFetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cgIds().join(',')}&vs_currencies=usd&include_24hr_change=true`).then((d) => { c.data = d; c.at = Date.now(); return d; }).catch(() => c.data).finally(() => { c.pending = null; });
+  if (!c.pending) c.pending = cgFetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cgAllIds().join(',')}&vs_currencies=usd&include_24hr_change=true`).then((d) => { c.data = cgCollapse(d); c.at = Date.now(); return c.data; }).catch(() => c.data).finally(() => { c.pending = null; });
   return c.pending;
 }
 function cgChart(cg, days) {
@@ -403,7 +426,7 @@ async function api(req, res, url) {
     return send(res, 200, { at: quotes.at || null, available: Object.keys(data).length > 0, quotes: data });
   }
 
-  if (p.startsWith('/api/comments/') || p.startsWith('/api/alerts') || p === '/api/newsletter' || p === '/api/support' || p === '/api/status' || p === '/api/news' || p === '/api/pool' || /^\/api\/admin\/(newsletter|support|alerts|comments)/.test(p)) return community.communityApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, isAdmin: gifts.isAdmin, shop: { supply: () => require('./services/bitrefill').configured(), methods: () => ({ wallet: Boolean(process.env.MERCHANT_ADDRESS), crypto: require('./services/nowpayments').configured(), card: require('./services/stripe').configured() }) } });
+  if (p.startsWith('/api/comments/') || p.startsWith('/api/alerts') || p === '/api/newsletter' || p.startsWith('/api/newsletter/') || p === '/api/support' || p === '/api/status' || p === '/api/news' || p === '/api/pool' || /^\/api\/admin\/(newsletter|support|alerts|comments|social)/.test(p)) return community.communityApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, isAdmin: gifts.isAdmin, shop: { supply: () => require('./services/bitrefill').configured(), methods: () => ({ wallet: Boolean(process.env.MERCHANT_ADDRESS), crypto: require('./services/nowpayments').configured(), card: require('./services/stripe').configured() }) } });
   if (p.startsWith('/api/gifts/') || p.startsWith('/api/admin/') || p.startsWith('/api/webhooks/') || p === '/api/catalog' || p === '/api/me/orders' || p === '/api/me/referrals') return shopApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, dataDir: DATA_DIR });
 
   if (req.method === 'GET' && p === '/api/me') {

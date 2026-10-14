@@ -36,11 +36,12 @@ const stS = http.createServer(async (req, res) => { const b = await body(req); a
   if (req.method === 'GET' && u.startsWith('/checkout/sessions/')) return json(res, 200, { id: 'cs_test_1', status: 'open', payment_status: 'unpaid', metadata: {} });
   json(res, 404, {}); });
 const mails = []; const mailS = http.createServer(async (req, res) => { const b = JSON.parse(await body(req)); mails.push(b); json(res, 200, { id: 'em_1' }); });
+const xPosts = []; const xS = http.createServer(async (req, res) => { const b = await body(req); const h = req.headers.authorization || ''; assert.ok(h.startsWith('OAuth ') && h.includes('oauth_signature=') && h.includes('oauth_consumer_key="x-key"'), 'OAuth 1.0a header'); if (req.method === 'POST' && req.url === '/tweets') { xPosts.push(JSON.parse(b)); return json(res, 201, { data: { id: 'tw' + xPosts.length, text: xPosts.at(-1).text } }); } json(res, 404, {}); });
 (async () => {
-  for (const s of [rpcS, brS, npS, stS, mailS]) await new Promise((r) => s.listen(0, r));
+  for (const s of [rpcS, brS, npS, stS, mailS, xS]) await new Promise((r) => s.listen(0, r));
   Object.assign(process.env, { RATE_LIMIT: '100000', DEFAULT_CHAIN: '56', BSC_RPC: `http://127.0.0.1:${rpcS.address().port}`, BSC_TESTNET_RPC: `http://127.0.0.1:${rpcS.address().port}`, BITREFILL_API: `http://127.0.0.1:${brS.address().port}`, BITREFILL_API_KEY: 'k-test', MERCHANT_ADDRESS: MERCHANT, GIFT_MARGIN: '0.04',
     NOWPAYMENTS_API: `http://127.0.0.1:${npS.address().port}`, NOWPAYMENTS_API_KEY: 'np-test', NOWPAYMENTS_IPN_SECRET: 'ipn-secret', STRIPE_API: `http://127.0.0.1:${stS.address().port}`, STRIPE_SECRET_KEY: 'sk_test_x', STRIPE_WEBHOOK_SECRET: 'whsec_x',
-    RESEND_API: `http://127.0.0.1:${mailS.address().port}`, RESEND_API_KEY: 're_test', ADMIN_KEY: 'admin-secret', SITE_URL: 'https://shop.test', DATA_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'shop-')), PORT: '0' });
+    RESEND_API: `http://127.0.0.1:${mailS.address().port}`, RESEND_API_KEY: 're_test', X_API: `http://127.0.0.1:${xS.address().port}`, X_API_KEY: 'x-key', X_API_SECRET: 'x-secret', X_ACCESS_TOKEN: 'x-token', X_ACCESS_SECRET: 'x-token-secret', ADMIN_KEY: 'admin-secret', SITE_URL: 'https://shop.test', DATA_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'shop-')), PORT: '0' });
   const gifts = require('./gifts'); gifts.px.at = Date.now(); gifts.px.bnb = 100; gifts.px.cadPerUsd = 1.4;
   const { start } = require('./server'); const server = await start(0); const base = `http://127.0.0.1:${server.address().port}`;
   const j = async (p, b, headers = {}) => { const r = await fetch(base + p, b !== undefined ? { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: typeof b === 'string' ? b : JSON.stringify(b) } : { headers }); return { code: r.status, body: await r.json() }; };
@@ -119,6 +120,13 @@ const mails = []; const mailS = http.createServer(async (req, res) => { const b 
   r = await j('/api/alerts', { email: 'alert@example.com', coin, chain: '97' }); ok(r.code === 201 && r.body.willEmail === true && (await j(`/api/alerts/count?coin=${coin}`)).body.count === 1, 'alert subscription stored');
   r = await j('/api/newsletter', { email: 'news@example.com', lang: 'es' }); r = await j('/api/newsletter', { email: 'NEWS@example.com' }); ok(r.code === 201 && (await j('/api/admin/newsletter', undefined, A)).body.subscribers.length === 1, 'newsletter deduplicates emails');
   r = await j('/api/support', { email: 'help@example.com', subject: 'Order', message: 'Where is my card?', order: w.id }); ok(r.code === 201 && (await j('/api/admin/support', undefined, A)).body.requests[0].order === w.id, 'support request stored with the order id');
-  r = await j('/api/status'); ok(r.code === 200 && r.body.supply === true && r.body.ordersDelivered >= 5 && r.body.lastDelivered[0].rid, 'public status lists supply and latest deliveries');
-  console.log(`\n${passed} passed`); server.close(); for (const s of [rpcS, brS, npS, stS, mailS]) s.close(); process.exit(0);
+  // X bot and weekly newsletter digest
+  r = await j('/api/admin/social', undefined, A); ok(r.code === 200 && r.body.configured === true && r.body.log.length === 0, 'X bot reports configured with an empty log');
+  r = await j('/api/admin/social/test', { text: 'hello from the tests' }, A); ok(r.code === 200 && r.body.posted === true && r.body.id === 'tw1' && xPosts[0].text === 'hello from the tests', 'admin can post a test tweet (OAuth 1.0a signed)');
+  r = await j('/api/admin/social/run', {}, A); ok(r.code === 200 && (await j('/api/admin/social', undefined, A)).body.log[0].kind === 'test', 'social run with no coins posts nothing new');
+  { const pv = await fetch(base + '/api/admin/newsletter/preview', { headers: A }); const html = await pv.text(); ok(pv.status === 200 && html.includes('Unsubscribe') && html.includes('this week'), 'newsletter digest preview renders'); }
+  { const n0 = mails.length; r = await j('/api/admin/newsletter/send', {}, A); ok(r.code === 200 && r.body.sent === 1 && mails.length === n0 + 1 && /this week/.test(mails.at(-1).subject) && mails.at(-1).to.includes('news@example.com') && mails.at(-1).html.includes('/api/newsletter/unsubscribe?e='), 'weekly digest goes to each subscriber with an unsubscribe link'); }
+  { const { nlToken } = require('./community'); const bad = await fetch(base + '/api/newsletter/unsubscribe?e=news%40example.com&t=' + '0'.repeat(32)); const good = await fetch(base + '/api/newsletter/unsubscribe?e=news%40example.com&t=' + nlToken('news@example.com')); ok(bad.status === 400 && good.status === 200 && (await j('/api/admin/newsletter', undefined, A)).body.subscribers.length === 0, 'unsubscribe link needs the signed token and removes the subscriber'); }
+  r = await j('/api/status'); ok(r.code === 200 && r.body.supply === true && r.body.social === true && r.body.ordersDelivered >= 5 && r.body.lastDelivered[0].rid, 'public status lists supply, the X bot and latest deliveries');
+  console.log(`\n${passed} passed`); server.close(); for (const s of [rpcS, brS, npS, stS, mailS, xS]) s.close(); process.exit(0);
 })().catch((e) => { console.error('FAIL', e); process.exit(1); });

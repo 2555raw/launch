@@ -31,7 +31,7 @@ const now = () => Math.floor(Date.now() / 1000);
 const hex = (n) => '0x' + BigInt(n).toString(16);
 const txHash = () => '0x' + (++chain.n).toString(16).padStart(64, '0');
 const paidKey = (raise, who) => raise.toLowerCase() + ':' + who.toLowerCase();
-const TAG = { create: '0x01', buy: '0x02', finalize: '0x03', claim: '0x04', refund: '0x05', swap: '0x06', approve: '0x07' };
+const TAG = { create: '0x01', buy: '0x02', finalize: '0x03', claim: '0x04', refund: '0x05', swap: '0x06', approve: '0x07', cashout: '0x08' };
 const calls = (kind, to, value = 0n) => [{ to, data: TAG[kind], value: value.toString() }];
 const view = (r) => ({ address: r.address, creator: r.creator, coinMint: r.coinMint, payMint: r.payMint, payDecimals: 18, paySymbol: 'tBNB', name: r.name, symbol: r.symbol, restaurant: r.restaurant, target: String(r.target), raised: String(r.raised), min: String(r.min), cap: String(r.cap), openAt: r.openAt, closeAt: r.closeAt, closedAt: r.closedAt, finalized: r.finalized, graduated: r.graduated, buyers: r.buyers, poolCoin: String(r.poolCoin), poolPay: String(r.poolPay) });
 function pushBuy(r, who, amount) { (chain.buys[r.address] ||= []).push({ sig: txHash(), kind: 'buy', who, amount: String(amount), total: String(r.raised), ts: Date.now(), slot: ++chain.block }); }
@@ -132,7 +132,7 @@ const server = http.createServer((req, res) => {
     if ((m = new RegExp(`^/api/coins/(${ADDR})/buys$`).exec(u))) return out(200, { items: [...(chain.buys[m[1].toLowerCase()] || [])].reverse() });
     if (u === '/api/feed') { const items = []; for (const r of chain.raises) for (const b of chain.buys[r.address] || []) if (b.kind === 'buy') items.push({ ...b, raise: r.address, symbol: r.symbol }); items.sort((a, b) => b.ts - a.ts || b.slot - a.slot); return out(200, { cluster: '97', items: items.slice(0, Number(q.get('limit')) || 50) }); }
     if (u === '/api/buys') { const items = []; for (const r of chain.raises) for (const b of chain.buys[r.address] || []) if (b.kind === 'buy' && b.who.toLowerCase() === String(q.get('wallet')).toLowerCase()) items.push({ ...b, raise: r.address, symbol: r.symbol }); return out(items.length || true ? 200 : 200, { items }); }
-    if ((m = /^\/api\/coins\/ix\/(create|approve|buy|finalize|claim|refund|swap)$/.exec(u))) {
+    if ((m = /^\/api\/coins\/ix\/(create|approve|buy|finalize|claim|refund|swap|cashout)$/.exec(u))) {
       try {
         if (m[1] === 'create') return out(200, { calls: create(q) });
         const r = chain.raises.find((x) => x.address === String(q.get('raise')).toLowerCase()); if (!r) return out(404, { error: 'no such coin' }); const who = q.get('wallet');
@@ -140,6 +140,7 @@ const server = http.createServer((req, res) => {
         if (m[1] === 'approve') return out(200, { calls: calls('approve', MCDX) });
         if (m[1] === 'finalize') return out(200, { calls: finalize(r) });
         if (m[1] === 'claim') return out(200, { calls: claim(r, who) });
+        if (m[1] === 'cashout') { if (!r.graduated) return out(400, { error: 'no pool' }); const outWei = BigInt(q.get('outWei')); chain.bnb += outWei; return out(200, { calls: [{ to: r.coinMint, data: TAG.approve, value: '0' }, { to: '0x' + 'ab'.repeat(20), data: TAG.cashout, value: '0' }], amountIn: '1000', maxIn: '1030' }); }
         if (m[1] === 'swap') return out(200, { calls: swap(r, who, BigInt(q.get('amountIn')), q.get('coinToPay') === '1'), quote: '0', minOut: '0' });
         return out(400, { error: 'refund not simulated' });
       } catch (e) { return out(400, { error: e.message }); }
@@ -264,6 +265,7 @@ const server = http.createServer((req, res) => {
   await pg.locator('#nl-email').fill('news@example.com'); await pg.locator('#nl-go').click(); await pg.waitForFunction(() => /Subscribed/.test(document.querySelector('#nl-note').textContent), null, { timeout: 5000 }); R.newsletter = await pg.locator('#nl-note').textContent();
   await pg.evaluate(() => { location.hash = '#r/mcdonalds'; }); await pg.waitForSelector('#news .news a', { timeout: 5000 }); R.news = await pg.locator('#news .news a b').first().textContent(); await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
   await pg.evaluate(() => { location.hash = '#pairs'; }); await pg.waitForTimeout(300);
+  await pg.locator('#pairs-list .pair').first().click(); await pg.waitForSelector('#drawer .vbox', { timeout: 5000 }); R.verifyBox = { links: await pg.locator('#drawer .vlinks a').count(), text: await pg.locator('#drawer .vbox small').first().textContent(), alt: await pg.locator('#drawer .vbox small a').count() }; await pg.screenshot({ path: path.join(OUT, 'shot-pair-sheet.png') }); await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
   R.pairs = { n: await pg.locator('#pairs-list .pair').count(), label: await pg.locator('#pairs-n').textContent(), first: await pg.locator('#pairs-list .pair').first().textContent(), status: await pg.locator('#contracts').textContent() };
   await pg.evaluate(() => window.scrollTo(0, 0)); await pg.waitForTimeout(400); await pg.screenshot({ path: path.join(OUT, 'shot-cover.png') });
   await pg.evaluate(() => { location.hash = '#pairs'; }); await pg.waitForTimeout(400); await pg.screenshot({ path: path.join(OUT, 'shot-pairs.png') });
@@ -335,6 +337,18 @@ const server = http.createServer((req, res) => {
   await pg.waitForSelector('.code b', { timeout: 20000 });
   R.cryptoDelivered = await pg.locator('.gs-stat.delivered').count();
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
+  // pay a gift card with the graduated coin: swap on PancakeSwap (fake) then BNB payment
+  await pg.locator('#gift-grid .gift[data-open="g:burgerking"]').click();
+  await pg.waitForSelector('#gcustom'); await pg.locator('#gcustom').fill('30'); await pg.locator('#gcustom').dispatchEvent('change');
+  await pg.locator('#gemail').fill('me@example.com'); await pg.locator('[data-gm="wallet"]').click(); await pg.locator('[data-gnext]').click();
+  await pg.waitForSelector('[data-gpaycoin]', { timeout: 10000 });
+  R.coinPay = { options: await pg.locator('#gcoin option').count(), first: await pg.locator('#gcoin option').first().textContent(), onramp: await pg.locator('.gs-crypto, .gs-pay').count() >= 1 && await pg.evaluate(() => Boolean(document.querySelector('#drawer a[href*="testnet-faucet"]'))) };
+  const cashBefore = await pg.locator('#p-cash').textContent();
+  await pg.locator('[data-gpaycoin]').click();
+  await pg.waitForSelector('.code b', { timeout: 20000 });
+  R.coinPay.code = await pg.locator('.code b').textContent(); R.coinPay.sent = await pg.evaluate(() => window.__sent.slice(-3).map((c) => c.data)); R.coinPay.cashBefore = cashBefore; R.coinPay.cashAfter = await pg.locator('#p-cash').textContent();
+  await pg.screenshot({ path: path.join(OUT, 'shot-gift-coin.png') });
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
   // account sheet: sign in with the wallet (personal_sign), list orders
   await pg.locator('.side [data-open="a:"]').click(); await pg.waitForSelector('[data-acct-sign]');
   await pg.locator('[data-acct-sign]').click(); await pg.waitForSelector('.gs-list [data-gorder]', { timeout: 10000 });
@@ -374,4 +388,4 @@ const server = http.createServer((req, res) => {
   R.errors = errors;
   console.log(JSON.stringify(R, null, 1));
   await browser.close(); server.close();
-})().catch(async (e) => { console.error('HARNESS FAIL', e); try { const pg = global.__pg; if (pg) { console.error('ERRORS', JSON.stringify(global.__errors)); console.error('SENT', JSON.stringify(await pg.evaluate(() => window.__sent))); console.error('ACT', await pg.evaluate(() => (document.querySelector('#act') || {}).outerHTML?.slice(0, 600))); console.error('DRAWER', await pg.evaluate(() => document.querySelector('#drawer').className + ' ' + location.hash + ' | ' + document.querySelector('#drawer').innerHTML.slice(0, 300))); console.error('ROWS', await pg.evaluate(() => document.querySelector('#rows').innerHTML.slice(0, 400))); console.error('TOAST', await pg.evaluate(() => document.querySelector('#toast').textContent)); } } catch (x) { console.error(x); } process.exit(1); });
+})().catch(async (e) => { console.error('HARNESS FAIL', e); try { const pg = global.__pg; if (pg) { console.error('ERRORS', JSON.stringify(global.__errors)); console.error('SENT', JSON.stringify(await pg.evaluate(() => window.__sent))); console.error('ACT', await pg.evaluate(() => (document.querySelector('#act') || {}).outerHTML?.slice(0, 600))); console.error('DRAWER', await pg.evaluate(() => document.querySelector('#drawer').className + ' ' + location.hash + ' | ' + document.querySelector('#drawer').innerHTML.slice(0, 300))); console.error('ROWS', await pg.evaluate(() => document.querySelector('#rows').innerHTML.slice(0, 400))); console.error('TOAST', await pg.evaluate(() => document.querySelector('#toast').textContent)); console.error('BTNS', await pg.evaluate(() => [...document.querySelectorAll('#drawer button, #drawer .tag, #drawer .err')].map((b) => b.outerHTML.slice(0, 90)).join(' | '))); } } catch (x) { console.error(x); } process.exit(1); });

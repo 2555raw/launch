@@ -2,7 +2,7 @@
  * key nothing is sent and the order page remains the delivery channel. */
 'use strict';
 const KEY = process.env.RESEND_API_KEY || '';
-const FROM = process.env.MAIL_FROM || 'BNB Bite <orders@example.com>';
+const FROM = process.env.MAIL_FROM || 'Sol Bite <orders@example.com>';
 const API = process.env.RESEND_API || 'https://api.resend.com';
 const configured = () => Boolean(KEY);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));

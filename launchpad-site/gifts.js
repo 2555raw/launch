@@ -1,4 +1,4 @@
-/* Shop backend: gift card catalog, checkout, payments (wallet on BNB Chain,
+/* Shop backend: gift card catalog, checkout, payments (wallet on Solana,
  * any crypto through NOWPayments, cards through Stripe), on-chain and webhook
  * verification, fulfilment through Bitrefill, email delivery, buyer orders,
  * catalog overrides and the admin API. State lives in store.giftOrders,
@@ -11,18 +11,16 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const bitrefill = require('./services/bitrefill');
+const sol = require('./solana');
 const nowp = require('./services/nowpayments');
 const stripe = require('./services/stripe');
 const email = require('./services/email');
 
-const USDT = '0x55d398326f99059ff775485246999027b3197955';
-const TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
 const MARGIN = Number(process.env.GIFT_MARGIN ?? 0.04);
-const DISCOUNT = Math.min(MARGIN, Math.max(0, Number(process.env.GIFT_WALLET_DISCOUNT ?? 0.02))); // off the margin when paying with a BNB Chain wallet
+const DISCOUNT = Math.min(MARGIN, Math.max(0, Number(process.env.GIFT_WALLET_DISCOUNT ?? 0.02))); // off the margin when paying with a Solana wallet
 const REF_SHARE = Math.min(1, Math.max(0, Number(process.env.GIFT_REF_SHARE ?? 0.25)));       // share of the margin paid to the referrer
-const RPC = process.env.BSC_RPC || 'https://bsc-dataseed.binance.org';
-const MERCHANT = (process.env.MERCHANT_ADDRESS || '').toLowerCase();
-const BRAND = process.env.BRAND_NAME || 'BNB Bite';
+const MERCHANT = sol.MERCHANT;
+const BRAND = process.env.BRAND_NAME || 'Sol Bite';
 const ADMIN_KEY = process.env.ADMIN_KEY || '';
 const siteUrl = (req) => (process.env.SITE_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers['x-forwarded-host'] || req.headers.host}`).replace(/\/$/, '');
 
@@ -38,35 +36,20 @@ const CATALOG = [
 const supplyReady = () => bitrefill.configured();
 const methods = () => ({ wallet: Boolean(MERCHANT), crypto: nowp.configured(), card: stripe.configured() });
 
-/* ---- prices: BNB/USD and CAD/USD, cached 2 min ---- */
-const px = { at: 0, bnb: 0, cadPerUsd: 0 };
+/* ---- prices: SOL/USD and CAD/USD, cached 2 min ---- */
+const px = { at: 0, sol: 0, cadPerUsd: 0 };
 async function prices() {
-  if (Date.now() - px.at < 120000 && px.bnb) return px;
-  try { const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,tether&vs_currencies=usd,cad'); const j = await r.json(); const bnb = Number(j.binancecoin?.usd); const cad = Number(j.tether?.cad) || Number(j.binancecoin?.cad) / bnb; if (bnb > 0) { px.bnb = bnb; px.cadPerUsd = cad > 0 ? cad : px.cadPerUsd || 1.37; px.at = Date.now(); } }
+  if (Date.now() - px.at < 120000 && px.sol) return px;
+  try { const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana,tether&vs_currencies=usd,cad'); const j = await r.json(); const s = Number(j.solana?.usd); const cad = Number(j.tether?.cad) || Number(j.solana?.cad) / s; if (s > 0) { px.sol = s; px.cadPerUsd = cad > 0 ? cad : px.cadPerUsd || 1.37; px.at = Date.now(); } }
   catch (e) { console.error('prices', e.message); }
-  if (!px.bnb) throw new Error('no price feed');
+  if (!px.sol) throw new Error('no price feed');
   return px;
 }
 function priceOf(p, value, method) { const faceUsd = p.currency === 'CAD' ? value / px.cadPerUsd : value; const m = method === 'wallet' ? MARGIN - DISCOUNT : MARGIN; const priceUsd = Math.ceil(faceUsd * (1 + m) * 100) / 100; return { faceUsd: Math.round(faceUsd * 100) / 100, priceUsd, margin: m }; }
-function walletAmounts(priceUsd) { const bnb = Math.ceil(priceUsd / px.bnb * 1e6) / 1e6; return { BNB: { amount: bnb, wei: (BigInt(Math.round(bnb * 1e6)) * 10n ** 12n).toString() }, USDT: { amount: priceUsd, wei: (BigInt(Math.round(priceUsd * 100)) * 10n ** 16n).toString() } }; }
+function walletAmounts(priceUsd) { const s = Math.ceil(priceUsd / px.sol * 1e6) / 1e6; return { SOL: { amount: s, lamports: String(Math.round(s * 1e9)) }, USDC: { amount: priceUsd, units: String(Math.round(priceUsd * 1e6)) } }; }
 
-/* ---- on-chain payment check ---- */
-async function rpc(method, params) { const r = await fetch(RPC, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) }); const j = await r.json(); if (j.error) throw new Error(j.error.message); return j.result; }
-async function verifyPayment(order, txHash) {
-  const [tx, rc] = await Promise.all([rpc('eth_getTransactionByHash', [txHash]), rpc('eth_getTransactionReceipt', [txHash])]);
-  if (!tx) throw new Error('transaction not found');
-  if (!rc || !rc.blockNumber) throw new Error('not confirmed yet');
-  if (rc.status !== '0x1') throw new Error('transaction failed');
-  const want = order.pay.amounts; const to = (tx.to || '').toLowerCase();
-  if (to === MERCHANT) { const v = BigInt(tx.value); if (v * 1000n < BigInt(want.BNB.wei) * 995n) throw new Error('amount below quote'); return { token: 'BNB', from: tx.from, amount: v.toString() }; }
-  if (to === USDT) {
-    const log = (rc.logs || []).find((l) => l.address.toLowerCase() === USDT && l.topics[0] === TRANSFER && ('0x' + l.topics[2].slice(26)).toLowerCase() === MERCHANT);
-    if (!log) throw new Error('no USDT transfer to the merchant in this transaction');
-    const v = BigInt(log.data); if (v * 1000n < BigInt(want.USDT.wei) * 995n) throw new Error('amount below quote');
-    return { token: 'USDT', from: tx.from, amount: v.toString() };
-  }
-  throw new Error('transaction does not pay the merchant');
-}
+/* ---- on-chain payment check: a Solana transaction paying the merchant in SOL or USDC ---- */
+const verifyPayment = (order, signature) => sol.verifyPayment(order, signature);
 
 /* ---- orders ---- */
 const valid = (s) => typeof s === 'string' && s.length < 400;
@@ -75,7 +58,7 @@ function publicOrder(o) {
   const pay = o.pay || {};
   return { id: o.id, rid: o.rid, productId: o.productId, name: o.name, value: o.value, currency: o.currency, faceUsd: o.faceUsd, priceUsd: o.priceUsd, margin: o.margin, discount: o.discount || 0, status: o.status, error: o.error || null, createdAt: o.createdAt, paidAt: o.paidAt || null, deliveredAt: o.deliveredAt || null, deliverAt: o.deliverAt || null, forMe: Boolean(o.forMe), ref: o.ref || null,
     recipient: o.recipient ? { email: o.recipient.email || null, message: o.recipient.message || '' } : null, buyer: o.buyer ? { address: o.buyer.address || null } : null,
-    pay: { method: pay.method, token: pay.token || null, txHash: pay.txHash || null, provider: pay.provider || null, payAddress: pay.payAddress || null, payAmount: pay.payAmount || null, payCurrency: pay.payCurrency || null, network: pay.network || null, memo: pay.memo || null, url: pay.url || null, expiresAt: pay.expiresAt || null, amounts: pay.amounts || null, merchant: pay.method === 'wallet' ? MERCHANT : null, providerStatus: pay.providerStatus || null },
+    pay: { method: pay.method, token: pay.token || null, txHash: pay.signature || pay.txHash || null, signature: pay.signature || null, reference: pay.reference || null, payUrl: pay.payUrl || null, cluster: pay.cluster || null, provider: pay.provider || null, payAddress: pay.payAddress || null, payAmount: pay.payAmount || null, payCurrency: pay.payCurrency || null, network: pay.network || null, memo: pay.memo || null, url: pay.url || null, expiresAt: pay.expiresAt || null, amounts: pay.amounts || null, merchant: pay.method === 'wallet' ? MERCHANT : null, providerStatus: pay.providerStatus || null },
     redemption: o.status === 'delivered' ? o.redemption : null, emailSent: Boolean(o.emailSent) };
 }
 async function markPaid(order, info, store, save) {
@@ -104,7 +87,7 @@ function startJobs(store, save) {
 }
 /* Referral earnings for an address: a share of the margin on delivered orders it referred. */
 function referrals(store, address) {
-  const me = String(address || '').toLowerCase(); const rows = Object.values(store.giftOrders || {}).filter((o) => o.ref === me);
+  const me = String(address || ''); const rows = Object.values(store.giftOrders || {}).filter((o) => o.ref === me);
   const delivered = rows.filter((o) => o.status === 'delivered');
   const earned = delivered.reduce((a, o) => a + Math.max(0, o.priceUsd - o.faceUsd) * REF_SHARE, 0);
   const paid = ((store.refPayouts || {})[me] || []).reduce((a, p) => a + Number(p.amountUsd || 0), 0);
@@ -124,6 +107,10 @@ async function refresh(order, store, save, req) {
     } else if (order.status === 'pending' && pay.method === 'card' && pay.providerId) {
       const s = await stripe.getSession(pay.providerId); pay.providerStatus = s.status;
       if (s.paid) await markPaid(order, {}, store, save); else if (s.status === 'expired') { order.status = 'expired'; await save(); } else await save();
+    } else if (order.status === 'pending' && pay.method === 'wallet' && pay.reference && !pay.signature) {
+      // Solana Pay: a wallet paid the QR; the transaction carries our reference key
+      const sig = await sol.findReference(pay.reference, pay.cluster); if (sig) { const paid = await sol.verifyPayment(order, sig, pay.cluster); await markPaid(order, { token: paid.token, signature: sig, payer: paid.from, paidUnits: paid.amount }, store, save); }
+      else if (pay.expiresAt && Date.now() > pay.expiresAt + 60 * 60 * 1000) { order.status = 'expired'; await save(); }
     } else if (order.status === 'processing') { await bitrefill.pollOrder(order, save, 3); await deliverEmail(order, save, req && siteUrl(req)); }
     else if (order.status === 'delivered' && !order.emailSent) await deliverEmail(order, save, req && siteUrl(req));
   } catch (e) { console.error('refresh', order.id, e.message); }
@@ -157,7 +144,7 @@ async function shopApi(req, res, url, h) {
   }
   if (req.method === 'GET' && p === '/api/me/orders') {
     const s = sessionOf(req); if (!s) return fail(res, 401, 'sign in first');
-    const mine = Object.values(store.giftOrders).filter((o) => o.buyer && o.buyer.address && o.buyer.address.toLowerCase() === s.address.toLowerCase()).sort((a, b) => b.createdAt - a.createdAt);
+    const mine = Object.values(store.giftOrders).filter((o) => o.buyer && o.buyer.address === s.address).sort((a, b) => b.createdAt - a.createdAt);
     return send(res, 200, { address: s.address, orders: mine.map(publicOrder) });
   }
   /* admin */
@@ -179,7 +166,7 @@ async function shopApi(req, res, url, h) {
       if (m[2] === 'status') { const allowed = ['pending', 'paid', 'processing', 'delivered', 'failed', 'expired', 'refunded']; if (!allowed.includes(body.status)) return fail(res, 400, 'bad status'); (o.notes ||= []).push({ at: Date.now(), from: o.status, to: body.status, note: valid(body.note) ? body.note : '' }); o.status = body.status; await save(); adminLog(store, { action: 'status', order: o.id, to: body.status }); return send(res, 200, publicOrder(o)); }
       if (m[2] === 'email') { o.emailSent = false; await deliverEmail(o, save, siteUrl(req)); return send(res, 200, { sent: Boolean(o.emailSent), error: o.emailError || null }); }
     }
-    if ((m = /^\/api\/admin\/referrals\/(0x[0-9a-f]{40})\/paid$/.exec(p))) { const amt = Number(body.amountUsd); if (!(amt > 0)) return fail(res, 400, 'amountUsd required'); ((store.refPayouts ||= {})[m[1]] ||= []).push({ at: Date.now(), amountUsd: Math.round(amt * 100) / 100, txHash: valid(body.txHash) ? body.txHash : null, note: valid(body.note) ? body.note : '' }); await save(); adminLog(store, { action: 'ref-payout', address: m[1], amountUsd: amt }); return send(res, 200, referrals(store, m[1])); }
+    if ((m = /^\/api\/admin\/referrals\/([1-9A-HJ-NP-Za-km-z]{32,44})\/paid$/.exec(p))) { const amt = Number(body.amountUsd); if (!(amt > 0)) return fail(res, 400, 'amountUsd required'); ((store.refPayouts ||= {})[m[1]] ||= []).push({ at: Date.now(), amountUsd: Math.round(amt * 100) / 100, txHash: valid(body.txHash) ? body.txHash : null, note: valid(body.note) ? body.note : '' }); await save(); adminLog(store, { action: 'ref-payout', address: m[1], amountUsd: amt }); return send(res, 200, referrals(store, m[1])); }
     if (p === '/api/admin/catalog') { if (!body || typeof body.overrides !== 'object') return fail(res, 400, 'overrides object required'); for (const [rid, v] of Object.entries(body.overrides)) { if (!/^[a-z0-9_-]{1,40}$/.test(rid)) continue; if (v === null) { delete store.catalogOverrides[rid]; continue; } const o = {}; for (const k of ['name', 'nameZh', 'photo', 'cat', 'blurb']) if (valid(v[k])) o[k] = v[k]; if (typeof v.hidden === 'boolean') o.hidden = v.hidden; store.catalogOverrides[rid] = { ...(store.catalogOverrides[rid] || {}), ...o }; } await save(); adminLog(store, { action: 'catalog', keys: Object.keys(body.overrides) }); return send(res, 200, { overrides: store.catalogOverrides }); }
     if (p === '/api/admin/upload') {
       const mm = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(body.dataUrl || '')); if (!mm) return fail(res, 400, 'dataUrl must be a jpeg, png or webp image');
@@ -218,14 +205,14 @@ async function shopApi(req, res, url, h) {
     if (!forMe && !isEmail(body.email)) return fail(res, 400, s ? 'a valid recipient email is required (or tick "keep it in my account")' : 'a valid recipient email is required');
     const method = String(body.method || ''); const avail = methods(); if (!avail[method]) return fail(res, 400, `payment method ${method || '(none)'} is not available`);
     let deliverAt = null; if (body.deliverAt) { deliverAt = new Date(body.deliverAt).getTime(); if (!Number.isFinite(deliverAt)) return fail(res, 400, 'bad deliverAt'); if (deliverAt > Date.now() + 366 * 24 * 3600 * 1000) return fail(res, 400, 'deliverAt must be within a year'); if (deliverAt < Date.now() + 60 * 1000) deliverAt = null; }
-    const ref = typeof body.ref === 'string' && /^0x[0-9a-fA-F]{40}$/.test(body.ref) && (!s || body.ref.toLowerCase() !== s.address.toLowerCase()) ? body.ref.toLowerCase() : null;
+    const ref = sol.isPk(body.ref) && (!s || body.ref !== s.address) ? body.ref : null;
     try { await prices(); } catch (e) { return fail(res, 503, e.message); }
     const { faceUsd, priceUsd, margin } = priceOf(prod, value, method);
     const order = { id: crypto.randomBytes(12).toString('hex'), kind: 'gift', rid: prod.rid, productId: prod.id, name: prod.name, value, currency: prod.currency, faceUsd, priceUsd, margin, discount: method === 'wallet' ? DISCOUNT : 0, deliverAt, forMe, ref,
       recipient: { email: forMe ? (isEmail(body.email) ? body.email.trim() : null) : body.email.trim(), message: valid(body.message) ? body.message.trim().slice(0, 300) : '' }, buyer: { address: s ? s.address : null, email: isEmail(body.buyerEmail) ? body.buyerEmail : (isEmail(body.email) ? body.email.trim() : null) },
       pay: { method }, status: 'pending', createdAt: Date.now() };
     try {
-      if (method === 'wallet') order.pay = { method, amounts: walletAmounts(priceUsd), expiresAt: Date.now() + 15 * 60 * 1000 };
+      if (method === 'wallet') { order.pay = { method, amounts: walletAmounts(priceUsd), reference: sol.newReference(), cluster: sol.DEFAULT_CLUSTER, expiresAt: Date.now() + 15 * 60 * 1000 }; order.pay.payUrl = sol.payUrl(sol.DEFAULT_CLUSTER, order); }
       else if (method === 'crypto') { const cur = String(body.currency || 'btc').toLowerCase(); if (!/^[a-z0-9]{2,20}$/.test(cur)) return fail(res, 400, 'bad currency'); order.pay = { method, ...(await nowp.createPayment(order, cur, siteUrl(req) + '/api/webhooks/nowpayments')) }; }
       else if (method === 'card') order.pay = { method, ...(await stripe.createSession(order, siteUrl(req))) };
     } catch (e) { return fail(res, 502, e.message); }
@@ -235,10 +222,10 @@ async function shopApi(req, res, url, h) {
   if ((m = /^\/api\/gifts\/orders\/([a-f0-9]{24})\/tx$/.exec(p))) {
     const o = store.giftOrders[m[1]]; if (!o) return fail(res, 404, 'no such order');
     if (o.pay.method !== 'wallet') return fail(res, 400, 'not a wallet order'); if (o.status !== 'pending') return fail(res, 409, 'order is ' + o.status);
-    const txHash = String(body.txHash || '').toLowerCase(); if (!/^0x[0-9a-f]{64}$/.test(txHash)) return fail(res, 400, 'bad tx hash');
-    if (Object.values(store.giftOrders).some((x) => x.pay && x.pay.txHash === txHash)) return fail(res, 409, 'this transaction was already used');
-    let paid; try { paid = await verifyPayment(o, txHash); } catch (e) { return fail(res, 402, e.message); }
-    await markPaid(o, { token: paid.token, txHash, payer: paid.from, paidWei: paid.amount }, store, save);
+    const signature = String(body.signature || body.txHash || ''); if (!/^[1-9A-HJ-NP-Za-km-z]{64,90}$/.test(signature)) return fail(res, 400, 'bad transaction signature');
+    if (Object.values(store.giftOrders).some((x) => x.pay && x.pay.signature === signature)) return fail(res, 409, 'this transaction was already used');
+    let paid; try { paid = await verifyPayment(o, signature); } catch (e) { return fail(res, 402, e.message); }
+    await markPaid(o, { token: paid.token, signature, payer: paid.from, paidUnits: paid.amount }, store, save);
     return send(res, 200, publicOrder(o));
   }
   if ((m = /^\/api\/gifts\/orders\/([a-f0-9]{24})\/claim$/.exec(p))) {
@@ -249,4 +236,4 @@ async function shopApi(req, res, url, h) {
   return fail(res, 404, 'no such route');
 }
 
-module.exports = { shopApi, CATALOG, px, verifyPayment, isAdmin, startJobs, referrals, deliverEmail, DISCOUNT, REF_SHARE, _test: { USDT, TRANSFER } };
+module.exports = { shopApi, CATALOG, px, verifyPayment, isAdmin, startJobs, referrals, deliverEmail, DISCOUNT, REF_SHARE };

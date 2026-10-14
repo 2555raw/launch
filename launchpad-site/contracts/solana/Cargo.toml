@@ -1,0 +1,20 @@
+[package]
+name = "sol_bite"
+version = "0.1.0"
+edition = "2021"
+description = "Sol Bite launchpad: coins paired with tokenized restaurant stocks on Solana"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+no-entrypoint = []
+fast = []
+
+[dependencies]
+solana-program = "2"
+
+[profile.release]
+overflow-checks = true
+lto = "fat"
+codegen-units = 1

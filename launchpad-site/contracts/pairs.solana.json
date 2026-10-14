@@ -1,0 +1,190 @@
+{
+  "_note": "Tokenized restaurant stocks on Solana (mainnet-beta), verified on-chain on 2026-10-14 via api.mainnet-beta.solana.com: Token-2022 mints with their metadata extension (name, symbol), decimals and supply. Issuers: xStocks = Backed Finance; Ondo = Ondo Stocks. Wendy's (bStocks, Binance) exists only on BNB Chain and is not listed. Mints resolved through CoinGecko platform data and checked on-chain.",
+  "mcdonalds": {
+    "mint": "XsqE9cRRpzxcGKDXj1BJ7Xmg4GRhZoyY1KpmGSxAWT2",
+    "symbol": "MCDx",
+    "name": "McDonald's xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "MCD",
+    "cg": "mcdonald-s-xstock",
+    "supply": 54637.94
+  },
+  "starbucks": {
+    "mint": "Xs9gd8SGbYQn9kkUYQayn46BdqQbvvUshEF6ZpRAzM7",
+    "symbol": "SBUXx",
+    "name": "Starbucks xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "SBUX",
+    "cg": "starbucks-xstock",
+    "supply": 59341.31
+  },
+  "chipotle": {
+    "mint": "XsR1ktNCRYDoDNxhaSxF6NX2HyT4ACSQBgPRLpXTWmm",
+    "symbol": "CMGx",
+    "name": "Chipotle Mexican Grill xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "CMG",
+    "cg": "chipotle-mexican-grill-xstock",
+    "supply": 188235.29
+  },
+  "tacobell": {
+    "mint": "XsNor8pbicnexAYvgvq3p8EXwyRj9UzjYu92ZnrJLqC",
+    "symbol": "YUMx",
+    "name": "Yum Brands xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "YUM",
+    "cg": "yum-brands-xstock",
+    "supply": 40329.36
+  },
+  "kfc": {
+    "mint": "XsNor8pbicnexAYvgvq3p8EXwyRj9UzjYu92ZnrJLqC",
+    "symbol": "YUMx",
+    "name": "Yum Brands xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "YUM",
+    "cg": "yum-brands-xstock",
+    "supply": 40329.36
+  },
+  "pizzahut": {
+    "mint": "XsNor8pbicnexAYvgvq3p8EXwyRj9UzjYu92ZnrJLqC",
+    "symbol": "YUMx",
+    "name": "Yum Brands xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "YUM",
+    "cg": "yum-brands-xstock",
+    "supply": 40329.36
+  },
+  "burgerking": {
+    "mint": "XsG3eLvLbHwYQP3r7tSznE6bEvcA2Ko1TpYwbyD6RQk",
+    "symbol": "QSRx",
+    "name": "Restaurant Brands International xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "QSR",
+    "cg": "restaurant-brands-international-xstock",
+    "supply": 86330.94
+  },
+  "popeyes": {
+    "mint": "XsG3eLvLbHwYQP3r7tSznE6bEvcA2Ko1TpYwbyD6RQk",
+    "symbol": "QSRx",
+    "name": "Restaurant Brands International xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "QSR",
+    "cg": "restaurant-brands-international-xstock",
+    "supply": 86330.94
+  },
+  "timhortons": {
+    "mint": "XsG3eLvLbHwYQP3r7tSznE6bEvcA2Ko1TpYwbyD6RQk",
+    "symbol": "QSRx",
+    "name": "Restaurant Brands International xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "QSR",
+    "cg": "restaurant-brands-international-xstock",
+    "supply": 86330.94
+  },
+  "doordash": {
+    "mint": "XsuW1yxtbifjEYojFLmoavTWBT7hsuUXXeReAWK9X91",
+    "symbol": "DASHx",
+    "name": "DoorDash xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "DASH",
+    "cg": "doordash-xstock",
+    "supply": 31365.99
+  },
+  "haidilao": {
+    "mint": "XssLkiDcsHvkTi2BXDLnXszTktNnTPBXFMVTvMBvVtb",
+    "symbol": "HAIDLx",
+    "name": "Haidilao International xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "6862.HK",
+    "cg": "haidilao-international-xstock",
+    "supply": 2465960.6
+  },
+  "meituan": {
+    "mint": "XsLvCfSnXJjoVaAJENHxKRzCZaWJpyVQQfJgkHp9oXM",
+    "symbol": "MEITx",
+    "name": "Meituan xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "3690.HK",
+    "cg": "meituan-xstock",
+    "supply": 600571.11
+  },
+  "mixue": {
+    "mint": "Xs85byjTdWv5Z3YpUqyJjeRaZsxQDz81skYjQKdPDZc",
+    "symbol": "MIXUx",
+    "name": "Mixue xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "2097.HK",
+    "cg": "mixue-xstock",
+    "supply": 160192.97
+  },
+  "dominos": {
+    "mint": "Xs6z8AmfhiHTGmfdcX6hG7hho5P7xnbE21ChtJ94oVj",
+    "symbol": "DPZx",
+    "name": "Domino's Pizza xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "DPZ",
+    "cg": "domino-s-pizza-xstock",
+    "supply": 8773.02
+  },
+  "ubereats": {
+    "mint": "KJNeFW3kk3ycPjXpC6cbuyckjeYHacc2ekhtAi5ondo",
+    "symbol": "UBERon",
+    "name": "Uber (Ondo Tokenized)",
+    "decimals": 9,
+    "program": "token-2022",
+    "issuer": "Ondo",
+    "stock": "UBER",
+    "cg": "uber-ondo-tokenized-stock",
+    "supply": 787.81
+  },
+  "olivegarden": {
+    "mint": "XsTNaRrDQtFJi56TAQbmk6tHzWQvihWGoafKSJzbJdY",
+    "symbol": "DRIx",
+    "name": "Darden Restaurants xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "DRI",
+    "cg": "darden-restaurants-xstock",
+    "supply": 29091.61
+  },
+  "texasroadhouse": {
+    "mint": "XsWFY8Ems96uFPnZJ1NwXsqeH6bczLQDDvvvab14crQ",
+    "symbol": "TXRHx",
+    "name": "Texas Roadhouse xStock",
+    "decimals": 8,
+    "program": "token-2022",
+    "issuer": "xStocks",
+    "stock": "TXRH",
+    "cg": "texas-roadhouse-xstock",
+    "supply": 25032.44
+  }
+}

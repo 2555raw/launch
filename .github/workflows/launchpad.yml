@@ -1,5 +1,6 @@
-# Tests for launchpad-site (BNB Bite): API, gift-card shop, contracts and the
-# browser harness of the dapp page against a fake wallet and a fake shop API.
+# Tests for launchpad-site (Sol Bite): API, gift-card shop, the Solana program
+# on a local validator, and the browser harness of the dapp page against a fake
+# wallet and a fake server.
 name: launchpad-site tests
 
 on:
@@ -27,8 +28,6 @@ jobs:
         run: npm test
       - name: Gift-card shop tests
         run: npm run test:gifts
-      - name: Contract tests
-        run: npm run test:contracts
       - name: Install Playwright Chromium
         run: npx --yes playwright@1.47.2 install --with-deps chromium
       - name: Dapp browser harness
@@ -41,3 +40,21 @@ jobs:
           name: dapp-screenshots
           path: launchpad-site/out
           if-no-files-found: ignore
+
+  program:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: launchpad-site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+      - name: Build and test the sol_bite program on a local validator
+        run: npm run test:program

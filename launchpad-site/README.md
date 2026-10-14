@@ -10,7 +10,7 @@ reales. Lo que **no** hace es mover dinero: una aportación es un compromiso reg
 de una cartera, y la página lo dice. La liquidación on-chain no está conectada.
 
 Sin paso de compilación en el cliente: HTML, CSS y JS a secas. El servidor es Node con una
-dependencia (`ethers`, para verificar firmas).
+dependencia (`@solana/web3.js`, para hablar con la cadena y verificar firmas).
 
 ## Arrancar
 
@@ -87,80 +87,96 @@ launches.js   el catálogo de lanzamientos
 test.js       pruebas de la API (node:test)
 ```
 
-## BNB Bite (dapp en BNB Chain)
+## Sol Bite (dapp en Solana)
 
-`dapp/index.html` es una segunda interfaz, independiente del servidor de arriba: un launchpad
-de coins en BNB Chain donde cada coin se crea **pareada a la acción tokenizada de un
-restaurante**. Página estática (HTML, CSS y JS con ethers.js desde cdnjs) que habla con los
-contratos a través de la wallet del usuario (MetaMask o cualquier wallet inyectada).
+`dapp/index.html` es la interfaz principal: un launchpad de coins en **Solana** donde cada
+coin se crea **pareada a la acción tokenizada de un restaurante**, más una tienda de tarjetas
+de regalo. Página estática (HTML, CSS y JS con `@solana/web3.js` desde jsDelivr) que habla
+con el programa a través de la wallet del usuario (Phantom, Solflare o Backpack) y con el
+servidor para indexar, construir instrucciones y hacer de proxy RPC.
 
-**Qué significa pareada.** El contrato de recaudación de cada coin se paga en el token que
-representa la acción del restaurante en BNB Chain (McDonald's = MCDx, Starbucks = SBUXx,
-Meituan = MEITx, Wendy's = WENB…), y al graduarse crea un pool COIN/ACCIÓN en PancakeSwap v2.
-`contracts/pairs.json` lista los 18 pares verificados en cadena (nombre, símbolo, supply) el
-12 de octubre de 2026, con emisor (xStocks de Backed, bStocks de Binance, Ondo Stocks) y
-dirección. Los restaurantes sin acción tokenizada en BNB Chain (Luckin, Chagee, Guming, Yum
-China, Chipotle sólo tiene CMGx…) no se pueden parear todavía.
+**Qué significa pareada.** La recaudación de cada coin se paga en el token que representa la
+acción del restaurante en Solana (McDonald's = MCDx, Starbucks = SBUXx, Chipotle = CMGx,
+Uber = UBERon…), y al graduarse abre un pool COIN/ACCIÓN dentro del propio programa con la
+liquidez bloqueada. `contracts/pairs.solana.json` lista los 17 pares verificados en cadena
+(mints Token-2022 con su extensión de metadatos: nombre, símbolo, decimales, supply) el 14 de
+octubre de 2026, con emisor (xStocks de Backed, Ondo Global Markets) y mint. Wendy's queda
+fuera porque bStocks sólo existe en BNB Chain. En devnet no hay acciones, así que las coins
+se pagan en SOL.
 
-**Contratos** (`contracts/BentoLaunch.sol`, sin auditar):
+**Programa** (`contracts/solana`, Rust nativo sin Anchor, sin auditar; id
+`GuN42keYrbBSgthwZJgw8oEEc4QCzzCnaSQdsQZut2Ub`):
 
-- `BentoFactory.setStocks(ids, tokens)` (sólo el dueño) registra el token de cada restaurante;
-  `address(0)` significa pagar en BNB.
-- `BentoFactory.createCoin(name, symbol, restaurantId, target, duration)` despliega un
-  `BentoToken` (1.000.000.000 de supply) y un `BentoRaise` pagado en el token registrado.
-- `BentoRaise.buyWith(amount)` (tras `approve`) o `buy()` en BNB; tope por cartera =
-  objetivo/10; al llegar al objetivo la ventana cierra; el exceso se devuelve.
-- `finalize()`: si se alcanzó el mínimo (objetivo/3), el 99 % de lo recaudado y el 20 % del
-  supply van a un pool COIN/ACCIÓN (o COIN/BNB) y se queman los LP; el 1 % es la comisión
-  (`feeTo`). Si no, `refund()` devuelve el 100 %. `claim()` reparte el 80 % restante.
+- `InitConfig(feeTo)` (una vez, el que lo llama es el admin) y `SetFeeTo`.
+- `Create(name, symbol, restaurant, target, duration)`: crea el mint de la coin (1.000.000.000,
+  6 decimales, autoridad = la PDA de la recaudación) y la cuenta `Raise` pagada en SOL o en
+  el mint de la acción (Token o Token-2022, vía `TransferChecked`).
+- `Buy(amount)`: tope por cartera = objetivo/10; al llegar al objetivo la ventana cierra; el
+  exceso se recorta. Cada compra deja un log `bought <cantidad> total <recaudado>` que el
+  servidor indexa.
+- `Finalize`: si se alcanzó el mínimo (objetivo/3), el 1 % va a `feeTo` y el 20 % del supply
+  más el resto de lo recaudado forman el pool de producto constante del propio programa
+  (no hay LP tokens: la liquidez no se puede retirar). Si no, `Refund` devuelve el 100 %.
+  `Claim` reparte el 80 % restante en proporción a lo aportado.
+- `Swap(amountIn, minOut, coinToPay)`: cambia contra el pool con un 1 % de comisión que se
+  queda en el pool.
+
+`chain/solbite.js` es el espejo en JavaScript (layouts, PDAs, constructores de instrucciones,
+cotización del swap) que usan el servidor y las pruebas. `npm run test:program` compila las
+dos variantes (`fast` baja la duración mínima a 3 s para probar plazos), arranca
+`solana-test-validator` y recorre 34 comprobaciones: config, recaudación en Token-2022,
+recorte por tope, cierre anticipado, graduación con comisión y pool, claim, swap en los dos
+sentidos, recaudación en SOL, devolución por no llegar al mínimo y graduación al vencer.
 
 **Desplegar y conectar**
 
-La página pide al servidor `GET /api/config` (dirección de la factory por cadena, red por
-defecto, enlaces sociales) y enruta por path (`/gifts`, `/coins`, `/r/mcdonalds`…), así que
-no hay que reconstruir nada al desplegar la factory. Dos caminos:
-
-- Desde `/admin` → **Launchpad**: con `DEPLOYER_KEY` en el servidor (una clave con tBNB del
-  faucet para testnet), el panel enseña la dirección y el saldo del desplegador y un botón
-  «Deploy factory» que despliega `BentoFactory`, registra los 18 restaurantes y guarda la
-  dirección en el almacén. La página la usa al momento.
-- Por línea de comandos:
-
 ```bash
-npm install
-npm run compile                                  # contracts/build/*.json
-PRIVATE_KEY=0x... npm run deploy -- testnet      # registra todos los restaurantes en tBNB
-PRIVATE_KEY=0x... npm run deploy -- mainnet      # registra los 18 pares de pairs.json
+cd contracts/solana
+cargo-build-sbf                                   # target/deploy/sol_bite.so
+solana config set --url devnet && solana airdrop 2
+solana program deploy target/deploy/sol_bite.so --program-id target/deploy/sol_bite-keypair.json
 ```
 
-y luego `FACTORY_97=0x…` (o `FACTORY_56`) en el entorno. `DEFAULT_CHAIN` fuerza la red por
-defecto; si no, es la primera que tenga factory. `#mainnet` o `#testnet` en la URL cambian de
-red. Dentro de claude.ai (iframe aislado) la wallet puede no inyectarse: entonces hay que
-abrir la página desde su propio dominio. En testnet los tokens de acciones no existen, así que
-las coins se pagan en tBNB (o en un ERC20 de prueba con `STOCK_TEST=0x...`).
+Después `PROGRAM_ID_DEVNET=…` (o `PROGRAM_ID` para mainnet) en el entorno, o pegar el id en
+`/admin` → **Launchpad**, que lo guarda en el almacén y la página lo usa al momento. La
+config del programa (destino de la comisión) se inicializa una vez con
+`node contracts/solana/init.js --cluster devnet --fee-to <wallet>` usando la clave de
+`~/.config/solana/id.json` (o `--keypair`). `CLUSTER` fuerza la red por defecto (`devnet` o
+`mainnet-beta`); si no, es mainnet cuando hay `PROGRAM_ID` y devnet en caso contrario.
+`#devnet` o `#mainnet` en la URL cambian de red. `RPC_URL` y `RPC_URL_DEVNET` apuntan a tu
+nodo (por defecto los públicos de Solana, con límite de peticiones). Dentro de claude.ai
+(iframe aislado) la wallet puede no inyectarse: entonces hay que abrir la página desde su
+propio dominio.
 
 **Lo que sirve el servidor para la página**
 
-- `GET /api/prices` y `GET /api/chart?cg=<id>&days=1|7|30`: CoinGecko con caché en el
-  servidor (una petición por minuto para todos; con `COINGECKO_API_KEY` se usa la clave demo).
-  La página prueba primero el servidor y, si no hay, va directa a CoinGecko y a Chainlink.
+- `POST /api/rpc?cluster=` proxy JSON-RPC con lista blanca de métodos (saldos, cuentas,
+  blockhash, estado de firmas, envío de transacciones), para que la página no dependa de un
+  nodo público desde el navegador.
+- `GET /api/coins`, `/api/coins/:raise?buyer=`, `/api/coins/:raise/buys`, `/api/feed`,
+  `/api/buys?wallet=`: índice de las cuentas `Raise` del programa (`getProgramAccounts`
+  con caché) y de las compras (firmas de cada recaudación, logs del programa).
+- `GET /api/coins/ix/(create|buy|finalize|claim|refund|swap)?wallet=…`: devuelve la
+  instrucción lista para firmar (claves y datos en base64); la página la mete en una
+  transacción, la firma con la wallet y espera la confirmación consultando el estado de la
+  firma (sin websocket).
+- `GET /api/prices` y `GET /api/chart?cg=<id>&days=1|7|30`: CoinGecko con caché.
+- `GET /api/pool?raise=`: precio, liquidez y capitalización del pool de una coin graduada,
+  muestreado para el gráfico.
 - Rutas con metadatos propios: `/`, `/gifts`, `/coins`, `/launch`, `/docs`, `/pairs`,
-  `/account`, `/r/<id>`, `/gift/<id>`, `/coin/<chain>/<addr>` sirven la misma página con su
-  `<title>`, descripción, Open Graph (foto del restaurante) y canonical; `/sitemap.xml` y
-  `/robots.txt`. Todo con gzip. `X_URL` pone tu perfil de X en los enlaces.
-- Fotos en WebP (`dapp/photos/*.webp`, créditos en `photos/credits.json`).
+  `/account`, `/r/<id>`, `/gift/<id>`, `/coin/<cluster>/<raise>`, `/u/<wallet>` sirven la
+  misma página con su `<title>`, descripción, Open Graph y canonical; `/sitemap.xml`,
+  `/robots.txt`, `/manifest.webmanifest`, `/sw.js` (PWA). Todo con gzip.
 
 **Qué hace la página además de comprar**
 
-- Precio en USD junto a cada cantidad (CoinGecko, caché de 2 minutos en el navegador; si la
-  API falla se oculta y el BNB/USD sale del feed de Chainlink).
-- Página por coin con enlace compartible (`#coin/56/0x…`, `#r/mcdonalds` para un restaurante),
-  botón de copiar enlace, gráfico de la recaudación y lista de compras leídas de los eventos
-  `Bought` del contrato (por rangos de 5000 bloques).
-- Cinta de compras en vivo en la portada (eventos de los últimos 5000 bloques).
-- Buscador que acepta una dirección `0x…` o un enlace de BscScan y abre esa coin o ese token.
-- Iconos propios de categoría, marca propia, barra inferior en móvil, números en 万/亿 y
-  textos de 打新 en chino.
+- Precio en USD junto a cada cantidad (SOL y acciones por CoinGecko, caché de 2 minutos).
+- Página por coin con enlace compartible (`#coin/devnet/<raise>`, `#r/mcdonalds` para un
+  restaurante), gráfico de la recaudación, lista de compras con enlace a Solscan, swap
+  contra el pool una vez graduada, comentarios, alertas por email e imagen para compartir.
+- Cinta de compras en vivo en la portada, ranking, calendario, perfil por wallet.
+- Buscador que acepta una dirección base58 o un enlace de Solscan y abre esa coin o ese token.
+- Inicio de sesión firmando un mensaje con la wallet (ed25519, sin gas).
 - Fotos reales de Wikimedia Commons (licencias CC, créditos en la página) y logotipos
   oficiales en `dapp/logos/<id>.png`; desde `/admin` se pueden subir fotos propias.
 
@@ -172,7 +188,7 @@ página, por email y en su cuenta. Nada se simula: sin proveedor configurado las
 aparecen como «no disponibles» y enlazan a Bitrefill.
 
 Flujo: `POST /api/gifts/checkout` crea el pedido (`pending`) → el pago se confirma en el
-servidor (transacción en BNB Chain verificada por RPC, IPN firmado de NOWPayments o webhook
+servidor (transacción en Solana verificada por RPC, IPN firmado de NOWPayments o webhook
 firmado de Stripe) → `paid` → se compra la tarjeta por API de Bitrefill con el saldo de la
 cuenta (`processing`) → `delivered` con el código, o `failed` (el admin puede reintentar o
 marcar `refunded`). Estados: pending, paid, processing, delivered, failed, expired, refunded.
@@ -180,14 +196,14 @@ marcar `refunded`). Estados: pending, paid, processing, delivered, failed, expir
 | Variable | Qué activa |
 | --- | --- |
 | `BITREFILL_API_KEY` (o `_ID` + `_SECRET`) | suministro: compra real de tarjetas con el saldo de tu cuenta Bitrefill |
-| `MERCHANT_ADDRESS` | pago con wallet en BNB Chain (BNB o USDT) a tu dirección |
+| `MERCHANT_ADDRESS` | pago con wallet en Solana (SOL o USDC, con referencia de Solana Pay) a tu dirección |
 | `NOWPAYMENTS_API_KEY`, `NOWPAYMENTS_IPN_SECRET` | pago con cualquier cripto (300+ monedas); `NOWPAYMENTS_SANDBOX=1` para el sandbox |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | pago con tarjeta (Stripe Checkout alojado; claves `sk_test_` para pruebas) |
 | `RESEND_API_KEY`, `MAIL_FROM` | envío del código por email (Resend) |
 | `ADMIN_KEY` | panel `/admin` y API `/api/admin/*` (cabecera `x-admin-key`, comparación en tiempo constante) |
-| `SITE_URL`, `BRAND_NAME`, `GIFT_MARGIN`, `GIFT_TEST`, `BSC_RPC` | URL pública (callbacks), marca, margen (0.04 = 4 %), producto de prueba de Bitrefill, nodo |
+| `SITE_URL`, `BRAND_NAME`, `GIFT_MARGIN`, `GIFT_TEST` | URL pública (callbacks), marca, margen (0.04 = 4 %), producto de prueba de Bitrefill |
 | `GIFT_WALLET_DISCOUNT`, `GIFT_REF_SHARE`, `SUPPORT_EMAIL`, `X_URL` | descuento al pagar con wallet (0.02), parte del margen para referidos (0.25), buzón de soporte, perfil de X |
-| `DEPLOYER_KEY`, `FACTORY_56`, `FACTORY_97`, `DEFAULT_CHAIN`, `COINGECKO_API_KEY` | clave para desplegar la factory desde /admin, direcciones de factory, red por defecto, clave demo de CoinGecko |
+| `PROGRAM_ID`, `PROGRAM_ID_DEVNET`, `CLUSTER`, `RPC_URL`, `RPC_URL_DEVNET`, `COINGECKO_API_KEY` | id del programa por red, red por defecto, nodos RPC, clave demo de CoinGecko |
 
 Webhooks a registrar en cada proveedor: `POST /api/webhooks/nowpayments` y
 `POST /api/webhooks/stripe`. Rutas públicas: `GET /api/gifts/catalog`, `GET /api/gifts/currencies`,
@@ -206,11 +222,11 @@ comentarios, alertas, newsletter, soporte y estado).
 - Tienda: selector de país, entrega programada (el email sale a la hora elegida; el job de
   cada minuto lo envía), vista previa del email (`/api/gifts/preview`), descuento al pagar con
   wallet (`GIFT_WALLET_DISCOUNT`, 2 % por defecto), «guardar en mi cuenta» sin email,
-  referidos (`?ref=0x…`, `GIFT_REF_SHARE` = 25 % del margen, `/api/me/referrals`, pagos
+  referidos (`?ref=<wallet>`, `GIFT_REF_SHARE` = 25 % del margen, `/api/me/referrals`, pagos
   anotados desde `/admin` → Community).
-- Launchpad: perfil público por wallet (`/u/0x…`), ranking (`/leaderboard`), calendario de
+- Launchpad: perfil público por wallet (`/u/<wallet>`), ranking (`/leaderboard`), calendario de
   cierres (`/calendar`), simulador de tokens en la ficha, imagen para compartir (Web Share o
-  descarga), precio en PancakeSwap tras graduar (`/api/pool`, con histórico), comentarios por
+  descarga), precio del pool tras graduar (`/api/pool`, con histórico), swap contra el pool, comentarios por
   coin firmados con la wallet (`/api/comments/:addr`), alertas por email (`/api/alerts`: al
   graduar, al abrir reembolsos y 2 h antes de cerrar; un job cada 2 min lee la cadena y
   envía con Resend), titulares de prensa por restaurante (`/api/news`, Google News RSS).
@@ -225,45 +241,47 @@ comentarios, alertas, newsletter, soporte y estado).
 1. Cuenta Bitrefill con API y saldo cargado.
 2. Cuenta NOWPayments (API key + IPN secret) y/o Stripe (clave secreta + webhook).
 3. Dominio verificado en Resend para los emails.
-4. Factory del launchpad desplegada (testnet primero): enviar ~0,05 tBNB al desplegador que
-   enseña `/admin` → Launchpad y pulsar «Deploy factory».
+4. Programa desplegado en devnet primero (`solana program deploy`), config inicializada
+   (`node contracts/solana/init.js`) y su id en `/admin` → Launchpad o en `PROGRAM_ID_DEVNET`.
 5. Dominio propio (`SITE_URL`) y perfil de X (`X_URL`).
-6. Auditoría del contrato antes de mainnet.
+6. Auditoría del programa antes de mainnet.
 
 **Pruebas**
 
 ```bash
 npm test                 # API del servidor
-npm run test:gifts       # tienda y comunidad: 44 comprobaciones con proveedores simulados
-npm run test:contracts   # 28 comprobaciones de los contratos en una EVM en proceso
+npm run test:gifts       # tienda y comunidad: 47 comprobaciones con proveedores simulados
+npm run test:program     # 34 comprobaciones del programa en un solana-test-validator local
 npm run test:dapp        # la página en Chromium contra una wallet y una tienda simuladas
 ```
 
-`.github/workflows/launchpad.yml` ejecuta los cuatro en cada push. El harness del navegador
+`.github/workflows/launchpad.yml` ejecuta los cuatro en cada push (el del programa instala la
+CLI de Solana en el runner). El harness del navegador
 (`tools/dapp-harness.js`) necesita Playwright (`npx playwright install chromium`).
 
-`contracts/test/run.js` compila `BentoLaunch.sol` y los mocks (`contracts/test/Mocks.sol`:
-un token de acción y un router de PancakeSwap) y ejecuta en `@ethereumjs/vm` el ciclo
-completo: restaurante no registrado, raise pagado en MCDx (tope por cartera, recorte,
-cierre por debajo del mínimo y reembolso), raise que llega al objetivo y gradúa (99 % al
-pool, 1 % de comisión, par COIN/MCDx, claim del 80 %), y raise pagado en BNB.
+`contracts/solana/test.js` y `test-deadline.js` recorren el programa en un validador local:
+config, recaudación pagada en un mint Token-2022 (tope por cartera, recorte, cierre
+anticipado al llegar al objetivo), graduación (1 % de comisión, pool de producto constante),
+claim del 80 %, swap en los dos sentidos con comprobación de la cotización, recaudación en
+SOL, cierre por debajo del mínimo con reembolso y graduación al vencer el plazo.
 
-La página se probó en navegador contra una wallet simulada que responde a los mismos ABIs:
-conectar, crear, aprobar MCDx, comprar, recorte por tope, finalizar, reclamar, eventos de
-compra (gráfico, cinta en vivo), enlaces profundos, búsqueda por dirección, chino y móvil.
+La página se probó en Chromium contra una wallet Phantom simulada y un servidor que imita
+el programa: conectar, crear, comprar, recorte por tope, finalizar, reclamar, swap, cinta
+en vivo, ranking, perfil, enlaces profundos, búsqueda por dirección y por enlace de Solscan,
+tarjeta de regalo pagada en SOL, cualquier cripto, inicio de sesión, comentarios, chino y
+móvil.
 
 **Antes de mainnet (lista)**
 
-1. `npm run test:contracts` en verde.
-2. Desplegar en BNB Testnet (`npm run deploy -- testnet`) y recorrer en la página con una
-   wallet real: crear, comprar hasta el tope, finalizar por debajo del mínimo y reembolsar;
-   crear otra, llenar el objetivo con varias wallets, finalizar, comprobar el pool en
-   PancakeSwap testnet y reclamar.
-3. Repetir el flujo de token ERC20 con `STOCK_TEST=0x…` (un token de prueba) para cubrir
-   `buyWith` y `addLiquidity`.
-4. Auditoría externa de `BentoLaunch.sol`: nadie la ha hecho y el contrato custodia dinero
-   real. Hasta entonces la página lo avisa en la barra inferior.
-5. Decidir `FEE_TO` (la comisión del 1 %) y quién es dueño del registro de restaurantes.
-6. Desplegar en mainnet desde `/admin` (o `FACTORY_56` en el entorno), servir desde un
-   dominio propio (dentro de claude.ai la wallet no se inyecta) y verificar el código fuente
-   de la factory en BscScan.
+1. `npm run test:program` en verde.
+2. Desplegar en devnet y recorrer en la página con una wallet real: crear, comprar hasta el
+   tope, finalizar por debajo del mínimo y reembolsar; crear otra, llenar el objetivo con
+   varias wallets, finalizar, cambiar contra el pool y reclamar.
+3. Probar una recaudación pagada en un mint Token-2022 de prueba en devnet (crear uno con
+   `spl-token create-token --program-id TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb`) para
+   cubrir `TransferChecked` y el pool en token.
+4. Auditoría externa del programa: nadie la ha hecho y custodia dinero real. Hasta entonces
+   la página lo avisa en la barra inferior.
+5. Decidir `feeTo` (la comisión del 1 %) con `InitConfig` y quién guarda la clave admin.
+6. Desplegar en mainnet (`PROGRAM_ID` o `/admin`), servir desde un dominio propio (dentro de
+   claude.ai la wallet no se inyecta) y publicar el código verificable del programa.

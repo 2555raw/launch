@@ -1,16 +1,21 @@
-/* End-to-end test of the shop backend against fake providers (BNB RPC,
+/* End-to-end test of the shop backend against fake providers (Solana RPC,
  * Bitrefill, NOWPayments, Stripe, Resend): wallet, any-crypto and card
  * checkouts, webhooks with signatures, fulfilment, email, buyer orders,
  * admin API. */
 'use strict';
 const http = require('http'); const assert = require('assert'); const path = require('path'); const fs = require('fs'); const os = require('os'); const crypto = require('crypto');
-const { ethers } = require('ethers');
-const MERCHANT = '0x00000000000000000000000000000000000000aa', USDT = '0x55d398326f99059ff775485246999027b3197955', TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
-const hex = (n) => '0x' + BigInt(n).toString(16);
-const txs = {}; const addTx = (hash, { to, value = 0n, logs = [], status = '0x1' }) => { txs[hash] = { tx: { hash, from: '0x' + '11'.repeat(20), to, value: hex(value) }, rc: { status, blockNumber: '0x100', logs } }; };
+const { createWallet, b58encode } = require('./test-solwallet');
+const MERCHANT = createWallet().address; const USDC = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
+const { PublicKey } = require('@solana/web3.js'); const S = require('./chain/solbite'); const MERCHANT_USDC = S.ata(new PublicKey(MERCHANT), new PublicKey(USDC)).toBase58();
+const newSig = () => b58encode(crypto.randomBytes(64)); const PAYER = createWallet().address;
+/* fake Solana transactions (jsonParsed shape as web3.js expects it) */
+const txs = {}; const refs = {};
+const addTx = (sig, { sol = 0n, usdc = 0n, failed = false, reference = null }) => { const ixs = []; if (sol > 0n) ixs.push({ program: 'system', programId: '11111111111111111111111111111111', parsed: { type: 'transfer', info: { source: PAYER, destination: MERCHANT, lamports: Number(sol) } } }); if (usdc > 0n) ixs.push({ program: 'spl-token', programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', parsed: { type: 'transferChecked', info: { source: 'x', destination: MERCHANT_USDC, authority: PAYER, mint: USDC, tokenAmount: { amount: usdc.toString(), decimals: 6, uiAmount: Number(usdc) / 1e6, uiAmountString: String(Number(usdc) / 1e6) } } } });
+  txs[sig] = { slot: 100, blockTime: Math.floor(Date.now() / 1000), meta: { err: failed ? { InstructionError: [0, 'Custom'] } : null, fee: 5000, preBalances: [], postBalances: [], innerInstructions: [], logMessages: [], preTokenBalances: [], postTokenBalances: [] }, transaction: { signatures: [sig], message: { accountKeys: [{ pubkey: PAYER, signer: true, writable: true, source: 'transaction' }, { pubkey: MERCHANT, signer: false, writable: true, source: 'transaction' }], instructions: ixs, recentBlockhash: '11111111111111111111111111111111' } }, version: 'legacy' }; if (reference) refs[reference] = sig; };
+const lamports = (sol) => BigInt(Math.round(sol * 1e9));
 const body = (req) => new Promise((r) => { let b = ''; req.on('data', (c) => b += c); req.on('end', () => r(b)); });
 const json = (res, code, data) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(data)); };
-const rpcS = http.createServer(async (req, res) => { const j = JSON.parse(await body(req)); const t = txs[j.params[0]]; res.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: j.method === 'eth_getTransactionByHash' ? (t ? t.tx : null) : j.method === 'eth_getTransactionReceipt' ? (t ? t.rc : null) : null })); });
+const rpcS = http.createServer(async (req, res) => { const j = JSON.parse(await body(req)); let result = null; if (j.method === 'getTransaction') result = txs[j.params[0]] || null; else if (j.method === 'getSignaturesForAddress') result = refs[j.params[0]] ? [{ signature: refs[j.params[0]], slot: 100, err: null, memo: null, blockTime: Math.floor(Date.now() / 1000), confirmationStatus: 'confirmed' }] : []; else if (j.method === 'getSlot') result = 100; res.end(JSON.stringify({ jsonrpc: '2.0', id: j.id, result })); });
 const brOrders = {}; let inv = 0;
 const brS = http.createServer(async (req, res) => { const b = await body(req); assert.strictEqual(req.headers.authorization, 'Bearer k-test'); const u = req.url; const out = (c, d) => json(res, c, { meta: {}, data: d });
   if (req.method === 'GET' && u.startsWith('/products/')) { const id = decodeURIComponent(u.slice(10)); return out(200, { id, in_stock: true, currency: id.endsWith('canada') ? 'CAD' : 'USD', packages: id === 'starbucks-usa' ? [{ id: 1, value: 10, price: 10 }, { id: 2, value: 25, price: 25 }] : null, range: id === 'starbucks-usa' ? null : { min: 5, max: 100, step: 1 } }); }
@@ -32,10 +37,10 @@ const stS = http.createServer(async (req, res) => { const b = await body(req); a
 const mails = []; const mailS = http.createServer(async (req, res) => { const b = JSON.parse(await body(req)); mails.push(b); json(res, 200, { id: 'em_1' }); });
 (async () => {
   for (const s of [rpcS, brS, npS, stS, mailS]) await new Promise((r) => s.listen(0, r));
-  Object.assign(process.env, { BSC_RPC: `http://127.0.0.1:${rpcS.address().port}`, BITREFILL_API: `http://127.0.0.1:${brS.address().port}`, BITREFILL_API_KEY: 'k-test', MERCHANT_ADDRESS: MERCHANT, GIFT_MARGIN: '0.04',
+  Object.assign(process.env, { RATE_LIMIT: '100000', CLUSTER: 'mainnet-beta', RPC_URL: `http://127.0.0.1:${rpcS.address().port}`, RPC_URL_DEVNET: `http://127.0.0.1:${rpcS.address().port}`, BITREFILL_API: `http://127.0.0.1:${brS.address().port}`, BITREFILL_API_KEY: 'k-test', MERCHANT_ADDRESS: MERCHANT, GIFT_MARGIN: '0.04',
     NOWPAYMENTS_API: `http://127.0.0.1:${npS.address().port}`, NOWPAYMENTS_API_KEY: 'np-test', NOWPAYMENTS_IPN_SECRET: 'ipn-secret', STRIPE_API: `http://127.0.0.1:${stS.address().port}`, STRIPE_SECRET_KEY: 'sk_test_x', STRIPE_WEBHOOK_SECRET: 'whsec_x',
     RESEND_API: `http://127.0.0.1:${mailS.address().port}`, RESEND_API_KEY: 're_test', ADMIN_KEY: 'admin-secret', SITE_URL: 'https://shop.test', DATA_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'shop-')), PORT: '0' });
-  const gifts = require('./gifts'); gifts.px.at = Date.now(); gifts.px.bnb = 500; gifts.px.cadPerUsd = 1.4;
+  const gifts = require('./gifts'); gifts.px.at = Date.now(); gifts.px.sol = 100; gifts.px.cadPerUsd = 1.4;
   const { start } = require('./server'); const server = await start(0); const base = `http://127.0.0.1:${server.address().port}`;
   const j = async (p, b, headers = {}) => { const r = await fetch(base + p, b !== undefined ? { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: typeof b === 'string' ? b : JSON.stringify(b) } : { headers }); return { code: r.status, body: await r.json() }; };
   let passed = 0; const ok = (c, m) => { assert.ok(c, m); passed++; console.log('  ok ' + m); };
@@ -44,12 +49,16 @@ const mails = []; const mailS = http.createServer(async (req, res) => { const b 
   ok((await j('/api/gifts/currencies')).body.currencies.some((c) => c.code === 'btc'), 'crypto currency list');
   let r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 25, method: 'wallet' }); ok(r.code === 400 && /email/.test(r.body.error), 'checkout requires a recipient email');
   r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 25, email: 'friend@example.com', message: 'Enjoy!', method: 'wallet' }); const w = r.body;
-  ok(r.code === 201 && w.status === 'pending' && w.priceUsd === 25.5 && w.pay.amounts.BNB.amount === 0.051 && w.pay.merchant === MERCHANT, 'wallet checkout: pending order with BNB and USDT amounts (2% wallet discount)');
-  addTx('0x' + '01'.repeat(32), { to: MERCHANT, value: 50n * 10n ** 15n }); r = await j(`/api/gifts/orders/${w.id}/tx`, { txHash: '0x' + '01'.repeat(32) }); ok(r.code === 402 && /below/.test(r.body.error), 'BNB below the quote is refused');
-  addTx('0x' + '02'.repeat(32), { to: MERCHANT, value: 51n * 10n ** 15n }); r = await j(`/api/gifts/orders/${w.id}/tx`, { txHash: '0x' + '02'.repeat(32) });
-  ok(r.code === 200 && r.body.status === 'delivered' && /6032/.test(r.body.redemption.instructions) && r.body.pay.token === 'BNB', 'wallet payment verified on-chain -> Bitrefill -> delivered');
+  ok(r.code === 201 && w.status === 'pending' && w.priceUsd === 25.5 && w.pay.amounts.SOL.amount === 0.255 && w.pay.amounts.USDC.units === '25500000' && w.pay.merchant === MERCHANT && /^solana:/.test(w.pay.payUrl) && w.pay.reference, 'wallet checkout: pending order with SOL and USDC amounts, a Solana Pay URL and a reference (2% wallet discount)');
+  const s1 = newSig(); addTx(s1, { sol: lamports(0.25) }); r = await j(`/api/gifts/orders/${w.id}/tx`, { signature: s1 }); ok(r.code === 402 && /below/.test(r.body.error), 'SOL below the quote is refused');
+  const s2 = newSig(); addTx(s2, { sol: lamports(0.255) }); r = await j(`/api/gifts/orders/${w.id}/tx`, { signature: s2 });
+  ok(r.code === 200 && r.body.status === 'delivered' && /6032/.test(r.body.redemption.instructions) && r.body.pay.token === 'SOL' && r.body.pay.signature === s2, 'SOL payment verified on-chain -> Bitrefill -> delivered');
   ok(mails.length === 1 && mails[0].to[0] === 'friend@example.com' && /6032-1234/.test(mails[0].html) && /Enjoy!/.test(mails[0].html), 'recipient got the code and the message by email');
-  r = await j(`/api/gifts/orders/${w.id}/tx`, { txHash: '0x' + '02'.repeat(32) }); ok(r.code === 409, 'a delivered order cannot be paid again');
+  r = await j(`/api/gifts/orders/${w.id}/tx`, { signature: s2 }); ok(r.code === 409, 'a delivered order cannot be paid again');
+  // USDC and Solana Pay (reference) paths
+  r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, email: 'usdc@example.com', method: 'wallet' }); const u = r.body; const s3 = newSig(); addTx(s3, { usdc: 10200000n }); r = await j(`/api/gifts/orders/${u.id}/tx`, { signature: s3 }); ok(r.code === 200 && r.body.status === 'delivered' && r.body.pay.token === 'USDC', 'USDC transfer to the merchant token account is accepted');
+  r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, email: 'qr@example.com', method: 'wallet' }); const qr = r.body; const s4 = newSig(); addTx(s4, { usdc: 10200000n, reference: qr.pay.reference }); r = await j(`/api/gifts/orders/${qr.id}`); ok(r.body.status === 'delivered' && r.body.pay.signature === s4, 'Solana Pay: a transaction carrying the reference key is found and delivers the card');
+  const s5 = newSig(); addTx(s5, { sol: lamports(1), failed: true }); r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, email: 'f@example.com', method: 'wallet' }); r = await j(`/api/gifts/orders/${r.body.id}/tx`, { signature: s5 }); ok(r.code === 402 && /failed/.test(r.body.error), 'a failed transaction is refused');
   // any crypto through NOWPayments
   r = await j('/api/gifts/checkout', { productId: 'chipotle-usa', value: 40, email: 'me@example.com', method: 'crypto', currency: 'btc' }); const c = r.body;
   ok(r.code === 201 && c.pay.provider === 'nowpayments' && c.pay.payAddress === 'bc1qtestaddress' && c.pay.payCurrency === 'btc' && c.status === 'pending', 'crypto checkout returns a BTC address and amount');
@@ -71,42 +80,42 @@ const mails = []; const mailS = http.createServer(async (req, res) => { const b 
   r = await j('/api/webhooks/stripe', ev, { 'stripe-signature': `t=${t},v1=deadbeef` }); ok(r.code === 401, 'Stripe webhook with a bad signature is rejected');
   r = await j('/api/webhooks/stripe', ev, { 'stripe-signature': `t=${t},v1=${v1}` }); ok(r.code === 200 && (await j(`/api/gifts/orders/${k.id}`)).body.status === 'delivered', 'signed Stripe webhook pays and fulfils the card order');
   // buyer account
-  const wallet = ethers.Wallet.createRandom(); const n = await j('/api/auth/nonce', { address: wallet.address }); const sgn = await wallet.signMessage(n.body.message); const tok = (await j('/api/auth/verify', { address: wallet.address, signature: sgn })).body.token;
+  const wallet = createWallet(); const n = await j('/api/auth/nonce', { address: wallet.address }); const sgn = await wallet.signMessage(n.body.message); const tok = (await j('/api/auth/verify', { address: wallet.address, signature: sgn })).body.token;
   r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, email: 'acc@example.com', method: 'wallet' }, { authorization: 'Bearer ' + tok }); ok(r.body.buyer.address === wallet.address, 'signed-in checkout stores the buyer wallet');
   r = await j('/api/me/orders', undefined, { authorization: 'Bearer ' + tok }); ok(r.code === 200 && r.body.orders.length === 1, 'buyer can list their own orders');
   r = await j(`/api/gifts/orders/${w.id}/claim`, {}, { authorization: 'Bearer ' + tok }); ok(r.body.buyer.address === wallet.address && (await j('/api/me/orders', undefined, { authorization: 'Bearer ' + tok })).body.orders.length === 2, 'an order bought signed out can be claimed');
   // admin
   ok((await j('/api/admin/summary')).code === 401, 'admin API needs the key');
-  const A = { 'x-admin-key': 'admin-secret' }; r = await j('/api/admin/summary', undefined, A); ok(r.code === 200 && r.body.orders === 5 && r.body.byStatus.delivered === 4 && r.body.bitrefillBalance.balance === 120, 'admin summary with counts and Bitrefill balance');
-  r = await j('/api/admin/orders', undefined, A); ok(r.body.orders[0].redemption !== undefined && r.body.orders.length === 5, 'admin sees every order with redemption data');
+  const A = { 'x-admin-key': 'admin-secret' }; r = await j('/api/admin/summary', undefined, A); ok(r.code === 200 && r.body.orders === 8 && r.body.byStatus.delivered === 6 && r.body.bitrefillBalance.balance === 120, 'admin summary with counts and Bitrefill balance');
+  r = await j('/api/admin/orders', undefined, A); ok(r.body.orders[0].redemption !== undefined && r.body.orders.length === 8, 'admin sees every order with redemption data');
   r = await j(`/api/admin/orders/${w.id}/status`, { status: 'refunded', note: 'customer request' }, A); ok(r.body.status === 'refunded', 'admin can change a status with a note');
   r = await j('/api/admin/catalog', { overrides: { mcdonalds: { blurb: 'Big Mac since 1967', hidden: false } } }, A); ok(r.body.overrides.mcdonalds.blurb === 'Big Mac since 1967' && (await j('/api/catalog')).body.overrides.mcdonalds, 'catalog overrides are public after admin saves them');
   const png = 'data:image/png;base64,' + Buffer.from('\x89PNG\r\n\x1a\n' + 'x'.repeat(100), 'latin1').toString('base64'); r = await j('/api/admin/upload', { dataUrl: png }, A);
   ok(r.code === 201 && /^\/uploads\/[a-f0-9]{16}\.png$/.test(r.body.url) && (await fetch(base + r.body.url)).status === 200, 'admin can upload a photo and it is served');
-  await new Promise((r) => setTimeout(r, 300)); const saved = JSON.parse(fs.readFileSync(path.join(process.env.DATA_DIR, 'launchpad.json'), 'utf8')); ok(Object.keys(saved.giftOrders).length === 5 && saved.adminLog.length >= 3, 'orders and admin log persisted');
+  await new Promise((r) => setTimeout(r, 300)); const saved = JSON.parse(fs.readFileSync(path.join(process.env.DATA_DIR, 'launchpad.json'), 'utf8')); ok(Object.keys(saved.giftOrders).length === 8 && saved.adminLog.length >= 3, 'orders and admin log persisted');
   // scheduled delivery, keep-in-account, wallet discount, referrals
   r = await j('/api/gifts/catalog'); ok(r.body.walletDiscount === 0.02 && r.body.refShare === 0.25 && r.body.countries.includes('CA'), 'catalog reports the wallet discount, referral share and countries');
-  const ref = ethers.Wallet.createRandom().address;
+  const ref = createWallet().address;
   r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 25, email: 'later@example.com', method: 'wallet', deliverAt: new Date(Date.now() + 3600 * 1000).toISOString(), ref }); const sch = r.body;
-  ok(r.code === 201 && sch.priceUsd === 25.5 && sch.discount === 0.02 && sch.deliverAt > Date.now() && sch.ref === ref.toLowerCase(), 'wallet checkout applies the 2% discount, keeps deliverAt and the referrer');
-  const mailsBefore = mails.length; addTx('0x' + '03'.repeat(32), { to: MERCHANT, value: 51n * 10n ** 15n }); r = await j(`/api/gifts/orders/${sch.id}/tx`, { txHash: '0x' + '03'.repeat(32) });
+  ok(r.code === 201 && sch.priceUsd === 25.5 && sch.discount === 0.02 && sch.deliverAt > Date.now() && sch.ref === ref, 'wallet checkout applies the 2% discount, keeps deliverAt and the referrer');
+  const mailsBefore = mails.length; const s6 = newSig(); addTx(s6, { sol: lamports(0.255) }); r = await j(`/api/gifts/orders/${sch.id}/tx`, { signature: s6 });
   ok(r.body.status === 'delivered' && r.body.redemption.instructions && mails.length === mailsBefore && !r.body.emailSent, 'scheduled order is delivered now but the email waits for its time');
   const giftsMod = require('./gifts'); const st = require('./server').store; st.giftOrders[sch.id].deliverAt = Date.now() - 1000; await giftsMod.startJobs(st, async () => {})(); ok(mails.length === mailsBefore + 1 && mails[mails.length - 1].to[0] === 'later@example.com', 'the minute job sends the scheduled email once it is due');
   r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, method: 'wallet', forMe: true }); ok(r.code === 400, 'keep-in-account needs a signed-in wallet');
   r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, method: 'wallet', forMe: true }, { authorization: 'Bearer ' + tok }); ok(r.code === 201 && r.body.forMe && r.body.recipient.email === null && r.body.buyer.address === wallet.address, 'signed-in buyer can keep the card in the account without an email');
-  r = await j('/api/me/referrals', undefined, { authorization: 'Bearer ' + tok }); ok(r.code === 200 && /\/gifts\?ref=0x/.test(r.body.link) && r.body.earnedUsd === 0, 'buyer gets a referral link');
-  const w2 = ethers.Wallet.createRandom(); const n3 = await j('/api/auth/nonce', { address: w2.address }); const tok2 = (await j('/api/auth/verify', { address: w2.address, signature: await w2.signMessage(n3.body.message) })).body.token;
-  r = await j('/api/gifts/checkout', { productId: 'chipotle-usa', value: 20, email: 'r@example.com', method: 'wallet', ref: w2.address }); addTx('0x' + '04'.repeat(32), { to: MERCHANT, value: 41n * 10n ** 15n }); await j(`/api/gifts/orders/${r.body.id}/tx`, { txHash: '0x' + '04'.repeat(32) });
+  r = await j('/api/me/referrals', undefined, { authorization: 'Bearer ' + tok }); ok(r.code === 200 && /\/gifts\?ref=[1-9A-HJ-NP-Za-km-z]/.test(r.body.link) && r.body.earnedUsd === 0, 'buyer gets a referral link');
+  const w2 = createWallet(); const n3 = await j('/api/auth/nonce', { address: w2.address }); const tok2 = (await j('/api/auth/verify', { address: w2.address, signature: await w2.signMessage(n3.body.message) })).body.token;
+  r = await j('/api/gifts/checkout', { productId: 'chipotle-usa', value: 20, email: 'r@example.com', method: 'wallet', ref: w2.address }); const s7 = newSig(); addTx(s7, { sol: lamports(0.204) }); await j(`/api/gifts/orders/${r.body.id}/tx`, { signature: s7 });
   r = await j('/api/me/referrals', undefined, { authorization: 'Bearer ' + tok2 }); ok(r.body.delivered === 1 && r.body.earnedUsd === 0.1 && r.body.pendingUsd === 0.1, 'referrer earns 25% of the margin on a delivered order (20 * 2% * 25% = 0.10)');
-  r = await j(`/api/admin/referrals/${w2.address.toLowerCase()}/paid`, { amountUsd: 0.1, txHash: '0xabc' }, A); ok(r.body.pendingUsd === 0 && (await j('/api/admin/referrals', undefined, A)).body.referrers.length >= 1, 'admin records a referral payout');
+  r = await j(`/api/admin/referrals/${w2.address}/paid`, { amountUsd: 0.1, txHash: 'sig' }, A); ok(r.body.pendingUsd === 0 && (await j('/api/admin/referrals', undefined, A)).body.referrers.length >= 1, 'admin records a referral payout');
   r = await fetch(base + '/api/gifts/preview?rid=starbucks&value=25&message=Hola'); ok(r.status === 200 && /text\/html/.test(r.headers.get('content-type')) && /Hola/.test(await r.text()), 'email preview renders the message');
   // community: comments, alerts, newsletter, support, status
-  const coin = '0x' + '77'.repeat(20);
+  const coin = createWallet().address;
   r = await j(`/api/comments/${coin}`, { text: 'hello' }); ok(r.code === 401, 'comments need a signed-in wallet');
   r = await j(`/api/comments/${coin}`, { text: '  gm   everyone ' }, { authorization: 'Bearer ' + tok }); ok(r.code === 201 && r.body.text === 'gm everyone' && r.body.address === wallet.address, 'signed-in wallet posts a comment');
   r = await j(`/api/comments/${coin}`, { text: 'again' }, { authorization: 'Bearer ' + tok }); ok(r.code === 429, 'one comment every 20 seconds per wallet');
   r = await j(`/api/comments/${coin}`); ok(r.body.comments.length === 1, 'comments are listed publicly');
-  r = await j('/api/alerts', { email: 'alert@example.com', coin, chain: '97' }); ok(r.code === 201 && r.body.willEmail === true && (await j(`/api/alerts/count?coin=${coin}`)).body.count === 1, 'alert subscription stored');
+  r = await j('/api/alerts', { email: 'alert@example.com', coin, chain: 'devnet' }); ok(r.code === 201 && r.body.willEmail === true && (await j(`/api/alerts/count?coin=${coin}`)).body.count === 1, 'alert subscription stored');
   r = await j('/api/newsletter', { email: 'news@example.com', lang: 'es' }); r = await j('/api/newsletter', { email: 'NEWS@example.com' }); ok(r.code === 201 && (await j('/api/admin/newsletter', undefined, A)).body.subscribers.length === 1, 'newsletter deduplicates emails');
   r = await j('/api/support', { email: 'help@example.com', subject: 'Order', message: 'Where is my card?', order: w.id }); ok(r.code === 201 && (await j('/api/admin/support', undefined, A)).body.requests[0].order === w.id, 'support request stored with the order id');
   r = await j('/api/status'); ok(r.code === 200 && r.body.supply === true && r.body.ordersDelivered >= 5 && r.body.lastDelivered[0].rid, 'public status lists supply and latest deliveries');

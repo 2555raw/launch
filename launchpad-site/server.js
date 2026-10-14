@@ -26,12 +26,12 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { verifyMessage, getAddress, isAddress } = require('ethers');
 const CATALOG = require('./launches');
 const { shopApi } = require('./gifts');
-const factory = require('./factory');
 const gifts = require('./gifts');
 const community = require('./community');
+const sol = require('./solana');
+const isAddress = (a) => sol.isPk(a); const getAddress = (a) => a;
 const zlib = require('zlib');
 
 const ROOT = __dirname;
@@ -170,7 +170,7 @@ async function fetchQuotes() {
    served when CoinGecko fails. */
 const CG = { prices: { at: 0, data: null, pending: null }, charts: new Map() };
 function cgIds() {
-  try { const pairs = JSON.parse(fs.readFileSync(path.join(ROOT, 'contracts', 'pairs.json'), 'utf8')); return ['binancecoin', ...new Set(Object.values(pairs).map((p) => p && p.cg).filter(Boolean))]; } catch { return ['binancecoin']; }
+  try { const pairs = JSON.parse(fs.readFileSync(path.join(ROOT, 'contracts', 'pairs.solana.json'), 'utf8')); return ['solana', ...new Set(Object.values(pairs).map((p) => p && p.cg).filter(Boolean))]; } catch { return ['solana']; }
 }
 async function cgFetch(u) { const r = await fetch(u, { headers: { accept: 'application/json', ...(process.env.COINGECKO_API_KEY ? { 'x-cg-demo-api-key': process.env.COINGECKO_API_KEY } : {}) }, signal: AbortSignal.timeout(9000) }); if (!r.ok) throw new Error('coingecko ' + r.status); return r.json(); }
 function cgPrices() {
@@ -202,7 +202,7 @@ function getQuotes() {
 const nonces = new Map(); // address → { nonce, at }
 
 function loginMessage(address, nonce) {
-  return `Tricker Launchpad\n\nFirma para entrar con esta cartera. No cuesta gas ni autoriza ningún movimiento.\n\nCartera: ${address}\nNonce: ${nonce}`;
+  return `Sol Bite\n\nSign in with this wallet. This costs nothing and authorizes no transaction.\n\nWallet: ${address}\nNonce: ${nonce}`;
 }
 
 function sessionOf(req) {
@@ -230,7 +230,7 @@ const TYPES = {
   '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.ico': 'image/x-icon',
   '.txt': 'text/plain; charset=utf-8', '.md': 'text/markdown; charset=utf-8', '.webmanifest': 'application/manifest+json', '.xml': 'application/xml; charset=utf-8'
 };
-const PRIVATE = new Set(['server.js', 'launches.js', 'gifts.js', 'factory.js', 'community.js', 'test.js', 'test-gifts.js', 'package.json', 'package-lock.json', '.gitignore']);
+const PRIVATE = new Set(['server.js', 'launches.js', 'gifts.js', 'factory.js', 'community.js', 'solana.js', 'test.js', 'test-gifts.js', 'package.json', 'package-lock.json', '.gitignore']);
 
 function gzipOk(req, type, body) { return req && /\bgzip\b/.test(req.headers['accept-encoding'] || '') && /^(text\/|application\/(json|javascript)|image\/svg)/.test(type) && body.length > 1024; }
 function send(res, code, body, headers = {}) {
@@ -266,7 +266,7 @@ function limited(req) {
 }
 
 function serveStatic(req, res, rel) {
-  // La raíz es el dapp de BNB Chain (dapp/index.html y dapp/logos); la mesa
+  // La raíz es el dapp de Solana (dapp/index.html y dapp/logos); la mesa
   // clásica sigue en /index.html, /app.js y /styles.css.
   if (rel === '/' || rel === '/dapp' || rel === '/dapp/' || rel === '/dapp/index.html') return servePage(req, res, '/');
   if (PAGE_ROUTE.test(rel)) return servePage(req, res, rel.replace(/\/$/, ''));
@@ -298,7 +298,7 @@ function serveStatic(req, res, rel) {
    /, /gifts, /coins, /launch, /docs, /pairs, /account, /r/<id>, /gift/<id> and
    /coin/<chain>/<addr> all serve dapp/index.html, wrapped in a proper document
    (doctype, charset, viewport) with the title, description and Open Graph tags
-   of that URL, and window.BNB_CFG so the page routes by path. */
+   of that URL, and window.SOL_CFG so the page routes by path. */
 const PAGE = { at: 0, html: '', rest: {} };
 function pageSource() {
   const f = path.join(ROOT, 'dapp', 'index.html');
@@ -313,22 +313,22 @@ function pageSource() {
   return PAGE;
 }
 const VIEW_META = {
-  '': ['BNB Bite', 'Restaurant gift cards paid with any crypto or card, and a BNB Chain launchpad where every coin is paired with a real tokenized restaurant stock.'],
-  gifts: ['Gift cards for crypto · BNB Bite', 'Buy restaurant eGift cards with Bitcoin, BNB, USDT, 300+ cryptocurrencies or a card. Delivered by email, inside BNB Bite.'],
-  coins: ['All coins · BNB Bite', 'Every coin launched on BNB Bite, each paired with a tokenized restaurant stock on BNB Chain.'],
-  launch: ['Create a coin · BNB Bite', 'Launch a coin paired with a real restaurant stock token. The raise is paid in that token and lists on PancakeSwap with the liquidity burned.'],
-  docs: ['How the launchpad works · BNB Bite', 'Paired raises, graduation, refunds and the fixed parameters of every BNB Bite coin.'],
-  pairs: ['Verified pairs on BNB Chain · BNB Bite', 'The tokenized restaurant stocks (xStocks, bStocks, Ondo) verified on-chain that BNB Bite coins pair with.'],
-  account: ['Your account · BNB Bite', 'Your gift card orders and coins on BNB Bite.'],
-  leaderboard: ['Leaderboard · BNB Bite', 'Top coins by amount raised and the most active buyers on BNB Bite this week.'],
-  calendar: ['Calendar · BNB Bite', 'Upcoming closes and graduations of BNB Bite coins.'],
-  guides: ['Guides · BNB Bite', 'How to buy crypto, how to pay a gift card with USDT, what a tokenized stock is, and how a paired raise works.'],
-  'guides/buy-crypto': ['How to buy crypto and set up a wallet · BNB Bite', 'Three steps to get BNB or USDT on BNB Chain with MetaMask or Binance, then use it on BNB Bite.'],
-  'guides/gift-card-usdt': ['Buy a Starbucks gift card with USDT · BNB Bite', 'Step by step: choose the card, pay with USDT or any crypto, get the code by email in minutes.'],
-  'guides/tokenized-stocks': ['What is a tokenized stock? · BNB Bite', 'MCDx, SBUXx and the other restaurant stock tokens on BNB Chain: who issues them, how they track the stock, where they trade.'],
-  'guides/paired-raise': ['How a paired raise works · BNB Bite', 'Target, minimum, cap per wallet, graduation to PancakeSwap and refunds, explained with an example.'],
-  status: ['Status · BNB Bite', 'Live status of gift card supply, payments, email and BNB Chain, with the latest deliveries.'],
-  help: ['Help · BNB Bite', 'Answers to common questions and a way to reach us about an order or a coin.']
+  '': ['Sol Bite', 'Restaurant gift cards paid with any crypto or card, and a Solana launchpad where every coin is paired with a real tokenized restaurant stock.'],
+  gifts: ['Gift cards for crypto · Sol Bite', 'Buy restaurant eGift cards with SOL, USDC, Bitcoin, 300+ cryptocurrencies or a card. Delivered by email, inside Sol Bite.'],
+  coins: ['All coins · Sol Bite', 'Every coin launched on Sol Bite, each paired with a tokenized restaurant stock on Solana.'],
+  launch: ['Create a coin · Sol Bite', 'Launch a coin paired with a real restaurant stock token. The raise is paid in that token and opens a locked liquidity pool when it graduates.'],
+  docs: ['How the launchpad works · Sol Bite', 'Paired raises, graduation, refunds and the fixed parameters of every Sol Bite coin.'],
+  pairs: ['Verified pairs on Solana · Sol Bite', 'The tokenized restaurant stocks (xStocks, Ondo) verified on-chain that Sol Bite coins pair with.'],
+  account: ['Your account · Sol Bite', 'Your gift card orders and coins on Sol Bite.'],
+  leaderboard: ['Leaderboard · Sol Bite', 'Top coins by amount raised and the most active buyers on Sol Bite this week.'],
+  calendar: ['Calendar · Sol Bite', 'Upcoming closes and graduations of Sol Bite coins.'],
+  guides: ['Guides · Sol Bite', 'How to buy crypto, how to pay a gift card with USDT, what a tokenized stock is, and how a paired raise works.'],
+  'guides/buy-crypto': ['How to buy crypto and set up a wallet · Sol Bite', 'Three steps to get SOL or USDC with Phantom or an exchange, then use it on Sol Bite.'],
+  'guides/gift-card-usdt': ['Buy a Starbucks gift card with USDT · Sol Bite', 'Step by step: choose the card, pay with USDT or any crypto, get the code by email in minutes.'],
+  'guides/tokenized-stocks': ['What is a tokenized stock? · Sol Bite', 'MCDx, SBUXx and the other restaurant stock tokens on Solana: who issues them, how they track the stock, where they trade.'],
+  'guides/paired-raise': ['How a paired raise works · Sol Bite', 'Target, minimum, cap per wallet, graduation to a locked pool and refunds, explained with an example.'],
+  status: ['Status · Sol Bite', 'Live status of gift card supply, payments, email and Solana, with the latest deliveries.'],
+  help: ['Help · Sol Bite', 'Answers to common questions and a way to reach us about an order or a coin.']
 };
 const escAttr = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function pageFor(req, rel) {
@@ -339,12 +339,12 @@ function pageFor(req, rel) {
   if (VIEW_META[key]) { [title, desc] = VIEW_META[key]; }
   else if ((m = /^(r|gift)\/([a-z0-9_-]+)$/.exec(key)) && src.rest[m[2]]) {
     const r = src.rest[m[2]];
-    title = (m[1] === 'gift' ? `${r.name} gift card for crypto` : `${r.name} on BNB Bite`) + ' · BNB Bite';
-    desc = m[1] === 'gift' ? `Buy a ${r.name} eGift card with Bitcoin, BNB, USDT or any crypto. Emailed within minutes.` : `${r.name} (${r.parent}): live stock price, the tokenized stock on BNB Chain and the coins paired with it.`;
+    title = (m[1] === 'gift' ? `${r.name} gift card for crypto` : `${r.name} on Sol Bite`) + ' · Sol Bite';
+    desc = m[1] === 'gift' ? `Buy a ${r.name} eGift card with SOL, USDC, Bitcoin or any crypto. Emailed within minutes.` : `${r.name} (${r.parent}): live stock price, the tokenized stock on Solana and the coins paired with it.`;
     if (fs.existsSync(path.join(ROOT, 'dapp', 'photos', m[2] + '.webp'))) image = `${base}/photos/${m[2]}.webp`;
   }
-  else if (/^coin\/\d+\/0x[0-9a-fA-F]{40}$/.test(key)) { title = 'Coin · BNB Bite'; desc = 'A coin launched on BNB Bite, paired with a tokenized restaurant stock.'; }
-  else if ((m = /^u\/(0x[0-9a-fA-F]{40})$/.exec(key))) { title = `${m[1].slice(0, 6)}…${m[1].slice(-4)} · BNB Bite`; desc = 'Coins created and bought by this wallet on BNB Bite.'; }
+  else if (/^coin\/[a-z-]+\/[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(key)) { title = 'Coin · Sol Bite'; desc = 'A coin launched on Sol Bite, paired with a tokenized restaurant stock on Solana.'; }
+  else if ((m = /^u\/([1-9A-HJ-NP-Za-km-z]{32,44})$/.exec(key))) { title = `${m[1].slice(0, 4)}…${m[1].slice(-4)} · Sol Bite`; desc = 'Coins created and bought by this wallet on Sol Bite.'; }
   if (!image) image = `${base}/photos/all.webp`;
   let html = src.html
     .replace(/<title>[^<]*<\/title>/, `<title>${escAttr(title)}</title>`)
@@ -352,9 +352,9 @@ function pageFor(req, rel) {
     .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${escAttr(title)}">`)
     .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${escAttr(desc)}">`)
     .replace('<meta property="og:type" content="website">', `<meta property="og:type" content="website"><meta property="og:url" content="${escAttr(base + rel)}"><meta property="og:image" content="${escAttr(image)}"><meta name="twitter:image" content="${escAttr(image)}"><link rel="canonical" href="${escAttr(base + rel)}">`);
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png"><link rel="icon" href="/icons/icon-192.png" type="image/png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="BNB Bite"><script>window.BNB_CFG={paths:true}</script>\n${html}\n</html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png"><link rel="icon" href="/icons/icon-192.png" type="image/png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Sol Bite"><script>window.SOL_CFG={paths:true}</script>\n${html}\n</html>`;
 }
-const PAGE_ROUTE = /^\/(gifts|coins|launch|docs|pairs|account|leaderboard|calendar|guides|guides\/[a-z0-9-]+|status|help|r\/[a-z0-9_-]+|gift\/[a-z0-9_-]+|coin\/\d+\/0x[0-9a-fA-F]{40}|u\/0x[0-9a-fA-F]{40})\/?$/;
+const PAGE_ROUTE = /^\/(gifts|coins|launch|docs|pairs|account|leaderboard|calendar|guides|guides\/[a-z0-9-]+|status|help|r\/[a-z0-9_-]+|gift\/[a-z0-9_-]+|coin\/[a-z-]+\/[1-9A-HJ-NP-Za-km-z]{32,44}|u\/[1-9A-HJ-NP-Za-km-z]{32,44})\/?$/;
 function servePage(req, res, rel) {
   let html; try { html = pageFor(req, rel); } catch (e) { console.error('page', e.message); return fail(res, 500, 'page unavailable'); }
   send(res, 200, html, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-cache' });
@@ -382,21 +382,18 @@ async function api(req, res, url) {
     return l ? send(res, 200, view(l, now)) : fail(res, 404, 'no such launch');
   }
 
-  if (req.method === 'GET' && p === '/api/config') return send(res, 200, factory.config(store), { 'cache-control': 'public, max-age=30' });
+  if (req.method === 'GET' && p === '/api/config') return send(res, 200, sol.config(store), { 'cache-control': 'public, max-age=30' });
+  if (p === '/api/rpc' || p === '/api/coins' || p.startsWith('/api/coins/') || p === '/api/buys' || p === '/api/feed') return sol.solanaApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf });
   if (req.method === 'GET' && p === '/api/prices') { const j = await cgPrices(); return j ? send(res, 200, j, { 'cache-control': 'public, max-age=60' }) : fail(res, 503, 'prices unavailable'); }
   if (req.method === 'GET' && p === '/api/chart') {
     const cg = String(url.searchParams.get('cg') || ''); const days = Number(url.searchParams.get('days'));
     if (!/^[a-z0-9-]{1,60}$/.test(cg) || ![1, 7, 30].includes(days)) return fail(res, 400, 'cg and days (1, 7 or 30) required');
     const j = await cgChart(cg, days); return j ? send(res, 200, j, { 'cache-control': 'public, max-age=120' }) : fail(res, 503, 'chart unavailable');
   }
-  if (p === '/api/admin/factory' || p === '/api/admin/deploy-factory') {
-    const { isAdmin } = require('./gifts'); if (!isAdmin(req)) return fail(res, process.env.ADMIN_KEY ? 401 : 503, process.env.ADMIN_KEY ? 'admin key required' : 'ADMIN_KEY is not set');
-    if (req.method === 'GET' && p === '/api/admin/factory') return send(res, 200, await factory.status(store));
-    if (req.method === 'POST' && p === '/api/admin/deploy-factory') {
-      let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, e.message); }
-      try { const rec = await factory.deploy(Number(body.chainId), store, save); (store.adminLog ||= []).push({ at: Date.now(), action: 'deploy-factory', chain: Number(body.chainId), address: rec.address }); await save(); return send(res, 201, rec); }
-      catch (e) { return fail(res, 409, e.message); }
-    }
+  if (p === '/api/admin/program') {
+    if (!gifts.isAdmin(req)) return fail(res, process.env.ADMIN_KEY ? 401 : 503, process.env.ADMIN_KEY ? 'admin key required' : 'ADMIN_KEY is not set');
+    if (req.method === 'GET') { const cfg = sol.config(store); const out = {}; for (const c of Object.keys(sol.CLUSTERS)) { try { out[c] = await sol.coins(c, store); } catch (e) { out[c] = { error: e.message }; } } return send(res, 200, { cluster: cfg.cluster, clusters: cfg.clusters, merchant: cfg.merchant, index: Object.fromEntries(Object.entries(out).map(([c, d]) => [c, { programId: d.programId || null, coins: d.coins ? d.coins.length : null, feeTo: d.feeTo || null, error: d.error || null }])) }); }
+    if (req.method === 'POST') { let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, e.message); } const c = sol.cluster(body.cluster); if (!sol.isPk(body.programId)) return fail(res, 400, 'programId required'); (store.programs ||= {})[c] = body.programId; await save(); (store.adminLog ||= []).push({ at: Date.now(), action: 'program', cluster: c, programId: body.programId }); return send(res, 200, { ok: true, cluster: c, programId: body.programId }); }
   }
 
   if (req.method === 'GET' && p === '/api/quotes') {
@@ -433,9 +430,7 @@ async function api(req, res, url) {
     const address = getAddress(body.address);
     const n = nonces.get(address);
     if (!n || now - n.at > 10 * 60 * 1000) return fail(res, 400, 'ask for a fresh nonce');
-    let recovered;
-    try { recovered = verifyMessage(loginMessage(address, n.nonce), body.signature); } catch { return fail(res, 401, 'bad signature'); }
-    if (recovered !== address) return fail(res, 401, 'the signature is not from that wallet');
+    if (!sol.verifySignature(address, loginMessage(address, n.nonce), body.signature)) return fail(res, 401, 'the signature is not from that wallet');
     nonces.delete(address);
     const token = crypto.randomBytes(32).toString('base64url');
     store.sessions[token] = { address, expires: now + SESSION_DAYS * 24 * HOUR };
@@ -492,7 +487,7 @@ function start(port = PORT) {
   gifts.startJobs(store, save); community.startJobs(store, save);
   const server = http.createServer(handler);
   return new Promise((resolve) => server.listen(port, () => {
-    console.log(`Tricker Launchpad on :${server.address().port} · data in ${DATA_FILE}${SEED_DEMO ? ' · demo seeded' : ''}`);
+    console.log(`Sol Bite on :${server.address().port} · data in ${DATA_FILE}${SEED_DEMO ? ' · demo seeded' : ''}`);
     resolve(server);
   }));
 }

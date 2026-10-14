@@ -179,6 +179,7 @@ const server = http.createServer((req, res) => {
   await pg.locator('.L-btn-primary').click();
   await pg.waitForFunction(() => !document.body.classList.contains('is-landing') && !document.querySelector('#explore').hidden, null, { timeout: 6000 });
   R.landingExit = await pg.evaluate(() => ({ hash: location.hash, view: document.querySelector('main').dataset.view }));
+  await pg.waitForTimeout(600); R.board = await pg.evaluate(() => ({ tabs: document.querySelectorAll('#board [data-bmode]').length, chips: document.querySelectorAll('#bd-cats button').length, pairs: document.querySelectorAll('#bd-grid .bcard.pair').length, rank: document.querySelectorAll('#srank button').length, rankHead: document.querySelector('#srank-h').textContent, ticker: document.querySelectorAll('#tk button').length, scrollY: window.scrollY, status: document.querySelector('.bd-status').textContent.replace(/\s+/g, ' ').trim() })); await pg.screenshot({ path: path.join(OUT, 'shot-board-empty.png') });
   await pg.locator('#connect').click();
   await pg.waitForFunction(() => !document.querySelector('#player').hidden, null, { timeout: 8000 });
   R.addr = await pg.locator('#p-addr').textContent();
@@ -191,7 +192,10 @@ const server = http.createServer((req, res) => {
   await pg.locator('#c-goal').fill('1');
   await pg.locator('#c-go').click();
   await pg.waitForFunction(() => document.querySelectorAll('#rows .row').length === 1, null, { timeout: 15000 });
-  await pg.locator('.side [data-tab="trending"]').click();
+  await pg.waitForFunction(() => location.hash === '#coins', null, { timeout: 15000 });
+  await pg.evaluate(() => { location.hash = '#explore'; }); await pg.waitForTimeout(500); R.boardCoins = await pg.evaluate(() => ({ cards: document.querySelectorAll('#bd-grid .bcard:not(.pair)').length, first: document.querySelector('#bd-grid .bcard .nm').textContent.trim(), status: document.querySelector('.bd-status').textContent.replace(/\s+/g, ' ').trim() })); await pg.locator('#board [data-bmode="people"]').click(); await pg.waitForTimeout(200); R.boardPeople = await pg.locator('#bd-grid .bcard.person').count(); await pg.locator('#board [data-bmode="coins"]').click(); await pg.locator('.side [data-stab="new"]').click(); await pg.waitForTimeout(200); R.sideNew = await pg.locator('#srank button').count(); await pg.screenshot({ path: path.join(OUT, 'shot-board.png') }); await pg.locator('.side [data-stab="stocks"]').click();
+  await pg.evaluate(() => { location.hash = '#coins'; }); await pg.waitForTimeout(400);
+  await pg.locator('#coin-tabs [data-tab="trending"]').click();
   R.created = await pg.evaluate(() => { const r = document.querySelector('#rows .row'); return { id: r.dataset.id, name: r.querySelector('.row-name b').textContent, small: r.querySelector('.row-name small').textContent, tag: r.querySelector('.tag').textContent }; });
   R.createTx = await pg.evaluate(() => window.__sent[0].map((ix) => ix.tag + '@' + ix.programId.slice(0, 4)));
   // buy 0.05 then try over the cap (cap = 0.1)
@@ -239,7 +243,7 @@ const server = http.createServer((req, res) => {
   await pg.locator('#q').fill('');
   await pg.evaluate(() => { location.hash = '#calendar'; }); await pg.waitForTimeout(500); R.calendar = await pg.locator('#cal-body .cal-row').count();
   await pg.evaluate(() => { location.hash = '#leaderboard'; }); await pg.waitForTimeout(800); R.leaderboard = { coins: await pg.locator('#lb-body .lb-col').first().locator('.lb-row').count(), buyers: await pg.locator('#lb-body .lb-col').nth(1).locator('.lb-row').count() }; await pg.screenshot({ path: path.join(OUT, 'shot-leaderboard.png') });
-  await pg.locator('#lb-body .lb-row').first().click(); await pg.waitForSelector('[data-profile]'); await pg.locator('#drawer [data-profile]').click(); await pg.waitForTimeout(600); R.profile = { visible: await pg.evaluate(() => !document.querySelector('#profile').hidden), created: await pg.locator('#profile-body .lb-col').first().locator('.lb-row').count(), hash: await pg.evaluate(() => location.hash) }; await pg.screenshot({ path: path.join(OUT, 'shot-profile.png') });
+  await pg.locator('#lb-body .lb-row').first().click(); await pg.waitForSelector('#drawer [data-profile]'); await pg.locator('#drawer [data-profile]').click(); await pg.waitForTimeout(600); R.profile = { visible: await pg.evaluate(() => !document.querySelector('#profile').hidden), created: await pg.locator('#profile-body .lb-col').first().locator('.lb-row').count(), hash: await pg.evaluate(() => location.hash) }; await pg.screenshot({ path: path.join(OUT, 'shot-profile.png') });
   await pg.evaluate(() => { location.hash = '#status'; }); await pg.waitForTimeout(600); R.status = { tiles: await pg.locator('.st-tile').count(), last: await pg.locator('.st-row').count(), text: await pg.locator('#status-body').textContent() };
   await pg.evaluate(() => { location.hash = '#help'; }); await pg.waitForTimeout(300); await pg.locator('#support-form [name="email"]').fill('me@example.com'); await pg.locator('#support-form [name="message"]').fill('Where is my card? Order a1b2'); await pg.locator('#support-form button').click(); await pg.waitForFunction(() => /Sent/.test(document.querySelector('#support-note').textContent), null, { timeout: 5000 }); R.support = await pg.locator('#support-note').textContent();
   await pg.locator('#nl-email').fill('news@example.com'); await pg.locator('#nl-go').click(); await pg.waitForFunction(() => /Subscribed/.test(document.querySelector('#nl-note').textContent), null, { timeout: 5000 }); R.newsletter = await pg.locator('#nl-note').textContent();
@@ -261,7 +265,7 @@ const server = http.createServer((req, res) => {
   await pg.waitForFunction(() => document.querySelector('[data-finalize]'), null, { timeout: 15000 });
   await pg.keyboard.press('Escape');
   await pg.waitForTimeout(300);
-  await pg.locator('.side [data-tab="graduated"]').click();
+  await pg.evaluate(() => { location.hash = '#coins'; }); await pg.waitForTimeout(300); await pg.locator('#coin-tabs [data-tab="graduated"]').click();
   await pg.waitForSelector('#rows .row .tag');
   R.pendingTag = await pg.locator('#rows .row .tag').textContent();
   await pg.locator('#rows .row:not(.rcard) .row-img').first().click();
@@ -277,14 +281,14 @@ const server = http.createServer((req, res) => {
   R.sentKinds = await pg.evaluate(() => window.__sent.map((ixs) => ixs.map((ix) => ix.tag).join('+')));
   await pg.keyboard.press('Escape');
   await pg.waitForTimeout(300);
-  await pg.locator('.side [data-tab="graduated"]').click();
+  await pg.evaluate(() => { location.hash = '#coins'; }); await pg.waitForTimeout(300); await pg.locator('#coin-tabs [data-tab="graduated"]').click();
   await pg.waitForSelector('#rows .row .tag');
   R.graduatedTag = await pg.locator('#rows .row .tag').textContent();
   await pg.screenshot({ path: path.join(OUT, 'dapp.png') });
-  await pg.evaluate(() => { location.hash = '#explore'; }); await pg.waitForTimeout(300);
+  await pg.evaluate(() => { location.hash = '#gifts'; }); await pg.waitForTimeout(400);
   // gift card bought on the site: amount -> recipient -> wallet -> SOL payment -> code
-  R.giftInSite = await pg.locator('#gift-rail .gift .cta.in').count();
-  await pg.locator('#gift-rail .gift[data-open="g:starbucks"]').click();
+  R.giftInSite = await pg.locator('#gift-grid .gift .cta.in').count();
+  await pg.locator('#gift-grid .gift[data-open="g:starbucks"]').click();
   await pg.waitForSelector('[data-gamt="25"]');
   await pg.locator('[data-gamt="25"]').click();
   await pg.locator('#gemail').fill('friend@example.com'); await pg.locator('#gmsg').fill('Enjoy!');
@@ -305,7 +309,7 @@ const server = http.createServer((req, res) => {
   R.giftSaved = await pg.evaluate(() => JSON.parse(localStorage.getItem('bento.gifts') || '[]').length);
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
   // any crypto: address + QR, then provider confirms
-  await pg.locator('#gift-rail .gift[data-open="g:chipotle"]').click();
+  await pg.locator('#gift-grid .gift[data-open="g:chipotle"]').click();
   await pg.waitForSelector('#gcustom'); await pg.locator('#gcustom').fill('40'); await pg.locator('#gcustom').dispatchEvent('change');
   await pg.locator('#gemail').fill('me@example.com'); await pg.locator('[data-gm="crypto"]').click(); await pg.waitForSelector('#gcur'); await pg.locator('#gcur').selectOption('eth');
   await pg.locator('[data-gnext]').click();
@@ -323,7 +327,7 @@ const server = http.createServer((req, res) => {
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
   await pg.evaluate(() => { location.hash = '#gifts'; }); await pg.waitForTimeout(400); R.countries = { chips: await pg.locator('#gift-countries button').count(), all: await pg.locator('#gift-grid .gift').count() }; await pg.locator('#gift-countries [data-country="CA"]').click(); await pg.waitForTimeout(200); R.countries.ca = await pg.locator('#gift-grid .gift').count(); await pg.locator('#gift-countries [data-country="all"]').click();
   await pg.locator('#gift-grid .gift[data-open="g:starbucks"]').click(); await pg.waitForSelector('#gforme'); R.forMe = await pg.locator('#gforme').count(); await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
-  await pg.locator('.side [data-tab="graduated"]').click(); await pg.locator('#rows .row:not(.rcard) .row-img').first().click(); await pg.waitForSelector('#ctext', { timeout: 5000 }); await pg.locator('#ctext').fill('Great coin, LFG'); await pg.locator('[data-cpost]').click(); await pg.waitForSelector('.cm', { timeout: 5000 }); R.comment = await pg.locator('.cm p').first().textContent(); await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
+  await pg.evaluate(() => { location.hash = '#coins'; }); await pg.waitForTimeout(300); await pg.locator('#coin-tabs [data-tab="graduated"]').click(); await pg.locator('#rows .row:not(.rcard) .row-img').first().click(); await pg.waitForSelector('#ctext', { timeout: 5000 }); await pg.locator('#ctext').fill('Great coin, LFG'); await pg.locator('[data-cpost]').click(); await pg.waitForSelector('.cm', { timeout: 5000 }); R.comment = await pg.locator('.cm p').first().textContent(); await pg.keyboard.press('Escape'); await pg.waitForTimeout(300);
   await pg.locator('.side [data-open="a:"]').click(); await pg.waitForSelector('.gs-list [data-gorder]');
   await pg.screenshot({ path: path.join(OUT, 'shot-account.png') });
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);

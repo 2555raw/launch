@@ -805,6 +805,115 @@ footer .links { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; c
 .toast { position: fixed; left: 50%; bottom: calc(72px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 12px); opacity: 0; background: var(--ink); color: var(--bg); border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 500; max-width: min(92vw, 520px); z-index: 70; transition: opacity .2s ease, transform .2s ease; pointer-events: none; }
 .toast.is-on { opacity: 1; transform: translate(-50%, 0); }
 
+/* ---------- app board (explore) ---------- */
+.side { width: 100%; }
+.side-top { display: flex; align-items: center; justify-content: space-between; padding: 6px 6px 10px 10px; }
+.side-top .mark { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; letter-spacing: -.04em; color: var(--ink); }
+.side-top .mark i { width: 28px; height: 28px; border-radius: 9px; background: var(--sol-grad); display: grid; place-items: center; color: #0B0B10; font-size: 15px; font-weight: 900; font-style: normal; }
+.side-top .mark em { font-style: normal; background: var(--sol-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.side-x { width: 32px; height: 32px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); display: grid; place-items: center; cursor: pointer; }
+.side-x:hover { background: var(--surface); color: var(--ink); }
+.side-x svg { width: 16px; height: 16px; }
+.side a, .side button { height: 38px; font-size: 14px; gap: 10px; border-radius: 9px; padding: 0 10px; }
+.side .ico { width: 20px; height: 20px; } .side .ico svg { width: 18px; height: 18px; }
+.side .is-on { background: var(--surface); box-shadow: inset 2px 0 0 var(--green); border-radius: 9px; }
+.side .grp { padding: 14px 10px 4px; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--dim); }
+.stabs { display: flex; gap: 0; margin: 14px 2px 6px; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+.side .stabs button { height: 34px; width: auto; padding: 0 4px; border-radius: 0; font-size: 12px; letter-spacing: -.01em; font-weight: 500; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.side .stabs button:hover { background: transparent; color: var(--ink); }
+.side .stabs button.is-on { background: transparent; box-shadow: none; color: var(--ink); font-weight: 600; border-bottom-color: var(--ink); }
+.side .stabs button:active { background: transparent; }
+.srank-h { font-size: 12px; color: var(--dim); padding: 4px 10px 8px; }
+.srank { display: grid; gap: 2px; }
+.side .srank button { height: 44px; padding: 0 8px; display: grid; grid-template-columns: 18px 30px minmax(0, 1fr) auto; align-items: center; gap: 8px; }
+.srank .rk { font-family: var(--mono); font-size: 12px; color: var(--dim); text-align: center; }
+.srank .logo { width: 30px !important; height: 30px !important; font-size: 11px !important; }
+.srank .nm { min-width: 0; } .srank .nm b { display: block; font-size: 13px; font-weight: 600; line-height: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.srank .nm small { display: block; font-size: 11px; line-height: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--mono); }
+.srank .rt { text-align: right; font-size: 12px; line-height: 15px; font-weight: 600; font-family: var(--mono); }
+.srank .rt small { display: block; font-weight: 500; color: var(--muted); font-family: var(--mono); }
+.srank .rt.up { color: var(--up); } .srank .rt.down { color: var(--down); } .srank .rt.up small, .srank .rt.down small { color: inherit; opacity: .8; }
+.srank .empty { padding: 10px; font-size: 13px; color: var(--muted); }
+.side .slinks { display: flex; flex-wrap: wrap; gap: 2px 10px; padding: 12px 10px 0; }
+.side .slinks a { height: auto; width: auto; padding: 2px 0; font-size: 12px; color: var(--muted); border-radius: 4px; }
+.side .slinks a:hover { background: transparent; color: var(--ink); }
+.side .slinks a.is-on { background: transparent; box-shadow: none; color: var(--ink); }
+.hdr .brand { display: none; } @media (max-width: 1000px) { .hdr .brand { display: inline-flex; } }
+.shell.collapsed ~ .hdr .brand, .hdr.side-off .brand { display: inline-flex; }
+.search .kbd { font-family: var(--mono); font-size: 11px; color: var(--dim); border: 1px solid var(--line-hi); border-radius: 5px; padding: 1px 6px; flex: none; }
+#connect-x { height: 40px; padding: 0 14px; border: 1px solid var(--line-hi); background: transparent; color: var(--ink); border-radius: 999px; font-size: 14px; font-weight: 500; cursor: pointer; }
+#connect-x:hover { background: var(--surface); }
+.addr .av { width: 24px; height: 24px; border-radius: 999px; flex: none; }
+.addr .two { display: grid; line-height: 1.1; } .addr .two b { font-size: 13px; } .addr .two span { font-size: 12px; color: var(--green-ink); font-family: var(--mono); }
+.hdr .btn-ink.create { background: var(--ink); color: var(--bg); gap: 6px; } .hdr .btn-ink.create svg { width: 16px; height: 16px; }
+.board { display: grid; gap: 14px; padding-top: 6px; }
+.bd-tabs { display: inline-flex; gap: 2px; background: var(--surface); border-radius: 10px; padding: 3px; width: max-content; }
+.bd-tabs button { height: 32px; padding: 0 12px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; }
+.bd-tabs button.is-on { background: var(--bg); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+.bd-filter { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.bd-search { flex: 1 1 280px; display: flex; align-items: center; gap: 10px; height: 40px; background: var(--surface); border-radius: 10px; padding: 0 14px; color: var(--muted); }
+.bd-search input { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; font-size: 14px; color: var(--ink); } .bd-search input::placeholder { color: var(--muted); }
+.bd-search svg { width: 16px; height: 16px; flex: none; }
+.bd-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.bd-chips button { height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; }
+.bd-chips button:hover { background: var(--surface-hi); }
+.bd-chips button.is-on { background: var(--ink); color: var(--bg); }
+.bd-sort { height: 32px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px 0 12px; border-radius: 8px; border: 1px solid var(--line-hi); background: var(--bg); font-size: 13px; font-weight: 500; }
+.bd-sort select { background: transparent; border: 0; outline: 0; color: inherit; font: inherit; cursor: pointer; } .bd-sort select option { color: #000; }
+.bd-status { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.bd-status .live { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; background: var(--surface); color: var(--ink); font-family: var(--font); font-weight: 600; }
+.bd-status .live i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(20,241,149,.18); }
+.bd-status b { color: var(--ink); font-weight: 600; }
+.bd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(256px, 1fr)); gap: 12px; }
+.bcard { display: grid; gap: 10px; padding: 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); cursor: pointer; min-width: 0; transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
+.bcard:hover { border-color: var(--line-hi); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+.bcard.is-open { border-color: var(--green); }
+.bc-h { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.bc-h .logo { width: 38px !important; height: 38px !important; font-size: 13px !important; flex: none; }
+.bc-h .nm { min-width: 0; flex: 1; } .bc-h .nm b { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; line-height: 18px; white-space: nowrap; overflow: hidden; }
+.bc-h .nm b span { overflow: hidden; text-overflow: ellipsis; }
+.bc-h .nm small { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; color: var(--muted); line-height: 16px; } .bc-h .nm small .tag { font-size: 10px; padding: 0 6px; line-height: 16px; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; font-family: var(--font); }
+.bc-h .tag { font-size: 10px; padding: 1px 6px; letter-spacing: .04em; text-transform: uppercase; font-weight: 700; flex: none; }
+.bc-h .chain { flex: none; height: 24px; display: inline-flex; align-items: center; padding: 0 8px; border-radius: 999px; background: var(--surface); font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--ink); }
+.bc-d { font-size: 12.5px; line-height: 17px; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 34px; }
+.bc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .bc-stats.four { grid-template-columns: 1fr 1fr; }
+.bc-stats div { background: var(--tile); border-radius: 9px; padding: 8px 10px; min-width: 0; }
+.bc-stats small { display: block; font-size: 10.5px; color: var(--dim); line-height: 13px; margin-bottom: 2px; }
+.bc-stats b { display: block; font-size: 14px; font-weight: 600; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--mono); }
+.bc-stats b .usd { font-size: 11px; color: var(--muted); font-weight: 500; }
+.bcard .bar { height: 3px; }
+.bc-f { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11.5px; color: var(--dim); min-width: 0; }
+.bc-f .by { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .bc-f .by a, .bc-f .by button { color: var(--muted); font-weight: 500; }
+.bc-f .lk { display: flex; gap: 10px; flex: none; }
+.bc-f .lk a, .bc-f .lk button { all: unset; cursor: pointer; color: var(--muted); font-weight: 500; font-size: 11.5px; } .bc-f .lk a:hover, .bc-f .lk button:hover { color: var(--ink); }
+.bcard.pair .bc-stats b.px i { font-style: normal; font-size: 11px; margin-left: 6px; } .bcard.pair .bc-stats b.px i.up { color: var(--up); } .bcard.pair .bc-stats b.px i.down { color: var(--down); }
+.bcard.person .av { width: 38px; height: 38px; border-radius: 999px; flex: none; }
+.bd-empty { grid-column: 1 / -1; padding: 28px 20px; border: 1px dashed var(--line-hi); border-radius: 14px; text-align: center; color: var(--muted); font-size: 14px; display: grid; gap: 10px; justify-items: center; }
+.bd-empty b { color: var(--ink); font-size: 16px; }
+.bd-hint { font-size: 12px; color: var(--dim); padding: 2px 0 0; }
+/* bottom ticker */
+.bottom { height: 36px; padding: 0 0 0 0; gap: 0; background: var(--bg-alt); color: var(--ink); border-top: 1px solid var(--line); font-size: 12px; }
+.bottom .icon { display: none; }
+.bottom > span:not(.icon) { display: none; }
+.bottom #bottom-x { display: none; }
+.tk-wrap { flex: 1; min-width: 0; overflow: hidden; position: relative; height: 100%; -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent); mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent); }
+.tk { display: flex; align-items: center; height: 100%; width: max-content; gap: 26px; padding: 0 20px; animation: tk-scroll 60s linear infinite; }
+.tk-wrap:hover .tk { animation-play-state: paused; }
+.tk button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+.tk .logo { width: 16px !important; height: 16px !important; font-size: 7px !important; }
+.tk b { font-weight: 600; } .tk i { font-style: normal; } .tk i.up { color: var(--up); } .tk i.down { color: var(--down); }
+.tk-r { display: flex; align-items: center; gap: 12px; padding: 0 14px; height: 100%; flex: none; border-left: 1px solid var(--line); }
+.tk-r .live { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; color: var(--green-ink); } .tk-r .live i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.tk-r a { color: var(--muted); } .tk-r a:hover { color: var(--ink); }
+.tk-r .lang2 { display: inline-flex; gap: 4px; } .tk-r .lang2 button { all: unset; cursor: pointer; color: var(--dim); font-size: 11px; font-weight: 600; } .tk-r .lang2 button.is-on { color: var(--ink); }
+@keyframes tk-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .tk { animation: none; } }
+@media (max-width: 760px) { .tk-r a, .tk-r .lang2 { display: none; } .bd-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .bd-grid { grid-template-columns: 1fr; } .bd-sort { margin-left: auto; } }
+.content { padding-top: 12px; }
+main[data-view="explore"] .content, .content:has(> #explore:not([hidden])) { padding-top: 12px; }
+#explore-legacy { display: none !important; }
+
 /* ---------- landing: cinematic cover in front of the app ---------- */
 .L { display: none; position: relative; min-height: 100vh; min-height: 100svh; flex-direction: column; overflow: hidden; isolation: isolate; background: #07070C; color: #fff; font-family: var(--font); -webkit-font-smoothing: antialiased; }
 body.is-landing { background: #07070C; }
@@ -846,11 +955,13 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
 .L .L-btn-primary:hover { background: #fff; box-shadow: 0 8px 30px rgba(255,255,255,.2); }
 .L .L-btn-ghost { background: rgba(120,130,150,.34); color: #fff; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .L-btn-ghost:hover { background: rgba(140,150,170,.46); }
-.L-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; width: 100%; max-width: 1240px; margin: 0 auto; padding: 16px 32px 22px; font-size: 13px; color: rgba(255,255,255,.5); background: transparent; border: 0; border-radius: 0; box-shadow: none; }
-.L-links { display: flex; gap: 8px; flex-wrap: wrap; }
-.L-links a { display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 9px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09); color: rgba(255,255,255,.82); font-weight: 500; transition: background .2s ease, border-color .2s ease; }
-.L-links a:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.16); }
-.L-links svg { width: 13px; height: 13px; }
+.L-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; width: 100%; max-width: 1240px; margin: 0 auto; padding: 18px 32px 22px; font-size: 13px; color: rgba(255,255,255,.55); background: transparent; border: 0; border-radius: 0; box-shadow: none; position: relative; }
+.L-foot::before { content: ''; position: absolute; left: 32px; right: 32px; top: 0; height: 1px; background: rgba(255,255,255,.12); }
+.L-foot .cp { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; } .L-foot .cp i { width: 6px; height: 6px; border-radius: 50%; background: var(--green); } .L-foot .cp span + span::before { content: '·'; margin: 0 8px; color: rgba(255,255,255,.3); }
+.L-links { display: flex; gap: 22px; flex-wrap: wrap; align-items: center; }
+.L-links a { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,.72); font-weight: 500; font-size: 13px; transition: color .2s ease; }
+.L-links a:hover { color: #fff; }
+.L-links svg { width: 13px; height: 13px; opacity: .8; }
 /* entrance */
 .L-top, .L-eyebrow, .L-title span, .L-lede, .L-ctas, .L-foot { opacity: 0; transform: translateY(14px); transition: opacity .9s cubic-bezier(.16,1,.3,1), transform .9s cubic-bezier(.16,1,.3,1); }
 .L.is-in .L-top, .L.is-in .L-eyebrow, .L.is-in .L-title span, .L.is-in .L-lede, .L.is-in .L-ctas, .L.is-in .L-foot { opacity: 1; transform: none; }
@@ -884,59 +995,57 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     <p class="L-lede" data-t="L.lede"></p>
     <div class="L-ctas"><a class="L-btn L-btn-primary" href="#explore" data-go="explore" data-t="L.cta1"></a><a class="L-btn L-btn-ghost" href="#gifts" data-go="gifts" data-t="L.cta2"></a></div>
   </main>
-  <footer class="L-foot"><span>© 2026 Sol Bite</span><nav class="L-links" aria-label="Sol Bite links"><a href="#docs" data-go="docs"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.2v4M8 5v.2" stroke-linecap="round"/></svg><span data-t="L.foot.docs"></span></a><a href="#help" data-go="help"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="3.5" width="12" height="9" rx="2"/><path d="M2.5 4.5 8 9l5.5-4.5" stroke-linejoin="round"/></svg><span data-t="L.foot.help"></span></a><a id="x-link3" href="https://x.com/" target="_blank" rel="noopener" aria-label="Sol Bite on X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>X</span></a><a href="#status" data-go="status"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9.5h3l2-5 2.5 7 2-4H14" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-t="L.foot.status"></span></a></nav></footer>
+  <footer class="L-foot"><span class="cp"><i></i><span>© 2026 Sol Bite</span><span data-t="L.foot.note"></span></span><nav class="L-links" aria-label="Sol Bite links"><a href="#docs" data-go="docs"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 7.2v4M8 5v.2" stroke-linecap="round"/></svg><span data-t="L.foot.docs"></span></a><a href="#help" data-go="help"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="3.5" width="12" height="9" rx="2"/><path d="M2.5 4.5 8 9l5.5-4.5" stroke-linejoin="round"/></svg><span data-t="L.foot.help"></span></a><a id="x-link3" href="https://x.com/" target="_blank" rel="noopener" aria-label="Sol Bite on X"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg><span>X</span></a><a href="#status" data-go="status"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9.5h3l2-5 2.5 7 2-4H14" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-t="L.foot.status"></span></a></nav></footer>
 </div>
 <header class="hdr"><div class="hdr-in">
   <button class="burger" id="burger" type="button" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
   <a class="brand" href="#home">sol<em>bite</em></a>
   <label class="place" id="place"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="2"/></svg><select id="netsel" aria-label="Network"><option value="mainnet-beta">Solana</option><option value="devnet">Solana Devnet</option></select><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></label>
   <button class="cart" type="button" id="refresh" aria-label="Refresh" title="Refresh"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-  <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="q" type="search" autocomplete="off"></label>
+  <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="q" type="search" autocomplete="off"><span class="kbd" aria-hidden="true">/</span></label>
   <div class="hdr-right">
     <button class="cart" type="button" id="cartbtn" aria-label="My coins"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" stroke-width="2"/></svg><span class="n" id="cart-n">0</span></button>
     <div class="lang" id="lang" role="group" aria-label="Language"><button type="button" data-lang="en">EN</button><button type="button" data-lang="zh">中文</button></div>
     <a class="xbtn" id="x-link2" href="https://x.com/" target="_blank" rel="noopener" aria-label="X"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M18.9 2H22l-7.2 8.2L23.3 22h-6.6l-5.2-6.8L5.6 22H2.4l7.7-8.8L2 2h6.8l4.7 6.2L18.9 2zm-1.2 18h1.8L7.3 3.9H5.4L17.7 20z"/></svg></a>
     <button class="cart" id="theme" type="button" aria-label="Theme"></button>
     <button class="textbtn" id="connect" type="button" data-t="wallet.connect"></button>
+    <button type="button" id="connect-x" hidden data-t="wallet.disconnect"></button>
     <div class="addr" id="player" hidden><i></i><b id="p-addr"></b><span id="p-cash"></span></div>
-    <a class="btn btn-ink" href="#launch" data-t="nav.create"></a>
+    <a class="btn btn-ink create" href="#launch"><svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span data-t="nav.create"></span></a>
   </div>
 </div></header>
 
 <div class="shell" id="top">
   <aside class="side" id="side">
-    <a href="#explore" class="is-on"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.home"></span></a>
-    <a href="#gifts" id="nav-gifts"><span class="ico c6"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 8v13M12 8c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.gifts"></span></a>
-
-    <div class="grp" data-t="grp.coins"></div>
-    <button type="button" data-tab="trending"><span class="ico c6"><svg viewBox="0 0 24 24" fill="none"><path d="M13 3s1 3-1 6 3 4 3 7a4 4 0 0 1-8 0c0-2 1-3 1-3s0 2 2 2c0-4 3-5 3-12z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="tab.trending"></span><span class="n" id="n-live">0</span></button>
-    <button type="button" data-tab="new"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="tab.new"></span></button>
-    <button type="button" data-tab="graduating"><span class="ico c4"><svg viewBox="0 0 24 24" fill="none"><path d="M4 17 10 11l4 4 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span data-t="tab.graduating"></span></button>
-    <button type="button" data-tab="graduated"><span class="ico c5"><svg viewBox="0 0 24 24" fill="none"><path d="m3 9 9-4 9 4-9 4-9-4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M7 11v4c0 1.5 2.5 3 5 3s5-1.5 5-3v-4" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="tab.graduated"></span><span class="n" id="n-grad">0</span></button>
-    <div class="grp" data-t="grp.food"></div>
-    <button type="button" data-cat="burger"><span class="ico c1"><svg viewBox="0 0 24 24" fill="none"><path d="M4 10c0-3.3 3.6-6 8-6s8 2.7 8 6H4zM3 14h18M5 18h14a2 2 0 0 0 2-2v-1H3v1a2 2 0 0 0 2 2z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.burger"></span></button>
-    <button type="button" data-cat="chicken"><span class="ico c2"><svg viewBox="0 0 24 24" fill="none"><path d="M15 4a5 5 0 0 1 2 9.6L10 20l-2-2-2-2 6.4-7A5 5 0 0 1 15 4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.chicken"></span></button>
-    <button type="button" data-cat="pizza"><span class="ico c6"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 21 20H3L12 3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="16" r="1.5" fill="currentColor"/><circle cx="15" cy="16" r="1.5" fill="currentColor"/></svg></span><span data-t="cat.pizza"></span></button>
-    <button type="button" data-cat="cafe"><span class="ico c7"><svg viewBox="0 0 24 24" fill="none"><path d="M4 8h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8zM16 10h2a2 2 0 0 1 0 4h-2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.cafe"></span></button>
-    <button type="button" data-cat="tea"><span class="ico c5"><svg viewBox="0 0 24 24" fill="none"><path d="M7 4h10l-1.5 16h-7L7 4zM9 4l6-2" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="cat.tea"></span></button>
-    <button type="button" data-cat="delivery"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><circle cx="6" cy="17" r="3" stroke="currentColor" stroke-width="2"/><circle cx="18" cy="17" r="3" stroke="currentColor" stroke-width="2"/><path d="M6 17h6l3-8h4M9 9h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="cat.delivery"></span></button>
-    <button type="button" data-cat="cn"><span class="ico c2"><svg viewBox="0 0 24 24" fill="none"><path d="M4 14c0-4.4 3.6-8 8-8s8 3.6 8 8H4zM3 18h18" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 11c1-1.5 2.5-2 4-2s3 .5 4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="cat.cn"></span></button>
-    <div class="grp" data-t="grp.you"></div>
-    <a href="#launch"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3c3 2 6 6 6 10a6 6 0 0 1-12 0c0-4 3-8 6-10z" stroke="currentColor" stroke-width="2"/><path d="M9 21h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.create"></span></a>
-    <a href="#account" data-open="a:"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M7 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.orders"></span></a>
-    <button type="button" data-tab="mine"><span class="ico c4"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="nav.mine"></span><span class="n" id="n-mine">0</span></button>
-    <a href="#docs"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14H6z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.docs"></span></a>
-    <div class="grp" data-t="grp.more"></div>
-    <a href="#leaderboard"><span class="ico c6"><svg viewBox="0 0 24 24" fill="none"><path d="M8 21h8M12 17v4M5 4h14v3a7 7 0 0 1-14 0V4z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M5 6H3v2a3 3 0 0 0 3 3M19 6h2v2a3 3 0 0 1-3 3" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="nav.lb"></span></a>
-    <a href="#calendar"><span class="ico c3"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.cal"></span></a>
-    <a href="#guides"><span class="ico c4"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5a2 2 0 0 1 2-2h5v18H6a2 2 0 0 1-2-2V5zM20 5a2 2 0 0 0-2-2h-5v18h5a2 2 0 0 0 2-2V5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.guides"></span></a>
-    <a href="#help"><span class="ico c5"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 1-1 1.7M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.help"></span></a>
-    <button type="button" id="install" hidden><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span data-t="nav.install"></span></button>
+    <div class="side-top"><a class="mark" href="#home" aria-label="Sol Bite home"><i>S</i>sol<em>bite</em></a><button class="side-x" id="side-collapse" type="button" aria-label="Collapse menu"><svg viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    <a href="#explore" class="is-on"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/><path d="M3 9h18M9 21V9" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="L.nav.explore"></span></a>
+    <a href="#gifts" id="nav-gifts"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 8v13M12 8c-2-3-6-3-6-1s4 1 6 1zm0 0c2-3 6-3 6-1s-4 1-6 1z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><span data-t="nav.gifts"></span></a>
+    <a href="#leaderboard"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19h16M7 16V9M12 16V5M17 16v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="lb.h2"></span></a>
+    <a href="#launch"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="nav.create"></span></a>
+    <a href="#calendar"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><span data-t="cal.h2"></span></a>
+    <a href="#account" data-open="a:"><span class="ico"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6" stroke="currentColor" stroke-width="2"/></svg></span><span data-t="m.account"></span></a>
+    <div class="stabs" role="tablist"><button type="button" data-stab="stocks" class="is-on" data-t="stab.stocks"></button><button type="button" data-stab="trending" data-t="tab.trending"></button><button type="button" data-stab="new" data-t="tab.new"></button><button type="button" data-stab="graduated" data-t="tab.graduated"></button></div>
+    <p class="srank-h" id="srank-h"></p>
+    <div class="srank" id="srank"></div>
+    <div class="slinks"><a href="#docs" data-t="nav.docs"></a><a href="#guides" data-t="gd.h2"></a><a href="#status" data-t="st.h2"></a><a href="#help" data-t="help.h2"></a><a href="#pairs" data-t="docs.4h"></a></div>
+    <button type="button" id="install" hidden><span class="ico"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span data-t="pwa.install"></span></button>
     <div class="wallet-card" id="wallet-card"></div>
   </aside>
 
   <main class="content">
     <section id="explore">
+      <div class="board" id="board">
+        <div class="bd-tabs" role="tablist"><button type="button" data-bmode="coins" class="is-on" data-t="bd.coins"></button><button type="button" data-bmode="people" data-t="bd.people"></button></div>
+        <div class="bd-filter">
+          <label class="bd-search"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="bq" type="search" autocomplete="off"></label>
+          <div class="bd-chips" id="bd-cats"></div>
+          <label class="bd-sort"><select id="bd-sort" aria-label="Sort"><option value="newest" data-t="bd.sort.newest"></option><option value="progress" data-t="bd.sort.progress"></option><option value="raised" data-t="bd.sort.raised"></option><option value="closing" data-t="bd.sort.closing"></option><option value="buyers" data-t="bd.sort.buyers"></option></select></label>
+        </div>
+        <div class="bd-status"><span class="live"><i></i><span data-t="bd.live"></span></span><span><b id="bd-n1">0</b> <span id="bd-l1"></span></span><span>·</span><span><b id="bd-n2">0</b> <span id="bd-l2"></span></span><span>·</span><span id="bd-sortlabel"></span></div>
+        <div class="bd-grid" id="bd-grid"></div>
+        <p class="bd-hint" data-t="board.note"></p>
+      </div>
+      <div id="explore-legacy" hidden>
       <div class="hero" id="hero">
         <div class="hero-t">
           <span class="eyebrow"><i></i><span id="hero-eye"></span></span>
@@ -982,6 +1091,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
       <div class="sec" id="sec-new">
         <div class="sec-h"><h2 data-t="sec.new"></h2><a class="all" href="#coins" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="new-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="new-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
         <div class="rail" id="new-rail"></div>
+      </div>
       </div>
     </section>
 
@@ -1117,7 +1227,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
 <div class="scrim" id="scrim"></div>
 <div class="side-scrim" id="side-scrim"></div>
 <aside class="sheet" id="drawer" role="dialog" aria-modal="true" aria-live="polite"></aside>
-<div class="bottom" id="bottom"><span class="icon"></span><span><span data-t="bottom"></span> <a href="#" data-doc="risk" data-t="bottom.more"></a></span><button type="button" id="bottom-x" aria-label="Close">✕</button></div>
+<div class="bottom" id="bottom"><span class="icon"></span><span><span data-t="bottom"></span> <a href="#" data-doc="risk" data-t="bottom.more"></a></span><div class="tk-wrap"><div class="tk" id="tk"></div></div><div class="tk-r"><span class="live"><i></i><span data-t="bd.live"></span></span><a href="#" data-doc="risk" data-t="tk.risk"></a><a href="#" data-doc="terms" data-t="tk.terms"></a><a href="#" data-doc="privacy" data-t="tk.privacy"></a><a href="#docs" data-t="tk.docs"></a><span class="lang2" id="lang2"><button type="button" data-lang="en">EN</button><span>/</span><button type="button" data-lang="zh">中文</button></span></div><button type="button" id="bottom-x" aria-label="Close">✕</button></div>
 <div class="modal" id="modal" hidden><div class="modal-c" role="dialog" aria-modal="true"><h3><span id="modal-h"></span><button class="close" type="button" data-modal-close aria-label="Close">✕</button></h3><div id="modal-b"></div></div></div>
 <nav class="mbar" id="mbar" aria-label="Mobile">
   <button type="button" class="is-on" data-mb="home"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-8.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span data-t="nav.home"></span></button>
@@ -1155,7 +1265,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
   const I18N = {
     en: {
       'mode.raising': 'Raising', 'mode.graduated': 'Graduated', 'place.now': 'Now',
-      'nav.home': 'Home', 'L.nav.explore': 'Explore', 'L.nav.gifts': 'Gift cards', 'L.nav.launch': 'Launch', 'L.h1a': 'Every coin.', 'L.h1b': 'One restaurant.', 'L.lede': 'Launch a coin on Solana paired with a real tokenized restaurant stock, or buy a restaurant gift card with any crypto.', 'L.cta1': 'Explore coins', 'L.cta2': 'Gift cards', 'L.eye': (n) => `Live on Solana · ${n} verified stock tokens`, 'L.foot.docs': 'How it works', 'L.foot.help': 'Help', 'L.foot.status': 'Status', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works', 'grp.coins': 'Coins', 'grp.mkt': 'Stock tokens', 'mkts': 'Markets', 'mkts.all': (n) => `All ${n} tokens`, 'grp.food': 'By cuisine', 'grp.you': 'You', 'wc.off': 'Connect a wallet to buy and create coins on Solana.', 'wc.on': 'Connected',
+      'nav.home': 'Home', 'wallet.disconnect': 'Disconnect', 'stab.stocks': 'Stocks', 'srank.stocks': 'Restaurants ranked by today\'s stock move.', 'srank.trending': 'Coins ranked by progress to target.', 'srank.new': 'Latest coins launched.', 'srank.graduated': 'Coins with a live pool.', 'srank.none': 'Nothing here yet.', 'bd.coins': 'All coins', 'bd.people': 'People', 'bd.live': 'Live', 'bd.search': 'Search name, ticker or address', 'bd.coinsN': 'coins', 'bd.launchersN': 'launchers', 'bd.peopleN': 'people', 'bd.raisedN': 'raised', 'bd.allRest': 'All restaurants', 'bd.sort.newest': 'Newest', 'bd.sort.progress': 'Closest to target', 'bd.sort.raised': 'Most raised', 'bd.sort.closing': 'Closing soon', 'bd.sort.buyers': 'Most buyers', 'bd.pairDesc': (r, sym) => `Launch a coin paired with ${r}. The raise is paid in ${sym} and opens a locked ${sym} pool when it graduates.`, 'bd.coinDesc': (r, sym) => `Paired with ${r}. Raise paid in ${sym}; 20% of the supply and the raise open a locked pool at graduation.`, 'bd.raised': 'Raised', 'bd.progress': 'Progress', 'bd.closes': 'Closes', 'bd.buyers': 'Buyers', 'bd.price': 'Stock price', 'bd.coinsOn': 'Coins', 'bd.noCoins': 'None yet', 'bd.by': 'by', 'bd.copyCa': 'Copy CA', 'bd.token': 'Token', 'bd.launch': 'Launch', 'bd.launched': 'Launched', 'bd.graduated': 'Graduated', 'bd.empty.h': 'No coins match', 'bd.empty.p': 'Try another cuisine or clear the search.', 'bd.people.h': 'No launchers yet', 'bd.people.p': 'The first wallet to create a coin shows up here.', 'bd.perLaunched': (n) => `${n} coin${n === 1 ? '' : 's'} launched`, 'tk.risk': 'Risk', 'tk.terms': 'Terms', 'tk.privacy': 'Privacy', 'tk.docs': 'Docs', 'pwa.install': 'Install app', 'L.nav.explore': 'Explore', 'L.nav.gifts': 'Gift cards', 'L.nav.launch': 'Launch', 'L.h1a': 'Every coin.', 'L.h1b': 'One restaurant.', 'L.lede': 'Launch a coin on Solana paired with a real tokenized restaurant stock, or buy a restaurant gift card with any crypto.', 'L.cta1': 'Explore coins', 'L.cta2': 'Gift cards', 'L.eye': (n) => `Live on Solana · ${n} verified stock tokens`, 'L.foot.docs': 'How it works', 'L.foot.note': 'Unaudited contracts · not financial advice', 'L.foot.help': 'Help', 'L.foot.status': 'Status', 'nav.create': 'Create coin', 'nav.mine': 'My coins', 'nav.docs': 'How it works', 'grp.coins': 'Coins', 'grp.mkt': 'Stock tokens', 'mkts': 'Markets', 'mkts.all': (n) => `All ${n} tokens`, 'grp.food': 'By cuisine', 'grp.you': 'You', 'wc.off': 'Connect a wallet to buy and create coins on Solana.', 'wc.on': 'Connected',
       'tab.trending': 'Trending', 'tab.new': 'New', 'tab.graduating': 'Graduating', 'tab.graduated': 'Graduated',
       'pill.live': 'Raising now', 'pill.pay': 'Paid in', 'pill.top': 'Most backed', 'pill.sort': 'Sort', 'f.all': 'All', 'ranked.more': 'More info',
       'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'sec.stocks': (n) => `Stock tokens, live · ${n}`, 'px.live': 'Live · updates every minute', 'px.err': 'Chart unavailable right now', 'px.range': { 1: '1D', 7: '7D', 30: '30D' }, 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on Solana', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Launch on ${n}`, 'promo.pairP': (s, iss) => `Raise in ${s}, the ${iss} stock token, and list against it.`,
@@ -1235,7 +1345,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     },
     zh: {
       'mode.raising': '募集中', 'mode.graduated': '已毕业', 'place.now': '实时',
-      'nav.home': '首页', 'L.nav.explore': '探索', 'L.nav.gifts': '礼品卡', 'L.nav.launch': '发行', 'L.h1a': '每一枚代币。', 'L.h1b': '一家餐厅。', 'L.lede': '在 Solana 上发行与真实餐饮股票代币配对的代币，或用任意加密货币购买餐厅礼品卡。', 'L.cta1': '探索代币', 'L.cta2': '礼品卡', 'L.eye': (n) => `已在 Solana 上线 · ${n} 个已验证股票代币`, 'L.foot.docs': '玩法说明', 'L.foot.help': '帮助', 'L.foot.status': '状态', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.mkt': '股票代币', 'mkts': '行情', 'mkts.all': (n) => `全部 ${n} 个代币`, 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 Solana上买入和创建代币。', 'wc.on': '已连接',
+      'nav.home': '首页', 'wallet.disconnect': '断开', 'stab.stocks': '股票', 'srank.stocks': '按今日股价涨跌排序的餐饮品牌。', 'srank.trending': '按募集进度排序的代币。', 'srank.new': '最新发行的代币。', 'srank.graduated': '已有交易池的代币。', 'srank.none': '暂无内容。', 'bd.coins': '全部代币', 'bd.people': '发行者', 'bd.live': '实时', 'bd.search': '搜索名称、代码或地址', 'bd.coinsN': '个代币', 'bd.launchersN': '位发行者', 'bd.peopleN': '人', 'bd.raisedN': '已募集', 'bd.allRest': '全部餐厅', 'bd.sort.newest': '最新', 'bd.sort.progress': '最接近目标', 'bd.sort.raised': '募集最多', 'bd.sort.closing': '即将截止', 'bd.sort.buyers': '买家最多', 'bd.pairDesc': (r, sym) => `发行一个与 ${r} 配对的代币。募集以 ${sym} 支付，毕业后开启锁定的 ${sym} 交易池。`, 'bd.coinDesc': (r, sym) => `与 ${r} 配对。募集以 ${sym} 支付；毕业时 20% 的供应与募集资金进入锁定交易池。`, 'bd.raised': '已募集', 'bd.progress': '进度', 'bd.closes': '截止', 'bd.buyers': '买家', 'bd.price': '股价', 'bd.coinsOn': '代币', 'bd.noCoins': '暂无', 'bd.by': '由', 'bd.copyCa': '复制地址', 'bd.token': '代币', 'bd.launch': '发行', 'bd.launched': '已发行', 'bd.graduated': '已毕业', 'bd.empty.h': '没有匹配的代币', 'bd.empty.p': '换个菜系或清空搜索。', 'bd.people.h': '还没有发行者', 'bd.people.p': '第一个创建代币的钱包会出现在这里。', 'bd.perLaunched': (n) => `已发行 ${n} 个代币`, 'tk.risk': '风险', 'tk.terms': '条款', 'tk.privacy': '隐私', 'tk.docs': '文档', 'pwa.install': '安装应用', 'L.nav.explore': '探索', 'L.nav.gifts': '礼品卡', 'L.nav.launch': '发行', 'L.h1a': '每一枚代币。', 'L.h1b': '一家餐厅。', 'L.lede': '在 Solana 上发行与真实餐饮股票代币配对的代币，或用任意加密货币购买餐厅礼品卡。', 'L.cta1': '探索代币', 'L.cta2': '礼品卡', 'L.eye': (n) => `已在 Solana 上线 · ${n} 个已验证股票代币`, 'L.foot.docs': '玩法说明', 'L.foot.note': '未审计合约 · 不构成投资建议', 'L.foot.help': '帮助', 'L.foot.status': '状态', 'nav.create': '创建代币', 'nav.mine': '我的代币', 'nav.docs': '玩法说明', 'grp.coins': '代币', 'grp.mkt': '股票代币', 'mkts': '行情', 'mkts.all': (n) => `全部 ${n} 个代币`, 'grp.food': '按菜系', 'grp.you': '我的', 'wc.off': '连接钱包以在 Solana上买入和创建代币。', 'wc.on': '已连接',
       'tab.trending': '热门', 'tab.new': '打新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
       'pill.live': '募集中', 'pill.pay': '支付币种', 'pill.top': '最多人买', 'pill.sort': '排序', 'f.all': '全部', 'ranked.more': '了解更多',
       'sec.featured': '当前精选', 'sec.new': '今日打新', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'sec.stocks': (n) => `股票代币实时行情 · ${n}`, 'px.live': '实时 · 每分钟更新', 'px.err': '暂时无法加载图表', 'px.range': { 1: '1日', 7: '7日', 30: '30日' }, 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'Solana上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `在 ${n} 上发行`, 'promo.pairP': (s, iss) => `以 ${iss} 的股票代币 ${s} 募集，并与之配对上市。`,
@@ -1495,7 +1605,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
       date: new Intl.DateTimeFormat(loc, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) };
     $$('[data-t]').forEach((el) => { el.innerHTML = t(el.dataset.t); });
     $('#q').placeholder = t('search');
-    $$('#lang button').forEach((b) => b.classList.toggle('is-on', b.dataset.lang === lang));
+    $$('#lang button, #lang2 button').forEach((b) => b.classList.toggle('is-on', b.dataset.lang === lang));
     try { localStorage.setItem('bento.lang', lang); } catch {}
     const fq = $('#faq-list'); if (fq) fq.innerHTML = (T.faqs || I18N.en.faqs).map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('');
     fillRestaurants(); renderPairs(); render();
@@ -1711,13 +1821,14 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     const st = $('#contracts'); st.className = 'status' + (net().factory ? ' ok' : ''); st.innerHTML = `<i></i>${net().factory ? `${t('st.factoryOk', esc(net().name))} · <a href="${explorer(net().factory)}" target="_blank" rel="noopener">${esc(net().factory)}</a>` : t('st.factory', esc(net().name))}`;
     const mine = Cs.filter((C) => FAV.has(C.addr) || (state.address && (C.my > 0 || C.creator.toLowerCase() === state.address.toLowerCase())));
     $('#cart-n').textContent = String(mine.length);
-    for (const [id, v] of [['n-live', live.length], ['n-grad', grad.length], ['n-mine', mine.length]]) { const el = $('#' + id); const nv = String(v); if (el.textContent !== nv) { el.textContent = nv; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }
+    for (const [id, v] of [['n-live', live.length], ['n-grad', grad.length], ['n-mine', mine.length]]) { const el = $('#' + id); if (!el) continue; const nv = String(v); if (el.textContent !== nv) { el.textContent = nv; el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }
     const paySel = $('#pay'); if (!paySel) return; const keep = paySel.value; const units = [...new Set(Cs.map((C) => C.unit))];
     paySel.innerHTML = `<option value="all">${t('f.all')}</option>` + units.map((u) => `<option value="${esc(u)}">${esc(u)}</option>`).join(''); paySel.value = units.includes(keep) ? keep : 'all';
   }
   function renderWallet() {
     const b = $('#connect'); const chip = $('#player');
     const wc = $('#wallet-card'); const lc = $('#L-connect'); if (lc) lc.textContent = state.address ? short(state.address) : t('wallet.connect');
+    const dx = $('#connect-x'); if (dx) dx.hidden = !state.address;
     if (!state.address) { b.hidden = false; b.textContent = t('wallet.connect'); chip.hidden = true;
       wc.innerHTML = `<p>${t('wc.off')}</p><button class="btn btn-white btn-block" type="button" data-connect>${t('wallet.connect')}</button>`; }
     else { b.hidden = true; chip.hidden = false; $('#p-addr').textContent = short(state.address); $('#p-cash').textContent = state.balance == null ? '' : amt(state.balance, net().symbol);
@@ -2069,6 +2180,77 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
   document.addEventListener('mouseleave', () => { L.tx = 0; L.ty = 0; landingKick(); });
   addEventListener('resize', () => { if (L.fx) L.fx.size(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden && L.on) landingKick(); });
+  /* ---------- app board: explore dashboard, sidebar ranking, ticker ---------- */
+  const B = { mode: 'coins', sort: 'newest', stab: 'stocks' };
+  const CAT_CHIPS = ['all', 'burger', 'chicken', 'pizza', 'cafe', 'tea', 'delivery', 'cn'];
+  const creators = (Cs) => { const by = {}; for (const C of Cs) { const k = C.creator; const o = (by[k] ||= { addr: k, coins: 0, live: 0, graduated: 0, usd: 0, raised: [], first: C.openAt }); o.coins++; if (C.phase === 'live') o.live++; if (C.phase === 'ok') o.graduated++; const p = usdOf(C.unit); if (p) o.usd += C.raised * p; o.first = Math.min(o.first, C.openAt); } return Object.values(by).sort((a, b) => b.coins - a.coins || b.usd - a.usd); };
+  function bcard(C, now) {
+    const r = C.r; const pr = PAIRS[r.id]; const sym = C.unit; const left = C.phase === 'live' ? remaining(C.closeAt - now) : dateFmt(C.closeAtEff);
+    const st = C.phase === 'ok' ? `<div><small>${t('bd.graduated')}</small><b>${dateFmt(C.closeAtEff)}</b></div>` : `<div><small>${C.phase === 'live' ? t('bd.closes') : t('ph.pending')}</small><b>${esc(left)}</b></div>`;
+    return `<div class="bcard${state.open === C.addr ? ' is-open' : ''}" data-open="${esc(C.addr)}" data-id="${esc(C.addr)}">
+      <div class="bc-h">${logo(r, 38)}<div class="nm"><b><span>${esc(C.name)}</span></b><small>$${esc(C.tick)} · ${tag(C)}</small></div><span class="chain">${esc(sym)}</span></div>
+      <p class="bc-d">${t('bd.coinDesc', esc(nm(r)), esc(sym))}</p>
+      <div class="bc-stats four"><div><small>${t('bd.raised')}</small><b>${amt(C.raised, sym)}</b></div><div><small>${t('bd.progress')}</small><b>${pct(C.progress)}</b></div><div><small>${t('bd.buyers')}</small><b>${C.buyers}</b></div>${st}</div>
+      <div class="bar ${barCls(C)}"><i style="width:${Math.min(100, C.progress * 100)}%"></i></div>
+      <div class="bc-f"><span class="by">${t('bd.by')} <button type="button" data-profile="${esc(C.creator)}">${esc(short(C.creator))}</button></span><span class="lk"><a href="${explorer(C.token, 'token')}" target="_blank" rel="noopener" data-stop>${t('bd.token')}</a><button type="button" data-copy="${esc(C.addr)}" data-stop>${t('bd.copyCa')}</button></span></div>
+    </div>`;
+  }
+  function bpair(rid) {
+    const r = REST[rid]; const pr = PAIRS[rid]; const n = list().filter((C) => C.rest === rid).length; const px = PX.usd[pr.symbol];
+    return `<div class="bcard pair${state.open === 'r:' + rid ? ' is-open' : ''}" data-open="r:${esc(rid)}">
+      <div class="bc-h">${logo(r, 38)}<div class="nm"><b><span>${esc(nm(r))}</span></b><small>${esc(pr.symbol)} · ${esc(pr.stock || r.parent || '')}</small></div><span class="chain">${esc(pr.issuer)}</span></div>
+      <p class="bc-d">${t('bd.pairDesc', esc(nm(r)), esc(pr.symbol))}</p>
+      <div class="bc-stats"><div><small>${t('bd.price')}</small><b class="px">${px ? usdStr(px) + chg(pr.symbol) : '—'}</b></div><div><small>${t('bd.coinsOn')}</small><b>${n ? t('r.coins', n) : t('bd.noCoins')}</b></div></div>
+      <div class="bc-f"><span class="by">${esc(pr.issuer)} · Token-2022</span><span class="lk"><a href="${explorer(pr.mint, 'token')}" target="_blank" rel="noopener" data-stop>${t('bd.token')}</a><a href="#launch" data-stop>${t('bd.launch')}</a></span></div>
+    </div>`;
+  }
+  function bperson(p) {
+    return `<div class="bcard person" data-profile="${esc(p.addr)}">
+      <div class="bc-h"><span class="av" style="background:${hue(p.addr)}"></span><div class="nm"><b><span class="mono">${esc(short(p.addr))}</span></b><small>${t('bd.perLaunched', p.coins)}</small></div></div>
+      <div class="bc-stats"><div><small>${t('bd.raisedN')}</small><b>${p.usd ? usdStr(p.usd) : '—'}</b></div><div><small>${t('bd.graduated')}</small><b>${p.graduated} / ${p.coins}</b></div></div>
+      <div class="bc-f"><span class="by">${t('bd.launched')} ${esc(dateFmt(p.first))}</span></div>
+    </div>`;
+  }
+  function renderBoard() {
+    const host = $('#bd-grid'); if (!host) return; const now = Date.now(); const Cs = state.loaded && !state.loadError ? list() : [];
+    const cats = $('#bd-cats'); const csig = state.lang + ':' + state.cat; if (cats.dataset.sig !== csig) { cats.dataset.sig = csig; cats.innerHTML = CAT_CHIPS.map((c) => `<button type="button" data-cat="${c}" class="${state.cat === c ? 'is-on' : ''}">${c === 'all' ? t('bd.allRest') : t('cat.' + c)}</button>`).join(''); }
+    const bq = $('#bq'); if (bq && bq.value !== state.q) bq.value = state.q; if (bq) bq.placeholder = t('bd.search');
+    $$('#board [data-bmode]').forEach((b) => b.classList.toggle('is-on', b.dataset.bmode === B.mode));
+    const sl = $('#bd-sort'); if (sl && sl.value !== B.sort) sl.value = B.sort; $('#bd-sortlabel').textContent = t('bd.sort.' + B.sort).toLowerCase();
+    const q = state.q.trim().toLowerCase();
+    const match = (C) => (state.cat === 'all' || (state.cat === 'cn' ? CN.has(C.r.id) : C.r.cat === state.cat)) && (!q || [C.name, C.tick, C.r.name, NAME_ZH[C.r.id], C.r.parent, C.unit, C.addr, C.token].some((x) => String(x || '').toLowerCase().includes(q)));
+    const rows = Cs.filter(match);
+    const ord = { newest: (a, b) => b.openAt - a.openAt, progress: (a, b) => b.progress - a.progress, raised: (a, b) => (b.raised * (usdOf(b.unit) || 1)) - (a.raised * (usdOf(a.unit) || 1)), closing: (a, b) => (a.phase === 'live' ? a.closeAt : Infinity) - (b.phase === 'live' ? b.closeAt : Infinity), buyers: (a, b) => b.buyers - a.buyers }[B.sort];
+    rows.sort(ord);
+    const people = creators(Cs);
+    if (B.mode === 'people') {
+      $('#bd-n1').textContent = String(people.length); $('#bd-l1').textContent = t('bd.peopleN'); $('#bd-n2').textContent = String(Cs.length); $('#bd-l2').textContent = t('bd.coinsN');
+      const ps = people.filter((p) => !q || p.addr.toLowerCase().includes(q));
+      host.innerHTML = ps.length ? ps.map(bperson).join('') : `<div class="bd-empty"><b>${t('bd.people.h')}</b>${t('bd.people.p')}</div>`; return;
+    }
+    $('#bd-n1').textContent = String(Cs.length); $('#bd-l1').textContent = t('bd.coinsN'); $('#bd-n2').textContent = String(people.length); $('#bd-l2').textContent = t('bd.launchersN');
+    if (!state.loaded) { host.innerHTML = `<div class="skel-card"><div class="skel i"></div><div class="skel l1"></div><div class="skel l2"></div></div>`.repeat(4); return; }
+    if (rows.length) { host.innerHTML = rows.map((C) => bcard(C, now)).join(''); return; }
+    const pairIds = PAIR_IDS.filter(visible).filter((id) => (state.cat === 'all' || (state.cat === 'cn' ? CN.has(id) : REST[id].cat === state.cat)) && (!q || [REST[id].name, NAME_ZH[id], PAIRS[id].symbol, PAIRS[id].mint, REST[id].parent].some((x) => String(x || '').toLowerCase().includes(q))));
+    const sortedPairs = pairIds.sort((a, b) => (PX.chg[PAIRS[b].symbol] ?? -999) - (PX.chg[PAIRS[a].symbol] ?? -999));
+    host.innerHTML = (Cs.length && (q || state.cat !== 'all') ? `<div class="bd-empty"><b>${t('bd.empty.h')}</b>${t('bd.empty.p')}</div>` : state.loadError === 'nofactory' ? `<div class="bd-empty"><b>${t('nofactory.h')}</b>${t('board.nofactory')}</div>` : '') + sortedPairs.map(bpair).join('');
+  }
+  function renderSideRank() {
+    const host = $('#srank'); if (!host) return; $$('[data-stab]').forEach((b) => b.classList.toggle('is-on', b.dataset.stab === B.stab)); $('#srank-h').textContent = t('srank.' + B.stab);
+    const Cs = state.loaded && !state.loadError ? list() : []; let rows = [];
+    if (B.stab === 'stocks') rows = PAIR_IDS.filter(visible).map((id) => ({ id, p: PAIRS[id], chg: PX.chg[PAIRS[id].symbol] })).sort((a, b) => (b.chg ?? -999) - (a.chg ?? -999)).slice(0, 10).map((x, i) => { const k = x.chg == null ? '' : x.chg >= 0 ? 'up' : 'down'; const px = PX.usd[x.p.symbol]; return `<button type="button" data-open="r:${esc(x.id)}"><span class="rk">${i + 1}</span>${logo(REST[x.id], 30)}<span class="nm"><b>${esc(nm(REST[x.id]))}</b><small>${esc(x.p.symbol)} · ${esc(x.p.issuer)}</small></span><span class="rt ${k}">${px ? usdStr(px) : '—'}<small>${x.chg == null ? '' : (x.chg >= 0 ? '+' : '') + x.chg.toFixed(2) + '%'}</small></span></button>`; });
+    else { const pick = B.stab === 'trending' ? Cs.filter((C) => C.phase === 'live' || C.phase === 'pending').sort((a, b) => b.progress - a.progress) : B.stab === 'new' ? Cs.filter((C) => C.phase === 'live').sort((a, b) => b.openAt - a.openAt) : Cs.filter((C) => C.phase === 'ok').sort((a, b) => b.closeAtEff - a.closeAtEff);
+      rows = pick.slice(0, 10).map((C, i) => `<button type="button" data-open="${esc(C.addr)}"><span class="rk">${i + 1}</span>${logo(C.r, 30)}<span class="nm"><b>${esc(C.name)}</b><small>${esc(C.tick)} · ${esc(nm(C.r))}</small></span><span class="rt ${C.phase === 'ok' ? 'up' : ''}">${pct(C.progress)}<small>${amt(C.raised, C.unit)}</small></span></button>`); }
+    host.innerHTML = rows.join('') || `<p class="empty">${t('srank.none')}</p>`;
+  }
+  function renderTicker() {
+    const host = $('#tk'); if (!host) return; const ids = ['sol', ...PAIR_IDS.filter((id) => visible(id) && PX.usd[PAIRS[id].symbol])];
+    const sig = ids.map((id) => id + ':' + (id === 'sol' ? PX.usd.SOL : PX.usd[PAIRS[id].symbol])).join('|') + state.lang; if (host.dataset.sig === sig) return; host.dataset.sig = sig;
+    const item = (id) => id === 'sol' ? (PX.usd.SOL ? `<button type="button" data-open="a:"><b>SOL</b>${usdStr(PX.usd.SOL)}${chg('SOL')}</button>` : '') : `<button type="button" data-open="r:${esc(id)}">${logo(REST[id], 16)}<b>${esc(PAIRS[id].symbol)}</b>${usdStr(PX.usd[PAIRS[id].symbol])}${chg(PAIRS[id].symbol)}</button>`;
+    const html = ids.map(item).join(''); host.innerHTML = html + html;
+    $$('#lang2 button').forEach((b) => b.classList.toggle('is-on', b.dataset.lang === state.lang));
+  }
+  function disconnect() { try { if (state.provider && state.provider.disconnect) state.provider.disconnect(); } catch {} state.provider = null; state.address = null; state.balance = null; for (const k of Object.keys(MYPAID)) delete MYPAID[k]; BAL.tokens = {}; TOK = null; try { localStorage.removeItem('bento.tok'); } catch {} renderWallet(); loadCoins(); }
   const VIEWS = { home: [], explore: ['explore'], coins: ['coins'], gifts: ['giftshop'], launch: ['launch'], docs: ['docs', 'why', 'faq'], pairs: ['pairs'], leaderboard: ['leaderboard'], calendar: ['calendar'], guides: ['guides'], status: ['status'], help: ['help'], profile: ['profile'] };
   let PROFILE = null, GUIDE = null;
   const VIEW_OF = { '': 'home', home: 'home', top: 'explore', explore: 'explore', 'sec-rest': 'explore', all: 'coins', coins: 'coins', gifts: 'gifts', giftshop: 'gifts', launch: 'launch', docs: 'docs', why: 'docs', faq: 'docs', pairs: 'pairs', leaderboard: 'leaderboard', calendar: 'calendar', guides: 'guides', status: 'status', help: 'help' };
@@ -2111,7 +2293,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     $$('.side a[href^="#"]').forEach((a) => a.classList.toggle('is-on', VIEW_OF[a.getAttribute('href').slice(1)] === v && !a.dataset.open));
     $$('.mbar button[data-mb]').forEach((b) => b.classList.toggle('is-on', (b.dataset.mb === 'home' && (v === 'home' || v === 'explore')) || (b.dataset.mb === 'create' && v === 'launch')));
     document.title = (VIEW_TITLE[v] ? t(VIEW_TITLE[v]) + ' · ' : '') + 'Sol Bite';
-    if (changed) { window.scrollTo(0, 0); let tb = $('#topbar'); if (!tb) { tb = document.createElement('div'); tb.id = 'topbar'; tb.className = 'topbar'; document.body.appendChild(tb); } tb.classList.remove('go'); void tb.offsetWidth; tb.classList.add('go'); $$('main > section').forEach((sec) => { sec.classList.remove('v-in'); if (!sec.hidden) { void sec.offsetWidth; sec.classList.add('v-in'); sec.querySelectorAll('.reveal.is-in').forEach((el) => el.classList.remove('is-in')); } }); staggerIn(); }
+    if (changed) { window.scrollTo(0, 0); if (!anchor || anchor === VIEWS[v][0]) requestAnimationFrame(() => window.scrollTo(0, 0)); let tb = $('#topbar'); if (!tb) { tb = document.createElement('div'); tb.id = 'topbar'; tb.className = 'topbar'; document.body.appendChild(tb); } tb.classList.remove('go'); void tb.offsetWidth; tb.classList.add('go'); $$('main > section').forEach((sec) => { sec.classList.remove('v-in'); if (!sec.hidden) { void sec.offsetWidth; sec.classList.add('v-in'); sec.querySelectorAll('.reveal.is-in').forEach((el) => el.classList.remove('is-in')); } }); staggerIn(); }
     if (anchor && anchor !== VIEWS[v][0]) { const el = $('#' + anchor); if (el && !el.hidden) el.scrollIntoView({ block: 'start' }); }
     if (changed && v === 'gifts') { const g = $('#gift-rail'); if (g) delete g.dataset.builtLang; renderGifts(); }
     renderView(v, changed);
@@ -2139,7 +2321,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     if (state.loaded) toast(t('search.noaddr', net().name));
   }
   function copyText(v) { const done = () => toast(t('copied')); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done).catch(() => toast(v)); else { try { const ta = document.createElement('textarea'); ta.value = v; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); } catch { toast(v); } } }
-  function render() { renderStats(); renderWallet(); renderGifts(); renderHero(); renderFeatured(); renderRows(); renderPreview(); renderPairs(); renderFeed(); if (VIEW && ['leaderboard', 'calendar', 'profile'].includes(VIEW)) renderView(VIEW, false); }
+  function render() { renderStats(); renderWallet(); renderGifts(); renderHero(); renderFeatured(); renderRows(); renderBoard(); renderSideRank(); renderTicker(); renderPreview(); renderPairs(); renderFeed(); if (VIEW && ['leaderboard', 'calendar', 'profile'].includes(VIEW)) renderView(VIEW, false); }
 
   /* ---------- extra views ---------- */
   function renderView(v, changed) {
@@ -2372,9 +2554,14 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     if (PATHS) { const a = e.target.closest('a[href^="#"]'); if (a && !a.dataset.open && !a.dataset.doc) { const h = a.getAttribute('href').slice(1); if (h in VIEW_OF) { e.preventDefault(); go(VIEW_OF[h]); if (h !== VIEWS[VIEW_OF[h]][0] && $('#' + h)) $('#' + h).scrollIntoView({ block: 'start' }); return; } } }
     if (e.target.closest('a[href^="http"]')) return;
     const lang = e.target.closest('[data-lang]'); if (lang) { setLang(lang.dataset.lang); return; }
+    if (e.target.closest('[data-stop]') && !e.target.closest('[data-copy]')) { e.stopPropagation(); return; }
+    const bm = e.target.closest('[data-bmode]'); if (bm) { B.mode = bm.dataset.bmode; renderBoard(); return; }
+    const stb = e.target.closest('[data-stab]'); if (stb) { B.stab = stb.dataset.stab; renderSideRank(); return; }
+    if (e.target.closest('#connect-x')) { disconnect(); return; }
+    if (e.target.closest('#side-collapse')) { $('#burger').click(); return; }
     const lgo = e.target.closest('#landing [data-go]'); if (lgo) { e.preventDefault(); landingOut(lgo.dataset.go); return; }
     if (e.target.closest('#L-connect')) { if (state.address) { landingOut('coins'); } else connect(); return; }
-    const cp = e.target.closest('[data-copy]'); if (cp) { const v = cp.dataset.copy; copyText(v === 'link' ? `${location.origin}${location.pathname}${state.open && state.open.startsWith('g:') ? `#gift/${state.open.slice(2)}` : state.open && state.open.startsWith('r:') ? `#r/${state.open.slice(2)}` : `#coin/${state.chainId}/${state.open}`}` : v); return; }
+    const cp = e.target.closest('[data-copy]'); if (cp) { e.stopPropagation(); const v = cp.dataset.copy; copyText(v === 'link' ? `${location.origin}${location.pathname}${state.open && state.open.startsWith('g:') ? `#gift/${state.open.slice(2)}` : state.open && state.open.startsWith('r:') ? `#r/${state.open.slice(2)}` : `#coin/${state.chainId}/${state.open}`}` : v); return; }
     const mb = e.target.closest('[data-mb]'); if (mb) { $$('.mbar button').forEach((x) => x.classList.toggle('is-on', x === mb)); const k = mb.dataset.mb; state.open = null; renderRows();
       if (k === 'home') go('explore'); else if (k === 'search') { go('coins'); $('#q').focus(); } else if (k === 'create') go('launch'); else if (k === 'wallet') { setOpen('a:'); } return; }
     if (e.target.closest('[data-connect], #connect')) { connect(); return; }
@@ -2413,17 +2600,20 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     const rail = e.target.closest('[data-rail]'); if (rail) { const el = $('#' + rail.dataset.rail); el.scrollBy({ left: Number(rail.dataset.dir) * el.clientWidth * 0.8, behavior: 'smooth' }); return; }
     if (e.target.closest('#cartbtn')) { setTab('mine'); go('coins'); return; }
     const tab = e.target.closest('[data-tab]'); if (tab) { setTab(tab.dataset.tab); go('coins'); return; }
-    if (e.target.closest('#burger')) { if (matchMedia('(max-width: 1000px)').matches) { const on = $('#side').classList.toggle('is-open'); $('#side-scrim').classList.toggle('is-on', on); $('#burger').setAttribute('aria-expanded', String(on)); } else { const c = $('.shell').classList.toggle('collapsed'); $('#burger').setAttribute('aria-expanded', String(!c)); try { localStorage.setItem('bento.side', c ? '0' : '1'); } catch {} } return; }
+    if (e.target.closest('#burger')) { if (matchMedia('(max-width: 1000px)').matches) { const on = $('#side').classList.toggle('is-open'); $('#side-scrim').classList.toggle('is-on', on); $('#burger').setAttribute('aria-expanded', String(on)); } else { const c = $('.shell').classList.toggle('collapsed'); $('.hdr').classList.toggle('side-off', c); $('#burger').setAttribute('aria-expanded', String(!c)); try { localStorage.setItem('bento.side', c ? '0' : '1'); } catch {} } return; }
     if (e.target.closest('#side-scrim')) { $('#side').classList.remove('is-open'); $('#side-scrim').classList.remove('is-on'); return; }
-    if (e.target.closest('#bottom-x')) { $('#bottom').hidden = true; return; }
+    if (e.target.closest('#bottom-x')) { return; }
     if (e.target.closest('.side a')) { $('#side').classList.remove('is-open'); $('#side-scrim').classList.remove('is-on'); }
-    const cat = e.target.closest('[data-cat]'); if (cat) { state.cat = cat.dataset.cat; $$('[data-cat]').forEach((x) => x.classList.toggle('is-on', x.dataset.cat === state.cat)); renderRows(); go('coins'); }
+    const cat = e.target.closest('[data-cat]'); if (cat) { state.cat = cat.dataset.cat; $$('[data-cat]').forEach((x) => x.classList.toggle('is-on', x.dataset.cat === state.cat)); renderRows(); renderBoard(); if (!cat.closest('#board')) go('coins'); }
   });
   document.addEventListener('change', (e) => { if (e.target.id === 'gcustom') { const v = Number(e.target.value); GS.custom = e.target.value; GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; if (v > 0) { GS.value = v; renderRows(); } } if (e.target.id === 'gcur') GS.currency = e.target.value; });
   document.addEventListener('input', (e) => { if (e.target.id === 'gemail') GS.email = e.target.value; if (e.target.id === 'gmsg') GS.message = e.target.value; if (e.target.id === 'gdate') GS.deliverAt = e.target.value; if (e.target.id === 'amt') { const C = list().find((x) => x.addr === state.open); const el = $('#sim'); if (C && el) el.textContent = simText(C, Number(e.target.value)); } });
   document.addEventListener('change', (e) => { if (e.target.id === 'gforme') GS.forMe = e.target.checked; });
   $('#nl-form')?.addEventListener('submit', submitNewsletter); $('#support-form')?.addEventListener('submit', submitSupport);
-  $('#q').addEventListener('input', (e) => { state.q = e.target.value; if (e.target.value && VIEW !== 'coins' && !/[1-9A-HJ-NP-Za-km-z]{32,44}/.test(e.target.value)) go('coins'); renderRows(); addrSearch(e.target.value); });
+  $('#bd-sort')?.addEventListener('change', (e) => { B.sort = e.target.value; renderBoard(); });
+  $('#bq')?.addEventListener('input', (e) => { state.q = e.target.value; $('#q').value = state.q; renderRows(); renderBoard(); addrSearch(e.target.value); });
+  document.addEventListener('keydown', (e) => { if (e.key === '/' && !e.metaKey && !e.ctrlKey && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && !document.body.classList.contains('is-landing')) { e.preventDefault(); const f = VIEW === 'explore' ? $('#bq') : $('#q'); f.focus(); f.select(); } });
+  $('#q').addEventListener('input', (e) => { state.q = e.target.value; renderBoard(); if (e.target.value && VIEW !== 'coins' && VIEW !== 'explore' && !/[1-9A-HJ-NP-Za-km-z]{32,44}/.test(e.target.value)) go('coins'); renderRows(); addrSearch(e.target.value); });
   const onNav = () => { const r = route(); if (r === 'open') { if (!VIEW) setView('home'); renderRows(); } else if (r === 'net') { state.coins = []; state.loaded = false; render(); loadCoins(); } else if (r === null && !VIEW) setView('home'); }; window.addEventListener('hashchange', onNav); window.addEventListener('popstate', onNav);
   $('#sort')?.addEventListener('change', (e) => { state.sort = e.target.value; renderRows(); });
   $('#pay')?.addEventListener('change', (e) => { state.pay = e.target.value; renderRows(); });
@@ -2457,7 +2647,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     const SOCIAL = { x: 'https://x.com/intent/post?text=' + encodeURIComponent('Sol Bite · restaurant gift cards for any crypto, launchpad on Solana') + '&url=' + encodeURIComponent(location.origin + location.pathname) }; /* set x to your profile url once you have one, e.g. https://x.com/yourhandle */
     $$('#x-link, #x-link2, #x-link3').forEach((a) => { a.href = SOCIAL.x; });
     try { if (!localStorage.getItem('bento.theme')) applyTheme('dark'); } catch {}
-    try { if (localStorage.getItem('bento.side') === '0' && !matchMedia('(max-width: 1000px)').matches) { $('.shell').classList.add('collapsed'); $('#burger').setAttribute('aria-expanded', 'false'); } } catch {}
+    try { if (localStorage.getItem('bento.side') === '0' && !matchMedia('(max-width: 1000px)').matches) { $('.shell').classList.add('collapsed'); $('.hdr').classList.add('side-off'); $('#burger').setAttribute('aria-expanded', 'false'); } } catch {}
     revealInit(); staggerIn(); loadConfig().then(() => { if (E) route(); loadCoins(); loadPrices(); setInterval(loadPrices, 120000); loadGiftApi(); });
   })();
 })();

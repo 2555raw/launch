@@ -120,7 +120,7 @@ p { margin: 0; }
 .addr b { font-family: var(--mono); font-weight: 500; }
 @media (max-width: 1100px) { .place { display: none; } }
 @media (max-width: 860px) { .mode, #theme, .hdr-right .btn-gray { display: none; } .brand { font-size: 18px; } .hdr-in { gap: 8px; padding: 0 12px; } }
-@media (max-width: 600px) { .lang, #cartbtn { display: none; } #connect { padding: 0 8px; font-size: 13px; } .addr span { display: none; } .addr { padding: 0 10px 0 8px; } .search { padding: 0 12px; gap: 8px; } .brand em { display: none; } .hdr-in { padding: 0 10px; } }
+@media (max-width: 700px) { .lang, #cartbtn, #refresh, #theme, .search .kbd, #connect-x, .hdr .btn.create span { display: none; } .hdr-in { gap: 8px; padding: 0 10px; height: 56px; } .search { flex: 1 1 auto; min-width: 0; height: 40px; padding: 0 12px; gap: 8px; } .search input { font-size: 14px; } #connect { padding: 0 10px; font-size: 13px; height: 36px; background: var(--surface); } .addr { padding: 0 10px 0 8px; height: 36px; } .addr span { display: none; } .hdr .btn.create { width: 40px; height: 40px; padding: 0; border-radius: 999px; justify-content: center; } .hdr .btn.create svg { width: 18px; height: 18px; } .hdr .brand .wm { height: 22px; } }
 
 /* ---- shell ---- */
 .shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); transition: grid-template-columns .28s cubic-bezier(.2,.7,.2,1); }
@@ -1085,7 +1085,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
       <hr class="divider">
       <div class="sec" id="gifts">
         <div class="sec-h"><h2 data-t="gift.h2"></h2><a class="all" href="#gifts" data-t="sec.all"></a><span class="arrows"><button class="arrow" type="button" data-rail="gift-rail" data-dir="-1" aria-label="Previous"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 12H5m6-6-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="arrow" type="button" data-rail="gift-rail" data-dir="1" aria-label="Next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-6-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></span></div>
-        <p class="gift-pay"><span data-t="gift.p"></span><b>Bitcoin</b><b>Lightning</b><b>USDC</b><b>USDC</b><b>Binance Pay</b><b>Apple Pay</b></p>
+        <p class="gift-pay"><span data-t="gift.p"></span><b>Bitcoin</b><b>Lightning</b><b>SOL</b><b>USDC</b><b>Binance Pay</b><b>Apple Pay</b></p>
         <div class="rail" id="gift-rail"></div>
       </div>
       <hr class="divider">
@@ -1111,7 +1111,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
 
     <section class="sec" id="giftshop">
       <div class="sec-h"><h2 data-t="gift.h2"></h2><a class="all" href="https://www.bitrefill.com/us/en/gift-cards/restaurants/" target="_blank" rel="noopener" data-t="gift.all"></a></div>
-      <p class="gift-pay"><span data-t="gift.p"></span><b>Bitcoin</b><b>Lightning</b><b>USDC</b><b>USDC</b><b>Binance Pay</b><b>Apple Pay</b></p>
+      <p class="gift-pay"><span data-t="gift.p"></span><b>Bitcoin</b><b>Lightning</b><b>SOL</b><b>USDC</b><b>Binance Pay</b><b>Apple Pay</b></p>
       <div class="countries" id="gift-countries"></div>
       <div class="grid" id="gift-grid"></div>
       <p class="hint" id="gift-ref-note" hidden></p>
@@ -1276,7 +1276,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
       'tab.trending': 'Trending', 'tab.new': 'New', 'tab.graduating': 'Graduating', 'tab.graduated': 'Graduated',
       'pill.live': 'Raising now', 'pill.pay': 'Paid in', 'pill.top': 'Most backed', 'pill.sort': 'Sort', 'f.all': 'All', 'ranked.more': 'More info',
       'sec.featured': 'Featured right now', 'sec.new': "Today's launches", 'sec.allCoins': 'All coins', 'sec.all': 'See all', 'sec.rest': 'Restaurants you can pair with', 'sec.stocks': (n) => `Stock tokens, live · ${n}`, 'px.live': 'Live · updates every minute', 'px.err': 'Chart unavailable right now', 'px.range': { 1: '1D', 7: '7D', 30: '30D' }, 'r.coins': (n) => `${n} coin${n === 1 ? '' : 's'}`, 'r.none': 'No coins yet', 'r.create': (n) => `Create a coin paired with ${n}`, 'r.token': 'Stock token on Solana', 'r.issuer': 'Issuer', 'r.stock': 'Underlying stock', 'r.coinsH': 'Coins paired with it', 'promo.pair': (n, s) => `Launch on ${n}`, 'promo.pairP': (s, iss) => `Raise in ${s}, the ${iss} stock token, and list against it.`,
-      'wallet.connect': 'Connect wallet', 'wallet.connecting': 'Connecting…', 'wallet.none': 'No wallet found. Install Phantom (or any Solana wallet) and reload. Inside claude.ai the wallet may not be injected: open this page from its own domain.',
+      'wallet.connect': 'Connect wallet', 'wallet.connectShort': 'Connect', 'wallet.connecting': 'Connecting…', 'wallet.none': 'No wallet found. Install Phantom (or any Solana wallet) and reload. Inside claude.ai the wallet may not be injected: open this page from its own domain.',
       'st.live': 'raising', 'board.loading': 'Loading coins from the chain…', 'board.nomatch': 'No coins match.', 'board.empty': 'No coins yet. Create the first one.',
       'board.nowallet': 'Connect a wallet to load the board from Solana.', 'board.nofactory': 'The program is not deployed on this cluster yet. Deploy sol_bite (see How it works) and set its id on the server.',
       'board.note': 'Restaurant names and logos identify the tokenized stock each coin is paired with. Restaurants do not take part in, sponsor or issue anything here. Coins are unaudited contracts created by users; buying them can lose everything you put in.',
@@ -1356,7 +1356,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
       'tab.trending': '热门', 'tab.new': '打新', 'tab.graduating': '即将毕业', 'tab.graduated': '已毕业',
       'pill.live': '募集中', 'pill.pay': '支付币种', 'pill.top': '最多人买', 'pill.sort': '排序', 'f.all': '全部', 'ranked.more': '了解更多',
       'sec.featured': '当前精选', 'sec.new': '今日打新', 'sec.allCoins': '全部代币', 'sec.all': '查看全部', 'sec.rest': '可配对的餐饮品牌', 'sec.stocks': (n) => `股票代币实时行情 · ${n}`, 'px.live': '实时 · 每分钟更新', 'px.err': '暂时无法加载图表', 'px.range': { 1: '1日', 7: '7日', 30: '30日' }, 'r.coins': (n) => `${n} 个代币`, 'r.none': '暂无代币', 'r.create': (n) => `创建配对 ${n} 的代币`, 'r.token': 'Solana上的股票代币', 'r.issuer': '发行方', 'r.stock': '对应股票', 'r.coinsH': '配对该品牌的代币', 'promo.pair': (n, s) => `在 ${n} 上发行`, 'promo.pairP': (s, iss) => `以 ${iss} 的股票代币 ${s} 募集，并与之配对上市。`,
-      'wallet.connect': '连接钱包', 'wallet.connecting': '连接中…', 'wallet.none': '未检测到钱包。请安装 Phantom（或任意 Solana钱包）后刷新。在 claude.ai 内钱包可能无法注入：请从独立域名打开本页。',
+      'wallet.connect': '连接钱包', 'wallet.connectShort': '连接', 'wallet.connecting': '连接中…', 'wallet.none': '未检测到钱包。请安装 Phantom（或任意 Solana钱包）后刷新。在 claude.ai 内钱包可能无法注入：请从独立域名打开本页。',
       'st.live': '募集中', 'board.loading': '正在从链上加载…', 'board.nomatch': '没有匹配的代币。', 'board.empty': '还没有代币。创建第一个吧。',
       'board.nowallet': '连接钱包后从 Solana加载。', 'board.nofactory': '合约尚未部署到此网络。请部署 sol_bite 程序（见玩法说明）并在管理后台填入程序 ID。',
       'board.note': '餐饮品牌名称与标志用于标识每个代币所配对的股票代币。餐饮品牌不参与、不赞助、不发行任何内容。代币由用户创建的未审计合约发行，买入可能损失全部投入。',
@@ -1836,7 +1836,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     const b = $('#connect'); const chip = $('#player');
     const wc = $('#wallet-card'); const lc = $('#L-connect'); if (lc) lc.textContent = state.address ? short(state.address) : t('wallet.connect');
     const dx = $('#connect-x'); if (dx) dx.hidden = !state.address;
-    if (!state.address) { b.hidden = false; b.textContent = t('wallet.connect'); chip.hidden = true;
+    if (!state.address) { b.hidden = false; b.textContent = t(matchMedia('(max-width: 700px)').matches ? 'wallet.connectShort' : 'wallet.connect'); chip.hidden = true;
       wc.innerHTML = `<p>${t('wc.off')}</p><button class="btn btn-white btn-block" type="button" data-connect>${t('wallet.connect')}</button>`; }
     else { b.hidden = true; chip.hidden = false; $('#p-addr').textContent = short(state.address); $('#p-cash').textContent = state.balance == null ? '' : amt(state.balance, net().symbol);
       wc.innerHTML = `<div class="row1"><span class="av"></span><div><b>${esc(short(state.address))}</b><small>${t('wc.on')}</small></div></div><div class="bal">${state.balance == null ? '…' : amt(state.balance, net().symbol)}</div>${state.balance != null && usdOf(net().symbol) ? `<small>${usdTxt(state.balance, net().symbol).replace('class="usd"', 'class="usd" style="margin:0;opacity:.85"')}</small>` : ''}<span class="net"><i></i>${esc(net().name)}</span>`; }
@@ -2185,7 +2185,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
   }
   addEventListener('pointermove', landingMove, { passive: true }); addEventListener('touchmove', landingMove, { passive: true });
   document.addEventListener('mouseleave', () => { L.tx = 0; L.ty = 0; landingKick(); });
-  addEventListener('resize', () => { if (L.fx) L.fx.size(); });
+  addEventListener('resize', () => { if (L.fx) L.fx.size(); renderWallet(); });
   document.addEventListener('visibilitychange', () => { if (!document.hidden && L.on) landingKick(); });
   /* ---------- app board: explore dashboard, sidebar ranking, ticker ---------- */
   const B = { mode: 'coins', sort: 'newest', stab: 'stocks' };

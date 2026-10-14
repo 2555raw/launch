@@ -164,7 +164,7 @@ const server = http.createServer((req, res) => {
 (async () => {
   await new Promise((r) => server.listen(0, r));
   const base = `http://127.0.0.1:${server.address().port}/`;
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(process.env.PW_CHROME ? { executablePath: process.env.PW_CHROME } : {});
   const pg = await browser.newPage({ viewport: { width: 1380, height: 900 } });
   const errors = []; global.__pg = pg; global.__errors = errors;
   pg.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
@@ -174,6 +174,11 @@ const server = http.createServer((req, res) => {
   const R = {};
   R.emptyBoard = await pg.locator('#rows').textContent();
   R.brand = await pg.evaluate(() => document.title);
+  R.landing = await pg.evaluate(() => ({ on: document.body.classList.contains('is-landing'), title: document.querySelector('.L-title').textContent.trim(), ctas: document.querySelectorAll('.L-ctas a').length, eye: document.querySelector('#L-eye').textContent, hdrHidden: getComputedStyle(document.querySelector('.hdr')).display === 'none' }));
+  await pg.waitForTimeout(1200); await pg.screenshot({ path: path.join(OUT, 'shot-landing.png') });
+  await pg.locator('.L-btn-primary').click();
+  await pg.waitForFunction(() => !document.body.classList.contains('is-landing') && !document.querySelector('#explore').hidden, null, { timeout: 6000 });
+  R.landingExit = await pg.evaluate(() => ({ hash: location.hash, view: document.querySelector('main').dataset.view }));
   await pg.locator('#connect').click();
   await pg.waitForFunction(() => !document.querySelector('#player').hidden, null, { timeout: 8000 });
   R.addr = await pg.locator('#p-addr').textContent();
@@ -276,7 +281,7 @@ const server = http.createServer((req, res) => {
   await pg.waitForSelector('#rows .row .tag');
   R.graduatedTag = await pg.locator('#rows .row .tag').textContent();
   await pg.screenshot({ path: path.join(OUT, 'dapp.png') });
-  await pg.evaluate(() => { location.hash = '#home'; }); await pg.waitForTimeout(300);
+  await pg.evaluate(() => { location.hash = '#explore'; }); await pg.waitForTimeout(300);
   // gift card bought on the site: amount -> recipient -> wallet -> SOL payment -> code
   R.giftInSite = await pg.locator('#gift-rail .gift .cta.in').count();
   await pg.locator('#gift-rail .gift[data-open="g:starbucks"]').click();
@@ -325,12 +330,12 @@ const server = http.createServer((req, res) => {
   await pg.evaluate(() => { location.hash = '#docs'; }); await pg.waitForTimeout(300);
   R.faq = await pg.locator('#faq-list details').count();
   R.views = await pg.evaluate(() => ({ docs: !document.querySelector('#docs').hidden, home: document.querySelector('#explore').hidden, title: document.title }));
-  await pg.evaluate(() => { location.hash = '#home'; }); await pg.waitForTimeout(300);
+  await pg.evaluate(() => { location.hash = '#explore'; }); await pg.waitForTimeout(300);
   await pg.evaluate(() => { location.hash = '#r/mcdonalds'; }); await pg.waitForTimeout(400);
   R.override = await pg.evaluate(() => document.body.innerHTML.includes('Big Mac since 1967'));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
   await pg.evaluate(() => { location.hash = '#coins'; }); await pg.waitForTimeout(300);
-  await pg.locator('[data-lang="zh"]').click();
+  await pg.locator('#lang [data-lang="zh"]').click();
   await pg.waitForTimeout(100);
   R.zhTag = await pg.locator('#rows .row .tag').textContent();
   await pg.setViewportSize({ width: 390, height: 844 });
@@ -342,6 +347,8 @@ const server = http.createServer((req, res) => {
   await pg.waitForTimeout(600);
   R.mbarCreate = await pg.evaluate(() => !document.querySelector('#launch').hidden && document.querySelector('#explore').hidden);
   await pg.screenshot({ path: path.join(OUT, 'dapp-phone.png') });
+  await pg.evaluate(() => { location.hash = '#home'; }); await pg.waitForTimeout(1500); R.landingPhone = await pg.evaluate(() => ({ on: document.body.classList.contains('is-landing'), hScroll: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1, title: document.querySelector('.L-title').textContent.trim() })); await pg.screenshot({ path: path.join(OUT, 'shot-landing-phone.png') });
+  await pg.locator('.L-nav [data-go="gifts"]').click(); await pg.waitForFunction(() => !document.querySelector('#giftshop').hidden, null, { timeout: 6000 }); R.landingNav = await pg.evaluate(() => document.querySelector('main').dataset.view);
   await pg.setViewportSize({ width: 1380, height: 900 });
   R.residue = await pg.evaluate(() => (document.body.innerText.match(/\b(BNB|Bento|BentoFactory|MetaMask|BscScan)\b/g) || []).slice(0, 10));
   R.errors = errors;

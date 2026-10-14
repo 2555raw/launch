@@ -314,6 +314,7 @@ function pageSource() {
 }
 const VIEW_META = {
   '': ['Sol Bite', 'Restaurant gift cards paid with any crypto or card, and a Solana launchpad where every coin is paired with a real tokenized restaurant stock.'],
+  explore: ['Explore · Sol Bite', 'Restaurants with a tokenized stock, the coins paired with them and gift cards for crypto, in one place.'],
   gifts: ['Gift cards for crypto · Sol Bite', 'Buy restaurant eGift cards with SOL, USDC, Bitcoin, 300+ cryptocurrencies or a card. Delivered by email, inside Sol Bite.'],
   coins: ['All coins · Sol Bite', 'Every coin launched on Sol Bite, each paired with a tokenized restaurant stock on Solana.'],
   launch: ['Create a coin · Sol Bite', 'Launch a coin paired with a real restaurant stock token. The raise is paid in that token and opens a locked liquidity pool when it graduates.'],
@@ -354,7 +355,7 @@ function pageFor(req, rel) {
     .replace('<meta property="og:type" content="website">', `<meta property="og:type" content="website"><meta property="og:url" content="${escAttr(base + rel)}"><meta property="og:image" content="${escAttr(image)}"><meta name="twitter:image" content="${escAttr(image)}"><link rel="canonical" href="${escAttr(base + rel)}">`);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png"><link rel="icon" href="/icons/icon-192.png" type="image/png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Sol Bite"><script>window.SOL_CFG={paths:true}</script>\n${html}\n</html>`;
 }
-const PAGE_ROUTE = /^\/(gifts|coins|launch|docs|pairs|account|leaderboard|calendar|guides|guides\/[a-z0-9-]+|status|help|r\/[a-z0-9_-]+|gift\/[a-z0-9_-]+|coin\/[a-z-]+\/[1-9A-HJ-NP-Za-km-z]{32,44}|u\/[1-9A-HJ-NP-Za-km-z]{32,44})\/?$/;
+const PAGE_ROUTE = /^\/(explore|gifts|coins|launch|docs|pairs|account|leaderboard|calendar|guides|guides\/[a-z0-9-]+|status|help|r\/[a-z0-9_-]+|gift\/[a-z0-9_-]+|coin\/[a-z-]+\/[1-9A-HJ-NP-Za-km-z]{32,44}|u\/[1-9A-HJ-NP-Za-km-z]{32,44})\/?$/;
 function servePage(req, res, rel) {
   let html; try { html = pageFor(req, rel); } catch (e) { console.error('page', e.message); return fail(res, 500, 'page unavailable'); }
   send(res, 200, html, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-cache' });
@@ -362,7 +363,7 @@ function servePage(req, res, rel) {
 function sitemap(req) {
   const base = (process.env.SITE_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers['x-forwarded-host'] || req.headers.host}`).replace(/\/$/, '');
   const src = pageSource();
-  const urls = ['/', '/gifts', '/coins', '/launch', '/docs', '/pairs', '/leaderboard', '/calendar', '/guides', '/guides/buy-crypto', '/guides/gift-card-usdt', '/guides/tokenized-stocks', '/guides/paired-raise', '/status', '/help', ...Object.keys(src.rest).flatMap((id) => [`/r/${id}`, `/gift/${id}`])];
+  const urls = ['/', '/explore', '/gifts', '/coins', '/launch', '/docs', '/pairs', '/leaderboard', '/calendar', '/guides', '/guides/buy-crypto', '/guides/gift-card-usdt', '/guides/tokenized-stocks', '/guides/paired-raise', '/status', '/help', ...Object.keys(src.rest).flatMap((id) => [`/r/${id}`, `/gift/${id}`])];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${escAttr(base + u)}</loc></url>`).join('\n')}\n</urlset>\n`;
 }
 

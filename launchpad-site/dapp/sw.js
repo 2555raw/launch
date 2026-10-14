@@ -1,7 +1,7 @@
-/* Sol Bite service worker: the page itself is always fetched from the network
+/* fork service worker: the page itself is always fetched from the network
    (falling back to the last copy when offline), photos, logos and icons are
    cached after first use, and the API is never cached. */
-const VERSION = 'solbite-v3';
+const VERSION = 'fork-v1';
 const SHELL = ['/', '/icons/icon-192.png', '/manifest.webmanifest'];
 self.addEventListener('install', (e) => { e.waitUntil(caches.open(VERSION).then((c) => c.addAll(SHELL).catch(() => {})).then(() => self.skipWaiting())); });
 self.addEventListener('activate', (e) => { e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== VERSION).map((k) => caches.delete(k)))).then(() => self.clients.claim())); });

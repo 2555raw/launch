@@ -12,7 +12,7 @@ const crypto = require('crypto');
 const email = require('./services/email');
 const sol = require('./solana');
 
-const BRAND = process.env.BRAND_NAME || 'Sol Bite';
+const BRAND = process.env.BRAND_NAME || 'fork';
 const SUPPORT_EMAIL = (process.env.SUPPORT_EMAIL || '').trim();
 const isEmail = (s) => typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s) && s.length < 200;
 const isAddr = (s) => sol.isPk(s);

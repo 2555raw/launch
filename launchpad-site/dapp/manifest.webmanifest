@@ -1,6 +1,6 @@
 {
-  "name": "Sol Bite",
-  "short_name": "Sol Bite",
+  "name": "fork",
+  "short_name": "fork",
   "description": "Restaurant gift cards for any crypto and a Solana launchpad where every coin is paired with a real restaurant stock.",
   "start_url": "/?source=pwa",
   "scope": "/",

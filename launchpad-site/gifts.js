@@ -11,7 +11,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const bitrefill = require('./services/bitrefill');
-const sol = require('./solana');
+const sol = require('./evm');
 const nowp = require('./services/nowpayments');
 const stripe = require('./services/stripe');
 const email = require('./services/email');
@@ -39,14 +39,14 @@ const methods = () => ({ wallet: Boolean(MERCHANT), crypto: nowp.configured(), c
 /* ---- prices: SOL/USD and CAD/USD, cached 2 min ---- */
 const px = { at: 0, sol: 0, cadPerUsd: 0 };
 async function prices() {
-  if (Date.now() - px.at < 120000 && px.sol) return px;
-  try { const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=solana,tether&vs_currencies=usd,cad'); const j = await r.json(); const s = Number(j.solana?.usd); const cad = Number(j.tether?.cad) || Number(j.solana?.cad) / s; if (s > 0) { px.sol = s; px.cadPerUsd = cad > 0 ? cad : px.cadPerUsd || 1.37; px.at = Date.now(); } }
+  if (Date.now() - px.at < 120000 && px.bnb) return px;
+  try { const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,tether&vs_currencies=usd,cad'); const j = await r.json(); const s = Number(j.binancecoin?.usd); const cad = Number(j.tether?.cad) || Number(j.binancecoin?.cad) / s; if (s > 0) { px.bnb = s; px.cadPerUsd = cad > 0 ? cad : px.cadPerUsd || 1.37; px.at = Date.now(); } }
   catch (e) { console.error('prices', e.message); }
-  if (!px.sol) throw new Error('no price feed');
+  if (!px.bnb) throw new Error('no price feed');
   return px;
 }
 function priceOf(p, value, method) { const faceUsd = p.currency === 'CAD' ? value / px.cadPerUsd : value; const m = method === 'wallet' ? MARGIN - DISCOUNT : MARGIN; const priceUsd = Math.ceil(faceUsd * (1 + m) * 100) / 100; return { faceUsd: Math.round(faceUsd * 100) / 100, priceUsd, margin: m }; }
-function walletAmounts(priceUsd) { const s = Math.ceil(priceUsd / px.sol * 1e6) / 1e6; return { SOL: { amount: s, lamports: String(Math.round(s * 1e9)) }, USDC: { amount: priceUsd, units: String(Math.round(priceUsd * 1e6)) } }; }
+function walletAmounts(priceUsd) { const b = Math.ceil(priceUsd / px.bnb * 1e6) / 1e6; return { BNB: { amount: b, wei: (BigInt(Math.round(b * 1e6)) * 10n ** 12n).toString() }, USDT: { amount: priceUsd, wei: (BigInt(Math.round(priceUsd * 100)) * 10n ** 16n).toString() } }; }
 
 /* ---- on-chain payment check: a Solana transaction paying the merchant in SOL or USDC ---- */
 const verifyPayment = (order, signature) => sol.verifyPayment(order, signature);
@@ -166,7 +166,7 @@ async function shopApi(req, res, url, h) {
       if (m[2] === 'status') { const allowed = ['pending', 'paid', 'processing', 'delivered', 'failed', 'expired', 'refunded']; if (!allowed.includes(body.status)) return fail(res, 400, 'bad status'); (o.notes ||= []).push({ at: Date.now(), from: o.status, to: body.status, note: valid(body.note) ? body.note : '' }); o.status = body.status; await save(); adminLog(store, { action: 'status', order: o.id, to: body.status }); return send(res, 200, publicOrder(o)); }
       if (m[2] === 'email') { o.emailSent = false; await deliverEmail(o, save, siteUrl(req)); return send(res, 200, { sent: Boolean(o.emailSent), error: o.emailError || null }); }
     }
-    if ((m = /^\/api\/admin\/referrals\/([1-9A-HJ-NP-Za-km-z]{32,44})\/paid$/.exec(p))) { const amt = Number(body.amountUsd); if (!(amt > 0)) return fail(res, 400, 'amountUsd required'); ((store.refPayouts ||= {})[m[1]] ||= []).push({ at: Date.now(), amountUsd: Math.round(amt * 100) / 100, txHash: valid(body.txHash) ? body.txHash : null, note: valid(body.note) ? body.note : '' }); await save(); adminLog(store, { action: 'ref-payout', address: m[1], amountUsd: amt }); return send(res, 200, referrals(store, m[1])); }
+    if ((m = /^\/api\/admin\/referrals\/(0x[0-9a-fA-F]{40})\/paid$/.exec(p))) { const amt = Number(body.amountUsd); if (!(amt > 0)) return fail(res, 400, 'amountUsd required'); ((store.refPayouts ||= {})[m[1]] ||= []).push({ at: Date.now(), amountUsd: Math.round(amt * 100) / 100, txHash: valid(body.txHash) ? body.txHash : null, note: valid(body.note) ? body.note : '' }); await save(); adminLog(store, { action: 'ref-payout', address: m[1], amountUsd: amt }); return send(res, 200, referrals(store, m[1])); }
     if (p === '/api/admin/catalog') { if (!body || typeof body.overrides !== 'object') return fail(res, 400, 'overrides object required'); for (const [rid, v] of Object.entries(body.overrides)) { if (!/^[a-z0-9_-]{1,40}$/.test(rid)) continue; if (v === null) { delete store.catalogOverrides[rid]; continue; } const o = {}; for (const k of ['name', 'nameZh', 'photo', 'cat', 'blurb']) if (valid(v[k])) o[k] = v[k]; if (typeof v.hidden === 'boolean') o.hidden = v.hidden; store.catalogOverrides[rid] = { ...(store.catalogOverrides[rid] || {}), ...o }; } await save(); adminLog(store, { action: 'catalog', keys: Object.keys(body.overrides) }); return send(res, 200, { overrides: store.catalogOverrides }); }
     if (p === '/api/admin/upload') {
       const mm = /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(body.dataUrl || '')); if (!mm) return fail(res, 400, 'dataUrl must be a jpeg, png or webp image');
@@ -212,7 +212,7 @@ async function shopApi(req, res, url, h) {
       recipient: { email: forMe ? (isEmail(body.email) ? body.email.trim() : null) : body.email.trim(), message: valid(body.message) ? body.message.trim().slice(0, 300) : '' }, buyer: { address: s ? s.address : null, email: isEmail(body.buyerEmail) ? body.buyerEmail : (isEmail(body.email) ? body.email.trim() : null) },
       pay: { method }, status: 'pending', createdAt: Date.now() };
     try {
-      if (method === 'wallet') { order.pay = { method, amounts: walletAmounts(priceUsd), reference: sol.newReference(), cluster: sol.DEFAULT_CLUSTER, expiresAt: Date.now() + 15 * 60 * 1000 }; order.pay.payUrl = sol.payUrl(sol.DEFAULT_CLUSTER, order); }
+      if (method === 'wallet') { order.pay = { method, amounts: walletAmounts(priceUsd), reference: sol.newReference(), cluster: sol.DEFAULT_CLUSTER, expiresAt: Date.now() + 15 * 60 * 1000 }; order.pay.payUrl = sol.payUrl(sol.DEFAULT_CLUSTER, order.pay.amounts); }
       else if (method === 'crypto') { const cur = String(body.currency || 'btc').toLowerCase(); if (!/^[a-z0-9]{2,20}$/.test(cur)) return fail(res, 400, 'bad currency'); order.pay = { method, ...(await nowp.createPayment(order, cur, siteUrl(req) + '/api/webhooks/nowpayments')) }; }
       else if (method === 'card') order.pay = { method, ...(await stripe.createSession(order, siteUrl(req))) };
     } catch (e) { return fail(res, 502, e.message); }
@@ -222,7 +222,7 @@ async function shopApi(req, res, url, h) {
   if ((m = /^\/api\/gifts\/orders\/([a-f0-9]{24})\/tx$/.exec(p))) {
     const o = store.giftOrders[m[1]]; if (!o) return fail(res, 404, 'no such order');
     if (o.pay.method !== 'wallet') return fail(res, 400, 'not a wallet order'); if (o.status !== 'pending') return fail(res, 409, 'order is ' + o.status);
-    const signature = String(body.signature || body.txHash || ''); if (!/^[1-9A-HJ-NP-Za-km-z]{64,90}$/.test(signature)) return fail(res, 400, 'bad transaction signature');
+    const signature = String(body.txHash || body.signature || ''); if (!sol.isTxHash(signature)) return fail(res, 400, 'bad transaction hash');
     if (Object.values(store.giftOrders).some((x) => x.pay && x.pay.signature === signature)) return fail(res, 409, 'this transaction was already used');
     let paid; try { paid = await verifyPayment(o, signature); } catch (e) { return fail(res, 402, e.message); }
     await markPaid(o, { token: paid.token, signature, payer: paid.from, paidUnits: paid.amount }, store, save);

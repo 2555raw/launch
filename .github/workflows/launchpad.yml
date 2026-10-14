@@ -1,5 +1,5 @@
-# Tests for launchpad-site (Sol Bite): API, gift-card shop, the Solana program
-# on a local validator, and the browser harness of the dapp page against a fake
+# Tests for launchpad-site (fork): API, gift-card shop, the BNB Chain contracts
+# in an in-process EVM, and the browser harness of the dapp page against a fake
 # wallet and a fake server.
 name: launchpad-site tests
 
@@ -41,7 +41,7 @@ jobs:
           path: launchpad-site/out
           if-no-files-found: ignore
 
-  program:
+  contracts:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -51,10 +51,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: launchpad-site/package-lock.json
       - run: npm ci
-      - name: Install Solana CLI
-        run: |
-          sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
-          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
-      - name: Build and test the sol_bite program on a local validator
-        run: npm run test:program
+      - name: Compile ForkLaunch.sol
+        run: npm run compile
+      - name: Contract tests (in-process EVM)
+        run: npm run test:contracts

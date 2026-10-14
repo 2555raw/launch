@@ -10,7 +10,7 @@
 'use strict';
 const crypto = require('crypto');
 const email = require('./services/email');
-const sol = require('./solana');
+const sol = require('./evm');
 
 const BRAND = process.env.BRAND_NAME || 'fork';
 const SUPPORT_EMAIL = (process.env.SUPPORT_EMAIL || '').trim();
@@ -60,8 +60,7 @@ async function news(q) {
 /* ---- built-in pool price of a graduated coin (reserves live in the Raise account) ---- */
 async function poolPrice(cluster, raise, store) {
   const d = await sol.coins(cluster, store); const r = d.coins.find((x) => x.address === raise); if (!r) throw new Error('no such coin'); if (!r.graduated) return { graduated: false };
-  const coin = Number(r.poolCoin) / 1e6; const pay = Number(r.poolPay) / 10 ** r.payDecimals; const price = coin > 0 ? pay / coin : 0;
-  return { graduated: true, pair: r.address, price, unit: r.payMint ? null : 'SOL', payToken: r.payMint, liquidity: pay, marketCap: price * 1e9, token: r.coinMint, symbol: r.symbol };
+  return sol.poolInfo(cluster, r);
 }
 
 /* ---- status ---- */
@@ -75,7 +74,7 @@ async function communityApi(req, res, url, h) {
   const { send, fail, limited, store, save, sessionOf, readJson, isAdmin, shop } = h; const p = url.pathname; let m;
   store.comments ||= {}; store.alerts ||= []; store.newsletter ||= []; store.support ||= []; store.poolSamples ||= {};
   if (req.method === 'GET') {
-    if ((m = /^\/api\/comments\/([1-9A-HJ-NP-Za-km-z]{32,44})$/.exec(p))) { const rows = store.comments[m[1]] || []; return send(res, 200, { comments: rows.slice(-100).map((c) => ({ id: c.id, address: c.address, text: c.text, at: c.at })) }); }
+    if ((m = /^\/api\/comments\/(0x[0-9a-fA-F]{40})$/.exec(p))) { const rows = store.comments[m[1]] || []; return send(res, 200, { comments: rows.slice(-100).map((c) => ({ id: c.id, address: c.address, text: c.text, at: c.at })) }); }
     if (p === '/api/alerts/count') { const coin = String(url.searchParams.get('coin') || ''); return send(res, 200, { count: store.alerts.filter((a) => a.coin === coin).length }); }
     if (p === '/api/news') { const q = String(url.searchParams.get('q') || '').trim().slice(0, 60); if (q.length < 2) return fail(res, 400, 'q required'); return send(res, 200, { items: await news(q) }, { 'cache-control': 'public, max-age=600' }); }
     if (p === '/api/pool') {
@@ -101,14 +100,14 @@ async function communityApi(req, res, url, h) {
   if (p.startsWith('/api/admin/')) {
     if (!isAdmin(req)) return fail(res, 401, 'admin key required');
     let body; try { body = await readJson(req, 64 * 1024); } catch (e) { return fail(res, 400, e.message); }
-    if ((m = /^\/api\/admin\/comments\/([1-9A-HJ-NP-Za-km-z]{32,44})\/([a-f0-9]{16})\/delete$/.exec(p))) { const k = m[1]; store.comments[k] = (store.comments[k] || []).filter((c) => c.id !== m[2]); await save(); return send(res, 200, { ok: true }); }
+    if ((m = /^\/api\/admin\/comments\/(0x[0-9a-fA-F]{40})\/([a-f0-9]{16})\/delete$/.exec(p))) { const k = m[1]; store.comments[k] = (store.comments[k] || []).filter((c) => c.id !== m[2]); await save(); return send(res, 200, { ok: true }); }
     if ((m = /^\/api\/admin\/support\/([a-f0-9]{16})\/status$/.exec(p))) { const r = store.support.find((x) => x.id === m[1]); if (!r) return fail(res, 404, 'no such request'); if (!['open', 'answered', 'closed'].includes(body.status)) return fail(res, 400, 'bad status'); r.status = body.status; r.note = typeof body.note === 'string' ? body.note.slice(0, 500) : r.note; await save(); return send(res, 200, r); }
     if (p === '/api/admin/alerts/run') { await runAlerts(store, save); return send(res, 200, { ok: true, alerts: store.alerts.length }); }
     return fail(res, 404, 'no such route');
   }
   if (limited(req)) return fail(res, 429, 'too many requests, slow down');
   let body; try { body = await readJson(req, 16 * 1024); } catch (e) { return fail(res, 400, e.message); }
-  if ((m = /^\/api\/comments\/([1-9A-HJ-NP-Za-km-z]{32,44})$/.exec(p))) {
+  if ((m = /^\/api\/comments\/(0x[0-9a-fA-F]{40})$/.exec(p))) {
     const s = sessionOf(req); if (!s) return fail(res, 401, 'sign in with your wallet to comment');
     const text = typeof body.text === 'string' ? body.text.trim().replace(/\s+/g, ' ') : ''; if (text.length < 1 || text.length > 500) return fail(res, 400, 'comment must be 1 to 500 characters');
     const k = m[1]; const rows = (store.comments[k] ||= []); const last = rows.filter((c) => c.address === s.address).pop(); if (last && Date.now() - last.at < 20 * 1000) return fail(res, 429, 'one comment every 20 seconds');

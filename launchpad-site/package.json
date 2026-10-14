@@ -2,18 +2,27 @@
   "name": "launchpad-site",
   "version": "1.0.0",
   "private": true,
-  "description": "Sol Bite: restaurant gift cards for any crypto and a Solana launchpad where every coin is paired with a tokenized restaurant stock.",
+  "description": "fork: restaurant gift cards for any crypto and a BNB Chain launchpad where every coin is paired with a tokenized restaurant stock.",
   "scripts": {
     "start": "node server.js",
     "test": "node test.js",
     "test:gifts": "node test-gifts.js",
-    "test:program": "bash contracts/solana/run-tests.sh",
-    "test:dapp": "node tools/dapp-harness.js dapp out"
+    "test:contracts": "node contracts/test/run.js",
+    "test:dapp": "node tools/dapp-harness.js dapp out",
+    "compile": "node contracts/compile.js",
+    "deploy": "node contracts/deploy.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
-    "@solana/web3.js": "^1.95.3"
+    "ethers": "^6.13.4"
+  },
+  "devDependencies": {
+    "@ethereumjs/block": "^5.3.0",
+    "@ethereumjs/common": "^4.4.0",
+    "@ethereumjs/util": "^9.1.0",
+    "@ethereumjs/vm": "^8.1.1",
+    "solc": "^0.8.28"
   }
 }

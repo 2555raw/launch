@@ -1,21 +1,22 @@
-/* End-to-end test of the shop backend against fake providers (Solana RPC,
+/* End-to-end test of the shop backend against fake providers (BNB RPC,
  * Bitrefill, NOWPayments, Stripe, Resend): wallet, any-crypto and card
  * checkouts, webhooks with signatures, fulfilment, email, buyer orders,
  * admin API. */
 'use strict';
 const http = require('http'); const assert = require('assert'); const path = require('path'); const fs = require('fs'); const os = require('os'); const crypto = require('crypto');
-const { createWallet, b58encode } = require('./test-solwallet');
-const MERCHANT = createWallet().address; const USDC = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v';
-const { PublicKey } = require('@solana/web3.js'); const S = require('./chain/solbite'); const MERCHANT_USDC = S.ata(new PublicKey(MERCHANT), new PublicKey(USDC)).toBase58();
-const newSig = () => b58encode(crypto.randomBytes(64)); const PAYER = createWallet().address;
-/* fake Solana transactions (jsonParsed shape as web3.js expects it) */
-const txs = {}; const refs = {};
-const addTx = (sig, { sol = 0n, usdc = 0n, failed = false, reference = null }) => { const ixs = []; if (sol > 0n) ixs.push({ program: 'system', programId: '11111111111111111111111111111111', parsed: { type: 'transfer', info: { source: PAYER, destination: MERCHANT, lamports: Number(sol) } } }); if (usdc > 0n) ixs.push({ program: 'spl-token', programId: 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA', parsed: { type: 'transferChecked', info: { source: 'x', destination: MERCHANT_USDC, authority: PAYER, mint: USDC, tokenAmount: { amount: usdc.toString(), decimals: 6, uiAmount: Number(usdc) / 1e6, uiAmountString: String(Number(usdc) / 1e6) } } } });
-  txs[sig] = { slot: 100, blockTime: Math.floor(Date.now() / 1000), meta: { err: failed ? { InstructionError: [0, 'Custom'] } : null, fee: 5000, preBalances: [], postBalances: [], innerInstructions: [], logMessages: [], preTokenBalances: [], postTokenBalances: [] }, transaction: { signatures: [sig], message: { accountKeys: [{ pubkey: PAYER, signer: true, writable: true, source: 'transaction' }, { pubkey: MERCHANT, signer: false, writable: true, source: 'transaction' }], instructions: ixs, recentBlockhash: '11111111111111111111111111111111' } }, version: 'legacy' }; if (reference) refs[reference] = sig; };
-const lamports = (sol) => BigInt(Math.round(sol * 1e9));
+const { ethers } = require('ethers');
+const createWallet = () => ethers.Wallet.createRandom();
+const MERCHANT = createWallet().address; const USDT = '0x55d398326f99059fF775485246999027B3197955', TRANSFER = '0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef';
+const PAYER = createWallet().address; const hex = (n) => '0x' + BigInt(n).toString(16);
+const newSig = () => '0x' + crypto.randomBytes(32).toString('hex');
+/* fake BNB transactions: a BNB transfer to the merchant or a USDT Transfer log to it */
+const txs = {};
+const addTx = (hash, { sol = 0n, usdc = 0n, failed = false }) => { const logs = usdc > 0n ? [{ address: USDT, topics: [TRANSFER, ethers.zeroPadValue(PAYER, 32), ethers.zeroPadValue(MERCHANT, 32)], data: ethers.toBeHex(usdc * 10n ** 12n, 32), blockNumber: '0x100', transactionHash: hash, transactionIndex: '0x0', blockHash: '0x' + '22'.repeat(32), logIndex: '0x0', removed: false }] : [];
+  txs[hash] = { tx: { hash, from: PAYER, to: usdc > 0n ? USDT : MERCHANT, value: hex(sol), nonce: '0x1', gas: '0x5208', gasPrice: '0x1', input: '0x', blockNumber: '0x100', blockHash: '0x' + '22'.repeat(32), transactionIndex: '0x0', type: '0x0', chainId: '0x38', v: '0x0', r: '0x0', s: '0x0' }, rc: { transactionHash: hash, blockNumber: '0x100', blockHash: '0x' + '22'.repeat(32), from: PAYER, to: usdc > 0n ? USDT : MERCHANT, status: failed ? '0x0' : '0x1', logs, gasUsed: '0x5208', cumulativeGasUsed: '0x5208', effectiveGasPrice: '0x1', logsBloom: '0x' + '00'.repeat(256), transactionIndex: '0x0', type: '0x0', contractAddress: null } }; };
+const lamports = (bnb) => BigInt(Math.round(bnb * 1e6)) * 10n ** 12n;
 const body = (req) => new Promise((r) => { let b = ''; req.on('data', (c) => b += c); req.on('end', () => r(b)); });
 const json = (res, code, data) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(data)); };
-const rpcS = http.createServer(async (req, res) => { const j = JSON.parse(await body(req)); let result = null; if (j.method === 'getTransaction') result = txs[j.params[0]] || null; else if (j.method === 'getSignaturesForAddress') result = refs[j.params[0]] ? [{ signature: refs[j.params[0]], slot: 100, err: null, memo: null, blockTime: Math.floor(Date.now() / 1000), confirmationStatus: 'confirmed' }] : []; else if (j.method === 'getSlot') result = 100; res.end(JSON.stringify({ jsonrpc: '2.0', id: j.id, result })); });
+const rpcS = http.createServer(async (req, res) => { const j = JSON.parse(await body(req)); const one = (q) => { const t = txs[q.params && q.params[0]]; const result = q.method === 'eth_getTransactionByHash' ? (t ? t.tx : null) : q.method === 'eth_getTransactionReceipt' ? (t ? t.rc : null) : q.method === 'eth_chainId' ? '0x38' : q.method === 'eth_blockNumber' ? '0x200' : q.method === 'eth_getBalance' ? '0x0' : null; return { jsonrpc: '2.0', id: q.id, result }; }; res.end(JSON.stringify(Array.isArray(j) ? j.map(one) : one(j))); });
 const brOrders = {}; let inv = 0;
 const brS = http.createServer(async (req, res) => { const b = await body(req); assert.strictEqual(req.headers.authorization, 'Bearer k-test'); const u = req.url; const out = (c, d) => json(res, c, { meta: {}, data: d });
   if (req.method === 'GET' && u.startsWith('/products/')) { const id = decodeURIComponent(u.slice(10)); return out(200, { id, in_stock: true, currency: id.endsWith('canada') ? 'CAD' : 'USD', packages: id === 'starbucks-usa' ? [{ id: 1, value: 10, price: 10 }, { id: 2, value: 25, price: 25 }] : null, range: id === 'starbucks-usa' ? null : { min: 5, max: 100, step: 1 } }); }
@@ -37,10 +38,10 @@ const stS = http.createServer(async (req, res) => { const b = await body(req); a
 const mails = []; const mailS = http.createServer(async (req, res) => { const b = JSON.parse(await body(req)); mails.push(b); json(res, 200, { id: 'em_1' }); });
 (async () => {
   for (const s of [rpcS, brS, npS, stS, mailS]) await new Promise((r) => s.listen(0, r));
-  Object.assign(process.env, { RATE_LIMIT: '100000', CLUSTER: 'mainnet-beta', RPC_URL: `http://127.0.0.1:${rpcS.address().port}`, RPC_URL_DEVNET: `http://127.0.0.1:${rpcS.address().port}`, BITREFILL_API: `http://127.0.0.1:${brS.address().port}`, BITREFILL_API_KEY: 'k-test', MERCHANT_ADDRESS: MERCHANT, GIFT_MARGIN: '0.04',
+  Object.assign(process.env, { RATE_LIMIT: '100000', DEFAULT_CHAIN: '56', BSC_RPC: `http://127.0.0.1:${rpcS.address().port}`, BSC_TESTNET_RPC: `http://127.0.0.1:${rpcS.address().port}`, BITREFILL_API: `http://127.0.0.1:${brS.address().port}`, BITREFILL_API_KEY: 'k-test', MERCHANT_ADDRESS: MERCHANT, GIFT_MARGIN: '0.04',
     NOWPAYMENTS_API: `http://127.0.0.1:${npS.address().port}`, NOWPAYMENTS_API_KEY: 'np-test', NOWPAYMENTS_IPN_SECRET: 'ipn-secret', STRIPE_API: `http://127.0.0.1:${stS.address().port}`, STRIPE_SECRET_KEY: 'sk_test_x', STRIPE_WEBHOOK_SECRET: 'whsec_x',
     RESEND_API: `http://127.0.0.1:${mailS.address().port}`, RESEND_API_KEY: 're_test', ADMIN_KEY: 'admin-secret', SITE_URL: 'https://shop.test', DATA_DIR: fs.mkdtempSync(path.join(os.tmpdir(), 'shop-')), PORT: '0' });
-  const gifts = require('./gifts'); gifts.px.at = Date.now(); gifts.px.sol = 100; gifts.px.cadPerUsd = 1.4;
+  const gifts = require('./gifts'); gifts.px.at = Date.now(); gifts.px.bnb = 100; gifts.px.cadPerUsd = 1.4;
   const { start } = require('./server'); const server = await start(0); const base = `http://127.0.0.1:${server.address().port}`;
   const j = async (p, b, headers = {}) => { const r = await fetch(base + p, b !== undefined ? { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: typeof b === 'string' ? b : JSON.stringify(b) } : { headers }); return { code: r.status, body: await r.json() }; };
   let passed = 0; const ok = (c, m) => { assert.ok(c, m); passed++; console.log('  ok ' + m); };
@@ -49,15 +50,15 @@ const mails = []; const mailS = http.createServer(async (req, res) => { const b 
   ok((await j('/api/gifts/currencies')).body.currencies.some((c) => c.code === 'btc'), 'crypto currency list');
   let r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 25, method: 'wallet' }); ok(r.code === 400 && /email/.test(r.body.error), 'checkout requires a recipient email');
   r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 25, email: 'friend@example.com', message: 'Enjoy!', method: 'wallet' }); const w = r.body;
-  ok(r.code === 201 && w.status === 'pending' && w.priceUsd === 25.5 && w.pay.amounts.SOL.amount === 0.255 && w.pay.amounts.USDC.units === '25500000' && w.pay.merchant === MERCHANT && /^solana:/.test(w.pay.payUrl) && w.pay.reference, 'wallet checkout: pending order with SOL and USDC amounts, a Solana Pay URL and a reference (2% wallet discount)');
-  const s1 = newSig(); addTx(s1, { sol: lamports(0.25) }); r = await j(`/api/gifts/orders/${w.id}/tx`, { signature: s1 }); ok(r.code === 402 && /below/.test(r.body.error), 'SOL below the quote is refused');
+  ok(r.code === 201 && w.status === 'pending' && w.priceUsd === 25.5 && w.pay.amounts.BNB.amount === 0.255 && w.pay.amounts.USDT.wei === '25500000000000000000' && w.pay.merchant === MERCHANT && /^ethereum:/.test(w.pay.payUrl), 'wallet checkout: pending order with BNB and USDT amounts and an EIP-681 pay link (2% wallet discount)');
+  const s1 = newSig(); addTx(s1, { sol: lamports(0.25) }); r = await j(`/api/gifts/orders/${w.id}/tx`, { signature: s1 }); ok(r.code === 402 && /below/.test(r.body.error), 'BNB below the quote is refused');
   const s2 = newSig(); addTx(s2, { sol: lamports(0.255) }); r = await j(`/api/gifts/orders/${w.id}/tx`, { signature: s2 });
-  ok(r.code === 200 && r.body.status === 'delivered' && /6032/.test(r.body.redemption.instructions) && r.body.pay.token === 'SOL' && r.body.pay.signature === s2, 'SOL payment verified on-chain -> Bitrefill -> delivered');
+  ok(r.code === 200 && r.body.status === 'delivered' && /6032/.test(r.body.redemption.instructions) && r.body.pay.token === 'BNB' && r.body.pay.signature === s2, 'BNB payment verified on-chain -> Bitrefill -> delivered');
   ok(mails.length === 1 && mails[0].to[0] === 'friend@example.com' && /6032-1234/.test(mails[0].html) && /Enjoy!/.test(mails[0].html), 'recipient got the code and the message by email');
   r = await j(`/api/gifts/orders/${w.id}/tx`, { signature: s2 }); ok(r.code === 409, 'a delivered order cannot be paid again');
-  // USDC and Solana Pay (reference) paths
-  r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, email: 'usdc@example.com', method: 'wallet' }); const u = r.body; const s3 = newSig(); addTx(s3, { usdc: 10200000n }); r = await j(`/api/gifts/orders/${u.id}/tx`, { signature: s3 }); ok(r.code === 200 && r.body.status === 'delivered' && r.body.pay.token === 'USDC', 'USDC transfer to the merchant token account is accepted');
-  r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, email: 'qr@example.com', method: 'wallet' }); const qr = r.body; const s4 = newSig(); addTx(s4, { usdc: 10200000n, reference: qr.pay.reference }); r = await j(`/api/gifts/orders/${qr.id}`); ok(r.body.status === 'delivered' && r.body.pay.signature === s4, 'Solana Pay: a transaction carrying the reference key is found and delivers the card');
+  // USDT path
+  r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, email: 'usdt@example.com', method: 'wallet' }); const u = r.body; const s3 = newSig(); addTx(s3, { usdc: 10200000n }); r = await j(`/api/gifts/orders/${u.id}/tx`, { txHash: s3 }); ok(r.code === 200 && r.body.status === 'delivered' && r.body.pay.token === 'USDT', 'USDT transfer to the merchant is accepted');
+  r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, email: 'qr@example.com', method: 'wallet' }); const qr = r.body; const s4 = newSig(); addTx(s4, { usdc: 10200000n }); r = await j(`/api/gifts/orders/${qr.id}/tx`, { txHash: s4 }); ok(r.body.status === 'delivered' && r.body.pay.signature === s4, 'a second USDT order pays by transaction hash');
   const s5 = newSig(); addTx(s5, { sol: lamports(1), failed: true }); r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, email: 'f@example.com', method: 'wallet' }); r = await j(`/api/gifts/orders/${r.body.id}/tx`, { signature: s5 }); ok(r.code === 402 && /failed/.test(r.body.error), 'a failed transaction is refused');
   // any crypto through NOWPayments
   r = await j('/api/gifts/checkout', { productId: 'chipotle-usa', value: 40, email: 'me@example.com', method: 'crypto', currency: 'btc' }); const c = r.body;
@@ -103,7 +104,7 @@ const mails = []; const mailS = http.createServer(async (req, res) => { const b 
   const giftsMod = require('./gifts'); const st = require('./server').store; st.giftOrders[sch.id].deliverAt = Date.now() - 1000; await giftsMod.startJobs(st, async () => {})(); ok(mails.length === mailsBefore + 1 && mails[mails.length - 1].to[0] === 'later@example.com', 'the minute job sends the scheduled email once it is due');
   r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, method: 'wallet', forMe: true }); ok(r.code === 400, 'keep-in-account needs a signed-in wallet');
   r = await j('/api/gifts/checkout', { productId: 'starbucks-usa', value: 10, method: 'wallet', forMe: true }, { authorization: 'Bearer ' + tok }); ok(r.code === 201 && r.body.forMe && r.body.recipient.email === null && r.body.buyer.address === wallet.address, 'signed-in buyer can keep the card in the account without an email');
-  r = await j('/api/me/referrals', undefined, { authorization: 'Bearer ' + tok }); ok(r.code === 200 && /\/gifts\?ref=[1-9A-HJ-NP-Za-km-z]/.test(r.body.link) && r.body.earnedUsd === 0, 'buyer gets a referral link');
+  r = await j('/api/me/referrals', undefined, { authorization: 'Bearer ' + tok }); ok(r.code === 200 && /\/gifts\?ref=0x/.test(r.body.link) && r.body.earnedUsd === 0, 'buyer gets a referral link');
   const w2 = createWallet(); const n3 = await j('/api/auth/nonce', { address: w2.address }); const tok2 = (await j('/api/auth/verify', { address: w2.address, signature: await w2.signMessage(n3.body.message) })).body.token;
   r = await j('/api/gifts/checkout', { productId: 'chipotle-usa', value: 20, email: 'r@example.com', method: 'wallet', ref: w2.address }); const s7 = newSig(); addTx(s7, { sol: lamports(0.204) }); await j(`/api/gifts/orders/${r.body.id}/tx`, { signature: s7 });
   r = await j('/api/me/referrals', undefined, { authorization: 'Bearer ' + tok2 }); ok(r.body.delivered === 1 && r.body.earnedUsd === 0.1 && r.body.pendingUsd === 0.1, 'referrer earns 25% of the margin on a delivered order (20 * 2% * 25% = 0.10)');
@@ -115,7 +116,7 @@ const mails = []; const mailS = http.createServer(async (req, res) => { const b 
   r = await j(`/api/comments/${coin}`, { text: '  gm   everyone ' }, { authorization: 'Bearer ' + tok }); ok(r.code === 201 && r.body.text === 'gm everyone' && r.body.address === wallet.address, 'signed-in wallet posts a comment');
   r = await j(`/api/comments/${coin}`, { text: 'again' }, { authorization: 'Bearer ' + tok }); ok(r.code === 429, 'one comment every 20 seconds per wallet');
   r = await j(`/api/comments/${coin}`); ok(r.body.comments.length === 1, 'comments are listed publicly');
-  r = await j('/api/alerts', { email: 'alert@example.com', coin, chain: 'devnet' }); ok(r.code === 201 && r.body.willEmail === true && (await j(`/api/alerts/count?coin=${coin}`)).body.count === 1, 'alert subscription stored');
+  r = await j('/api/alerts', { email: 'alert@example.com', coin, chain: '97' }); ok(r.code === 201 && r.body.willEmail === true && (await j(`/api/alerts/count?coin=${coin}`)).body.count === 1, 'alert subscription stored');
   r = await j('/api/newsletter', { email: 'news@example.com', lang: 'es' }); r = await j('/api/newsletter', { email: 'NEWS@example.com' }); ok(r.code === 201 && (await j('/api/admin/newsletter', undefined, A)).body.subscribers.length === 1, 'newsletter deduplicates emails');
   r = await j('/api/support', { email: 'help@example.com', subject: 'Order', message: 'Where is my card?', order: w.id }); ok(r.code === 201 && (await j('/api/admin/support', undefined, A)).body.requests[0].order === w.id, 'support request stored with the order id');
   r = await j('/api/status'); ok(r.code === 200 && r.body.supply === true && r.body.ordersDelivered >= 5 && r.body.lastDelivered[0].rid, 'public status lists supply and latest deliveries');

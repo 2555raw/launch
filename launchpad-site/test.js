@@ -7,8 +7,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const { createWallet } = require('./test-solwallet');
-const Wallet = { createRandom: createWallet };
+const { Wallet } = require('ethers');
 
 process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'launchpad-'));
 process.env.SEED_DEMO = '';

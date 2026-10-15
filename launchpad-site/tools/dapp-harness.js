@@ -234,6 +234,9 @@ const server = http.createServer((req, res) => {
   await pg.locator('[data-damt="mcdonalds"]').fill('0.02'); await pg.locator('[data-dbuy][data-rid="mcdonalds"]').click();
   await pg.waitForFunction(() => /Bought/.test(document.querySelector('#toast').textContent), null, { timeout: 15000 }); R.dashBuy = await pg.locator('#toast').textContent();
   await pg.locator('.dfil [data-dcat="pizza"]').click(); await pg.waitForTimeout(150); R.dashPizza = await pg.locator('#dash-body .dcard').count(); await pg.locator('.dfil [data-dcat="all"]').click();
+  R.network = await pg.evaluate(() => ({ calcRows: document.querySelectorAll('#dash-body .nw .tbl')[0]?.querySelectorAll('tbody tr').length || 0, best: document.querySelectorAll('#dash-body .best').length, yours: document.querySelectorAll('#dash-body .nw')[1]?.querySelectorAll('tbody tr').length || 0, sections: document.querySelectorAll('#dash-body .nw').length, note: document.querySelector('#dash-body .dc-note')?.textContent }));
+  await pg.locator('[data-nwsize="0.5"]').click(); await pg.waitForTimeout(150); R.network.size05 = await pg.evaluate(() => document.querySelectorAll('#dash-body .nw .tbl')[0]?.querySelector('tbody tr td:nth-child(5)')?.textContent);
+  R.exHero = await pg.evaluate(() => { location.hash = '#explore'; return null; }); await pg.waitForTimeout(400); R.exHero = await pg.evaluate(() => ({ h: document.querySelector('#ex-hero .hero2 h1')?.textContent, tiles: document.querySelectorAll('#ex-hero .htiles > div').length })); await pg.evaluate(() => { location.hash = '#dashboard'; }); await pg.waitForTimeout(300);
   await pg.screenshot({ path: path.join(OUT, 'shot-dashboard.png') });
   await pg.evaluate(() => { location.hash = '#coins'; }); await pg.waitForTimeout(300);
   // buy 0.05 then try over the cap (cap = 0.1)

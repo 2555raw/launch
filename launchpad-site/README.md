@@ -206,9 +206,10 @@ desde su propio dominio.
 tarjeta por tema, tabla de comisiones, «qué puede y qué no puede pasar» y direcciones de los
 contratos de la red activa). `/terms`, `/privacy`, `/risk`, `/refund` y `/cookies` son páginas
 propias con fecha de actualización. Tipografía Inter con los tamaños y pesos de Seam, sus
-animaciones de entrada y la barra inferior fina con el precio de cada acción. Las imágenes de
-portada (`dapp/photos/hero-market.webp`, `hero-temple.webp`) son ilustraciones propias dibujadas
-en SVG (mercado nocturno y pagoda con farolillos), no fotos de terceros.
+animaciones de entrada y la barra inferior fina con el precio de cada acción. Las fotos de
+portada son de Wikimedia Commons con licencia CC BY-SA 4.0, recortadas y con un tono de atardecer:
+la pagoda Leifeng sobre el Lago del Oeste (Yinweichen) y los karsts de Yangshuo (chensiyuan);
+aparecen en los créditos de fotos con el resto (`dapp/photos/credits.json`).
 
 **Qué hace la página además de comprar**
 

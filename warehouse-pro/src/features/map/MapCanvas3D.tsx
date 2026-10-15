@@ -5,7 +5,7 @@ import { t } from '@/lib/i18n'
 import { cx } from '@/lib/format'
 import type { ViewBox } from './useViewBox'
 import { fillForLayer, type MapLayer } from './layers'
-import { boxFaces, floorPoly, iso, pts, shade } from './projection'
+import { boxFaces, depthOf, floorPoly, isBackWall, iso, pts, setAngle, shade } from './projection'
 
 export interface DragState { productId: string; fromLocationId: string; maxQty: number; overId: string | null; overReason: string | null; x: number; y: number }
 
@@ -22,6 +22,7 @@ export interface CanvasProps {
   showFlow: boolean
   layer: MapLayer
   recent: Set<string>
+  angle?: number
   onSelect: (id: string | null) => void
   onHover: (id: string | null) => void
   onLocationPointerDown: (loc: Location, e: RPointerEvent<SVGElement>) => void
@@ -29,6 +30,7 @@ export interface CanvasProps {
 }
 
 const FONT = 'Inter, system-ui'
+const CX0 = MAP_W / 2, CY0 = MAP_H / 2
 const LEVEL_H = 11
 const WALL_H = 46
 
@@ -39,8 +41,7 @@ function Box({ x, y, w, d, h, z0 = 0, color, stroke = 'rgba(15,23,42,0.35)', opa
   const f = boxFaces(x, y, w, d, h, z0)
   return (
     <g className="pointer-events-none" opacity={opacity}>
-      <polygon points={f.south} fill={shade(color, 0.62)} stroke={stroke} strokeWidth="0.6" />
-      <polygon points={f.east} fill={shade(color, 0.8)} stroke={stroke} strokeWidth="0.6" />
+      {f.sides.map((side, i) => <polygon key={i} points={side.points} fill={shade(color, side.f)} stroke={stroke} strokeWidth="0.6" />)}
       <polygon points={f.top} fill={topColor ?? color} stroke={stroke} strokeWidth="0.6" />
     </g>
   )
@@ -103,7 +104,8 @@ function Forklift3D({ x, y, delay }: { x: number; y: number; delay: number }) {
   )
 }
 
-export const MapCanvas3D = memo(function MapCanvas3D({ state, vb, svgRef, selectedId, hoverId, matches, route, routeStops, drag, showFlow, layer, recent, onSelect, onHover, onLocationPointerDown, handlers }: CanvasProps) {
+export const MapCanvas3D = memo(function MapCanvas3D({ state, vb, svgRef, selectedId, hoverId, matches, route, routeStops, drag, showFlow, layer, recent, angle = 0, onSelect, onHover, onLocationPointerDown, handlers }: CanvasProps) {
+  setAngle(angle)
   const zoom = 2340 / vb.w
   const showQty = zoom > 2.4
   const showCodes = zoom > 3.6
@@ -122,10 +124,10 @@ export const MapCanvas3D = memo(function MapCanvas3D({ state, vb, svgRef, select
   for (const l of locations) if (l.kind === 'estanteria' && l.aisle > 0 && l.zoneId !== 'Z-PCK') { const k = `${l.zoneId}-${l.aisle}-${l.module}`; modules.set(k, [...(modules.get(k) ?? []), l]) }
   for (const [k, ls] of modules) {
     const x = Math.min(...ls.map((l) => l.x)), y = Math.min(...ls.map((l) => l.y)) - 3, w = ls[0].w, d = Math.max(...ls.map((l) => l.y + l.h)) - y + 3
-    push(x + y, <polygon key={k + 'f'} points={floorPoly(x - 2, y - 2, w + 4, d + 4)} fill="#e2e8f0" stroke="#94a3b8" strokeWidth="0.5" className="pointer-events-none" />)
-    for (const [ux, uy] of [[x - 2, y - 2], [x + w, y - 2], [x - 2, y + d], [x + w, y + d]]) push(ux + uy + 2, <Box key={`${k}-${ux}-${uy}`} x={ux} y={uy} w={2} d={2} h={LEVEL_H + 9} color="#f97316" stroke="none" />)
+    push(depthOf(x, y, w, d) - 200, <polygon key={k + 'f'} points={floorPoly(x - 2, y - 2, w + 4, d + 4)} fill="#e2e8f0" stroke="#94a3b8" strokeWidth="0.5" className="pointer-events-none" />)
+    for (const [ux, uy] of [[x - 2, y - 2], [x + w, y - 2], [x - 2, y + d], [x + w, y + d]]) push(depthOf(ux, uy, 2, 2) + 0.5, <Box key={`${k}-${ux}-${uy}`} x={ux} y={uy} w={2} d={2} h={LEVEL_H + 9} color="#f97316" stroke="none" />)
     // Larguero superior trasero
-    push(x + w + y, <Box key={k + 'b'} x={x - 2} y={y - 2} w={w + 4} d={1.2} h={1.5} z0={LEVEL_H + 8} color="#fb923c" stroke="none" />)
+    push(depthOf(x - 2, y - 2, w + 4, 1.2), <Box key={k + 'b'} x={x - 2} y={y - 2} w={w + 4} d={1.2} h={1.5} z0={LEVEL_H + 8} color="#fb923c" stroke="none" />)
   }
 
   // Ubicaciones
@@ -147,16 +149,16 @@ export const MapCanvas3D = memo(function MapCanvas3D({ state, vb, svgRef, select
     const palletFaces = !isRack && !isDock ? boxFaces(loc.x, loc.y, loc.w, loc.h, 4) : null
     const c = iso(loc.x + loc.w / 2, loc.y + loc.h / 2, h + 1)
     const stroke = isDock ? '#0f172a' : 'rgba(15,23,42,0.45)'
-    push(loc.x + loc.w + loc.y + loc.h + 0.5, (
+    const inner = palletFaces ? boxFaces(loc.x + 3, loc.y + 3, loc.w - 6, loc.h - 6, h - 4, 4) : faces
+    push(depthOf(loc.x, loc.y, loc.w, loc.h) + 0.5, (
       <g key={loc.id} data-loc={loc.id} className={cx('map-location', isSel && 'selected', isSource && 'source', isDropTarget && (drag?.overReason ? 'drop-bad' : 'drop-ok'), stop >= 0 && 'highlight', dimmed && 'dimmed', recent.has(loc.id) && !isSel && 'recent')}
         onPointerDown={(e) => onLocationPointerDown(loc, e)} onPointerEnter={() => onHover(loc.id)} onPointerLeave={() => onHover(null)}
         tabIndex={0} role="button" aria-label={`${loc.code} ${t(LOCATION_STATUS[st].label)} ${occ}/${loc.capacity}`} onKeyDown={(e) => e.key === 'Enter' && onSelect(loc.id)}>
         <title>{loc.code} · {t(LOCATION_STATUS[st].label)} · {occ}/{loc.capacity} {t('uds')}</title>
-        {palletFaces && <><polygon points={palletFaces.south} fill="#92400e" stroke={stroke} strokeWidth="0.5" /><polygon points={palletFaces.east} fill="#b45309" stroke={stroke} strokeWidth="0.5" /><polygon points={palletFaces.top} fill={occ > 0 ? '#d97706' : '#e2e8f0'} stroke={stroke} strokeWidth="0.5" /></>}
+        {palletFaces && <>{palletFaces.sides.map((sd, i) => <polygon key={i} points={sd.points} fill={shade('#b45309', sd.f)} stroke={stroke} strokeWidth="0.5" />)}<polygon points={palletFaces.top} fill={occ > 0 ? '#d97706' : '#e2e8f0'} stroke={stroke} strokeWidth="0.5" /></>}
         {(isRack || isDock || occ > 0) && <>
-          <polygon points={palletFaces ? boxFaces(loc.x + 3, loc.y + 3, loc.w - 6, loc.h - 6, h - 4, 4).south : faces.south} fill={st === 'bloqueada' ? '#f87171' : shade(fill, 0.62)} stroke={stroke} strokeWidth="0.6" />
-          <polygon points={palletFaces ? boxFaces(loc.x + 3, loc.y + 3, loc.w - 6, loc.h - 6, h - 4, 4).east : faces.east} fill={st === 'bloqueada' ? '#fca5a5' : shade(fill, 0.8)} stroke={stroke} strokeWidth="0.6" />
-          <polygon points={palletFaces ? boxFaces(loc.x + 3, loc.y + 3, loc.w - 6, loc.h - 6, h - 4, 4).top : faces.top} fill={fill} stroke={hoverId === loc.id ? '#1d6ff2' : stroke} strokeWidth="0.7" />
+          {inner.sides.map((sd, i) => <polygon key={i} points={sd.points} fill={st === 'bloqueada' ? (sd.f > 0.7 ? '#fca5a5' : '#f87171') : shade(fill, sd.f)} stroke={stroke} strokeWidth="0.6" />)}
+          <polygon points={inner.top} fill={fill} stroke={hoverId === loc.id ? '#1d6ff2' : stroke} strokeWidth="0.7" />
         </>}
         {isDock && <text x={c.X} y={c.Y + 4} textAnchor="middle" fontSize="12" fontWeight="800" fill="#f8fafc" fontFamily={FONT} className="pointer-events-none">M{loc.module}</text>}
         {!isRack && !isDock && <text x={c.X} y={c.Y + 3} textAnchor="middle" fontSize="8" fontWeight="700" fill={dark ? '#fff' : '#1e293b'} fontFamily={FONT} className="pointer-events-none">{loc.code.replace(/-00-/, '-').replace(/-01$/, '')}{occ > 0 ? ` · ${occ}` : ''}</text>}
@@ -168,33 +170,34 @@ export const MapCanvas3D = memo(function MapCanvas3D({ state, vb, svgRef, select
   }
 
   // Camiones, carretillas, oficina
-  docksIn.forEach((d, i) => { if (i < Math.max(1, pendingIn)) push(d.x + d.y + 400, <Truck3D key={d.id} x={d.x + (d.w - 36) / 2} y={d.y - 4} dir="in" color="#2563eb" delay={i * 0.7} />) })
-  docksOut.forEach((d, i) => { if (i < pendingOut) push(d.x + d.y + 400, <Truck3D key={d.id} x={d.x + (d.w - 36) / 2} y={d.y - 4} dir="out" color="#16a34a" delay={i * 0.9} />) })
-  if (activePicks > 0) push(1185 + CORRIDOR_BOTTOM_Y + 40, <Forklift3D key="fk1" x={1174} y={CORRIDOR_BOTTOM_Y - 8} delay={0} />)
-  if (pendingIn > 0) push(300 + 700 + 40, <Forklift3D key="fk2" x={300} y={700} delay={1.3} />)
+  docksIn.forEach((d, i) => { if (i < Math.max(1, pendingIn)) push(depthOf(d.x, d.y - 4, d.w, 100), <Truck3D key={`truck-${d.id}`} x={d.x + (d.w - 36) / 2} y={d.y - 4} dir="in" color="#2563eb" delay={i * 0.7} />) })
+  docksOut.forEach((d, i) => { if (i < pendingOut) push(depthOf(d.x, d.y - 4, d.w, 100), <Truck3D key={`truck-${d.id}`} x={d.x + (d.w - 36) / 2} y={d.y - 4} dir="out" color="#16a34a" delay={i * 0.9} />) })
+  if (activePicks > 0) push(depthOf(1174, CORRIDOR_BOTTOM_Y - 8, 36, 24), <Forklift3D key="fk1" x={1174} y={CORRIDOR_BOTTOM_Y - 8} delay={0} />)
+  if (pendingIn > 0) push(depthOf(300, 700, 36, 24), <Forklift3D key="fk2" x={300} y={700} delay={1.3} />)
   const ofi = zones.find((z) => z.type === 'oficinas')
-  if (ofi) push(ofi.x + ofi.w + ofi.y + ofi.h, <g key="ofi"><Box x={ofi.x + 6} y={ofi.y + 6} w={ofi.w - 12} d={ofi.h - 12} h={34} color="#e2e8f0" topColor="#f1f5f9" />{[0, 1, 2, 3, 4].map((i) => <Box key={i} x={ofi.x + 30 + i * 90} y={ofi.y + ofi.h - 7} w={40} d={1} h={16} z0={10} color="#93c5fd" stroke="none" opacity={0.8} />)}<Label x={ofi.x + ofi.w / 2} y={ofi.y + ofi.h / 2} z={40} text={t('Oficinas y servicios').toUpperCase()} size={10} color="#475569" /></g>)
+  if (ofi) push(depthOf(ofi.x, ofi.y, ofi.w, ofi.h), <g key="ofi"><Box x={ofi.x + 6} y={ofi.y + 6} w={ofi.w - 12} d={ofi.h - 12} h={34} color="#e2e8f0" topColor="#f1f5f9" />{[0, 1, 2, 3, 4].map((i) => <Box key={i} x={ofi.x + 30 + i * 90} y={ofi.y + ofi.h - 7} w={40} d={1} h={16} z0={10} color="#93c5fd" stroke="none" opacity={0.8} />)}<Label x={ofi.x + ofi.w / 2} y={ofi.y + ofi.h / 2} z={40} text={t('Oficinas y servicios').toUpperCase()} size={10} color="#475569" /></g>)
 
   // Paredes: norte y oeste altas; sur y este como zócalo con huecos en los muelles
-  const walls: ReactNode[] = [
-    <Box key="wn" x={20} y={6} w={MAP_W - 40} d={6} h={WALL_H} color="#cbd5e1" topColor="#e2e8f0" />,
-    <Box key="ww" x={14} y={6} w={6} d={MAP_H - 110} h={WALL_H} color="#cbd5e1" topColor="#e2e8f0" />,
-    <Box key="we" x={MAP_W - 20} y={6} w={6} d={MAP_H - 110} h={6} color="#cbd5e1" />,
+  const hN = isBackWall(0, -1) ? WALL_H : 6, hW = isBackWall(-1, 0) ? WALL_H : 6, hE = isBackWall(1, 0) ? WALL_H : 6, hS = isBackWall(0, 1) ? WALL_H : 6
+  const wallItems: { depth: number; node: ReactNode }[] = [
+    { depth: depthOf(20, 6, MAP_W - 40, 6), node: <Box key="wn" x={20} y={6} w={MAP_W - 40} d={6} h={hN} color="#cbd5e1" topColor="#e2e8f0" /> },
+    { depth: depthOf(14, 6, 6, MAP_H - 110), node: <Box key="ww" x={14} y={6} w={6} d={MAP_H - 110} h={hW} color="#cbd5e1" topColor="#e2e8f0" /> },
+    { depth: depthOf(MAP_W - 20, 6, 6, MAP_H - 110), node: <Box key="we" x={MAP_W - 20} y={6} w={6} d={MAP_H - 110} h={hE} color="#cbd5e1" topColor="#e2e8f0" /> },
   ]
   const dockXs = [...docksIn, ...docksOut].map((d) => [d.x + 6, d.x + d.w - 6] as const).sort((a, b) => a[0] - b[0])
   let cursor = 20
-  for (const [a, b] of dockXs) { if (a > cursor) walls.push(<Box key={`ws${cursor}`} x={cursor} y={MAP_H - 110} w={a - cursor} d={6} h={6} color="#cbd5e1" />); walls.push(<Box key={`door${a}`} x={a} y={MAP_H - 112} w={b - a} d={3} h={30} color="#1e293b" topColor="#334155" opacity={0.9} />); cursor = b }
-  walls.push(<Box key="wsend" x={cursor} y={MAP_H - 110} w={MAP_W - 20 - cursor} d={6} h={6} color="#cbd5e1" />)
+  for (const [a, b] of dockXs) { if (a > cursor) wallItems.push({ depth: depthOf(cursor, MAP_H - 110, a - cursor, 6), node: <Box key={`ws${cursor}`} x={cursor} y={MAP_H - 110} w={a - cursor} d={6} h={hS} color="#cbd5e1" topColor="#e2e8f0" /> }); wallItems.push({ depth: depthOf(a, MAP_H - 112, b - a, 3) + 0.1, node: <Box key={`door${a}`} x={a} y={MAP_H - 112} w={b - a} d={3} h={Math.max(30, hS * 0.7)} color="#1e293b" topColor="#334155" opacity={0.9} /> }); cursor = b }
+  wallItems.push({ depth: depthOf(cursor, MAP_H - 110, MAP_W - 20 - cursor, 6), node: <Box key="wsend" x={cursor} y={MAP_H - 110} w={MAP_W - 20 - cursor} d={6} h={hS} color="#cbd5e1" topColor="#e2e8f0" /> })
+  // Las paredes de fondo se pintan antes que todo; las frontales (bajas) después
+  for (const wI of wallItems) items.push({ depth: wI.depth > depthOf(CX0, CY0, 0, 0) ? wI.depth + 5000 : -5000 + wI.depth, node: wI.node })
   // Cámaras: cerramiento translúcido
   for (const z of zones.filter((zz) => zz.temperature && zz.temperature !== 'ambiente')) {
     const c = '#bfdbfe'
-    push(z.x + z.y - 1, <Box key={z.id + 'n'} x={z.x} y={z.y} w={z.w} d={2} h={28} color={c} opacity={0.55} stroke="rgba(37,99,235,0.5)" />)
-    push(z.x + z.y - 1, <Box key={z.id + 'w'} x={z.x} y={z.y} w={2} d={z.h} h={28} color={c} opacity={0.55} stroke="rgba(37,99,235,0.5)" />)
-    push(z.x + z.w + z.y + z.h + 2, <Box key={z.id + 's'} x={z.x} y={z.y + z.h - 2} w={z.w} d={2} h={28} color={c} opacity={0.35} stroke="rgba(37,99,235,0.5)" />)
-    push(z.x + z.w + z.y + z.h + 2, <Box key={z.id + 'e'} x={z.x + z.w - 2} y={z.y} w={2} d={z.h} h={28} color={c} opacity={0.35} stroke="rgba(37,99,235,0.5)" />)
+    const segs: [string, number, number, number, number, number, number][] = [[z.id + 'n', z.x, z.y, z.w, 2, 0, -1], [z.id + 'w', z.x, z.y, 2, z.h, -1, 0], [z.id + 's', z.x, z.y + z.h - 2, z.w, 2, 0, 1], [z.id + 'e', z.x + z.w - 2, z.y, 2, z.h, 1, 0]]
+    for (const [key, sx, sy, sw, sd, nx, ny] of segs) { const back = isBackWall(nx, ny); push(back ? depthOf(sx, sy, sw, sd) - 400 : depthOf(sx, sy, sw, sd) + 1, <Box key={key} x={sx} y={sy} w={sw} d={sd} h={28} color={c} opacity={back ? 0.55 : 0.35} stroke="rgba(37,99,235,0.5)" />) }
   }
   // Pilares
-  for (const px of [250, 450, 650, 850, 1050, 1250, 1450]) for (const py of [160, 660]) push(px + py + 10, <Box key={`col${px}-${py}`} x={px - 5} y={py - 5} w={10} d={10} h={WALL_H} color="#94a3b8" topColor="#cbd5e1" />)
+  for (const px of [250, 450, 650, 850, 1050, 1250, 1450]) for (const py of [160, 660]) push(depthOf(px - 5, py - 5, 10, 10), <Box key={`col${px}-${py}`} x={px - 5} y={py - 5} w={10} d={10} h={WALL_H} color="#94a3b8" topColor="#cbd5e1" />)
 
   items.sort((a, b) => a.depth - b.depth)
   const routeD = route && route.length > 1 ? route.map((p, i) => { const q = iso(p.x, p.y, 3); return `${i === 0 ? 'M' : 'L'}${q.X} ${q.Y}` }).join(' ') : null
@@ -232,11 +235,8 @@ export const MapCanvas3D = memo(function MapCanvas3D({ state, vb, svgRef, select
       })}
       {/* Capa de flujo */}
       {showFlow && <g className="pointer-events-none"><path d={flowD} fill="none" stroke="#2f7cff" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" opacity="0.18" /><path d={flowD} fill="none" stroke="#2f7cff" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" className="flow-path" markerEnd="url(#arrow-flow)" /></g>}
-      {/* Paredes traseras antes de los objetos */}
-      {walls.slice(0, 2)}
-      {/* Objetos ordenados de atrás hacia delante */}
+      {/* Objetos ordenados de atrás hacia delante (paredes de fondo primero, frontales al final) */}
       {items.map((it) => it.node)}
-      {walls.slice(2)}
       {/* Ruta sobre el suelo */}
       {routeD && <g className="pointer-events-none"><path d={routeD} fill="none" stroke="#f97316" strokeWidth="7" strokeLinejoin="round" strokeLinecap="round" opacity="0.2" /><path d={routeD} fill="none" stroke="#f97316" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" className="route-path" markerEnd="url(#arrow)" />{routeStart && <circle cx={routeStart.X} cy={routeStart.Y} r="7" fill="#f97316" stroke="#fff" strokeWidth="2" />}</g>}
       {/* Rótulos */}
@@ -256,7 +256,7 @@ export const MapCanvas3D = memo(function MapCanvas3D({ state, vb, svgRef, select
         </g>
       )}
       {/* Norte */}
-      <g className="pointer-events-none" transform={`translate(${vb.x + vb.w - 60} ${vb.y + 40})`}><circle r="12" fill="#fff" stroke="#334155" strokeWidth="1.5" /><path d="M0 -8 L4 6 L0 3 L-4 6 Z" fill="#1e3a8a" /><text y="26" textAnchor="middle" fontSize="9" fontWeight="700" fill="#334155" fontFamily={FONT}>N</text></g>
+      <g className="pointer-events-none" transform={`translate(${vb.x + vb.w - 60} ${vb.y + 40})`}><circle r="12" fill="#fff" stroke="#334155" strokeWidth="1.5" /><path d="M0 -8 L4 6 L0 3 L-4 6 Z" fill="#1e3a8a" transform={`rotate(${angle})`} /><text y="26" textAnchor="middle" fontSize="9" fontWeight="700" fill="#334155" fontFamily={FONT}>N</text></g>
       {/* Conteo rápido de ubicaciones con stock oculto en vista lejana */}
       {zoom < 0.9 && <text x={vb.x + vb.w / 2} y={vb.y + vb.h - 10} textAnchor="middle" fontSize="12" fill="#64748b" fontFamily={FONT}>{t('Acerca el plano para ver cantidades y códigos')} · {locations.filter((l) => stockEntriesAt(state, l.id).length > 0).length} {t('ubicaciones con stock')}</text>}
     </svg>

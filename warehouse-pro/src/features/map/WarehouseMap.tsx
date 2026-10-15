@@ -1,4 +1,4 @@
-import { Box, Crosshair, Filter, GitBranch, Layers, Minus, Move, Plus, Route, Search, Square, Waves, X } from 'lucide-react'
+import { Box, Crosshair, Filter, GitBranch, Layers, Minus, Move, Plus, Route, RotateCcw, RotateCw, Search, Square, Waves, X, Orbit } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react'
 import { Badge, Button, Modal, Select, Tooltip } from '@/components/ui'
 import { availableAt, buildRoute, checkCanReceive, locationStatus, pickingSortKey, routeBetween, routeLength, stockEntriesAt, stockEntriesOf, values, type Location, type RoutePoint } from '@/domain'
@@ -10,7 +10,7 @@ import { navigate } from '@/lib/router'
 import { MapCanvas } from './MapCanvas'
 import { MapCanvas3D, type DragState } from './MapCanvas3D'
 import { LAYERS, legendForLayer, recentlyChanged, type MapLayer } from './layers'
-import { BOUNDS, centerOf, floorPoly, type MapMode } from './projection'
+import { BOUNDS, centerOf, floorPoly, setAngle, type MapMode } from './projection'
 import { LocationPanel } from './LocationPanel'
 import { MoveDialog, type MoveRequest } from './MoveDialog'
 import { FlowsPanel } from './FlowsPanel'
@@ -23,6 +23,33 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
   const svgRef = useRef<SVGSVGElement>(null)
   const [mode, setMode] = useState<MapMode>(() => { try { return (localStorage.getItem('warehouse-pro:map-mode') as MapMode) || '3d' } catch { return '3d' } })
   const [layer, setLayer] = useState<MapLayer>('ocupacion')
+  const [angle, setAngleState] = useState(0)
+  const [autoRotate, setAutoRotate] = useState(false)
+  const angleRef = useRef(0)
+  const animRef = useRef<number | null>(null)
+  setAngle(angle)
+  /** Gira el almacén con animación suave hasta el ángulo destino. */
+  const rotateTo = useCallback((target: number) => {
+    if (animRef.current) cancelAnimationFrame(animRef.current)
+    const from = angleRef.current, delta = target - from, t0 = performance.now(), dur = 450
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3)
+      const a = from + delta * e
+      angleRef.current = a
+      setAngleState(a)
+      if (k < 1) animRef.current = requestAnimationFrame(step)
+    }
+    animRef.current = requestAnimationFrame(step)
+  }, [])
+  const rotateBy = useCallback((deg: number) => { setAutoRotate(false); rotateTo(angleRef.current + deg) }, [rotateTo])
+  useEffect(() => {
+    if (!autoRotate) return
+    let raf = 0
+    let last = performance.now()
+    const loop = (now: number) => { const dt = now - last; last = now; angleRef.current = (angleRef.current + dt * 0.02) % 360; setAngleState(angleRef.current); raf = requestAnimationFrame(loop) }
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [autoRotate])
   const bounds = BOUNDS[mode]
   const view = useViewBox(svgRef, bounds)
   const [tick, setTick] = useState(0)
@@ -63,10 +90,13 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
       else if (e.key === '-') view.zoomAt(1.25)
       else if (e.key === 'Escape') { setSelectedId(null); setRouteFromId(null); setManualRoute(null) }
       else if (e.key.toLowerCase() === 'v') setMode((m) => (m === '3d' ? '2d' : '3d'))
+      else if (e.key.toLowerCase() === 'q') rotateBy(-45)
+      else if (e.key.toLowerCase() === 'e') rotateBy(45)
+      else if (e.key.toLowerCase() === 'r') setAutoRotate((v) => !v)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [view])
+  }, [view, rotateBy])
   const categories = useMemo(() => [...new Set(values(state.products).map((p) => p.category))].sort(), [state])
 
   // Producto buscado
@@ -237,6 +267,14 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
           <Tooltip text={t('Vista en planta (2D)')}><Button size="sm" variant={mode === '2d' ? 'secondary' : 'ghost'} icon={<Square className="h-4 w-4" />} onClick={() => setMode('2d')} aria-label="2D">2D</Button></Tooltip>
           <Tooltip text={t('Vista isométrica (3D)')}><Button size="sm" variant={mode === '3d' ? 'secondary' : 'ghost'} icon={<Box className="h-4 w-4" />} onClick={() => setMode('3d')} aria-label="3D">3D</Button></Tooltip>
         </div>
+        {mode === '3d' && (
+          <div className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
+            <Tooltip text={t('Girar a la izquierda (Q)')}><Button size="sm" variant="ghost" icon={<RotateCcw className="h-4 w-4" />} onClick={() => rotateBy(-45)} aria-label={t('Girar a la izquierda (Q)')} /></Tooltip>
+            <span className="w-10 text-center font-mono text-xs text-slate-500">{Math.round(((angle % 360) + 360) % 360)}°</span>
+            <Tooltip text={t('Girar a la derecha (E)')}><Button size="sm" variant="ghost" icon={<RotateCw className="h-4 w-4" />} onClick={() => rotateBy(45)} aria-label={t('Girar a la derecha (E)')} /></Tooltip>
+            <Tooltip text={t('Giro automático 360° (R)')}><Button size="sm" variant={autoRotate ? 'secondary' : 'ghost'} icon={<Orbit className="h-4 w-4" />} onClick={() => setAutoRotate((v) => !v)} aria-label={t('Giro automático 360° (R)')} /></Tooltip>
+          </div>
+        )}
         <div className="ml-auto flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
           <Tooltip text={t('Acercar')}><Button size="sm" variant="ghost" icon={<Plus className="h-4 w-4" />} onClick={() => view.zoomAt(0.8)} aria-label={t('Acercar')} /></Tooltip>
           <Tooltip text={t('Alejar')}><Button size="sm" variant="ghost" icon={<Minus className="h-4 w-4" />} onClick={() => view.zoomAt(1.25)} aria-label={t('Alejar')} /></Tooltip>
@@ -256,14 +294,14 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
         <div className="card relative min-h-[320px] flex-1 overflow-hidden">
-          {(() => { const Canvas = mode === '3d' ? MapCanvas3D : MapCanvas; return <Canvas state={state} vb={view.vb} svgRef={svgRef} selectedId={selectedId} hoverId={hoverId} matches={matches} route={activeRoute?.pts ?? null} routeStops={activeRoute?.stops ?? []} drag={drag} showFlow={showFlow} layer={layer} recent={recent}
+          {(() => { const Canvas = mode === '3d' ? MapCanvas3D : MapCanvas; return <Canvas state={state} vb={view.vb} svgRef={svgRef} selectedId={selectedId} hoverId={hoverId} matches={matches} route={activeRoute?.pts ?? null} routeStops={activeRoute?.stops ?? []} drag={drag} showFlow={showFlow} layer={layer} recent={recent} angle={angle}
             onSelect={setSelectedId} onHover={setHoverId} onLocationPointerDown={onLocationPointerDown}
             handlers={{ onWheel: view.onWheel, onPointerDown: view.onPointerDown, onPointerMove: view.onPointerMove, onPointerUp: view.onPointerUp }} /> })()}
           {/* Leyenda */}
           <div className="pointer-events-none absolute bottom-2 left-2 flex flex-wrap gap-2 rounded-lg bg-white/90 px-3 py-2 text-[11px] shadow backdrop-blur">
             {legendForLayer(layer).map((v) => <span key={v.label} className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-sm border border-slate-400" style={{ background: v.hatch ? 'repeating-linear-gradient(45deg,#fecaca,#fecaca 2px,#dc2626 2px,#dc2626 4px)' : v.color }} />{t(v.label)}</span>)}
             <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-full bg-warn-500" />{t('Ruta / parada')}</span>
-            <span className="flex items-center gap-1"><Layers className="h-3 w-3 text-slate-500" />{t('Rueda: zoom · arrastrar fondo: desplazar · arrastrar hueco con stock: mover')} · <span className="kbd">V</span> 2D/3D</span>
+            <span className="flex items-center gap-1"><Layers className="h-3 w-3 text-slate-500" />{t('Rueda: zoom · arrastrar fondo: desplazar · arrastrar hueco con stock: mover')} · <span className="kbd">V</span> 2D/3D · <span className="kbd">Q</span><span className="kbd">E</span> {t('girar')}</span>
           </div>
           {/* Minimapa */}
           {bounds.w / view.vb.w > 1.25 && (

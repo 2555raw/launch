@@ -1216,6 +1216,8 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
 .L-pill { display: inline-flex; align-items: center; gap: 8px; height: 30px; padding: 0 12px; border-radius: 9px; border: 1px solid rgba(255, 255, 255, .1); background: rgba(255, 255, 255, .03); color: rgba(255, 255, 255, .8); font-size: 12.5px; font-weight: 600; transition: background .18s ease, color .18s ease, border-color .18s ease; } .L-pill:hover { background: rgba(255, 255, 255, .08); color: #fff; border-color: rgba(255, 255, 255, .18); } .L-pill svg { width: 13px; height: 13px; }
 .L-foot .L-lang { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; padding-left: 10px; margin-left: 6px; border-left: 1px solid rgba(255, 255, 255, .1); color: rgba(255, 255, 255, .35); } .L-foot .L-lang button { all: unset; cursor: pointer; padding: 0 4px; font-size: 11px; color: rgba(255, 255, 255, .5); } .L-foot .L-lang button.is-on, .L-foot .L-lang button:hover { color: #fff; }
 @media (max-width: 760px) { .L-foot { padding: 14px 18px; justify-content: center; } .L-foot .cp { width: 100%; justify-content: center; } .L-fr { justify-content: center; } .L-mark { width: 70px; height: 70px; margin-bottom: 18px; } .L-btn { min-width: 0; } }
+
+.dfil button { display: inline-flex; align-items: center; gap: 7px; } .dfil .fi { width: 13px; height: 13px; opacity: .8; }
 </style>
 
 <div class="L" id="landing" hidden>
@@ -1886,11 +1888,12 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
   const PX = { usd: {}, chg: {}, at: 0 };
   const CG_IDS = { binancecoin: ['BNB'] }; for (const p of Object.values(PAIRS)) if (p.cg) (CG_IDS[p.cg] ||= []).push(p.symbol);
   function applyPx(j) { for (const [id, syms] of Object.entries(CG_IDS)) { const v = j && j[id]; if (!v || v.usd == null) continue; for (const sy of syms) { PX.usd[sy] = Number(v.usd); if (v.usd_24h_change != null) PX.chg[sy] = Number(v.usd_24h_change); } } }
+  const PRICE_API = 'https://bento-launch-production.up.railway.app/api/prices';
   async function loadPrices() {
     let cached = null; try { cached = JSON.parse(localStorage.getItem('bento.px') || 'null'); } catch {}
     if (cached && Date.now() - cached.at < 120000) { applyPx(cached.j); PX.at = cached.at; render(); return; }
-    try { let j = null; try { j = await viaServer('/api/prices'); } catch {} if (!j) { const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${Object.keys(CG_IDS).join(',')}&vs_currencies=usd&include_24hr_change=true`); if (!res.ok) throw new Error(String(res.status)); j = await res.json(); } applyPx(j); PX.at = Date.now(); try { localStorage.setItem('bento.px', JSON.stringify({ at: PX.at, j })); } catch {} }
-    catch { if (cached) { applyPx(cached.j); PX.at = cached.at; } }
+    try { let j = null; try { j = await viaServer('/api/prices'); } catch {} if (!j) { try { const r0 = await fetch(PRICE_API, { cache: 'no-store' }); if (r0.ok) j = await r0.json(); } catch {} } if (!j && window.__PX_SNAPSHOT && !CFG.server) { applyPx(window.__PX_SNAPSHOT.j); PX.at = window.__PX_SNAPSHOT.at; } if (!j) { const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${Object.keys(CG_IDS).join(',')}&vs_currencies=usd&include_24hr_change=true`); if (!res.ok) throw new Error(String(res.status)); j = await res.json(); } applyPx(j); PX.at = Date.now(); try { localStorage.setItem('bento.px', JSON.stringify({ at: PX.at, j })); } catch {} }
+    catch { if (cached) { applyPx(cached.j); PX.at = cached.at; } else if (window.__PX_SNAPSHOT) { applyPx(window.__PX_SNAPSHOT.j); PX.at = window.__PX_SNAPSHOT.at; } }
     render();
   }
 
@@ -1970,7 +1973,7 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
     if (state.address) refreshPaid();
     try { state.block = Number(await readProvider().getBlockNumber()); renderStats(); } catch {}
   }
-  const MYPAID = {}; const AMT = {}; const BAL = { tokens: {}, at: 0 };
+  const MYPAID = {}; const AMT = {}; const CDRAFT = {}; const BAL = { tokens: {}, at: 0 };
   async function refreshPaid() {
     if (!state.address || !CFG.server) return; const Cs = list(); let changed = false;
     await Promise.all(Cs.slice(0, 60).map(async (C) => { try { const j = await viaServer(`/api/coins/${C.addr}?cluster=${state.chainId}&buyer=${state.address}`); if (j.paid) { const prev = MYPAID[C.addr]; if (!prev || prev.amount !== j.paid.amount || prev.claimed !== j.paid.claimed || prev.claimable !== j.paid.claimable || prev.allowance !== j.paid.allowance || prev.balance !== j.paid.balance) changed = true; MYPAID[C.addr] = j.paid; } } catch {} }));
@@ -2699,7 +2702,7 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
   const kuaiOf = (v) => Number(E.formatUnits(wei(v), stkDec()));
   const nsym = () => net().symbol;
   const kuaiSym = () => '$' + ((STK.d && STK.d.tokenSymbol) || 'KUAI');
-  const stakePool = () => STK.d && STK.d.deployed ? bnbOf(STK.d.rewardReserve) + bnbOf(STK.d.buybackPool) + bnbOf(STK.d.unaccounted) + bnbOf(STK.d.waiting) : null;
+  const stakePool = () => STK.d && STK.d.deployed ? bnbOf(STK.d.rewardReserve) + bnbOf(STK.d.buybackPool) + bnbOf(STK.d.unaccounted) + bnbOf(STK.d.waiting) : 0;
   const fmt4 = (v) => v == null ? '—' : (v >= 1000 ? cmp(v) : (Math.round(v * 10000) / 10000).toFixed(4));
   const hms = (ms) => { if (ms <= 0) return '00:00:00'; const s2 = Math.floor(ms / 1000); const h = Math.floor(s2 / 3600), m = Math.floor(s2 % 3600 / 60), x = s2 % 60; return h >= 100 ? `${Math.floor(h / 24)}d ${h % 24}h` : [h, m, x].map((n) => String(n).padStart(2, '0')).join(':'); };
   setInterval(() => { const now = Date.now(); $$('[data-hms]').forEach((el) => { el.textContent = hms(Number(el.dataset.hms) - now); }); }, 1000);
@@ -2781,7 +2784,7 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
         <div class="dc-two"><div class="dc-box"><small>${t('dash.coins')}</small><b>${lv.length}${mine.length > lv.length ? `<em> / ${mine.length}</em>` : ''}</b></div><div class="dc-box"><small>${t('dash.raised')}</small><b>${raised ? num3(raised) : '0'} <em>${esc(unit)}</em></b></div></div>
         <div class="dc-f">${top ? `<label class="dc-amt" data-stop><input type="number" min="0" step="any" inputmode="decimal" data-damt="${esc(id)}" value="${esc(DB.amt[id] ?? '0.01')}"><span>${esc(top.unit)}</span></label><button class="btn-w" type="button" data-dbuy="${esc(top.addr)}" data-rid="${esc(id)}" ${state.busy ? 'disabled' : ''}>${t('dash.buy', esc(top.tick))}</button>` : `<span class="dc-none">${t('dash.none')}</span><button class="btn-w" type="button" data-dlaunch="${esc(id)}">${t('dash.launch')}</button>`}</div>${top ? `<p class="dc-note">${t('dash.note', esc(top.unit), fmt4(Math.max(0, Math.min(top.cap - top.my, top.goal - top.raised))), cmp(SUPPLY * 0.8 * 0.01 / Math.max(top.goal, top.raised + 0.01)))}</p>` : `<p class="dc-note">${t('dash.noteNone', esc(pr.symbol))}</p>`}</div>`; };
     host.innerHTML = heroBanner(t('dash.h', ids.length), t('dash.p'), `<a class="btn-o" href="#launch">${t('nav.create')}</a>`) + `
-      <div class="dfil"><button type="button" data-dcat="all" class="${DB.cat === 'all' ? 'is-on' : ''}">${t('bd.allRest')}</button>${CAT_CHIPS.filter((c) => c !== 'all').map((c) => `<button type="button" data-dcat="${c}" class="${DB.cat === c ? 'is-on' : ''}">${t('cat.' + c)}</button>`).join('')}<span class="sp"></span><label><svg viewBox="0 0 24 24" width="15" height="15" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="dq" type="search" autocomplete="off" placeholder="${t('dash.q')}" value="${esc(DB.q)}"></label></div>
+      <div class="dfil"><button type="button" data-dcat="all" class="${DB.cat === 'all' ? 'is-on' : ''}"><svg class="fi" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2.5 4.5h11M4.5 8h7M6.5 11.5h3"/></svg>${t('bd.allRest')}</button>${CAT_CHIPS.filter((c) => c !== 'all').map((c) => `<button type="button" data-dcat="${c}" class="${DB.cat === c ? 'is-on' : ''}"><svg class="fi" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2.5 4.5h11M4.5 8h7M6.5 11.5h3"/></svg>${t('cat.' + c)}</button>`).join('')}<span class="sp"></span><label><svg viewBox="0 0 24 24" width="15" height="15" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="dq" type="search" autocomplete="off" placeholder="${t('dash.q')}" value="${esc(DB.q)}"></label></div>
       <div class="dstat"><span class="pg-chip">${t('dash.showing', shown.length, ids.length)}</span><span class="pg-chip">${t('dash.pool')} <b>${pool == null ? '—' : fmt4(pool) + ' ' + esc(nsym())}</b></span></div>
       <div class="dgrid">${shown.map(card).join('') || empty(t('bd.empty.h'), t('bd.empty.p'))}</div>` + networkSections(Cs, now);
   }
@@ -2931,11 +2934,11 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
     const me = (state.address || '').toLowerCase();
     return `<div class="act-h"><b>${t('cm.h')}</b><small>${items ? t('cm.n', items.length) : ''}</small></div>
       ${items ? (items.length ? `<div class="cm-list">${items.slice().reverse().map((c) => `<div class="cm"><span class="av" style="background:${hue(c.address)}"></span><div><b class="mono">${esc(short(c.address))}${c.address.toLowerCase() === me ? ` <em>${t('you.tag')}</em>` : ''}</b><small>${ago(Date.now() - c.at)}</small><p>${esc(c.text)}</p></div></div>`).join('')}</div>` : `<p class="hint">${t('cm.none')}</p>`) : `<p class="hint">${t('board.loading')}</p>`}
-      ${TOK ? `<div class="cm-form"><textarea class="input" id="ctext" rows="2" maxlength="500" placeholder="${t('cm.ph')}"></textarea><button class="btn btn-ink" type="button" data-cpost="${esc(addr)}">${t('cm.post')}</button></div>` : `<button class="btn btn-gray btn-block" type="button" data-acct-sign>${t('cm.signin')}</button>`}`;
+      ${TOK ? `<div class="cm-form"><textarea class="input" id="ctext" rows="2" maxlength="500" placeholder="${t('cm.ph')}" data-cfor="${esc(addr)}">${esc(CDRAFT[addr] || '')}</textarea><button class="btn btn-ink" type="button" data-cpost="${esc(addr)}">${t('cm.post')}</button></div>` : `<button class="btn btn-gray btn-block" type="button" data-acct-sign>${t('cm.signin')}</button>`}`;
   }
   async function postComment(addr) {
     const ta = $('#ctext'); const text = (ta && ta.value.trim()) || ''; if (!text) return;
-    try { await api('/api/comments/' + addr, { text }); ta.value = ''; delete COM[addr.toLowerCase()]; await loadComments(addr); toast(t('cm.posted')); } catch (e) { toast(e.message); }
+    try { await api('/api/comments/' + addr, { text }); ta.value = ''; delete CDRAFT[addr]; delete COM[addr.toLowerCase()]; await loadComments(addr); toast(t('cm.posted')); } catch (e) { toast(e.message); }
   }
   function alertsHtml(C) { if (!CFG.server) return ''; return `<div class="alert-box"><b>${t('al.h')}</b><small>${t('al.p')}</small><div class="nl-row"><input class="input" id="aemail" type="email" placeholder="you@example.com" value="${esc(GS.email || '')}"><button class="btn btn-ink" type="button" data-alert="${esc(C.addr)}">${t('al.btn')}</button></div></div>`; }
   async function subscribeAlert(addr) {
@@ -3130,7 +3133,7 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
     const cat = e.target.closest('[data-cat]'); if (cat) { state.cat = cat.dataset.cat; $$('[data-cat]').forEach((x) => x.classList.toggle('is-on', x.dataset.cat === state.cat)); renderRows(); renderBoard(); if (!cat.closest('#board')) go('coins'); }
   });
   document.addEventListener('change', (e) => { if (e.target.id === 'gcustom') { const v = Number(e.target.value); GS.custom = e.target.value; GS.email = ($('#gemail') || {}).value || GS.email; GS.message = ($('#gmsg') || {}).value || GS.message; if (v > 0) { GS.value = v; renderRows(); } } if (e.target.id === 'gcur') GS.currency = e.target.value; });
-  document.addEventListener('input', (e) => { if (e.target.id === 'amt' && e.target.dataset.amtfor) AMT[e.target.dataset.amtfor] = e.target.value; });
+  document.addEventListener('input', (e) => { if (e.target.id === 'amt' && e.target.dataset.amtfor) AMT[e.target.dataset.amtfor] = e.target.value; if (e.target.id === 'ctext' && e.target.dataset.cfor) CDRAFT[e.target.dataset.cfor] = e.target.value; });
   document.addEventListener('input', (e) => { if (e.target.id === 'gemail') GS.email = e.target.value; if (e.target.id === 'gmsg') GS.message = e.target.value; if (e.target.id === 'gdate') GS.deliverAt = e.target.value; if (e.target.id === 'amt') { const C = list().find((x) => x.addr === state.open); const el = $('#sim'); if (C && el) el.textContent = simText(C, Number(e.target.value)); } });
   document.addEventListener('change', (e) => { if (e.target.id === 'gforme') GS.forMe = e.target.checked; if (e.target.id === 'pf-file') avatarPick(e.target.files && e.target.files[0]); });
   document.addEventListener('input', (e) => { const el = e.target; if (el.dataset && el.dataset.damt) DB.amt[el.dataset.damt] = el.value; if (el.id === 'dq') { DB.q = el.value; const pos = el.selectionStart; el.blur(); renderDashboard(); const n = $('#dq'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch {} } }

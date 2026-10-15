@@ -197,6 +197,22 @@ function cgCollapse(raw) {
   return out;
 }
 async function cgFetch(u) { const r = await fetch(u, { headers: { accept: 'application/json', ...(process.env.COINGECKO_API_KEY ? { 'x-cg-demo-api-key': process.env.COINGECKO_API_KEY } : {}) }, signal: AbortSignal.timeout(9000) }); if (!r.ok) throw new Error('coingecko ' + r.status); return r.json(); }
+/* Fallback for tokens CoinGecko has no price or 24h change for: the share they track, from Yahoo
+   Finance (price and previous close), converted to USD for Hong Kong listings. Cached 5 minutes. */
+const STOCKQ = { at: 0, data: {}, pending: null };
+function pairStocks() { try { const p = JSON.parse(fs.readFileSync(path.join(ROOT, 'contracts', 'pairs.json'), 'utf8')); delete p._note; const m = {}; for (const v of Object.values(p)) if (v && v.cg && v.stock) m[v.cg] = v.stock; return m; } catch { return {}; } }
+async function yahoo(sym) { const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(sym)}?range=1d&interval=1d`, { headers: { 'user-agent': 'Mozilla/5.0 (kuai price fallback)', accept: 'application/json' }, signal: AbortSignal.timeout(8000) }); if (!r.ok) throw new Error('yahoo ' + r.status); const m = (await r.json()).chart.result[0].meta; return { price: Number(m.regularMarketPrice), prev: Number(m.chartPreviousClose ?? m.previousClose), currency: m.currency }; }
+function stockQuotes() {
+  if (Date.now() - STOCKQ.at < 5 * 60 * 1000) return Promise.resolve(STOCKQ.data);
+  if (!STOCKQ.pending) STOCKQ.pending = (async () => {
+    const map = pairStocks(); const syms = [...new Set(Object.values(map))]; const q = {}; let hkd = null;
+    await Promise.all([...syms.map(async (sy) => { try { q[sy] = await yahoo(sy); } catch {} }), (async () => { try { hkd = (await yahoo('HKD=X')).price; } catch {} })()]);
+    const out = {}; for (const [cg, sy] of Object.entries(map)) { const x = q[sy]; if (!x || !(x.price > 0)) continue; const fx = x.currency === 'USD' ? 1 : x.currency === 'HKD' && hkd ? 1 / hkd : null; if (!fx) continue; out[cg] = { usd: Math.round(x.price * fx * 100) / 100, usd_24h_change: x.prev > 0 ? (x.price / x.prev - 1) * 100 : null, src: 'stock' }; }
+    STOCKQ.data = out; STOCKQ.at = Date.now(); return out;
+  })().catch(() => STOCKQ.data).finally(() => { STOCKQ.pending = null; });
+  return STOCKQ.pending;
+}
+async function withStocks(cg) { const st = await stockQuotes(); const out = { ...(cg || {}) }; for (const [id, v] of Object.entries(st)) { const c = out[id]; if (!c || c.usd == null) out[id] = v; else if (c.usd_24h_change == null && v.usd_24h_change != null) out[id] = { ...c, usd_24h_change: v.usd_24h_change }; } return out; }
 function cgPrices() {
   const c = CG.prices; if (c.data && Date.now() - c.at < 60 * 1000) return Promise.resolve(c.data);
   if (!c.pending) c.pending = cgFetch(`https://api.coingecko.com/api/v3/simple/price?ids=${cgAllIds().join(',')}&vs_currencies=usd&include_24hr_change=true`).then((d) => { c.data = cgCollapse(d); c.at = Date.now(); return c.data; }).catch(() => c.data).finally(() => { c.pending = null; });
@@ -419,7 +435,7 @@ async function api(req, res, url) {
 
   if (req.method === 'GET' && p === '/api/config') return send(res, 200, sol.config(store), { 'cache-control': 'public, max-age=30' });
   if (p === '/api/rpc' || p === '/api/coins' || p.startsWith('/api/coins/') || p === '/api/buys' || p === '/api/feed' || p === '/api/stake' || p.startsWith('/api/stake/')) return sol.chainApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf });
-  if (req.method === 'GET' && p === '/api/prices') { const j = await cgPrices(); return j ? send(res, 200, j, { 'cache-control': 'public, max-age=60' }) : fail(res, 503, 'prices unavailable'); }
+  if (req.method === 'GET' && p === '/api/prices') { const j = await withStocks(await cgPrices()); return j && Object.keys(j).length ? send(res, 200, j, { 'cache-control': 'public, max-age=60', 'access-control-allow-origin': '*' }) : fail(res, 503, 'prices unavailable'); }
   if (req.method === 'GET' && p === '/api/chart') {
     const cg = String(url.searchParams.get('cg') || ''); const days = Number(url.searchParams.get('days'));
     if (!/^[a-z0-9-]{1,60}$/.test(cg) || ![1, 7, 30].includes(days)) return fail(res, 400, 'cg and days (1, 7 or 30) required');

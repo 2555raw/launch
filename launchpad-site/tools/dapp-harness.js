@@ -435,6 +435,9 @@ const server = http.createServer((req, res) => {
   await pg.evaluate(() => { location.hash = '#home'; }); await pg.waitForTimeout(1500); R.landingPhone = await pg.evaluate(() => ({ on: document.body.classList.contains('is-landing'), hScroll: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1, title: document.querySelector('.L-title').textContent.trim() })); await pg.screenshot({ path: path.join(OUT, 'shot-landing-phone.png') });
   await pg.locator('.L-nav [data-go="gifts"]').click(); await pg.waitForFunction(() => !document.querySelector('#giftshop').hidden, null, { timeout: 6000 }); R.landingNav = await pg.evaluate(() => document.querySelector('main').dataset.view);
   await pg.setViewportSize({ width: 1380, height: 900 });
+  // every section loads directly from its URL
+  R.direct = {}; for (const v of ['dashboard', 'analytics', 'terminal', 'stake', 'profile']) { const p2 = await browser.newPage({ viewport: { width: 1380, height: 900 } }); const errs2 = []; p2.on('pageerror', (e) => errs2.push(e.message)); await p2.goto(base + '#' + v); await p2.waitForTimeout(900);
+    R.direct[v] = await p2.evaluate((v) => { const sec = document.getElementById(v); return { shown: sec && !sec.hidden, heading: (sec && (sec.querySelector('h1') || sec.querySelector('.pf-card b') || sec.querySelector('h2')) || {}).textContent || null }; }, v); R.direct[v].errors = errs2; await p2.close(); }
   R.residue = await pg.evaluate(() => (document.body.innerText.match(/\b(SOL|Solana|Phantom|Solscan|Sol Bite|USDC|Bento)\b/g) || []).slice(0, 10));
   R.errors = errors;
   console.log(JSON.stringify(R, null, 1));

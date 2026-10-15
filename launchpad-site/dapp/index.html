@@ -2465,6 +2465,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
 
   /* ---------- extra views ---------- */
   function renderView(v, changed) {
+    if (!fmt.num) return;   /* first route runs before setLang; setLang renders again */
     if (v === 'leaderboard') { renderLeaderboard(); if (changed) loadLeaders(); }
     else if (v === 'calendar') renderCalendar();
     else if (v === 'guides') renderGuides();
@@ -2982,7 +2983,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     if (E) route();
     if (!VIEW) setView('home');
     setLang(lang);
-    if (!E) { $('#rows').innerHTML = `<p class="empty">bnb web3.js failed to load.</p>`; return; }
+    if (!E) { $('#rows').innerHTML = `<p class="empty">ethers.js failed to load. Check your connection and reload.</p>`; return; }
     const SOCIAL = { x: 'https://x.com/intent/post?text=' + encodeURIComponent('kuai · restaurant gift cards for any crypto, launchpad on BNB Chain') + '&url=' + encodeURIComponent(location.origin + location.pathname) }; /* set x to your profile url once you have one, e.g. https://x.com/yourhandle */
     $$('#x-link, #x-link2, #x-link3').forEach((a) => { a.href = SOCIAL.x; });
     try { if (!localStorage.getItem('bento.theme')) applyTheme('dark'); } catch {}

@@ -204,10 +204,11 @@ const server = http.createServer((req, res) => {
   const R = {};
   R.emptyBoard = await pg.locator('#rows').textContent();
   R.brand = await pg.evaluate(() => document.title);
-  R.landing = await pg.evaluate(() => ({ on: document.body.classList.contains('is-landing'), title: document.querySelector('.L-title').textContent.trim(), ctas: document.querySelectorAll('.L-ctas a').length, eye: document.querySelector('#L-eye').textContent, hdrHidden: getComputedStyle(document.querySelector('.hdr')).display === 'none' }));
+  R.landing = await pg.evaluate(() => ({ on: document.body.classList.contains('is-landing'), title: document.querySelector('.L-title').textContent.trim(), ctas: document.querySelectorAll('.L-ctas a').length, eye: document.querySelector('#L-eye').textContent, mark: Boolean(document.querySelector('.L-mark svg')), pills: document.querySelectorAll('.L-foot .L-pill').length, nav: [...document.querySelectorAll('.L-nav a')].map((a) => a.textContent).join('|'), ctaTxt: [...document.querySelectorAll('.L-ctas a')].map((a) => a.textContent).join('|'), hdrHidden: getComputedStyle(document.querySelector('.hdr')).display === 'none' }));
   await pg.waitForTimeout(1200); await pg.screenshot({ path: path.join(OUT, 'shot-landing.png') });
   await pg.locator('.L-btn-primary').click();
-  await pg.waitForFunction(() => !document.body.classList.contains('is-landing') && !document.querySelector('#explore').hidden, null, { timeout: 6000 });
+  await pg.waitForFunction(() => !document.body.classList.contains('is-landing') && !document.querySelector('#dashboard').hidden, null, { timeout: 6000 });
+  R.landingTo = await pg.evaluate(() => location.hash); await pg.evaluate(() => { location.hash = '#explore'; }); await pg.waitForFunction(() => !document.querySelector('#explore').hidden, null, { timeout: 6000 });
   R.landingExit = await pg.evaluate(() => ({ hash: location.hash, view: document.querySelector('main').dataset.view }));
   await pg.waitForTimeout(600); R.board = await pg.evaluate(() => ({ tabs: document.querySelectorAll('#board [data-bmode]').length, chips: document.querySelectorAll('#bd-cats button').length, pairs: document.querySelectorAll('#bd-grid .bcard.pair').length, rank: document.querySelectorAll('#srank button').length, rankHead: document.querySelector('#srank-h').textContent, ticker: document.querySelectorAll('#tk button').length, scrollY: window.scrollY, status: document.querySelector('.bd-status').textContent.replace(/\s+/g, ' ').trim() })); await pg.screenshot({ path: path.join(OUT, 'shot-board-empty.png') });
   await pg.locator('#connect').click();
@@ -436,7 +437,7 @@ const server = http.createServer((req, res) => {
   R.mbarCreate = await pg.evaluate(() => !document.querySelector('#launch').hidden && document.querySelector('#explore').hidden);
   await pg.screenshot({ path: path.join(OUT, 'dapp-phone.png') });
   await pg.evaluate(() => { location.hash = '#home'; }); await pg.waitForTimeout(1500); R.landingPhone = await pg.evaluate(() => ({ on: document.body.classList.contains('is-landing'), hScroll: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1, title: document.querySelector('.L-title').textContent.trim() })); await pg.screenshot({ path: path.join(OUT, 'shot-landing-phone.png') });
-  await pg.locator('.L-nav [data-go="gifts"]').click(); await pg.waitForFunction(() => !document.querySelector('#giftshop').hidden, null, { timeout: 6000 }); R.landingNav = await pg.evaluate(() => document.querySelector('main').dataset.view);
+  await pg.locator('.L-nav [data-go="dashboard"]').click(); await pg.waitForFunction(() => !document.querySelector('#dashboard').hidden, null, { timeout: 6000 }); R.landingNav = await pg.evaluate(() => document.querySelector('main').dataset.view);
   await pg.setViewportSize({ width: 1380, height: 900 });
   // docs in the Seam layout and the legal pages
   await pg.evaluate(() => { location.hash = '#docs'; }); await pg.waitForSelector('#docs-body .dz-card', { timeout: 6000 });

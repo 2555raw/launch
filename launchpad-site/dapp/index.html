@@ -4,7 +4,7 @@
 <meta property="og:title" content="kuai"><meta property="og:description" content="Restaurant gift cards for crypto and a restaurant-paired launchpad on BNB Chain."><meta property="og:type" content="website"><meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap">
 <style>
 /* Layout: a marketplace home in the proportions of a food-delivery site at 1920px.
    64px top bar (menu, wordmark, mode pill, place pill, 48px search, wallet),
@@ -1100,10 +1100,78 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
 .an-chart .spark { fill: none; stroke: #22C55E !important; stroke-width: 2px; vector-effect: non-scaling-stroke; } .an-chart .sparkfill { fill: rgba(34, 197, 94, .12) !important; }
 .side .wallet-card { background: var(--card); color: var(--ink); border: 1px solid var(--line-hi); } .side .wallet-card .bal { color: var(--ink); } .side .wallet-card .usd { color: var(--muted); }
 .side .wallet-card .av { background: linear-gradient(135deg, #F0B90B, #F7D774); } .side .wallet-card .net i { background: #22C55E; } .side .wallet-card .btn-white { background: var(--ink); color: var(--bg); }
+
+/* ---- Seam typography: Inter, 13px base, light headings ---- */
+:root { --font: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif; --mono: ui-monospace, Menlo, 'SF Mono', Consolas, monospace; }
+body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
+.side a, .side button { font-size: 13px; font-weight: 500; }
+.side .is-on { font-weight: 600; }
+.side .stabs button { font-size: 12.5px; font-weight: 500; } .side .stabs button.is-on { font-weight: 700; }
+.srank-h { font-size: 11.5px; } .srank .nm b { font-size: 13px; font-weight: 700; } .srank .nm small { font-size: 11.5px; font-family: var(--font); }
+.srank .rt { font-size: 12.5px; font-weight: 700; font-family: var(--font); } .srank .rt small { font-family: var(--font); font-weight: 500; font-size: 11px; }
+.side .slinks a { font-size: 11.5px; }
+.hdr .search input { font-size: 12.5px; } .hdr .search { height: 36px; }
+.hdr .btn-ink.create, .hdr #connect { height: 34px; font-size: 12.5px; font-weight: 600; letter-spacing: -.01em; }
+.pg-head h1, .hero2 h1, .dz h1, .lg h1 { font-size: 34px; font-weight: 500; letter-spacing: -.025em; line-height: 1.1; }
+.pg-head p, .hero2 p { font-size: 14px; line-height: 1.55; }
+.pg-head .eyb { font-size: 12px; }
+.pn-h > b, .stk-side .pn-h b { font-size: 15px; font-weight: 700; } .pn-h > small { font-size: 12px; }
+.stk-sec h3 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; } .stk-sec > p { font-size: 13.5px; }
+.stk-ca .row1 b { font-size: 13.5px; font-weight: 600; } .stk-ca .row1 a { font-size: 12px; } .stk-ca .ca { font-size: 12px; } .stk-ca .ca button { font-size: 11.5px; font-weight: 500; }
+.stk-tog button { font-size: 13px; } .stk-in label { font-size: 12px; font-weight: 600; font-style: normal; letter-spacing: .02em; color: var(--muted); }
+.stk-in .max { font-size: 11.5px; letter-spacing: .04em; } .stk-in .u { font-size: 13px; } .btn-gold { font-size: 13px; font-weight: 600; height: 44px; }
+.kv2 > div { font-size: 13px; } .kv2 small { font-size: 12px; } .mech h4 { font-size: 12px; letter-spacing: .04em; } .mech ol { font-size: 12px; line-height: 1.55; }
+.bc-h .nm b { font-size: 15px; font-weight: 700; } .bc-d { font-size: 13px; } .bc-stats small { font-size: 11px; } .bc-f, .bc-f .lk a, .bc-f .lk button { font-size: 12px; }
+.tiles b { font-weight: 600; } .tiles small, .dc-box small { font-size: 12px; } .dc-h b { font-weight: 700; }
+.htiles b { font-weight: 600; } .htiles small { font-size: 11px; letter-spacing: .1em; }
+.bd-chips button, .dfil button { font-size: 12.5px; } .bd-tabs button { font-size: 12.5px; }
+/* ---- Seam motion ---- */
+@keyframes kRise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@keyframes kIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes kCard { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes kRail { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes kDrift { 0% { transform: scale(1.04) translate(-.6%, -.4%); } 100% { transform: scale(1.08) translate(.6%, .4%); } }
+@keyframes kVeil { 0% { opacity: .85; transform: translateX(0); } 100% { opacity: 1; transform: translateX(-2%); } }
+@keyframes kPulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: .45; transform: scale(.8); } }
+.hero2 { background: #0B0B10; } .hero2 .h2img { position: absolute; inset: 0; background: center / cover no-repeat; animation: kDrift 64s cubic-bezier(.76, 0, .24, 1) infinite alternate; will-change: transform; }
+.hero2::before { z-index: 1; animation: kVeil 12s ease-in-out infinite alternate; } .hero2 > *:not(.h2img) { position: relative; z-index: 2; }
+.anim-in .hero2 { animation: kIn .45s cubic-bezier(.16, 1, .3, 1) both; }
+.anim-in .hero2 h1 { animation: kRise .8s cubic-bezier(.16, 1, .3, 1) both; } .anim-in .hero2 p, .anim-in .hero2 .btn-o { animation: kRise .8s cubic-bezier(.16, 1, .3, 1) .08s both; }
+.anim-in .htiles > div { animation: kRise .8s cubic-bezier(.16, 1, .3, 1) both; } .anim-in .htiles > div:nth-child(2) { animation-delay: .1s; } .anim-in .htiles > div:nth-child(3) { animation-delay: .18s; }
+.anim-in .pg-head, .anim-in .tiles, .anim-in .pn, .anim-in .dfil, .anim-in .dstat, .anim-in .stk-grid > *, .anim-in .pf-top, .anim-in .pf-grid > *, .anim-in .dz > *, .anim-in .lg > * { animation: kIn .45s cubic-bezier(.16, 1, .3, 1) both; }
+.anim-in .tiles + .tiles, .anim-in .pn:nth-child(2), .anim-in .dz > :nth-child(3), .anim-in .lg > :nth-child(3) { animation-delay: .04s; } .anim-in .dz > :nth-child(n+4), .anim-in .lg > :nth-child(n+4) { animation-delay: .08s; }
+.anim-in .dgrid > .dcard { animation: kCard .5s cubic-bezier(.16, 1, .3, 1) both; }
+.anim-in .dgrid > .dcard:nth-child(2) { animation-delay: .03s; } .anim-in .dgrid > .dcard:nth-child(3) { animation-delay: .06s; } .anim-in .dgrid > .dcard:nth-child(4) { animation-delay: .09s; } .anim-in .dgrid > .dcard:nth-child(5) { animation-delay: .12s; } .anim-in .dgrid > .dcard:nth-child(n+6) { animation-delay: .15s; }
+.srank button { animation: kRail .55s cubic-bezier(.16, 1, .3, 1) both; } .srank button:nth-child(2) { animation-delay: .055s; } .srank button:nth-child(3) { animation-delay: .11s; } .srank button:nth-child(4) { animation-delay: .165s; } .srank button:nth-child(5) { animation-delay: .22s; } .srank button:nth-child(6) { animation-delay: .275s; } .srank button:nth-child(n+7) { animation-delay: .33s; }
+.pg-chip i, .bd-status .live i, .tk-r .live i { animation: kPulse 2s ease infinite; }
+.dcard, .bcard, .pn, .btn-w, .btn-gold, .pg-chip, .dfil button { transition: background .18s cubic-bezier(.2, .75, .2, 1), color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .22s cubic-bezier(.16, 1, .3, 1), opacity .18s ease; }
+@media (prefers-reduced-motion: reduce) { .hero2 .h2img, .hero2::before, .srank button, .pg-chip i, .bd-status .live i, .tk-r .live i, [class*="anim-in"] * { animation: none !important; } }
+/* ---- bottom bar: thin, price pills ---- */
+.bottom { height: 26px; font-size: 10.5px; font-weight: 500; }
+.tk { gap: 6px; padding: 0 8px; } .tk button { font-family: var(--font); font-size: 10.5px; font-weight: 600; gap: 5px; height: 18px; padding: 0 8px 0 3px; border-radius: 999px; background: var(--surface); letter-spacing: -.005em; }
+.tk button.up { background: rgba(34, 197, 94, .13); } .tk button.down { background: rgba(239, 68, 68, .16); } .tk button:hover { filter: brightness(1.25); }
+.tk .logo { width: 13px !important; height: 13px !important; border: 0; } .tk .logo img { padding: 0; } .tk b, .tk i { display: none; } .tk .bnbi { width: 13px; height: 13px; flex: none; }
+.tk-r { gap: 9px; padding: 0 10px; } .tk-r .live { font-size: 10.5px; } .tk-r a { font-size: 10.5px; text-decoration: none; } .tk-r a:hover { text-decoration: underline; }
+.tk-r .xbtn, .tk-r #theme { width: 18px; height: 18px; } .tk-r .xbtn svg { width: 10px; height: 10px; } .tk-r #theme svg { width: 12px; height: 12px; }
+.tk-r .place { height: 18px; font-size: 10.5px; padding: 0 2px; } .tk-r .place svg { width: 10px; height: 10px; } .tk-r .lang2 button { font-size: 11px; }
+/* ---- docs and legal pages ---- */
+.dz { max-width: 780px; margin: 30px auto 70px; display: grid; gap: 14px; }
+.dz h1 { margin-bottom: 4px; } .dz .lede { color: var(--muted); font-size: 14.5px; line-height: 1.7; margin-bottom: 14px; }
+.dz-card { border: 1px solid var(--line); border-radius: 18px; background: var(--card); padding: 22px 24px; scroll-margin-top: 80px; }
+.dz-card h2 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 14px; }
+.dz-card p, .dz-card li { font-size: 14px; line-height: 1.75; color: var(--ink); opacity: .9; } .dz-card p + p, .dz-card p + ul, .dz-card ul + p { margin-top: 10px; }
+.dz-card ul { margin: 0; padding-left: 20px; display: grid; gap: 4px; } .dz-card b { font-weight: 700; } .dz-card a { color: #A5B4FC; }
+.dz-toc { font-size: 14px; line-height: 1.9; } .dz-toc b { font-weight: 700; } .dz-toc button { all: unset; cursor: pointer; color: #A5B4FC; } .dz-toc button:hover { text-decoration: underline; }
+.dz-tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 12px; } .dz-tbl td { padding: 10px 0; border-bottom: 1px solid var(--line); vertical-align: top; line-height: 1.6; } .dz-tbl td:first-child { width: 190px; font-weight: 600; padding-right: 16px; } .dz-tbl tr:last-child td { border-bottom: 0; }
+.dz-c { list-style: none; padding: 0 !important; } .dz-c li { display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--line); } .dz-c li:last-child { border-bottom: 0; } .dz-c span { color: var(--muted); } .dz-c .mono { font-size: 12.5px; overflow-wrap: anywhere; }
+.lg { max-width: 780px; margin: 34px auto 80px; } .lg h1 { margin-bottom: 14px; } .lg .upd { color: var(--muted); font-size: 14px; margin-bottom: 30px; }
+.lg section { margin-bottom: 30px; } .lg h2 { font-size: 18px; font-weight: 700; letter-spacing: -.01em; margin-bottom: 14px; } .lg p { font-size: 14.5px; line-height: 1.7; color: var(--ink); opacity: .82; } .lg a { color: #A5B4FC; }
+.lg-nav { display: flex; gap: 18px; flex-wrap: wrap; padding-top: 22px; border-top: 1px solid var(--line); } .lg-nav a { font-size: 13px; color: var(--muted) !important; } .lg-nav a:hover { color: var(--ink) !important; }
+@media (max-width: 760px) { .dz, .lg { margin-top: 14px; } .dz-card { padding: 18px; } .dz-tbl td:first-child { width: 120px; } }
 </style>
 
 <div class="L" id="landing" hidden>
-  <img class="L-bg" src="/photos/hero.webp" srcset="/photos/hero-1080.webp 1080w, photos/hero.webp 1920w" sizes="100vw" alt="" fetchpriority="high" decoding="async">
+  <img class="L-bg" src="/photos/hero-market.webp" srcset="/photos/hero-market-1200.webp 1200w, /photos/hero-market.webp 2400w" sizes="100vw" alt="" fetchpriority="high" decoding="async">
   <canvas class="L-fx" id="L-fx" aria-hidden="true"></canvas>
   <div class="L-veil" aria-hidden="true"></div>
   <div class="L-cover" aria-hidden="true"></div>
@@ -1258,20 +1326,8 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     </section>
 
     <hr class="divider">
-    <section class="sec" id="docs">
-      <div class="sec-h"><h2 data-t="docs.h2"></h2></div>
-      <div class="docs">
-        <div class="doc"><span class="step">1</span><h3 data-t="docs.1h"></h3><p data-t="docs.1s"></p></div>
-        <div class="doc"><span class="step">2</span><h3 data-t="docs.2h"></h3><p data-t="docs.2s"></p></div>
-        <div class="doc"><span class="step">3</span><h3 data-t="docs.3h"></h3><p data-t="docs.3s"></p></div>
-      </div>
-      <details class="rules"><summary data-t="docs.full"></summary><div class="docs">
-        <div><h4 data-t="docs.1h"></h4><ul><li data-t="docs.1a"></li><li data-t="docs.1b"></li><li data-t="docs.1c"></li><li data-t="docs.1d"></li></ul></div>
-        <div><h4 data-t="docs.2h"></h4><ul><li data-t="docs.2a"></li><li data-t="docs.2b"></li><li data-t="docs.2c"></li><li data-t="docs.2d"></li></ul></div>
-        <div><h4 data-t="docs.3h"></h4><ul><li data-t="docs.3a"></li><li data-t="docs.3b"></li><li data-t="docs.3c"></li><li data-t="docs.3d"></li></ul></div>
-      </div></details>
-      <div class="spec"><div class="spec-h"><h3 data-t="spec.h"></h3><small data-t="spec.sub"></small></div><div class="spec-g" id="spec"></div></div>
-    </section>
+    <section class="sec" id="docs"><div id="docs-body"></div><div hidden><div id="spec"></div></div></section>
+    <section class="sec" id="legal"><div id="legal-body"></div></section>
 
     <hr class="divider">
     <section class="sec" id="why">
@@ -1391,6 +1447,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     en: {
       'mode.raising': 'Raising', 'mode.graduated': 'Graduated', 'place.now': 'Now',
 
+      'dz.h': 'kuai Docs', 'dz.p': 'How kuai works, in plain words. Everything runs on BNB Chain. Every rule below is a constant in the deployed contracts, not a setting on a server of ours.', 'dz.toc': 'On this page:', 'dz.notYet': 'not deployed yet', 'lg.updated': (d) => `Last updated ${d}.`,
       'nav.dash': 'Dashboard', 'nav.analytics': 'Analytics', 'nav.terminal': 'Terminal', 'nav.stake': 'Stake', 'nav.profile': 'Profile', 'pg.chain': 'BNB CHAIN',
       'dash.h': (n) => `${n} restaurants. One pool.`, 'dash.p': 'Live from BNB Chain. Pick a restaurant with a tokenized stock, buy into its live coin or launch one. Every coin that graduates pays 1% to $KUAI stakers in BNB.', 'dash.pool': 'Staking pool', 'dash.live': 'Coins live', 'dash.next': 'Next close', 'dash.q': 'Name or ticker', 'dash.showing': (a, b) => `Showing <b>${a} of ${b}</b>`, 'dash.px': 'Stock price', 'dash.coins': 'Live coins', 'dash.raised': 'Raised', 'dash.buy': (tk) => `Buy $${tk}`, 'dash.launch': 'Launch', 'dash.none': 'No live coin yet', 'dash.bought': (tk) => `Bought $${tk}.`,
       'an.h': 'Analytics', 'an.p': 'Read live from the kuai contracts, their events and the PancakeSwap pools. Nothing here is estimated.', 'an.block': (n) => `Live · block ${n}`, 'an.raised': 'Total raised', 'an.inCoins': (n) => `in <b>${n}</b> coins`, 'an.coins': 'Coins launched', 'an.launchers': (n) => `<b>${n}</b> unique launchers`, 'an.grad': 'Graduated', 'an.gradRate': (p) => `<b>${p}</b> of finished raises`, 'an.live': 'Live raises', 'an.nextClose': (x) => `next close in <b>${x}</b>`, 'an.buyers': 'Buyers', 'an.fees': 'Fees to $KUAI', 'an.paid': 'Paid to stakers', 'an.burned': '$KUAI burned', 'an.chart': 'Raised over time', 'an.chartSub': 'Cumulative', 'an.noChart': 'No buys yet', 'an.noChartP': 'The chart starts with the first buy.', 'an.byRest': 'Raised by restaurant', 'an.byRestSub': 'Share of all raised', 'an.act': 'Activity', 'an.all': 'All', 'an.buys': 'Buys', 'an.launches': 'Launches', 'an.grads': 'Graduations', 'an.actNone': 'Waiting for the first move', 'an.actNoneP': 'Buys, launches and graduations stream in as they land on-chain.', 'an.bought': 'bought', 'an.launched': 'launched', 'an.graduated': 'graduated', 'an.top': 'Top buyers', 'an.topSub': 'By amount bought', 'an.topNone': 'No buyers yet', 'an.coinsH': 'Launched coins', 'an.coinsSub': 'Newest first', 'an.coinsNone': 'No coins launched yet',
@@ -1480,6 +1537,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     zh: {
       'mode.raising': '募集中', 'mode.graduated': '已毕业', 'place.now': '实时',
 
+      'dz.h': 'kuai 文档', 'dz.p': '用大白话讲清 kuai 如何运作。一切都在 BNB Chain 上运行，下面每条规则都是已部署合约里的常量。', 'dz.toc': '本页目录：', 'dz.notYet': '尚未部署', 'lg.updated': (d) => `最后更新：${d}。`,
       'nav.dash': '仪表盘', 'nav.analytics': '数据', 'nav.terminal': '终端', 'nav.stake': '质押', 'nav.profile': '个人主页', 'pg.chain': 'BNB CHAIN',
       'dash.h': (n) => `${n} 家餐厅，一个池子。`, 'dash.p': '实时来自 BNB Chain。选一家有股票代币的餐厅，买入它正在募集的代币或发行新代币。每个毕业的代币都会把 1% 以 BNB 分给 $KUAI 质押者。', 'dash.pool': '质押池', 'dash.live': '募集中', 'dash.next': '下次截止', 'dash.q': '名称或代码', 'dash.showing': (a, b) => `显示 <b>${a} / ${b}</b>`, 'dash.px': '股价', 'dash.coins': '募集中代币', 'dash.raised': '已募集', 'dash.buy': (tk) => `买入 $${tk}`, 'dash.launch': '发行', 'dash.none': '暂无募集中代币', 'dash.bought': (tk) => `已买入 $${tk}。`,
       'an.h': '数据', 'an.p': '实时读取 kuai 合约、事件和 PancakeSwap 池子，没有任何估算。', 'an.block': (n) => `实时 · 区块 ${n}`, 'an.raised': '累计募集', 'an.coins': '已发行代币', 'an.grad': '已毕业', 'an.live': '募集中', 'an.buyers': '买家', 'an.fees': '给 $KUAI 的手续费', 'an.paid': '已付质押者', 'an.burned': '已销毁 $KUAI', 'an.chart': '募集走势', 'an.byRest': '按餐厅募集', 'an.act': '动态', 'an.all': '全部', 'an.buys': '买入', 'an.launches': '发行', 'an.grads': '毕业', 'an.top': '买家排行', 'an.coinsH': '已发行代币',
@@ -2381,24 +2439,26 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     if (B.stab === 'stocks') rows = PAIR_IDS.filter(visible).map((id) => ({ id, p: PAIRS[id], chg: PX.chg[PAIRS[id].symbol] })).sort((a, b) => (b.chg ?? -999) - (a.chg ?? -999)).slice(0, 10).map((x, i) => { const k = x.chg == null ? '' : x.chg >= 0 ? 'up' : 'down'; const px = PX.usd[x.p.symbol]; return `<button type="button" data-open="r:${esc(x.id)}"><span class="rk">${i + 1}</span>${logo(REST[x.id], 30)}<span class="nm"><b>${esc(nm(REST[x.id]))}</b><small>${esc(x.p.symbol)} · ${esc(x.p.issuer)}</small></span><span class="rt ${k}">${px ? usdStr(px) : '—'}<small>${x.chg == null ? '' : (x.chg >= 0 ? '+' : '') + x.chg.toFixed(2) + '%'}</small></span></button>`; });
     else { const pick = B.stab === 'trending' ? Cs.filter((C) => C.phase === 'live' || C.phase === 'pending').sort((a, b) => b.progress - a.progress) : B.stab === 'new' ? Cs.filter((C) => C.phase === 'live').sort((a, b) => b.openAt - a.openAt) : Cs.filter((C) => C.phase === 'ok').sort((a, b) => b.closeAtEff - a.closeAtEff);
       rows = pick.slice(0, 10).map((C, i) => `<button type="button" data-open="${esc(C.addr)}"><span class="rk">${i + 1}</span>${logo(C.r, 30)}<span class="nm"><b>${esc(C.name)}</b><small>${esc(C.tick)} · ${esc(nm(C.r))}</small></span><span class="rt ${C.phase === 'ok' ? 'up' : ''}">${pct(C.progress)}<small>${amt(C.raised, C.unit)}</small></span></button>`); }
-    host.innerHTML = rows.join('') || `<p class="empty">${t('srank.none')}</p>`;
+    const html = rows.join('') || `<p class="empty">${t('srank.none')}</p>`; if (host.dataset.h !== html) { host.dataset.h = html; host.innerHTML = html; }
   }
   function renderTicker() {
     const host = $('#tk'); if (!host) return; const ids = ['sol', ...PAIR_IDS.filter((id) => visible(id) && PX.usd[PAIRS[id].symbol])];
     const sig = ids.map((id) => id + ':' + (id === 'sol' ? PX.usd.BNB : PX.usd[PAIRS[id].symbol])).join('|') + state.lang; if (host.dataset.sig === sig) return; host.dataset.sig = sig;
-    const item = (id) => id === 'sol' ? (PX.usd.BNB ? `<button type="button" data-open="a:"><b>BNB</b>${usdStr(PX.usd.BNB)}${chg('BNB')}</button>` : '') : `<button type="button" data-open="r:${esc(id)}">${logo(REST[id], 16)}<b>${esc(PAIRS[id].symbol)}</b>${usdStr(PX.usd[PAIRS[id].symbol])}${chg(PAIRS[id].symbol)}</button>`;
+    const dirc = (sy) => { const c = PX.chg[sy]; return c == null ? '' : c >= 0 ? 'up' : 'down'; }; const ttl = (sy) => { const c = PX.chg[sy]; return esc(sy) + (c == null ? '' : ` ${c >= 0 ? '+' : ''}${c.toFixed(2)}% 24h`); };
+    const BNBI = '<svg class="bnbi" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="#F0B90B"/><path fill="#fff" d="M8 3.4 9.5 4.9 8 6.4 6.5 4.9zM4.9 6.5 6.4 8 4.9 9.5 3.4 8zM11.1 6.5 12.6 8l-1.5 1.5L9.6 8zM8 9.6l1.5 1.5L8 12.6l-1.5-1.5zM8 6.9 9.1 8 8 9.1 6.9 8z"/></svg>';
+    const item = (id) => id === 'sol' ? (PX.usd.BNB ? `<button type="button" class="${dirc('BNB')}" title="${ttl('BNB')}" data-open="a:">${BNBI}${usdStr(PX.usd.BNB)}</button>` : '') : `<button type="button" class="${dirc(PAIRS[id].symbol)}" title="${ttl(PAIRS[id].symbol)}" data-open="r:${esc(id)}">${logo(REST[id], 14)}${usdStr(PX.usd[PAIRS[id].symbol])}</button>`;
     const html = ids.map(item).join(''); host.innerHTML = html + html;
     $$('#lang2 button').forEach((b) => b.classList.toggle('is-on', b.dataset.lang === state.lang));
   }
   function disconnect() { try { if (state.provider && state.provider.disconnect) state.provider.disconnect(); } catch {} state.provider = null; state.address = null; state.balance = null; for (const k of Object.keys(MYPAID)) delete MYPAID[k]; BAL.tokens = {}; TOK = null; try { localStorage.removeItem('bento.tok'); } catch {} renderWallet(); loadCoins(); }
-  const VIEWS = { home: [], explore: ['explore'], coins: ['coins'], gifts: ['giftshop'], launch: ['launch'], docs: ['docs', 'why', 'faq'], pairs: ['pairs'], leaderboard: ['leaderboard'], calendar: ['calendar'], guides: ['guides'], status: ['status'], help: ['help'], profile: ['profile'], dashboard: ['dashboard'], analytics: ['analytics'], terminal: ['terminal'], stake: ['stake'] };
-  let PROFILE = null, GUIDE = null;
+  const VIEWS = { home: [], explore: ['explore'], coins: ['coins'], gifts: ['giftshop'], launch: ['launch'], docs: ['docs', 'faq'], legal: ['legal'], pairs: ['pairs'], leaderboard: ['leaderboard'], calendar: ['calendar'], guides: ['guides'], status: ['status'], help: ['help'], profile: ['profile'], dashboard: ['dashboard'], analytics: ['analytics'], terminal: ['terminal'], stake: ['stake'] };
+  let PROFILE = null, GUIDE = null, LEGAL = 'terms'; const LEGAL_SLUGS = ['terms', 'privacy', 'risk', 'refund', 'cookies'];
   const VIEW_OF = { '': 'home', home: 'home', top: 'explore', explore: 'explore', 'sec-rest': 'explore', all: 'coins', coins: 'coins', gifts: 'gifts', giftshop: 'gifts', launch: 'launch', docs: 'docs', why: 'docs', faq: 'docs', pairs: 'pairs', leaderboard: 'leaderboard', calendar: 'calendar', guides: 'guides', status: 'status', help: 'help', dashboard: 'dashboard', analytics: 'analytics', terminal: 'terminal', stake: 'stake', profile: 'profile' };
   const VIEW_TITLE = { home: '', explore: 'L.nav.explore', coins: 'sec.allCoins', gifts: 'gift.h2', launch: 'launch.h2', docs: 'docs.h2', pairs: 'docs.4h', leaderboard: 'lb.h2', calendar: 'cal.h2', guides: 'gd.h2', status: 'st.h2', help: 'help.h2', profile: 'pf.h2', dashboard: 'nav.dash', analytics: 'nav.analytics', terminal: 'nav.terminal', stake: 'nav.stake' };
   let VIEW = null;
   const CFG = window.SOL_CFG || {}; const PATHS = Boolean(CFG.paths);
-  const viewPath = (v) => v === 'home' ? '/' : v === 'profile' && PROFILE ? '/u/' + PROFILE : v === 'guides' && GUIDE ? '/guides/' + GUIDE : '/' + v;
-  const viewHash = (v) => v === 'profile' && PROFILE ? '#u/' + PROFILE : v === 'guides' && GUIDE ? '#guides/' + GUIDE : '#' + v;
+  const viewPath = (v) => v === 'legal' ? '/' + LEGAL : v === 'home' ? '/' : v === 'profile' && PROFILE ? '/u/' + PROFILE : v === 'guides' && GUIDE ? '/guides/' + GUIDE : '/' + v;
+  const viewHash = (v) => v === 'legal' ? '#' + LEGAL : v === 'profile' && PROFILE ? '#u/' + PROFILE : v === 'guides' && GUIDE ? '#guides/' + GUIDE : '#' + v;
   async function loadConfig() {
     if (location.protocol === 'file:') return;
     try { const r = await fetch('/api/config', { cache: 'no-store' }); if (!r.ok) return; const j = await r.json(); Object.assign(CFG, j, { server: true });
@@ -2443,6 +2503,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
   const openGuide = (slug) => { GUIDE = slug || null; go('guides'); };
   function route() {
     let h = decodeURIComponent((location.hash || '').slice(1)); if (!h && PATHS) h = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, ''); let m;
+    if (LEGAL_SLUGS.includes(h)) { LEGAL = h; VIEW_TITLE.legal = 'legal.' + h; setView('legal'); if (VIEW === 'legal') renderView('legal', false); return 'view'; }
     if (h in VIEW_OF) { if (h === 'guides') GUIDE = null; if (h === 'profile') PROFILE = null; setView(VIEW_OF[h], h); return 'view'; }
     if ((m = h.match(/^u\/(0x[0-9a-fA-F]{40})$/))) { PROFILE = m[1]; setView('profile'); return 'view'; }
     if ((m = h.match(/^guides\/([a-z0-9-]+)$/))) { GUIDE = m[1]; setView('guides'); return 'view'; }
@@ -2461,11 +2522,13 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     if (state.loaded) toast(t('search.noaddr', net().name));
   }
   function copyText(v) { const done = () => toast(t('copied')); if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done).catch(() => toast(v)); else { try { const ta = document.createElement('textarea'); ta.value = v; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done(); } catch { toast(v); } } }
-  function render() { renderStats(); renderWallet(); renderGifts(); renderHero(); renderFeatured(); renderRows(); renderBoard(); renderSideRank(); renderTicker(); renderPreview(); renderPairs(); renderFeed(); if (VIEW && ['leaderboard', 'calendar', 'profile', 'dashboard', 'analytics', 'terminal', 'stake'].includes(VIEW)) renderView(VIEW, false); }
+  function render() { renderStats(); renderWallet(); renderGifts(); renderHero(); renderFeatured(); renderRows(); renderBoard(); renderSideRank(); renderTicker(); renderPreview(); renderPairs(); renderFeed(); if (VIEW && ['leaderboard', 'calendar', 'profile', 'dashboard', 'analytics', 'terminal', 'stake', 'docs', 'legal'].includes(VIEW)) renderView(VIEW, false); }
 
   /* ---------- extra views ---------- */
   function renderView(v, changed) {
     if (!fmt.num) return;   /* first route runs before setLang; setLang renders again */
+    const secId = (VIEWS[v] || [])[0]; const secA = secId ? document.getElementById(secId) : null; if (secA && changed) { secA.classList.remove('anim-in'); void secA.offsetWidth; secA.classList.add('anim-in'); clearTimeout(secA._anim); secA._anim = setTimeout(() => secA.classList.remove('anim-in'), 1800); }
+    if (v === 'docs') renderDocs(); if (v === 'legal') renderLegal();
     if (v === 'leaderboard') { renderLeaderboard(); if (changed) loadLeaders(); }
     else if (v === 'calendar') renderCalendar();
     else if (v === 'guides') renderGuides();
@@ -2653,7 +2716,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
         <div class="dc-box"><small>${t('dash.px')}</small><b>${px ? usdStr(px) : '—'}</b></div>
         <div class="dc-two"><div class="dc-box"><small>${t('dash.coins')}</small><b>${lv.length}${mine.length > lv.length ? `<em> / ${mine.length}</em>` : ''}</b></div><div class="dc-box"><small>${t('dash.raised')}</small><b>${raised ? num3(raised) : '0'} <em>${esc(unit)}</em></b></div></div>
         <div class="dc-f">${top ? `<label class="dc-amt" data-stop><input type="number" min="0" step="any" inputmode="decimal" data-damt="${esc(id)}" value="${esc(DB.amt[id] ?? '0.01')}"><span>${esc(top.unit)}</span></label><button class="btn-w" type="button" data-dbuy="${esc(top.addr)}" data-rid="${esc(id)}" ${state.busy ? 'disabled' : ''}>${t('dash.buy', esc(top.tick))}</button>` : `<span class="dc-none">${t('dash.none')}</span><button class="btn-w" type="button" data-dlaunch="${esc(id)}">${t('dash.launch')}</button>`}</div></div>`; };
-    host.innerHTML = `<div class="hero2" style="background-image:url(/photos/hero.webp)"><div class="in"><div><h1>${t('dash.h', ids.length)}</h1><p>${t('dash.p')}</p><a class="btn-o" href="#launch">${t('nav.create')}</a></div>
+    host.innerHTML = `<div class="hero2"><div class="h2img" style="background-image:url(/photos/hero-market.webp)"></div><div class="in"><div><h1>${t('dash.h', ids.length)}</h1><p>${t('dash.p')}</p><a class="btn-o" href="#launch">${t('nav.create')}</a></div>
       <div class="htiles"><div><small>${t('dash.pool')}</small><b>${pool == null ? '—' : fmt4(pool) + ' ' + esc(nsym())}</b></div><div><small>${t('dash.live')}</small><b>${live.length}</b></div><div><small>${t('dash.next')}</small><b ${next ? `data-hms="${next.closeAt}"` : ''}>${next ? hms(next.closeAt - now) : '—'}</b></div></div></div></div>
       <div class="dfil"><button type="button" data-dcat="all" class="${DB.cat === 'all' ? 'is-on' : ''}">${t('bd.allRest')}</button>${CAT_CHIPS.filter((c) => c !== 'all').map((c) => `<button type="button" data-dcat="${c}" class="${DB.cat === c ? 'is-on' : ''}">${t('cat.' + c)}</button>`).join('')}<span class="sp"></span><label><svg viewBox="0 0 24 24" width="15" height="15" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><input id="dq" type="search" autocomplete="off" placeholder="${t('dash.q')}" value="${esc(DB.q)}"></label></div>
       <div class="dstat"><span class="pg-chip">${t('dash.showing', shown.length, ids.length)}</span><span class="pg-chip">${t('dash.pool')} <b>${pool == null ? '—' : fmt4(pool) + ' ' + esc(nsym())}</b></span></div>
@@ -2720,7 +2783,7 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     const houseCoin = tok ? list().find((C) => C.token && C.token.toLowerCase() === d.token.toLowerCase()) : null;
     const avail = you ? (STK.mode === 'stake' ? kuaiOf(you.balance) : kuaiOf(you.staked)) : 0;
     const state1 = !d ? t('stk.loading') : !dep ? t('stk.notDeployed') : !tok ? t('stk.noToken') : !state.address ? t('stk.connect') : '';
-    host.innerHTML = `<div class="hero2 stk" style="background-image:url(/photos/hero-1080.webp)"><div class="in"><div><h1>${t('stk.h')}</h1><p>${t('stk.p')}</p></div></div><div class="htiles"><div><small>${t('stk.t1')}</small><b>${t('stk.v1')}</b></div><div><small>${t('stk.t2')}</small><b>${t('stk.v2', esc(nsym()))}</b></div><div><small>${t('stk.t3')}</small><b>${t('stk.v3')}</b></div></div></div>
+    host.innerHTML = `<div class="hero2 stk"><div class="h2img" style="background-image:url(/photos/hero-temple.webp)"></div><div class="in"><div><h1>${t('stk.h')}</h1><p>${t('stk.p')}</p></div></div><div class="htiles"><div><small>${t('stk.t1')}</small><b>${t('stk.v1')}</b></div><div><small>${t('stk.t2')}</small><b>${t('stk.v2', esc(nsym()))}</b></div><div><small>${t('stk.t3')}</small><b>${t('stk.v3')}</b></div></div></div>
       <div class="stk-grid"><div class="pn"><div class="stk-sec"><h3><span class="stk-n">01</span>${t('stk.h1')}</h3><p>${t('stk.p1', ks)}</p>
         <div class="stk-ca"><div class="row1"><b>${t('stk.ca', ks)}</b>${houseCoin ? `<a href="#" data-open="${esc(houseCoin.addr)}">${t('stk.view')}</a>` : ''}</div>${tok ? `<div class="ca"><small>CA</small><span>${esc(d.token)}</span><button type="button" data-copy="${esc(d.token)}">${t('stk.copy')}</button></div>` : `<p class="note">${dep ? t('stk.noToken') : t('stk.notDeployed')}</p>`}</div>
         <div class="stk-tog"><button type="button" data-stkmode="stake" class="${STK.mode === 'stake' ? 'is-on' : ''}">${t('stk.stake')}</button><button type="button" data-stkmode="unstake" class="${STK.mode === 'unstake' ? 'is-on' : ''}">${t('stk.unstake')}</button></div>
@@ -2739,6 +2802,43 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
     if (ok) STK.amt = ''; await loadStake(true);
   }
   async function stakeClaim() { if (!state.address) return; await sendTx(async () => { const j = await viaServer(`/api/stake/ix/claim?cluster=${state.chainId}&wallet=${state.address}`); return sendCalls(j.calls); }, t('stk.claimed')); await loadStake(true); }
+
+  /* ---------- docs and legal pages (Seam layout) ---------- */
+  const UPDATED = 'October 15, 2026';
+  const xHref = () => (CFG.social && CFG.social.x) || 'https://x.com/';
+  function renderDocs() {
+    const host = $('#docs-body'); if (!host) return; const n = net(); const d = STK.d && STK.d.deployed ? STK.d : null;
+    const addr = (a) => a ? `<a class="mono" href="${explorer(a)}" target="_blank" rel="noopener">${esc(a)}</a>` : `<span class="mut">${t('dz.notYet')}</span>`;
+    const secs = [
+      ['overview', 'Overview', `<p>kuai has two halves. <b>Launchpad:</b> every coin is paired with a restaurant that has a tokenized stock on BNB Chain (McDonald's is MCDx, Starbucks is SBUXx, Wendy's is WENB). The raise is paid in that stock token, and when the coin graduates it lists on PancakeSwap against it. <b>Gift cards:</b> real eGift cards from restaurant brands, paid with any crypto or a card and delivered by email.</p>`],
+      ['pairs', 'Pairs and stock tokens', `<ul><li><b>18</b> stock tokens from three issuers: xStocks (Backed Finance), bStocks (Binance) and Ondo.</li><li>Each one was checked on-chain: name, symbol, decimals and total supply. The list, with links, is on the <a href="#pairs">Verified pairs</a> page.</li><li>On BNB Testnet the stock tokens do not exist, so raises there are paid in tBNB.</li></ul>`],
+      ['launch', 'Launching a coin', `<ul><li>Pick a restaurant, a name (2 to 32 characters), a ticker (2 to 8), a target and how long the raise stays open.</li><li>The factory deploys the coin (<b>1,000,000,000</b> supply, 18 decimals) and its raise contract in one transaction.</li><li>You only pay gas. kuai charges nothing to launch.</li></ul>`],
+      ['raise', 'The raise', `<ul><li>Buy with the restaurant's stock token (one approval first) or with BNB on testnet.</li><li>Minimum to graduate: <b>target ÷ 3</b>. Cap per wallet: <b>target ÷ 10</b>.</li><li>The window closes early when the target is reached. Anything above the target or your cap is returned in the same transaction.</li></ul>`],
+      ['graduation', 'Graduation and the pool', `<ul><li>When the raise closes with at least the minimum, anyone can call finalize.</li><li><b>1%</b> of the raise is the network fee. <b>99%</b> of the raise and <b>20%</b> of the supply become a PancakeSwap v2 pool COIN/STOCK, and the LP tokens are burned: that liquidity can never be pulled.</li><li><b>80%</b> of the supply goes to buyers in proportion to what they paid. Claim it any time from the coin page.</li><li>If the raise closes below the minimum, every buyer gets <b>100%</b> back with Refund.</li></ul>`],
+      ['trading', 'Trading', `<ul><li>After graduation, buy and sell on the coin page. Trades go to the PancakeSwap router on BNB Chain.</li><li>Every quote is read on-chain before you sign, with 1% slippage by default. If the price moves past it, the trade reverts and you only lose gas.</li><li>You can trade the same coin directly on PancakeSwap or any BNB Chain wallet.</li></ul>`],
+      ['staking', '$KUAI and staking', `<p>$KUAI is the house coin of kuai. Staking it gives a share of the whole network instead of a single coin.</p><ul><li><b>Real BNB yield:</b> 70% of every graduation fee is paid to stakers in BNB, in proportion to their stake.</li><li><b>Buyback and burn:</b> the other 30% buys $KUAI on PancakeSwap and sends it to the dead address.</li><li><b>Zero lockup:</b> stake or unstake any time. Earned BNB stays credited to your address until you claim it.</li><li><b>Before launch:</b> until $KUAI exists, 100% of fees go to the buyback pool.</li><li><b>Safety:</b> the contract is non-custodial. The owner can only convert stock-token fees to BNB and run the buyback, both with a minimum price; it can never touch stakes or BNB owed to stakers.</li></ul>`],
+      ['fees', 'All fees', `<table class="dz-tbl"><tbody><tr><td>Launch</td><td>Gas only</td></tr><tr><td>Buying in a raise</td><td>No fee. The full amount counts toward the raise</td></tr><tr><td>Graduation</td><td>1% of the raise to the staking contract: 70% to $KUAI stakers in BNB, 30% buyback and burn</td></tr><tr><td>Pool trades</td><td>PancakeSwap's own 0.25% swap fee. kuai adds nothing</td></tr><tr><td>Finalize, claim, refund</td><td>Gas only</td></tr><tr><td>Staking</td><td>Gas only. No fee on stake, unstake or claim</td></tr><tr><td>Gift cards</td><td>A service fee shown before you pay: 4% by default, 2% when you pay from a BNB Chain wallet</td></tr></tbody></table><p class="mut">Example: a 30 MCDx raise graduates. 0.3 MCDx is the fee, swapped to BNB: 70% goes to stakers, 30% buys and burns $KUAI. 29.7 MCDx and 200,000,000 coins open the pool; buyers claim the other 800,000,000.</p>`],
+      ['gifts', 'Gift cards', `<ul><li>Cards are real eGift cards issued by Bitrefill, a licensed reseller, only after your payment is confirmed.</li><li>Pay with BNB or USDT from your wallet, with 300+ other cryptocurrencies, or by card through Stripe.</li><li>The code shows on the order page, is emailed to the recipient and is saved in your account. You can schedule delivery for a date.</li><li>Gift cards are final once issued. If a card cannot be issued after you paid, we refund or re-issue it.</li></ul>`],
+      ['profiles', 'Profiles', `<ul><li>Sign in by signing a message with your wallet. No transaction, no gas, no email.</li><li>Set a name (2 to 24 characters), an avatar (resized to 160 px, 120 KB at most) and a thesis (up to 280).</li><li>Post updates of up to 280 characters. Everything on a profile is public.</li><li>Your P/L is worked out from your buys on-chain, with graduated coins valued at the PancakeSwap pool price.</li></ul>`],
+      ['analytics', 'Analytics and Terminal', `<p><b>Analytics</b> shows the total raised, graduations, buyers, staking fees, raised over time, the share of each restaurant, live activity and top buyers. <b>Terminal</b> lists every coin and restaurant with raise, buyers, closes and pool price, the raise calculator and how every fee is split. Both read the contracts and the PancakeSwap pools directly.</p>`],
+      ['trust', 'What can and cannot happen', `<p class="mut">No hiding the uncomfortable parts:</p><ul><li>kuai never holds your stock tokens, BNB or coins. Raises are held by their own contract, and every payout goes from a contract straight to your wallet.</li><li>Nobody can withdraw from a raise before it finalizes, not the creator and not kuai.</li><li>Supply, minimum, cap per wallet, the 1% fee, the pool share and the LP burn are constants in the contracts.</li><li>The factory owner can change which stock token a restaurant uses and where the fee of <b>new</b> coins goes. Coins already launched keep theirs.</li><li>The contracts are not audited. A bug can lose funds.</li><li>Coins are created by users, not by kuai. Prices can go to zero.</li></ul>`],
+      ['contracts', 'Contracts', `<ul class="dz-c"><li><span>Factory (${esc(n.name)})</span>${addr(n.factory)}</li><li><span>Staking</span>${addr(d && d.staking)}</li><li><span>$KUAI</span>${addr(d && d.token)}</li><li><span>Source code</span><a href="https://github.com/2555raw/launch/blob/main/launchpad-site/contracts/KuaiLaunch.sol" target="_blank" rel="noopener">KuaiLaunch.sol</a></li></ul><p class="mut">Check everything on BscScan.</p>`],
+    ];
+    host.innerHTML = `<div class="dz"><h1>${t('dz.h')}</h1><p class="lede">${t('dz.p')}</p>
+      <div class="dz-card dz-toc"><b>${t('dz.toc')}</b> ${secs.map(([id, h]) => `<button type="button" data-dscroll="dz-${id}">${h}</button>`).join(' · ')}</div>
+      ${secs.map(([id, h, body]) => `<section class="dz-card" id="dz-${id}"><h2>${h}</h2>${body}</section>`).join('')}</div>`;
+  }
+  function legalSecs(k) {
+    if (k === 'terms') return [['Use at your own risk', 'kuai is software that talks to smart contracts on BNB Chain. Coins launched here are created by users, not by kuai. Prices can go to zero. Nothing on this site is financial advice.'], ['Your wallet, your responsibility', 'You sign every transaction yourself. kuai cannot reverse transactions, recover lost keys or refund trades. We will never ask for your seed phrase.'], ['Who can use kuai', 'Use kuai only where crypto assets and tokenized stocks are legal for you. Stock token issuers restrict some countries, and their own terms apply to their tokens.'], ['Contracts', 'The contracts are provided as they are, without warranty, and they are not audited. Fees are enforced by the contracts and listed in the <a href="#docs">Docs</a>.'], ['Gift cards', 'Gift cards are issued by Bitrefill after your payment is confirmed. A code is final once issued. The <a href="#" data-doc="refund">refund policy</a> explains what happens when a card cannot be issued.'], ['Content', 'You are responsible for what you post: names, avatars, theses, updates and comments. We may hide anything abusive, hateful, illegal, misleading or impersonating others. Hiding it here changes nothing on-chain.'], ['Brands', 'Restaurant names and logos belong to their owners and only identify the stock token a coin is paired with. Restaurants do not sponsor or endorse kuai or any coin.'], ['Changes', 'We can update these terms. Continuing to use kuai after a change means you accept it.']];
+    if (k === 'privacy') return [['What we store', 'Your wallet address when you sign in, the profile you choose to fill in (name, avatar, thesis), your updates and comments. All of this is public by design. For a gift card we keep the email you give us, the order and its payment reference so we can deliver it and help with it. Alert and newsletter emails are kept until you unsubscribe.'], ['What we never store', 'Private keys, seed phrases, passwords or card numbers. Card payments happen on Stripe. Signing in is a free wallet signature, not a transaction.'], ['On-chain data', 'Launches, buys, claims, stakes and trades live on BNB Chain. We read them to show charts, profiles and P/L, but we cannot edit or delete them.'], ['Services we use', 'Bitrefill issues the cards, NOWPayments and Stripe take payments, Resend sends email, CoinGecko gives prices and a BNB Chain node answers chain queries. Each sees only what it needs for its job, under its own policy.'], ['Local storage', 'Your browser keeps your language, theme, session token, the ids of your gift card orders and a small price cache. Clearing site data signs you out. There are no tracking cookies and no analytics.'], ['Deleting your data', 'Ask through the <a href="#help">Help</a> page and we delete your profile, your emails and the contact data of your orders. On-chain data cannot be deleted.'], ['Contact', `Questions: reach us on <a href="${esc(xHref())}" target="_blank" rel="noopener">X</a> or through <a href="#help">Help</a>.`]];
+    const src = T['legal.' + k + 'B'] || I18N.en['legal.' + k + 'B'] || [];
+    return src.map((p) => { const m = /^<b>(.*?)<\/b>\s*(.*)$/s.exec(p); return m ? [m[1].replace(/\.$/, ''), m[2]] : ['', p]; });
+  }
+  function renderLegal() {
+    const host = $('#legal-body'); if (!host) return; const k = LEGAL_SLUGS.includes(LEGAL) ? LEGAL : 'terms';
+    host.innerHTML = `<article class="lg"><h1>${t('legal.' + k)}</h1><p class="upd">${t('lg.updated', UPDATED)}</p>${legalSecs(k).map(([h, p]) => `<section>${h ? `<h2>${h}</h2>` : ''}<p>${p}</p></section>`).join('')}
+      <nav class="lg-nav">${LEGAL_SLUGS.filter((x) => x !== k).map((x) => `<a href="#" data-doc="${x}">${t('legal.' + x)}</a>`).join('')}</nav></article>`;
+  }
   const COM = {};
   async function loadComments(addr) {
     if (!CFG.server) return; const k = addr.toLowerCase(); if (COM[k] && Date.now() - COM[k].at < 20000) return;
@@ -2902,7 +3002,8 @@ body.is-landing .hdr, body.is-landing .shell, body.is-landing .bottom, body.is-l
       if (k === 'home') go('explore'); else if (k === 'search') { go('coins'); $('#q').focus(); } else if (k === 'create') go('launch'); else if (k === 'wallet') { setOpen('a:'); } return; }
     if (e.target.closest('[data-connect], #connect')) { connect(); return; }
     if (e.target.closest('#refresh')) { loadCoins(); return; }
-    const doc = e.target.closest('[data-doc]'); if (doc) { e.preventDefault(); openDoc(doc.dataset.doc); return; }
+    const doc = e.target.closest('[data-doc]'); if (doc) { e.preventDefault(); if (LEGAL_SLUGS.includes(doc.dataset.doc)) { $('#modal').hidden = true; LEGAL = doc.dataset.doc; VIEW_TITLE.legal = 'legal.' + LEGAL; if (VIEW === 'legal') { go('legal'); renderView('legal', true); } else go('legal'); } else openDoc(doc.dataset.doc); return; }
+    const dsc = e.target.closest('[data-dscroll]'); if (dsc) { const el = document.getElementById(dsc.dataset.dscroll); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
     if (e.target.closest('[data-modal-close]') || e.target === $('#modal')) { $('#modal').hidden = true; return; }
     if (e.target.closest('[data-close], #scrim')) { setOpen(null); return; }
     const chip = e.target.closest('[data-amt]'); if (chip) { const inp = $('#amt'); if (inp) inp.value = chip.dataset.amt; return; }

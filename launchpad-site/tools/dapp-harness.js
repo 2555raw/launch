@@ -435,9 +435,21 @@ const server = http.createServer((req, res) => {
   await pg.evaluate(() => { location.hash = '#home'; }); await pg.waitForTimeout(1500); R.landingPhone = await pg.evaluate(() => ({ on: document.body.classList.contains('is-landing'), hScroll: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1, title: document.querySelector('.L-title').textContent.trim() })); await pg.screenshot({ path: path.join(OUT, 'shot-landing-phone.png') });
   await pg.locator('.L-nav [data-go="gifts"]').click(); await pg.waitForFunction(() => !document.querySelector('#giftshop').hidden, null, { timeout: 6000 }); R.landingNav = await pg.evaluate(() => document.querySelector('main').dataset.view);
   await pg.setViewportSize({ width: 1380, height: 900 });
+  // docs in the Seam layout and the legal pages
+  await pg.evaluate(() => { location.hash = '#docs'; }); await pg.waitForSelector('#docs-body .dz-card', { timeout: 6000 });
+  R.docs = await pg.evaluate(() => ({ h: document.querySelector('#docs-body h1').textContent, cards: document.querySelectorAll('#docs-body .dz-card').length, toc: document.querySelectorAll('#docs-body [data-dscroll]').length, fees: document.querySelectorAll('#docs-body .dz-tbl tr').length }));
+  await pg.locator('[data-dscroll="dz-fees"]').click(); await pg.waitForTimeout(700); R.docs.scrolled = await pg.evaluate(() => Math.abs(document.getElementById('dz-fees').getBoundingClientRect().top) < 140);
+  await pg.screenshot({ path: path.join(OUT, 'shot-docs.png') });
+  await pg.locator('.tk-r [data-doc="terms"]').click(); await pg.waitForSelector('#legal-body h1', { timeout: 6000 });
+  R.legal = { terms: await pg.evaluate(() => ({ h: document.querySelector('#legal-body h1').textContent, secs: document.querySelectorAll('#legal-body section').length, hash: location.hash, title: document.title, modal: !document.querySelector('#modal').hidden })) };
+  await pg.waitForTimeout(1200); await pg.screenshot({ path: path.join(OUT, 'shot-terms.png') });
+  await pg.locator('#legal-body .lg-nav [data-doc="privacy"]').click(); await pg.waitForFunction(() => location.hash === '#privacy' && document.querySelectorAll('#legal-body section').length === 7, null, { timeout: 6000 });
+  R.legal.privacy = await pg.evaluate(() => ({ h: document.querySelector('#legal-body h1').textContent, secs: document.querySelectorAll('#legal-body section').length, hash: location.hash }));
+  await pg.evaluate(() => { location.hash = '#risk'; }); await pg.waitForTimeout(300); R.legal.risk = await pg.evaluate(() => ({ h: document.querySelector('#legal-body h1').textContent, secs: document.querySelectorAll('#legal-body section h2').length }));
+  R.ticker = await pg.evaluate(() => ({ pills: document.querySelectorAll('#tk button').length, h: document.querySelector('#bottom').getBoundingClientRect().height, font: getComputedStyle(document.body).fontFamily.split(',')[0] }));
   // every section loads directly from its URL
-  R.direct = {}; for (const v of ['dashboard', 'analytics', 'terminal', 'stake', 'profile']) { const p2 = await browser.newPage({ viewport: { width: 1380, height: 900 } }); const errs2 = []; p2.on('pageerror', (e) => errs2.push(e.message)); await p2.goto(base + '#' + v); await p2.waitForTimeout(900);
-    R.direct[v] = await p2.evaluate((v) => { const sec = document.getElementById(v); return { shown: sec && !sec.hidden, heading: (sec && (sec.querySelector('h1') || sec.querySelector('.pf-card b') || sec.querySelector('h2')) || {}).textContent || null }; }, v); R.direct[v].errors = errs2; await p2.close(); }
+  R.direct = {}; for (const v of ['dashboard', 'analytics', 'terminal', 'stake', 'profile', 'terms', 'docs']) { const p2 = await browser.newPage({ viewport: { width: 1380, height: 900 } }); const errs2 = []; p2.on('pageerror', (e) => errs2.push(e.message)); await p2.goto(base + '#' + v); await p2.waitForTimeout(900);
+    R.direct[v] = await p2.evaluate((v) => { const sec = document.getElementById(v === 'terms' ? 'legal' : v); return { shown: sec && !sec.hidden, heading: (sec && (sec.querySelector('h1') || sec.querySelector('.pf-card b') || sec.querySelector('h2')) || {}).textContent || null }; }, v); R.direct[v].errors = errs2; await p2.close(); }
   R.residue = await pg.evaluate(() => (document.body.innerText.match(/\b(SOL|Solana|Phantom|Solscan|Sol Bite|USDC|Bento)\b/g) || []).slice(0, 10));
   R.errors = errors;
   console.log(JSON.stringify(R, null, 1));

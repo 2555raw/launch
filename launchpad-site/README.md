@@ -202,6 +202,14 @@ desde su propio dominio.
   `POST /api/me/updates`, `POST /api/admin/profiles/:addr/reset`; staking: `GET /api/stake`,
   `GET /api/stake/ix/(approve|stake|unstake|claim)`, `GET|POST /api/admin/staking`.
 
+**Docs y páginas legales**: `/docs` sigue el formato de la documentación de Seam (índice, una
+tarjeta por tema, tabla de comisiones, «qué puede y qué no puede pasar» y direcciones de los
+contratos de la red activa). `/terms`, `/privacy`, `/risk`, `/refund` y `/cookies` son páginas
+propias con fecha de actualización. Tipografía Inter con los tamaños y pesos de Seam, sus
+animaciones de entrada y la barra inferior fina con el precio de cada acción. Las imágenes de
+portada (`dapp/photos/hero-market.webp`, `hero-temple.webp`) son ilustraciones propias dibujadas
+en SVG (mercado nocturno y pagoda con farolillos), no fotos de terceros.
+
 **Qué hace la página además de comprar**
 
 - Portada cinematográfica y tablero (`/explore`) con las coins, los pares y los lanzadores,

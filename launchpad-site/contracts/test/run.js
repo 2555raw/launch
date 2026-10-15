@@ -145,6 +145,79 @@ const ok = (cond, msg) => { if (cond) { passed++; console.log('  ok  ' + msg); }
   ok((await balance(FEE)) - feeBnb0 === E18 / 100n, '1% BNB fee paid');
   const [cnt] = await read(factory, 'KuaiFactory', 'count');
   ok(cnt === 3n, 'factory lists three coins');
+
+  console.log('staking: house coin, fees split 70 % stakers / 30 % buyback, harvest and burn');
+  const WBNB = '0x' + 'bb'.repeat(20);
+  const staking = await deploy(DEPLOYER, 'KuaiStaking', [router.toString(), WBNB]);
+  const kuai = await deploy(DEPLOYER, 'MockStock');
+  for (const [w, v] of [[ALICE, 1000n], [BOB, 3000n]]) { await send(DEPLOYER, kuai, 'MockStock', 'mint', [w.toString(), v * E18]); await send(w, kuai, 'MockStock', 'approve', [staking.toString(), 10n ** 30n]); }
+  await send(ALICE, staking, 'KuaiStaking', 'stake', [E18], 0n, true);
+  ok(true, 'stake reverts before the stake token is set');
+  await send(ALICE, factory, 'KuaiFactory', 'setFeeTo', [staking.toString()], 0n, true);
+  ok(true, 'only the factory owner can change feeTo');
+  await send(DEPLOYER, factory, 'KuaiFactory', 'setFeeTo', [staking.toString()]);
+  const [ft] = await read(factory, 'KuaiFactory', 'feeTo');
+  ok(ft.toLowerCase() === staking.toString().toLowerCase(), 'factory feeTo points at the staking contract');
+  // a BNB fee before the stake token exists: 100 % to the buyback pool
+  await send(DEPLOYER, staking, 'KuaiStaking', 'sync', [], 0n); await call(DEPLOYER, staking, '0x', E18 / 10n);
+  await send(DEPLOYER, staking, 'KuaiStaking', 'sync', []);
+  let [sm] = [await read(staking, 'KuaiStaking', 'summary')];
+  ok(sm[3] === E18 / 10n && sm[2] === 0n, 'before the house coin is set, all fees go to the buyback pool');
+  await send(ALICE, staking, 'KuaiStaking', 'setStakeToken', [kuai.toString()], 0n, true);
+  ok(true, 'only the owner sets the stake token');
+  await send(DEPLOYER, staking, 'KuaiStaking', 'setStakeToken', [kuai.toString()]);
+  await send(DEPLOYER, staking, 'KuaiStaking', 'setStakeToken', [kuai.toString()], 0n, true);
+  ok(true, 'the stake token can be set only once');
+  // fee with nobody staked waits for the first stakers
+  await call(DEPLOYER, staking, '0x', E18);
+  await send(DEPLOYER, staking, 'KuaiStaking', 'sync', []);
+  sm = await read(staking, 'KuaiStaking', 'summary');
+  ok(sm[8] === E18 * 7n / 10n && sm[3] === E18 / 10n + E18 * 3n / 10n, '1 BNB with nobody staked: 0.7 waits for stakers, 0.3 to buyback');
+  await send(ALICE, staking, 'KuaiStaking', 'stake', [100n * E18]);
+  await send(BOB, staking, 'KuaiStaking', 'stake', [300n * E18]);
+  const [pa0] = await read(staking, 'KuaiStaking', 'pendingOf', [ALICE.toString()]);
+  ok(pa0 === E18 * 7n / 10n, 'the first staker receives the waiting 0.7 BNB');
+  // a real graduation fee from a BNB raise created after setFeeTo
+  await send(ALICE, factory, 'KuaiFactory', 'createCoin', ['House Test', 'HOUSE', 'wendys', 1n * E18, 7200n]);
+  const [raises4] = await read(factory, 'KuaiFactory', 'all', [0, 10]); const r4 = acct(raises4[3]);
+  const [r4fee] = await read(r4, 'KuaiRaise', 'feeTo');
+  ok(r4fee.toLowerCase() === staking.toString().toLowerCase(), 'new raises send their fee to the staking contract');
+  for (let i = 0; i < 10; i++) await send(buyers[i], r4, 'KuaiRaise', 'buy', [], E18 / 10n);
+  await send(ALICE, r4, 'KuaiRaise', 'finalize', []);
+  const [pa1] = await read(staking, 'KuaiStaking', 'pendingOf', [ALICE.toString()]); const [pb1] = await read(staking, 'KuaiStaking', 'pendingOf', [BOB.toString()]);
+  const fee4 = E18 / 100n; ok(pa1 - pa0 === fee4 * 7n / 10n / 4n && pb1 === fee4 * 7n / 10n * 3n / 4n, 'graduation fee: 70 % split 1:3 by stake (pending, before sync)');
+  const ab0 = await balance(ALICE);
+  await send(ALICE, staking, 'KuaiStaking', 'claim', []);
+  ok((await balance(ALICE)) - ab0 === pa1, 'claim pays the pending BNB');
+  await send(ALICE, staking, 'KuaiStaking', 'claim', [], 0n, true);
+  ok(true, 'second claim with nothing owed reverts');
+  // unstake: tokens back at once, rewards kept
+  const [kb0] = await read(kuai, 'MockStock', 'balanceOf', [BOB.toString()]);
+  await send(BOB, staking, 'KuaiStaking', 'unstake', [300n * E18]);
+  const [kb1] = await read(kuai, 'MockStock', 'balanceOf', [BOB.toString()]);
+  const [pb2] = await read(staking, 'KuaiStaking', 'pendingOf', [BOB.toString()]);
+  ok(kb1 - kb0 === 300n * E18 && pb2 === pb1, 'unstake returns the tokens and keeps the earned BNB');
+  await send(BOB, staking, 'KuaiStaking', 'unstake', [E18], 0n, true);
+  ok(true, 'cannot unstake more than staked');
+  // stock-token fee: harvest swaps it to BNB through the router and splits it
+  await call(DEPLOYER, router, '0x', 10n * E18);                               // fund the mock router with BNB
+  await send(DEPLOYER, stock, 'MockStock', 'mint', [staking.toString(), 2n * E18]);
+  await send(ALICE, staking, 'KuaiStaking', 'harvest', [[stock.toString(), WBNB], 0n], 0n, true);
+  ok(true, 'only the keeper can harvest');
+  const smh0 = await read(staking, 'KuaiStaking', 'summary');
+  await send(DEPLOYER, staking, 'KuaiStaking', 'harvest', [[stock.toString(), WBNB], 0n]);
+  const smh1 = await read(staking, 'KuaiStaking', 'summary');
+  const got = 2n * E18 * (10n ** 15n) / E18;                                   // mock rate 0.001 BNB per token
+  ok(smh1[5] - smh0[5] === got && smh1[3] - smh0[3] === got - got * 7n / 10n, 'harvest: stock fee swapped to BNB, 30 % to buyback');
+  // buyback burns $KUAI: fund the router with tokens to sell
+  await send(DEPLOYER, kuai, 'MockStock', 'mint', [router.toString(), 10n ** 30n]);
+  const pool = smh1[3];
+  await send(DEPLOYER, staking, 'KuaiStaking', 'buyback', [0n]);
+  const smb = await read(staking, 'KuaiStaking', 'summary');
+  const [dead] = await read(kuai, 'MockStock', 'balanceOf', ['0x000000000000000000000000000000000000dEaD']);
+  ok(smb[3] === 0n && dead === pool * E18 / (10n ** 15n) && smb[7] === dead, 'buyback spends the pool and burns the $KUAI it buys');
+  const stBal = await balance(staking); const [rr] = [smb[2]];
+  ok(stBal >= rr, 'contract always holds at least the BNB owed to stakers');
   console.log(`\n${passed} passed, ${failed} failed`);
   process.exit(failed ? 1 : 0);
 })().catch((e) => { console.error('ERROR', e); process.exit(1); });

@@ -170,9 +170,73 @@ async function deployFactory(c, store, save) {
 }
 
 /* ---- HTTP ---- */
+/* ---- KuaiStaking: the house coin's staking pool (70 % of fees to stakers in BNB, 30 % buyback and burn) ---- */
+const STAKING_ABI = ['function summary() view returns (address token, uint256 staked, uint256 rewards, uint256 pool, uint256 pending, uint256 fees, uint256 paid, uint256 burned, uint256 waitingStakers)', 'function stakedOf(address) view returns (uint256)', 'function pendingOf(address) view returns (uint256)', 'function stake(uint256)', 'function unstake(uint256)', 'function claim()', 'function owner() view returns (address)', 'function setStakeToken(address)', 'function harvest(address[] path, uint256 minOut)', 'function buyback(uint256 minOut)', 'function sync()', 'function lifetimeBuyback() view returns (uint256)'];
+IF.staking = new ethers.Interface(STAKING_ABI);
+function stakingOf(c, store) { const st = store && store.staking && store.staking[c] && store.staking[c].address; const a = st || process.env['STAKING_' + c]; return a && ethers.isAddress(a) ? ethers.getAddress(a) : null; }
+const STK = {};
+async function stakeInfo(c, store, wallet) {
+  const addr = stakingOf(c, store); const net = CLUSTERS[c]; const base = { cluster: c, staking: addr, stakerBps: 7000, payout: net.symbol };
+  if (!addr) return { ...base, deployed: false };
+  const k = c + ':' + addr; let g = STK[k];
+  if (!g || Date.now() - g.at > 15000) {
+    const st = new ethers.Contract(addr, STAKING_ABI, conn(c)); const [sm, bought, owner] = await Promise.all([st.summary(), st.lifetimeBuyback().catch(() => 0n), st.owner().catch(() => null)]);
+    const token = sm[0] === ethers.ZeroAddress ? null : sm[0]; const meta = token ? await tokenMeta(c, token) : null;
+    g = STK[k] = { at: Date.now(), d: { token, tokenSymbol: meta ? meta.symbol : null, tokenDecimals: meta ? meta.decimals : 18, owner, totalStaked: sm[1].toString(), rewardReserve: sm[2].toString(), buybackPool: sm[3].toString(), unaccounted: sm[4].toString(), lifetimeFees: sm[5].toString(), lifetimePaid: sm[6].toString(), lifetimeBurned: sm[7].toString(), waiting: sm[8].toString(), lifetimeBuyback: bought.toString() } };
+  }
+  const out = { ...base, deployed: true, ...g.d, you: null };
+  if (wallet && isPk(wallet)) {
+    const st = new ethers.Contract(addr, STAKING_ABI, conn(c)); const reads = [st.stakedOf(wallet), st.pendingOf(wallet)];
+    if (g.d.token) { const t = new ethers.Contract(g.d.token, ERC20_ABI, conn(c)); reads.push(t.balanceOf(wallet), t.allowance(wallet, addr)); }
+    const [staked, pending, balance, allowance] = await Promise.all(reads);
+    out.you = { staked: staked.toString(), pending: pending.toString(), balance: balance != null ? balance.toString() : '0', allowance: allowance != null ? allowance.toString() : '0' };
+  }
+  return out;
+}
+function stakeCalls(kind, c, store, info, amount) {
+  const addr = info.staking; if (!addr) throw new Error('staking not deployed on ' + c);
+  if (kind === 'claim') return [call(addr, IF.staking.encodeFunctionData('claim', []))];
+  if (!info.token) throw new Error('the house coin is not set yet');
+  if (amount <= 0n) throw new Error('amount required');
+  if (kind === 'approve') return [call(info.token, IF.erc20.encodeFunctionData('approve', [addr, amount]))];
+  if (kind === 'unstake') return [call(addr, IF.staking.encodeFunctionData('unstake', [amount]))];
+  const calls = []; if (!info.you || BigInt(info.you.allowance) < amount) calls.push(call(info.token, IF.erc20.encodeFunctionData('approve', [addr, amount])));
+  calls.push(call(addr, IF.staking.encodeFunctionData('stake', [amount]))); return calls;
+}
+/* keeper actions, signed by DEPLOYER_KEY on the server (admin only) */
+async function deployStaking(c, store, save) {
+  const net = CLUSTERS[c]; const w = deployerWallet(); if (!w) throw new Error('DEPLOYER_KEY is not set or not a private key'); if (busy) throw new Error('a deployment is already running'); busy = 'staking:' + c;
+  try {
+    const wallet = w.connect(conn(c)); const bal = await conn(c).getBalance(wallet.address); if (bal < ethers.parseEther('0.01')) throw new Error(`deployer ${wallet.address} has ${ethers.formatEther(bal)} ${net.symbol}; it needs about 0.02 ${net.symbol}`);
+    const art = JSON.parse(fs.readFileSync(path.join(__dirname, 'contracts', 'build', 'KuaiStaking.json'), 'utf8'));
+    const ct = await new ethers.ContractFactory(art.abi, art.bytecode, wallet).deploy(net.router, net.wbnb); const tx = ct.deploymentTransaction().hash; await ct.waitForDeployment(); const address = await ct.getAddress();
+    const rec = { address, tx, deployer: wallet.address, at: Date.now(), feeToSet: false, feeToError: null };
+    const fac = programOf(c, store);
+    if (fac) { try { const f = new ethers.Contract(fac, ['function owner() view returns (address)', 'function setFeeTo(address)'], wallet); if ((await f.owner()).toLowerCase() === wallet.address.toLowerCase()) { await (await f.setFeeTo(address)).wait(); rec.feeToSet = true; } else rec.feeToError = 'the deployer does not own the factory'; } catch (e) { rec.feeToError = e.shortMessage || e.message; } }
+    (store.staking ||= {})[c] = rec; await save(); return rec;
+  } finally { busy = null; }
+}
+async function keeper(c, store, action, arg) {
+  const addr = stakingOf(c, store); if (!addr) throw new Error('staking not deployed on ' + c); const w = deployerWallet(); if (!w) throw new Error('DEPLOYER_KEY is not set');
+  const net = CLUSTERS[c]; const wallet = w.connect(conn(c)); const st = new ethers.Contract(addr, STAKING_ABI, wallet); const router = new ethers.Contract(net.router, ROUTER_ABI, conn(c)); let tx;
+  if (action === 'setToken') { if (!isPk(arg)) throw new Error('token address required'); tx = await st.setStakeToken(arg); }
+  else if (action === 'sync') tx = await st.sync();
+  else if (action === 'harvest') {
+    if (!isPk(arg)) throw new Error('token address required'); const t = new ethers.Contract(arg, ERC20_ABI, conn(c)); const amt = await t.balanceOf(addr); if (amt === 0n) throw new Error('nothing to harvest in that token');
+    let best = null; for (const pth of [[arg, net.wbnb], [arg, net.usdt, net.wbnb]]) { try { const out = await router.getAmountsOut(amt, pth); const o = out[out.length - 1]; if (!best || o > best.o) best = { pth, o }; } catch {} }
+    if (!best) throw new Error('no PancakeSwap route from that token to BNB'); tx = await st.harvest(best.pth, best.o * 97n / 100n);
+  } else if (action === 'buyback') {
+    const sm = await st.summary(); if (sm[0] === ethers.ZeroAddress) throw new Error('the house coin is not set'); const pool = sm[3] + sm[4] * 3000n / 10000n; if (pool === 0n) throw new Error('buyback pool is empty');
+    const out = await router.getAmountsOut(pool, [net.wbnb, sm[0]]); tx = await st.buyback(out[out.length - 1] * 95n / 100n);
+  } else throw new Error('unknown action');
+  await tx.wait(); delete STK[c + ':' + addr]; (store.adminLog ||= []).push({ at: Date.now(), action: 'staking-' + action, cluster: c, tx: tx.hash }); return { ok: true, tx: tx.hash };
+}
+
 async function chainApi(req, res, url, h) {
   const { send, fail, store } = h; const p = url.pathname; let m; const c = cluster(url.searchParams.get('cluster'));
   if (p === '/api/rpc') return rpcProxy(req, res, url, h);
+  if (req.method === 'GET' && p === '/api/stake') { const w = url.searchParams.get('wallet'); try { return send(res, 200, await stakeInfo(c, store, w), { 'cache-control': 'no-store' }); } catch (e) { return fail(res, 502, 'rpc: ' + e.message); } }
+  if (req.method === 'GET' && (m = /^\/api\/stake\/ix\/(approve|stake|unstake|claim)$/.exec(p))) { const w = url.searchParams.get('wallet'); if (!isPk(w)) return fail(res, 400, 'wallet required'); try { const info = await stakeInfo(c, store, w); let amount = 0n; try { amount = BigInt(url.searchParams.get('amount') || '0'); } catch { return fail(res, 400, 'bad amount'); } return send(res, 200, { calls: stakeCalls(m[1], c, store, info, amount) }); } catch (e) { return fail(res, 400, e.message); } }
   if (req.method === 'GET' && p === '/api/coins') { try { const d = await coins(c, store, url.searchParams.get('fresh') === '1'); return send(res, 200, { cluster: c, now: Date.now(), ...d }, { 'cache-control': 'no-store' }); } catch (e) { return fail(res, 502, 'rpc: ' + e.message); } }
   if (req.method === 'GET' && (m = /^\/api\/coins\/(0x[0-9a-fA-F]{40})$/.exec(p))) { try { const d = await coins(c, store); const r = d.coins.find((x) => x.address.toLowerCase() === m[1].toLowerCase()); if (!r) return fail(res, 404, 'no such coin'); const buyer = url.searchParams.get('buyer'); const paid = buyer && isPk(buyer) ? await paidOf(c, store, r.address, buyer) : null; return send(res, 200, { coin: r, paid }, { 'cache-control': 'no-store' }); } catch (e) { return fail(res, 502, 'rpc: ' + e.message); } }
   if (req.method === 'GET' && (m = /^\/api\/coins\/(0x[0-9a-fA-F]{40})\/buys$/.exec(p))) { try { return send(res, 200, { items: await buys(c, store, m[1], url.searchParams.get('fresh') === '1') }, { 'cache-control': 'no-store' }); } catch (e) { return fail(res, 502, 'rpc: ' + e.message); } }
@@ -191,4 +255,4 @@ async function chainApi(req, res, url, h) {
   return fail(res, 404, 'no such route');
 }
 
-module.exports = { CLUSTERS, DEFAULT_CLUSTER, MERCHANT, cluster, conn, isPk, isTxHash, verifySignature, config, programOf, coins, paidOf, buys, feed, buysByWallet, poolInfo, bnbPrice, walletAmounts, verifyPayment, payUrl, newReference, findReference, slots, deployStatus, deployFactory, chainApi, FACTORY_ABI, RAISE_ABI, ERC20_ABI, TRANSFER };
+module.exports = { stakingOf, stakeInfo, stakeCalls, deployStaking, keeper, STAKING_ABI, CLUSTERS, DEFAULT_CLUSTER, MERCHANT, cluster, conn, isPk, isTxHash, verifySignature, config, programOf, coins, paidOf, buys, feed, buysByWallet, poolInfo, bnbPrice, walletAmounts, verifyPayment, payUrl, newReference, findReference, slots, deployStatus, deployFactory, chainApi, FACTORY_ABI, RAISE_ABI, ERC20_ABI, TRANSFER };

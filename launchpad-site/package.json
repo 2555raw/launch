@@ -7,7 +7,7 @@
     "start": "node server.js",
     "test": "node test.js",
     "test:gifts": "node test-gifts.js",
-    "test:contracts": "node contracts/test/run.js",
+    "test:contracts": "node contracts/test/run.js && node contracts/test/stake-server.js",
     "test:dapp": "node tools/dapp-harness.js dapp out",
     "compile": "node contracts/compile.js",
     "deploy": "node contracts/deploy.js"

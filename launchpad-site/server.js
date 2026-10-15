@@ -339,6 +339,11 @@ function pageSource() {
 const VIEW_META = {
   '': ['kuai', 'Restaurant gift cards paid with any crypto or card, and a BNB Chain launchpad where every coin is paired with a real tokenized restaurant stock.'],
   explore: ['Explore · kuai', 'Restaurants with a tokenized stock, the coins paired with them and gift cards for crypto, in one place.'],
+  dashboard: ['Dashboard · kuai', 'Eighteen restaurants with a tokenized stock on BNB Chain, their live coins and the staking pool, on one screen.'],
+  analytics: ['Analytics · kuai', 'Raised, graduated, buyers and fees, read live from the kuai contracts on BNB Chain.'],
+  terminal: ['Terminal · kuai', 'Every kuai coin and restaurant in one table: raise, buyers, pool price and the fee split.'],
+  stake: ['Stake $KUAI · kuai', 'Stake the house coin and earn 70% of every graduation fee in BNB; 30% buys back $KUAI and burns it.'],
+  profile: ['Your profile · kuai', 'Sign in with your wallet to set a name, avatar and thesis, post updates and show your P/L.'],
   gifts: ['Gift cards for crypto · kuai', 'Buy restaurant eGift cards with BNB, USDT, Bitcoin, 300+ cryptocurrencies or a card. Delivered by email, inside kuai.'],
   coins: ['All coins · kuai', 'Every coin launched on kuai, each paired with a tokenized restaurant stock on BNB Chain.'],
   launch: ['Create a coin · kuai', 'Launch a coin paired with a real restaurant stock token. The raise is paid in that token and opens a locked liquidity pool when it graduates.'],
@@ -379,7 +384,7 @@ function pageFor(req, rel) {
     .replace('<meta property="og:type" content="website">', `<meta property="og:type" content="website"><meta property="og:url" content="${escAttr(base + rel)}"><meta property="og:image" content="${escAttr(image)}"><meta name="twitter:image" content="${escAttr(image)}"><link rel="canonical" href="${escAttr(base + rel)}">`);
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png"><link rel="icon" href="/icons/icon-192.png" type="image/png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="kuai"><script>window.SOL_CFG={paths:true}</script>\n${html}\n</html>`;
 }
-const PAGE_ROUTE = /^\/(explore|gifts|coins|launch|docs|pairs|account|leaderboard|calendar|guides|guides\/[a-z0-9-]+|status|help|r\/[a-z0-9_-]+|gift\/[a-z0-9_-]+|coin\/\d+\/0x[0-9a-fA-F]{40}|u\/0x[0-9a-fA-F]{40})\/?$/;
+const PAGE_ROUTE = /^\/(explore|dashboard|analytics|terminal|stake|profile|gifts|coins|launch|docs|pairs|account|leaderboard|calendar|guides|guides\/[a-z0-9-]+|status|help|r\/[a-z0-9_-]+|gift\/[a-z0-9_-]+|coin\/\d+\/0x[0-9a-fA-F]{40}|u\/0x[0-9a-fA-F]{40})\/?$/;
 function servePage(req, res, rel) {
   let html; try { html = pageFor(req, rel); } catch (e) { console.error('page', e.message); return fail(res, 500, 'page unavailable'); }
   send(res, 200, html, { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-cache' });
@@ -387,7 +392,7 @@ function servePage(req, res, rel) {
 function sitemap(req) {
   const base = (process.env.SITE_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers['x-forwarded-host'] || req.headers.host}`).replace(/\/$/, '');
   const src = pageSource();
-  const urls = ['/', '/explore', '/gifts', '/coins', '/launch', '/docs', '/pairs', '/leaderboard', '/calendar', '/guides', '/guides/buy-crypto', '/guides/gift-card-usdt', '/guides/tokenized-stocks', '/guides/paired-raise', '/status', '/help', ...Object.keys(src.rest).flatMap((id) => [`/r/${id}`, `/gift/${id}`])];
+  const urls = ['/', '/explore', '/dashboard', '/analytics', '/terminal', '/stake', '/gifts', '/coins', '/launch', '/docs', '/pairs', '/leaderboard', '/calendar', '/guides', '/guides/buy-crypto', '/guides/gift-card-usdt', '/guides/tokenized-stocks', '/guides/paired-raise', '/status', '/help', ...Object.keys(src.rest).flatMap((id) => [`/r/${id}`, `/gift/${id}`])];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${escAttr(base + u)}</loc></url>`).join('\n')}\n</urlset>\n`;
 }
 
@@ -408,12 +413,23 @@ async function api(req, res, url) {
   }
 
   if (req.method === 'GET' && p === '/api/config') return send(res, 200, sol.config(store), { 'cache-control': 'public, max-age=30' });
-  if (p === '/api/rpc' || p === '/api/coins' || p.startsWith('/api/coins/') || p === '/api/buys' || p === '/api/feed') return sol.chainApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf });
+  if (p === '/api/rpc' || p === '/api/coins' || p.startsWith('/api/coins/') || p === '/api/buys' || p === '/api/feed' || p === '/api/stake' || p.startsWith('/api/stake/')) return sol.chainApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf });
   if (req.method === 'GET' && p === '/api/prices') { const j = await cgPrices(); return j ? send(res, 200, j, { 'cache-control': 'public, max-age=60' }) : fail(res, 503, 'prices unavailable'); }
   if (req.method === 'GET' && p === '/api/chart') {
     const cg = String(url.searchParams.get('cg') || ''); const days = Number(url.searchParams.get('days'));
     if (!/^[a-z0-9-]{1,60}$/.test(cg) || ![1, 7, 30].includes(days)) return fail(res, 400, 'cg and days (1, 7 or 30) required');
     const j = await cgChart(cg, days); return j ? send(res, 200, j, { 'cache-control': 'public, max-age=120' }) : fail(res, 503, 'chart unavailable');
+  }
+  if (p === '/api/admin/staking') {
+    if (!gifts.isAdmin(req)) return fail(res, 401, 'admin key required');
+    if (req.method === 'GET') { const out = {}; for (const c of Object.keys(sol.CLUSTERS)) { try { out[c] = await sol.stakeInfo(c, store); } catch (e) { out[c] = { cluster: c, staking: sol.stakingOf(c, store), error: e.message }; } out[c].record = (store.staking || {})[c] || null; } return send(res, 200, { chains: out }); }
+    let body; try { body = await readJson(req); } catch (e) { return fail(res, 400, e.message); } const c = sol.cluster(body.cluster);
+    try {
+      if (body.deploy) { const rec = await sol.deployStaking(c, store, save); (store.adminLog ||= []).push({ at: Date.now(), action: 'deploy-staking', cluster: c, address: rec.address }); await save(); return send(res, 200, { ok: true, ...rec }); }
+      if (body.address) { if (!sol.isPk(body.address)) return fail(res, 400, 'address required'); (store.staking ||= {})[c] = { ...(store.staking[c] || {}), address: getAddress(body.address), at: Date.now() }; await save(); return send(res, 200, { ok: true }); }
+      if (body.action) { const r = await sol.keeper(c, store, body.action, body.token); await save(); return send(res, 200, r); }
+      return fail(res, 400, 'deploy, address or action required');
+    } catch (e) { return fail(res, 400, e.shortMessage || e.message); }
   }
   if (p === '/api/admin/program') {
     if (!gifts.isAdmin(req)) return fail(res, process.env.ADMIN_KEY ? 401 : 503, process.env.ADMIN_KEY ? 'admin key required' : 'ADMIN_KEY is not set');
@@ -426,6 +442,7 @@ async function api(req, res, url) {
     return send(res, 200, { at: quotes.at || null, available: Object.keys(data).length > 0, quotes: data });
   }
 
+  if (p === '/api/profiles' || p.startsWith('/api/profile/') || p === '/api/me/profile' || p.startsWith('/api/me/updates') || p.startsWith('/api/admin/profiles/')) return community.profileApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, isAdmin: gifts.isAdmin });
   if (p.startsWith('/api/comments/') || p.startsWith('/api/alerts') || p === '/api/newsletter' || p.startsWith('/api/newsletter/') || p === '/api/support' || p === '/api/status' || p === '/api/news' || p === '/api/pool' || /^\/api\/admin\/(newsletter|support|alerts|comments|social)/.test(p)) return community.communityApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, isAdmin: gifts.isAdmin, shop: { supply: () => require('./services/bitrefill').configured(), methods: () => ({ wallet: Boolean(process.env.MERCHANT_ADDRESS), crypto: require('./services/nowpayments').configured(), card: require('./services/stripe').configured() }) } });
   if (p.startsWith('/api/gifts/') || p.startsWith('/api/admin/') || p.startsWith('/api/webhooks/') || p === '/api/catalog' || p === '/api/me/orders' || p === '/api/me/referrals') return shopApi(req, res, url, { send, fail, readJson, limited, store, save, sessionOf, dataDir: DATA_DIR });
 

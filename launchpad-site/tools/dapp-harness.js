@@ -26,6 +26,9 @@ const MCDX = '0x80a77a372c1e12accda84299492f404902e2da67';   // McDonald's xStoc
 const USDT = '0x337610d27c682E347C9cD60BD4b3b107C9d34dDd';
 const WEI = 10n ** 18n;
 const SUPPLY = 1_000_000_000n * WEI;
+const STAKING = '0x00000000000000000000000000000000000057a1'; const KUAI = '0x000000000000000000000000000000000000c0de';
+const stk = { balance: 1000n * WEI, staked: 0n, total: 5000n * WEI, pending: WEI / 20n, pool: WEI / 50n, fees: WEI / 10n, paid: 0n, burned: 12345n * WEI };
+const profs = {};
 const chain = { bnb: 3n * WEI, raises: [], paid: {}, buys: {}, n: 0, block: 1000, txs: {}, sent: [] };
 const now = () => Math.floor(Date.now() / 1000);
 const hex = (n) => '0x' + BigInt(n).toString(16);
@@ -155,6 +158,14 @@ const server = http.createServer((req, res) => {
     if (u === '/api/me/referrals') return out(200, { address: ME, share: 0.25, orders: 2, delivered: 1, earnedUsd: 0.25, paidUsd: 0, pendingUsd: 0.25, payouts: [], recent: [], link: 'http://x.test/gifts?ref=' + ME });
     if (req.method === 'GET' && u.startsWith('/api/comments/')) return out(200, { comments: global.__comments });
     if (u === '/api/gifts/currencies') return out(200, { currencies: [{ code: 'btc', name: 'Bitcoin' }, { code: 'eth', name: 'Ethereum' }, { code: 'bnbbsc', name: 'BNB' }] });
+    if (u === '/api/stake') { const k = String(q.get('wallet') || '').toLowerCase(); return out(200, { cluster: '97', staking: STAKING, stakerBps: 7000, payout: 'tBNB', deployed: true, token: KUAI, tokenSymbol: 'KUAI', tokenDecimals: 18, owner: MER, totalStaked: String(stk.total), rewardReserve: String(stk.pending), buybackPool: String(stk.pool), unaccounted: '0', lifetimeFees: String(stk.fees), lifetimePaid: String(stk.paid), lifetimeBurned: String(stk.burned), waiting: '0', lifetimeBuyback: '0', you: k === ME.toLowerCase() ? { staked: String(stk.staked), pending: String(stk.pending), balance: String(stk.balance), allowance: '0' } : null }); }
+    if ((m = /^\/api\/stake\/ix\/(approve|stake|unstake|claim)$/.exec(u))) { const a = BigInt(q.get('amount') || '0');
+      if (m[1] === 'stake') { if (a <= 0n || a > stk.balance) return out(400, { error: 'amount' }); stk.balance -= a; stk.staked += a; stk.total += a; return out(200, { calls: [{ to: KUAI, data: '0x0a', value: '0' }, { to: STAKING, data: '0x0b', value: '0' }] }); }
+      if (m[1] === 'unstake') { if (a <= 0n || a > stk.staked) return out(400, { error: 'amount' }); stk.balance += a; stk.staked -= a; stk.total -= a; return out(200, { calls: [{ to: STAKING, data: '0x0c', value: '0' }] }); }
+      if (m[1] === 'claim') { chain.bnb += stk.pending; stk.paid += stk.pending; stk.pending = 0n; return out(200, { calls: [{ to: STAKING, data: '0x0d', value: '0' }] }); }
+      return out(400, { error: 'no' }); }
+    if (u === '/api/profiles') return out(200, { profiles: Object.fromEntries(Object.entries(profs).map(([k, v]) => [k, { name: v.name, avatar: v.avatar }])) });
+    if ((m = /^\/api\/profile\/(0x[0-9a-fA-F]{40})$/.exec(u))) { const v = profs[m[1].toLowerCase()]; return out(200, v ? { address: m[1], ...v } : { address: m[1], name: null, thesis: '', avatar: null, updates: [] }); }
     if (u === '/api/catalog') return out(200, { overrides: { mcdonalds: { blurb: 'Big Mac since 1967' } } });
     let b = ''; req.on('data', (c) => b += c); req.on('end', () => { const j = b ? JSON.parse(b) : {}; let m;
       if (u === '/api/gifts/checkout') { const id = (Object.keys(global.__orders).length + 1).toString(16).padStart(24, 'a'); const price = Math.ceil(j.value * 1.04 * 100) / 100;
@@ -169,6 +180,9 @@ const server = http.createServer((req, res) => {
       if (u === '/api/support') return out(201, { ok: true, id: 's1' });
       if (u === '/api/auth/nonce') return out(200, { message: 'kuai\n\nSign in with this wallet: ' + j.address });
       if (u === '/api/auth/verify') { if (!/^0x[0-9a-f]{130}$/i.test(j.signature || '')) return out(400, { error: 'bad signature' }); return out(200, { token: 'harness-token-00000000000000', address: j.address }); }
+      if (u === '/api/me/profile' || u === '/api/me/updates') { if (!req.headers.authorization) return out(401, { error: 'sign in' }); const k = ME.toLowerCase(); const v = (profs[k] ||= { name: null, thesis: '', avatar: null, updates: [] });
+        if (u === '/api/me/profile') { if (j.name !== undefined) v.name = j.name || null; if (j.thesis !== undefined) v.thesis = j.thesis; if (j.avatar !== undefined) v.avatar = j.avatar ? 'data:' + 'x' : null; } else v.updates.unshift({ id: 'u' + (v.updates.length + 1).toString(16).padStart(15, '0'), text: j.text, at: Date.now() });
+        return out(u === '/api/me/updates' ? 201 : 200, { address: ME, ...v }); }
       if (u === '/api/me/orders') return out(200, { address: ME, orders: Object.values(global.__orders).map(mk) });
       out(404, { error: 'no' }); });
     return;
@@ -214,20 +228,28 @@ const server = http.createServer((req, res) => {
   await pg.locator('#coin-tabs [data-tab="trending"]').click();
   R.created = await pg.evaluate(() => { const r = document.querySelector('#rows .row'); return { id: r.dataset.id, name: r.querySelector('.row-name b').textContent, small: r.querySelector('.row-name small').textContent, tag: r.querySelector('.tag').textContent }; });
   R.createTx = await pg.evaluate(() => window.__sent[0].data + '@' + window.__sent[0].to.slice(-4));
+  // dashboard: one card per restaurant; buy 0.02 of the live McDonald's coin from its card
+  await pg.evaluate(() => { location.hash = '#dashboard'; }); await pg.waitForSelector('#dash-body .dcard', { timeout: 8000 });
+  R.dashboard = await pg.evaluate(() => ({ cards: document.querySelectorAll('#dash-body .dcard').length, hero: document.querySelector('#dash-body .hero2 h1').textContent, tiles: [...document.querySelectorAll('#dash-body .htiles b')].map((b) => b.textContent), buyBtns: document.querySelectorAll('#dash-body [data-dbuy]').length, active: document.querySelector('.side a.is-on')?.getAttribute('href') }));
+  await pg.locator('[data-damt="mcdonalds"]').fill('0.02'); await pg.locator('[data-dbuy][data-rid="mcdonalds"]').click();
+  await pg.waitForFunction(() => /Bought/.test(document.querySelector('#toast').textContent), null, { timeout: 15000 }); R.dashBuy = await pg.locator('#toast').textContent();
+  await pg.locator('.dfil [data-dcat="pizza"]').click(); await pg.waitForTimeout(150); R.dashPizza = await pg.locator('#dash-body .dcard').count(); await pg.locator('.dfil [data-dcat="all"]').click();
+  await pg.screenshot({ path: path.join(OUT, 'shot-dashboard.png') });
+  await pg.evaluate(() => { location.hash = '#coins'; }); await pg.waitForTimeout(300);
   // buy 0.05 then try over the cap (cap = 0.1)
   await pg.locator('#rows .row:not(.rcard) .row-img').first().click();
   await pg.waitForSelector('#amt');
   R.needsApprove = await pg.locator('[data-approve]').count();
   await pg.locator('#amt').fill('0.05');
   await pg.locator('[data-buy]').click();
-  await pg.waitForFunction(() => document.querySelector('#rows .row .you')?.textContent.includes('0.05'), null, { timeout: 15000 });
+  await pg.waitForFunction(() => document.querySelector('#rows .row .you')?.textContent.includes('0.07'), null, { timeout: 15000 });
   R.afterBuy = { you: await pg.locator('#rows .row .you').textContent(), cash: await pg.locator('#p-cash').textContent(), small: await pg.locator('#rows .row .row-name small').textContent() };
   await pg.locator('#amt').fill('0.5');   // over the per-wallet cap: the program clips to 0.05 more
   await pg.locator('[data-buy]').click();
   await pg.waitForFunction(() => document.querySelector('#rows .row .you')?.textContent.includes('0.1'), null, { timeout: 15000 });
   R.afterCap = { you: await pg.locator('#rows .row .you').textContent(), cash: await pg.locator('#p-cash').textContent() };
   R.cartN = await pg.locator('#cart-n').textContent();
-  await pg.waitForFunction(() => document.querySelectorAll('#act .buy-r').length === 2, null, { timeout: 15000 });
+  await pg.waitForFunction(() => document.querySelectorAll('#act .buy-r').length === 3, null, { timeout: 15000 });
   R.activity = { buys: await pg.locator('#act .buy-r').count(), chart: await pg.locator('#act svg.chart').count(), first: await pg.locator('#act .buy-r').first().textContent() };
   await pg.locator('#amt').fill('0.02'); await pg.waitForTimeout(100);
   R.sim = await pg.locator('#sim').textContent();
@@ -354,6 +376,35 @@ const server = http.createServer((req, res) => {
   await pg.locator('[data-acct-sign]').click(); await pg.waitForSelector('.gs-list [data-gorder]', { timeout: 10000 });
   R.account = { orders: await pg.locator('.gs-list [data-gorder]').count(), hash: await pg.evaluate(() => location.hash) };
   await pg.waitForSelector('.ref-box', { timeout: 5000 }); R.referral = await pg.locator('.ref-box input').inputValue();
+  await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
+  // analytics
+  await pg.evaluate(() => { location.hash = '#analytics'; }); await pg.waitForSelector('#an-body .tiles', { timeout: 8000 }); await pg.waitForTimeout(600);
+  R.analytics = await pg.evaluate(() => ({ h: document.querySelector('#an-body h1').textContent, tiles: [...document.querySelectorAll('#an-body .tiles b')].slice(0, 8).map((b) => b.textContent), acts: document.querySelectorAll('#an-body .act-row[data-open]').length, chart: document.querySelectorAll('#an-body .an-chart svg').length, share: document.querySelectorAll('#an-body .share-row').length }));
+  await pg.locator('[data-antab="launches"]').click(); await pg.waitForTimeout(150); R.analytics.launches = await pg.locator('#an-body .g2 .pn').nth(2).locator('.act-row').count();
+  await pg.screenshot({ path: path.join(OUT, 'shot-analytics.png') });
+  // terminal
+  await pg.evaluate(() => { location.hash = '#terminal'; }); await pg.waitForSelector('#tm-body .tbl', { timeout: 8000 });
+  R.terminal = await pg.evaluate(() => ({ coinRows: document.querySelectorAll('#tm-body .tbl')[0].querySelectorAll('tbody tr').length, restRows: document.querySelectorAll('#tm-body .tbl')[1].querySelectorAll('tbody tr').length, tiles: document.querySelectorAll('#tm-body .tiles > div').length, splits: document.querySelectorAll('#tm-body .split').length }));
+  await pg.locator('#tm-target').fill('20'); await pg.locator('#tm-buy').fill('1'); await pg.waitForTimeout(150); R.terminal.calc = await pg.evaluate(() => [...document.querySelectorAll('#tm-body .calc-out b')].map((b) => b.textContent));
+  await pg.screenshot({ path: path.join(OUT, 'shot-terminal.png') });
+  // stake: stake 100 $KUAI, claim BNB, unstake everything with MAX
+  await pg.evaluate(() => { location.hash = '#stake'; }); await pg.waitForSelector('#stk-body [data-stkgo]', { timeout: 8000 }); await pg.waitForTimeout(400);
+  R.stake = { before: await pg.evaluate(() => [...document.querySelectorAll('#stk-body .stk-two b')].map((b) => b.textContent)), ca: await pg.locator('#stk-body .stk-ca .ca span').textContent(), summary: await pg.locator('#stk-body .kv2 > div').count() };
+  await pg.locator('#stk-amt').fill('100'); await pg.locator('[data-stkgo]').click();
+  await pg.waitForFunction(() => /100/.test(document.querySelector('#stk-body .stk-two b')?.textContent || ''), null, { timeout: 15000 }); R.stake.staked = await pg.locator('#stk-body .stk-two b').first().textContent();
+  await pg.locator('[data-stkclaim]').click(); await pg.waitForFunction(() => /0\.0000/.test(document.querySelectorAll('#stk-body .stk-two b')[1]?.textContent || ''), null, { timeout: 15000 }); R.stake.claimed = await pg.locator('#stk-body .stk-two b').nth(1).textContent();
+  await pg.locator('[data-stkmode="unstake"]').click(); await pg.locator('[data-stkmax]').click(); R.stake.max = await pg.locator('#stk-amt').inputValue(); await pg.locator('[data-stkgo]').click();
+  await pg.waitForFunction(() => /^0 /.test(document.querySelector('#stk-body .stk-two b')?.textContent || ''), null, { timeout: 15000 }); R.stake.after = await pg.locator('#stk-body .stk-two b').first().textContent();
+  R.stake.sent = await pg.evaluate(() => window.__sent.slice(-4).map((c) => c.data));
+  await pg.screenshot({ path: path.join(OUT, 'shot-stake.png') });
+  // profile: the signed-in wallet edits its own profile and posts an update
+  await pg.evaluate(() => { location.hash = '#profile'; }); await pg.waitForSelector('#pf-name', { timeout: 8000 });
+  await pg.locator('#pf-name').fill('Burger Whale'); await pg.locator('#pf-thesis').fill('Fast food is a hedge.'); await pg.locator('[data-pf-save]').click();
+  await pg.waitForFunction(() => document.querySelector('.pf-top h2')?.textContent.includes('Burger Whale'), null, { timeout: 8000 });
+  await pg.locator('#pf-upd').fill('Bought more $ARCHES'); await pg.locator('[data-pf-post]').click(); await pg.waitForSelector('.upd p', { timeout: 8000 });
+  R.profile2 = await pg.evaluate(() => ({ name: document.querySelector('.pf-top h2').textContent, thesis: document.querySelector('.pf-top .th')?.textContent, upd: document.querySelector('.upd p').textContent, pl: document.querySelectorAll('.pf-grid .tbl tbody tr').length, hash: location.hash }));
+  await pg.screenshot({ path: path.join(OUT, 'shot-profile-edit.png') });
+  await pg.evaluate(() => { location.hash = '#explore'; }); await pg.waitForTimeout(500); R.boardName = await pg.evaluate(() => document.querySelector('#bd-grid .bc-f .by button')?.textContent);
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
   await pg.evaluate(() => { location.hash = '#gifts'; }); await pg.waitForTimeout(400); R.countries = { chips: await pg.locator('#gift-countries button').count(), all: await pg.locator('#gift-grid .gift').count() }; await pg.locator('#gift-countries [data-country="CA"]').click(); await pg.waitForTimeout(200); R.countries.ca = await pg.locator('#gift-grid .gift').count(); await pg.locator('#gift-countries [data-country="all"]').click();
   await pg.locator('#gift-grid .gift[data-open="g:starbucks"]').click(); await pg.waitForSelector('#gforme'); R.forMe = await pg.locator('#gforme').count(); await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);

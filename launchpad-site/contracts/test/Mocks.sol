@@ -15,6 +15,18 @@ contract MockRouter {
     function addLiquidityETH(address token, uint amountTokenDesired, uint, uint, address, uint) external payable returns (uint, uint, uint) {
         require(IERC20M(token).transferFrom(msg.sender, address(this), amountTokenDesired), "pull"); lastEth = msg.value; lastTokens = amountTokenDesired; lastToken = token; return (amountTokenDesired, msg.value, 1);
     }
+    /* swaps at a fixed rate: 1 token = rate/1e18 BNB; the router is pre-funded with BNB and tokens */
+    uint256 public rate = 1e15;
+    receive() external payable {}
+    function setRate(uint256 r) external { rate = r; }
+    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint) external returns (uint[] memory amounts) {
+        require(IERC20M(path[0]).transferFrom(msg.sender, address(this), amountIn), "pull"); uint out = amountIn * rate / 1e18; require(out >= amountOutMin, "slippage");
+        (bool ok, ) = to.call{value: out}(""); require(ok, "eth"); amounts = new uint[](2); amounts[0] = amountIn; amounts[1] = out;
+    }
+    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint) external payable returns (uint[] memory amounts) {
+        uint out = msg.value * 1e18 / rate; require(out >= amountOutMin, "slippage"); require(IERC20M(path[path.length - 1]).transfer(to, out), "tok");
+        amounts = new uint[](2); amounts[0] = msg.value; amounts[1] = out;
+    }
     function addLiquidity(address tokenA, address tokenB, uint a, uint b, uint, uint, address, uint) external returns (uint, uint, uint) {
         require(IERC20M(tokenA).transferFrom(msg.sender, address(this), a), "pullA"); require(IERC20M(tokenB).transferFrom(msg.sender, address(this), b), "pullB");
         lastTokens = a; lastEth = b; lastToken = tokenA; lastPair = tokenB; return (a, b, 1);

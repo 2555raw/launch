@@ -123,6 +123,47 @@ function startJobs(store, save) {
   const t3 = setInterval(() => { if (digestDue(store)) sendDigest(store, save).then((r) => console.log('newsletter digest', JSON.stringify(r))).catch((e) => console.error('digest', e.message)); }, 60 * 60 * 1000); t3.unref();
 }
 
+/* ---- wallet profiles: name, avatar, thesis and short updates, signed in with the wallet ---- */
+const RESERVED = /kuai|official|admin|support|moderator|binance|pancake/i;
+const pubProfile = (a, pr) => pr ? { address: pr.address, name: pr.name || null, thesis: pr.thesis || '', avatar: pr.avatar ? `/api/profile/${pr.address}/avatar?v=${pr.avatarAt || 0}` : null, updates: (pr.updates || []).slice(-50).reverse(), updatedAt: pr.updatedAt || null } : { address: a, name: null, thesis: '', avatar: null, updates: [], updatedAt: null };
+function parseAvatar(v) {
+  const m = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(String(v || '')); if (!m) throw new Error('avatar must be a PNG, JPEG or WebP image');
+  const buf = Buffer.from(m[2], 'base64'); if (buf.length > 120 * 1024) throw new Error('avatar must be 120 KB or less');
+  const magic = { png: [0x89, 0x50, 0x4e, 0x47], jpeg: [0xff, 0xd8, 0xff], webp: [0x52, 0x49, 0x46, 0x46] }[m[1]]; if (!magic.every((b, i) => buf[i] === b)) throw new Error('avatar is not a valid image');
+  return { mime: 'image/' + m[1], data: m[2] };
+}
+async function profileApi(req, res, url, h) {
+  const { send, fail, limited, store, save, sessionOf, readJson, isAdmin } = h; const p = url.pathname; let m; store.profiles ||= {};
+  if (req.method === 'GET') {
+    if (p === '/api/profiles') { const out = {}; for (const [k, pr] of Object.entries(store.profiles).slice(0, 5000)) if (pr.name || pr.avatar) out[k] = { name: pr.name || null, avatar: pr.avatar ? `/api/profile/${pr.address}/avatar?v=${pr.avatarAt || 0}` : null }; return send(res, 200, { profiles: out }, { 'cache-control': 'no-store' }); }
+    if ((m = /^\/api\/profile\/(0x[0-9a-fA-F]{40})$/.exec(p))) return send(res, 200, pubProfile(m[1], store.profiles[m[1].toLowerCase()]), { 'cache-control': 'no-store' });
+    if ((m = /^\/api\/profile\/(0x[0-9a-fA-F]{40})\/avatar$/.exec(p))) { const pr = store.profiles[m[1].toLowerCase()]; if (!pr || !pr.avatar) return fail(res, 404, 'no avatar'); res.writeHead(200, { 'content-type': pr.avatar.mime, 'cache-control': 'public, max-age=86400', 'x-content-type-options': 'nosniff' }); return res.end(Buffer.from(pr.avatar.data, 'base64')); }
+    return fail(res, 404, 'no such route');
+  }
+  if (req.method !== 'POST') return fail(res, 404, 'no such route');
+  if ((m = /^\/api\/admin\/profiles\/(0x[0-9a-fA-F]{40})\/reset$/.exec(p))) { if (!isAdmin(req)) return fail(res, 401, 'admin key required'); delete store.profiles[m[1].toLowerCase()]; (store.adminLog ||= []).push({ at: Date.now(), action: 'profile-reset', address: m[1] }); await save(); return send(res, 200, { ok: true }); }
+  if (limited(req)) return fail(res, 429, 'too many requests, slow down');
+  const s = sessionOf(req); if (!s) return fail(res, 401, 'sign in with your wallet');
+  let body; try { body = await readJson(req, 200 * 1024); } catch (e) { return fail(res, 400, e.message); }
+  const key = s.address.toLowerCase(); const pr = (store.profiles[key] ||= { address: s.address, updates: [] });
+  if (p === '/api/me/profile') {
+    if (body.name !== undefined) { const name = String(body.name || '').trim().replace(/\s+/g, ' ');
+      if (name) { if (name.length < 2 || name.length > 24 || !/^[\p{L}\p{N} ._-]+$/u.test(name)) return fail(res, 400, 'name: 2 to 24 letters, numbers, spaces, dots, dashes or underscores'); if (RESERVED.test(name)) return fail(res, 400, 'that name is reserved'); const taken = Object.entries(store.profiles).find(([k, x]) => k !== key && x.name && x.name.toLowerCase() === name.toLowerCase()); if (taken) return fail(res, 409, 'that name is taken'); }
+      pr.name = name || null; }
+    if (body.thesis !== undefined) { const th = String(body.thesis || '').trim(); if (th.length > 280) return fail(res, 400, 'thesis: 280 characters at most'); pr.thesis = th; }
+    if (body.avatar === null) { delete pr.avatar; pr.avatarAt = Date.now(); } else if (body.avatar !== undefined) { try { pr.avatar = parseAvatar(body.avatar); pr.avatarAt = Date.now(); } catch (e) { return fail(res, 400, e.message); } }
+    pr.updatedAt = Date.now(); await save(); return send(res, 200, pubProfile(s.address, pr));
+  }
+  if (p === '/api/me/updates') {
+    const text = typeof body.text === 'string' ? body.text.trim().replace(/[ \t]+/g, ' ') : ''; if (text.length < 1 || text.length > 280) return fail(res, 400, 'update must be 1 to 280 characters');
+    const last = (pr.updates || []).at(-1); if (last && Date.now() - last.at < 30 * 1000) return fail(res, 429, 'one update every 30 seconds');
+    (pr.updates ||= []).push({ id: crypto.randomBytes(8).toString('hex'), text, at: Date.now() }); if (pr.updates.length > 200) pr.updates.splice(0, pr.updates.length - 200); pr.updatedAt = Date.now(); await save();
+    return send(res, 201, pubProfile(s.address, pr));
+  }
+  if ((m = /^\/api\/me\/updates\/([a-f0-9]{16})\/delete$/.exec(p))) { pr.updates = (pr.updates || []).filter((u) => u.id !== m[1]); await save(); return send(res, 200, pubProfile(s.address, pr)); }
+  return fail(res, 404, 'no such route');
+}
+
 async function communityApi(req, res, url, h) {
   const { send, fail, limited, store, save, sessionOf, readJson, isAdmin, shop } = h; const p = url.pathname; let m;
   store.comments ||= {}; store.alerts ||= []; store.newsletter ||= []; store.support ||= []; store.poolSamples ||= {};
@@ -199,4 +240,4 @@ async function communityApi(req, res, url, h) {
   return fail(res, 404, 'no such route');
 }
 
-module.exports = { communityApi, startJobs, runAlerts, runSocial, digest, digestHtml, sendDigest, nlToken, news, poolPrice };
+module.exports = { profileApi, communityApi, startJobs, runAlerts, runSocial, digest, digestHtml, sendDigest, nlToken, news, poolPrice };

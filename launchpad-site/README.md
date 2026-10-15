@@ -128,6 +128,17 @@ y recorre 28 comprobaciones: registro de pares, recaudación en token y en BNB, 
 cartera, cierre anticipado, graduación con comisión y pool, claim, reembolso por no llegar al
 mínimo y graduación al vencer.
 
+**Staking del token de la casa ($KUAI)** (`KuaiStaking`, en el mismo fichero): la comisión del
+1 % de cada graduación va a `feeTo` de la factory, que el dueño cambia con `setFeeTo`. Si apunta
+a `KuaiStaking`, el 70 % de cada comisión se paga en BNB a quien tenga $KUAI en staking (en
+proporción, reclamable cuando quiera, sin bloqueo) y el 30 % va a un fondo de recompra que
+compra $KUAI en PancakeSwap y lo manda a la dirección muerta. Antes de fijar el token de la casa
+todo va a la recompra; si nadie hace staking, el 70 % espera a los primeros. Las comisiones en
+acciones (MCDx…) se convierten a BNB con `harvest`; `harvest` y `buyback` sólo las puede lanzar
+el dueño (llevan un mínimo de salida contra sandwiches) y el panel `/admin` → Launchpad las
+ejecuta con `DEPLOYER_KEY`. Desde ahí también se despliega el contrato (y se apunta `feeTo` a él)
+y se fija el token de la casa una sola vez. `STAKING_56` / `STAKING_97` sirven como alternativa.
+
 **Desplegar y conectar**
 
 La página pide al servidor `GET /api/config` (dirección de la factory por cadena, red por
@@ -173,6 +184,24 @@ desde su propio dominio.
   la misma página con su `<title>`, descripción, Open Graph y canonical; `/sitemap.xml`,
   `/robots.txt`, `/manifest.webmanifest`, `/sw.js` (PWA). Todo con gzip.
 
+**Secciones al estilo Seam**
+
+- `/dashboard`: portada con foto, fondo de staking, coins en vivo y próximo cierre; una tarjeta por
+  restaurante con precio de la acción, coins en vivo, recaudado y botón para comprar la coin en vivo
+  (aprobación incluida si se paga en acción) o lanzar una.
+- `/analytics`: totales leídos de los contratos (recaudado, graduadas, compradores, comisiones,
+  pagado a stakers, $KUAI quemado), recaudado en el tiempo, reparto por restaurante, actividad
+  (compras, lanzamientos, graduaciones), mejores compradores y últimas coins.
+- `/terminal`: tabla de todas las coins (recaudado, objetivo, progreso, compradores, cierre, precio
+  del pool) y de los restaurantes, calculadora con las reglas del contrato y el reparto de fondos.
+- `/stake`: staking de $KUAI (stake, unstake, MAX, reclamar BNB) y resumen del contrato.
+- `/profile`: con la wallet firmada, nombre, avatar (se recorta a 160 px en el navegador, máximo
+  120 KB, se comprueba el tipo real), tesis y actualizaciones; P/L de sus compras con las coins
+  graduadas valoradas al precio del pool. `/u/<wallet>` es la versión pública. Los nombres salen
+  en el tablero. API: `GET /api/profile/:addr`, `GET /api/profiles`, `POST /api/me/profile`,
+  `POST /api/me/updates`, `POST /api/admin/profiles/:addr/reset`; staking: `GET /api/stake`,
+  `GET /api/stake/ix/(approve|stake|unstake|claim)`, `GET|POST /api/admin/staking`.
+
 **Qué hace la página además de comprar**
 
 - Portada cinematográfica y tablero (`/explore`) con las coins, los pares y los lanzadores,
@@ -211,6 +240,7 @@ marcar `refunded`). Estados: pending, paid, processing, delivered, failed, expir
 | `SITE_URL`, `BRAND_NAME`, `GIFT_MARGIN`, `GIFT_TEST` | URL pública (callbacks), marca, margen (0.04 = 4 %), producto de prueba de Bitrefill |
 | `GIFT_WALLET_DISCOUNT`, `GIFT_REF_SHARE`, `SUPPORT_EMAIL`, `X_URL` | descuento al pagar con wallet (0.02), parte del margen para referidos (0.25), buzón de soporte, perfil de X |
 | `FACTORY_56`, `FACTORY_97`, `DEFAULT_CHAIN`, `BSC_RPC`, `BSC_TESTNET_RPC`, `COINGECKO_API_KEY` | factory por red, red por defecto, nodos RPC, clave demo de CoinGecko |
+| `STAKING_56`, `STAKING_97` | dirección de KuaiStaking por red (si no se despliega desde `/admin`) |
 | `DEPLOYER_KEY`, `FEE_TO`, `STOCK_TEST` | clave que despliega la factory desde `/admin`, destino de la comisión del 1 %, BEP-20 de prueba para testnet |
 | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_SECRET` | bot de X: publica cada coin nueva y cada graduación (OAuth 1.0a, app con lectura y escritura) |
 
@@ -260,8 +290,8 @@ comentarios, alertas, newsletter, soporte y estado).
 
 ```bash
 npm test                 # API del servidor
-npm run test:gifts       # tienda y comunidad: 47 comprobaciones con proveedores simulados
-npm run test:contracts   # 28 comprobaciones de los contratos en un EVM en proceso
+npm run test:gifts       # tienda, comunidad y perfiles: 66 comprobaciones con proveedores simulados
+npm run test:contracts   # 46 comprobaciones de contratos (staking incluido) y 6 del servidor contra KuaiStaking
 npm run test:dapp        # la página en Chromium contra una wallet y una tienda simuladas
 ```
 

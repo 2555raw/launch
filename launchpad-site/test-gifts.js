@@ -120,6 +120,24 @@ const xPosts = []; const xS = http.createServer(async (req, res) => { const b = 
   r = await j('/api/alerts', { email: 'alert@example.com', coin, chain: '97' }); ok(r.code === 201 && r.body.willEmail === true && (await j(`/api/alerts/count?coin=${coin}`)).body.count === 1, 'alert subscription stored');
   r = await j('/api/newsletter', { email: 'news@example.com', lang: 'es' }); r = await j('/api/newsletter', { email: 'NEWS@example.com' }); ok(r.code === 201 && (await j('/api/admin/newsletter', undefined, A)).body.subscribers.length === 1, 'newsletter deduplicates emails');
   r = await j('/api/support', { email: 'help@example.com', subject: 'Order', message: 'Where is my card?', order: w.id }); ok(r.code === 201 && (await j('/api/admin/support', undefined, A)).body.requests[0].order === w.id, 'support request stored with the order id');
+  // wallet profiles
+  { const auth = { authorization: 'Bearer ' + tok };
+    r = await j('/api/me/profile', { name: 'Ana' }); ok(r.code === 401, 'profile edits need a signed-in wallet');
+    r = await j('/api/me/profile', { name: 'Kuai Official' }, auth); ok(r.code === 400, 'reserved names are refused');
+    const png = 'data:image/png;base64,' + Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3]).toString('base64');
+    r = await j('/api/me/profile', { name: 'Burger Whale', thesis: 'Fast food is a hedge.', avatar: png }, auth); ok(r.code === 200 && r.body.name === 'Burger Whale' && r.body.avatar && r.body.thesis === 'Fast food is a hedge.', 'profile saved with name, thesis and avatar');
+    r = await j('/api/me/profile', { avatar: 'data:image/png;base64,' + Buffer.from('<svg/>').toString('base64') }, auth); ok(r.code === 400, 'avatar bytes must match the image type');
+    const n4 = await j('/api/auth/nonce', { address: w2.address }); const tok4 = (await j('/api/auth/verify', { address: w2.address, signature: await w2.signMessage(n4.body.message) })).body.token;
+    r = await j('/api/me/profile', { name: 'burger whale' }, { authorization: 'Bearer ' + tok4 }); ok(r.code === 409, 'names are unique, ignoring case');
+    r = await j('/api/me/updates', { text: 'Bought more $ARCHES' }, auth); ok(r.code === 201 && r.body.updates[0].text === 'Bought more $ARCHES', 'update posted');
+    r = await j('/api/me/updates', { text: 'again' }, auth); ok(r.code === 429, 'one update every 30 seconds');
+    r = await j('/api/profile/' + wallet.address); ok(r.code === 200 && r.body.name === 'Burger Whale' && r.body.updates.length === 1, 'public profile shows name and updates');
+    const av = await fetch(base + r.body.avatar); ok(av.status === 200 && av.headers.get('content-type') === 'image/png', 'avatar served as an image');
+    r = await j('/api/profiles'); ok(r.body.profiles[wallet.address.toLowerCase()].name === 'Burger Whale', 'profiles map lists names for the board');
+    r = await j(`/api/me/updates/${(await j('/api/profile/' + wallet.address)).body.updates[0].id}/delete`, {}, auth); ok(r.code === 200 && r.body.updates.length === 0, 'update deleted');
+    r = await j(`/api/admin/profiles/${wallet.address}/reset`, {}, A); ok(r.code === 200 && (await j('/api/profile/' + wallet.address)).body.name === null, 'admin can reset a profile'); }
+  // staking API without a deployed contract
+  r = await j('/api/stake?cluster=97'); ok(r.code === 200 && r.body.deployed === false && r.body.stakerBps === 7000, 'stake info says when staking is not deployed');
   // X bot and weekly newsletter digest
   r = await j('/api/admin/social', undefined, A); ok(r.code === 200 && r.body.configured === true && r.body.log.length === 0, 'X bot reports configured with an empty log');
   r = await j('/api/admin/social/test', { text: 'hello from the tests' }, A); ok(r.code === 200 && r.body.posted === true && r.body.id === 'tw1' && xPosts[0].text === 'hello from the tests', 'admin can post a test tweet (OAuth 1.0a signed)');

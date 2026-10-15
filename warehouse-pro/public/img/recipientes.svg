@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#93c5fd"/><stop offset="1" stop-color="#3b82f6"/></linearGradient></defs>
+  <rect width="120" height="120" rx="18" fill="#eff6ff"/>
+  <path d="M30 40 L90 40 L84 100 L36 100 Z" fill="url(#g)" stroke="#1e40af" stroke-width="2.5" stroke-linejoin="round"/>
+  <rect x="26" y="32" width="68" height="10" rx="3" fill="#dbeafe" stroke="#1e40af" stroke-width="2.5"/>
+  <path d="M40 32 C40 20 80 20 80 32" stroke="#1e40af" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M44 52 L42 88" stroke="#eff6ff" stroke-width="3" stroke-linecap="round" opacity="0.8"/>
+  <text x="60" y="113" text-anchor="middle" font-family="Inter,system-ui" font-size="10" font-weight="700" fill="#1e40af" letter-spacing="2">AMBIENTE</text>
+</svg>

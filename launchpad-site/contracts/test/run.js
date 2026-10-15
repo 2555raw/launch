@@ -19,7 +19,7 @@ function compile(files) {
   const c = {}; for (const f of Object.values(out.contracts)) for (const [n, v] of Object.entries(f)) c[n] = { abi: v.abi, bytecode: '0x' + v.evm.bytecode.object, iface: new ethers.Interface(v.abi) };
   return c;
 }
-const C = compile([path.join(__dirname, '..', 'ForkLaunch.sol'), path.join(__dirname, 'Mocks.sol')]);
+const C = compile([path.join(__dirname, '..', 'KuaiLaunch.sol'), path.join(__dirname, 'Mocks.sol')]);
 const E18 = 10n ** 18n;
 let passed = 0, failed = 0;
 const ok = (cond, msg) => { if (cond) { passed++; console.log('  ok  ' + msg); } else { failed++; console.log('  FAIL ' + msg); } };
@@ -36,7 +36,7 @@ const ok = (cond, msg) => { if (cond) { passed++; console.log('  ok  ' + msg); }
     const res = await vm.evm.runCall({ caller: from, origin: from, to, data: hexToBytes(data), value, gasLimit: 20_000_000n, block: block() });
     const err = res.execResult.exceptionError;
     if (expectRevert) { if (!err) throw new Error('expected revert'); return null; }
-    if (err) { let reason = ''; try { reason = C.ForkRaise.iface.parseError(bytesToHex(res.execResult.returnValue))?.args?.[0] || ''; } catch {} try { reason = reason || new ethers.AbiCoder().decode(['string'], '0x' + bytesToHex(res.execResult.returnValue).slice(10))[0]; } catch {} throw new Error(`revert ${err.error} ${reason}`); }
+    if (err) { let reason = ''; try { reason = C.KuaiRaise.iface.parseError(bytesToHex(res.execResult.returnValue))?.args?.[0] || ''; } catch {} try { reason = reason || new ethers.AbiCoder().decode(['string'], '0x' + bytesToHex(res.execResult.returnValue).slice(10))[0]; } catch {} throw new Error(`revert ${err.error} ${reason}`); }
     return res;
   }
   async function deploy(from, name, args = [], value = 0n) {
@@ -52,61 +52,61 @@ const ok = (cond, msg) => { if (cond) { passed++; console.log('  ok  ' + msg); }
   console.log('deploying');
   const router = await deploy(DEPLOYER, 'MockRouter');
   const stock = await deploy(DEPLOYER, 'MockStock');
-  const factory = await deploy(DEPLOYER, 'ForkFactory', [FEE.toString(), router.toString()]);
-  await send(DEPLOYER, factory, 'ForkFactory', 'setStocks', [['mcdonalds', 'wendys'], [stock.toString(), ethers.ZeroAddress]]);
-  await send(ALICE, factory, 'ForkFactory', 'createCoin', ['x', 'XX', 'luckin', 10n * E18, 7200n], 0n, true);
+  const factory = await deploy(DEPLOYER, 'KuaiFactory', [FEE.toString(), router.toString()]);
+  await send(DEPLOYER, factory, 'KuaiFactory', 'setStocks', [['mcdonalds', 'wendys'], [stock.toString(), ethers.ZeroAddress]]);
+  await send(ALICE, factory, 'KuaiFactory', 'createCoin', ['x', 'XX', 'luckin', 10n * E18, 7200n], 0n, true);
   ok(true, 'unregistered restaurant cannot be paired');
 
   console.log('coin paid in MCDx (stock path)');
-  await send(ALICE, factory, 'ForkFactory', 'createCoin', ['Golden Arches Club', 'ARCHES', 'mcdonalds', 10n * E18, 7200n]);
-  const [raises] = await read(factory, 'ForkFactory', 'all', [0, 10]);
+  await send(ALICE, factory, 'KuaiFactory', 'createCoin', ['Golden Arches Club', 'ARCHES', 'mcdonalds', 10n * E18, 7200n]);
+  const [raises] = await read(factory, 'KuaiFactory', 'all', [0, 10]);
   const raise = acct(raises[0]);
-  let info = await read(raise, 'ForkRaise', 'info');
+  let info = await read(raise, 'KuaiRaise', 'info');
   ok(info[1].toLowerCase() === stock.toString().toLowerCase(), 'raise pays in the registered stock token');
   ok(info[6] === 10n * E18 && info[7] === 10n * E18 / 3n && info[8] === 1n * E18, 'target 10, minimum 10/3, cap 1');
   await send(DEPLOYER, stock, 'MockStock', 'mint', [BOB.toString(), 100n * E18]);
   await send(DEPLOYER, stock, 'MockStock', 'mint', [ALICE.toString(), 100n * E18]);
-  await send(BOB, raise, 'ForkRaise', 'buyWith', [E18 / 2n], 0n, true);
+  await send(BOB, raise, 'KuaiRaise', 'buyWith', [E18 / 2n], 0n, true);
   ok(true, 'buyWith without approval reverts');
   await send(BOB, stock, 'MockStock', 'approve', [raise.toString(), 1000n * E18]);
-  await send(BOB, raise, 'ForkRaise', 'buyWith', [E18 / 2n]);
-  await send(BOB, raise, 'ForkRaise', 'buyWith', [5n * E18]);                 // clipped to the cap
-  const [paidBob] = await read(raise, 'ForkRaise', 'paid', [BOB.toString()]);
+  await send(BOB, raise, 'KuaiRaise', 'buyWith', [E18 / 2n]);
+  await send(BOB, raise, 'KuaiRaise', 'buyWith', [5n * E18]);                 // clipped to the cap
+  const [paidBob] = await read(raise, 'KuaiRaise', 'paid', [BOB.toString()]);
   const [bobStock] = await read(stock, 'MockStock', 'balanceOf', [BOB.toString()]);
   ok(paidBob === 1n * E18, 'cap per wallet clips the second buy to 1.0 total');
   ok(bobStock === 99n * E18, 'only the accepted amount leaves the buyer (99 left of 100)');
-  await send(BOB, raise, 'ForkRaise', 'buy', [], E18, true);
+  await send(BOB, raise, 'KuaiRaise', 'buy', [], E18, true);
   ok(true, 'buy() in BNB reverts on a stock-paid raise');
   await send(ALICE, stock, 'MockStock', 'approve', [raise.toString(), 1000n * E18]);
-  await send(ALICE, raise, 'ForkRaise', 'buyWith', [1n * E18]);
-  await send(ALICE, raise, 'ForkRaise', 'finalize', [], 0n, true);
+  await send(ALICE, raise, 'KuaiRaise', 'buyWith', [1n * E18]);
+  await send(ALICE, raise, 'KuaiRaise', 'finalize', [], 0n, true);
   ok(true, 'finalize before close reverts');
   now += 7201n;
-  await send(ALICE, raise, 'ForkRaise', 'finalize', []);
-  info = await read(raise, 'ForkRaise', 'info');
+  await send(ALICE, raise, 'KuaiRaise', 'finalize', []);
+  info = await read(raise, 'KuaiRaise', 'info');
   ok(info[14] === true && info[15] === false, 'closed at deadline below the minimum: finalized, not graduated');
   const before = await read(stock, 'MockStock', 'balanceOf', [BOB.toString()]);
-  await send(BOB, raise, 'ForkRaise', 'refund', []);
+  await send(BOB, raise, 'KuaiRaise', 'refund', []);
   const after = await read(stock, 'MockStock', 'balanceOf', [BOB.toString()]);
   ok(after[0] - before[0] === 1n * E18, 'refund returns 100% of the stock tokens');
-  await send(BOB, raise, 'ForkRaise', 'refund', [], 0n, true);
+  await send(BOB, raise, 'KuaiRaise', 'refund', [], 0n, true);
   ok(true, 'second refund reverts');
 
   console.log('coin paid in MCDx that fills its target and graduates');
-  await send(ALICE, factory, 'ForkFactory', 'createCoin', ['Big Mac Index', 'BIGMAC', 'mcdonalds', 2n * E18, 7200n]);
-  const [raises2] = await read(factory, 'ForkFactory', 'all', [0, 10]);
+  await send(ALICE, factory, 'KuaiFactory', 'createCoin', ['Big Mac Index', 'BIGMAC', 'mcdonalds', 2n * E18, 7200n]);
+  const [raises2] = await read(factory, 'KuaiFactory', 'all', [0, 10]);
   const r2 = acct(raises2[1]);
   const buyers = [];
   for (let i = 0; i < 10; i++) { const who = acct('0x' + (0x50 + i).toString(16).padStart(2, '0').repeat(20)); buyers.push(who);
     await vm.stateManager.putAccount(who, Account.fromAccountData({ balance: 10n * E18, nonce: 0n }));
     await send(DEPLOYER, stock, 'MockStock', 'mint', [who.toString(), 10n * E18]); await send(who, stock, 'MockStock', 'approve', [r2.toString(), 10n * E18]);
-    await send(who, r2, 'ForkRaise', 'buyWith', [E18 / 5n]); }            // 10 × 0.2 = 2.0 = target
-  info = await read(r2, 'ForkRaise', 'info');
+    await send(who, r2, 'KuaiRaise', 'buyWith', [E18 / 5n]); }            // 10 × 0.2 = 2.0 = target
+  info = await read(r2, 'KuaiRaise', 'info');
   ok(info[11] === 2n * E18 && info[12] > 0n, 'target reached: raise closed early');
-  await send(buyers[0], r2, 'ForkRaise', 'buyWith', [E18 / 10n], 0n, true);
+  await send(buyers[0], r2, 'KuaiRaise', 'buyWith', [E18 / 10n], 0n, true);
   ok(true, 'buy after close reverts');
-  await send(buyers[3], r2, 'ForkRaise', 'finalize', []);
-  info = await read(r2, 'ForkRaise', 'info');
+  await send(buyers[3], r2, 'KuaiRaise', 'finalize', []);
+  info = await read(r2, 'KuaiRaise', 'info');
   ok(info[15] === true, 'graduated');
   const [lpTokens] = await read(router, 'MockRouter', 'lastTokens'); const [lpStock] = await read(router, 'MockRouter', 'lastEth'); const [pairTok] = await read(router, 'MockRouter', 'lastPair');
   ok(lpTokens === 200_000_000n * E18, '20% of supply went to the pool');
@@ -114,36 +114,36 @@ const ok = (cond, msg) => { if (cond) { passed++; console.log('  ok  ' + msg); }
   ok(pairTok.toLowerCase() === stock.toString().toLowerCase(), 'pool is COIN/MCDx');
   const [feeBal] = await read(stock, 'MockStock', 'balanceOf', [FEE.toString()]);
   ok(feeBal === 2n * E18 / 100n, '1% fee paid in the stock token');
-  const [cl] = await read(r2, 'ForkRaise', 'claimable', [buyers[0].toString()]);
+  const [cl] = await read(r2, 'KuaiRaise', 'claimable', [buyers[0].toString()]);
   ok(cl === 80_000_000n * E18, 'each of 10 equal buyers can claim 80M tokens');
-  await send(buyers[0], r2, 'ForkRaise', 'claim', []);
-  const [tokenAddr] = await read(r2, 'ForkRaise', 'token');
-  const [tb] = await read(acct(tokenAddr), 'ForkToken', 'balanceOf', [buyers[0].toString()]);
+  await send(buyers[0], r2, 'KuaiRaise', 'claim', []);
+  const [tokenAddr] = await read(r2, 'KuaiRaise', 'token');
+  const [tb] = await read(acct(tokenAddr), 'KuaiToken', 'balanceOf', [buyers[0].toString()]);
   ok(tb === 80_000_000n * E18, 'claimed tokens arrive');
-  await send(buyers[0], r2, 'ForkRaise', 'claim', [], 0n, true);
+  await send(buyers[0], r2, 'KuaiRaise', 'claim', [], 0n, true);
   ok(true, 'double claim reverts');
-  await send(buyers[1], r2, 'ForkRaise', 'refund', [], 0n, true);
+  await send(buyers[1], r2, 'KuaiRaise', 'refund', [], 0n, true);
   ok(true, 'refund on a graduated raise reverts');
 
   console.log('coin paid in BNB (restaurant registered with address(0))');
-  await send(ALICE, factory, 'ForkFactory', 'createCoin', ['Frosty', 'FROSTY', 'wendys', 1n * E18, 7200n]);
-  const [raises3] = await read(factory, 'ForkFactory', 'all', [0, 10]);
+  await send(ALICE, factory, 'KuaiFactory', 'createCoin', ['Frosty', 'FROSTY', 'wendys', 1n * E18, 7200n]);
+  const [raises3] = await read(factory, 'KuaiFactory', 'all', [0, 10]);
   const r3 = acct(raises3[2]);
   const b0 = await balance(BOB);
-  await send(BOB, r3, 'ForkRaise', 'buy', [], E18 / 2n);                     // cap is 0.1: 0.4 change returned
+  await send(BOB, r3, 'KuaiRaise', 'buy', [], E18 / 2n);                     // cap is 0.1: 0.4 change returned
   const b1 = await balance(BOB);
   ok(b0 - b1 === E18 / 10n, 'BNB buy clipped to the cap and change returned');
-  await send(BOB, r3, 'ForkRaise', 'buyWith', [E18], 0n, true);
+  await send(BOB, r3, 'KuaiRaise', 'buyWith', [E18], 0n, true);
   ok(true, 'buyWith reverts on a BNB raise');
-  for (let i = 0; i < 9; i++) await send(buyers[i], r3, 'ForkRaise', 'buy', [], E18 / 10n);
-  info = await read(r3, 'ForkRaise', 'info');
+  for (let i = 0; i < 9; i++) await send(buyers[i], r3, 'KuaiRaise', 'buy', [], E18 / 10n);
+  info = await read(r3, 'KuaiRaise', 'info');
   ok(info[11] === 1n * E18, 'ten wallets fill 1 BNB');
   const feeBnb0 = await balance(FEE);
-  await send(ALICE, r3, 'ForkRaise', 'finalize', []);
+  await send(ALICE, r3, 'KuaiRaise', 'finalize', []);
   const [lpEth] = await read(router, 'MockRouter', 'lastEth');
   ok(lpEth === E18 * 99n / 100n, '99% of BNB went into addLiquidityETH');
   ok((await balance(FEE)) - feeBnb0 === E18 / 100n, '1% BNB fee paid');
-  const [cnt] = await read(factory, 'ForkFactory', 'count');
+  const [cnt] = await read(factory, 'KuaiFactory', 'count');
   ok(cnt === 3n, 'factory lists three coins');
   console.log(`\n${passed} passed, ${failed} failed`);
   process.exit(failed ? 1 : 0);

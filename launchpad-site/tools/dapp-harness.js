@@ -1,5 +1,5 @@
 /* Browser test of the dapp page against a fake BNB Chain wallet and a fake server.
-   The fake server keeps an in-memory copy of the ForkFactory state (raises, paid
+   The fake server keeps an in-memory copy of the KuaiFactory state (raises, paid
    amounts, pool) and answers the same API the real server exposes (/api/config,
    /api/coins, /api/coins/ix/*, /api/feed, /api/rpc, gifts, auth…). The fake
    window.ethereum (MetaMask-shaped) answers JSON-RPC through the same fake
@@ -125,7 +125,7 @@ const server = http.createServer((req, res) => {
     const mk = (o) => ({ id: o.id, rid: o.rid, productId: o.productId, name: o.rid, value: o.value, currency: 'USD', faceUsd: o.value, priceUsd: Math.ceil(o.value * (o.pay.method === 'wallet' ? 1.02 : 1.04) * 100) / 100, margin: o.pay.method === 'wallet' ? 0.02 : 0.04, discount: o.pay.method === 'wallet' ? 0.02 : 0, deliverAt: o.deliverAt || null, forMe: Boolean(o.forMe), ref: o.ref || null, status: o.status, error: null, createdAt: o.createdAt, recipient: { email: o.email, message: o.message || '' }, buyer: { address: null }, pay: o.pay, redemption: o.status === 'delivered' ? { code: '6032-1234-5678-9012', pin: '4321', instructions: 'Redeem at starbucks.com/card', link: 'https://www.bitrefill.com/x' } : null, emailSent: o.status === 'delivered' });
     global.__orders ||= {}; global.__comments ||= [];
     let m;
-    if (u === '/api/config') return out(200, { chain: 'bnb', paths: false, cluster: '97', clusters: { 56: { programId: null, usdt: '0x55d398326f99059fF775485246999027B3197955' }, 97: { programId: FACTORY, usdt: USDT } }, rpc: '/api/rpc', merchant: MER, social: { x: 'https://x.com/fork' } });
+    if (u === '/api/config') return out(200, { chain: 'bnb', paths: false, cluster: '97', clusters: { 56: { programId: null, usdt: '0x55d398326f99059fF775485246999027B3197955' }, 97: { programId: FACTORY, usdt: USDT } }, rpc: '/api/rpc', merchant: MER, social: { x: 'https://x.com/kuai' } });
     if (u === '/api/rpc') { let b = ''; req.on('data', (c) => b += c); req.on('end', () => { const j = JSON.parse(b); const one = (r) => { try { return { jsonrpc: '2.0', id: r.id, result: rpc(r) }; } catch (e) { return { jsonrpc: '2.0', id: r.id, error: { code: -32601, message: e.message } }; } }; out(200, Array.isArray(j) ? j.map(one) : one(j)); }); return; }
     if (u === '/api/coins') return out(200, { cluster: '97', programId: FACTORY, feeTo: MER, now: Date.now(), coins: chain.raises.map(view) });
     if ((m = new RegExp(`^/api/coins/(${ADDR})$`).exec(u))) { const r = chain.raises.find((x) => x.address === m[1].toLowerCase()); if (!r) return out(404, { error: 'no such coin' }); const p = q.get('buyer') ? chain.paid[paidKey(r.address, q.get('buyer'))] : null; return out(200, { coin: view(r), paid: p ? { amount: String(p.amount), claimed: p.claimed, claimable: p.claimed || !r.graduated ? '0' : String(SUPPLY * 8000n / 10000n * p.amount / r.raised), allowance: null, balance: null } : null }); }
@@ -149,7 +149,7 @@ const server = http.createServer((req, res) => {
     if (u === '/api/prices') return out(200, { binancecoin: { usd: 600, usd_24h_change: 2.5 }, 'mcdonald-s-xstock': { usd: 300, usd_24h_change: -0.4 } });
     if (u === '/api/gifts/catalog') return out(200, { supply: true, configured: true, methods: { wallet: true, crypto: true, card: true }, margin: 0.04, walletDiscount: 0.02, refShare: 0.25, countries: ['US', 'CA'], merchant: MER, email: true, products: [['starbucks', 'starbucks-usa', [10, 25, 50, 100], 'US', 'USD'], ['chipotle', 'chipotle-usa', null, 'US', 'USD'], ['burgerking', 'burger-king-usa', null, 'US', 'USD'], ['timhortons', 'tim-hortons-canada', null, 'CA', 'CAD']].map(([rid, id, packages, country, currency]) => ({ rid, id, name: rid, country, currency, min: 5, max: 250, step: 1, packages, inStock: true, available: true })) });
     if (u === '/api/gifts/preview') { res.writeHead(200, { 'content-type': 'text/html' }); return res.end('<h2>preview</h2>'); }
-    if (u === '/api/status') return out(200, { brand: 'fork', time: Date.now(), uptimeSec: 3600, supply: true, methods: { wallet: true, crypto: true, card: false }, email: true, chains: { 56: { block: 45000000, factory: null, ok: true }, 97: { block: chain.block, factory: FACTORY, ok: true } }, cluster: '97', ordersDelivered: 2, ordersPending: 0, lastDelivered: [{ rid: 'starbucks', value: 25, currency: 'USD', at: Date.now(), method: 'wallet' }], alerts: 1, subscribers: 3 });
+    if (u === '/api/status') return out(200, { brand: 'kuai', time: Date.now(), uptimeSec: 3600, supply: true, methods: { wallet: true, crypto: true, card: false }, email: true, chains: { 56: { block: 45000000, factory: null, ok: true }, 97: { block: chain.block, factory: FACTORY, ok: true } }, cluster: '97', ordersDelivered: 2, ordersPending: 0, lastDelivered: [{ rid: 'starbucks', value: 25, currency: 'USD', at: Date.now(), method: 'wallet' }], alerts: 1, subscribers: 3 });
     if (u === '/api/news') return out(200, { items: [{ title: 'McDonald\'s opens 500 new stores', link: 'https://example.com/news', at: Date.now() - 3600000, source: 'Example News' }] });
     if (u === '/api/alerts/count') return out(200, { count: 1 });
     if (u === '/api/me/referrals') return out(200, { address: ME, share: 0.25, orders: 2, delivered: 1, earnedUsd: 0.25, paidUsd: 0, pendingUsd: 0.25, payouts: [], recent: [], link: 'http://x.test/gifts?ref=' + ME });
@@ -167,7 +167,7 @@ const server = http.createServer((req, res) => {
       if (u === '/api/alerts') return out(201, { ok: true, id: 'a1', willEmail: true });
       if (u === '/api/newsletter') return out(201, { ok: true });
       if (u === '/api/support') return out(201, { ok: true, id: 's1' });
-      if (u === '/api/auth/nonce') return out(200, { message: 'fork\n\nSign in with this wallet: ' + j.address });
+      if (u === '/api/auth/nonce') return out(200, { message: 'kuai\n\nSign in with this wallet: ' + j.address });
       if (u === '/api/auth/verify') { if (!/^0x[0-9a-f]{130}$/i.test(j.signature || '')) return out(400, { error: 'bad signature' }); return out(200, { token: 'harness-token-00000000000000', address: j.address }); }
       if (u === '/api/me/orders') return out(200, { address: ME, orders: Object.values(global.__orders).map(mk) });
       out(404, { error: 'no' }); });
@@ -181,7 +181,7 @@ const server = http.createServer((req, res) => {
   await new Promise((r) => server.listen(0, r));
   const base = `http://127.0.0.1:${server.address().port}/`;
   const browser = await chromium.launch(process.env.PW_CHROME ? { executablePath: process.env.PW_CHROME } : {});
-  const pg = await browser.newPage({ viewport: { width: 1380, height: 900 } });
+  const pg = await browser.newPage({ viewport: { width: Number(process.env.W || 1380), height: Number(process.env.H || 900) } });
   const errors = []; global.__pg = pg; global.__errors = errors;
   pg.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   pg.on('console', (m) => { if (m.type() === 'error' && !m.text().includes('404') && !m.text().includes('429') && !m.text().includes('coingecko') && !m.text().includes('ERR_FAILED')) errors.push('console: ' + m.text()); });
@@ -277,7 +277,7 @@ const server = http.createServer((req, res) => {
   await pg.evaluate(() => fetch('/__close'));
   await pg.keyboard.press('Escape');
   await pg.waitForTimeout(300);
-  await pg.locator('#refresh').click();
+  await pg.evaluate(() => document.querySelector('#refresh').click());
   await pg.waitForTimeout(500);
   await pg.locator('#rows .row:not(.rcard) .row-img').first().click();
   await pg.waitForFunction(() => document.querySelector('[data-finalize]'), null, { timeout: 15000 });
@@ -369,7 +369,7 @@ const server = http.createServer((req, res) => {
   R.override = await pg.evaluate(() => document.body.innerHTML.includes('Big Mac since 1967'));
   await pg.keyboard.press('Escape'); await pg.waitForTimeout(200);
   await pg.evaluate(() => { location.hash = '#coins'; }); await pg.waitForTimeout(300);
-  await pg.locator('#lang [data-lang="zh"]').click();
+  await pg.locator('#lang2 [data-lang="zh"]').click();
   await pg.waitForTimeout(100);
   R.zhTag = await pg.locator('#rows .row .tag').textContent();
   await pg.setViewportSize({ width: 390, height: 844 });

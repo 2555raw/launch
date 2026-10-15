@@ -2,7 +2,7 @@
   "name": "launchpad-site",
   "version": "1.0.0",
   "private": true,
-  "description": "fork: restaurant gift cards for any crypto and a BNB Chain launchpad where every coin is paired with a tokenized restaurant stock.",
+  "description": "kuai: restaurant gift cards for any crypto and a BNB Chain launchpad where every coin is paired with a tokenized restaurant stock.",
   "scripts": {
     "start": "node server.js",
     "test": "node test.js",

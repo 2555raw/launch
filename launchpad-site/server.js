@@ -226,7 +226,7 @@ function getQuotes() {
 const nonces = new Map(); // address → { nonce, at }
 
 function loginMessage(address, nonce) {
-  return `fork\n\nSign in with this wallet. This costs nothing and authorizes no transaction.\n\nWallet: ${address}\nNonce: ${nonce}`;
+  return `kuai\n\nSign in with this wallet. This costs nothing and authorizes no transaction.\n\nWallet: ${address}\nNonce: ${nonce}`;
 }
 
 function sessionOf(req) {
@@ -337,23 +337,23 @@ function pageSource() {
   return PAGE;
 }
 const VIEW_META = {
-  '': ['fork', 'Restaurant gift cards paid with any crypto or card, and a BNB Chain launchpad where every coin is paired with a real tokenized restaurant stock.'],
-  explore: ['Explore · fork', 'Restaurants with a tokenized stock, the coins paired with them and gift cards for crypto, in one place.'],
-  gifts: ['Gift cards for crypto · fork', 'Buy restaurant eGift cards with SOL, USDC, Bitcoin, 300+ cryptocurrencies or a card. Delivered by email, inside fork.'],
-  coins: ['All coins · fork', 'Every coin launched on fork, each paired with a tokenized restaurant stock on BNB Chain.'],
-  launch: ['Create a coin · fork', 'Launch a coin paired with a real restaurant stock token. The raise is paid in that token and opens a locked liquidity pool when it graduates.'],
-  docs: ['How the launchpad works · fork', 'Paired raises, graduation, refunds and the fixed parameters of every fork coin.'],
-  pairs: ['Verified pairs on BNB Chain · fork', 'The tokenized restaurant stocks (xStocks, bStocks, Ondo) verified on-chain that fork coins pair with.'],
-  account: ['Your account · fork', 'Your gift card orders and coins on fork.'],
-  leaderboard: ['Leaderboard · fork', 'Top coins by amount raised and the most active buyers on fork this week.'],
-  calendar: ['Calendar · fork', 'Upcoming closes and graduations of fork coins.'],
-  guides: ['Guides · fork', 'How to buy crypto, how to pay a gift card with USDT, what a tokenized stock is, and how a paired raise works.'],
-  'guides/buy-crypto': ['How to buy crypto and set up a wallet · fork', 'Three steps to get SOL or USDC with Phantom or an exchange, then use it on fork.'],
-  'guides/gift-card-usdt': ['Buy a Starbucks gift card with USDT · fork', 'Step by step: choose the card, pay with USDT or any crypto, get the code by email in minutes.'],
-  'guides/tokenized-stocks': ['What is a tokenized stock? · fork', 'MCDx, SBUXx and the other restaurant stock tokens on BNB Chain: who issues them, how they track the stock, where they trade.'],
-  'guides/paired-raise': ['How a paired raise works · fork', 'Target, minimum, cap per wallet, graduation to a locked pool and refunds, explained with an example.'],
-  status: ['Status · fork', 'Live status of gift card supply, payments, email and BNB Chain, with the latest deliveries.'],
-  help: ['Help · fork', 'Answers to common questions and a way to reach us about an order or a coin.']
+  '': ['kuai', 'Restaurant gift cards paid with any crypto or card, and a BNB Chain launchpad where every coin is paired with a real tokenized restaurant stock.'],
+  explore: ['Explore · kuai', 'Restaurants with a tokenized stock, the coins paired with them and gift cards for crypto, in one place.'],
+  gifts: ['Gift cards for crypto · kuai', 'Buy restaurant eGift cards with BNB, USDT, Bitcoin, 300+ cryptocurrencies or a card. Delivered by email, inside kuai.'],
+  coins: ['All coins · kuai', 'Every coin launched on kuai, each paired with a tokenized restaurant stock on BNB Chain.'],
+  launch: ['Create a coin · kuai', 'Launch a coin paired with a real restaurant stock token. The raise is paid in that token and opens a locked liquidity pool when it graduates.'],
+  docs: ['How the launchpad works · kuai', 'Paired raises, graduation, refunds and the fixed parameters of every kuai coin.'],
+  pairs: ['Verified pairs on BNB Chain · kuai', 'The tokenized restaurant stocks (xStocks, bStocks, Ondo) verified on-chain that kuai coins pair with.'],
+  account: ['Your account · kuai', 'Your gift card orders and coins on kuai.'],
+  leaderboard: ['Leaderboard · kuai', 'Top coins by amount raised and the most active buyers on kuai this week.'],
+  calendar: ['Calendar · kuai', 'Upcoming closes and graduations of kuai coins.'],
+  guides: ['Guides · kuai', 'How to buy crypto, how to pay a gift card with USDT, what a tokenized stock is, and how a paired raise works.'],
+  'guides/buy-crypto': ['How to buy crypto and set up a wallet · kuai', 'Three steps to get BNB or USDT with MetaMask or Binance, then use it on kuai.'],
+  'guides/gift-card-usdt': ['Buy a Starbucks gift card with USDT · kuai', 'Step by step: choose the card, pay with USDT or any crypto, get the code by email in minutes.'],
+  'guides/tokenized-stocks': ['What is a tokenized stock? · kuai', 'MCDx, SBUXx and the other restaurant stock tokens on BNB Chain: who issues them, how they track the stock, where they trade.'],
+  'guides/paired-raise': ['How a paired raise works · kuai', 'Target, minimum, cap per wallet, graduation to a locked pool and refunds, explained with an example.'],
+  status: ['Status · kuai', 'Live status of gift card supply, payments, email and BNB Chain, with the latest deliveries.'],
+  help: ['Help · kuai', 'Answers to common questions and a way to reach us about an order or a coin.']
 };
 const escAttr = (v) => String(v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 function pageFor(req, rel) {
@@ -364,12 +364,12 @@ function pageFor(req, rel) {
   if (VIEW_META[key]) { [title, desc] = VIEW_META[key]; }
   else if ((m = /^(r|gift)\/([a-z0-9_-]+)$/.exec(key)) && src.rest[m[2]]) {
     const r = src.rest[m[2]];
-    title = (m[1] === 'gift' ? `${r.name} gift card for crypto` : `${r.name} on fork`) + ' · fork';
+    title = (m[1] === 'gift' ? `${r.name} gift card for crypto` : `${r.name} on kuai`) + ' · kuai';
     desc = m[1] === 'gift' ? `Buy a ${r.name} eGift card with BNB, USDT, Bitcoin or any crypto. Emailed within minutes.` : `${r.name} (${r.parent}): live stock price, the tokenized stock on BNB Chain and the coins paired with it.`;
     if (fs.existsSync(path.join(ROOT, 'dapp', 'photos', m[2] + '.webp'))) image = `${base}/photos/${m[2]}.webp`;
   }
-  else if (/^coin\/\d+\/0x[0-9a-fA-F]{40}$/.test(key)) { title = 'Coin · fork'; desc = 'A coin launched on fork, paired with a tokenized restaurant stock on BNB Chain.'; }
-  else if ((m = /^u\/(0x[0-9a-fA-F]{40})$/.exec(key))) { title = `${m[1].slice(0, 6)}…${m[1].slice(-4)} · fork`; desc = 'Coins created and bought by this wallet on fork.'; }
+  else if (/^coin\/\d+\/0x[0-9a-fA-F]{40}$/.test(key)) { title = 'Coin · kuai'; desc = 'A coin launched on kuai, paired with a tokenized restaurant stock on BNB Chain.'; }
+  else if ((m = /^u\/(0x[0-9a-fA-F]{40})$/.exec(key))) { title = `${m[1].slice(0, 6)}…${m[1].slice(-4)} · kuai`; desc = 'Coins created and bought by this wallet on kuai.'; }
   if (!image) image = `${base}/photos/all.webp`;
   let html = src.html
     .replace(/<title>[^<]*<\/title>/, `<title>${escAttr(title)}</title>`)
@@ -377,7 +377,7 @@ function pageFor(req, rel) {
     .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${escAttr(title)}">`)
     .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${escAttr(desc)}">`)
     .replace('<meta property="og:type" content="website">', `<meta property="og:type" content="website"><meta property="og:url" content="${escAttr(base + rel)}"><meta property="og:image" content="${escAttr(image)}"><meta name="twitter:image" content="${escAttr(image)}"><link rel="canonical" href="${escAttr(base + rel)}">`);
-  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png"><link rel="icon" href="/icons/icon-192.png" type="image/png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="fork"><script>window.SOL_CFG={paths:true}</script>\n${html}\n</html>`;
+  return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/icons/icon-192.png"><link rel="icon" href="/icons/icon-192.png" type="image/png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="kuai"><script>window.SOL_CFG={paths:true}</script>\n${html}\n</html>`;
 }
 const PAGE_ROUTE = /^\/(explore|gifts|coins|launch|docs|pairs|account|leaderboard|calendar|guides|guides\/[a-z0-9-]+|status|help|r\/[a-z0-9_-]+|gift\/[a-z0-9_-]+|coin\/\d+\/0x[0-9a-fA-F]{40}|u\/0x[0-9a-fA-F]{40})\/?$/;
 function servePage(req, res, rel) {
@@ -512,7 +512,7 @@ function start(port = PORT) {
   gifts.startJobs(store, save); community.startJobs(store, save);
   const server = http.createServer(handler);
   return new Promise((resolve) => server.listen(port, () => {
-    console.log(`fork on :${server.address().port} · data in ${DATA_FILE}${SEED_DEMO ? ' · demo seeded' : ''}`);
+    console.log(`kuai on :${server.address().port} · data in ${DATA_FILE}${SEED_DEMO ? ' · demo seeded' : ''}`);
     resolve(server);
   }));
 }

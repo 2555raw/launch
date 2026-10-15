@@ -87,7 +87,7 @@ launches.js   el catálogo de lanzamientos
 test.js       pruebas de la API (node:test)
 ```
 
-## fork (dapp en BNB Chain)
+## kuai (dapp en BNB Chain)
 
 `dapp/index.html` es la interfaz principal: un launchpad de coins en **BNB Chain** donde cada
 coin se crea **pareada a la acción tokenizada de un restaurante**, más una tienda de tarjetas
@@ -105,14 +105,14 @@ restaurantes sin acción tokenizada en BNB Chain no se pueden parear todavía. E
 tokens de acciones no existen, así que las coins se pagan en tBNB (o en un BEP-20 de prueba
 con `STOCK_TEST=0x...`).
 
-**Contratos** (`contracts/ForkLaunch.sol`, Solidity 0.8.28, sin auditar):
+**Contratos** (`contracts/KuaiLaunch.sol`, Solidity 0.8.28, sin auditar):
 
-- `ForkFactory.setStocks(ids, tokens)` (sólo el dueño) registra el token de cada restaurante;
+- `KuaiFactory.setStocks(ids, tokens)` (sólo el dueño) registra el token de cada restaurante;
   `address(0)` significa pagar en BNB. `setFeeTo` cambia el destino de la comisión.
-- `ForkFactory.createCoin(name, symbol, restaurantId, target, duration)` despliega un
-  `ForkToken` (1.000.000.000 de supply, 18 decimales) y un `ForkRaise` pagado en el token
+- `KuaiFactory.createCoin(name, symbol, restaurantId, target, duration)` despliega un
+  `KuaiToken` (1.000.000.000 de supply, 18 decimales) y un `KuaiRaise` pagado en el token
   registrado.
-- `ForkRaise.buyWith(amount)` (tras `approve`) o `buy()` en BNB; tope por cartera =
+- `KuaiRaise.buyWith(amount)` (tras `approve`) o `buy()` en BNB; tope por cartera =
   objetivo/10; al llegar al objetivo la ventana cierra; el exceso se devuelve.
 - `finalize()`: si se alcanzó el mínimo (objetivo/3), el 1 % va a `feeTo` y el 99 % restante
   más el 20 % del supply forman el pool COIN/ACCIÓN (o COIN/BNB) en PancakeSwap v2; los LP
@@ -136,7 +136,7 @@ no hay que reconstruir nada al desplegar la factory. Dos caminos:
 
 - Desde `/admin` → **Launchpad**: con `DEPLOYER_KEY` en el servidor (una clave con tBNB del
   faucet para testnet), el panel enseña la dirección y el saldo del desplegador y un botón
-  «Deploy factory» que despliega `ForkFactory`, registra los 18 restaurantes y guarda la
+  «Deploy factory» que despliega `KuaiFactory`, registra los 18 restaurantes y guarda la
   dirección en el almacén. La página la usa al momento.
 - Por línea de comandos:
 
@@ -161,7 +161,7 @@ desde su propio dominio.
   nodo público desde el navegador.
 - `GET /api/coins`, `/api/coins/:raise?buyer=`, `/api/coins/:raise/buys`, `/api/feed`,
   `/api/buys?wallet=`: índice de las recaudaciones de la factory (`info()` de cada
-  `ForkRaise`, con caché) y de las compras (eventos `Bought`, leídos por ventanas de bloques).
+  `KuaiRaise`, con caché) y de las compras (eventos `Bought`, leídos por ventanas de bloques).
 - `GET /api/coins/ix/(create|approve|buy|finalize|claim|refund|swap)?wallet=…`: devuelve la
   lista de llamadas `{to, data, value}` lista para firmar; la página las envía una tras otra
   con la wallet y espera el recibo de cada una.

@@ -28,7 +28,7 @@ interface IPancakeRouter {
         external returns (uint amountA, uint amountB, uint liquidity);
 }
 
-contract ForkToken {
+contract KuaiToken {
     string public name; string public symbol; uint8 public constant decimals = 18; uint256 public totalSupply;
     mapping(address => uint256) public balanceOf; mapping(address => mapping(address => uint256)) public allowance;
     event Transfer(address indexed from, address indexed to, uint256 value);
@@ -49,13 +49,13 @@ contract ForkToken {
     }
 }
 
-contract ForkRaise {
+contract KuaiRaise {
     uint256 public constant SUPPLY = 1_000_000_000e18;
     uint256 public constant POOL_BPS = 2000;   // 20 % of supply to the pool
     uint256 public constant FEE_BPS = 100;     // 1 % of what was raised to the platform
 
     address public immutable factory; address public immutable creator; address public immutable feeTo;
-    IPancakeRouter public immutable router; ForkToken public immutable token;
+    IPancakeRouter public immutable router; KuaiToken public immutable token;
     IERC20 public immutable payToken;          // the restaurant's stock token; address(0) means BNB
     string public restaurantId;
     uint256 public immutable target; uint256 public immutable minimum; uint256 public immutable capPerWallet;
@@ -76,7 +76,7 @@ contract ForkRaise {
         factory = msg.sender; creator = _creator; feeTo = _feeTo; router = IPancakeRouter(_router); payToken = IERC20(_payToken);
         restaurantId = _restaurantId; target = _target; minimum = _target / 3; capPerWallet = _target / 10;
         openAt = block.timestamp; closeAt = block.timestamp + _durationSeconds;
-        token = new ForkToken(_name, _symbol, SUPPLY, address(this));
+        token = new KuaiToken(_name, _symbol, SUPPLY, address(this));
     }
 
     function isOpen() public view returns (bool) { return closedAt == 0 && block.timestamp < closeAt && !finalized; }
@@ -137,7 +137,7 @@ contract ForkRaise {
     }
 }
 
-contract ForkFactory {
+contract KuaiFactory {
     address public owner; address public immutable feeTo; address public immutable router;
     address[] public raises;
     mapping(string => address) public stockOf;      // restaurantId => stock token on this chain
@@ -160,7 +160,7 @@ contract ForkFactory {
         require(enabled[restaurantId], "restaurant not pairable");
         require(bytes(symbol).length >= 2 && bytes(symbol).length <= 8, "symbol");
         require(bytes(name).length >= 2 && bytes(name).length <= 32, "name");
-        ForkRaise r = new ForkRaise(msg.sender, feeTo, router, stockOf[restaurantId], name, symbol, restaurantId, target, durationSeconds);
+        KuaiRaise r = new KuaiRaise(msg.sender, feeTo, router, stockOf[restaurantId], name, symbol, restaurantId, target, durationSeconds);
         raises.push(address(r));
         emit CoinCreated(address(r), address(r.token()), msg.sender, symbol, restaurantId, stockOf[restaurantId], target, r.closeAt());
         return address(r);

@@ -20,7 +20,7 @@ const MARGIN = Number(process.env.GIFT_MARGIN ?? 0.04);
 const DISCOUNT = Math.min(MARGIN, Math.max(0, Number(process.env.GIFT_WALLET_DISCOUNT ?? 0.02))); // off the margin when paying with a Solana wallet
 const REF_SHARE = Math.min(1, Math.max(0, Number(process.env.GIFT_REF_SHARE ?? 0.25)));       // share of the margin paid to the referrer
 const MERCHANT = sol.MERCHANT;
-const BRAND = process.env.BRAND_NAME || 'fork';
+const BRAND = process.env.BRAND_NAME || 'kuai';
 const ADMIN_KEY = process.env.ADMIN_KEY || '';
 const siteUrl = (req) => (process.env.SITE_URL || `${req.headers['x-forwarded-proto'] || 'http'}://${req.headers['x-forwarded-host'] || req.headers.host}`).replace(/\/$/, '');
 

@@ -1,4 +1,4 @@
-/* BNB Chain layer: networks, the fork factory and raise contracts (index,
+/* BNB Chain layer: networks, the kuai factory and raise contracts (index,
  * per-buyer state, buys from Bought events), calldata for the page (the page
  * signs with MetaMask and sends), a JSON-RPC proxy with an allowlist, sign-in
  * by personal_sign, and gift-card payments in BNB or USDT to the merchant.
@@ -160,7 +160,7 @@ let busy = null;
 async function deployFactory(c, store, save) {
   const net = CLUSTERS[c]; if (!net) throw new Error('chain must be 56 or 97'); const w = deployerWallet(); if (!w) throw new Error('DEPLOYER_KEY is not set or not a private key'); if (busy) throw new Error('a deployment is already running'); busy = c;
   try {
-    const art = JSON.parse(fs.readFileSync(path.join(__dirname, 'contracts', 'build', 'ForkFactory.json'), 'utf8')); const pairs = JSON.parse(fs.readFileSync(path.join(__dirname, 'contracts', 'pairs.json'), 'utf8')); delete pairs._note;
+    const art = JSON.parse(fs.readFileSync(path.join(__dirname, 'contracts', 'build', 'KuaiFactory.json'), 'utf8')); const pairs = JSON.parse(fs.readFileSync(path.join(__dirname, 'contracts', 'pairs.json'), 'utf8')); delete pairs._note;
     const wallet = w.connect(conn(c)); const bal = await conn(c).getBalance(wallet.address); if (bal < ethers.parseEther('0.02')) throw new Error(`deployer ${wallet.address} has ${ethers.formatEther(bal)} ${net.symbol}; it needs about 0.05 ${net.symbol}`);
     const feeTo = process.env.FEE_TO && ethers.isAddress(process.env.FEE_TO) ? process.env.FEE_TO : wallet.address;
     const cf = new ethers.ContractFactory(art.abi, art.bytecode, wallet); const ct = await cf.deploy(feeTo, net.router); const tx = ct.deploymentTransaction().hash; await ct.waitForDeployment(); const address = await ct.getAddress();

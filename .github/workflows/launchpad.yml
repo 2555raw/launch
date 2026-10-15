@@ -1,4 +1,4 @@
-# Tests for launchpad-site (fork): API, gift-card shop, the BNB Chain contracts
+# Tests for launchpad-site (kuai): API, gift-card shop, the BNB Chain contracts
 # in an in-process EVM, and the browser harness of the dapp page against a fake
 # wallet and a fake server.
 name: launchpad-site tests
@@ -54,7 +54,7 @@ jobs:
           cache: npm
           cache-dependency-path: launchpad-site/package-lock.json
       - run: npm ci
-      - name: Compile ForkLaunch.sol
+      - name: Compile KuaiLaunch.sol
         run: npm run compile
       - name: Contract tests (in-process EVM)
         run: npm run test:contracts

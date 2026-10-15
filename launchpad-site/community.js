@@ -12,7 +12,7 @@ const crypto = require('crypto');
 const email = require('./services/email');
 const sol = require('./evm');
 
-const BRAND = process.env.BRAND_NAME || 'fork';
+const BRAND = process.env.BRAND_NAME || 'kuai';
 const SUPPORT_EMAIL = (process.env.SUPPORT_EMAIL || '').trim();
 const isEmail = (s) => typeof s === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s) && s.length < 200;
 const isAddr = (s) => sol.isPk(s);
@@ -88,7 +88,7 @@ async function runSocial(store, save) {
 }
 
 /* ---- weekly newsletter: digest of the week, one email per subscriber, unsubscribe by signed link ---- */
-const NL_SECRET = () => process.env.NEWSLETTER_SECRET || process.env.ADMIN_KEY || 'fork-newsletter';
+const NL_SECRET = () => process.env.NEWSLETTER_SECRET || process.env.ADMIN_KEY || 'kuai-newsletter';
 const nlToken = (email) => crypto.createHmac('sha256', NL_SECRET()).update(String(email).toLowerCase()).digest('hex').slice(0, 32);
 const unsubUrl = (email) => `${SITE()}/api/newsletter/unsubscribe?e=${encodeURIComponent(email)}&t=${nlToken(email)}`;
 async function digest(store) {

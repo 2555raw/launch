@@ -1,4 +1,4 @@
-/* Deploys ForkFactory to BNB Chain and registers the restaurant pairs.
+/* Deploys KuaiFactory to BNB Chain and registers the restaurant pairs.
  *
  *   PRIVATE_KEY=0x... node contracts/deploy.js testnet
  *   PRIVATE_KEY=0x... node contracts/deploy.js mainnet
@@ -29,19 +29,19 @@ const NETS = {
   const net = NETS[which];
   if (!net) throw new Error('network: testnet | mainnet');
   if (!process.env.PRIVATE_KEY) throw new Error('set PRIVATE_KEY');
-  const art = JSON.parse(fs.readFileSync(path.join(__dirname, 'build', 'ForkFactory.json'), 'utf8'));
+  const art = JSON.parse(fs.readFileSync(path.join(__dirname, 'build', 'KuaiFactory.json'), 'utf8'));
   const pairs = JSON.parse(fs.readFileSync(path.join(__dirname, 'pairs.json'), 'utf8'));
   delete pairs._note;
   const provider = new ethers.JsonRpcProvider(net.rpc, net.chainId);
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
   const feeTo = process.env.FEE_TO || wallet.address;
-  console.log(`deploying ForkFactory to ${which} from ${wallet.address} · feeTo ${feeTo} · router ${net.router}`);
+  console.log(`deploying KuaiFactory to ${which} from ${wallet.address} · feeTo ${feeTo} · router ${net.router}`);
   const factory = new ethers.ContractFactory(art.abi, art.bytecode, wallet);
   const c = await factory.deploy(feeTo, net.router);
   console.log('tx', c.deploymentTransaction().hash);
   await c.waitForDeployment();
   const addr = await c.getAddress();
-  console.log(`ForkFactory: ${addr}\n${net.explorer}/address/${addr}`);
+  console.log(`KuaiFactory: ${addr}\n${net.explorer}/address/${addr}`);
 
   const ids = Object.keys(pairs);
   const stocks = ids.map((id) => which === 'mainnet' ? pairs[id].address : (process.env.STOCK_TEST || ethers.ZeroAddress));

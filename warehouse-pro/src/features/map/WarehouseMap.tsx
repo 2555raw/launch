@@ -1,4 +1,4 @@
-import { Crosshair, Filter, GitBranch, Layers, Minus, Move, Plus, Route, Search, Waves, X } from 'lucide-react'
+import { Box, Crosshair, Filter, GitBranch, Layers, Minus, Move, Plus, Route, Search, Square, Waves, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react'
 import { Badge, Button, Modal, Select, Tooltip } from '@/components/ui'
 import { availableAt, buildRoute, checkCanReceive, locationStatus, pickingSortKey, routeBetween, routeLength, stockEntriesAt, stockEntriesOf, values, type Location, type RoutePoint } from '@/domain'
@@ -7,7 +7,10 @@ import { LOCATION_STATUS, TEMPERATURE, ZONE_TYPE } from '@/lib/labels'
 import { t } from '@/lib/i18n'
 import { cx, fmtInt } from '@/lib/format'
 import { navigate } from '@/lib/router'
-import { MapCanvas, type DragState } from './MapCanvas'
+import { MapCanvas } from './MapCanvas'
+import { MapCanvas3D, type DragState } from './MapCanvas3D'
+import { LAYERS, legendForLayer, recentlyChanged, type MapLayer } from './layers'
+import { BOUNDS, centerOf, floorPoly, type MapMode } from './projection'
 import { LocationPanel } from './LocationPanel'
 import { MoveDialog, type MoveRequest } from './MoveDialog'
 import { FlowsPanel } from './FlowsPanel'
@@ -17,7 +20,11 @@ import { useViewBox } from './useViewBox'
 export function WarehouseMap({ params }: { params: Record<string, string> }) {
   const state = useState$()
   const svgRef = useRef<SVGSVGElement>(null)
-  const view = useViewBox(svgRef)
+  const [mode, setMode] = useState<MapMode>(() => { try { return (localStorage.getItem('warehouse-pro:map-mode') as MapMode) || '3d' } catch { return '3d' } })
+  const [layer, setLayer] = useState<MapLayer>('ocupacion')
+  const bounds = BOUNDS[mode]
+  const view = useViewBox(svgRef, bounds)
+  const [tick, setTick] = useState(0)
   const [selectedId, setSelectedId] = useState<string | null>(params.loc ?? null)
   const [hoverId, setHoverId] = useState<string | null>(null)
   const [query, setQuery] = useState(params.sku ? state.products[params.sku]?.sku ?? '' : '')
@@ -37,6 +44,28 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
   const pressRef = useRef<{ loc: Location; x: number; y: number; moved: boolean } | null>(null)
 
   const locations = useMemo(() => values(state.locations), [state])
+  const recent = useMemo(() => recentlyChanged(state), [state, tick])
+  useEffect(() => { if (recent.size === 0) return; const id = setTimeout(() => setTick((v) => v + 1), 21000); return () => clearTimeout(id) }, [recent])
+  useEffect(() => { try { localStorage.setItem('warehouse-pro:map-mode', mode) } catch { /* ignore */ } }, [mode])
+  const focusLoc = useCallback((l: Location, w = 360) => { const c = centerOf(mode, l); view.focusOn(c.X, c.Y, mode === '3d' ? w * 1.4 : w) }, [mode, view])
+  // Teclado: flechas desplazan, +/- zoom, Esc deselecciona
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) return
+      if (document.querySelector('[role="dialog"]')) return
+      if (e.key === 'ArrowLeft') { view.panBy(-0.08, 0); e.preventDefault() }
+      else if (e.key === 'ArrowRight') { view.panBy(0.08, 0); e.preventDefault() }
+      else if (e.key === 'ArrowUp') { view.panBy(0, -0.08); e.preventDefault() }
+      else if (e.key === 'ArrowDown') { view.panBy(0, 0.08); e.preventDefault() }
+      else if (e.key === '+' || e.key === '=') view.zoomAt(0.8)
+      else if (e.key === '-') view.zoomAt(1.25)
+      else if (e.key === 'Escape') { setSelectedId(null); setRouteFromId(null); setManualRoute(null) }
+      else if (e.key.toLowerCase() === 'v') setMode((m) => (m === '3d' ? '2d' : '3d'))
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [view])
   const categories = useMemo(() => [...new Set(values(state.products).map((p) => p.category))].sort(), [state])
 
   // Producto buscado
@@ -84,7 +113,7 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
     if (params.loc && state.locations[params.loc]) {
       const l = state.locations[params.loc]
       setSelectedId(l.id)
-      view.focusOn(l.x + l.w / 2, l.y + l.h / 2, 360)
+      focusLoc(l)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.loc])
@@ -93,13 +122,14 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
     if (matchedProduct) {
       const locs = stockEntriesOf(state, matchedProduct.id).map((e) => state.locations[e.locationId]).filter(Boolean)
       if (locs.length) {
-        const xs = locs.map((l) => l.x), ys = locs.map((l) => l.y)
+        const ps = locs.map((l) => centerOf(mode, l))
+        const xs = ps.map((p) => p.X), ys = ps.map((p) => p.Y)
         const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys)
-        view.focusOn((minX + maxX) / 2 + 20, (minY + maxY) / 2 + 20, Math.max(420, (maxX - minX) * 1.6 + 200))
+        view.focusOn((minX + maxX) / 2, (minY + maxY) / 2, Math.max(mode === '3d' ? 600 : 420, (maxX - minX) * 1.6 + 200))
       }
     } else if (matchedLocation) {
       setSelectedId(matchedLocation.id)
-      view.focusOn(matchedLocation.x + matchedLocation.w / 2, matchedLocation.y + matchedLocation.h / 2, 360)
+      focusLoc(matchedLocation)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchedProduct?.id, matchedLocation?.id])
@@ -201,6 +231,11 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
         <Button variant={showFlow ? 'secondary' : 'outline'} icon={<Waves className="h-4 w-4" />} onClick={() => setShowFlow((v) => !v)}>{t('Flujo en U')}</Button>
         <Button variant="outline" icon={<GitBranch className="h-4 w-4" />} onClick={() => setFlowsOpen(true)}>{t('Comparar flujos')}</Button>
         <Button variant="primary" icon={<Move className="h-4 w-4" />} onClick={() => setFormOpen(true)}>{t('Mover por formulario')}</Button>
+        <Select value={layer} onChange={(e) => setLayer(e.target.value as MapLayer)} className="w-auto" aria-label={t('Capa de color')}>{LAYERS.map((l) => <option key={l.id} value={l.id}>{t('Capa')}: {t(l.label)}</option>)}</Select>
+        <div className="flex items-center rounded-lg border border-slate-200 bg-white p-1">
+          <Tooltip text={t('Vista en planta (2D)')}><Button size="sm" variant={mode === '2d' ? 'secondary' : 'ghost'} icon={<Square className="h-4 w-4" />} onClick={() => setMode('2d')} aria-label="2D">2D</Button></Tooltip>
+          <Tooltip text={t('Vista isométrica (3D)')}><Button size="sm" variant={mode === '3d' ? 'secondary' : 'ghost'} icon={<Box className="h-4 w-4" />} onClick={() => setMode('3d')} aria-label="3D">3D</Button></Tooltip>
+        </div>
         <div className="ml-auto flex items-center gap-1 rounded-lg border border-slate-200 bg-white p-1">
           <Tooltip text={t('Acercar')}><Button size="sm" variant="ghost" icon={<Plus className="h-4 w-4" />} onClick={() => view.zoomAt(0.8)} aria-label={t('Acercar')} /></Tooltip>
           <Tooltip text={t('Alejar')}><Button size="sm" variant="ghost" icon={<Minus className="h-4 w-4" />} onClick={() => view.zoomAt(1.25)} aria-label={t('Alejar')} /></Tooltip>
@@ -220,15 +255,24 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 lg:flex-row">
         <div className="card relative min-h-[320px] flex-1 overflow-hidden">
-          <MapCanvas state={state} vb={view.vb} svgRef={svgRef} selectedId={selectedId} hoverId={hoverId} matches={matches} route={activeRoute?.pts ?? null} routeStops={activeRoute?.stops ?? []} drag={drag} showFlow={showFlow}
+          {(() => { const Canvas = mode === '3d' ? MapCanvas3D : MapCanvas; return <Canvas state={state} vb={view.vb} svgRef={svgRef} selectedId={selectedId} hoverId={hoverId} matches={matches} route={activeRoute?.pts ?? null} routeStops={activeRoute?.stops ?? []} drag={drag} showFlow={showFlow} layer={layer} recent={recent}
             onSelect={setSelectedId} onHover={setHoverId} onLocationPointerDown={onLocationPointerDown}
-            handlers={{ onWheel: view.onWheel, onPointerDown: view.onPointerDown, onPointerMove: view.onPointerMove, onPointerUp: view.onPointerUp }} />
+            handlers={{ onWheel: view.onWheel, onPointerDown: view.onPointerDown, onPointerMove: view.onPointerMove, onPointerUp: view.onPointerUp }} /> })()}
           {/* Leyenda */}
           <div className="pointer-events-none absolute bottom-2 left-2 flex flex-wrap gap-2 rounded-lg bg-white/90 px-3 py-2 text-[11px] shadow backdrop-blur">
-            {Object.entries(LOCATION_STATUS).map(([k, v]) => <span key={k} className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-sm border border-slate-400" style={{ background: k === 'bloqueada' ? 'repeating-linear-gradient(45deg,#fecaca,#fecaca 2px,#dc2626 2px,#dc2626 4px)' : v.fill }} />{t(v.label)}</span>)}
+            {legendForLayer(layer).map((v) => <span key={v.label} className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-sm border border-slate-400" style={{ background: v.hatch ? 'repeating-linear-gradient(45deg,#fecaca,#fecaca 2px,#dc2626 2px,#dc2626 4px)' : v.color }} />{t(v.label)}</span>)}
             <span className="flex items-center gap-1"><span className="inline-block h-3 w-3 rounded-full bg-warn-500" />{t('Ruta / parada')}</span>
-            <span className="flex items-center gap-1"><Layers className="h-3 w-3 text-slate-500" />{t('Rueda: zoom · arrastrar fondo: desplazar · arrastrar hueco con stock: mover')}</span>
+            <span className="flex items-center gap-1"><Layers className="h-3 w-3 text-slate-500" />{t('Rueda: zoom · arrastrar fondo: desplazar · arrastrar hueco con stock: mover')} · <span className="kbd">V</span> 2D/3D</span>
           </div>
+          {/* Minimapa */}
+          {bounds.w / view.vb.w > 1.25 && (
+            <svg viewBox={`${bounds.x} ${bounds.y} ${bounds.w} ${bounds.h}`} className="absolute bottom-16 right-2 h-28 w-44 cursor-crosshair rounded-lg border border-slate-300 bg-white/90 shadow backdrop-blur animate-fade-in" aria-label={t('Minimapa')}
+              onClick={(e) => { const r = e.currentTarget.getBoundingClientRect(); const x = bounds.x + ((e.clientX - r.left) / r.width) * bounds.w; const y = bounds.y + ((e.clientY - r.top) / r.height) * bounds.h; view.setVb((v) => ({ ...v, x: x - v.w / 2, y: y - v.h / 2 })) }}>
+              {values(state.zones).map((z) => { const zt = ZONE_TYPE[z.type]; if (mode === '3d') return <polygon key={z.id} points={floorPoly(z.x, z.y, z.w, z.h)} fill={zt.fill} stroke={zt.color} strokeWidth="2" />; return <rect key={z.id} x={z.x} y={z.y} width={z.w} height={z.h} fill={zt.fill} stroke={zt.color} strokeWidth="2" /> })}
+              {selected && (() => { const c = centerOf(mode, selected); return <circle cx={c.X} cy={c.Y} r={bounds.w / 90} fill="#1d6ff2" /> })()}
+              <rect className="minimap-viewport" x={view.vb.x} y={view.vb.y} width={view.vb.w} height={view.vb.h} fill="rgba(29,111,242,0.12)" stroke="#1d6ff2" strokeWidth={bounds.w / 300} />
+            </svg>
+          )}
           {/* Estado de ruta / búsqueda */}
           {(activeRoute || routeFromId) && (
             <div className="absolute left-2 top-2 flex items-center gap-2 rounded-lg bg-warn-100 px-3 py-1.5 text-xs font-semibold text-warn-600 shadow animate-slide-up">
@@ -240,7 +284,7 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
             <div className="absolute right-2 top-2 w-64 rounded-lg bg-white/95 p-3 text-xs shadow-lg backdrop-blur animate-slide-up">
               <div className="flex items-center gap-2"><img src={matchedProduct.imageUrl} alt="" className="h-9 w-9 rounded" /><div className="min-w-0"><div className="truncate font-semibold text-slate-800">{matchedProduct.name}</div><div className="font-mono text-slate-500">{matchedProduct.sku}</div></div></div>
               <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto">
-                {productLocs.map((e) => <li key={e.id}><button onClick={() => { setSelectedId(e.locationId); const l = state.locations[e.locationId]; view.focusOn(l.x + l.w / 2, l.y + l.h / 2, 300) }} className="flex w-full items-center justify-between rounded px-2 py-1 font-mono hover:bg-slate-100"><span>{state.locations[e.locationId]?.code}</span><span className="font-bold">{fmtInt(e.quantity)}</span></button></li>)}
+                {productLocs.map((e) => <li key={e.id}><button onClick={() => { setSelectedId(e.locationId); focusLoc(state.locations[e.locationId], 300) }} className="flex w-full items-center justify-between rounded px-2 py-1 font-mono hover:bg-slate-100"><span>{state.locations[e.locationId]?.code}</span><span className="font-bold">{fmtInt(e.quantity)}</span></button></li>)}
                 {productLocs.length === 0 && <li className="text-slate-400">{t('Sin stock ubicado')}</li>}
               </ul>
             </div>
@@ -251,7 +295,7 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
         </div>
         <aside className={cx('card w-full shrink-0 overflow-hidden lg:w-[340px]', !selected && 'hidden lg:block')}>
           {selected ? (
-            <LocationPanel key={selected.id} state={state} loc={selected} onClose={() => setSelectedId(null)} onStartDrag={onPanelDrag}
+            <LocationPanel key={selected.id} state={state} loc={selected} onClose={() => setSelectedId(null)} onStartDrag={onPanelDrag} onSelectLocation={(id) => { setSelectedId(id); focusLoc(state.locations[id], 300) }}
               routeFromId={routeFromId}
               onRouteFrom={() => { if (routeFromId && routeFromId !== selected.id) { const from = state.locations[routeFromId]; const pts = routeBetween(from, selected); setManualRoute({ pts, stops: [from.id, selected.id], label: `${from.code} → ${selected.code}` }); setRouteFromId(null) } else { setRouteFromId(selected.id); setManualRoute(null) } }} />
           ) : (
@@ -265,7 +309,7 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
               <div className="flex flex-wrap justify-center gap-1 pt-2">
                 <Badge tone="neutral">{t('{n} ubicaciones', { n: locations.length })}</Badge>
                 <Badge tone="blue">{t('{n} pasillos', { n: 6 })}</Badge>
-                <Badge tone="green">{t('8 muelles')}</Badge>
+                <Badge tone="green">{t('4 muelles')}</Badge>
               </div>
             </div>
           )}

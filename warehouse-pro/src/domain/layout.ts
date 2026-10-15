@@ -7,8 +7,8 @@ import type { Location, Zone } from './types'
  *  - Centro: almacenamiento con 6 pasillos rectos de sentido único (codificación en peine,
  *    módulos impares a la izquierda y pares a la derecha; niveles desde el suelo).
  *  - Derecha: zona de picking y consolidación/embalaje, próxima a expedición.
- *  - Abajo izquierda: muelles de descarga, recepción y control de calidad.
- *  - Abajo derecha: expedición y muelles de carga.
+ *  - Abajo izquierda: 2 muelles de descarga, recepción y control de calidad.
+ *  - Abajo derecha: expedición y 2 muelles de carga (4 muelles en total).
  * Flujo: Recepción → Calidad → Almacenamiento → Picking → Consolidación → Expedición.
  */
 export const MAP_W = 1600
@@ -32,8 +32,8 @@ export const zonesLayout: Zone[] = [
   { id: 'Z-REC', code: 'REC', name: 'Zona de recepción', type: 'recepcion', description: 'Descarga, control documental y clasificación de entradas.', x: 40, y: 680, w: 520, h: 180 },
   { id: 'Z-QC', code: 'QC', name: 'Control de calidad', type: 'calidad', description: 'Mercancía en cuarentena pendiente de inspección.', x: 580, y: 680, w: 240, h: 180 },
   { id: 'Z-EXP', code: 'EXP', name: 'Zona de expedición', type: 'expedicion', description: 'Pedidos preparados a la espera de carga.', x: 900, y: 680, w: 660, h: 180 },
-  { id: 'Z-MDE', code: 'MDE', name: 'Muelles de descarga', type: 'muelles_entrada', description: 'Cuatro muelles de descarga (M1-M4) con fuelles de abrigo para entradas.', x: 40, y: 880, w: 520, h: 70 },
-  { id: 'Z-MCA', code: 'MCA', name: 'Muelles de carga', type: 'muelles_salida', description: 'Cuatro muelles de carga (M5-M8) para salidas.', x: 900, y: 880, w: 660, h: 70 },
+  { id: 'Z-MDE', code: 'MDE', name: 'Muelles de descarga', type: 'muelles_entrada', description: 'Dos muelles de descarga (M1-M2) con fuelles de abrigo para entradas.', x: 40, y: 880, w: 520, h: 70 },
+  { id: 'Z-MCA', code: 'MCA', name: 'Muelles de carga', type: 'muelles_salida', description: 'Dos muelles de carga (M3-M4) para salidas.', x: 900, y: 880, w: 660, h: 70 },
 ]
 
 export const pad2 = (n: number) => String(n).padStart(2, '0')
@@ -171,8 +171,8 @@ function floorLocations(): Location[] {
   // Cámara de congelación: 4 jaulas sobre suelo
   for (let i = 1; i <= 4; i++) add('CNG', 'Z-CNG', i, 700 + (i - 1) * 85, 60, 75, 65, 150, 'suelo')
   // Muelles
-  for (let i = 1; i <= 4; i++) add('MDE', 'Z-MDE', i, 60 + (i - 1) * 125, 890, 100, 50, 500, 'muelle')
-  for (let i = 5; i <= 8; i++) add('MCA', 'Z-MCA', i, 930 + (i - 5) * 160, 890, 110, 50, 500, 'muelle')
+  for (let i = 1; i <= 2; i++) add('MDE', 'Z-MDE', i, 90 + (i - 1) * 230, 890, 170, 50, 800, 'muelle')
+  for (let i = 3; i <= 4; i++) add('MCA', 'Z-MCA', i, 990 + (i - 3) * 300, 890, 180, 50, 800, 'muelle')
   return out
 }
 

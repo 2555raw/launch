@@ -7,7 +7,7 @@ import { buildLocations, zonesLayout } from './layout'
 import * as ops from './operations'
 import type { Product, StockEntry, WarehouseState } from './types'
 
-export const STATE_VERSION = 3
+export const STATE_VERSION = 4
 
 type SeedProduct = Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'unit' | 'barcode'> & { barcode?: string; unit?: string }
 

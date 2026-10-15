@@ -1,4 +1,4 @@
-# WAREHOUSE PRO — Sistema de gestión de almacén (BETO S.L.)
+# BETO — Sistema de gestión de almacén (BETO S.L.)
 
 Aplicación web profesional e interactiva para gestionar un almacén moderno, inspirada en la guía
 *Anatomía y operativa del almacén moderno*: flujo en U, zonificación, pasillos rectos de sentido
@@ -8,7 +8,7 @@ expedición/picking y control de existencias) más la gestión de retornos.
 Catálogo de demostración de **BETO S.L.**: quesos, salmón, piñas y recipientes de plástico, cada familia
 con condiciones de conservación propias (temperatura, forma y tamaño) que el sistema valida al ubicar.
 
-Interfaz en **español por defecto**, con cambio a **中文** e **inglés** desde la cabecera o Configuración.
+La aplicación se presenta con la marca **BETO**. Interfaz en **español por defecto**, con cambio a **中文** e **inglés** desde la cabecera o Configuración.
 
 ![Mapa del almacén](docs/capturas/mapa.png)
 
@@ -104,7 +104,7 @@ izquierda del pasillo y pares a la derecha; niveles numerados desde el suelo. Zo
 | CNG | suelo | Cámara de congelación −18 °C | salmón congelado |
 
 Más zonas operativas: recepción (REC), control de calidad (QC), picking (PCK), consolidación (CON),
-expedición (EXP), devoluciones (DEV), auxiliar (AUX), 4 muelles de descarga y 4 de carga.
+expedición (EXP), devoluciones (DEV), auxiliar (AUX) y 4 muelles: 2 de descarga (M1-M2) y 2 de carga (M3-M4).
 Cada ubicación tiene capacidad, peso máximo, tamaño admitido (L en nivel 1 y suelo, M en niveles 2–3, S en nivel 4),
 estado (libre / parcial / completa / bloqueada) y mercancía por SKU y estado físico
 (disponible, cuarentena, dañado, obsoleto, devolución a proveedor).

@@ -8,6 +8,7 @@ import { t } from '@/lib/i18n'
 import { fmtInt, fmtNum } from '@/lib/format'
 import { navigate } from '@/lib/router'
 import { TransferForm } from '../transfers/TransferForm'
+import { ModuleElevation } from './ModuleElevation'
 
 interface Props {
   state: WarehouseState
@@ -16,9 +17,10 @@ interface Props {
   onStartDrag: (productId: string, fromLocationId: string, maxQty: number, e: RPointerEvent<HTMLElement>) => void
   onRouteFrom: () => void
   routeFromId: string | null
+  onSelectLocation: (id: string) => void
 }
 
-export function LocationPanel({ state, loc, onClose, onStartDrag, onRouteFrom, routeFromId }: Props) {
+export function LocationPanel({ state, loc, onClose, onStartDrag, onRouteFrom, routeFromId, onSelectLocation }: Props) {
   const dispatch = useWarehouse((s) => s.dispatch)
   const [blockOpen, setBlockOpen] = useState(false)
   const [blockReason, setBlockReason] = useState('')
@@ -55,6 +57,7 @@ export function LocationPanel({ state, loc, onClose, onStartDrag, onRouteFrom, r
           <Stat label={t('Nivel')} value={loc.level} />
         </div>
         {loc.maxWeightKg && <div className="flex items-center gap-2 text-xs text-slate-500"><Weight className="h-3.5 w-3.5" />{t('Peso')}: {fmtNum(weightAt(state, loc.id))} / {fmtInt(loc.maxWeightKg)} kg</div>}
+        <ModuleElevation state={state} loc={loc} onSelect={onSelectLocation} />
 
         <section>
           <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t('Mercancía almacenada')} ({entries.length})</h3>

@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as RPointerEvent, type WheelEvent } from 'react'
-import { MAP_H, MAP_W } from '@/domain'
-
 export interface ViewBox { x: number; y: number; w: number; h: number }
-const FULL: ViewBox = { x: -20, y: -20, w: MAP_W + 40, h: MAP_H + 40 }
 
-export function useViewBox(svgRef: React.RefObject<SVGSVGElement | null>) {
+export function useViewBox(svgRef: React.RefObject<SVGSVGElement | null>, FULL: ViewBox & { zoom?: number }) {
   const [vb, setVb] = useState<ViewBox>(FULL)
   const panRef = useRef<{ x: number; y: number; vb: ViewBox } | null>(null)
   const pinchRef = useRef<{ d: number; vb: ViewBox } | null>(null)
@@ -30,7 +27,7 @@ export function useViewBox(svgRef: React.RefObject<SVGSVGElement | null>) {
       const h = w * (v.h / v.w)
       return { x: px - (px - v.x) * (w / v.w), y: py - (py - v.y) * (h / v.h), w, h }
     })
-  }, [svgRef])
+  }, [svgRef, FULL.w])
 
   const onWheel = useCallback((e: WheelEvent<SVGSVGElement>) => {
     e.preventDefault()
@@ -82,17 +79,23 @@ export function useViewBox(svgRef: React.RefObject<SVGSVGElement | null>) {
   const reset = useCallback(() => {
     const svg = svgRef.current
     if (!svg) return setVb(FULL)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const r = svg.getBoundingClientRect()
     const aspect = r.width / Math.max(1, r.height)
     const mapAspect = FULL.w / FULL.h
+    const z = FULL.zoom ?? 1
+    let box: ViewBox
     if (aspect >= mapAspect) {
       const w = FULL.h * aspect
-      setVb({ x: FULL.x - (w - FULL.w) / 2, y: FULL.y, w, h: FULL.h })
+      box = { x: FULL.x - (w - FULL.w) / 2, y: FULL.y, w, h: FULL.h }
     } else {
       const h = FULL.w / aspect
-      setVb({ x: FULL.x, y: FULL.y - (h - FULL.h) / 2, w: FULL.w, h })
+      box = { x: FULL.x, y: FULL.y - (h - FULL.h) / 2, w: FULL.w, h }
     }
-  }, [svgRef])
+    // Acercamiento inicial opcional hacia el centro
+    const w = box.w / z, h = box.h / z
+    setVb({ x: box.x + (box.w - w) / 2, y: box.y + (box.h - h) / 2 - (z > 1 ? h * 0.02 : 0), w, h })
+  }, [svgRef, FULL.x, FULL.y, FULL.w, FULL.h, FULL.zoom])
   useEffect(() => {
     reset()
     const svg = svgRef.current
@@ -105,5 +108,7 @@ export function useViewBox(svgRef: React.RefObject<SVGSVGElement | null>) {
     setVb((v) => { const h = w * (v.h / v.w); return { x: x - w / 2, y: y - h / 2, w, h } })
   }, [])
 
-  return { vb, setVb, zoomAt, onWheel, onPointerDown, onPointerMove, onPointerUp, reset, focusOn, clientToMap, isPanning: () => !!panRef.current }
+  const panBy = useCallback((dx: number, dy: number) => setVb((v) => ({ ...v, x: v.x + v.w * dx, y: v.y + v.h * dy })), [])
+
+  return { vb, setVb, zoomAt, onWheel, onPointerDown, onPointerMove, onPointerUp, reset, focusOn, clientToMap, panBy, isPanning: () => !!panRef.current }
 }

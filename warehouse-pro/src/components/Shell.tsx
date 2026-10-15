@@ -59,8 +59,8 @@ export function Shell({ page, children }: { page: Page; children: ReactNode }) {
       <div className="flex items-center gap-3 px-4 py-4">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white p-1.5 shadow"><img src="./logo.svg" alt="" className="h-full w-full" /></div>
         <div className="min-w-0">
-          <div className="truncate text-sm font-bold text-white">WAREHOUSE PRO</div>
-          <div className="truncate text-[11px] text-slate-400">{state?.settings.warehouseName ?? 'BETO S.L.'}</div>
+          <div className="truncate text-base font-extrabold tracking-[0.2em] text-white">BETO</div>
+          <div className="truncate text-[11px] text-slate-400">{t('Gestión de almacén')} · {state?.settings.warehouseName?.replace(/^BETO S\.L\.\s*·\s*/, '') ?? ''}</div>
         </div>
         <button className="ml-auto rounded p-1 text-slate-400 hover:text-white lg:hidden" onClick={() => setOpen(false)} aria-label={t("Cerrar menú")}><X className="h-5 w-5" /></button>
       </div>

@@ -1188,6 +1188,18 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
 .how p { font-size: 13px; line-height: 1.65; color: var(--ink); opacity: .85; margin-bottom: 10px; } .how h4 { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin: 16px 0 10px; font-weight: 600; } .how ol { margin: 0; padding-left: 18px; display: grid; gap: 8px; color: var(--muted); font-size: 12.5px; line-height: 1.55; }
 
 .hero2::before { background: linear-gradient(90deg, rgba(7, 6, 15, .9) 0%, rgba(7, 6, 15, .62) 34%, rgba(7, 6, 15, .08) 68%, rgba(7, 6, 15, 0) 100%), linear-gradient(0deg, rgba(7, 6, 15, .55), transparent 45%); }
+
+/* ---- gift cards: photo on top fading into the card, text on a solid background ---- */
+.gift { aspect-ratio: auto; min-height: 0; padding: 0; gap: 0; grid-template-rows: auto 1fr; background: var(--card) !important; color: var(--ink); border: 1px solid var(--line); border-radius: 14px; }
+.gift::before { display: none; } .gift:hover { transform: translateY(-3px); rotate: 0deg; border-color: var(--line-hi); box-shadow: 0 16px 34px rgba(0, 0, 0, .28); }
+.gift .gimg { position: relative; height: 128px; background-size: cover; background-position: center; } .gift .gimg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0, 0, 0, .05) 0%, rgba(0, 0, 0, 0) 45%, var(--card) 100%); }
+.gift .gbadge { position: absolute; z-index: 1; top: 10px; right: 10px; font-size: 10.5px; font-weight: 700; color: #06120a; background: var(--live); padding: 3px 8px; border-radius: 999px; }
+.gift .gbody { position: relative; display: grid; gap: 12px; padding: 0 16px 16px; margin-top: -24px; align-content: start; }
+.gift-h { gap: 12px; align-items: flex-end; } .gift-h .logo { width: 46px !important; height: 46px !important; border-radius: 12px; border: 3px solid var(--card); box-shadow: 0 6px 16px rgba(0, 0, 0, .35); }
+.gift-h b { font-size: 15px; font-weight: 700; line-height: 19px; text-shadow: none; color: var(--ink); } .gift-h small { font-size: 11.5px; opacity: 1; color: var(--muted); text-shadow: none; }
+.gift-amt { font-size: 20px; font-weight: 600; text-shadow: none; color: var(--ink); align-self: start; } .gift-amt small { font-size: 11.5px; color: var(--muted); opacity: 1; margin-top: 4px; } .gift-amt.na { font-family: var(--font); font-size: 14px; color: var(--muted); }
+.gift-f { flex-wrap: wrap; row-gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); } .gift-f .chips span { background: var(--tile); color: var(--ink); border: 1px solid var(--line); font-size: 10.5px; }
+.gift-f .cta { height: 32px; padding: 0 14px; font-size: 12.5px; background: var(--ink); color: var(--bg); border-radius: 8px; } .gift .cta.in { background: var(--live); color: #06120a; }
 </style>
 
 <div class="L" id="landing" hidden>
@@ -1318,7 +1330,7 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
     </section>
 
     <section class="sec" id="giftshop">
-      <div class="sec-h"><h2 data-t="gift.h2"></h2><a class="all" href="https://www.bitrefill.com/us/en/gift-cards/restaurants/" target="_blank" rel="noopener" data-t="gift.all"></a></div>
+      <div class="sec-h"><h2 data-t="gift.h2"></h2></div>
       <p class="gift-pay"><span data-t="gift.p"></span><b>Bitcoin</b><b>Lightning</b><b>BNB</b><b>USDT</b><b>Binance Pay</b><b>Apple Pay</b></p>
       <div class="countries" id="gift-countries"></div>
       <div class="grid" id="gift-grid"></div>
@@ -1470,7 +1482,7 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
 
       'dz.h': 'kuai Docs', 'dz.p': 'How kuai works, in plain words. Everything runs on BNB Chain. Every rule below is a constant in the deployed contracts, not a setting on a server of ours.', 'dz.toc': 'On this page:', 'dz.notYet': 'not deployed yet', 'lg.updated': (d) => `Last updated ${d}.`,
       'nav.dash': 'Dashboard', 'nav.analytics': 'Analytics', 'nav.terminal': 'Terminal', 'nav.stake': 'Stake', 'nav.profile': 'Profile', 'pg.chain': 'BNB CHAIN',
-      'dash.h': (n) => `${n} restaurants. One pool.`, 'dash.p': 'Live from BNB Chain. Pick a restaurant with a tokenized stock, buy into its live coin or launch one. Every coin that graduates pays 1% to $KUAI stakers in BNB.', 'dash.pool': 'Staking pool', 'dash.live': 'Coins live', 'dash.next': 'Next close', 'dash.q': 'Name or ticker', 'dash.showing': (a, b) => `Showing <b>${a} of ${b}</b>`, 'dash.px': 'Stock price', 'dash.coins': 'Live coins', 'dash.raised': 'Raised', 'dash.buy': (tk) => `Buy $${tk}`, 'dash.launch': 'Launch', 'dash.none': 'No live coin yet', 'dash.note': (u, room, tok) => `room left ${room} ${u} · 0.01 ${u} ≈ ${tok} tokens if it fills`, 'dash.noteNone': (s2) => `raise paid in ${s2}, pool on PancakeSwap at graduation`,
+      'dash.h': (n) => `${n} restaurants. One pool.`, 'dash.p': 'Live from BNB Chain. Pick a restaurant with a tokenized stock, buy into its live coin or launch one. Every coin that graduates pays 1% to $KUAI stakers in BNB.', 'dash.pool': 'Staking pool', 'dash.live': 'Coins live', 'dash.next': 'Next close', 'dash.q': 'Name or ticker', 'dash.showing': (a, b) => `Showing <b>${a} of ${b}</b>`, 'dash.px': 'Stock price', 'dash.coins': 'Live coins', 'dash.raised': 'Raised', 'dash.buy': (tk) => `Buy $${tk}`, 'dash.launch': 'Launch', 'dash.none': 'No live coin yet', 'gift.instant': 'Pay with crypto here', 'dash.note': (u, room, tok) => `room left ${room} ${u} · 0.01 ${u} ≈ ${tok} tokens if it fills`, 'dash.noteNone': (s2) => `raise paid in ${s2}, pool on PancakeSwap at graduation`,
       'nw.calc': 'Buy calculator', 'nw.calcP': (s2) => `Pick a size and see what it gets you in every live raise, from what is already raised and the cap per wallet.`, 'nw.size': 'Buy size', 'nw.cols': ['Coin', 'Already raised', 'Your share of supply', 'Tokens if it fills', 'Accepted', 'Closes in'], 'nw.best': 'Best right now', 'nw.empty': 'Empty', 'nw.clip': (v) => `${v} (cap)`, 'nw.noLive': 'No live raises', 'nw.noLiveP': 'Launch a coin to open the first one.', 'nw.calcNote': 'Estimate, not a promise. It assumes the raise fills its target and nobody else buys after you; if it closes lower your share of the 80% is bigger, below the minimum everybody is refunded. Buying has no fee.',
       'nw.yours': 'Your coins', 'nw.yoursP': 'Raises you bought into. Claim after graduation, refund if a raise closed below its minimum.', 'nw.ycols': ['Coin', 'Status', 'Paid', 'Claimable tokens'], 'nw.claim': 'Claim', 'nw.refund': 'Refund', 'nw.finalize': 'Finalize', 'nw.none': 'No buys from this wallet on this network yet.', 'nw.connect': 'Connect a wallet to see your coins.',
       'nw.fin': 'Finalize raises', 'nw.finP': 'Anyone can finalize a raise once it closes: it opens the pool or the refunds. Waiting now:', 'nw.willGrad': 'graduates', 'nw.willRefund': 'refunds', 'nw.log': 'Graduation log', 'nw.logP': 'Every finalized raise, read from chain.', 'nw.graduated': 'Graduated', 'nw.refunded': 'Refunded', 'nw.px': 'pool', 'nw.logNone': 'Nothing finalized yet', 'nw.logNoneP': 'Each finalized raise shows up here with its result.',
@@ -1566,7 +1578,7 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
 
       'dz.h': 'kuai 文档', 'dz.p': '用大白话讲清 kuai 如何运作。一切都在 BNB Chain 上运行，下面每条规则都是已部署合约里的常量。', 'dz.toc': '本页目录：', 'dz.notYet': '尚未部署', 'lg.updated': (d) => `最后更新：${d}。`,
       'nav.dash': '仪表盘', 'nav.analytics': '数据', 'nav.terminal': '终端', 'nav.stake': '质押', 'nav.profile': '个人主页', 'pg.chain': 'BNB CHAIN',
-      'dash.h': (n) => `${n} 家餐厅，一个池子。`, 'dash.p': '实时来自 BNB Chain。选一家有股票代币的餐厅，买入它正在募集的代币或发行新代币。每个毕业的代币都会把 1% 以 BNB 分给 $KUAI 质押者。', 'dash.pool': '质押池', 'dash.live': '募集中', 'dash.next': '下次截止', 'dash.q': '名称或代码', 'dash.showing': (a, b) => `显示 <b>${a} / ${b}</b>`, 'dash.px': '股价', 'dash.coins': '募集中代币', 'dash.raised': '已募集', 'dash.buy': (tk) => `买入 $${tk}`, 'dash.launch': '发行', 'dash.none': '暂无募集中代币', 'dash.bought': (tk) => `已买入 $${tk}。`,
+      'gift.instant': '本站加密货币支付', 'dash.h': (n) => `${n} 家餐厅，一个池子。`, 'dash.p': '实时来自 BNB Chain。选一家有股票代币的餐厅，买入它正在募集的代币或发行新代币。每个毕业的代币都会把 1% 以 BNB 分给 $KUAI 质押者。', 'dash.pool': '质押池', 'dash.live': '募集中', 'dash.next': '下次截止', 'dash.q': '名称或代码', 'dash.showing': (a, b) => `显示 <b>${a} / ${b}</b>`, 'dash.px': '股价', 'dash.coins': '募集中代币', 'dash.raised': '已募集', 'dash.buy': (tk) => `买入 $${tk}`, 'dash.launch': '发行', 'dash.none': '暂无募集中代币', 'dash.bought': (tk) => `已买入 $${tk}。`,
       'an.h': '数据', 'an.p': '实时读取 kuai 合约、事件和 PancakeSwap 池子，没有任何估算。', 'an.block': (n) => `实时 · 区块 ${n}`, 'an.raised': '累计募集', 'an.coins': '已发行代币', 'an.grad': '已毕业', 'an.live': '募集中', 'an.buyers': '买家', 'an.fees': '给 $KUAI 的手续费', 'an.paid': '已付质押者', 'an.burned': '已销毁 $KUAI', 'an.chart': '募集走势', 'an.byRest': '按餐厅募集', 'an.act': '动态', 'an.all': '全部', 'an.buys': '买入', 'an.launches': '发行', 'an.grads': '毕业', 'an.top': '买家排行', 'an.coinsH': '已发行代币',
       'tm.h': '终端', 'tm.p': '每个 kuai 代币、餐厅和质押池的实时数据，全部读自合约，每 20 秒刷新。', 'tm.block': '区块', 'tm.coins': '代币', 'tm.pool': '质押池', 'tm.paid': '已付质押者', 'tm.bb': '回购池', 'tm.staked': '总质押', 'tm.live': '募集中', 'tm.grad': '已毕业', 'tm.feed': '代币列表', 'tm.rest': '餐厅', 'tm.calc': '募集计算器', 'tm.split': '分配',
       'stk.h': 'kuai 的平台币。', 'stk.p': '每个在 kuai 毕业的代币支付 1% 手续费。70% 以 BNB 直接分给 $KUAI 质押者，30% 在 PancakeSwap 回购 $KUAI 并销毁。', 'stk.t1': '手续费分配', 'stk.v1': '70% 质押者 / 30% 销毁', 'stk.t2': '支付资产', 'stk.v2': (s2) => `原生 ${s2}`, 'stk.t3': '网络手续费', 'stk.v3': '每次毕业 1%', 'stk.h1': '质押赚 BNB', 'stk.stake': '质押', 'stk.unstake': '取回', 'stk.h2': '你的收益', 'stk.connect': '请连接钱包。', 'stk.notDeployed': '本网络尚未部署质押合约。',
@@ -1798,11 +1810,11 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
     const range = listed ? (g[1] ? t('gift.from', money(g[1], g[3]), money(g[2], g[3])) : t('gift.upto', money(g[2], g[3]))) : '';
     const inSite = GAPI.products[rid] && GAPI.products[rid].available && listed;
     const sty = photoOf(r) ? `background-color:${esc(bg)};background-image:url(${photoOf(r)})` : `background:${esc(bg)}`;
-    const openTag = inSite ? `<div class="gift" data-open="g:${esc(rid)}" style="${sty}">` : `<a class="gift" href="${giftUrl(rid)}" target="_blank" rel="noopener" style="${sty}">`;
-    return openTag + `
+    const openTag = inSite ? `<div class="gift" data-open="g:${esc(rid)}">` : `<a class="gift" href="${giftUrl(rid)}" target="_blank" rel="noopener">`;
+    return openTag + `<div class="gimg" style="${sty}">${inSite ? `<span class="gbadge">${t('gift.instant')}</span>` : ''}</div><div class="gbody">
       <div class="gift-h">${logo(r, 40)}<div><b>${esc(nm(r))}</b><small>${t('gift.egift')} · Bitrefill${listed ? ' · ' + t('gift.works', cn(g[5])) : ''}</small></div></div>
-      <div class="gift-amt">${listed ? esc(range) : t('gift.na')}<small>${listed ? esc(t('gift.upto', money(g[2], g[3]))) : ''}</small></div>
-      <div class="gift-f"><span class="chips">${giftChips(g).map((c) => `<span>${esc(c)}</span>`).join('')}</span><span class="cta${inSite ? ' in' : ''}">${inSite ? t('gift.buyHere') : GAPI.loaded && GAPI.supply === false && listed ? t('gift.buy') + ' ↗' : listed && GAPI.loaded ? t('gift.unavail') : t(listed ? 'gift.buy' : 'gift.browse') + ' ↗'}</span></div>${inSite ? '</div>' : '</a>'}`;
+      <div class="gift-amt${listed ? '' : ' na'}">${listed ? esc(range) : t('gift.na')}<small>${listed ? esc(t('gift.upto', money(g[2], g[3]))) : ''}</small></div>
+      <div class="gift-f"><span class="chips">${giftChips(g).map((c) => `<span>${esc(c)}</span>`).join('')}</span><span class="cta${inSite ? ' in' : ''}">${inSite ? t('gift.buyHere') : GAPI.loaded && GAPI.supply === false && listed ? t('gift.buy') + ' ↗' : listed && GAPI.loaded ? t('gift.unavail') : t(listed ? 'gift.buy' : 'gift.browse') + ' ↗'}</span></div></div>${inSite ? '</div>' : '</a>'}`;
   }
   const giftCountry = (rid) => (GAPI.products[rid] && GAPI.products[rid].country) || (GIFTS[rid] && GIFTS[rid][5]) || null;
   function renderGifts() {
@@ -1810,7 +1822,7 @@ body { font-size: 13px; line-height: 1.45; letter-spacing: -.005em; }
     const host = $('#gift-rail'); if (host && host.dataset.builtLang !== state.lang) { host.innerHTML = html; host.dataset.builtLang = state.lang; }
     const grid = $('#gift-grid'); if (grid && !grid.closest('section').hidden) {
       const countries = [...new Set(ids.map(giftCountry).filter(Boolean))]; const cc = $('#gift-countries');
-      if (cc) cc.innerHTML = countries.length > 1 ? [['all', t('gift.allC')], ...countries.map((c) => [c, cn(c)])].map(([c, l]) => `<button type="button" class="${GIFT_COUNTRY === c ? 'is-on' : ''}" data-country="${esc(c)}">${esc(l)}</button>`).join('') : '';
+      GIFT_COUNTRY = 'all'; if (cc) cc.innerHTML = `<button type="button" class="is-on" data-country="all">${esc(t('gift.allC'))}</button>`;
       const shown = ids.filter((id) => GIFT_COUNTRY === 'all' || giftCountry(id) === GIFT_COUNTRY);
       grid.innerHTML = shown.map(giftCard).join('') || `<p class="empty">${t('gift.na')}</p>`;
       const rn = $('#gift-ref-note'); if (rn) { rn.hidden = !(REF && GAPI.refShare); if (REF && GAPI.refShare) rn.textContent = t('gift.refNote', short(REF)); }

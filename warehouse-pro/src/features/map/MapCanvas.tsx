@@ -30,14 +30,19 @@ interface Props {
 const FONT = 'Inter, system-ui'
 
 function Truck({ x, y, dir, color, delay }: { x: number; y: number; dir: 'in' | 'out'; color: string; delay: number }) {
+  // Vista en planta: caja del tráiler (arriba, contra el muelle) y cabina (abajo). 36 × 92.
   return (
-    <g transform={`translate(${x} ${y})`} style={{ animation: `truck 5s ease-in-out ${delay}s infinite` }}>
-      <rect x="0" y="0" width="86" height="34" rx="4" fill={color} stroke="#0b1630" strokeWidth="1.5" />
-      <rect x="4" y="4" width="78" height="26" rx="2" fill="none" stroke="#ffffff" strokeOpacity="0.35" strokeWidth="1" />
-      <rect x={dir === 'in' ? 86 : -18} y="8" width="18" height="26" rx="3" fill="#0b1630" />
-      <rect x={dir === 'in' ? 90 : -14} y="12" width="8" height="8" rx="1" fill="#93c5fd" />
-      <circle cx="16" cy="36" r="5" fill="#0b1630" /><circle cx="60" cy="36" r="5" fill="#0b1630" /><circle cx={dir === 'in' ? 96 : -10} cy="36" r="5" fill="#0b1630" />
-      <text x="43" y="21" textAnchor="middle" fontSize="9" fontWeight="700" fill="#fff" fontFamily={FONT}>{dir === 'in' ? t('ENTRADA') : t('SALIDA')}</text>
+    <g transform={`translate(${x} ${y})`} style={{ animation: `truck 6s ease-in-out ${delay}s infinite` }} className="pointer-events-none">
+      <rect x="-3" y="-2" width="42" height="96" rx="6" fill="rgba(15,23,42,0.18)" />
+      {[4, 12, 48, 76].map((wy) => <g key={wy}><rect x="-2" y={wy} width="4" height="8" rx="1" fill="#0f172a" /><rect x="34" y={wy} width="4" height="8" rx="1" fill="#0f172a" /></g>)}
+      <rect x="0" y="0" width="36" height="62" rx="2" fill="#f1f5f9" stroke="#334155" strokeWidth="1.2" />
+      <rect x="0" y="0" width="36" height="5" fill={color} />
+      <line x1="18" y1="0" x2="18" y2="62" stroke="#94a3b8" strokeWidth="0.8" />
+      <text x="18" y="36" textAnchor="middle" fontSize="8" fontWeight="800" fill={color} fontFamily={FONT}>BETO</text>
+      <rect x="1" y="65" width="34" height="24" rx="3" fill={color} stroke="#0b1630" strokeWidth="1.2" />
+      <rect x="4" y="80" width="28" height="4" rx="1" fill="#bfdbfe" />
+      <rect x="3" y="88" width="6" height="2" fill="#fef08a" /><rect x="27" y="88" width="6" height="2" fill="#fef08a" />
+      <text x="48" y="80" fontSize="7" fontWeight="700" fill={color} fontFamily={FONT}>{dir === 'in' ? t('ENTRADA') : t('SALIDA')}</text>
     </g>
   )
 }
@@ -223,8 +228,8 @@ export const MapCanvas = memo(function MapCanvas({ state, vb, svgRef, selectedId
       {activePicks > 0 && <Forklift x={1185 - 11} y={CORRIDOR_BOTTOM_Y - 6} delay={0} />}
       {pendingIn > 0 && <Forklift x={300} y={700} delay={1.3} />}
       {/* Camiones en muelles */}
-      {docksIn.map((d, i) => i < Math.max(1, pendingIn) && <Truck key={d.id} x={d.x + 36} y={d.y + 60} dir="in" color="#2563eb" delay={i * 0.7} />)}
-      {docksOut.map((d, i) => i < pendingOut && <Truck key={d.id} x={d.x + 44} y={d.y + 60} dir="out" color="#16a34a" delay={i * 0.9} />)}
+      {docksIn.map((d, i) => i < Math.max(1, pendingIn) && <Truck key={d.id} x={d.x + (d.w - 36) / 2} y={d.y - 4} dir="in" color="#2563eb" delay={i * 0.7} />)}
+      {docksOut.map((d, i) => i < pendingOut && <Truck key={d.id} x={d.x + (d.w - 36) / 2} y={d.y - 4} dir="out" color="#16a34a" delay={i * 0.9} />)}
       {/* Ruta */}
       {routeD && (
         <g className="pointer-events-none">

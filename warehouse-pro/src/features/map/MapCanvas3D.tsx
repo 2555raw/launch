@@ -58,15 +58,35 @@ function Label({ x, y, z = 0, text, size = 10, color = '#334155', weight = 700, 
 }
 
 function Truck3D({ x, y, dir, color, delay }: { x: number; y: number; dir: 'in' | 'out'; color: string; delay: number }) {
-  const cabX = dir === 'in' ? x + 70 : x - 20
+  // Camión aparcado marcha atrás contra el muelle: caja (norte) + cabina (sur). Footprint 36 × 96.
+  const W = 36, TL = 62, CAB = 24
+  const cabY = y + TL + 3
   return (
-    <g className="pointer-events-none" style={{ animation: `truck 5s ease-in-out ${delay}s infinite` }}>
-      <polygon points={floorPoly(x - 4, y - 2, 100, 40)} fill="rgba(15,23,42,0.18)" />
-      <Box x={x} y={y + 3} w={70} d={30} h={30} z0={6} color={color} topColor={shade(color, 1.12)} />
-      <Box x={cabX} y={y + 5} w={20} d={26} h={22} z0={6} color="#0b1630" topColor="#1e293b" />
-      <Box x={cabX + (dir === 'in' ? 14 : 0)} y={y + 8} w={6} d={20} h={10} z0={16} color="#93c5fd" stroke="none" />
-      {[8, 56].map((wx) => <Box key={wx} x={x + wx} y={y + 2} w={8} d={32} h={6} color="#0b1630" stroke="none" />)}
-      <Label x={x + 35} y={y + 18} z={40} text={dir === 'in' ? t('ENTRADA') : t('SALIDA')} size={8} color="#fff" />
+    <g className="pointer-events-none" style={{ animation: `truck 6s ease-in-out ${delay}s infinite` }}>
+      <polygon points={floorPoly(x - 5, y - 2, W + 12, TL + CAB + 10)} fill="rgba(15,23,42,0.22)" />
+      {/* Ruedas */}
+      {[y + 6, y + 14, y + TL - 10, cabY + 12].map((wy, i) => <g key={i}><Box x={x - 1} y={wy} w={4} d={7} h={7} color="#0f172a" stroke="none" /><Box x={x + W - 3} y={wy} w={4} d={7} h={7} color="#0f172a" stroke="none" /></g>)}
+      {/* Chasis */}
+      <Box x={x + 2} y={y + 2} w={W - 4} d={TL + CAB + 2} h={3} z0={5} color="#334155" stroke="none" />
+      {/* Caja del tráiler */}
+      <Box x={x} y={y} w={W} d={TL} h={34} z0={8} color="#e2e8f0" topColor="#f8fafc" stroke="rgba(15,23,42,0.4)" />
+      {/* Franja corporativa en los laterales visibles (este y sur de la caja) */}
+      <Box x={x + W - 0.6} y={y + 4} w={0.6} d={TL - 8} h={8} z0={20} color={color} stroke="none" />
+      <Box x={x + 4} y={y + TL - 0.6} w={W - 8} d={0.6} h={8} z0={20} color={color} stroke="none" />
+      {/* Puertas traseras (lado del muelle): junta vertical */}
+      <Box x={x + W / 2 - 0.4} y={y - 0.6} w={0.8} d={0.6} h={30} z0={9} color="#94a3b8" stroke="none" />
+      {/* Cabina */}
+      <Box x={x + 1} y={cabY} w={W - 2} d={CAB} h={22} z0={8} color={color} topColor={shade(color, 1.15)} />
+      <Box x={x + 3} y={cabY + CAB - 1} w={W - 6} d={1} h={10} z0={18} color="#bfdbfe" stroke="none" />
+      <Box x={x + 1} y={cabY + CAB} w={W - 2} d={3} h={6} z0={8} color="#1e293b" stroke="none" />
+      {/* Faros y luces de posición */}
+      <Box x={x + 3} y={cabY + CAB + 2.6} w={5} d={1} h={2} z0={11} color="#fef08a" stroke="none" />
+      <Box x={x + W - 8} y={cabY + CAB + 2.6} w={5} d={1} h={2} z0={11} color="#fef08a" stroke="none" />
+      <Box x={x + 1} y={y + 0.5} w={3} d={1} h={2} z0={38} color="#fb7185" stroke="none" />
+      <Box x={x + W - 4} y={y + 0.5} w={3} d={1} h={2} z0={38} color="#fb7185" stroke="none" />
+      {/* Marca en el techo del tráiler */}
+      <Label x={x + W / 2} y={y + TL / 2} z={43} text="BETO" size={8} color={color} />
+      <Label x={x + W + 14} y={cabY + CAB / 2} z={2} text={dir === 'in' ? '▲ ' + t('ENTRADA') : '▼ ' + t('SALIDA')} size={7} color={color} bg="#ffffff" />
     </g>
   )
 }
@@ -148,8 +168,8 @@ export const MapCanvas3D = memo(function MapCanvas3D({ state, vb, svgRef, select
   }
 
   // Camiones, carretillas, oficina
-  docksIn.forEach((d, i) => { if (i < Math.max(1, pendingIn)) push(d.x + d.y + 400, <Truck3D key={d.id} x={d.x + 30} y={d.y + 62} dir="in" color="#2563eb" delay={i * 0.7} />) })
-  docksOut.forEach((d, i) => { if (i < pendingOut) push(d.x + d.y + 400, <Truck3D key={d.id} x={d.x + 40} y={d.y + 62} dir="out" color="#16a34a" delay={i * 0.9} />) })
+  docksIn.forEach((d, i) => { if (i < Math.max(1, pendingIn)) push(d.x + d.y + 400, <Truck3D key={d.id} x={d.x + (d.w - 36) / 2} y={d.y - 4} dir="in" color="#2563eb" delay={i * 0.7} />) })
+  docksOut.forEach((d, i) => { if (i < pendingOut) push(d.x + d.y + 400, <Truck3D key={d.id} x={d.x + (d.w - 36) / 2} y={d.y - 4} dir="out" color="#16a34a" delay={i * 0.9} />) })
   if (activePicks > 0) push(1185 + CORRIDOR_BOTTOM_Y + 40, <Forklift3D key="fk1" x={1174} y={CORRIDOR_BOTTOM_Y - 8} delay={0} />)
   if (pendingIn > 0) push(300 + 700 + 40, <Forklift3D key="fk2" x={300} y={700} delay={1.3} />)
   const ofi = zones.find((z) => z.type === 'oficinas')

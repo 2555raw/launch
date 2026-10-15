@@ -7,7 +7,10 @@ import { buildLocations, zonesLayout } from './layout'
 import * as ops from './operations'
 import type { Product, StockEntry, WarehouseState } from './types'
 
-export const STATE_VERSION = 4
+export const STATE_VERSION = 5
+
+/** Referencias que arrancan por debajo del stock mínimo en la demo (una sola de recipientes de plástico). */
+const LOW_STOCK_SKUS = ['QUE-MAN-001', 'SAL-CON-004', 'SAL-FIL-002', 'PIN-BAB-003', 'REC-BID-003']
 
 type SeedProduct = Omit<Product, 'id' | 'createdAt' | 'updatedAt' | 'status' | 'unit' | 'barcode'> & { barcode?: string; unit?: string }
 
@@ -90,7 +93,8 @@ function initialPlacements(state: WarehouseState, p: Product, idx: number): { lo
   const result: { locationId: string; qty: number }[] = []
   const used = new Set<string>()
   const base = p.rotation === 'alta' ? 3 : p.rotation === 'media' ? 2 : 1
-  let remaining = Math.round((p.minStock * (idx % 5 === 0 ? 0.6 : 2.3 + (idx % 3) * 0.6)))
+  const low = LOW_STOCK_SKUS.includes(p.sku)
+  let remaining = Math.round((p.minStock * (low ? 0.6 : 2.3 + (idx % 3) * 0.6)))
   if (p.size === 'L') remaining = Math.max(remaining, 6)
   let cursor = (idx * 7) % Math.max(1, sorted.length - 1)
   for (let k = 0; k < base + 2 && remaining > 0; k++) {

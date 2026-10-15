@@ -69,7 +69,7 @@ export function emptyState(): WarehouseState {
     version: STATE_VERSION,
     demo: false,
     products: {}, zones, locations, stock: {}, orders: {}, receipts: {}, shipments: {}, transfers: {}, returns: {}, movements: {},
-    settings: { warehouseName: 'BETO S.L. · Centro logístico', currentUser: 'Operario demo', defaultRequiresQc: true, autoReserve: true, demoDataLabel: 'Datos de demostración' },
+    settings: { warehouseName: 'BETO S.L. · Centro logístico', currentUser: 'Jordi (jefe de almacén)', currentRole: 'jefe', defaultRequiresQc: true, autoReserve: true, demoDataLabel: 'Datos de demostración' },
     counters: {},
     updatedAt: ts,
   }

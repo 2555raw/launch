@@ -2,7 +2,7 @@ import { Lock, LockOpen, Map as MapIcon, Plus, Search, Trash2 } from 'lucide-rea
 import { useMemo, useState } from 'react'
 import { Badge, Button, Card, ConfirmDialog, DataTable, Field, Input, Modal, PageHeader, Progress, Select, Stat, type Column } from '@/components/ui'
 import { locationStatus, occupiedAt, ops, stockEntriesAt, values, warehouseOccupancy, type Location } from '@/domain'
-import { useState$, useWarehouse } from '@/store/useWarehouse'
+import { useRole, useState$, useWarehouse } from '@/store/useWarehouse'
 import { t } from '@/lib/i18n'
 import { fmtInt, fmtPct } from '@/lib/format'
 import { LOCATION_STATUS, SIZE, TEMPERATURE } from '@/lib/labels'
@@ -11,6 +11,7 @@ import { navigate } from '@/lib/router'
 export function Locations({ params }: { params: Record<string, string> }) {
   const state = useState$()
   const dispatch = useWarehouse((s) => s.dispatch)
+  const { can } = useRole()
   const [q, setQ] = useState(params.q ?? '')
   const [zone, setZone] = useState('')
   const [status, setStatus] = useState(params.estado ?? '')
@@ -38,16 +39,16 @@ export function Locations({ params }: { params: Record<string, string> }) {
     { key: 'products', header: t('Productos'), render: (l) => <div className="flex max-w-[260px] flex-wrap gap-1">{stockEntriesAt(state, l.id).map((e) => <span key={e.id} className="rounded bg-slate-100 px-1 font-mono text-[10px]">{state.products[e.productId]?.sku} ×{e.quantity}</span>)}</div> },
     { key: 'status', header: t('Estado'), sort: (l) => locationStatus(state, l), render: (l) => { const s = locationStatus(state, l); return <Badge tone={LOCATION_STATUS[s].tone} dot>{t(LOCATION_STATUS[s].label)}</Badge> } },
     { key: 'actions', header: '', render: (l) => <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-      {l.blocked ? <Button size="sm" variant="ghost" icon={<LockOpen className="h-4 w-4" />} onClick={() => dispatch((s) => ops.unblockLocation(s, l.id), t('Ubicación desbloqueada'))} aria-label={t('Desbloquear')} /> : <Button size="sm" variant="ghost" icon={<Lock className="h-4 w-4" />} onClick={() => setBlocking(l)} aria-label={t('Bloquear')} />}
+      {can('locations.block') && (l.blocked ? <Button size="sm" variant="ghost" icon={<LockOpen className="h-4 w-4" />} onClick={() => dispatch((s) => ops.unblockLocation(s, l.id), t('Ubicación desbloqueada'))} aria-label={t('Desbloquear')} /> : <Button size="sm" variant="ghost" icon={<Lock className="h-4 w-4" />} onClick={() => setBlocking(l)} aria-label={t('Bloquear')} />)}
       <Button size="sm" variant="ghost" icon={<MapIcon className="h-4 w-4" />} onClick={() => navigate('mapa', { loc: l.id })} aria-label={t('Ver en el plano')} />
-      <Button size="sm" variant="ghost" icon={<Trash2 className="h-4 w-4" />} onClick={() => setDeleting(l)} disabled={occupiedAt(state, l.id) > 0} aria-label={t('Eliminar')} />
+      {can('locations.edit') && <Button size="sm" variant="ghost" icon={<Trash2 className="h-4 w-4" />} onClick={() => setDeleting(l)} disabled={occupiedAt(state, l.id) > 0} aria-label={t('Eliminar')} />}
     </div> },
   ]
 
   const codeValid = /^[A-Z]{1,4}-\d{2}-\d{2}-\d{2}$/.test(form.code.toUpperCase())
   return (
     <div className="space-y-4">
-      <PageHeader title={t('Ubicaciones y estanterías')} description={t('Codificación ZONA-PASILLO-MÓDULO-NIVEL · módulos impares a la izquierda y pares a la derecha del pasillo')} actions={<Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>{t('Nueva ubicación')}</Button>} />
+      <PageHeader title={t('Ubicaciones y estanterías')} description={t('Codificación ZONA-PASILLO-MÓDULO-NIVEL · módulos impares a la izquierda y pares a la derecha del pasillo')} actions={can('locations.edit') && <Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>{t('Nueva ubicación')}</Button>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <Stat label={t('Ubicaciones de estantería')} value={fmtInt(occ.total)} /><Stat label={t('Libres')} value={fmtInt(occ.free)} tone="green" /><Stat label={t('Parciales')} value={fmtInt(occ.partial)} /><Stat label={t('Completas')} value={fmtInt(occ.full)} /><Stat label={t('Bloqueadas')} value={fmtInt(occ.blocked)} tone={occ.blocked ? 'red' : undefined} />
       </div>
@@ -58,7 +59,7 @@ export function Locations({ params }: { params: Record<string, string> }) {
           <Select value={status} onChange={(e) => setStatus(e.target.value)} className="w-auto"><option value="">{t('Todos los estados')}</option>{Object.entries(LOCATION_STATUS).map(([k, v]) => <option key={k} value={k}>{t(v.label)}</option>)}</Select>
           <span className="ml-auto text-xs text-slate-500">{t('{n} ubicaciones', { n: rows.length })}</span>
         </div>
-        <DataTable rows={rows} columns={columns} rowKey={(l) => l.id} pageSize={20} onRowClick={(l) => { setEditing(l); setEdit({ capacity: l.capacity, maxWeightKg: l.maxWeightKg ?? 0, sizeClass: l.sizeClass }) }} emptyTitle={t('Sin ubicaciones que coincidan')} />
+        <DataTable rows={rows} columns={columns} rowKey={(l) => l.id} pageSize={20} onRowClick={(l) => { if (can('locations.edit')) { setEditing(l); setEdit({ capacity: l.capacity, maxWeightKg: l.maxWeightKg ?? 0, sizeClass: l.sizeClass }) } else navigate('mapa', { loc: l.id }) }} emptyTitle={t('Sin ubicaciones que coincidan')} />
       </Card>
 
       <Modal open={creating} onClose={() => setCreating(false)} title={t('Nueva ubicación')} size="sm" footer={<><Button variant="outline" onClick={() => setCreating(false)}>{t('Cancelar')}</Button><Button disabled={!codeValid} onClick={() => { const r = dispatch((s) => ops.createLocation(s, { code: form.code, zoneId: form.zoneId, capacity: Number(form.capacity), maxWeightKg: Number(form.maxWeightKg) || undefined, kind: form.kind as Location['kind'], sizeClass: form.sizeClass as Location['sizeClass'] }), t('Ubicación creada')); if (r.ok) setCreating(false) }}>{t('Crear')}</Button></>}>

@@ -2,7 +2,7 @@ import { Archive, ArchiveRestore, Download, Edit3, Eye, History, Map as MapIcon,
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge, Button, Card, ConfirmDialog, DataTable, Field, Input, Modal, PageHeader, Select, Stat, Tabs, type Column } from '@/components/ui'
 import { ops, productStock, values, type Product, type ProductStockSummary, type WarehouseState } from '@/domain'
-import { useState$, useWarehouse } from '@/store/useWarehouse'
+import { useRole, useState$, useWarehouse } from '@/store/useWarehouse'
 import { t } from '@/lib/i18n'
 import { fmtDate, fmtInt, fmtNum } from '@/lib/format'
 import { downloadCsv, parseCsv, toCsv } from '@/lib/csv'
@@ -31,6 +31,7 @@ export function Inventory({ params }: { params: Record<string, string> }) {
   const state = useState$()
   const dispatch = useWarehouse((s) => s.dispatch)
   const notify = useWarehouse((s) => s.notify)
+  const { can } = useRole()
   const [q, setQ] = useState('')
   const [cat, setCat] = useState('')
   const [loc, setLoc] = useState('')
@@ -70,7 +71,7 @@ export function Inventory({ params }: { params: Record<string, string> }) {
     { key: 'locs', header: t('Ubicaciones'), render: (r) => <div className="flex max-w-[220px] flex-wrap gap-1">{r.stock.locations.slice(0, 3).map((l) => <button key={l.locationId + l.state} onClick={(e) => { e.stopPropagation(); navigate('mapa', { loc: l.locationId }) }} className="rounded bg-slate-100 px-1 font-mono text-[10px] hover:bg-electric-100">{l.code}</button>)}{r.stock.locations.length > 3 && <span className="text-[10px] text-slate-400">+{r.stock.locations.length - 3}</span>}</div> },
     { key: 'lot', header: t('Lote / caducidad'), sort: (r) => r.product.expiryDate ?? '', render: (r) => <span className={`text-xs ${r.product.expiryDate && new Date(r.product.expiryDate).getTime() - Date.now() < 15 * 86400000 ? 'font-semibold text-warn-600' : 'text-slate-500'}`}>{r.product.lot ?? '—'}{r.product.expiryDate ? ` · ${fmtDate(r.product.expiryDate)}` : ''}</span> },
     { key: 'status', header: t('Estado'), render: (r) => r.product.status === 'archivado' ? <Badge tone="neutral">{t('Archivado')}</Badge> : r.stock.available < r.product.minStock ? <Badge tone="red">{t('Bajo mínimo')}</Badge> : r.stock.damaged > 0 ? <Badge tone="orange">{t('Con dañados')}</Badge> : <Badge tone="green">{t('Correcto')}</Badge> },
-    { key: 'actions', header: '', render: (r) => <div className="flex gap-1"><Button size="sm" variant="ghost" icon={<Eye className="h-4 w-4" />} onClick={(e) => { e.stopPropagation(); setDetail(r.product.id) }} aria-label={t('Ver ficha')} /><Button size="sm" variant="ghost" icon={<Edit3 className="h-4 w-4" />} onClick={(e) => { e.stopPropagation(); openEdit(r.product) }} aria-label={t('Editar')} /></div> },
+    { key: 'actions', header: '', render: (r) => <div className="flex gap-1"><Button size="sm" variant="ghost" icon={<Eye className="h-4 w-4" />} onClick={(e) => { e.stopPropagation(); setDetail(r.product.id) }} aria-label={t('Ver ficha')} />{can('products.edit') && <Button size="sm" variant="ghost" icon={<Edit3 className="h-4 w-4" />} onClick={(e) => { e.stopPropagation(); openEdit(r.product) }} aria-label={t('Editar')} />}</div> },
   ]
 
   const openEdit = (p: Product) => setEditing({ id: p.id, form: { ...emptyForm, sku: p.sku, name: p.name, barcode: p.barcode, category: p.category, unit: p.unit, minStock: p.minStock, weightKg: p.weightKg, volumeM3: p.volumeM3, lot: p.lot ?? '', expiryDate: p.expiryDate ?? '', rotation: p.rotation, special: p.special, temperature: p.temperature, form: p.form, size: p.size, imageUrl: p.imageUrl ?? '' } })
@@ -130,9 +131,9 @@ export function Inventory({ params }: { params: Record<string, string> }) {
     <div className="space-y-4">
       <PageHeader title={t('Inventario')} description={t('Referencias, existencias por ubicación, reservas y alertas')} actions={<>
         <input ref={fileRef} type="file" accept=".csv,text/csv" className="hidden" onChange={(e) => e.target.files?.[0] && onImportFile(e.target.files[0])} />
-        <Button variant="outline" icon={<Upload className="h-4 w-4" />} onClick={() => fileRef.current?.click()}>{t('Importar CSV')}</Button>
+        {can('products.import') && <Button variant="outline" icon={<Upload className="h-4 w-4" />} onClick={() => fileRef.current?.click()}>{t('Importar CSV')}</Button>}
         <Button variant="outline" icon={<Download className="h-4 w-4" />} onClick={exportCsv} disabled={rows.length === 0}>{t('Exportar CSV')}</Button>
-        <Button icon={<Plus className="h-4 w-4" />} onClick={() => { setEditing({ form: { ...emptyForm } }); setFormErrors({}) }}>{t('Añadir producto')}</Button>
+        {can('products.edit') && <Button icon={<Plus className="h-4 w-4" />} onClick={() => { setEditing({ form: { ...emptyForm } }); setFormErrors({}) }}>{t('Añadir producto')}</Button>}
       </>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label={t('Referencias')} value={fmtInt(totals.skus)} /><Stat label={t('Unidades totales')} value={fmtInt(totals.units)} /><Stat label={t('Disponibles')} value={fmtInt(totals.available)} tone="green" /><Stat label={t('Bajo mínimo')} value={fmtInt(totals.low)} tone={totals.low ? 'red' : undefined} />
@@ -151,10 +152,10 @@ export function Inventory({ params }: { params: Record<string, string> }) {
 
       {/* Ficha de producto */}
       <Modal open={!!detailProduct} onClose={() => setDetail(null)} title={detailProduct ? `${detailProduct.sku} · ${detailProduct.name}` : ''} size="lg" footer={detailProduct && <>
-        {detailProduct.status === 'activo' ? <Button variant="outline" icon={<Archive className="h-4 w-4" />} onClick={() => setArchiveId(detailProduct.id)}>{t('Archivar')}</Button> : <Button variant="outline" icon={<ArchiveRestore className="h-4 w-4" />} onClick={() => dispatch((s) => ops.restoreProduct(s, detailProduct.id), t('Producto restaurado'))}>{t('Restaurar')}</Button>}
+        {can('products.edit') && (detailProduct.status === 'activo' ? <Button variant="outline" icon={<Archive className="h-4 w-4" />} onClick={() => setArchiveId(detailProduct.id)}>{t('Archivar')}</Button> : <Button variant="outline" icon={<ArchiveRestore className="h-4 w-4" />} onClick={() => dispatch((s) => ops.restoreProduct(s, detailProduct.id), t('Producto restaurado'))}>{t('Restaurar')}</Button>)}
         <Button variant="outline" icon={<MapIcon className="h-4 w-4" />} onClick={() => navigate('mapa', { sku: detailProduct.id })}>{t('Ver en el plano')}</Button>
         <Button variant="outline" icon={<History className="h-4 w-4" />} onClick={() => navigate('historial', { sku: detailProduct.sku })}>{t('Historial completo')}</Button>
-        <Button icon={<Edit3 className="h-4 w-4" />} onClick={() => { openEdit(detailProduct); setDetail(null) }}>{t('Editar')}</Button>
+        {can('products.edit') && <Button icon={<Edit3 className="h-4 w-4" />} onClick={() => { openEdit(detailProduct); setDetail(null) }}>{t('Editar')}</Button>}
       </>}>
         {detailProduct && detailStock && (
           <div className="space-y-4">

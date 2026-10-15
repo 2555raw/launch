@@ -109,6 +109,18 @@ Cada ubicación tiene capacidad, peso máximo, tamaño admitido (L en nivel 1 y 
 estado (libre / parcial / completa / bloqueada) y mercancía por SKU y estado físico
 (disponible, cuarentena, dañado, obsoleto, devolución a proveedor).
 
+## Puestos de trabajo
+
+Selector de puesto en la cabecera (y en Configuración). Cada puesto ve solo sus secciones, tiene su propia
+pantalla de inicio y una lista de «Mis tareas» en el dashboard; las acciones ajenas al puesto se ocultan o deshabilitan.
+
+| Puesto | Secciones | Puede |
+| --- | --- | --- |
+| Jefe de almacén | Todas | Todo: configuración, informes, bloqueos, ajustes, altas de productos y ubicaciones |
+| Operario de recepción | Dashboard, mapa, recepción, inventario, ubicaciones, transferencias, devoluciones, historial | Recepciones, calidad, transferencias, registrar e inspeccionar devoluciones |
+| Preparador de pedidos | Dashboard, mapa, pedidos, inventario, transferencias, historial | Picking, rutas, transferencias |
+| Responsable de expedición | Dashboard, mapa, expediciones, pedidos, devoluciones, inventario, historial | Crear y confirmar expediciones, crear pedidos, registrar retornos |
+
 ## Funciones implementadas
 
 - **Dashboard**: KPIs calculados del estado real, gráfico de entradas/salidas, alertas, últimos movimientos,

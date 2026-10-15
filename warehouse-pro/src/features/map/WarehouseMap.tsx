@@ -2,7 +2,7 @@ import { Box, Crosshair, Filter, GitBranch, Layers, Minus, Move, Plus, Route, Se
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent } from 'react'
 import { Badge, Button, Modal, Select, Tooltip } from '@/components/ui'
 import { availableAt, buildRoute, checkCanReceive, locationStatus, pickingSortKey, routeBetween, routeLength, stockEntriesAt, stockEntriesOf, values, type Location, type RoutePoint } from '@/domain'
-import { useState$ } from '@/store/useWarehouse'
+import { useRole, useState$ } from '@/store/useWarehouse'
 import { LOCATION_STATUS, TEMPERATURE, ZONE_TYPE } from '@/lib/labels'
 import { t } from '@/lib/i18n'
 import { cx, fmtInt } from '@/lib/format'
@@ -19,6 +19,7 @@ import { useViewBox } from './useViewBox'
 
 export function WarehouseMap({ params }: { params: Record<string, string> }) {
   const state = useState$()
+  const { can } = useRole()
   const svgRef = useRef<SVGSVGElement>(null)
   const [mode, setMode] = useState<MapMode>(() => { try { return (localStorage.getItem('warehouse-pro:map-mode') as MapMode) || '3d' } catch { return '3d' } })
   const [layer, setLayer] = useState<MapLayer>('ocupacion')
@@ -188,7 +189,7 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
       if (Math.hypot(ev.clientX - pr.x, ev.clientY - pr.y) > 6) {
         pr.moved = true
         cleanup()
-        if (entries.length > 0) {
+        if (entries.length > 0 && can('transfers')) {
           const first = entries[0]
           const movable = availableAt(state, loc.id, first.productId)
           if (movable > 0) startDrag(first.productId, loc.id, movable, ev.clientX, ev.clientY)
@@ -212,7 +213,7 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
     const cleanup = () => { window.removeEventListener('pointermove', onMove); window.removeEventListener('pointerup', onUp) }
     window.addEventListener('pointermove', onMove)
     window.addEventListener('pointerup', onUp)
-  }, [state, startDrag, routeFromId])
+  }, [state, startDrag, routeFromId, can])
 
   const selected = selectedId ? state.locations[selectedId] : null
   const clearFilters = () => { setZoneFilter(''); setStatusFilter(''); setTempFilter(''); setCatFilter(''); setQuery('') }
@@ -230,7 +231,7 @@ export function WarehouseMap({ params }: { params: Record<string, string> }) {
         <Button variant={filtersOpen || activeFilters ? 'secondary' : 'outline'} size="md" icon={<Filter className="h-4 w-4" />} onClick={() => setFiltersOpen((v) => !v)}>{t('Filtros')}{activeFilters ? ` (${activeFilters})` : ''}</Button>
         <Button variant={showFlow ? 'secondary' : 'outline'} icon={<Waves className="h-4 w-4" />} onClick={() => setShowFlow((v) => !v)}>{t('Flujo en U')}</Button>
         <Button variant="outline" icon={<GitBranch className="h-4 w-4" />} onClick={() => setFlowsOpen(true)}>{t('Comparar flujos')}</Button>
-        <Button variant="primary" icon={<Move className="h-4 w-4" />} onClick={() => setFormOpen(true)}>{t('Mover por formulario')}</Button>
+        {can('transfers') && <Button variant="primary" icon={<Move className="h-4 w-4" />} onClick={() => setFormOpen(true)}>{t('Mover por formulario')}</Button>}
         <Select value={layer} onChange={(e) => setLayer(e.target.value as MapLayer)} className="w-auto" aria-label={t('Capa de color')}>{LAYERS.map((l) => <option key={l.id} value={l.id}>{t('Capa')}: {t(l.label)}</option>)}</Select>
         <div className="flex items-center rounded-lg border border-slate-200 bg-white p-1">
           <Tooltip text={t('Vista en planta (2D)')}><Button size="sm" variant={mode === '2d' ? 'secondary' : 'ghost'} icon={<Square className="h-4 w-4" />} onClick={() => setMode('2d')} aria-label="2D">2D</Button></Tooltip>

@@ -4,6 +4,7 @@ import { Button, Card, ConfirmDialog, Field, Input, PageHeader, Select } from '@
 import { integrityIssues, ops, values } from '@/domain'
 import { useState$, useWarehouse } from '@/store/useWarehouse'
 import { LANGS, t, useI18n } from '@/lib/i18n'
+import { ROLES } from '@/lib/roles'
 import { fmtInt } from '@/lib/format'
 
 export function SettingsPage() {
@@ -40,6 +41,7 @@ export function SettingsPage() {
         <Card title={t('Parámetros generales')}>
           <div className="space-y-3">
             <Field label={t('Nombre del almacén / empresa')}><Input value={form.warehouseName} onChange={(e) => setForm({ ...form, warehouseName: e.target.value })} /></Field>
+            <Field label={t('Puesto de trabajo')} hint={t('Determina las secciones y acciones disponibles')}><Select value={form.currentRole ?? 'jefe'} onChange={(e) => setForm({ ...form, currentRole: e.target.value })}>{ROLES.map((r) => <option key={r.id} value={r.id}>{t(r.label)} · {t(r.description)}</option>)}</Select></Field>
             <Field label={t('Usuario operativo actual')} hint={t('Se registra como responsable en los movimientos')}><Input value={form.currentUser} onChange={(e) => setForm({ ...form, currentUser: e.target.value })} /></Field>
             <Field label={t('Control de calidad por defecto en recepciones')}><Select value={form.defaultRequiresQc ? '1' : '0'} onChange={(e) => setForm({ ...form, defaultRequiresQc: e.target.value === '1' })}><option value="1">{t('Requerido (cuarentena)')}</option><option value="0">{t('No requerido')}</option></Select></Field>
             <Field label={t('Idioma de la interfaz')}><Select value={lang} onChange={(e) => setLang(e.target.value as typeof lang)}>{LANGS.map((l) => <option key={l.id} value={l.id}>{l.flag} {l.label}</option>)}</Select></Field>

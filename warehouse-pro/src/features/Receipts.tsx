@@ -2,7 +2,7 @@ import { CheckCircle2, ClipboardCheck, FlaskConical, PackageOpen, Plus, Sparkles
 import { useEffect, useMemo, useState } from 'react'
 import { Badge, Button, Card, ConfirmDialog, DataTable, Field, Input, Modal, PageHeader, Select, Stat, Tabs, Textarea, type Column } from '@/components/ui'
 import { ops, values, type Receipt, type ReceiptLine } from '@/domain'
-import { useState$, useWarehouse } from '@/store/useWarehouse'
+import { useRole, useState$, useWarehouse } from '@/store/useWarehouse'
 import { t } from '@/lib/i18n'
 import { fmtDate, fmtInt, today } from '@/lib/format'
 import { RECEIPT_STATUS } from '@/lib/labels'
@@ -14,6 +14,7 @@ type Tab = 'activas' | 'completadas' | 'todas'
 export function Receipts({ params }: { params: Record<string, string> }) {
   const state = useState$()
   const dispatch = useWarehouse((s) => s.dispatch)
+  const { can } = useRole()
   const [tab, setTab] = useState<Tab>('activas')
   const [creating, setCreating] = useState(!!params.nueva)
   const [detailId, setDetailId] = useState<string | null>(params.recepcion ?? null)
@@ -38,7 +39,7 @@ export function Receipts({ params }: { params: Record<string, string> }) {
 
   return (
     <div className="space-y-4">
-      <PageHeader title={t('Recepción de mercancía')} description={t('El stock disponible solo aumenta al confirmar la entrada y superar el control de calidad configurado')} actions={<Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>{t('Nueva recepción')}</Button>} />
+      <PageHeader title={t('Recepción de mercancía')} description={t('El stock disponible solo aumenta al confirmar la entrada y superar el control de calidad configurado')} actions={can('receipts') && <Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>{t('Nueva recepción')}</Button>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label={t('Pendientes')} value={fmtInt(receipts.filter((r) => r.status === 'pendiente').length)} /><Stat label={t('En recepción')} value={fmtInt(receipts.filter((r) => r.status === 'en_recepcion').length)} /><Stat label={t('En control de calidad')} value={fmtInt(receipts.filter((r) => r.status === 'control_calidad').length)} tone="orange" /><Stat label={t('Con incidencia')} value={fmtInt(receipts.filter((r) => r.status === 'incidencia').length)} tone="red" />
       </div>
@@ -48,8 +49,8 @@ export function Receipts({ params }: { params: Record<string, string> }) {
 
       <NewReceiptModal open={creating} onClose={() => setCreating(false)} onCreated={(id) => { setCreating(false); setDetailId(id) }} />
 
-      <Modal open={!!detail} onClose={() => setDetailId(null)} title={detail ? `${detail.number} · ${detail.supplier}` : ''} size="xl" footer={detail && <ReceiptActions receipt={detail} onConfirm={() => setConfirmOpen(true)} onDelete={() => setDeleteId(detail.id)} />}>
-        {detail && <ReceiptDetail receipt={detail} />}
+      <Modal open={!!detail} onClose={() => setDetailId(null)} title={detail ? `${detail.number} · ${detail.supplier}` : ''} size="xl" footer={detail && (can('receipts') ? <ReceiptActions receipt={detail} onConfirm={() => setConfirmOpen(true)} onDelete={() => setDeleteId(detail.id)} /> : <span className="text-xs text-slate-500">{t('Solo lectura para tu puesto')}</span>)}>
+        {detail && <ReceiptDetail receipt={detail} readOnly={!can('receipts')} />}
       </Modal>
       <ConfirmDialog open={confirmOpen} onClose={() => setConfirmOpen(false)} title={t('Confirmar recepción')} confirmLabel={t('Confirmar y ubicar')} message={t('Se ubicará la mercancía recibida en sus destinos, la dañada o rechazada pasará a la zona auxiliar y se registrarán los movimientos de entrada. Esta operación no se puede repetir.')} onConfirm={() => { if (detail) { const r = dispatch((s) => ops.confirmReceipt(s, detail.id), t('Recepción confirmada: inventario actualizado')); if (r.ok) { setConfirmOpen(false); const pend = values(r.state.orders).filter((o) => ['pendiente', 'en_preparacion', 'parcialmente_preparado'].includes(o.status) && o.lines.some((l) => l.quantityReserved < l.quantityRequested)); for (const o of pend) dispatch((s) => ops.reallocateOrder(s, o.id)) } } }} />
       <ConfirmDialog open={!!deleteId} onClose={() => setDeleteId(null)} danger title={t('Eliminar recepción')} confirmLabel={t('Eliminar')} message={t('Solo se pueden eliminar recepciones pendientes que no hayan generado stock.')} onConfirm={() => { if (deleteId) { const r = dispatch((s) => ops.deleteReceipt(s, deleteId), t('Recepción eliminada')); if (r.ok) setDetailId(null) } setDeleteId(null) }} />
@@ -72,10 +73,10 @@ function ReceiptActions({ receipt: r, onConfirm, onDelete }: { receipt: Receipt;
   )
 }
 
-function ReceiptDetail({ receipt: r }: { receipt: Receipt }) {
+function ReceiptDetail({ receipt: r, readOnly }: { receipt: Receipt; readOnly?: boolean }) {
   const state = useState$()
   const dispatch = useWarehouse((s) => s.dispatch)
-  const editable = ['en_recepcion', 'control_calidad'].includes(r.status)
+  const editable = !readOnly && ['en_recepcion', 'control_calidad'].includes(r.status)
   const steps: Receipt['status'][] = ['pendiente', 'en_recepcion', ...(r.requiresQc ? ['control_calidad' as const] : []), 'completada']
   const stepIdx = ['completada', 'parcial', 'incidencia'].includes(r.status) ? steps.length - 1 : steps.indexOf(r.status)
   const update = (line: ReceiptLine, patch: Parameters<typeof ops.recordReceiptLine>[3]) => dispatch((s) => ops.recordReceiptLine(s, r.id, line.id, patch))

@@ -2,7 +2,7 @@ import { AlertTriangle, Ban, CheckCheck, ClipboardList, Map as MapIcon, Play, Pl
 import { useEffect, useMemo, useState } from 'react'
 import { Badge, Button, Card, ConfirmDialog, DataTable, Field, Input, Modal, PageHeader, Progress, Select, Stat, Tabs, Textarea, type Column } from '@/components/ui'
 import { ops, orderProgress, orderShortages, pickingSortKey, productStock, values, type Order, type OrderPriority } from '@/domain'
-import { useState$, useWarehouse } from '@/store/useWarehouse'
+import { useRole, useState$, useWarehouse } from '@/store/useWarehouse'
 import { t } from '@/lib/i18n'
 import { fmtDate, fmtInt, today } from '@/lib/format'
 import { ORDER_PRIORITY, ORDER_STATUS } from '@/lib/labels'
@@ -13,6 +13,7 @@ type Tab = 'activos' | 'preparados' | 'enviados' | 'todos'
 export function Orders({ params }: { params: Record<string, string> }) {
   const state = useState$()
   const dispatch = useWarehouse((s) => s.dispatch)
+  const { can } = useRole()
   const [tab, setTab] = useState<Tab>('activos')
   const [creating, setCreating] = useState(!!params.nuevo)
   const [detailId, setDetailId] = useState<string | null>(params.pedido ?? null)
@@ -38,7 +39,7 @@ export function Orders({ params }: { params: Record<string, string> }) {
   const detail = detailId ? state.orders[detailId] : null
   return (
     <div className="space-y-4">
-      <PageHeader title={t('Preparación de pedidos')} description={t('Reserva de existencias, lista de picking optimizada por pasillos y confirmación de recogidas')} actions={<Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>{t('Nuevo pedido')}</Button>} />
+      <PageHeader title={t('Preparación de pedidos')} description={t('Reserva de existencias, lista de picking optimizada por pasillos y confirmación de recogidas')} actions={can('orders.create') && <Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>{t('Nuevo pedido')}</Button>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label={t('Pendientes')} value={fmtInt(orders.filter((o) => o.status === 'pendiente').length)} /><Stat label={t('En preparación')} value={fmtInt(orders.filter((o) => ['en_preparacion', 'parcialmente_preparado'].includes(o.status)).length)} /><Stat label={t('Preparados')} value={fmtInt(orders.filter((o) => o.status === 'preparado').length)} tone="green" /><Stat label={t('Con faltantes')} value={fmtInt(active.filter((o) => orderShortages(state, o).length).length)} tone="red" />
       </div>
@@ -47,15 +48,15 @@ export function Orders({ params }: { params: Record<string, string> }) {
       </Card>
       <NewOrderModal open={creating} onClose={() => setCreating(false)} onCreated={(id) => { setCreating(false); setDetailId(id) }} />
       <Modal open={!!detail} onClose={() => setDetailId(null)} title={detail ? `${detail.number} · ${detail.customer}` : ''} size="xl" footer={detail && <>
-        {!['enviado', 'cancelado', 'en_expedicion'].includes(detail.status) && <Button variant="ghost" icon={<Ban className="h-4 w-4" />} onClick={() => setCancelId(detail.id)}>{t('Cancelar pedido')}</Button>}
-        {orderShortages(state, detail).length > 0 && ['pendiente', 'en_preparacion', 'parcialmente_preparado'].includes(detail.status) && <Button variant="outline" icon={<RefreshCw className="h-4 w-4" />} onClick={() => dispatch((s) => ops.reallocateOrder(s, detail.id), t('Reservas actualizadas'))}>{t('Completar reservas')}</Button>}
+        {can('orders.cancel') && !['enviado', 'cancelado', 'en_expedicion'].includes(detail.status) && <Button variant="ghost" icon={<Ban className="h-4 w-4" />} onClick={() => setCancelId(detail.id)}>{t('Cancelar pedido')}</Button>}
+        {can('picking') && orderShortages(state, detail).length > 0 && ['pendiente', 'en_preparacion', 'parcialmente_preparado'].includes(detail.status) && <Button variant="outline" icon={<RefreshCw className="h-4 w-4" />} onClick={() => dispatch((s) => ops.reallocateOrder(s, detail.id), t('Reservas actualizadas'))}>{t('Completar reservas')}</Button>}
         {detail.status !== 'enviado' && detail.status !== 'cancelado' && <Button variant="outline" icon={<MapIcon className="h-4 w-4" />} onClick={() => navigate('mapa', { ruta: detail.id })}>{t('Ver ruta en el plano')}</Button>}
-        {detail.status === 'pendiente' && <Button icon={<Play className="h-4 w-4" />} onClick={() => dispatch((s) => ops.startPicking(s, detail.id), t('Preparación iniciada'))} disabled={!detail.lines.some((l) => l.quantityReserved > 0)}>{t('Iniciar preparación')}</Button>}
-        {['en_preparacion', 'parcialmente_preparado', 'pendiente'].includes(detail.status) && detail.lines.some((l) => l.reservations.some((r) => r.quantity > r.picked)) && <Button variant="secondary" icon={<CheckCheck className="h-4 w-4" />} onClick={() => dispatch((s) => ops.pickAll(s, detail.id), t('Todas las líneas recogidas'))}>{t('Recoger todo')}</Button>}
-        {detail.status === 'preparado' && <Button variant="success" icon={<Truck className="h-4 w-4" />} onClick={() => navigate('expediciones', { nueva: detail.id })}>{t('Crear expedición')}</Button>}
+        {can('picking') && detail.status === 'pendiente' && <Button icon={<Play className="h-4 w-4" />} onClick={() => dispatch((s) => ops.startPicking(s, detail.id), t('Preparación iniciada'))} disabled={!detail.lines.some((l) => l.quantityReserved > 0)}>{t('Iniciar preparación')}</Button>}
+        {can('picking') && ['en_preparacion', 'parcialmente_preparado', 'pendiente'].includes(detail.status) && detail.lines.some((l) => l.reservations.some((r) => r.quantity > r.picked)) && <Button variant="secondary" icon={<CheckCheck className="h-4 w-4" />} onClick={() => dispatch((s) => ops.pickAll(s, detail.id), t('Todas las líneas recogidas'))}>{t('Recoger todo')}</Button>}
+        {can('shipments') && detail.status === 'preparado' && <Button variant="success" icon={<Truck className="h-4 w-4" />} onClick={() => navigate('expediciones', { nueva: detail.id })}>{t('Crear expedición')}</Button>}
         {detail.status === 'en_expedicion' && detail.shipmentId && <Button variant="outline" icon={<Truck className="h-4 w-4" />} onClick={() => navigate('expediciones', { expedicion: detail.shipmentId! })}>{t('Ver expedición')}</Button>}
       </>}>
-        {detail && <OrderDetail order={detail} />}
+        {detail && <OrderDetail order={detail} canPickRole={can('picking')} />}
       </Modal>
       <ConfirmDialog open={!!cancelId} onClose={() => setCancelId(null)} danger title={t('Cancelar pedido')} confirmLabel={t('Cancelar pedido')} message={t('Se liberarán todas las reservas y la mercancía ya recogida volverá a sus ubicaciones de origen.')} onConfirm={() => { if (cancelId) { const r = dispatch((s) => ops.cancelOrder(s, cancelId, cancelReason || t('Cancelado por el usuario')), t('Pedido cancelado: reservas liberadas')); if (r.ok) setCancelId(null) } setCancelReason('') }}>
         <Field label={t('Motivo')}><Input value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} autoFocus /></Field>
@@ -64,12 +65,12 @@ export function Orders({ params }: { params: Record<string, string> }) {
   )
 }
 
-function OrderDetail({ order: o }: { order: Order }) {
+function OrderDetail({ order: o, canPickRole }: { order: Order; canPickRole: boolean }) {
   const state = useState$()
   const dispatch = useWarehouse((s) => s.dispatch)
   const [qtys, setQtys] = useState<Record<string, number>>({})
   const shortages = orderShortages(state, o)
-  const canPick = ['en_preparacion', 'parcialmente_preparado', 'pendiente'].includes(o.status)
+  const canPick = canPickRole && ['en_preparacion', 'parcialmente_preparado', 'pendiente'].includes(o.status)
   // Lista de picking ordenada por recorrido (serpentina por pasillos)
   const pickList = o.lines.flatMap((l) => l.reservations.map((r) => ({ line: l, res: r, loc: state.locations[r.locationId] }))).filter((x) => x.loc).sort((a, b) => pickingSortKey(a.loc) - pickingSortKey(b.loc))
   const progress = orderProgress(o)

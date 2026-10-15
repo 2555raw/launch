@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { DomainError, STATE_VERSION, buildDemoState, emptyState, type WarehouseState } from '@/domain'
 import { MemoryRepository, createRepository, type WarehouseRepository } from '@/data/repository'
+import { roleById, type Capability } from '@/lib/roles'
 
 export interface Toast { id: number; kind: 'success' | 'error' | 'info' | 'warning'; title: string; message?: string }
 
@@ -111,3 +112,11 @@ export const useWarehouse = create<WarehouseStore>((set, get) => {
 
 /** Hook de conveniencia: estado garantizado (solo usar bajo el guard de carga). */
 export const useState$ = () => useWarehouse((s) => s.state!)
+
+/** Puesto de trabajo activo y comprobación de permisos. */
+export function useRole() {
+  const roleId = useWarehouse((s) => s.state?.settings.currentRole)
+  const role = roleById(roleId)
+  const can = (cap: Capability) => role.caps.includes(cap)
+  return { role, can }
+}

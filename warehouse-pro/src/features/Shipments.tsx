@@ -2,7 +2,7 @@ import { Ban, CheckCircle2, Plus, Truck } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Badge, Button, Card, ConfirmDialog, DataTable, Field, Input, Modal, PageHeader, Stat, Tabs, Textarea, type Column } from '@/components/ui'
 import { ops, values, type Shipment } from '@/domain'
-import { useState$, useWarehouse } from '@/store/useWarehouse'
+import { useRole, useState$, useWarehouse } from '@/store/useWarehouse'
 import { t } from '@/lib/i18n'
 import { fmtDate, fmtDateTime, fmtInt, today } from '@/lib/format'
 import { ORDER_STATUS, SHIPMENT_STATUS } from '@/lib/labels'
@@ -13,6 +13,7 @@ type Tab = 'pendientes' | 'expedidas' | 'todas'
 export function Shipments({ params }: { params: Record<string, string> }) {
   const state = useState$()
   const dispatch = useWarehouse((s) => s.dispatch)
+  const { can } = useRole()
   const [tab, setTab] = useState<Tab>('pendientes')
   const [creating, setCreating] = useState(!!params.nueva)
   const [detailId, setDetailId] = useState<string | null>(params.expedicion ?? null)
@@ -38,20 +39,20 @@ export function Shipments({ params }: { params: Record<string, string> }) {
   const detail = detailId ? state.shipments[detailId] : null
   return (
     <div className="space-y-4">
-      <PageHeader title={t('Expediciones')} description={t('Control de salidas: revisión, transportista, referencia de envío y confirmación final idempotente')} actions={<Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)} disabled={readyOrders.length === 0} title={readyOrders.length === 0 ? t('No hay pedidos preparados') : undefined}>{t('Nueva expedición')}</Button>} />
+      <PageHeader title={t('Expediciones')} description={t('Control de salidas: revisión, transportista, referencia de envío y confirmación final idempotente')} actions={can('shipments') && <Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)} disabled={readyOrders.length === 0} title={readyOrders.length === 0 ? t('No hay pedidos preparados') : undefined}>{t('Nueva expedición')}</Button>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label={t('Pedidos preparados sin expedición')} value={fmtInt(readyOrders.length)} tone={readyOrders.length ? 'orange' : undefined} /><Stat label={t('Pendientes de salida')} value={fmtInt(pending.length)} /><Stat label={t('Expedidas hoy')} value={fmtInt(done.filter((s) => s.confirmedAt?.slice(0, 10) === today()).length)} tone="green" /><Stat label={t('Unidades expedidas (total)')} value={fmtInt(done.reduce((a, s) => a + units(s), 0))} />
       </div>
-      {readyOrders.length > 0 && <div className="flex flex-wrap items-center gap-2 rounded-lg border border-warn-500/30 bg-warn-100 px-3 py-2 text-xs text-warn-600"><Truck className="h-4 w-4" />{t('Pedidos preparados listos para expedir')}: {readyOrders.map((o) => <button key={o.id} onClick={() => navigate('pedidos', { pedido: o.id })} className="rounded bg-white px-1.5 py-0.5 font-mono font-semibold hover:bg-warn-500/20">{o.number}</button>)}<Button size="sm" className="ml-auto" onClick={() => setCreating(true)}>{t('Crear expedición')}</Button></div>}
+      {readyOrders.length > 0 && <div className="flex flex-wrap items-center gap-2 rounded-lg border border-warn-500/30 bg-warn-100 px-3 py-2 text-xs text-warn-600"><Truck className="h-4 w-4" />{t('Pedidos preparados listos para expedir')}: {readyOrders.map((o) => <button key={o.id} onClick={() => navigate('pedidos', { pedido: o.id })} className="rounded bg-white px-1.5 py-0.5 font-mono font-semibold hover:bg-warn-500/20">{o.number}</button>)}{can('shipments') && <Button size="sm" className="ml-auto" onClick={() => setCreating(true)}>{t('Crear expedición')}</Button>}</div>}
       <Card bodyClass="p-0" title={<Tabs tabs={[{ id: 'pendientes', label: t('Pendientes'), count: pending.length }, { id: 'expedidas', label: t('Expedidas'), count: done.length }, { id: 'todas', label: t('Todas'), count: shipments.length }]} value={tab} onChange={setTab} />}>
         <DataTable rows={rows} columns={columns} rowKey={(s) => s.id} onRowClick={(s) => setDetailId(s.id)} emptyTitle={t('No hay expediciones')} emptyDescription={t('Prepara un pedido y crea una expedición para registrar su salida.')} />
       </Card>
       <NewShipmentModal open={creating} initialOrderId={params.nueva && state.orders[params.nueva] ? params.nueva : undefined} onClose={() => { setCreating(false); if (params.nueva) navigate('expediciones') }} onCreated={(id) => { setCreating(false); setDetailId(id); if (params.nueva) navigate('expediciones', { expedicion: id }) }} />
       <Modal open={!!detail} onClose={() => setDetailId(null)} title={detail ? `${detail.number} · ${detail.recipient}` : ''} size="lg" footer={detail && <>
-        {detail.status === 'pendiente' && <Button variant="ghost" icon={<Ban className="h-4 w-4" />} onClick={() => setCancelId(detail.id)}>{t('Cancelar expedición')}</Button>}
+        {can('shipments') && detail.status === 'pendiente' && <Button variant="ghost" icon={<Ban className="h-4 w-4" />} onClick={() => setCancelId(detail.id)}>{t('Cancelar expedición')}</Button>}
         {detail.status === 'confirmada' && <Button variant="outline" onClick={() => navigate('historial', { ref: detail.number })}>{t('Ver movimientos de salida')}</Button>}
-        {detail.status === 'pendiente' && <Button variant="success" icon={<CheckCircle2 className="h-4 w-4" />} onClick={() => setConfirmId(detail.id)}>{t('Confirmar salida')}</Button>}
-        {detail.status === 'confirmada' && <Button variant="success" icon={<CheckCircle2 className="h-4 w-4" />} onClick={() => dispatch((s) => ops.confirmShipment(s, detail.id))} title={t('Prueba de idempotencia: no vuelve a descontar stock')}>{t('Confirmar de nuevo (prueba)')}</Button>}
+        {can('shipments') && detail.status === 'pendiente' && <Button variant="success" icon={<CheckCircle2 className="h-4 w-4" />} onClick={() => setConfirmId(detail.id)}>{t('Confirmar salida')}</Button>}
+        {can('shipments') && detail.status === 'confirmada' && <Button variant="success" icon={<CheckCircle2 className="h-4 w-4" />} onClick={() => dispatch((s) => ops.confirmShipment(s, detail.id))} title={t('Prueba de idempotencia: no vuelve a descontar stock')}>{t('Confirmar de nuevo (prueba)')}</Button>}
       </>}>
         {detail && <ShipmentDetail shipment={detail} />}
       </Modal>

@@ -2,12 +2,13 @@ import { AlertTriangle, ArrowDownRight, ArrowLeftRight, ArrowUpRight, Boxes, Cal
 import type { ReactNode } from 'react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis } from 'recharts'
 import { Badge, Button, Card, EmptyState } from '@/components/ui'
-import { useState$ } from '@/store/useWarehouse'
+import { useRole, useState$ } from '@/store/useWarehouse'
 import { lowStockProducts, movementsSorted, occupancyByZone, occupiedAt, orderShortages, values, warehouseOccupancy } from '@/domain'
 import { dailySeries } from '@/lib/analytics'
 import { cx, fmtInt, fmtPct, timeAgo, today } from '@/lib/format'
 import { navigate } from '@/lib/router'
-import { MOVEMENT_TYPE, ORDER_STATUS, ZONE_TYPE } from '@/lib/labels'
+import { MOVEMENT_TYPE, ORDER_PRIORITY, ORDER_STATUS, RECEIPT_STATUS, RETURN_STATUS, SHIPMENT_STATUS, ZONE_TYPE } from '@/lib/labels'
+import { Badge as RoleBadge } from '@/components/ui'
 import { t } from '@/lib/i18n'
 import { getLocale } from '@/lib/i18n'
 
@@ -54,6 +55,7 @@ function Kpi2({ label, value, hint, icon, color, spark, trend, onClick }: { labe
 
 export function Dashboard() {
   const state = useState$()
+  const { role, can } = useRole()
   const products = values(state.products).filter((p) => p.status === 'activo')
   const totalUnits = values(state.stock).reduce((a, s) => a + s.quantity, 0)
   const occ = warehouseOccupancy(state)
@@ -88,17 +90,35 @@ export function Dashboard() {
   if (ready.length) alerts.push({ tone: 'blue', icon: <Truck className="h-4 w-4" />, text: t('{n} pedidos preparados listos para expedir', { n: ready.length }), go: () => navigate('expediciones') })
 
   const quick = [
-    { label: t('Recibir mercancía'), icon: <PackagePlus className="h-4 w-4" />, go: () => navigate('recepcion', { nueva: '1' }) },
-    { label: t('Mover productos'), icon: <ArrowLeftRight className="h-4 w-4" />, go: () => navigate('transferencias', { nueva: '1' }) },
-    { label: t('Nuevo pedido'), icon: <ClipboardList className="h-4 w-4" />, go: () => navigate('pedidos', { nuevo: '1' }) },
-    { label: t('Añadir producto'), icon: <Plus className="h-4 w-4" />, go: () => navigate('inventario', { nuevo: '1' }) },
-  ]
-  const modules = [
+    { label: t('Recibir mercancía'), icon: <PackagePlus className="h-4 w-4" />, go: () => navigate('recepcion', { nueva: '1' }), ok: can('receipts') },
+    { label: t('Mover productos'), icon: <ArrowLeftRight className="h-4 w-4" />, go: () => navigate('transferencias', { nueva: '1' }), ok: can('transfers') },
+    { label: t('Nuevo pedido'), icon: <ClipboardList className="h-4 w-4" />, go: () => navigate('pedidos', { nuevo: '1' }), ok: can('orders.create') },
+    { label: t('Añadir producto'), icon: <Plus className="h-4 w-4" />, go: () => navigate('inventario', { nuevo: '1' }), ok: can('products.edit') },
+    { label: t('Preparar pedidos'), icon: <ClipboardList className="h-4 w-4" />, go: () => navigate('pedidos'), ok: can('picking') && !can('orders.create') },
+    { label: t('Crear expedición'), icon: <Truck className="h-4 w-4" />, go: () => navigate('expediciones', { nueva: '1' }), ok: can('shipments') },
+    { label: t('Registrar devolución'), icon: <RotateCcw className="h-4 w-4" />, go: () => navigate('devoluciones', { nueva: '1' }), ok: can('returns.register') && !can('config') },
+  ].filter((q) => q.ok)
+  // Tareas del puesto
+  const tasks: { title: string; sub: string; badge: ReactNode; go: () => void }[] = []
+  if (role.id === 'recepcion') {
+    for (const r of pendingReceipts) tasks.push({ title: `${r.number} · ${r.supplier}`, sub: t('{n} líneas · {u} uds esperadas', { n: r.lines.length, u: r.lines.reduce((a, l) => a + l.quantityExpected, 0) }), badge: <RoleBadge tone={RECEIPT_STATUS[r.status].tone}>{t(RECEIPT_STATUS[r.status].label)}</RoleBadge>, go: () => navigate('recepcion', { recepcion: r.id }) })
+    for (const r of returnsPending) tasks.push({ title: `${r.number} · ${state.products[r.productId]?.sku}`, sub: t('Devolución pendiente de inspección'), badge: <RoleBadge tone={RETURN_STATUS[r.status].tone}>{t(RETURN_STATUS[r.status].label)}</RoleBadge>, go: () => navigate('devoluciones') })
+  } else if (role.id === 'preparador') {
+    const prio = { urgente: 0, alta: 1, normal: 2, baja: 3 }
+    for (const o of [...pendingOrders].sort((a, b) => prio[a.priority] - prio[b.priority])) tasks.push({ title: `${o.number} · ${o.customer}`, sub: t('{n} líneas · {u} uds', { n: o.lines.length, u: o.lines.reduce((a, l) => a + l.quantityRequested, 0) }) + (orderShortages(state, o).length ? ` · ${t('faltantes')}` : ''), badge: <><RoleBadge tone={ORDER_PRIORITY[o.priority].tone}>{t(ORDER_PRIORITY[o.priority].label)}</RoleBadge> <RoleBadge tone={ORDER_STATUS[o.status].tone}>{t(ORDER_STATUS[o.status].label)}</RoleBadge></>, go: () => navigate('pedidos', { pedido: o.id }) })
+  } else if (role.id === 'expedicion') {
+    for (const o of ready) tasks.push({ title: `${o.number} · ${o.customer}`, sub: t('Pedido preparado: crear expedición'), badge: <RoleBadge tone="green">{t('Preparado')}</RoleBadge>, go: () => navigate('expediciones', { nueva: o.id }) })
+    for (const s of pendingShipments) tasks.push({ title: `${s.number} · ${s.recipient}`, sub: `${s.carrier} · ${s.trackingRef || '—'}`, badge: <RoleBadge tone={SHIPMENT_STATUS[s.status].tone}>{t(SHIPMENT_STATUS[s.status].label)}</RoleBadge>, go: () => navigate('expediciones', { expedicion: s.id }) })
+    for (const r of returnsPending) tasks.push({ title: `${r.number} · ${state.products[r.productId]?.sku}`, sub: t('Retorno de cliente registrado'), badge: <RoleBadge tone="yellow">{t('Pendiente de inspección')}</RoleBadge>, go: () => navigate('devoluciones') })
+  }
+  const modulesAll = [
     { label: t('Expediciones'), desc: t('{n} pendientes de salida', { n: pendingShipments.length + ready.length }), icon: <Truck className="h-6 w-6" />, go: () => navigate('expediciones'), color: '#16a34a', pct: orders.length ? (orders.filter((o) => o.status === 'enviado').length / orders.length) * 100 : 0 },
     { label: t('Organización del almacén'), desc: t('{n} ubicaciones · {p} ocupación', { n: occ.total, p: fmtPct(occ.pct) }), icon: <MapPinned className="h-6 w-6" />, go: () => navigate('mapa'), color: '#1d6ff2', pct: occ.pct },
     { label: t('Preparación de pedidos'), desc: t('{n} pedidos en cola', { n: pendingOrders.length }), icon: <ClipboardList className="h-6 w-6" />, go: () => navigate('pedidos'), color: '#1e3a8a', pct: pendingOrders.length ? (pendingOrders.filter((o) => o.status !== 'pendiente').length / pendingOrders.length) * 100 : 0 },
     { label: t('Retornos'), desc: t('{n} por inspeccionar', { n: returnsPending.length }), icon: <RotateCcw className="h-6 w-6" />, go: () => navigate('devoluciones'), color: '#f97316', pct: values(state.returns).length ? (values(state.returns).filter((r) => r.status === 'cerrada').length / values(state.returns).length) * 100 : 0 },
   ]
+  const pageOf = { Expediciones: 'expediciones', 'Organización del almacén': 'mapa', 'Preparación de pedidos': 'pedidos', Retornos: 'devoluciones' } as const
+  const modules = modulesAll.filter((_, i) => role.pages.includes(Object.values(pageOf)[i]))
 
   return (
     <div className="space-y-5">
@@ -112,6 +132,7 @@ export function Dashboard() {
             <div className="text-xs font-semibold uppercase tracking-[0.25em] text-electric-400">BETO · {t('Gestión de almacén')}</div>
             <h1 className="mt-1 text-2xl font-extrabold tracking-tight sm:text-3xl">{state.settings.warehouseName}</h1>
             <p className="mt-1 text-sm capitalize text-slate-300">{dateLabel} · {t('resumen operativo en tiempo real')}</p>
+            <p className="mt-1 flex items-center gap-2 text-sm text-slate-200"><span className="inline-block h-2.5 w-2.5 rounded-full" style={{ background: role.color }} />{t('Puesto')}: <b>{t(role.label)}</b> · {state.settings.currentUser}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               {quick.map((q) => <button key={q.label} onClick={q.go} className="flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-semibold text-white ring-1 ring-white/15 backdrop-blur transition hover:bg-electric-600 hover:ring-electric-400 active:scale-[0.98]">{q.icon}{q.label}</button>)}
             </div>
@@ -128,8 +149,16 @@ export function Dashboard() {
         </div>
       </section>
 
+      {/* Tareas del puesto */}
+      {role.id !== 'jefe' && (
+        <Card title={t('Mis tareas · {r}', { r: t(role.label) })} subtitle={t(role.description)} bodyClass="p-0">
+          {tasks.length === 0 ? <EmptyState title={t('Sin tareas pendientes')} description={t('No hay trabajo pendiente para tu puesto en este momento.')} /> : (
+            <ul className="divide-y divide-slate-100">{tasks.slice(0, 8).map((x, i) => <li key={i}><button onClick={x.go} className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition hover:bg-slate-50"><span className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white" style={{ background: role.color }}>{i + 1}</span><div className="min-w-0 flex-1"><div className="truncate font-medium text-slate-800">{x.title}</div><div className="truncate text-xs text-slate-500">{x.sub}</div></div><div className="flex gap-1">{x.badge}</div></button></li>)}</ul>
+          )}
+        </Card>
+      )}
       {/* Módulos prioritarios */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div className={cx('grid grid-cols-2 gap-3', modules.length >= 4 ? 'md:grid-cols-4' : modules.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2')}>
         {modules.map((m) => (
           <button key={m.label} onClick={m.go} className="card group relative flex animate-slide-up flex-col gap-3 overflow-hidden p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md">
             <div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow" style={{ background: m.color }}>{m.icon}</div><div className="min-w-0"><div className="truncate text-sm font-bold text-slate-900">{m.label}</div><div className="truncate text-xs text-slate-500">{m.desc}</div></div></div>

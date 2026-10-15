@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
-import { useWarehouse } from '@/store/useWarehouse'
+import { useRole, useWarehouse } from '@/store/useWarehouse'
 import { useRoute } from '@/lib/router'
 import { Shell } from '@/components/Shell'
-import { Spinner, Toasts } from '@/components/ui'
+import { Button, EmptyState, Spinner, Toasts } from '@/components/ui'
+import { navigate } from '@/lib/router'
+import { Lock } from 'lucide-react'
 import { Dashboard } from '@/features/Dashboard'
 import { WarehouseMap } from '@/features/map/WarehouseMap'
 import { Inventory } from '@/features/Inventory'
@@ -23,6 +25,7 @@ export default function App() {
   const loading = useWarehouse((s) => s.loading)
   const route = useRoute()
   const lang = useI18n((s) => s.lang)
+  const { role } = useRole()
   useEffect(() => { init() }, [init])
   useEffect(() => { document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang }, [lang])
 
@@ -43,7 +46,7 @@ export default function App() {
 
   return (
     <>
-      <div key={lang} className="h-full"><Shell page={route.page}>{loading ? <Spinner label={t('Cargando el almacén desde el almacenamiento local…')} /> : <div key={route.page} className="animate-fade-in">{pages[route.page]}</div>}</Shell></div>
+      <div key={lang} className="h-full"><Shell page={route.page}>{loading ? <Spinner label={t('Cargando el almacén desde el almacenamiento local…')} /> : !role.pages.includes(route.page) ? <div className="card mx-auto max-w-lg"><EmptyState icon={<Lock className="h-6 w-6" />} title={t('Acceso restringido')} description={t('Tu puesto ({r}) no tiene acceso a esta sección. Cambia de puesto en la cabecera o vuelve a tu pantalla de inicio.', { r: t(role.label) })} action={<Button onClick={() => navigate(role.home)}>{t('Ir a mi pantalla de inicio')}</Button>} /></div> : <div key={route.page} className="animate-fade-in">{pages[route.page]}</div>}</Shell></div>
       <Toasts />
     </>
   )

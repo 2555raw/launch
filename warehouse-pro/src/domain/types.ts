@@ -275,6 +275,8 @@ export interface Movement {
 export interface Settings {
   warehouseName: string
   currentUser: string
+  /** Puesto de trabajo activo (determina secciones y acciones visibles) */
+  currentRole?: string
   defaultRequiresQc: boolean
   autoReserve: boolean
   demoDataLabel: string

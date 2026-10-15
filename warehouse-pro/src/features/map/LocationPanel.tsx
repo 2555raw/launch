@@ -2,7 +2,7 @@ import { GripVertical, History, Lock, LockOpen, MapPin, Move, Route, Thermometer
 import { useState, type PointerEvent as RPointerEvent } from 'react'
 import { Badge, Button, ConfirmDialog, Field, Input, Modal, Progress, Stat } from '@/components/ui'
 import { availableAt, locationStatus, occupiedAt, ops, reservedAt, stockEntriesAt, weightAt, type Location, type WarehouseState } from '@/domain'
-import { useWarehouse } from '@/store/useWarehouse'
+import { useRole, useWarehouse } from '@/store/useWarehouse'
 import { LOCATION_STATUS, SIZE, STOCK_STATE, TEMPERATURE, ZONE_TYPE } from '@/lib/labels'
 import { t } from '@/lib/i18n'
 import { fmtInt, fmtNum } from '@/lib/format'
@@ -22,6 +22,7 @@ interface Props {
 
 export function LocationPanel({ state, loc, onClose, onStartDrag, onRouteFrom, routeFromId, onSelectLocation }: Props) {
   const dispatch = useWarehouse((s) => s.dispatch)
+  const { can } = useRole()
   const [blockOpen, setBlockOpen] = useState(false)
   const [blockReason, setBlockReason] = useState('')
   const [moveFor, setMoveFor] = useState<string | null>(null)
@@ -69,7 +70,7 @@ export function LocationPanel({ state, loc, onClose, onStartDrag, onRouteFrom, r
                 const reserved = e.state === 'disponible' ? reservedAt(state, loc.id, e.productId) : 0
                 return (
                   <li key={e.id} className="card group flex items-center gap-2 p-2 transition hover:border-electric-400">
-                    <button className="cursor-grab touch-none rounded p-1 text-slate-300 hover:bg-slate-100 hover:text-electric-600 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-30" disabled={movable <= 0 || e.state !== 'disponible'} onPointerDown={(ev) => movable > 0 && onStartDrag(e.productId, loc.id, movable, ev)} aria-label={t('Arrastrar al plano')} title={t('Arrastra esta mercancía a otra ubicación del plano')}>
+                    <button className="cursor-grab touch-none rounded p-1 text-slate-300 hover:bg-slate-100 hover:text-electric-600 active:cursor-grabbing disabled:cursor-not-allowed disabled:opacity-30" disabled={movable <= 0 || e.state !== 'disponible' || !can('transfers')} onPointerDown={(ev) => movable > 0 && can('transfers') && onStartDrag(e.productId, loc.id, movable, ev)} aria-label={t('Arrastrar al plano')} title={t('Arrastra esta mercancía a otra ubicación del plano')}>
                       <GripVertical className="h-5 w-5" />
                     </button>
                     <img src={p?.imageUrl} alt="" className="h-9 w-9 rounded-md" />
@@ -79,7 +80,7 @@ export function LocationPanel({ state, loc, onClose, onStartDrag, onRouteFrom, r
                       <div className="mt-0.5 flex flex-wrap gap-1"><Badge tone={STOCK_STATE[e.state].tone}>{t(STOCK_STATE[e.state].label)}</Badge>{reserved > 0 && <Badge tone="yellow">{t('{n} reservadas', { n: reserved })}</Badge>}</div>
                     </div>
                     <div className="text-right"><div className="text-base font-bold tabular-nums text-slate-900">{fmtInt(e.quantity)}</div><div className="text-[10px] text-slate-400">{t('disp.')} {fmtInt(Math.max(0, movable))}</div></div>
-                    <Button size="sm" variant="ghost" icon={<Move className="h-4 w-4" />} onClick={() => setMoveFor(e.productId)} aria-label={t('Mover mediante formulario')} title={t('Mover mediante formulario')} />
+                    {can('transfers') && <Button size="sm" variant="ghost" icon={<Move className="h-4 w-4" />} onClick={() => setMoveFor(e.productId)} aria-label={t('Mover mediante formulario')} title={t('Mover mediante formulario')} />}
                   </li>
                 )
               })}
@@ -88,7 +89,8 @@ export function LocationPanel({ state, loc, onClose, onStartDrag, onRouteFrom, r
         </section>
       </div>
       <footer className="grid grid-cols-2 gap-2 border-t border-slate-100 p-3">
-        {loc.blocked ? <Button variant="outline" size="sm" icon={<LockOpen className="h-4 w-4" />} onClick={() => dispatch((s) => ops.unblockLocation(s, loc.id), t('Ubicación desbloqueada'))}>{t('Desbloquear')}</Button>
+        {!can('locations.block') ? <Button variant="outline" size="sm" icon={<Lock className="h-4 w-4" />} disabled title={t('Solo el jefe de almacén puede bloquear ubicaciones')}>{loc.blocked ? t('Bloqueada') : t('Bloquear')}</Button>
+          : loc.blocked ? <Button variant="outline" size="sm" icon={<LockOpen className="h-4 w-4" />} onClick={() => dispatch((s) => ops.unblockLocation(s, loc.id), t('Ubicación desbloqueada'))}>{t('Desbloquear')}</Button>
           : <Button variant="outline" size="sm" icon={<Lock className="h-4 w-4" />} onClick={() => setBlockOpen(true)}>{t('Bloquear')}</Button>}
         <Button variant="outline" size="sm" icon={<Route className="h-4 w-4" />} onClick={onRouteFrom}>{routeFromId && routeFromId !== loc.id ? t('Ruta hasta aquí') : t('Ruta desde aquí')}</Button>
         <Button variant="ghost" size="sm" icon={<History className="h-4 w-4" />} onClick={() => navigate('historial', { ubicacion: loc.id })}>{t('Historial')}</Button>

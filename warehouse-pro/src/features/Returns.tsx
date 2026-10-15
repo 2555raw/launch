@@ -2,7 +2,7 @@ import { ClipboardCheck, Plus, RotateCcw, Send, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Badge, Button, Card, ConfirmDialog, DataTable, Field, Input, Modal, PageHeader, Select, Stat, Tabs, Textarea, type Column } from '@/components/ui'
 import { AUX_LOCATION_ID, RETURNS_LOCATION_ID, ops, stockEntriesAt, values, type Return, type ReturnClassification } from '@/domain'
-import { useState$, useWarehouse } from '@/store/useWarehouse'
+import { useRole, useState$, useWarehouse } from '@/store/useWarehouse'
 import { t } from '@/lib/i18n'
 import { fmtDateTime, fmtInt } from '@/lib/format'
 import { RETURN_CLASS, RETURN_STATUS, STOCK_STATE } from '@/lib/labels'
@@ -14,6 +14,7 @@ const PACKAGING = { intacto: 'Intacto', abierto: 'Abierto', danado: 'Dañado' }
 export function Returns({ params }: { params: Record<string, string> }) {
   const state = useState$()
   const dispatch = useWarehouse((s) => s.dispatch)
+  const { can } = useRole()
   const [tab, setTab] = useState<'pendientes' | 'cerradas' | 'todas'>('pendientes')
   const [creating, setCreating] = useState(!!params.nueva)
   const [inspecting, setInspecting] = useState<Return | null>(null)
@@ -38,15 +39,15 @@ export function Returns({ params }: { params: Record<string, string> }) {
     { key: 'dest', header: t('Destino final'), render: (r) => <span className="font-mono text-xs">{r.destinationLocationId ? state.locations[r.destinationLocationId]?.code : '—'}</span> },
     { key: 'status', header: t('Estado'), sort: (r) => r.status, render: (r) => <Badge tone={RETURN_STATUS[r.status].tone} dot>{t(RETURN_STATUS[r.status].label)}</Badge> },
     { key: 'actions', header: '', render: (r) => <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
-      {r.status === 'registrada' && <Button size="sm" icon={<ClipboardCheck className="h-4 w-4" />} onClick={() => { setInspecting(r); setCls('apta'); setNotes(''); setDest('') }}>{t('Inspeccionar')}</Button>}
-      {r.status === 'inspeccionada' && r.classification === 'devolucion_proveedor' && <Button size="sm" variant="outline" icon={<Send className="h-4 w-4" />} onClick={() => dispatch((s) => ops.closeReturnToSupplier(s, r.id), t('Mercancía enviada al proveedor'))}>{t('Enviar al proveedor')}</Button>}
+      {can('returns.inspect') && r.status === 'registrada' && <Button size="sm" icon={<ClipboardCheck className="h-4 w-4" />} onClick={() => { setInspecting(r); setCls('apta'); setNotes(''); setDest('') }}>{t('Inspeccionar')}</Button>}
+      {can('returns.inspect') && r.status === 'inspeccionada' && r.classification === 'devolucion_proveedor' && <Button size="sm" variant="outline" icon={<Send className="h-4 w-4" />} onClick={() => dispatch((s) => ops.closeReturnToSupplier(s, r.id), t('Mercancía enviada al proveedor'))}>{t('Enviar al proveedor')}</Button>}
     </div> },
   ]
   const auxStock = [...stockEntriesAt(state, AUX_LOCATION_ID), ...stockEntriesAt(state, RETURNS_LOCATION_ID)].filter((e) => e.state !== 'disponible')
   const candidates = inspecting ? compatibleLocations(state, inspecting.productId, inspecting.quantity) : []
   return (
     <div className="space-y-4">
-      <PageHeader title={t('Devoluciones')} description={t('Flujo de retornos: registro → inspección → clasificación. Solo la mercancía apta vuelve al stock disponible')} actions={<Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>{t('Registrar devolución')}</Button>} />
+      <PageHeader title={t('Devoluciones')} description={t('Flujo de retornos: registro → inspección → clasificación. Solo la mercancía apta vuelve al stock disponible')} actions={can('returns.register') && <Button icon={<Plus className="h-4 w-4" />} onClick={() => setCreating(true)}>{t('Registrar devolución')}</Button>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label={t('Pendientes de inspección')} value={fmtInt(returns.filter((r) => r.status === 'registrada').length)} tone="orange" /><Stat label={t('Pendientes de envío a proveedor')} value={fmtInt(returns.filter((r) => r.status === 'inspeccionada').length)} /><Stat label={t('Reincorporadas al stock')} value={fmtInt(returns.filter((r) => r.classification === 'apta').length)} tone="green" /><Stat label={t('Dañadas / obsoletas')} value={fmtInt(returns.filter((r) => ['danada', 'obsoleta'].includes(r.classification)).length)} tone="red" />
       </div>
@@ -56,7 +57,7 @@ export function Returns({ params }: { params: Record<string, string> }) {
       <Card title={t('Mercancía no disponible en zonas de devoluciones y auxiliar')} subtitle={t('Dañada, obsoleta o pendiente de devolver al proveedor. Puede retirarse con una operación documentada.')} bodyClass="p-0">
         {auxStock.length === 0 ? <p className="p-4 text-center text-xs text-slate-400">{t('No hay mercancía retenida')}</p> : (
           <table className="w-full text-sm"><thead><tr><th className="th">{t('Ubicación')}</th><th className="th">{t('Producto')}</th><th className="th">{t('Estado')}</th><th className="th text-right">{t('Unidades')}</th><th className="th"></th></tr></thead><tbody>
-            {auxStock.map((e) => <tr key={e.id}><td className="td font-mono text-xs">{state.locations[e.locationId]?.code}</td><td className="td"><span className="font-mono text-xs font-semibold">{state.products[e.productId]?.sku}</span> <span className="text-xs text-slate-500">{state.products[e.productId]?.name}</span></td><td className="td"><Badge tone={STOCK_STATE[e.state].tone}>{t(STOCK_STATE[e.state].label)}</Badge></td><td className="td text-right tabular-nums">{fmtInt(e.quantity)}</td><td className="td text-right">{e.state !== 'cuarentena' && <Button size="sm" variant="ghost" icon={<Trash2 className="h-4 w-4" />} onClick={() => setDispose({ locationId: e.locationId, productId: e.productId, qty: e.quantity, state: e.state as 'danado' })}>{t('Retirar')}</Button>}</td></tr>)}
+            {auxStock.map((e) => <tr key={e.id}><td className="td font-mono text-xs">{state.locations[e.locationId]?.code}</td><td className="td"><span className="font-mono text-xs font-semibold">{state.products[e.productId]?.sku}</span> <span className="text-xs text-slate-500">{state.products[e.productId]?.name}</span></td><td className="td"><Badge tone={STOCK_STATE[e.state].tone}>{t(STOCK_STATE[e.state].label)}</Badge></td><td className="td text-right tabular-nums">{fmtInt(e.quantity)}</td><td className="td text-right">{can('returns.inspect') && e.state !== 'cuarentena' && <Button size="sm" variant="ghost" icon={<Trash2 className="h-4 w-4" />} onClick={() => setDispose({ locationId: e.locationId, productId: e.productId, qty: e.quantity, state: e.state as 'danado' })}>{t('Retirar')}</Button>}</td></tr>)}
           </tbody></table>
         )}
       </Card>

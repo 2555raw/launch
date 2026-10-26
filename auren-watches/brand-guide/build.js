@@ -15,7 +15,7 @@ const { chromium } = require('playwright');
   if (process.argv.includes('--png')) {
     const out = process.argv[process.argv.indexOf('--png') + 1];
     fs.mkdirSync(out, { recursive: true });
-    const slides = await page.$$('.slide');
+    const slides = await page.$$('.page');
     for (let i = 0; i < slides.length; i++) await slides[i].screenshot({ path: path.join(out, `p${i + 1}.png`) });
   }
   await browser.close();

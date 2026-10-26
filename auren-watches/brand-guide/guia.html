@@ -2,299 +2,334 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<title>AUREN WATCHES – Identidad visual</title>
+<title>AUREN WATCHES – Manual de identidad visual</title>
 <style>
   @font-face { font-family: Montserrat; font-weight: 500; src: url(../public/fonts/montserrat-500.woff2) format('woff2'); }
   @font-face { font-family: Montserrat; font-weight: 600; src: url(../public/fonts/montserrat-600.woff2) format('woff2'); }
   @font-face { font-family: Inter; font-weight: 400; src: url(../public/fonts/inter-400.woff2) format('woff2'); }
   @font-face { font-family: Inter; font-weight: 500; src: url(../public/fonts/inter-500.woff2) format('woff2'); }
 
+  /* the four colours of the logo */
   :root {
-    --obsidian: #0B0B0C; --porcelain: #F7F7F5; --titanium: #85878A;
-    --gold: #C6A56B; --graphite: #202124; --line: #E4E3DF; --soft: #EFEEEA;
+    --black: #000000; --sand: #EFD5B2; --tan: #DFBE93; --pearl: #EDE8E4;
+    --ink: #000000; --ink-2: rgba(0,0,0,.62); --rule: rgba(0,0,0,.14);
   }
   @page { size: 1280px 720px; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { background: var(--porcelain); }
-  body { font-family: Inter, sans-serif; color: var(--obsidian); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: Inter, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  a { color: inherit; }
 
-  .slide { position: relative; width: 1280px; height: 720px; overflow: hidden; padding: 112px 120px 0; page-break-after: always; background: var(--porcelain); }
-  .slide.dark { background: var(--obsidian); color: var(--porcelain); }
-  .slide.soft { background: var(--soft); }
-  .slide.center { display: flex; flex-direction: column; justify-content: center; padding-top: 0; padding-bottom: 20px; }
+  .page { position: relative; width: 1280px; height: 720px; overflow: hidden; background: var(--pearl); page-break-after: always; }
+  .page.black { background: var(--black); color: var(--pearl); --ink-2: rgba(237,232,228,.68); --rule: rgba(237,232,228,.18); }
+  .page.sand { background: var(--sand); }
 
-  .eyebrow { font-family: Montserrat; font-weight: 600; font-size: 15px; letter-spacing: .32em; text-transform: uppercase; color: var(--gold); }
-  h1, h2, h3 { font-family: Montserrat; font-weight: 600; letter-spacing: .02em; }
-  h2 { font-size: 54px; line-height: 1.08; margin-top: 18px; text-transform: uppercase; letter-spacing: .04em; }
-  h3 { font-size: 22px; letter-spacing: .03em; }
-  p { font-size: 19px; line-height: 1.55; color: #3c3d40; }
-  .dark p { color: #c9c9c6; }
-  .muted { color: var(--titanium) !important; }
+  /* running header and footer, like a printed manual */
+  .run { position: absolute; left: 64px; right: 64px; top: 34px; display: flex; justify-content: space-between; font-family: Montserrat; font-weight: 600; font-size: 11px; letter-spacing: .34em; text-transform: uppercase; padding-bottom: 12px; border-bottom: 1px solid var(--rule); z-index: 2; }
+  .run span:nth-child(2) { color: var(--ink-2); }
+  .foot { position: absolute; left: 64px; right: 64px; bottom: 30px; display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .08em; color: var(--ink-2); z-index: 2; }
 
-  .stripe { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; display: flex; }
-  .stripe i { display: block; height: 100%; }
-
-  .card { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 30px 32px; }
-  .dark .card { background: var(--graphite); border-color: #2c2d31; }
-  .card h3 { margin-bottom: 10px; }
-  .card p { font-size: 17px; }
+  .num { font-family: Montserrat; font-weight: 500; font-size: 150px; line-height: .8; color: transparent; -webkit-text-stroke: 1.4px currentColor; letter-spacing: -.02em; }
+  .kicker { font-family: Montserrat; font-weight: 600; font-size: 12px; letter-spacing: .34em; text-transform: uppercase; }
+  h1, h2 { font-family: Montserrat; font-weight: 600; text-transform: uppercase; }
+  h2 { font-size: 46px; line-height: 1.06; letter-spacing: .06em; }
+  p { font-size: 17px; line-height: 1.62; color: var(--ink-2); }
+  .rule { height: 1px; background: var(--rule); }
 
   /* 1 · cover */
-  .cover { display: grid; grid-template-columns: 1fr 470px; gap: 60px; align-items: center; padding-top: 0; }
-  .cover h1 { font-size: 112px; line-height: .95; letter-spacing: .14em; margin: 26px 0 6px; }
-  .cover .sub { font-family: Montserrat; font-weight: 500; font-size: 34px; letter-spacing: .62em; color: var(--gold); }
-  .cover .lead { margin-top: 40px; font-size: 24px; color: var(--porcelain); }
-  .cover .lead b { display: block; font-family: Montserrat; font-weight: 600; letter-spacing: .18em; font-size: 20px; margin-top: 8px; color: var(--gold); }
-  .cover .who { margin-top: 34px; font-size: 16px; color: var(--titanium); }
-  .tile { width: 470px; height: 470px; border-radius: 60px; overflow: hidden; position: relative; background: var(--graphite); border: 1px solid #2c2d31; }
-  .tile img.photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 78% 60%; }
-  .tile .mark { position: absolute; left: 34px; top: 34px; width: 150px; }
+  .cover { display: grid; grid-template-columns: 1fr 1fr; height: 100%; }
+  .cover .photo { background: #0B0B0C url(../public/img/hero.webp) 79% 58% / 245% no-repeat; position: relative; }
+  .cover .photo::after { content: 'TIME, REDEFINED.'; position: absolute; left: 56px; bottom: 50px; color: var(--sand); font-family: Montserrat; font-weight: 600; letter-spacing: .34em; font-size: 14px; }
+  .cover .side { background: var(--sand); padding: 64px 68px 54px; display: flex; flex-direction: column; }
+  .cover .side img { width: 150px; }
+  .cover h1 { margin-top: auto; font-size: 104px; line-height: .92; letter-spacing: .12em; }
+  .cover .w { font-family: Montserrat; font-weight: 500; font-size: 26px; letter-spacing: .82em; margin-top: 14px; }
+  .cover .t { margin-top: 36px; padding-top: 22px; border-top: 1px solid rgba(0,0,0,.25); display: flex; justify-content: space-between; align-items: baseline; }
+  .cover .t b { font-family: Montserrat; font-weight: 600; font-size: 13px; letter-spacing: .3em; text-transform: uppercase; }
+  .cover .t span { font-size: 12.5px; color: rgba(0,0,0,.7); }
 
-  /* 2 · how it works */
-  .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 60px; }
-  .head p { max-width: 400px; margin-top: 4px; }
-  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 30px; }
-  .steps .card { padding: 24px 26px; }
-  .step { display: flex; gap: 18px; }
-  .num { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid var(--gold); color: var(--gold); font-family: Montserrat; font-weight: 600; display: grid; place-items: center; font-size: 19px; }
-  .lines { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 14px; }
-  .line { border-radius: 16px; padding: 20px 22px; min-height: 120px; }
-  .line small { font-family: Montserrat; font-weight: 600; font-size: 12px; letter-spacing: .26em; }
-  .line h3 { margin: 8px 0 4px; font-size: 21px; text-transform: uppercase; letter-spacing: .1em; }
-  .line p { font-size: 15px; line-height: 1.4; }
+  /* 2 · concept */
+  .concept { padding: 104px 64px 0; display: grid; grid-template-columns: 380px 1fr; gap: 56px; }
+  .timeline { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 30px; }
+  .timeline::before { content: ''; position: absolute; left: 0; right: 0; top: 7px; height: 1px; background: var(--rule); }
+  .timeline div::before { content: ''; position: absolute; top: 0; width: 15px; height: 15px; border-radius: 50%; background: var(--sand); }
+  .timeline div { position: relative; padding-top: 32px; }
+  .timeline small { font-family: Montserrat; font-weight: 600; font-size: 11px; letter-spacing: .3em; color: var(--sand); }
+  .timeline h3 { font-family: Montserrat; font-weight: 600; font-size: 18px; letter-spacing: .06em; text-transform: uppercase; margin: 8px 0 6px; }
+  .timeline p { font-size: 14.5px; line-height: 1.5; }
+  .models { position: absolute; left: 64px; right: 64px; bottom: 68px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+  .models div { height: 236px; background-size: cover; background-position: center; position: relative; }
+  .models div span { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 16px 14px; background: linear-gradient(transparent, rgba(0,0,0,.78)); font-size: 12.5px; color: rgba(255,255,255,.75); }
+  .models div b { display: block; font-family: Montserrat; font-weight: 600; letter-spacing: .14em; font-size: 14px; color: #fff; margin-bottom: 2px; }
 
   /* 3 · name */
-  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 38px; }
-  .pair .card h3 { color: var(--obsidian); font-size: 26px; }
-  .pair .card .tag { font-family: Montserrat; font-weight: 600; color: var(--gold); letter-spacing: .24em; font-size: 12px; text-transform: uppercase; margin-bottom: 12px; display: block; }
-  .slogan { margin-top: 34px; display: flex; align-items: center; gap: 22px; }
-  .slogan b { font-family: Montserrat; font-weight: 600; letter-spacing: .3em; font-size: 22px; }
-  .slogan i { flex: 1; height: 1px; background: var(--line); }
+  .name { display: grid; grid-template-columns: 1fr 520px; height: 100%; }
+  .name .l { padding: 110px 64px 0; }
+  .entry { margin-top: 34px; }
+  .entry .word { font-family: Montserrat; font-weight: 600; font-size: 64px; letter-spacing: .1em; }
+  .entry .ph { font-size: 17px; color: var(--ink-2); margin-left: 14px; letter-spacing: .02em; }
+  .entry ol { list-style: none; margin-top: 22px; counter-reset: d; }
+  .entry li { counter-increment: d; display: grid; grid-template-columns: 34px 1fr; padding: 16px 0; border-top: 1px solid var(--rule); }
+  .entry li::before { content: counter(d) '.'; font-family: Montserrat; font-weight: 600; font-size: 15px; }
+  .entry li b { font-family: Montserrat; font-weight: 600; font-size: 16px; letter-spacing: .04em; }
+  .entry li p { font-size: 15.5px; margin-top: 4px; }
+  .name .r { background: var(--black); color: var(--pearl); padding: 0 56px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+  .name .r .q { font-family: Montserrat; font-weight: 500; font-size: 27px; line-height: 1.42; letter-spacing: .01em; }
+  .name .r .q::before { content: '“'; display: block; font-size: 90px; line-height: .6; color: var(--sand); margin-bottom: 16px; }
+  .name .r small { margin-top: 30px; font-family: Montserrat; font-weight: 600; letter-spacing: .34em; font-size: 12px; color: var(--sand); }
 
   /* 4 · logo */
-  .logo-grid { display: grid; grid-template-columns: 520px 1fr; gap: 64px; align-items: center; padding-top: 0; height: 100%; }
-  .logo-tile { height: 520px; border-radius: 26px; background: #fff; border: 1px solid var(--line); display: grid; place-items: center; }
-  .logo-tile img { width: 300px; }
-  .hidden { margin-top: 28px; background: var(--obsidian); border-radius: 18px; padding: 28px 32px; }
-  .hidden h3 { color: var(--gold); margin-bottom: 8px; }
-  .hidden p { color: #d6d6d3; font-size: 17px; }
-  .versions { display: flex; gap: 12px; margin-top: 22px; }
-  .versions span { flex: 1; height: 78px; border-radius: 12px; display: grid; place-items: center; border: 1px solid var(--line); }
-  .versions img { height: 46px; }
+  .logo { display: grid; grid-template-columns: 600px 1fr; height: 100%; }
+  .logo .stage { background: var(--pearl); display: grid; place-items: center; position: relative; border-right: 1px solid var(--rule); }
+  .logo .stage img { width: 330px; }
+  .logo .guide { position: absolute; width: 410px; height: 404px; border: 1px dashed rgba(0,0,0,.28); }
+  .logo .guide::after { content: 'Área de respeto'; position: absolute; top: -22px; left: 0; font-size: 11px; letter-spacing: .12em; color: var(--ink-2); text-transform: uppercase; }
+  .tag { position: absolute; font-size: 12px; letter-spacing: .04em; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+  .tag i { display: block; height: 1px; width: 46px; background: rgba(0,0,0,.4); }
+  .logo .info { padding: 104px 56px 0; }
+  .logo .info p { margin-top: 18px; }
+  .detail { margin-top: 24px; padding: 18px 0 18px 20px; border-left: 3px solid var(--tan); }
+  .detail b { font-family: Montserrat; font-weight: 600; font-size: 13px; letter-spacing: .26em; text-transform: uppercase; }
+  .detail p { margin-top: 6px; font-size: 15.5px; }
+  .vers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 26px; }
+  .vers div { height: 104px; display: grid; place-items: center; }
+  .vers img { height: 76px; }
+  .vers small { display: block; font-size: 11.5px; color: var(--ink-2); margin-top: 7px; }
+  .min { margin-top: 16px; font-size: 12.5px; color: var(--ink-2); }
 
-  /* 5 · palette */
-  .palette { display: grid; grid-template-columns: repeat(5, 1fr); margin-top: 34px; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); }
-  .sw { height: 196px; padding: 24px 22px; display: flex; flex-direction: column; justify-content: space-between; }
-  .sw h3 { font-size: 20px; line-height: 1.2; }
-  .sw p { font-size: 14.5px; line-height: 1.55; color: inherit; opacity: .9; }
-  .ph { height: 196px; background-size: cover; background-position: center; }
+  /* 5 · palette: bands sized by how much each colour is used */
+  .bands { display: flex; height: 100%; }
+  .band { position: relative; padding: 0 30px 70px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .band h3 { font-family: Montserrat; font-weight: 600; font-size: 22px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; }
+  .band dl { display: grid; grid-template-columns: 52px 1fr; row-gap: 5px; font-size: 13.5px; }
+  .band dt { font-family: Montserrat; font-weight: 600; letter-spacing: .14em; font-size: 11px; opacity: .7; padding-top: 2px; }
+  .band .use { position: absolute; top: 230px; left: 30px; font-family: Montserrat; font-weight: 500; font-size: 64px; letter-spacing: -.01em; color: transparent; -webkit-text-stroke: 1.2px currentColor; opacity: .6; }
+  .title { position: absolute; left: 30px; top: 56px; color: var(--pearl); z-index: 2; }
 
   /* 6 · type */
-  .type { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 30px; }
-  .type .card { padding: 34px 36px; }
-  .type .aa { font-size: 132px; line-height: 1; letter-spacing: .02em; margin-bottom: 16px; }
-  .type .aa.m { font-family: Montserrat; font-weight: 600; }
-  .type .aa.i { font-family: Inter; font-weight: 500; }
-  .type h3 { font-size: 30px; margin-bottom: 4px; }
-  .type .w { font-family: Montserrat; font-size: 13px; letter-spacing: .24em; color: var(--gold); text-transform: uppercase; font-weight: 600; margin-bottom: 14px; }
-  .type p { font-size: 16.5px; }
+  .type { display: grid; grid-template-columns: 560px 1fr; height: 100%; }
+  .type .big { background: var(--black); color: var(--pearl); padding: 104px 56px 0; position: relative; }
+  .type .aa { font-family: Montserrat; font-weight: 600; font-size: 230px; line-height: .9; color: var(--sand); letter-spacing: -.01em; margin-top: 20px; }
+  .type .abc { font-family: Montserrat; font-weight: 500; font-size: 19px; letter-spacing: .14em; line-height: 1.7; margin-top: 20px; color: rgba(237,232,228,.8); word-break: break-all; }
+  .type .scale { padding: 104px 56px 0; }
+  .lvl { display: grid; grid-template-columns: 150px 1fr; align-items: baseline; padding: 18px 0; border-top: 1px solid var(--rule); }
+  .lvl small { font-size: 11.5px; letter-spacing: .06em; color: var(--ink-2); line-height: 1.45; }
+  .lvl small b { display: block; color: var(--ink); font-family: Montserrat; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; font-size: 11px; }
+  .btn { display: inline-block; background: var(--black); color: var(--sand); font-family: Inter; font-weight: 500; font-size: 15px; padding: 13px 26px; border-radius: 999px; }
+  .btn.ghost { background: transparent; color: var(--black); border: 1px solid var(--black); margin-left: 8px; }
 
-  /* 7 · applications */
-  .apps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 34px; }
-  .app .mock { height: 190px; border-radius: 12px; background: var(--soft); margin-bottom: 18px; position: relative; overflow: hidden; display: grid; place-items: center; }
-  .app h3 { font-size: 20px; margin-bottom: 6px; }
-  .app p { font-size: 15px; line-height: 1.45; }
-  .app.card { padding: 20px; }
+  /* 7 · applications mosaic */
+  .apps { position: absolute; left: 64px; right: 64px; top: 158px; bottom: 66px; display: grid; grid-template-columns: 1.25fr 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 14px; }
+  .app { position: relative; overflow: hidden; display: grid; place-items: center; }
+  .app figcaption { position: absolute; left: 16px; bottom: 12px; font-family: Montserrat; font-weight: 600; font-size: 11px; letter-spacing: .26em; text-transform: uppercase; }
+  .app.box { grid-row: span 2; background: var(--tan); }
+  .pack { position: relative; width: 300px; height: 300px; }
+  .pack .lid { position: absolute; left: 20px; top: 30px; width: 250px; height: 190px; background: var(--black); box-shadow: 0 30px 40px -24px rgba(0,0,0,.55); display: grid; place-items: center; }
+  .pack .lid img { width: 64px; }
+  .pack .lid::after { content: 'AUREN'; position: absolute; bottom: 26px; font-family: Montserrat; font-weight: 600; letter-spacing: .5em; color: var(--sand); font-size: 12px; padding-left: .5em; }
+  .pack .card { position: absolute; right: -34px; bottom: -14px; width: 170px; height: 104px; background: var(--pearl); transform: rotate(-7deg); box-shadow: 0 16px 24px -14px rgba(0,0,0,.5); padding: 14px 16px; }
+  .pack .card img { width: 26px; }
+  .pack .card b { display: block; font-family: Montserrat; font-weight: 600; font-size: 8px; letter-spacing: .3em; margin-top: 8px; }
+  .pack .card i { display: block; height: 1px; background: rgba(0,0,0,.25); margin-top: 9px; }
+  .app.web { background: var(--pearl); border: 1px solid var(--rule); grid-column: span 2; }
+  .browser { width: 86%; height: 72%; background: #fff; box-shadow: 0 18px 30px -22px rgba(0,0,0,.4); display: grid; grid-template-rows: 30px 1fr; }
+  .browser .bar { display: flex; align-items: center; gap: 14px; padding: 0 14px; border-bottom: 1px solid #eee; }
+  .browser .bar img { height: 20px; }
+  .browser .bar b { font-family: Montserrat; font-weight: 600; font-size: 10px; letter-spacing: .3em; }
+  .browser .bar span { margin-left: auto; display: flex; gap: 12px; font-size: 9px; color: #777; }
+  .browser .hero { background: #0B0B0C url(../public/img/hero.webp) 70% 58% / cover; padding: 22px 26px; color: #fff; }
+  .browser .hero b { display: block; font-family: Montserrat; font-weight: 600; font-size: 20px; letter-spacing: .04em; }
+  .browser .hero small { display: block; font-size: 10px; opacity: .75; margin-top: 4px; }
+  .browser .hero em { display: inline-block; margin-top: 12px; font-style: normal; font-size: 9px; background: var(--sand); color: #000; padding: 6px 12px; border-radius: 99px; }
+  .app.social { background: var(--black); color: var(--pearl); }
+  .ig { display: grid; grid-template-columns: 70px 1fr; gap: 14px; align-items: center; width: 82%; }
+  .ig .av { width: 70px; height: 70px; border-radius: 50%; background: var(--sand) url(../public/brand/auren-symbol-black.png) center / 46% no-repeat; outline: 1.5px solid var(--tan); outline-offset: 3px; }
+  .ig b { font-family: Montserrat; font-weight: 600; font-size: 13px; letter-spacing: .06em; }
+  .ig small { display: block; font-size: 11px; opacity: .7; margin-top: 3px; }
+  .ig .grid { grid-column: span 2; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-top: 4px; }
+  .ig .grid i { aspect-ratio: 1; background-size: cover; background-position: center; }
+  .app.bag { background: var(--sand); }
+  .shopper { width: 120px; height: 146px; background: var(--black); position: relative; display: grid; place-items: center; box-shadow: 0 20px 26px -18px rgba(0,0,0,.6); margin-top: 18px; }
+  .shopper::before { content: ''; position: absolute; top: -34px; width: 52px; height: 52px; border: 4px solid var(--black); border-bottom: 0; border-radius: 30px 30px 0 0; }
+  .shopper img { width: 40px; }
 
-  .m-web { width: 88%; height: 74%; background: #fff; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); overflow: hidden; }
-  .m-web .bar { height: 26px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; border-bottom: 1px solid var(--line); }
-  .m-web .bar img { height: 13px; }
-  .m-web .bar span { display: flex; gap: 5px; }
-  .m-web .bar span i { width: 16px; height: 3px; background: #d5d4d0; border-radius: 2px; }
-  .m-web .hero { height: calc(100% - 26px); background: var(--obsidian) url(img/hero.webp) 80% 60% / cover; padding: 14px 12px; }
-  .m-web .hero b { display: block; color: #fff; font-family: Montserrat; font-weight: 600; font-size: 12px; letter-spacing: .04em; }
-  .m-web .hero em { display: inline-block; margin-top: 10px; background: var(--gold); width: 54px; height: 13px; border-radius: 7px; }
-
-  .m-shop { width: 128px; background: #fff; border-radius: 10px; padding: 8px; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-  .m-shop .img { height: 108px; border-radius: 6px; background: #ECEBE7 url(img/chrono-front.webp) center 52% / 150%; }
-  .m-shop b { display: block; font-family: Montserrat; font-weight: 600; font-size: 10px; letter-spacing: .12em; margin-top: 7px; }
-  .m-shop small { font-size: 10px; color: var(--titanium); }
-  .m-shop .row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
-  .m-shop .row i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; margin-left: 3px; border: 1px solid #ccc; }
-
-  .m-avatar { width: 128px; height: 128px; border-radius: 50%; background: var(--obsidian); display: grid; place-items: center; outline: 2px solid var(--gold); outline-offset: 5px; }
-  .m-avatar img { width: 76px; }
-
-  .m-box { width: 150px; height: 112px; background: var(--obsidian); border-radius: 6px; position: relative; box-shadow: 0 14px 22px -12px rgba(0,0,0,.45); display: grid; place-items: center; }
-  .m-box img { width: 74px; }
-  .m-box::after { content: ''; position: absolute; left: 0; right: 0; bottom: 14px; height: 2px; background: var(--gold); }
-  .m-card { position: absolute; right: 18px; bottom: 16px; width: 74px; height: 46px; background: var(--porcelain); border-radius: 4px; transform: rotate(-8deg); box-shadow: 0 6px 10px -6px rgba(0,0,0,.4); display: grid; place-items: center; }
-  .m-card img { width: 46px; }
-
-  /* 8 · close */
-  .close { display: grid; grid-template-columns: 1fr 420px; gap: 60px; align-items: center; padding-top: 0; height: 100%; }
-  .close h2 { font-size: 76px; letter-spacing: .06em; }
-  .files { margin-top: 30px; background: var(--porcelain); border-radius: 14px; padding: 20px 26px; color: var(--obsidian); font-size: 16px; line-height: 1.75; }
-  .files b { font-family: Montserrat; font-weight: 600; letter-spacing: .06em; }
-  .disc { width: 420px; height: 420px; border-radius: 50%; background: var(--graphite); display: grid; place-items: center; border: 1px solid #2c2d31; }
-  .disc img { width: 210px; }
+  /* 8 · canva */
+  .end { display: grid; grid-template-columns: 1fr 460px; height: 100%; }
+  .end .l { padding: 0 64px; display: flex; flex-direction: column; justify-content: center; }
+  .end h2 { font-size: 66px; letter-spacing: .04em; margin-top: 18px; }
+  .end .link { margin-top: 34px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(239,213,178,.5); padding: 20px 26px; text-decoration: none; }
+  .end .link span { font-family: Montserrat; font-weight: 600; font-size: 22px; letter-spacing: .04em; color: var(--sand); }
+  .end .link i { font-style: normal; font-size: 12px; letter-spacing: .26em; color: rgba(237,232,228,.6); text-transform: uppercase; }
+  .end .r { background: var(--pearl); display: grid; place-items: center; }
+  .end .r img { width: 300px; }
 </style>
 </head>
 <body>
 
 <!-- 1 · Portada -->
-<section class="slide dark">
-  <div class="cover" style="height:100%">
-    <div>
-      <div class="eyebrow">Guía de identidad visual</div>
+<section class="page">
+  <div class="cover">
+    <div class="photo"></div>
+    <div class="side">
+      <img src="../public/brand/auren-logo.png" alt="Logotipo de AUREN WATCHES">
       <h1>AUREN</h1>
-      <div class="sub">WATCHES</div>
-      <p class="lead">Relojes de alta gama. Lujo discreto.<b>TIME, REDEFINED.</b></p>
-      <p class="who">Jordi Cayo Almenar · Comercio Electrónico · 2º ACO · Práctica 2.1</p>
-    </div>
-    <div class="tile">
-      <img class="photo" src="img/hero.webp" alt="">
-      <img class="mark" src="../public/brand/auren-logo-stacked-gold.svg" alt="AUREN WATCHES">
+      <div class="w">WATCHES</div>
+      <div class="t"><b>Manual de identidad visual</b><span>Relojes de alta gama</span></div>
+      <p style="margin-top:16px;font-size:13px;color:rgba(0,0,0,.72)">Jordi Cayo Almenar · Comercio Electrónico · 2º ACO · Práctica 2.1</p>
     </div>
   </div>
-  <div class="stripe"><i style="flex:5;background:#202124"></i><i style="flex:2;background:#85878A"></i><i style="flex:2;background:#C6A56B"></i></div>
 </section>
 
 <!-- 2 · Cómo funciona -->
-<section class="slide" style="padding-top:72px">
-  <div class="head">
+<section class="page black">
+  <div class="run"><span>Auren Watches</span><span>Cómo funciona</span><span>02 / 08</span></div>
+  <div class="concept">
     <div>
-      <div class="eyebrow">Cómo funciona</div>
-      <h2>Lujo discreto,<br>en tres pasos.</h2>
+      <h2>Del escaparate<br>a tu muñeca.</h2>
+      <p style="margin-top:18px">Relojes de alta gama vendidos directamente en la tienda online de la marca: sin intermediarios y sin ruido.</p>
     </div>
-    <p>Relojes diseñados para durar y vendidos directamente en la tienda online de la marca, sin intermediarios.</p>
+    <div class="timeline">
+      <div><small>Paso 1</small><h3>Eliges</h3><p>Modelo, color de esfera y correa, en la tienda online.</p></div>
+      <div><small>Paso 2</small><h3>Lo recibes</h3><p>En su estuche, con la tarjeta de garantía de la marca.</p></div>
+      <div><small>Paso 3</small><h3>Lo llevas</h3><p>Garantía y posventa según las condiciones de la tienda.</p></div>
+    </div>
   </div>
-  <div class="steps">
-    <div class="card step"><span class="num">1</span><div><h3>Eliges tu reloj</h3><p>En la tienda online: modelo, color de esfera y correa.</p></div></div>
-    <div class="card step"><span class="num">2</span><div><h3>Te llega a casa</h3><p>En su estuche, con la tarjeta de garantía de la marca.</p></div></div>
-    <div class="card step"><span class="num">3</span><div><h3>Lo llevas siempre</h3><p>Garantía y servicio posventa según las condiciones de la tienda.</p></div></div>
+  <div class="models">
+    <div style="background-image:url(../public/img/guide-porcelain.webp)"><span><b>AUREN ONE</b>Tres agujas. Lo esencial.</span></div>
+    <div style="background-image:url(../public/img/guide-chrono.webp);background-color:#ECEBE7"><span><b>AUREN CHRONO</b>Cronógrafo de dos contadores.</span></div>
+    <div style="background-image:url(../public/img/guide-detail.webp)"><span><b>AUREN CLASSIC</b>De vestir, segundero a las seis.</span></div>
+    <div style="background-image:url(../public/img/story.webp)"><span><b>AUREN ECLIPSE</b>Todo negro, detalles dorados.</span></div>
   </div>
-  <div class="eyebrow" style="margin-top:30px">Líneas de producto</div>
-  <div class="lines">
-    <div class="line" style="background:#0B0B0C;color:#F7F7F5"><small style="color:#C6A56B">Modelo 01</small><h3>Auren One</h3><p style="color:#c9c9c6">Tres agujas. Lo esencial.</p></div>
-    <div class="line" style="background:#202124;color:#F7F7F5"><small style="color:#C6A56B">Modelo 02</small><h3>Auren Chrono</h3><p style="color:#c9c9c6">Cronógrafo de dos contadores.</p></div>
-    <div class="line" style="background:#C6A56B;color:#0B0B0C"><small>Modelo 03</small><h3>Auren Classic</h3><p style="color:#2a2418">De vestir, segundero a las seis.</p></div>
-    <div class="line" style="background:#fff;border:1px solid #E4E3DF"><small style="color:#C6A56B">Modelo 04</small><h3>Auren Eclipse</h3><p>Todo negro, detalles dorados.</p></div>
-  </div>
+  <div class="foot"><span>Líneas de producto</span><span>Jordi Cayo Almenar</span></div>
 </section>
 
 <!-- 3 · Nombre -->
-<section class="slide soft center">
-  <div class="eyebrow">01 · Nombre de la marca</div>
-  <h2>AUREN WATCHES</h2>
-  <p style="margin-top:22px;max-width:900px">Marca de relojes de alta gama con tienda online propia. Un nombre corto, que se pronuncia igual en cualquier idioma y que se apoya en dos ideas:</p>
-  <div class="pair">
-    <div class="card"><span class="tag">Aurum</span><h3>El oro</h3><p>Del latín <i>aurum</i>: el dorado champán de la marca y el valor de las cosas hechas para durar.</p></div>
-    <div class="card"><span class="tag">Aura</span><h3>La presencia</h3><p>Un reloj que se nota sin llamar la atención. El verdadero lujo está en los detalles y en la precisión.</p></div>
+<section class="page">
+  <div class="run" style="right:584px"><span>Auren Watches</span><span>01 · Nombre de la marca</span><span>03 / 08</span></div>
+  <div class="name">
+    <div class="l">
+      <div class="num">01</div>
+      <div class="entry">
+        <span class="word">AUREN</span><span class="ph">/ áu·ren /  nombre propio</span>
+        <ol>
+          <li><div><b>De aurum, el oro.</b><p>El color arena de la marca y el valor de las cosas que se hacen para durar.</p></div></li>
+          <li><div><b>De aura, la presencia.</b><p>Un reloj que se nota sin llamar la atención: lujo discreto.</p></div></li>
+          <li><div><b>Corto y universal.</b><p>Cinco letras que se leen y se pronuncian igual en cualquier idioma.</p></div></li>
+        </ol>
+      </div>
+    </div>
+    <div class="r">
+      <div class="q">Creemos que el verdadero lujo no necesita llamar la atención. Se encuentra en los detalles, en la precisión y en las cosas diseñadas para durar.</div>
+      <small>TIME, REDEFINED.</small>
+    </div>
   </div>
-  <div class="slogan"><span class="eyebrow">Eslogan</span><i></i><b>TIME, REDEFINED.</b></div>
+  <div class="foot"><span>Concepto y eslogan</span><span></span></div>
 </section>
 
 <!-- 4 · Logotipo -->
-<section class="slide" style="padding-top:0">
-  <div class="logo-grid">
-    <div class="logo-tile"><img src="../public/brand/auren-logo-stacked-black.svg" alt="AUREN WATCHES"></div>
-    <div>
-      <div class="eyebrow">02 · Logotipo</div>
-      <h2>Dos agujas,<br>una A.</h2>
-      <p style="margin-top:20px">Un símbolo geométrico y simétrico: el aro de la esfera, el índice de las doce y dos agujas. Debajo, AUREN en mayúsculas y WATCHES más pequeño y espaciado.</p>
-      <div class="hidden">
-        <h3>El detalle escondido</h3>
-        <p>Las dos agujas se unen en el eje y dibujan la A de AUREN. El índice de las doce marca el punto de partida: el tiempo, redefinido.</p>
+<section class="page">
+  <div class="run"><span>Auren Watches</span><span>02 · Logotipo</span><span>04 / 08</span></div>
+  <div class="logo">
+    <div class="stage">
+      <div class="guide"></div>
+      <img src="../public/brand/auren-logo.png" alt="Logotipo de AUREN WATCHES">
+      <div class="tag" style="left:28px;top:262px">Nota arena <i></i></div>
+      <div class="tag" style="right:22px;top:420px"><i></i> Silueta negra</div>
+      <div class="tag" style="right:30px;bottom:150px"><i></i> Esquina doblada</div>
+    </div>
+    <div class="info">
+      <h2>Un reloj<br>en una nota.</h2>
+      <p>La silueta de un reloj de pulsera en negro, sobre una nota de color arena con la esquina doblada. Un símbolo sencillo y reconocible a cualquier tamaño.</p>
+      <div class="detail"><b>El detalle</b><p>La esquina doblada convierte el reloj en un recordatorio: el tiempo es algo personal, que se apunta y se guarda.</p></div>
+      <div class="vers">
+        <div style="background:#fff;border:1px solid var(--rule)"><img src="../public/brand/auren-logo.png" alt=""></div>
+        <div style="background:var(--sand)"><img src="../public/brand/auren-symbol-black.png" alt=""></div>
+        <div style="background:var(--black)"><img src="../public/brand/auren-symbol-sand.png" alt=""></div>
       </div>
-      <div class="versions">
-        <span style="background:#F7F7F5"><img src="../public/brand/auren-symbol-black.svg" alt="Negro"></span>
-        <span style="background:#0B0B0C;border-color:#0B0B0C"><img src="../public/brand/auren-symbol-white.svg" alt="Blanco"></span>
-        <span style="background:#202124;border-color:#202124"><img src="../public/brand/auren-symbol-gold.svg" alt="Dorado"></span>
-      </div>
+      <div class="vers" style="margin-top:0"><small>Logotipo completo</small><small>Símbolo en negro</small><small>Símbolo en arena</small></div>
+      <p class="min">Tamaño mínimo: 24 px en pantalla y 12 mm impreso.</p>
     </div>
   </div>
 </section>
 
 <!-- 5 · Paleta -->
-<section class="slide soft center">
-  <div class="eyebrow">03 · Paleta de colores</div>
-  <h2>Los colores de la marca</h2>
-  <div class="palette">
-    <div class="sw" style="background:#0B0B0C;color:#F7F7F5"><h3>Negro<br>obsidiana</h3><p>#0B0B0C<br>RGB 11, 11, 12</p></div>
-    <div class="sw" style="background:#F7F7F5;color:#0B0B0C"><h3>Blanco<br>porcelana</h3><p>#F7F7F5 · fondos<br>RGB 247, 247, 245</p></div>
-    <div class="sw" style="background:#85878A;color:#fff"><h3>Gris<br>titanio</h3><p>#85878A · textos<br>RGB 133, 135, 138</p></div>
-    <div class="sw" style="background:#C6A56B;color:#0B0B0C"><h3>Dorado<br>champán</h3><p>#C6A56B · acentos<br>RGB 198, 165, 107</p></div>
-    <div class="sw" style="background:#202124;color:#F7F7F5"><h3>Gris<br>grafito</h3><p>#202124<br>RGB 32, 33, 36</p></div>
-    <div class="ph" style="background-image:url(img/story.webp);background-position:40% 40%"></div>
-    <div class="ph" style="background-image:url(img/chrono-front.webp);background-size:190%;background-position:50% 48%"></div>
-    <div class="ph" style="background-image:url(img/chrono-detail.webp);background-position:85% 40%"></div>
-    <div class="ph" style="background-image:url(img/editorial.webp);background-position:45% 45%"></div>
-    <div class="ph" style="background-image:url(img/hero.webp);background-size:300%;background-position:78% 55%"></div>
+<section class="page">
+  <div class="title"><div class="kicker" style="color:var(--sand);margin-bottom:26px">03 · Paleta de colores · 05 / 08</div><div class="num" style="font-size:110px">03</div><h2 style="margin-top:22px;font-size:38px">Los colores<br>del logo</h2></div>
+  <div class="bands">
+    <div class="band" style="flex:40;background:#000;color:#EDE8E4"><div class="use" style="top:360px">40%</div><h3>Negro</h3><dl><dt>HEX</dt><dd>#000000</dd><dt>RGB</dt><dd>0, 0, 0</dd><dt>CMYK</dt><dd>0, 0, 0, 100</dd></dl></div>
+    <div class="band" style="flex:28;background:#EFD5B2"><div class="use">28%</div><h3>Arena</h3><dl><dt>HEX</dt><dd>#EFD5B2</dd><dt>RGB</dt><dd>239, 213, 178</dd><dt>CMYK</dt><dd>0, 11, 26, 6</dd></dl></div>
+    <div class="band" style="flex:20;background:#EDE8E4"><div class="use">20%</div><h3>Perla</h3><dl><dt>HEX</dt><dd>#EDE8E4</dd><dt>RGB</dt><dd>237, 232, 228</dd><dt>CMYK</dt><dd>0, 2, 4, 7</dd></dl></div>
+    <div class="band" style="flex:12;background:#DFBE93"><div class="use" style="font-size:48px">12%</div><h3 style="font-size:18px">Arena<br>tostada</h3><dl style="grid-template-columns:44px 1fr"><dt>HEX</dt><dd>#DFBE93</dd><dt>RGB</dt><dd>223, 190, 147</dd><dt>CMYK</dt><dd>0, 15, 34, 13</dd></dl></div>
   </div>
-  <p class="muted" style="margin-top:18px;font-size:15px">El negro y el blanco dominan. El dorado se reserva para detalles, botones destacados e iconos.</p>
 </section>
 
 <!-- 6 · Tipografía -->
-<section class="slide center">
-  <div class="eyebrow">04 · Tipografía</div>
-  <h2>Dos familias, nada más</h2>
+<section class="page">
+  <div class="run" style="border-color:transparent"><span style="color:var(--pearl)">Auren Watches</span><span>04 · Tipografía</span><span>06 / 08</span></div>
   <div class="type">
-    <div class="card" style="background:#0B0B0C;border-color:#0B0B0C;color:#F7F7F5">
-      <div class="aa m" style="color:#C6A56B">Aa</div>
-      <h3>Montserrat</h3>
-      <div class="w">Medium · SemiBold</div>
-      <p style="color:#c9c9c6">Geométrica y elegante. Para el logotipo y los títulos, en mayúsculas y con espaciado amplio entre letras.</p>
+    <div class="big">
+      <div class="kicker" style="color:var(--sand)">Montserrat · Medium y SemiBold</div>
+      <div class="aa">Aa</div>
+      <div class="abc">ABCDEFGHIJKLMNÑOPQRSTUVWXYZ<br>0123456789 · ¿? ¡! € %</div>
+      <p style="margin-top:22px;font-size:15px">Logotipo y títulos. Siempre en mayúsculas y con espaciado amplio entre letras.</p>
     </div>
-    <div class="card">
-      <div class="aa i">Aa</div>
-      <h3 style="font-family:Inter;font-weight:500">Inter</h3>
-      <div class="w">Regular · Medium</div>
-      <p>Clara y moderna. Para los textos, la navegación, los precios y los botones de la tienda.</p>
+    <div class="scale">
+      <div class="kicker">Jerarquía</div>
+      <div style="margin-top:22px">
+        <div class="lvl"><small><b>Título</b>Montserrat SemiBold</small><span style="font-family:Montserrat;font-weight:600;font-size:40px;letter-spacing:.04em">EL TIEMPO ES TUYO.</span></div>
+        <div class="lvl"><small><b>Subtítulo</b>Montserrat Medium</small><span style="font-family:Montserrat;font-weight:500;font-size:16px;letter-spacing:.34em">TIME, REDEFINED.</span></div>
+        <div class="lvl"><small><b>Texto</b>Inter Regular</small><span style="font-size:16px;line-height:1.6;color:var(--ink-2)">Diseño atemporal. Precisión en cada segundo. Textos claros y modernos para leer sin esfuerzo.</span></div>
+        <div class="lvl"><small><b>Botones</b>Inter Medium</small><span><span class="btn">Descubrir colección</span><span class="btn ghost">Nuestra filosofía</span></span></div>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- 7 · Aplicaciones -->
-<section class="slide soft center">
-  <div class="eyebrow">05 · Aplicaciones</div>
-  <h2>El logo en cada canal</h2>
+<section class="page">
+  <div class="run"><span>Auren Watches</span><span>05 · Aplicaciones</span><span>07 / 08</span></div>
+  <h2 style="position:absolute;left:64px;top:92px;font-size:34px">El logo en cada canal</h2>
   <div class="apps">
-    <div class="card app">
-      <div class="mock"><div class="m-web"><div class="bar"><img src="../public/brand/auren-logo-horizontal-black.svg" alt=""><span><i></i><i></i><i></i></span></div><div class="hero"><b>El tiempo<br>es tuyo.</b><em></em></div></div></div>
-      <h3>Web</h3><p>Logo en la cabecera, fotografía a sangre y botones en dorado champán.</p>
-    </div>
-    <div class="card app">
-      <div class="mock"><div class="m-shop"><div class="img"></div><b>AUREN CHRONO</b><div class="row"><small>2.450 €</small><span><i style="background:#0B0B0C"></i><i style="background:#F1F0EC"></i></span></div></div></div>
-      <h3>Tienda online</h3><p>Fichas limpias: modelo, precio y colores. Precios de ejemplo.</p>
-    </div>
-    <div class="card app">
-      <div class="mock"><div class="m-avatar"><img src="../public/brand/auren-symbol-gold.svg" alt=""></div></div>
-      <h3>Redes sociales</h3><p>Foto de perfil de @aurenwatches: el símbolo dorado sobre negro.</p>
-    </div>
-    <div class="card app">
-      <div class="mock"><div class="m-box"><img src="../public/brand/auren-logo-stacked-gold.svg" alt=""></div><div class="m-card"><img src="../public/brand/auren-logo-horizontal-black.svg" alt=""></div></div>
-      <h3>Packaging</h3><p>Estuche negro con filete dorado, tarjeta de garantía y bolsa.</p>
-    </div>
+    <figure class="app box">
+      <div class="pack">
+        <div class="lid"><img src="../public/brand/auren-symbol-sand.png" alt=""></div>
+        <div class="card"><img src="../public/brand/auren-symbol-black.png" alt=""><b>TARJETA DE GARANTÍA</b><i></i><i></i></div>
+      </div>
+      <figcaption>Estuche y garantía</figcaption>
+    </figure>
+    <figure class="app web">
+      <div class="browser">
+        <div class="bar"><img src="../public/brand/auren-logo.png" alt=""><b>AUREN</b><span>Inicio · Colección · Hombre · Mujer · Nuestra historia · Contacto</span></div>
+        <div class="hero"><b>El tiempo es tuyo.</b><small>Diseño atemporal. Precisión en cada segundo.</small><em>Descubrir colección</em></div>
+      </div>
+      <figcaption>Web y tienda online</figcaption>
+    </figure>
+    <figure class="app social">
+      <div class="ig">
+        <div class="av"></div>
+        <div><b>@aurenwatches</b><small>Relojes de alta gama · TIME, REDEFINED.</small></div>
+        <div class="grid"><i style="background-image:url(../public/img/guide-chrono.webp)"></i><i style="background-image:url(../public/img/story.webp)"></i><i style="background-image:url(../public/img/guide-porcelain.webp)"></i></div>
+      </div>
+      <figcaption style="color:var(--sand)">Redes sociales</figcaption>
+    </figure>
+    <figure class="app bag">
+      <div class="shopper"><img src="../public/brand/auren-symbol-sand.png" alt=""></div>
+      <figcaption>Bolsa</figcaption>
+    </figure>
   </div>
 </section>
 
-<!-- 8 · Cierre -->
-<section class="slide dark">
-  <div class="close">
-    <div>
-      <div class="eyebrow">06 · Archivos del logotipo</div>
-      <h2>Time,<br>redefined.</h2>
-      <p style="margin-top:22px">El logotipo está dibujado en vector (SVG), en tres colores y en dos composiciones:</p>
-      <div class="files">
-        <b>Símbolo</b> · auren-symbol-black / white / gold.svg<br>
-        <b>Horizontal</b> · auren-logo-horizontal-black / white / gold.svg<br>
-        <b>Vertical</b> · auren-logo-stacked-black / white / gold.svg
-      </div>
+<!-- 8 · Canva -->
+<section class="page black">
+  <div class="end">
+    <div class="l">
+      <div class="kicker" style="color:var(--sand)">06 · Enlace de Canva</div>
+      <h2>El tiempo<br>es tuyo.</h2>
+      <p style="margin-top:20px">El logotipo se ha diseñado en Canva:</p>
+      <a class="link" href="https://canva.link/pbhcp03efqy8akm"><span>canva.link/pbhcp03efqy8akm</span><i>Abrir</i></a>
+      <p style="margin-top:40px;font-size:13px">Jordi Cayo Almenar · Comercio Electrónico · 2º ACO · Práctica 2.1</p>
     </div>
-    <div class="disc"><img src="../public/brand/auren-logo-stacked-gold.svg" alt="AUREN WATCHES"></div>
+    <div class="r"><img src="../public/brand/auren-logo.png" alt="Logotipo de AUREN WATCHES"></div>
   </div>
-  <div class="stripe"><i style="flex:5;background:#202124"></i><i style="flex:2;background:#85878A"></i><i style="flex:2;background:#C6A56B"></i></div>
 </section>
 
 </body>

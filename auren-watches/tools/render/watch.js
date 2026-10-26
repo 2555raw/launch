@@ -162,16 +162,15 @@ function dialTexture(model, col, R) {
     g.globalAlpha = 1;
   }
 
-  // brand: symbol and name under twelve
-  const sym = window.AUREN_LOGO.symbol;
-  g.save();
-  const symMm = 3.6;
-  g.translate(-symMm / 2 * s, -(R * 0.66) * s);
-  g.scale(symMm * s / 100, symMm * s / 100);
-  g.fillStyle = col.print;
-  g.fill(new Path2D(sym.ring), 'evenodd');
-  [sym.index, ...sym.hands, sym.pivot].forEach((d) => g.fill(new Path2D(d)));
-  g.restore();
+  // brand: the watch symbol from the logo, tinted to the print colour, and the name
+  const symH = 3.4, symW = symH * SYMBOL.width / SYMBOL.height;
+  const tint = canvas(SYMBOL.width, SYMBOL.height), tg = tint.getContext('2d');
+  tg.drawImage(SYMBOL, 0, 0);
+  tg.globalCompositeOperation = 'source-in';
+  tg.fillStyle = col.print;
+  tg.fillRect(0, 0, tint.width, tint.height);
+  const symMm = symH;
+  g.drawImage(tint, -symW / 2 * s, -(R * 0.66) * s, symW * s, symH * s);
   printText(g, 'AUREN', 0, -(R * 0.66 - symMm - 1.7) * s, 1.3 * s, 0.32, col.print, 600);
   const lower = model.layout === 'small-seconds' ? R * 0.18 : R * 0.42;
   printText(g, model.name, 0, (model.layout === 'chrono' ? R * 0.5 : lower) * s, 0.78 * s, 0.5, col.print, 500, 0.8);
@@ -773,7 +772,11 @@ const ANGLES = {
   macro: { turn: -0.7, cam: [14, 26, 120], target: [4, -2, -4], fov: 24 }
 };
 
+let SYMBOL = null;
 async function init(models, straps) {
+  SYMBOL = new Image();
+  SYMBOL.src = '/public/brand/auren-symbol-white.png';
+  await SYMBOL.decode();
   Object.assign(MODELS, models);
   Object.assign(STRAPS, straps);
   await document.fonts.load('600 40px Montserrat');

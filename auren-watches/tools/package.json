@@ -5,7 +5,7 @@
   "description": "Build-time tools for AUREN WATCHES: product renders, logo files and web fonts. The store itself needs none of this to run.",
   "scripts": {
     "fonts": "node fonts.js",
-    "logo": "node logo.js",
+    "logo": "python3 logo-cutout.py",
     "render": "node render/render.js"
   },
   "devDependencies": {

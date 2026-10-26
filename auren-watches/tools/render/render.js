@@ -53,6 +53,9 @@ function jobs() {
       { file: 'hero', spec: { model: 'auren-one', colour: 'obsidiana', strap: 'piel-negra', angle: 'hero', mood: 'dark', frame: 'hero-right', width: 2400, height: 1350 } },
       { file: 'hero-mobile', spec: { model: 'auren-one', colour: 'obsidiana', strap: 'piel-negra', angle: 'hero', mood: 'dark', frame: 'hero-low', width: 1080, height: 1440 } },
       { file: 'editorial', spec: { model: 'auren-classic', colour: 'champan', strap: 'piel-marron', angle: 'macro', mood: 'dark', width: 1600, height: 1200 } },
+      { file: 'guide-chrono', spec: { model: 'auren-chrono', colour: 'negro', strap: 'caucho-negro', angle: 'front', width: 1200, height: 1500 } },
+      { file: 'guide-detail', spec: { model: 'auren-classic', colour: 'champan', strap: 'piel-marron', angle: 'detail', width: 1200, height: 1500 } },
+      { file: 'guide-porcelain', spec: { model: 'auren-one', colour: 'porcelana', strap: 'piel-cognac', angle: 'three', width: 1200, height: 1500, bg: '#EFD5B2' } },
       { file: 'story', spec: { model: 'auren-eclipse', colour: 'eclipse', strap: 'caucho-negro', angle: 'detail', mood: 'dark', width: 1600, height: 1200 } }
     );
   }
@@ -67,7 +70,7 @@ function jobs() {
   page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') console.log('[page]', m.text()); });
   page.on('pageerror', (e) => console.log('[page error]', e.message));
   await page.goto(`http://localhost:${port}/tools/render/scene.html`);
-  await page.waitForFunction(() => window.AUREN_READY && window.AUREN_LOGO);
+  await page.waitForFunction(() => window.AUREN_READY);
   await page.evaluate(([m, s]) => window.AUREN.init(m, s), [MODELS, STRAPS]);
 
   for (const job of jobs()) {

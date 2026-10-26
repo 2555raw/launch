@@ -1,0 +1,39 @@
+# Configuración para la CLI de Supabase (`supabase start`, `supabase db reset`).
+# Las migraciones están en ./migrations y los datos de demo en ./seed.sql.
+project_id = "hambre-de-mas"
+
+[api]
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+port = 54323
+
+[inbucket]
+# Bandeja de correo local para ver los emails de confirmación y recuperación.
+port = 54324
+
+[storage]
+file_size_limit = "5MiB"
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/confirm"]
+jwt_expiry = 3600
+enable_signup = true
+minimum_password_length = 8
+
+[auth.email]
+enable_signup = true
+# En local no hace falta confirmar el email. En producción, actívalo en el panel.
+enable_confirmations = false

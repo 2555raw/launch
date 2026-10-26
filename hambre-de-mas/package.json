@@ -1,0 +1,50 @@
+{
+  "name": "hambre-de-mas",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tienda online de Hambre de Más: kits de cocina para adolescentes.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:e2e": "playwright test",
+    "db:seed:generate": "node --experimental-strip-types scripts/generate-seed.ts",
+    "stack:up": "bash scripts/local-stack/up.sh",
+    "stack:down": "bash scripts/local-stack/down.sh"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.117.3",
+    "framer-motion": "14.1.0",
+    "next": "16.4.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1",
+    "stripe": "23.0.0",
+    "zod": "4.6.6"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "22.20.5",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.3",
+    "pg": "8.23.1",
+    "postcss": "8.5.31",
+    "tailwindcss": "4.3.3",
+    "typescript": "6.0.3",
+    "vitest": "4.1.12"
+  },
+  "type": "module"
+}

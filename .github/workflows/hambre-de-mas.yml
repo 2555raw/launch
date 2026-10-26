@@ -1,0 +1,33 @@
+# Comprobaciones de la tienda Hambre de Más (carpeta hambre-de-mas/).
+# Las pruebas de integración y e2e necesitan Supabase y se ejecutan en local
+# (ver hambre-de-mas/README.md).
+name: Hambre de Más · CI
+
+on:
+  push:
+    paths: ['hambre-de-mas/**', '.github/workflows/hambre-de-mas.yml']
+  pull_request:
+    paths: ['hambre-de-mas/**', '.github/workflows/hambre-de-mas.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: hambre-de-mas
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: hambre-de-mas/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build (modo demo, sin credenciales)
+        run: npm run build

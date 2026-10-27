@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { CookieSettingsLink } from '@/components/legal/cookie-consent'
-import { InstagramIcon, TikTokIcon } from '@/components/ui/icons'
+import { InstagramIcon, TikTokIcon, XIcon } from '@/components/ui/icons'
 import { company, site } from '@/lib/config/site'
 import type { Category } from '@/lib/types'
 
@@ -47,8 +47,8 @@ export function Footer({ categories }: { categories: Pick<Category, 'slug' | 'na
     <footer className="bg-mist text-[12px] text-ash-ink">
       <div className="container-page py-12">
         <p className="border-b border-line-strong/60 pb-5 leading-relaxed">
-          Precios con IVA incluido. Envío gratis en pedidos desde 40 € a Península y Baleares. Los kits incluyen ingredientes secos,
-          especias y la receta con QR al vídeo; los ingredientes frescos los pones tú. Recomendamos que los menores de 14 años cocinen
+          Precios con IVA incluido. Envío gratis en pedidos desde 40 € a Península y Baleares. Los kits de nivel 1 y 2 son 100 % secos
+          (tú pones agua y aceite) y los de nivel 3 incluyen ingredientes frescos y se envían refrigerados. Cada kit trae su receta con QR. Recomendamos que los menores de 14 años cocinen
           con la supervisión de un adulto.
         </p>
 
@@ -86,6 +86,9 @@ export function Footer({ categories }: { categories: Pick<Category, 'slug' | 'na
             </a>
             <a href={site.social.tiktok} className="hover:text-ink" aria-label="TikTok de Hambre de Más" rel="noopener noreferrer" target="_blank">
               <TikTokIcon size={18} />
+            </a>
+            <a href={site.social.x} className="hover:text-ink" aria-label="X (Twitter) de Hambre de Más" rel="noopener noreferrer" target="_blank">
+              <XIcon size={17} />
             </a>
           </div>
         </div>

@@ -2,9 +2,9 @@ import { expect, test } from '@playwright/test'
 
 test('banner de cookies con rechazo al mismo nivel', async ({ page }) => {
   await page.goto('/')
-  const banner = page.getByRole('dialog', { name: 'Tu privacidad, tus reglas' })
+  const banner = page.getByRole('dialog', { name: 'Usamos cookies' })
   await expect(banner).toBeVisible()
-  await banner.getByRole('button', { name: 'Rechazar opcionales' }).click()
+  await banner.getByRole('button', { name: 'Rechazar' }).click()
   await expect(banner).toBeHidden()
   await page.reload()
   await expect(banner).toBeHidden()

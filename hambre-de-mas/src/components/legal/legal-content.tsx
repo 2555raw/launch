@@ -70,55 +70,211 @@ export const legalPages: Record<string, LegalPage> = {
 
   privacidad: {
     title: 'Política de privacidad',
-    description: 'Cómo tratamos tus datos personales según el RGPD y la LOPDGDD.',
+    description: 'Información sobre el tratamiento de datos personales conforme al RGPD y la LOPDGDD.',
     body: () => (
       <>
-        <h2>1. Responsable del tratamiento</h2>
         <p>
-          {name()} (NIF {nif()}), con domicilio en {address()}. Contacto: {email()}.
+          En {site.name} tratamos tus datos personales con transparencia y solo para lo necesario. Esta política explica quién es el
+          responsable, para qué usamos tus datos, con qué base legal, durante cuánto tiempo, a quién se comunican y cómo ejercer tus
+          derechos, conforme al Reglamento (UE) 2016/679 (RGPD) y a la Ley Orgánica 3/2018 de Protección de Datos Personales y garantía de
+          los derechos digitales (LOPDGDD).
         </p>
-        <h2>2. Qué datos tratamos y para qué</h2>
+
+        <div className="not-prose my-8 rounded-2xl bg-mist p-5 text-sm">
+          <p className="mb-2 font-semibold text-ink">Información básica sobre protección de datos</p>
+          <dl className="grid gap-x-6 gap-y-2 sm:grid-cols-[160px_1fr]">
+            <dt className="text-ash-ink">Responsable</dt>
+            <dd>{name()} · NIF {nif()}</dd>
+            <dt className="text-ash-ink">Finalidades</dt>
+            <dd>Gestionar pedidos y envíos, tu cuenta, la atención al cliente y, si lo autorizas, enviarte novedades.</dd>
+            <dt className="text-ash-ink">Legitimación</dt>
+            <dd>Ejecución del contrato, obligaciones legales, interés legítimo y tu consentimiento.</dd>
+            <dt className="text-ash-ink">Destinatarios</dt>
+            <dd>Proveedores que nos prestan servicios (pagos, alojamiento, transporte). No vendemos tus datos.</dd>
+            <dt className="text-ash-ink">Derechos</dt>
+            <dd>Acceso, rectificación, supresión, oposición, limitación, portabilidad y retirada del consentimiento.</dd>
+            <dt className="text-ash-ink">Contacto</dt>
+            <dd>{email()}</dd>
+          </dl>
+        </div>
+
+        <h2>1. Responsable del tratamiento</h2>
         <ul>
-          <li>
-            <strong>Pedidos:</strong> nombre, email, teléfono y dirección de envío para gestionar la compra, el envío y la facturación. Base
-            jurídica: ejecución del contrato (art. 6.1.b RGPD) y obligaciones legales (art. 6.1.c).
-          </li>
-          <li>
-            <strong>Cuenta de usuario:</strong> email, contraseña cifrada, nombre y direcciones guardadas, para que puedas consultar tus pedidos.
-            Base jurídica: tu consentimiento y la relación contractual.
-          </li>
-          <li>
-            <strong>Newsletter:</strong> email, solo si lo pides expresamente. Base jurídica: consentimiento (art. 6.1.a), que puedes retirar en
-            cualquier momento.
-          </li>
-          <li>
-            <strong>Opiniones:</strong> el nombre que elijas y el texto, solo si has comprado el producto.
-          </li>
+          <li>Razón social: {name()}</li>
+          <li>NIF: {nif()}</li>
+          <li>Domicilio: {address()}</li>
+          <li>Correo electrónico para asuntos de privacidad: {email()}</li>
+          {company.phone && <li>Teléfono: {company.phone}</li>}
         </ul>
         <p>
-          <strong>Pagos:</strong> los datos de tu tarjeta los trata directamente Stripe Payments Europe, Ltd. como responsable independiente.
-          Nosotros nunca vemos ni guardamos el número de tu tarjeta.
+          Si se designa un Delegado de Protección de Datos, sus datos de contacto se publicarán en este apartado.
         </p>
+
+        <h2>2. Finalidades, bases jurídicas y plazos de conservación</h2>
+        <div className="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Finalidad</th>
+                <th>Datos tratados</th>
+                <th>Base jurídica (art. 6 RGPD)</th>
+                <th>Conservación</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Gestionar tu pedido, el pago, el envío y las devoluciones</td>
+                <td>Identificación, contacto, dirección de entrega, productos y datos de la transacción</td>
+                <td>Ejecución de un contrato (6.1.b)</td>
+                <td>Mientras dure la relación y, después, durante los plazos de prescripción de acciones</td>
+              </tr>
+              <tr>
+                <td>Facturación, contabilidad y obligaciones fiscales</td>
+                <td>Identificación, NIF si lo facilitas, importes</td>
+                <td>Obligación legal (6.1.c)</td>
+                <td>6 años (Código de Comercio) y plazos de la normativa tributaria</td>
+              </tr>
+              <tr>
+                <td>Crear y mantener tu cuenta de cliente</td>
+                <td>Email, contraseña cifrada, nombre, teléfono, fecha de nacimiento, direcciones, preferencias de cocina y alérgenos a evitar</td>
+                <td>Ejecución del contrato (6.1.b) y consentimiento (6.1.a) para los datos opcionales</td>
+                <td>Hasta que elimines la cuenta</td>
+              </tr>
+              <tr>
+                <td>Atender consultas, incidencias y reclamaciones</td>
+                <td>Contacto y contenido de la consulta</td>
+                <td>Ejecución del contrato (6.1.b) o interés legítimo (6.1.f)</td>
+                <td>El tiempo necesario para resolverla y los plazos legales aplicables</td>
+              </tr>
+              <tr>
+                <td>Enviarte la newsletter y promociones</td>
+                <td>Email</td>
+                <td>Consentimiento (6.1.a)</td>
+                <td>Hasta que te des de baja</td>
+              </tr>
+              <tr>
+                <td>Publicar tus opiniones sobre productos</td>
+                <td>Nombre que elijas, valoración y texto</td>
+                <td>Consentimiento (6.1.a)</td>
+                <td>Hasta que la retires</td>
+              </tr>
+              <tr>
+                <td>Seguridad de la tienda y prevención del fraude</td>
+                <td>Datos técnicos de conexión y registros de actividad</td>
+                <td>Interés legítimo (6.1.f)</td>
+                <td>Hasta 12 meses, salvo que sean necesarios para una investigación</td>
+              </tr>
+              <tr>
+                <td>Analítica de uso (solo si la aceptas)</td>
+                <td>Datos de navegación seudonimizados</td>
+                <td>Consentimiento (6.1.a y art. 22.2 LSSI-CE)</td>
+                <td>Según la <Link href="/legal/cookies">política de cookies</Link></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Los datos marcados como obligatorios en los formularios son necesarios para prestarte el servicio; si no los facilitas, no
+          podremos tramitar el pedido o crear la cuenta. Los alérgenos que nos indiques solo se usan para avisarte en la tienda y adaptar
+          envíos; no se utilizan para ninguna otra finalidad.
+        </p>
+
         <h2>3. Menores de edad</h2>
         <p>
-          La tienda está pensada para adolescentes. Según el artículo 7 de la LOPDGDD, los menores de 14 años necesitan el consentimiento de su
-          madre, padre o tutor para crear una cuenta. Las compras de menores deben hacerlas o autorizarlas sus representantes legales.
+          La tienda está dirigida a adolescentes y a sus familias. Conforme al artículo 7 de la LOPDGDD, las personas menores de 14 años
+          necesitan el consentimiento de su madre, padre o tutor legal para crear una cuenta, y así se les solicita en el registro. Las
+          compras de menores deben realizarlas o autorizarlas sus representantes legales, que son quienes realizan el pago. Si detectamos
+          una cuenta de un menor de 14 años sin ese consentimiento, la bloquearemos y eliminaremos sus datos.
         </p>
-        <h2>4. Encargados del tratamiento</h2>
-        <ul>
-          <li>Supabase Inc. (base de datos y autenticación). Configura el proyecto en una región de la UE.</li>
-          <li>Stripe (procesamiento de pagos).</li>
-          <li>Proveedor de alojamiento web y, si se activa, de envío de emails.</li>
-          <li>Empresa de transporte, solo con los datos necesarios para la entrega.</li>
-        </ul>
-        <p>Cuando haya transferencias internacionales, se realizan con las garantías del capítulo V del RGPD (cláusulas contractuales tipo o decisiones de adecuación).</p>
-        <h2>5. Conservación</h2>
-        <p>Los datos de pedidos se conservan durante los plazos legales (fiscales y mercantiles). Los de la cuenta, hasta que la elimines.</p>
-        <h2>6. Tus derechos</h2>
+
+        <h2>4. Destinatarios y encargados del tratamiento</h2>
+        <p>No vendemos ni cedemos tus datos a terceros con fines comerciales. Solo se comunican a:</p>
+        <div className="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Destinatario</th>
+                <th>Servicio</th>
+                <th>Garantías</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Stripe Payments Europe, Ltd.</td>
+                <td>Procesamiento de pagos. Trata los datos de tu tarjeta como responsable independiente; nosotros nunca los vemos ni los guardamos.</td>
+                <td>Normativa PCI-DSS y RGPD</td>
+              </tr>
+              <tr>
+                <td>Supabase, Inc.</td>
+                <td>Base de datos, autenticación y almacenamiento (proyecto alojado en la Unión Europea)</td>
+                <td>Contrato de encargo (art. 28 RGPD) y cláusulas contractuales tipo</td>
+              </tr>
+              <tr>
+                <td>Proveedor de alojamiento web</td>
+                <td>Servidores de la tienda</td>
+                <td>Contrato de encargo (art. 28 RGPD)</td>
+              </tr>
+              <tr>
+                <td>Proveedor de envío de emails (si se activa)</td>
+                <td>Emails de confirmación de pedido y newsletter</td>
+                <td>Contrato de encargo (art. 28 RGPD)</td>
+              </tr>
+              <tr>
+                <td>Empresas de transporte</td>
+                <td>Entrega del pedido (nombre, dirección y teléfono)</td>
+                <td>Necesario para la ejecución del contrato</td>
+              </tr>
+              <tr>
+                <td>Administraciones públicas, juzgados y tribunales</td>
+                <td>Cuando exista una obligación legal</td>
+                <td>Obligación legal</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>5. Transferencias internacionales</h2>
         <p>
-          Puedes ejercer los derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a {email()}. Si
-          consideras que no hemos atendido bien tu solicitud, puedes reclamar ante la Agencia Española de Protección de Datos (www.aepd.es).
+          Algunos proveedores pueden acceder a datos desde fuera del Espacio Económico Europeo. En ese caso, la transferencia se ampara en
+          una decisión de adecuación de la Comisión Europea (incluido el Marco de Privacidad de Datos UE-EE. UU. cuando el proveedor esté
+          certificado) o en cláusulas contractuales tipo aprobadas por la Comisión, junto con las medidas adicionales necesarias.
         </p>
+
+        <h2>6. Decisiones automatizadas</h2>
+        <p>No tomamos decisiones basadas únicamente en tratamientos automatizados que produzcan efectos jurídicos sobre ti, ni elaboramos perfiles con ese fin.</p>
+
+        <h2>7. Tus derechos</h2>
+        <p>Puedes ejercer en cualquier momento, sin coste, los siguientes derechos:</p>
+        <ul>
+          <li><strong>Acceso</strong>: saber qué datos tuyos tratamos.</li>
+          <li><strong>Rectificación</strong>: corregir datos inexactos. Muchos los puedes cambiar tú desde tu cuenta.</li>
+          <li><strong>Supresión</strong>: pedir que borremos tus datos cuando ya no sean necesarios.</li>
+          <li><strong>Oposición</strong> y <strong>limitación</strong> del tratamiento.</li>
+          <li><strong>Portabilidad</strong>: recibir tus datos en un formato estructurado.</li>
+          <li><strong>Retirar el consentimiento</strong> (por ejemplo, darte de baja de la newsletter) sin que afecte a lo hecho antes.</li>
+        </ul>
+        <p>
+          Escríbenos a {email()} indicando el derecho que quieres ejercer. Responderemos en el plazo de un mes, ampliable en dos meses en
+          casos complejos. Si no quedas satisfecho, puedes presentar una reclamación ante la Agencia Española de Protección de Datos
+          (www.aepd.es, C/ Jorge Juan 6, 28001 Madrid).
+        </p>
+
+        <h2>8. Seguridad</h2>
+        <p>
+          Aplicamos medidas técnicas y organizativas adecuadas al riesgo: conexiones cifradas (HTTPS), contraseñas cifradas, control de
+          acceso por roles en la base de datos, separación de las claves privadas en el servidor y registro de las operaciones sensibles.
+          Ningún dato de tarjeta pasa por nuestros sistemas.
+        </p>
+
+        <h2>9. Exactitud de los datos</h2>
+        <p>Te comprometes a facilitar datos veraces y a mantenerlos actualizados. Si nos das datos de otra persona (por ejemplo, para un regalo), debes haberle informado antes.</p>
+
+        <h2>10. Cambios en esta política</h2>
+        <p>
+          Podemos actualizar esta política para adaptarla a cambios legales o del servicio. Publicaremos la versión vigente en esta página
+          y, si el cambio es relevante, te avisaremos por email.
+        </p>
+        <p className="text-sm text-ash-ink">Última actualización: 27 de octubre de 2026.</p>
       </>
     ),
   },
@@ -163,8 +319,9 @@ export const legalPages: Record<string, LegalPage> = {
         </p>
         <h2>2. Productos y precios</h2>
         <p>
-          Vendemos kits de cocina con ingredientes secos, especias y receta. Los ingredientes frescos indicados en cada ficha no se incluyen. Todos
-          los precios incluyen el IVA aplicable. Los gastos de envío se muestran antes de pagar.
+          Vendemos kits de cocina con receta. Los kits de nivel 1 y 2 contienen solo ingredientes secos; los de nivel 3 incluyen además
+          ingredientes frescos refrigerados. Lo que tiene que poner el cliente (agua, aceite) se indica en cada ficha. Todos los precios
+          incluyen el IVA aplicable. Los gastos de envío se muestran antes de pagar.
         </p>
         <h2>3. Quién puede comprar</h2>
         <p>Para comprar hay que ser mayor de edad o contar con la autorización de la madre, padre o tutor, que será quien realice el pago.</p>
@@ -221,6 +378,12 @@ export const legalPages: Record<string, LegalPage> = {
         <p>
           Preparamos los pedidos en días laborables. El plazo orientativo de entrega es de {commerce.deliveryEstimate}. Recibirás el número de
           seguimiento cuando el pedido salga de nuestro almacén; también lo verás en <Link href="/cuenta/pedidos">tus pedidos</Link>.
+        </p>
+        <h2>Kits con frescos (nivel 3)</h2>
+        <p>
+          Los kits de nivel 3 incluyen ingredientes refrigerados y se envían en caja isotérmica con acumuladores de frío, en entrega de
+          24 horas laborables. Guarda los frescos en la nevera nada más recibir el pedido. Si la caja llega dañada o caliente, no consumas
+          los frescos y escríbenos con una foto: te lo reponemos.
         </p>
         <h2>Caja sorpresa</h2>
         <p>Las cajas de 3 y 6 meses se envían la primera semana de cada mes a la misma dirección.</p>

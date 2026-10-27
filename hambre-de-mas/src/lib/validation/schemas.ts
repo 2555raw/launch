@@ -1,5 +1,8 @@
 import { z } from 'zod'
+import { ALLERGEN_CODES, type Allergen } from '@/lib/allergens'
 import { commerce, isShippablePostalCode } from '@/lib/config/commerce'
+
+const allergenList = z.array(z.enum(ALLERGEN_CODES as [Allergen, ...Allergen[]])).max(14).default([])
 
 /** Esquemas de validación compartidos por formularios, acciones y API. */
 
@@ -83,12 +86,45 @@ export const passwordSchema = z
   .min(8, { error: 'La contraseña necesita al menos 8 caracteres' })
   .max(72, { error: 'La contraseña es demasiado larga' })
 
-export const signUpSchema = z.object({
-  fullName: trimmed(120, 'El nombre'),
-  email: emailSchema,
-  password: passwordSchema,
-  acceptPrivacy: z.literal(true, { error: 'Tienes que aceptar la política de privacidad' }),
-})
+/** Edad en años cumplidos a partir de una fecha AAAA-MM-DD. */
+export function ageFrom(birthDate: string, today = new Date()) {
+  const [y, m, d] = birthDate.split('-').map(Number)
+  if (!y || !m || !d) return Number.NaN
+  let age = today.getFullYear() - y
+  if (today.getMonth() + 1 < m || (today.getMonth() + 1 === m && today.getDate() < d)) age -= 1
+  return age
+}
+
+/** Edad mínima para crear una cuenta; por debajo de 14 hace falta permiso de un adulto (art. 7 LOPDGDD). */
+export const MIN_SIGNUP_AGE = 10
+export const GUARDIAN_CONSENT_AGE = 14
+
+export const signUpSchema = z
+  .object({
+    fullName: trimmed(120, 'El nombre'),
+    email: emailSchema,
+    password: passwordSchema,
+    birthDate: z.string({ error: 'Indica tu fecha de nacimiento' }).regex(/^\d{4}-\d{2}-\d{2}$/, { error: 'Indica tu fecha de nacimiento' }),
+    phone: phoneSchema,
+    cookingLevel: z
+      .union([z.literal(''), z.enum(['1', '2', '3'])])
+      .optional()
+      .transform((v) => (v ? v : undefined)),
+    avoidAllergens: allergenList,
+    marketingOptIn: z.boolean().default(false),
+    guardianConsent: z.boolean().default(false),
+    acceptPrivacy: z.literal(true, { error: 'Tienes que aceptar la política de privacidad' }),
+  })
+  .superRefine((data, ctx) => {
+    const age = ageFrom(data.birthDate)
+    if (!Number.isFinite(age) || age > 110 || age < 0) {
+      ctx.addIssue({ code: 'custom', path: ['birthDate'], message: 'Revisa la fecha de nacimiento' })
+    } else if (age < MIN_SIGNUP_AGE) {
+      ctx.addIssue({ code: 'custom', path: ['birthDate'], message: `Para crear una cuenta tienes que tener al menos ${MIN_SIGNUP_AGE} años` })
+    } else if (age < GUARDIAN_CONSENT_AGE && !data.guardianConsent) {
+      ctx.addIssue({ code: 'custom', path: ['guardianConsent'], message: 'Con menos de 14 años necesitas el permiso de tu madre, padre o tutor' })
+    }
+  })
 
 export const signInSchema = z.object({
   email: emailSchema,
@@ -98,6 +134,11 @@ export const signInSchema = z.object({
 export const profileSchema = z.object({
   fullName: trimmed(120, 'El nombre'),
   phone: phoneSchema,
+  cookingLevel: z
+    .union([z.literal(''), z.enum(['1', '2', '3'])])
+    .optional()
+    .transform((v) => (v ? Number(v) : null)),
+  avoidAllergens: allergenList,
   marketingOptIn: z.boolean().default(false),
 })
 
@@ -170,7 +211,18 @@ export const productInputSchema = z.object({
   minutes: z.coerce.number().int().min(0).max(1440).optional(),
   difficulty: z.coerce.number().int().min(1).max(3).optional(),
   heat: z.enum(['sin-fuego', 'microondas', 'sarten', 'cazo', 'horno']).optional(),
+  storage: z.enum(['seco', 'fresco']).optional(),
+  recipe: z
+    .object({
+      youAdd: z.array(z.string().trim().min(1).max(120)).max(20).default([]),
+      steps: z.array(z.object({ title: z.string().trim().min(1).max(80), text: z.string().trim().min(1).max(800) })).max(30).default([]),
+      tips: z.array(z.string().trim().min(1).max(300)).max(10).default([]),
+    })
+    .default({ youAdd: [], steps: [], tips: [] }),
   tags: z.array(z.string().trim().toLowerCase().regex(/^[a-z0-9-]+$/).max(30)).max(20).default([]),
+  allergens: allergenList,
+  allergenTraces: allergenList,
+  recipeAllergens: allergenList,
   includes: z.array(z.string().trim().min(1).max(120)).max(30).default([]),
   specs: z.array(z.object({ label: z.string().trim().min(1).max(60), value: z.string().trim().min(1).max(400) })).max(20).default([]),
   seoTitle: optionalTrimmed(70),

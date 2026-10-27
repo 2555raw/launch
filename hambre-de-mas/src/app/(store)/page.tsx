@@ -1,6 +1,7 @@
 import { Hero } from '@/components/home/hero'
 import {
   Benefits,
+  Marquee,
   BestSellers,
   BrandStory,
   HowItWorks,
@@ -13,6 +14,7 @@ import {
 } from '@/components/home/sections'
 import { JsonLd } from '@/components/seo/json-ld'
 import { getCatalog } from '@/lib/catalog'
+import { recipeQrSvg } from '@/lib/recipes/qr'
 import { company, site } from '@/lib/config/site'
 
 // El catálogo se regenera como mucho cada minuto (ISR).
@@ -30,6 +32,8 @@ export default async function HomePage() {
 
   const heroProduct = featured.items[0] ?? popular.items[0] ?? null
   const featuredGrid = featured.items.filter((p) => p.id !== heroProduct?.id).slice(0, 4)
+  const heroDetail = heroProduct ? await catalog.getProduct(heroProduct.slug) : null
+  const heroQr = heroDetail?.recipe.steps.length ? await recipeQrSvg(heroDetail.slug) : null
 
   return (
     <>
@@ -40,7 +44,7 @@ export default async function HomePage() {
           name: company.legalName ?? site.name,
           url: site.url,
           logo: `${site.url}/brand/logo-720.png`,
-          sameAs: [site.social.instagram, site.social.tiktok],
+          sameAs: [site.social.instagram, site.social.tiktok, site.social.x],
         }}
       />
       <JsonLd
@@ -56,7 +60,13 @@ export default async function HomePage() {
           },
         }}
       />
-      <Hero product={heroProduct} />
+      <Hero
+        product={heroProduct}
+        includes={heroDetail?.includes.filter((i) => !/tarjeta/i.test(i))}
+        qrSvg={heroQr}
+        recipeHref={heroDetail ? `/receta/${heroDetail.slug}` : undefined}
+      />
+      <Marquee />
       <StoreIntro />
       <LevelsRow categories={categories} />
       <NewArrivals products={newest.items} />

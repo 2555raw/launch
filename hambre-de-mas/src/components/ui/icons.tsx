@@ -193,3 +193,35 @@ export const TikTokIcon = (p: IconProps) => (
     <path d="M14 4c.4 2.6 2.3 4.4 5 4.6" />
   </Icon>
 )
+
+export const SnowflakeIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9" />
+    <path d="m9.5 4.5 2.5 2 2.5-2M9.5 19.5l2.5-2 2.5 2" />
+  </Icon>
+)
+
+export const JarIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="7" y="3.5" width="10" height="3" rx="1" />
+    <path d="M6.5 8.5h11V19a1.5 1.5 0 0 1-1.5 1.5H8A1.5 1.5 0 0 1 6.5 19z" />
+    <path d="M9.5 13h5" />
+  </Icon>
+)
+
+export const QrIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <rect x="4" y="4" width="6" height="6" rx="1" />
+    <rect x="14" y="4" width="6" height="6" rx="1" />
+    <rect x="4" y="14" width="6" height="6" rx="1" />
+    <path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18v2M20 14v2" />
+  </Icon>
+)
+
+/** Logotipo de X (antes Twitter), simplificado. */
+export const XIcon = ({ size = 20, ...p }: IconProps) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false" {...p}>
+    <path d="M4 4h4.6l11.4 16h-4.6z" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinejoin="round" />
+    <path d="M19.2 4 13.4 10.6M10.6 13.4 4.8 20" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" />
+  </svg>
+)

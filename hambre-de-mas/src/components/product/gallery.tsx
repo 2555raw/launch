@@ -48,6 +48,9 @@ export function Gallery({ images, name }: { images: Img[]; name: string }) {
           </motion.div>
         </AnimatePresence>
 
+        <p className="absolute bottom-4 left-4 rounded-full bg-white/85 px-2.5 py-1 text-[11px] font-medium text-ink/75 backdrop-blur">
+          Sugerencia de presentación
+        </p>
         {images.length > 1 && (
           <>
             <button

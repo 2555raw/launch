@@ -4,6 +4,8 @@ import { useActionState, useState } from 'react'
 import { saveProduct } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
 import { MinusIcon, PlusIcon } from '@/components/ui/icons'
+import { AllergenIcon } from '@/components/product/allergen-icons'
+import { ALLERGENS } from '@/lib/allergens'
 import { Card, Label, Notice, field } from './ui'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- fila de producto sin tipar */
@@ -64,10 +66,22 @@ export function ProductForm({ categories, product }: { categories: { id: string;
       minutes: text('minutes') || undefined,
       difficulty: text('difficulty') || undefined,
       heat: text('heat') || undefined,
+      storage: text('storage') || undefined,
+      recipe: {
+        youAdd: lines('youAdd'),
+        steps: lines('steps').map((l) => {
+          const [title, ...rest] = l.split(':')
+          return { title: title?.trim() ?? '', text: rest.join(':').trim() }
+        }),
+        tips: lines('tips'),
+      },
       tags: text('tags')
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean),
+      allergens: data.getAll('allergens'),
+      allergenTraces: data.getAll('allergenTraces'),
+      recipeAllergens: data.getAll('recipeAllergens'),
       includes: lines('includes'),
       specs: lines('specs').map((l) => {
         const [label, ...rest] = l.split(':')
@@ -225,6 +239,14 @@ export function ProductForm({ categories, product }: { categories: { id: string;
             </select>
           </div>
           <div className="sm:col-span-3">
+            <Label htmlFor="storage">Conservación</Label>
+            <select id="storage" name="storage" defaultValue={product?.attributes?.storage ?? ''} className={`${field} mt-1`}>
+              <option value="">—</option>
+              <option value="seco">100 % seco (niveles 1 y 2)</option>
+              <option value="fresco">Incluye frescos, envío refrigerado (nivel 3)</option>
+            </select>
+          </div>
+          <div className="sm:col-span-3">
             <Label htmlFor="tags">Etiquetas (separadas por comas)</Label>
             <input id="tags" name="tags" defaultValue={(product?.tags ?? []).join(', ')} placeholder="vegano, vegetariano, sin-gluten, picante" className={`${field} mt-1`} />
           </div>
@@ -243,6 +265,79 @@ export function ProductForm({ categories, product }: { categories: { id: string;
               className={`${field} mt-1 h-auto py-2`}
             />
           </div>
+        </div>
+      </Card>
+
+      <Card title="Receta (la que abre el QR)">
+        <div className="grid gap-4">
+          <div>
+            <Label htmlFor="youAdd">Lo que pone el cliente (una línea por elemento)</Label>
+            <textarea id="youAdd" name="youAdd" rows={2} defaultValue={(product?.recipe?.youAdd ?? []).join('\n')} placeholder="1 litro de agua" className={`${field} mt-1 h-auto py-2`} />
+          </div>
+          <div>
+            <Label htmlFor="steps">Pasos (una línea por paso, «Título: explicación»)</Label>
+            <textarea
+              id="steps"
+              name="steps"
+              rows={7}
+              defaultValue={(product?.recipe?.steps ?? []).map((s: any) => `${s.title}: ${s.text}`).join('\n')}
+              placeholder="Haz el caldo: calienta el agua y disuelve el miso…"
+              className={`${field} mt-1 h-auto py-2`}
+            />
+          </div>
+          <div>
+            <Label htmlFor="tips">Trucos de chef (una línea por truco)</Label>
+            <textarea id="tips" name="tips" rows={2} defaultValue={(product?.recipe?.tips ?? []).join('\n')} className={`${field} mt-1 h-auto py-2`} />
+          </div>
+          <p className="text-xs text-ash-ink">La receta se publica en /receta/{product?.slug ?? 'slug-del-producto'} y es lo que abre el QR de la tarjeta del kit.</p>
+        </div>
+      </Card>
+
+      <Card title="Alérgenos">
+        <p className="mb-4 text-xs text-ash-ink">
+          Los 14 alérgenos de declaración obligatoria (Reglamento UE 1169/2011). Se muestran con su icono en la ficha y las tarjetas, y
+          sirven para el filtro «Sin alérgenos». Revisa esta información con la ficha técnica de cada ingrediente.
+        </p>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[520px] text-sm">
+            <thead>
+              <tr className="text-xs text-ash-ink">
+                <th className="py-2 text-left font-medium">Alérgeno</th>
+                <th className="py-2 font-medium">Contiene</th>
+                <th className="py-2 font-medium">Trazas</th>
+                <th className="py-2 font-medium">En la receta</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ALLERGENS.map((a) => (
+                <tr key={a.code} className="border-t border-line">
+                  <td className="py-1.5">
+                    <span className="flex items-center gap-2">
+                      <AllergenIcon code={a.code} size={24} /> {a.label}
+                    </span>
+                  </td>
+                  {(
+                    [
+                      ['allergens', 'allergens'],
+                      ['allergenTraces', 'allergen_traces'],
+                      ['recipeAllergens', 'recipe_allergens'],
+                    ] as const
+                  ).map(([name, column]) => (
+                    <td key={name} className="text-center">
+                      <input
+                        type="checkbox"
+                        name={name}
+                        value={a.code}
+                        defaultChecked={(product?.[column] ?? []).includes(a.code)}
+                        aria-label={`${a.label}: ${name === 'allergens' ? 'contiene' : name === 'allergenTraces' ? 'trazas' : 'en la receta'}`}
+                        className="size-4 accent-chef-ink"
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </Card>
 

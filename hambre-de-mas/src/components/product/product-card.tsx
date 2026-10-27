@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { ClockIcon } from '@/components/ui/icons'
+import { AllergenStrip } from './allergen-icons'
 import { LevelChip } from '@/components/ui/level-chip'
 import { Price } from '@/components/ui/price'
 import { ProductImage } from '@/components/ui/product-image'
@@ -62,6 +63,11 @@ export function ProductCard({
         {product.badge && <p className="text-[12px] font-semibold text-teja">{product.badge}</p>}
         <h3 className="font-display text-[19px] leading-snug font-bold">{product.name}</h3>
         {product.subtitle && <p className="line-clamp-2 text-sm text-ash-ink">{product.subtitle}</p>}
+        {product.allergens.length > 0 && (
+          <div className="mt-2">
+            <AllergenStrip codes={product.allergens} />
+          </div>
+        )}
         <div className="mt-auto flex items-end justify-between gap-3 pt-4">
           <Price cents={product.priceCents} compareAt={product.compareAtPriceCents} from={product.variantCount > 1} />
           {product.attributes.minutes ? (

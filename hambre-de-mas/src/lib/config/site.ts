@@ -22,6 +22,7 @@ export const site = {
   social: {
     instagram: env(process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM) ?? 'https://www.instagram.com/hambredemas',
     tiktok: env(process.env.NEXT_PUBLIC_SOCIAL_TIKTOK) ?? 'https://www.tiktok.com/@hambredemas',
+    x: env(process.env.NEXT_PUBLIC_SOCIAL_X) ?? 'https://x.com/hambredemas',
   },
 } as const
 

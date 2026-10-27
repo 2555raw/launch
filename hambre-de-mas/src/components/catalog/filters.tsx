@@ -5,6 +5,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { CheckIcon, ChevronDownIcon, CloseIcon } from '@/components/ui/icons'
+import { ALLERGENS } from '@/lib/allergens'
+import { AllergenIcon } from '@/components/product/allergen-icons'
 import { dietOptions, difficultyOptions, priceOptions, sortOptions, timeOptions } from '@/lib/catalog/params'
 import { cn } from '@/lib/cn'
 
@@ -120,6 +122,21 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
           <Option key={o.value} label={o.label} checked={has('dieta', o.value)} onChange={() => toggleInList('dieta', o.value)} />
         ))}
       </Group>
+      <Group title="Sin alérgenos" defaultOpen={Boolean(params.get('sin'))}>
+        <p className="pb-1 text-xs text-ash-ink">Oculta los kits que los contienen, en trazas o en la receta.</p>
+        {ALLERGENS.map((a) => (
+          <label key={a.code} className="flex cursor-pointer items-center gap-3 rounded-lg py-1 text-sm text-ink/85 hover:text-ink">
+            <input
+              type="checkbox"
+              checked={has('sin', a.code)}
+              onChange={() => toggleInList('sin', a.code)}
+              className="size-4 shrink-0 accent-chef-ink"
+            />
+            <AllergenIcon code={a.code} size={22} />
+            Sin {a.label.toLowerCase()}
+          </label>
+        ))}
+      </Group>
       <Group title="Tiempo de cocina">
         {timeOptions.map((o) => (
           <Option
@@ -206,7 +223,7 @@ export function MobileFilters({ categories, count, lockCategory }: { categories:
               <div className="grid grid-cols-2 gap-3 border-t border-line p-4">
                 <Button
                   variant="secondary"
-                  onClick={() => update({ categoria: null, min: null, max: null, dieta: null, tiempo: null, dificultad: null, stock: null, destacados: null })}
+                  onClick={() => update({ categoria: null, min: null, max: null, dieta: null, sin: null, tiempo: null, dificultad: null, stock: null, destacados: null })}
                 >
                   Limpiar
                 </Button>

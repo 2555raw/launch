@@ -2,12 +2,16 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Reveal } from '@/components/motion/reveal'
+import { AllergenList, AllergenStrip } from '@/components/product/allergen-icons'
 import { Gallery } from '@/components/product/gallery'
+import { KitContents } from '@/components/product/kit-contents'
+import { StorageChip } from '@/components/product/storage-chip'
+import { recipeQrSvg } from '@/lib/recipes/qr'
 import { ProductCard } from '@/components/product/product-card'
 import { PurchasePanel } from '@/components/product/purchase-panel'
 import { ReviewForm } from '@/components/product/review-form'
 import { JsonLd } from '@/components/seo/json-ld'
-import { ChevronRightIcon, ClockIcon, FlameIcon, LeafIcon, ReturnIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
+import { ChevronRightIcon, ClockIcon, FlameIcon, LeafIcon, QrIcon, ReturnIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { LevelChip } from '@/components/ui/level-chip'
 import { getCatalog } from '@/lib/catalog'
 import { commerce } from '@/lib/config/commerce'
@@ -61,7 +65,11 @@ export default async function ProductPage({ params }: Props) {
   const catalog = getCatalog()
   const product = await catalog.getProduct(slug)
   if (!product) notFound()
-  const [related, reviews] = await Promise.all([catalog.listRelated(product, 4), catalog.listReviews(product.id)])
+  const [related, reviews, qrSvg] = await Promise.all([
+    catalog.listRelated(product, 4),
+    catalog.listReviews(product.id),
+    product.recipe.steps.length ? recipeQrSvg(product.slug) : Promise.resolve(null),
+  ])
   const average = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0
   const absolute = (url: string) => (url.startsWith('http') ? url : `${site.url}${url}`)
 
@@ -164,12 +172,27 @@ export default async function ProductPage({ params }: Props) {
               {product.attributes.difficulty ? (
                 <li className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1.5">Dificultad: {difficultyLabel[product.attributes.difficulty]}</li>
               ) : null}
+              <li>
+                <StorageChip storage={product.attributes.storage} />
+              </li>
               {product.tags.map((t) => (
                 <li key={t} className="inline-flex items-center gap-1.5 rounded-full bg-hoja/15 px-3 py-1.5 text-hoja-deep">
                   <LeafIcon size={14} /> {tagLabel[t] ?? t}
                 </li>
               ))}
             </ul>
+
+            <a href="#alergenos" className="mt-5 flex flex-wrap items-center gap-3 text-sm text-ash-ink hover:text-ink">
+              {product.allergens.length > 0 ? (
+                <>
+                  <span>Contiene:</span>
+                  <AllergenStrip codes={product.allergens} max={14} size={26} />
+                </>
+              ) : (
+                <span>Sin alérgenos de declaración obligatoria en el kit</span>
+              )}
+              <span className="text-teja underline-offset-2 hover:underline">Ver alérgenos</span>
+            </a>
 
             <div className="mt-8 border-t border-line pt-8">
               <PurchasePanel product={product} />
@@ -204,17 +227,39 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </div>
 
+        {qrSvg && (
+          <section aria-labelledby="receta-qr" className="mt-20 overflow-hidden rounded-[32px] bg-chef-ink text-white">
+            <div className="grid items-center gap-8 p-8 sm:p-12 md:grid-cols-[1fr_auto]">
+              <div>
+                <p className="flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-almendra uppercase">
+                  <QrIcon size={16} /> La receta, en el móvil
+                </p>
+                <h2 id="receta-qr" className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+                  Escanéalo y cocina paso a paso.
+                </h2>
+                <p className="mt-3 max-w-lg text-white/85">
+                  Es el mismo QR que viene impreso en la tarjeta de tu kit. Ábrelo con la cámara del móvil y tendrás la receta con todos los
+                  pasos, lo que pones tú y los alérgenos.
+                </p>
+                <Link href={`/receta/${product.slug}`} className="mt-6 inline-flex items-center gap-2 font-semibold text-white underline underline-offset-4">
+                  Ver la receta aquí →
+                </Link>
+              </div>
+              <div className="kit-pop mx-auto w-48 rotate-[-4deg] rounded-[22px] bg-white p-4 text-ink shadow-float sm:w-56">
+                <p className="text-[11px] font-extrabold tracking-wider text-teja">RECETA · {product.name.replace(/^Kit\s+/i, '').toUpperCase()}</p>
+                <div className="mt-2 [&_svg]:h-auto [&_svg]:w-full" role="img" aria-label={`Código QR de la receta de ${product.name}`} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+              </div>
+            </div>
+          </section>
+        )}
+
         <div className="mt-20 grid gap-12 border-t border-line pt-16 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
           <Reveal>
             <h2 className="font-display text-3xl font-extrabold tracking-tight">Qué trae el kit</h2>
-            <ul className="mt-6 space-y-3">
-              {product.includes.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-[15px]">
-                  <span className="mt-2 size-1.5 shrink-0 rounded-full bg-chef" aria-hidden />
-                  {item}
-                </li>
-              ))}
-            </ul>
+            <p className="mt-2 text-[15px] text-ash-ink">Las especias vienen en sobres individuales, ya pesados para la receta.</p>
+            <div className="mt-6">
+              <KitContents items={product.includes} storage={product.attributes.storage} />
+            </div>
           </Reveal>
           <Reveal delay={0.08}>
             <h2 className="font-display text-3xl font-extrabold tracking-tight">La receta</h2>
@@ -238,6 +283,42 @@ export default async function ProductPage({ params }: Props) {
             )}
           </Reveal>
         </div>
+
+        <section id="alergenos" aria-labelledby="alergenos-titulo" className="mt-20 scroll-mt-24 border-t border-line pt-16">
+          <h2 id="alergenos-titulo" className="font-display text-3xl font-extrabold tracking-tight">
+            Alérgenos
+          </h2>
+          <p className="mt-2 max-w-2xl text-[15px] text-ash-ink">
+            Información de los 14 alérgenos de declaración obligatoria (Reglamento UE 1169/2011). Revísala siempre antes de cocinar.
+          </p>
+          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+            <div className="rounded-[22px] bg-mist p-6">
+              <h3 className="mb-4 font-semibold">Contiene el kit</h3>
+              {product.allergens.length ? (
+                <AllergenList codes={product.allergens} />
+              ) : (
+                <p className="text-sm text-ash-ink">Ninguno de los 14 alérgenos de declaración obligatoria.</p>
+              )}
+            </div>
+            <div className="rounded-[22px] bg-mist p-6">
+              <h3 className="mb-4 font-semibold">Puede contener trazas</h3>
+              {product.allergenTraces.length ? (
+                <AllergenList codes={product.allergenTraces} />
+              ) : (
+                <p className="text-sm text-ash-ink">Sin avisos de trazas.</p>
+              )}
+            </div>
+            <div className="rounded-[22px] bg-almendra-soft p-6">
+              <h3 className="mb-1 font-semibold">Lo que pones tú</h3>
+              <p className="mb-4 text-xs text-ash-ink">Alérgenos de los ingredientes frescos que pide la receta.</p>
+              {product.recipeAllergens.length ? (
+                <AllergenList codes={product.recipeAllergens} />
+              ) : (
+                <p className="text-sm text-ash-ink">La receta no añade alérgenos de declaración obligatoria.</p>
+              )}
+            </div>
+          </div>
+        </section>
 
         <section id="opiniones" aria-labelledby="opiniones-titulo" className="mt-20 border-t border-line pt-16">
           <div className="flex flex-wrap items-end justify-between gap-4">

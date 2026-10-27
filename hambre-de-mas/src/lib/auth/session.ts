@@ -12,6 +12,9 @@ export type Profile = {
   phone: string | null
   role: 'customer' | 'admin'
   marketingOptIn: boolean
+  birthDate: string | null
+  cookingLevel: number | null
+  avoidAllergens: string[]
 }
 
 /**
@@ -38,6 +41,9 @@ export const getProfile = cache(async (): Promise<Profile | null> => {
     phone: data.phone,
     role: data.role,
     marketingOptIn: data.marketing_opt_in,
+    birthDate: data.birth_date ?? null,
+    cookingLevel: data.cooking_level ?? null,
+    avoidAllergens: data.avoid_allergens ?? [],
   }
 })
 

@@ -20,8 +20,16 @@ test('registro, perfil, direcciones y cierre de sesión', async ({ page }) => {
   await page.getByLabel('Nombre y apellidos').fill('Marta E2E')
   await page.getByLabel('Email', { exact: true }).fill(email)
   await page.getByLabel('Contraseña').fill('una-contraseña-larga')
-  await page.getByRole('checkbox').check()
-  await page.getByRole('button', { name: 'Crear cuenta' }).click()
+  // Con 12 años hace falta el permiso de un adulto
+  await page.getByLabel('Fecha de nacimiento').fill('2014-03-10')
+  await page.getByText('Voy a por todas').click()
+  await page.locator('label').filter({ hasText: 'Cacahuetes' }).click()
+  await page.getByRole('checkbox', { name: /He leído y acepto/ }).check()
+  await page.getByRole('button', { name: 'Crear mi cuenta' }).click()
+  await expect(page.getByText('Con menos de 14 años necesitas el permiso').first()).toBeVisible()
+  await page.getByRole('checkbox', { name: /mi madre, padre o tutor me da permiso/ }).check()
+  await page.getByLabel('Contraseña').fill('una-contraseña-larga')
+  await page.getByRole('button', { name: 'Crear mi cuenta' }).click()
 
   await expect(page.getByRole('heading', { name: 'Hola, Marta.' })).toBeVisible()
 

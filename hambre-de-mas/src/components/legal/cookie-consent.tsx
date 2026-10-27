@@ -93,62 +93,67 @@ export function CookieConsent() {
             role="dialog"
             aria-labelledby="cookies-titulo"
             aria-describedby="cookies-texto"
-            initial={{ y: 40, opacity: 0 }}
+            initial={{ y: 24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.28, 0.11, 0.32, 1] }}
-            className="fixed inset-x-3 bottom-3 z-[90] mx-auto max-w-2xl rounded-[22px] bg-white p-5 shadow-float ring-1 ring-line sm:inset-x-6 sm:bottom-6 sm:p-6"
+            exit={{ y: 24, opacity: 0 }}
+            transition={{ duration: 0.35, ease: [0.28, 0.11, 0.32, 1] }}
+            className="fixed inset-x-3 bottom-3 z-[90] rounded-2xl bg-white p-4 text-[13px] shadow-float ring-1 ring-line sm:right-auto sm:bottom-5 sm:left-5 sm:max-w-[360px]"
           >
-            <h2 id="cookies-titulo" className="font-display text-lg font-bold">
-              Tu privacidad, tus reglas
-            </h2>
-            <p id="cookies-texto" className="mt-1 text-sm text-ash-ink">
-              Usamos cookies técnicas para que la tienda funcione (sesión y cesta).
-              {hasAnalyticsProvider
-                ? ' Con tu permiso, también cookies de analítica para entender qué kits os gustan más.'
-                : ' Ahora mismo no usamos cookies de analítica ni de publicidad.'}{' '}
-              <Link href="/legal/cookies" className="text-teja underline underline-offset-2">
-                Política de cookies
-              </Link>
-            </p>
+            <div className="flex items-start gap-3">
+              <CookieMark />
+              <div className="min-w-0">
+                <h2 id="cookies-titulo" className="text-sm font-semibold text-ink">
+                  Usamos cookies
+                </h2>
+                <p id="cookies-texto" className="mt-0.5 leading-snug text-ash-ink">
+                  {hasAnalyticsProvider
+                    ? 'Técnicas para que la tienda funcione y, si aceptas, de analítica.'
+                    : 'Solo técnicas, para que la tienda funcione (sesión y cesta).'}{' '}
+                  <Link href="/legal/cookies" className="text-teja underline underline-offset-2">
+                    Más info
+                  </Link>
+                </p>
+              </div>
+            </div>
 
             {details && (
-              <div className="mt-4 space-y-3 rounded-2xl bg-mist p-4 text-sm">
-                <label className="flex items-start gap-3">
-                  <input type="checkbox" checked disabled className="mt-0.5 size-4 accent-chef-ink" />
+              <div className="mt-3 space-y-2 rounded-xl bg-mist p-3 text-xs">
+                <label className="flex items-start gap-2.5">
+                  <input type="checkbox" checked disabled className="mt-0.5 size-3.5 accent-chef-ink" />
                   <span>
-                    <strong className="font-semibold">Técnicas</strong> · Siempre activas. Sesión de usuario, cesta y esta misma preferencia.
+                    <strong className="font-semibold">Técnicas</strong> · Siempre activas: sesión, cesta y esta preferencia.
                   </span>
                 </label>
-                <label className="flex items-start gap-3">
+                <label className="flex items-start gap-2.5">
                   <input
                     type="checkbox"
                     checked={analyticsChoice}
                     disabled={!hasAnalyticsProvider}
                     onChange={(e) => setAnalyticsChoice(e.target.checked)}
-                    className="mt-0.5 size-4 accent-chef-ink"
+                    className="mt-0.5 size-3.5 accent-chef-ink"
                   />
                   <span>
                     <strong className="font-semibold">Analítica</strong> ·{' '}
-                    {hasAnalyticsProvider ? 'Estadísticas anónimas de uso.' : 'No hay ninguna herramienta de analítica configurada.'}
+                    {hasAnalyticsProvider ? 'Estadísticas anónimas de uso.' : 'No hay ninguna configurada.'}
                   </span>
                 </label>
               </div>
             )}
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Button size="sm" variant="dark" onClick={() => decide(true)}>
-                Aceptar todas
+            {/* Aceptar y rechazar con el mismo peso, como pide la guía de la AEPD. */}
+            <div className="mt-3 flex items-center gap-2">
+              <Button size="sm" variant="dark" className="h-8 flex-1 px-3 text-[13px]" onClick={() => decide(true)}>
+                Aceptar
               </Button>
-              <Button size="sm" variant="dark" onClick={() => decide(false)}>
-                Rechazar opcionales
+              <Button size="sm" variant="dark" className="h-8 flex-1 px-3 text-[13px]" onClick={() => decide(false)}>
+                Rechazar
               </Button>
               {details ? (
-                <Button size="sm" variant="secondary" onClick={() => decide(analyticsChoice)}>
-                  Guardar selección
+                <Button size="sm" variant="secondary" className="h-8 px-3 text-[13px]" onClick={() => decide(analyticsChoice)}>
+                  Guardar
                 </Button>
               ) : (
-                <Button size="sm" variant="secondary" onClick={() => setDetails(true)}>
+                <Button size="sm" variant="ghost" className="h-8 px-3 text-[13px]" onClick={() => setDetails(true)}>
                   Configurar
                 </Button>
               )}
@@ -157,6 +162,24 @@ export function CookieConsent() {
         )}
       </AnimatePresence>
     </>
+  )
+}
+
+function CookieMark() {
+  return (
+    <svg viewBox="0 0 24 24" className="mt-0.5 size-6 shrink-0 text-chef-ink" aria-hidden>
+      <path
+        d="M12 3a9 9 0 1 0 9 9 3 3 0 0 1-3.5-3A3 3 0 0 1 14 5.5 3 3 0 0 1 12 3Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <circle cx="8.5" cy="11" r="1.1" fill="currentColor" />
+      <circle cx="12" cy="15.5" r="1.1" fill="currentColor" />
+      <circle cx="15.8" cy="13.2" r="0.9" fill="currentColor" />
+      <circle cx="9" cy="16" r="0.8" fill="currentColor" />
+    </svg>
   )
 }
 

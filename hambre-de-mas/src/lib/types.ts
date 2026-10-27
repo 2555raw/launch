@@ -1,4 +1,5 @@
 // Tipos de dominio compartidos entre servidor y cliente.
+import type { Allergen } from '@/lib/allergens'
 
 export type Accent = 'chef' | 'teja' | 'hoja' | 'almendra'
 
@@ -38,6 +39,14 @@ export type ProductAttributes = {
   minutes?: number
   difficulty?: number
   heat?: Heat
+  /** seco: todo de despensa · fresco: incluye refrigerados */
+  storage?: 'seco' | 'fresco'
+}
+
+export type Recipe = {
+  youAdd: string[]
+  steps: { title: string; text: string }[]
+  tips: string[]
 }
 
 /** Lo necesario para pintar una tarjeta de producto. */
@@ -56,6 +65,8 @@ export type ProductSummary = {
   publishedAt: string | null
   attributes: ProductAttributes
   tags: string[]
+  /** Alérgenos que contiene el kit. */
+  allergens: Allergen[]
   category: Pick<Category, 'slug' | 'name' | 'level' | 'accent'> | null
   image: ProductImage | null
   hoverImage: ProductImage | null
@@ -66,6 +77,11 @@ export type ProductDetail = ProductSummary & {
   description: string
   includes: string[]
   specs: { label: string; value: string }[]
+  /** Puede contener trazas de… */
+  allergenTraces: Allergen[]
+  /** Alérgenos de los ingredientes frescos que añade el cliente. */
+  recipeAllergens: Allergen[]
+  recipe: Recipe
   taxRateBps: number
   images: ProductImage[]
   variants: Variant[]
@@ -92,6 +108,8 @@ export type ProductFilter = {
   minPrice?: number
   maxPrice?: number
   tags?: string[]
+  /** Excluir productos que contengan (o puedan contener) estos alérgenos. */
+  excludeAllergens?: Allergen[]
   difficulty?: number[]
   maxMinutes?: number
   inStock?: boolean

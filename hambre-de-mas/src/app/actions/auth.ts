@@ -6,7 +6,10 @@ import { safeNext } from '@/lib/auth/session'
 import { site } from '@/lib/config/site'
 import { isSupabaseConfigured } from '@/lib/env'
 import { clientIp, rateLimit } from '@/lib/rate-limit'
+import { NEWSLETTER_CONSENT } from '@/lib/config/consent'
+import { createOrdersService } from '@/lib/orders/service'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { isServiceRoleConfigured } from '@/lib/supabase/service'
 import { emailSchema, fieldErrors, firstError, passwordSchema, signInSchema, signUpSchema } from '@/lib/validation/schemas'
 
 export type AuthState = { ok?: boolean; message?: string; fields?: Record<string, string> } | null
@@ -40,17 +43,33 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
     fullName: formData.get('fullName'),
     email: formData.get('email'),
     password: formData.get('password'),
+    birthDate: formData.get('birthDate'),
+    phone: formData.get('phone') ?? '',
+    cookingLevel: formData.get('cookingLevel') ?? '',
+    avoidAllergens: formData.getAll('avoidAllergens'),
+    marketingOptIn: formData.get('marketingOptIn') === 'on',
+    guardianConsent: formData.get('guardianConsent') === 'on',
     acceptPrivacy: formData.get('acceptPrivacy') === 'on',
   })
   if (!parsed.success) return { message: firstError(parsed.error), fields: fieldErrors(parsed.error) }
+  const d = parsed.data
 
   const next = safeNext(formData.get('next')?.toString())
   const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase.auth.signUp({
-    email: parsed.data.email,
-    password: parsed.data.password,
+    email: d.email,
+    password: d.password,
     options: {
-      data: { full_name: parsed.data.fullName },
+      // El trigger handle_new_user copia estos datos al perfil.
+      data: {
+        full_name: d.fullName,
+        phone: d.phone ?? null,
+        birth_date: d.birthDate,
+        guardian_consent: d.guardianConsent,
+        cooking_level: d.cookingLevel ?? null,
+        avoid_allergens: d.avoidAllergens,
+        marketing_opt_in: d.marketingOptIn,
+      },
       emailRedirectTo: `${site.url}/auth/confirm?next=${encodeURIComponent(next)}`,
     },
   })
@@ -59,11 +78,34 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
     if (error.code === 'weak_password') return { message: 'Esa contraseña es demasiado débil. Prueba con una más larga.' }
     return { message: 'No hemos podido crear la cuenta. Inténtalo de nuevo.' }
   }
+  if (d.marketingOptIn && isServiceRoleConfigured()) {
+    await createOrdersService().subscribeNewsletter(d.email, NEWSLETTER_CONSENT)
+  }
   // Con confirmación por email activada, Supabase no devuelve sesión.
   if (!data.session) {
-    return { ok: true, message: `Te hemos enviado un email a ${parsed.data.email}. Abre el enlace para activar tu cuenta.` }
+    return { ok: true, message: `Te hemos enviado un email a ${d.email}. Abre el enlace para activar tu cuenta.` }
   }
   redirect(next)
+}
+
+/** Proveedores de acceso social activados (Google, Apple), separados por comas. */
+const enabledProviders = () =>
+  (process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? '')
+    .split(',')
+    .map((p) => p.trim())
+    .filter((p): p is 'google' | 'apple' => p === 'google' || p === 'apple')
+
+export async function signInWithProvider(formData: FormData) {
+  const provider = formData.get('provider')?.toString()
+  const next = safeNext(formData.get('next')?.toString())
+  if (!isSupabaseConfigured() || !enabledProviders().includes(provider as 'google')) redirect('/cuenta/acceder?error=proveedor')
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: provider as 'google' | 'apple',
+    options: { redirectTo: `${site.url}/auth/confirm?next=${encodeURIComponent(next)}` },
+  })
+  if (error || !data.url) redirect('/cuenta/acceder?error=proveedor')
+  redirect(data.url)
 }
 
 export async function requestPasswordReset(_prev: AuthState, formData: FormData): Promise<AuthState> {

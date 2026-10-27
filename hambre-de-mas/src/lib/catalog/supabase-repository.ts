@@ -62,6 +62,10 @@ export function createSupabaseCatalog(): CatalogRepository {
       if (filter.minPrice != null) query = query.gte('price_cents', filter.minPrice)
       if (filter.maxPrice != null) query = query.lte('price_cents', filter.maxPrice)
       if (filter.tags?.length) query = query.contains('tags', filter.tags)
+      if (filter.excludeAllergens?.length) {
+        const list = `{${filter.excludeAllergens.join(',')}}`
+        query = query.not('allergens', 'ov', list).not('allergen_traces', 'ov', list).not('recipe_allergens', 'ov', list)
+      }
       if (filter.difficulty?.length) query = query.in('difficulty', filter.difficulty)
       if (filter.maxMinutes != null) query = query.lte('minutes', filter.maxMinutes)
       if (filter.inStock) query = query.gt('total_stock', 0)

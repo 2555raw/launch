@@ -1,3 +1,4 @@
+import { ALLERGEN_CODES, type Allergen } from '@/lib/allergens'
 import type { ProductFilter, SortKey } from '@/lib/types'
 import { DEFAULT_PAGE_SIZE } from './repository'
 
@@ -58,6 +59,7 @@ export function parseCatalogParams(params: SearchParams, base: ProductFilter = {
   const page = Math.max(1, Number.parseInt(one(params.pagina) ?? '1', 10) || 1)
   const sort = sortOptions.find((o) => o.value === one(params.orden))?.key ?? base.sort ?? 'featured'
   const diets = list(params.dieta).filter((d) => dietOptions.some((o) => o.value === d))
+  const excludeAllergens = list(params.sin).filter((a): a is Allergen => (ALLERGEN_CODES as string[]).includes(a))
   const difficulty = list(params.dificultad)
     .map(Number)
     .filter((n) => [1, 2, 3].includes(n))
@@ -71,6 +73,7 @@ export function parseCatalogParams(params: SearchParams, base: ProductFilter = {
     minPrice: euros(params.min),
     maxPrice: euros(params.max),
     tags: diets.length ? diets : undefined,
+    excludeAllergens: excludeAllergens.length ? excludeAllergens : undefined,
     difficulty: difficulty.length ? difficulty : undefined,
     maxMinutes: Number.isFinite(minutes) && minutes > 0 ? minutes : undefined,
     inStock: one(params.stock) === '1' || undefined,
@@ -84,5 +87,5 @@ export function parseCatalogParams(params: SearchParams, base: ProductFilter = {
 
 /** Número de filtros activos (sin contar orden ni búsqueda). */
 export function activeFilterCount(params: SearchParams) {
-  return ['categoria', 'min', 'max', 'dieta', 'tiempo', 'dificultad', 'stock', 'destacados'].filter((k) => one(params[k])).length
+  return ['categoria', 'min', 'max', 'dieta', 'sin', 'tiempo', 'dificultad', 'stock', 'destacados'].filter((k) => one(params[k])).length
 }

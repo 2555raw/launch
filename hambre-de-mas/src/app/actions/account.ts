@@ -14,13 +14,21 @@ export async function updateProfile(_prev: FormState, formData: FormData): Promi
   const parsed = profileSchema.safeParse({
     fullName: formData.get('fullName'),
     phone: formData.get('phone') ?? '',
+    cookingLevel: formData.get('cookingLevel') ?? '',
+    avoidAllergens: formData.getAll('avoidAllergens'),
     marketingOptIn: formData.get('marketingOptIn') === 'on',
   })
   if (!parsed.success) return { message: firstError(parsed.error), fields: fieldErrors(parsed.error) }
   const supabase = await createSupabaseServerClient()
   const { error } = await supabase
     .from('profiles')
-    .update({ full_name: parsed.data.fullName, phone: parsed.data.phone ?? null, marketing_opt_in: parsed.data.marketingOptIn })
+    .update({
+      full_name: parsed.data.fullName,
+      phone: parsed.data.phone ?? null,
+      cooking_level: parsed.data.cookingLevel,
+      avoid_allergens: parsed.data.avoidAllergens,
+      marketing_opt_in: parsed.data.marketingOptIn,
+    })
     .eq('id', user.id)
   if (error) return { message: 'No hemos podido guardar los cambios.' }
   revalidatePath('/cuenta')

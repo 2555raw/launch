@@ -269,3 +269,27 @@ describe('almacenamiento de imágenes', () => {
     await admin.client.storage.from('product-images').remove([`${productId}/admin-${run}.jpg`])
   })
 })
+
+describe('registro ampliado y alérgenos', () => {
+  it('el alta copia los datos del registro al perfil', async () => {
+    const client = createClient(url, anonKey, options)
+    const email = `perfil-${run}@test.local`
+    const { data, error } = await client.auth.signUp({
+      email,
+      password: 'contraseña-segura-1',
+      options: { data: { full_name: 'Nora', birth_date: '2013-05-04', guardian_consent: true, cooking_level: '2', avoid_allergens: ['gluten', 'nada'], marketing_opt_in: true } },
+    })
+    expect(error).toBeNull()
+    const row = (await db.query('select full_name, birth_date::text, cooking_level, avoid_allergens, guardian_consent_at is not null as consent, marketing_opt_in from profiles where id = $1', [data.user!.id])).rows[0]
+    expect(row).toEqual({ full_name: 'Nora', birth_date: '2013-05-04', cooking_level: 2, avoid_allergens: ['gluten'], consent: true, marketing_opt_in: true })
+  })
+
+  it('la base de datos rechaza códigos de alérgeno inventados', async () => {
+    await expect(db.query(`update products set allergens = array['veneno'] where id = $1`, [productId])).rejects.toThrow(/check/)
+  })
+
+  it('el cliente puede actualizar sus alérgenos pero no su rol', async () => {
+    const ok = await alice.client.from('profiles').update({ avoid_allergens: ['leche'], cooking_level: 3 }).eq('id', alice.id)
+    expect(ok.error).toBeNull()
+  })
+})

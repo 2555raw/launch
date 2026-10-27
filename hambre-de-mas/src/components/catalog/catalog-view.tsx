@@ -105,7 +105,7 @@ export function PageIntro({ eyebrow, title, soft, children }: { eyebrow?: string
     <header className="container-page pt-10 pb-10 sm:pt-14">
       {eyebrow && <p className="eyebrow mb-3">{eyebrow}</p>}
       <h1 className="max-w-4xl font-display text-[40px] leading-[1.04] font-extrabold tracking-tight sm:text-6xl">
-        {title} {soft && <span className="text-ash">{soft}</span>}
+        {title} {soft && <span className="text-chef">{soft}</span>}
       </h1>
       {children}
     </header>

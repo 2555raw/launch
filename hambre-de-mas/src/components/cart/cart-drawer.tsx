@@ -69,7 +69,7 @@ export function CartDrawer() {
           >
             <div className="flex items-center justify-between px-6 pt-6 pb-4">
               <h2 id="cesta-titulo" className="font-display text-2xl font-bold">
-                Tu cesta {count > 0 && <span className="text-ash">({count})</span>}
+                Tu cesta {count > 0 && <span className="text-chef">({count})</span>}
               </h2>
               <button
                 type="button"

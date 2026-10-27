@@ -14,7 +14,7 @@ export default function ContactPage() {
     <div className="container-page pt-12 pb-24">
       <p className="eyebrow">Contacto</p>
       <h1 className="mt-3 max-w-3xl font-display text-4xl font-extrabold tracking-tight sm:text-6xl">
-        ¿Hablamos? <span className="text-ash">Te respondemos rápido.</span>
+        ¿Hablamos? <span className="text-chef">Te respondemos rápido.</span>
       </h1>
       <div className="mt-12 grid gap-5 md:grid-cols-3">
         <div className="rounded-[24px] bg-mist p-6">

@@ -29,7 +29,7 @@ lines.push('')
 for (const p of demoProducts) {
   const id = demoId('product', p.slug)
   lines.push(
-    `insert into public.products (id, slug, name, subtitle, description, category_id, tax_rate_bps, status, is_featured, is_demo, badge, sales_count, attributes, specs, tags, includes, published_at, created_at) values (` +
+    `insert into public.products (id, slug, name, subtitle, description, category_id, tax_rate_bps, status, is_featured, is_demo, badge, sales_count, attributes, specs, tags, allergens, allergen_traces, recipe_allergens, recipe, includes, published_at, created_at) values (` +
       [
         q(id),
         q(p.slug),
@@ -46,6 +46,10 @@ for (const p of demoProducts) {
         json(p.attributes),
         json(p.specs),
         arr(p.tags),
+        arr(p.allergens.contains),
+        arr(p.allergens.traces ?? []),
+        arr(p.allergens.recipe ?? []),
+        json(p.recipe),
         arr(p.includes),
         `now() - interval '${p.publishedDaysAgo} days'`,
         `now() - interval '${p.publishedDaysAgo} days'`,

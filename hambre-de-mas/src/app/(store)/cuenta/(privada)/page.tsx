@@ -12,7 +12,13 @@ export default async function AccountPage() {
         Tus datos
       </h2>
       <p className="mt-1 mb-6 text-sm text-ash-ink">Email de acceso: {profile?.email}</p>
-      <ProfileForm fullName={profile?.fullName ?? ''} phone={profile?.phone ?? ''} marketingOptIn={profile?.marketingOptIn ?? false} />
+      <ProfileForm
+        fullName={profile?.fullName ?? ''}
+        phone={profile?.phone ?? ''}
+        marketingOptIn={profile?.marketingOptIn ?? false}
+        cookingLevel={profile?.cookingLevel ?? null}
+        avoidAllergens={profile?.avoidAllergens ?? []}
+      />
     </section>
   )
 }

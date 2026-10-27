@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { SignInForm } from '@/components/account/auth-forms'
+import { SignInForm, SocialButtons } from '@/components/account/auth-forms'
 import { safeNext } from '@/lib/auth/session'
 
 export const metadata: Metadata = { title: 'Iniciar sesión', robots: { index: false } }
@@ -17,6 +17,7 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
           El enlace no es válido o ha caducado. Inténtalo de nuevo.
         </p>
       )}
+      <SocialButtons next={target} />
       <SignInForm next={target} />
       <p className="mt-8 text-center text-sm text-ash-ink">
         ¿Primera vez por aquí?{' '}

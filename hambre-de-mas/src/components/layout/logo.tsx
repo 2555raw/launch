@@ -13,7 +13,7 @@ export function Logo({ className, compact = false }: { className?: string; compa
         width={320}
         height={290}
         priority
-        className="h-9 w-auto transition-transform duration-300 ease-[var(--ease-apple)] group-hover:-rotate-6"
+        className="hat-anim h-9 w-auto"
       />
       {!compact && (
         <span className="font-display text-[15px] leading-none font-extrabold tracking-tight text-ink">

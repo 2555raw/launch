@@ -1,5 +1,6 @@
 import 'server-only'
 import { demoCategories, demoId, demoProducts, type DemoProduct } from '@/data/demo-catalog'
+import { sortAllergens } from '@/lib/allergens'
 import type { Category, ProductDetail, ProductFilter, ProductSummary } from '@/lib/types'
 import { normalizeSearch } from './mappers'
 import { DEFAULT_PAGE_SIZE, type CatalogRepository } from './repository'
@@ -66,6 +67,10 @@ function toDetail(p: DemoProduct): ProductDetail {
     publishedAt: new Date(epoch - p.publishedDaysAgo * DAY).toISOString(),
     attributes: p.attributes,
     tags: p.tags,
+    allergens: sortAllergens(p.allergens.contains),
+    allergenTraces: sortAllergens(p.allergens.traces),
+    recipeAllergens: sortAllergens(p.allergens.recipe),
+    recipe: p.recipe,
     includes: p.includes,
     specs: p.specs,
     taxRateBps: 1000,
@@ -102,6 +107,7 @@ function summary(p: ProductDetail): ProductSummary {
     publishedAt: p.publishedAt,
     attributes: p.attributes,
     tags: p.tags,
+    allergens: p.allergens,
     category: p.category,
     image: p.image,
     hoverImage: p.hoverImage,
@@ -129,6 +135,7 @@ export function createDemoCatalog(): CatalogRepository {
         if (filter.minPrice != null && p.priceCents < filter.minPrice) return false
         if (filter.maxPrice != null && p.priceCents > filter.maxPrice) return false
         if (filter.tags?.length && !filter.tags.every((t) => p.tags.includes(t))) return false
+        if (filter.excludeAllergens?.some((a) => p.allergens.includes(a) || p.allergenTraces.includes(a) || p.recipeAllergens.includes(a))) return false
         if (filter.difficulty?.length && !filter.difficulty.includes(p.attributes.difficulty ?? 0)) return false
         if (filter.maxMinutes != null && (p.attributes.minutes ?? 0) > filter.maxMinutes) return false
         if (filter.inStock && p.totalStock <= 0) return false

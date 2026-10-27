@@ -4,10 +4,10 @@ import type { Category, ProductDetail, ProductImage, ProductSummary, Recipe, Var
 /* eslint-disable @typescript-eslint/no-explicit-any -- filas sin tipar de PostgREST */
 
 export const PRODUCT_SUMMARY_SELECT =
-  'id, slug, name, subtitle, price_cents, compare_at_price_cents, badge, is_featured, is_demo, total_stock, sales_count, published_at, attributes, tags, allergens, category:categories(slug, name, level, accent), images:product_images(id, url, alt, position), variants:product_variants(id, is_active)'
+  'id, slug, name, subtitle, price_cents, compare_at_price_cents, badge, is_featured, is_demo, total_stock, sales_count, published_at, attributes, tags, allergens, translations, category:categories(slug, name, level, accent, translations), images:product_images(id, url, alt, position), variants:product_variants(id, is_active)'
 
 export const PRODUCT_DETAIL_SELECT =
-  'id, slug, name, subtitle, description, price_cents, compare_at_price_cents, badge, is_featured, is_demo, total_stock, sales_count, published_at, attributes, tags, allergens, allergen_traces, recipe_allergens, recipe, includes, specs, tax_rate_bps, seo_title, seo_description, category_id, category:categories(slug, name, level, accent), images:product_images(id, url, alt, position), variants:product_variants(id, sku, name, price_cents, compare_at_price_cents, stock, is_active, position)'
+  'id, slug, name, subtitle, description, price_cents, compare_at_price_cents, badge, is_featured, is_demo, total_stock, sales_count, published_at, attributes, tags, allergens, allergen_traces, recipe_allergens, recipe, includes, specs, tax_rate_bps, seo_title, seo_description, category_id, translations, category:categories(slug, name, level, accent, translations), images:product_images(id, url, alt, position), variants:product_variants(id, sku, name, price_cents, compare_at_price_cents, stock, is_active, position)'
 
 export function mapCategory(row: any): Category {
   return {
@@ -20,7 +20,13 @@ export function mapCategory(row: any): Category {
     accent: row.accent ?? 'chef',
     imageUrl: row.image_url ?? null,
     position: row.position ?? 0,
+    translations: translationsOf(row.translations),
   }
+}
+
+/** Solo acepta objetos como {"en": {...}}; cualquier otra cosa se ignora. */
+export function translationsOf(raw: any) {
+  return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}
 }
 
 export function mapImages(rows: any[] | null | undefined): ProductImage[] {
@@ -63,11 +69,18 @@ export function mapProductSummary(row: any): ProductSummary {
     tags: row.tags ?? [],
     allergens: sortAllergens(row.allergens),
     category: row.category
-      ? { slug: row.category.slug, name: row.category.name, level: row.category.level, accent: row.category.accent }
+      ? {
+          slug: row.category.slug,
+          name: row.category.name,
+          level: row.category.level,
+          accent: row.category.accent,
+          translations: translationsOf(row.category.translations),
+        }
       : null,
     image: images[0] ?? null,
     hoverImage: images[1] ?? null,
     variantCount: (row.variants ?? []).filter((v: any) => v.is_active !== false).length,
+    translations: translationsOf(row.translations),
   }
 }
 

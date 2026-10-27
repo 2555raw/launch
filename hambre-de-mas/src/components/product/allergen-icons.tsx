@@ -1,5 +1,8 @@
+'use client'
+
 import { cn } from '@/lib/cn'
-import { allergenInfo, type Allergen } from '@/lib/allergens'
+import { allergenInfo, allergenLabel, type Allergen } from '@/lib/allergens'
+import { useI18n } from '@/lib/i18n/client'
 
 /**
  * Pictogramas de alérgenos: círculo de color con un dibujo blanco.
@@ -114,18 +117,20 @@ const glyphs: Record<Allergen, React.ReactNode> = {
 }
 
 export function AllergenIcon({ code, size = 40, className }: { code: Allergen; size?: number; className?: string }) {
+  const { locale } = useI18n()
   const info = allergenInfo(code)
+  const label = allergenLabel(code, locale)
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 48 48"
       role="img"
-      aria-label={info.label}
+      aria-label={label}
       className={cn('shrink-0', className)}
       style={{ color: info.color }}
     >
-      <title>{info.label}</title>
+      <title>{label}</title>
       <circle cx="24" cy="24" r="24" fill={info.color} />
       {glyphs[code]}
     </svg>
@@ -134,12 +139,13 @@ export function AllergenIcon({ code, size = 40, className }: { code: Allergen; s
 
 /** Fila de iconos con su nombre debajo (ficha de producto). */
 export function AllergenList({ codes, size = 44 }: { codes: Allergen[]; size?: number }) {
+  const { locale } = useI18n()
   return (
     <ul className="flex flex-wrap gap-x-4 gap-y-3">
       {codes.map((code) => (
         <li key={code} className="flex w-16 flex-col items-center gap-1.5 text-center text-[11px] leading-tight font-medium text-ink/80">
           <AllergenIcon code={code} size={size} />
-          {allergenInfo(code).label}
+          {allergenLabel(code, locale)}
         </li>
       ))}
     </ul>
@@ -148,10 +154,11 @@ export function AllergenList({ codes, size = 44 }: { codes: Allergen[]; size?: n
 
 /** Versión compacta para tarjetas: solo iconos, con «+n» si no caben. */
 export function AllergenStrip({ codes, max = 5, size = 22 }: { codes: Allergen[]; max?: number; size?: number }) {
+  const { locale, t } = useI18n()
   if (codes.length === 0) return null
   const shown = codes.slice(0, max)
   return (
-    <p className="flex items-center gap-1" aria-label={`Contiene: ${codes.map((c) => allergenInfo(c).label).join(', ')}`}>
+    <p className="flex items-center gap-1" aria-label={`${t({ es: 'Contiene', en: 'Contains' })}: ${codes.map((c) => allergenLabel(c, locale)).join(', ')}`}>
       {shown.map((code) => (
         <AllergenIcon key={code} code={code} size={size} />
       ))}

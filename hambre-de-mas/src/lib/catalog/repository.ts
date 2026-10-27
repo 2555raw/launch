@@ -1,4 +1,4 @@
-import type { Category, ProductDetail, ProductFilter, ProductSummary, Review, VariantForQuote } from '@/lib/types'
+import type { Category, ProductTranslation, Translations, ProductDetail, ProductFilter, ProductSummary, Review, VariantForQuote } from '@/lib/types'
 
 export type ProductPage = { items: ProductSummary[]; total: number }
 
@@ -11,7 +11,9 @@ export interface CatalogRepository {
   getProduct(slug: string): Promise<ProductDetail | null>
   listRelated(product: ProductDetail, limit?: number): Promise<ProductSummary[]>
   listReviews(productId: string): Promise<Review[]>
-  listRecentReviews(limit?: number): Promise<(Review & { productName: string; productSlug: string })[]>
+  listRecentReviews(
+    limit?: number,
+  ): Promise<(Review & { productName: string; productSlug: string; translations?: Translations<ProductTranslation> })[]>
   getVariantsForQuote(variantIds: string[]): Promise<VariantForQuote[]>
   listSitemapEntries(): Promise<{ products: { slug: string; updatedAt: string }[]; categories: string[] }>
 }

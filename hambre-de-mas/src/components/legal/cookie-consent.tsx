@@ -5,6 +5,7 @@ import Link from 'next/link'
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { useI18n } from '@/lib/i18n/client'
 
 /**
  * Banner de consentimiento de cookies.
@@ -45,6 +46,7 @@ const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 export const hasAnalyticsProvider = Boolean(plausibleDomain || gaId)
 
 export function CookieConsent() {
+  const { t } = useI18n()
   const [consent, setConsent] = useState<Consent | null>(null)
   const [open, setOpen] = useState(false)
   const [details, setDetails] = useState(false)
@@ -103,14 +105,14 @@ export function CookieConsent() {
               <CookieMark />
               <div className="min-w-0">
                 <h2 id="cookies-titulo" className="text-sm font-semibold text-ink">
-                  Usamos cookies
+                  {t({ es: 'Usamos cookies', en: 'We use cookies' })}
                 </h2>
                 <p id="cookies-texto" className="mt-0.5 leading-snug text-ash-ink">
                   {hasAnalyticsProvider
-                    ? 'Técnicas para que la tienda funcione y, si aceptas, de analítica.'
-                    : 'Solo técnicas, para que la tienda funcione (sesión y cesta).'}{' '}
+                    ? t({ es: 'Técnicas para que la tienda funcione y, si aceptas, de analítica.', en: 'Essential ones to run the shop and, if you accept, analytics.' })
+                    : t({ es: 'Solo técnicas, para que la tienda funcione (sesión y cesta).', en: 'Only essential ones, to run the shop (session and bag).' })}{' '}
                   <Link href="/legal/cookies" className="text-teja underline underline-offset-2">
-                    Más info
+                    {t({ es: 'Más info', en: 'Learn more' })}
                   </Link>
                 </p>
               </div>
@@ -121,7 +123,8 @@ export function CookieConsent() {
                 <label className="flex items-start gap-2.5">
                   <input type="checkbox" checked disabled className="mt-0.5 size-3.5 accent-chef-ink" />
                   <span>
-                    <strong className="font-semibold">Técnicas</strong> · Siempre activas: sesión, cesta y esta preferencia.
+                    <strong className="font-semibold">{t({ es: 'Técnicas', en: 'Essential' })}</strong> ·{' '}
+                    {t({ es: 'Siempre activas: sesión, cesta y esta preferencia.', en: 'Always on: session, bag and this choice.' })}
                   </span>
                 </label>
                 <label className="flex items-start gap-2.5">
@@ -133,8 +136,10 @@ export function CookieConsent() {
                     className="mt-0.5 size-3.5 accent-chef-ink"
                   />
                   <span>
-                    <strong className="font-semibold">Analítica</strong> ·{' '}
-                    {hasAnalyticsProvider ? 'Estadísticas anónimas de uso.' : 'No hay ninguna configurada.'}
+                    <strong className="font-semibold">{t({ es: 'Analítica', en: 'Analytics' })}</strong> ·{' '}
+                    {hasAnalyticsProvider
+                      ? t({ es: 'Estadísticas anónimas de uso.', en: 'Anonymous usage statistics.' })
+                      : t({ es: 'No hay ninguna configurada.', en: 'None set up.' })}
                   </span>
                 </label>
               </div>
@@ -143,18 +148,18 @@ export function CookieConsent() {
             {/* Aceptar y rechazar con el mismo peso, como pide la guía de la AEPD. */}
             <div className="mt-3 flex items-center gap-2">
               <Button size="sm" variant="dark" className="h-8 flex-1 px-3 text-[13px]" onClick={() => decide(true)}>
-                Aceptar
+                {t({ es: 'Aceptar', en: 'Accept' })}
               </Button>
               <Button size="sm" variant="dark" className="h-8 flex-1 px-3 text-[13px]" onClick={() => decide(false)}>
-                Rechazar
+                {t({ es: 'Rechazar', en: 'Reject' })}
               </Button>
               {details ? (
                 <Button size="sm" variant="secondary" className="h-8 px-3 text-[13px]" onClick={() => decide(analyticsChoice)}>
-                  Guardar
+                  {t({ es: 'Guardar', en: 'Save' })}
                 </Button>
               ) : (
                 <Button size="sm" variant="ghost" className="h-8 px-3 text-[13px]" onClick={() => setDetails(true)}>
-                  Configurar
+                  {t({ es: 'Configurar', en: 'Settings' })}
                 </Button>
               )}
             </div>
@@ -184,9 +189,10 @@ function CookieMark() {
 }
 
 export function CookieSettingsLink({ className }: { className?: string }) {
+  const { t } = useI18n()
   return (
     <button type="button" className={className} onClick={() => window.dispatchEvent(new Event(OPEN_COOKIE_SETTINGS))}>
-      Configurar cookies
+      {t({ es: 'Configurar cookies', en: 'Cookie settings' })}
     </button>
   )
 }

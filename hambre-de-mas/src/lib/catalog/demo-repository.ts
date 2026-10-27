@@ -1,5 +1,6 @@
 import 'server-only'
 import { demoCategories, demoId, demoProducts, type DemoProduct } from '@/data/demo-catalog'
+import { demoCategoriesEn, demoProductsEn } from '@/data/demo-catalog-en'
 import { sortAllergens } from '@/lib/allergens'
 import type { Category, ProductDetail, ProductFilter, ProductSummary } from '@/lib/types'
 import { normalizeSearch } from './mappers'
@@ -24,6 +25,7 @@ const categories: Category[] = demoCategories.map((c) => ({
   accent: c.accent,
   imageUrl: c.image,
   position: c.position,
+  translations: demoCategoriesEn[c.slug] ? { en: demoCategoriesEn[c.slug] } : {},
 }))
 
 const strip = (s: string) =>
@@ -74,7 +76,9 @@ function toDetail(p: DemoProduct): ProductDetail {
     includes: p.includes,
     specs: p.specs,
     taxRateBps: 1000,
-    category: category ? { slug: category.slug, name: category.name, level: category.level, accent: category.accent } : null,
+    category: category
+      ? { slug: category.slug, name: category.name, level: category.level, accent: category.accent, translations: category.translations }
+      : null,
     categoryId: category?.id ?? null,
     images,
     image: images[0] ?? null,
@@ -83,12 +87,16 @@ function toDetail(p: DemoProduct): ProductDetail {
     variantCount: variants.length,
     seoTitle: null,
     seoDescription: null,
+    translations: demoProductsEn[p.slug] ? { en: demoProductsEn[p.slug] } : {},
   }
 }
 
 const products = demoProducts.map(toDetail)
 const searchIndex = new Map(
-  products.map((p) => [p.id, strip([p.name, p.subtitle, p.description, p.tags.join(' ')].join(' '))]),
+  products.map((p) => {
+    const en = p.translations?.en
+    return [p.id, strip([p.name, p.subtitle, p.description, p.tags.join(' '), en?.name, en?.subtitle, en?.description].join(' '))]
+  }),
 )
 
 function summary(p: ProductDetail): ProductSummary {
@@ -112,6 +120,7 @@ function summary(p: ProductDetail): ProductSummary {
     image: p.image,
     hoverImage: p.hoverImage,
     variantCount: p.variantCount,
+    translations: p.translations,
   }
 }
 
@@ -192,6 +201,7 @@ export function createDemoCatalog(): CatalogRepository {
             productPublished: true,
             taxRateBps: p.taxRateBps,
             imageUrl: p.image?.url ?? null,
+            translations: p.translations,
           })),
       )
     },

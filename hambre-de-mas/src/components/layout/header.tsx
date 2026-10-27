@@ -8,7 +8,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-context'
 import { BagIcon, ChevronRightIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 import type { Category } from '@/lib/types'
+import { LocaleSwitcher } from './locale-switcher'
 import { Logo } from './logo'
 import { SearchPanel } from './search-panel'
 
@@ -16,15 +18,17 @@ const ease = [0.28, 0.11, 0.32, 1] as const
 
 type NavCategory = Pick<Category, 'slug' | 'name' | 'tagline' | 'level' | 'imageUrl'>
 
-const links = [
-  { href: '/tienda?orden=novedades', label: 'Novedades' },
-  { href: '/tienda?destacados=1', label: 'Destacados' },
-  { href: '/categoria/caja-sorpresa', label: 'Caja sorpresa' },
-  { href: '/#como-funciona', label: 'Cómo funciona' },
+const navLinks = [
+  { href: '/tienda?orden=novedades', label: { es: 'Novedades', en: 'New' } },
+  { href: '/tienda?destacados=1', label: { es: 'Destacados', en: 'Featured' } },
+  { href: '/categoria/caja-sorpresa', label: { es: 'Caja sorpresa', en: 'Surprise box' } },
+  { href: '/#como-funciona', label: { es: 'Cómo funciona', en: 'How it works' } },
 ]
 
 export function Header({ categories }: { categories: NavCategory[] }) {
   const pathname = usePathname()
+  const { t } = useI18n()
+  const links = navLinks.map((link) => ({ href: link.href, label: t(link.label) }))
   const { count, hydrated, openDrawer } = useCart()
   const [scrolled, setScrolled] = useState(false)
   const [flyout, setFlyout] = useState(false)
@@ -84,7 +88,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
         href="#contenido"
         className="sr-only z-[60] rounded-full bg-ink px-4 py-2 text-sm text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
       >
-        Saltar al contenido
+        {t({ es: 'Saltar al contenido', en: 'Skip to content' })}
       </a>
 
       <header
@@ -94,7 +98,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
           scrolled && !overlayOpen && !mobile && 'shadow-[0_1px_0_var(--color-line)]',
         )}
       >
-        <nav aria-label="Principal" className="container-page flex h-14 items-center justify-between gap-4">
+        <nav aria-label={t({ es: 'Principal', en: 'Main' })} className="container-page flex h-14 items-center justify-between gap-4">
           <Logo />
 
           <ul className="hidden items-center gap-7 text-[13px] text-ink/85 lg:flex">
@@ -106,12 +110,12 @@ export function Header({ categories }: { categories: NavCategory[] }) {
                 onClick={() => (flyout ? setFlyout(false) : openFlyout())}
                 className="py-4 transition-colors hover:text-ink"
               >
-                Kits por nivel
+                {t({ es: 'Kits por nivel', en: 'Kits by level' })}
               </button>
             </li>
             <li>
               <Link href="/tienda" className="py-4 transition-colors hover:text-ink">
-                Tienda
+                {t({ es: 'Tienda', en: 'Shop' })}
               </Link>
             </li>
             {links.map((link) => (
@@ -124,6 +128,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
           </ul>
 
           <div className="flex items-center gap-1">
+            <LocaleSwitcher className="hidden sm:block" />
             <button
               type="button"
               onClick={() => {
@@ -131,7 +136,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
                 setSearch((s) => !s)
               }}
               className="grid size-10 place-items-center rounded-full text-ink/80 transition-colors hover:bg-mist hover:text-ink"
-              aria-label="Buscar en la tienda"
+              aria-label={t({ es: 'Buscar en la tienda', en: 'Search the shop' })}
               aria-expanded={search}
             >
               <SearchIcon size={19} />
@@ -139,7 +144,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
             <Link
               href="/cuenta"
               className="hidden size-10 place-items-center rounded-full text-ink/80 transition-colors hover:bg-mist hover:text-ink sm:grid"
-              aria-label="Mi cuenta"
+              aria-label={t({ es: 'Mi cuenta', en: 'My account' })}
             >
               <UserIcon size={20} />
             </Link>
@@ -147,7 +152,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
               type="button"
               onClick={openDrawer}
               className="relative grid size-10 place-items-center rounded-full text-ink/80 transition-colors hover:bg-mist hover:text-ink"
-              aria-label={`Cesta, ${count} ${count === 1 ? 'producto' : 'productos'}`}
+              aria-label={t({ es: `Cesta, ${count} ${count === 1 ? 'producto' : 'productos'}`, en: `Bag, ${count} ${count === 1 ? 'item' : 'items'}` })}
             >
               <BagIcon size={20} />
               <AnimatePresence>
@@ -169,7 +174,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
               type="button"
               onClick={() => setMobile((m) => !m)}
               className="grid size-10 place-items-center rounded-full text-ink transition-colors hover:bg-mist lg:hidden"
-              aria-label={mobile ? 'Cerrar menú' : 'Abrir menú'}
+              aria-label={mobile ? t({ es: 'Cerrar menú', en: 'Close menu' }) : t({ es: 'Abrir menú', en: 'Open menu' })}
               aria-expanded={mobile}
               aria-controls="menu-movil"
             >
@@ -194,21 +199,21 @@ export function Header({ categories }: { categories: NavCategory[] }) {
             >
               <div className="container-page grid grid-cols-[1fr_2.5fr] gap-12 pt-6 pb-10">
                 <div>
-                  <p className="mb-3 text-xs text-ash-ink">Comprar kits</p>
+                  <p className="mb-3 text-xs text-ash-ink">{t({ es: 'Comprar kits', en: 'Shop kits' })}</p>
                   <ul className="space-y-2">
                     <li>
                       <Link href="/tienda" className="font-display text-2xl font-bold hover:text-teja">
-                        Ver toda la tienda
+                        {t({ es: 'Ver toda la tienda', en: 'Shop all kits' })}
                       </Link>
                     </li>
                     <li>
                       <Link href="/tienda?orden=novedades" className="font-display text-2xl font-bold hover:text-teja">
-                        Novedades
+                        {t({ es: 'Novedades', en: 'New arrivals' })}
                       </Link>
                     </li>
                     <li>
                       <Link href="/tienda?orden=populares" className="font-display text-2xl font-bold hover:text-teja">
-                        Los más vendidos
+                        {t({ es: 'Los más vendidos', en: 'Best sellers' })}
                       </Link>
                     </li>
                   </ul>
@@ -234,7 +239,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
                           )}
                         </div>
                         <p className="mt-3 text-[11px] font-semibold tracking-wide text-teja uppercase">
-                          {c.level ? `Nivel ${c.level}` : 'Cada mes'}
+                          {c.level ? t({ es: `Nivel ${c.level}`, en: `Level ${c.level}` }) : t({ es: 'Cada mes', en: 'Every month' })}
                         </p>
                         <p className="text-sm font-semibold">{c.name}</p>
                         <p className="text-xs text-ash-ink">{c.tagline}</p>
@@ -260,9 +265,9 @@ export function Header({ categories }: { categories: NavCategory[] }) {
               transition={{ duration: 0.35, ease }}
               className="overflow-y-auto bg-white lg:hidden"
             >
-              <nav aria-label="Menú móvil" className="container-page pt-4 pb-12">
+              <nav aria-label={t({ es: 'Menú móvil', en: 'Mobile menu' })} className="container-page pt-4 pb-12">
                 <ul className="space-y-1">
-                  {[{ href: '/tienda', label: 'Tienda' }, ...categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name })), ...links].map(
+                  {[{ href: '/tienda', label: t({ es: 'Tienda', en: 'Shop' }) }, ...categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name })), ...links].map(
                     (item, i) => (
                       <motion.li
                         key={item.href}
@@ -283,11 +288,12 @@ export function Header({ categories }: { categories: NavCategory[] }) {
                 </ul>
                 <div className="mt-8 border-t border-line pt-6">
                   <Link href="/cuenta" className="flex items-center gap-3 py-2 text-[17px]">
-                    <UserIcon /> Mi cuenta
+                    <UserIcon /> {t({ es: 'Mi cuenta', en: 'My account' })}
                   </Link>
                   <Link href="/cesta" className="flex items-center gap-3 py-2 text-[17px]">
-                    <BagIcon /> Cesta
+                    <BagIcon /> {t({ es: 'Cesta', en: 'Bag' })}
                   </Link>
+                  <LocaleSwitcher variant="segmented" className="mt-6" />
                 </div>
               </nav>
             </motion.div>

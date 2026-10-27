@@ -4,10 +4,11 @@ import Link from 'next/link'
 import { startTransition, useActionState, useState, type FormEvent } from 'react'
 import { requestPasswordReset, signIn, signInWithProvider, signUp, updatePassword, type AuthState } from '@/app/actions/auth'
 import { AllergenIcon } from '@/components/product/allergen-icons'
-import { ALLERGENS } from '@/lib/allergens'
+import { ALLERGENS, allergenLabel } from '@/lib/allergens'
+import { authProviders } from '@/lib/auth/providers'
 import { GUARDIAN_CONSENT_AGE, ageFrom } from '@/lib/validation/schemas'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 
 /**
  * Envía el formulario sin que React lo vacíe después: si el servidor devuelve
@@ -71,60 +72,169 @@ export function FormMessage({ state }: { state: AuthState }) {
   )
 }
 
+/* ------------------------------------------------------------------------
+ * Pantallas de acceso (fondo oscuro, ver auth-stage.tsx)
+ * ---------------------------------------------------------------------- */
+
+const darkInput =
+  'h-12 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 text-[15px] text-white transition-colors placeholder:text-white/30 focus:border-white/40 focus:bg-white/[0.08] focus:outline-none aria-[invalid=true]:border-chef [color-scheme:dark]'
+
+const darkCheck = 'mt-0.5 size-[18px] shrink-0 rounded-md accent-chef'
+
+function AuthField({
+  label,
+  name,
+  error,
+  hint,
+  aside,
+  className,
+  ...props
+}: React.InputHTMLAttributes<HTMLInputElement> & { label: string; name: string; error?: string; hint?: string; aside?: React.ReactNode }) {
+  return (
+    <div className={className}>
+      <div className="mb-1.5 flex items-baseline justify-between gap-3">
+        <label htmlFor={name} className="text-[11px] font-semibold tracking-[0.12em] text-white/55 uppercase">
+          {label}
+        </label>
+        {aside}
+      </div>
+      <input
+        id={name}
+        name={name}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? `${name}-error` : hint ? `${name}-hint` : undefined}
+        className={darkInput}
+        {...props}
+      />
+      {hint && !error && (
+        <p id={`${name}-hint`} className="mt-1 text-xs text-white/40">
+          {hint}
+        </p>
+      )}
+      {error && (
+        <p id={`${name}-error`} className="mt-1 text-xs text-[#ff8a7a]" role="alert">
+          {error}
+        </p>
+      )}
+    </div>
+  )
+}
+
+function AuthMessage({ state }: { state: AuthState }) {
+  if (!state?.message) return null
+  return (
+    <p
+      className={cn(
+        'rounded-xl px-4 py-3 text-sm',
+        state.ok ? 'bg-hoja/15 text-[#b9e39f] ring-1 ring-hoja/30' : 'bg-chef/15 text-[#ffb3a8] ring-1 ring-chef/30',
+      )}
+      role={state.ok ? 'status' : 'alert'}
+    >
+      {state.message}
+    </p>
+  )
+}
+
+const primary =
+  'btn-sheen inline-flex h-12 w-full items-center justify-center rounded-xl bg-chef-ink text-[15px] font-semibold text-white transition-[background-color,transform] hover:bg-chef active:scale-[0.99] disabled:opacity-50'
+
+export function AuthHeading({ title, lead }: { title: string; lead?: string }) {
+  return (
+    <div className="mb-6">
+      <h1 className="font-display text-[26px] leading-tight font-bold tracking-tight">{title}</h1>
+      {lead && <p className="mt-1.5 text-sm text-white/55">{lead}</p>}
+    </div>
+  )
+}
+
+export function AuthDivider() {
+  const { t } = useI18n()
+  return (
+    <div className="my-5 flex items-center gap-3 text-xs text-white/40">
+      <span className="h-px flex-1 bg-white/10" /> {t({ es: 'o', en: 'or' })} <span className="h-px flex-1 bg-white/10" />
+    </div>
+  )
+}
+
 export function SignInForm({ next }: { next: string }) {
+  const { t } = useI18n()
   const [state, action, pending] = useActionState(signIn, null)
   return (
     <form action={action} onSubmit={keepValues(action)} className="space-y-4" noValidate>
       <input type="hidden" name="next" value={next} />
-      <FormField label="Email" name="email" type="email" autoComplete="email" required error={state?.fields?.email} />
-      <FormField label="Contraseña" name="password" type="password" autoComplete="current-password" required error={state?.fields?.password} />
-      <div className="text-right">
-        <Link href="/cuenta/recuperar" className="text-sm text-teja hover:underline">
-          ¿Has olvidado la contraseña?
-        </Link>
-      </div>
-      <FormMessage state={state} />
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
-        {pending ? 'Entrando…' : 'Iniciar sesión'}
-      </Button>
+      <AuthField
+        label="Email"
+        name="email"
+        type="email"
+        autoComplete="email"
+        placeholder={t({ es: 'tu@email.com', en: 'you@email.com' })}
+        required
+        error={state?.fields?.email}
+      />
+      <AuthField
+        label={t({ es: 'Contraseña', en: 'Password' })}
+        name="password"
+        type="password"
+        autoComplete="current-password"
+        placeholder="••••••••"
+        required
+        error={state?.fields?.password}
+        aside={
+          <Link href="/cuenta/recuperar" className="text-xs text-white/55 underline-offset-2 hover:text-white hover:underline">
+            {t({ es: '¿La has olvidado?', en: 'Forgot it?' })}
+          </Link>
+        }
+      />
+      <AuthMessage state={state} />
+      <button type="submit" className={primary} disabled={pending}>
+        {pending ? t({ es: 'Entrando…', en: 'Signing in…' }) : t({ es: 'Iniciar sesión', en: 'Sign in' })}
+      </button>
     </form>
   )
 }
 
 export function SignUpForm({ next }: { next: string }) {
+  const { locale, t } = useI18n()
   const [state, action, pending] = useActionState(signUp, null)
   const [birthDate, setBirthDate] = useState('')
   const [level, setLevel] = useState('')
   const age = birthDate ? ageFrom(birthDate) : Number.NaN
   const needsGuardian = Number.isFinite(age) && age < GUARDIAN_CONSENT_AGE
   const f = state?.fields ?? {}
-  if (state?.ok) return <FormMessage state={state} />
+  if (state?.ok) return <AuthMessage state={state} />
+
+  const legend = 'mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-[0.12em] text-white/55 uppercase'
+  const step = 'grid size-5 place-items-center rounded-full bg-white/10 text-[10px] text-white'
 
   return (
-    <form action={action} onSubmit={keepValues(action)} className="space-y-8" noValidate>
+    <form action={action} onSubmit={keepValues(action)} className="space-y-7" noValidate>
       <input type="hidden" name="next" value={next} />
 
       <fieldset className="space-y-4">
-        <legend className="mb-3 font-display text-lg font-bold">1 · Tu acceso</legend>
-        <FormField label="Email" name="email" type="email" autoComplete="email" required error={f.email} />
-        <FormField
-          label="Contraseña"
+        <legend className={legend}>
+          <span className={step}>1</span> {t({ es: 'Tu acceso', en: 'Your login' })}
+        </legend>
+        <AuthField label="Email" name="email" type="email" autoComplete="email" placeholder={t({ es: 'tu@email.com', en: 'you@email.com' })} required error={f.email} />
+        <AuthField
+          label={t({ es: 'Contraseña', en: 'Password' })}
           name="password"
           type="password"
           autoComplete="new-password"
           required
           minLength={8}
-          hint="Mínimo 8 caracteres."
+          hint={t({ es: 'Mínimo 8 caracteres.', en: 'At least 8 characters.' })}
           error={f.password}
         />
       </fieldset>
 
       <fieldset className="space-y-4">
-        <legend className="mb-3 font-display text-lg font-bold">2 · Sobre ti</legend>
-        <FormField label="Nombre y apellidos" name="fullName" autoComplete="name" required error={f.fullName} />
+        <legend className={legend}>
+          <span className={step}>2</span> {t({ es: 'Sobre ti', en: 'About you' })}
+        </legend>
+        <AuthField label={t({ es: 'Nombre y apellidos', en: 'Full name' })} name="fullName" autoComplete="name" required error={f.fullName} />
         <div className="grid gap-4 sm:grid-cols-2">
-          <FormField
-            label="Fecha de nacimiento"
+          <AuthField
+            label={t({ es: 'Fecha de nacimiento', en: 'Date of birth' })}
             name="birthDate"
             type="date"
             autoComplete="bday"
@@ -134,108 +244,112 @@ export function SignUpForm({ next }: { next: string }) {
             onChange={(e) => setBirthDate(e.target.value)}
             error={f.birthDate}
           />
-          <FormField label="Teléfono (opcional)" name="phone" type="tel" autoComplete="tel" error={f.phone} />
+          <AuthField label={t({ es: 'Teléfono (opcional)', en: 'Phone (optional)' })} name="phone" type="tel" autoComplete="tel" error={f.phone} />
         </div>
         {needsGuardian && (
-          <label className="flex animate-fade-in items-start gap-3 rounded-2xl bg-almendra-soft p-4 text-sm text-teja">
-            <input type="checkbox" name="guardianConsent" className="mt-0.5 size-4 shrink-0 accent-chef-ink" />
+          <label className="flex animate-fade-in items-start gap-3 rounded-xl bg-almendra/10 p-4 text-sm text-almendra ring-1 ring-almendra/20">
+            <input type="checkbox" name="guardianConsent" className={darkCheck} />
             <span>
-              Tengo menos de 14 años y mi madre, padre o tutor me da permiso para crear esta cuenta y ha leído la política de privacidad.
+              {t({
+                es: 'Tengo menos de 14 años y mi madre, padre o tutor me da permiso para crear esta cuenta y ha leído la política de privacidad.',
+                en: "I'm under 14 and my parent or guardian gives me permission to create this account and has read the privacy policy.",
+              })}
             </span>
           </label>
         )}
-        {f.guardianConsent && <p className="text-xs text-teja">{f.guardianConsent}</p>}
+        {f.guardianConsent && <p className="text-xs text-[#ff8a7a]">{f.guardianConsent}</p>}
       </fieldset>
 
       <fieldset>
-        <legend className="mb-1 font-display text-lg font-bold">3 · Tu nivel en la cocina</legend>
-        <p className="mb-3 text-sm text-ash-ink">Te recomendaremos kits a tu medida. Lo puedes cambiar cuando quieras.</p>
+        <legend className={legend}>
+          <span className={step}>3</span> {t({ es: 'Tu nivel en la cocina', en: 'Your cooking level' })}
+        </legend>
         <div className="grid grid-cols-3 gap-2" role="radiogroup">
-          {[
-            ['1', 'Empiezo', 'Nunca he cocinado'],
-            ['2', 'Me defiendo', 'Sartén y cazo, sí'],
-            ['3', 'Voy a por todas', 'Recetas del mundo'],
-          ].map(([value, title, text]) => (
+          {(
+            [
+              ['1', t({ es: 'Empiezo', en: 'Beginner' }), t({ es: 'Nunca he cocinado', en: 'Never cooked' })],
+              ['2', t({ es: 'Me defiendo', en: 'Getting there' }), t({ es: 'Sartén y cazo, sí', en: 'Pans and pots, yes' })],
+              ['3', t({ es: 'Voy a por todas', en: 'Bring it on' }), t({ es: 'Recetas del mundo', en: 'World recipes' })],
+            ] as const
+          ).map(([value, title, text]) => (
             <label
               key={value}
               className={cn(
-                'cursor-pointer rounded-2xl border-2 p-3 text-center transition-colors',
-                level === value ? 'border-chef bg-almendra-soft' : 'border-line hover:border-line-strong',
+                'cursor-pointer rounded-xl border p-3 text-center transition-colors',
+                level === value ? 'border-chef bg-chef/15' : 'border-white/10 bg-white/[0.03] hover:border-white/25',
               )}
             >
-              <input type="radio" name="cookingLevel" value={value} checked={level === value} onChange={() => setLevel(value ?? "")} className="sr-only" />
+              <input type="radio" name="cookingLevel" value={value} checked={level === value} onChange={() => setLevel(value)} className="sr-only" />
               <span className="block font-display text-2xl font-extrabold text-chef">{value}</span>
-              <span className="block text-sm font-semibold">{title}</span>
-              <span className="block text-[11px] text-ash-ink">{text}</span>
+              <span className="block text-[13px] font-semibold">{title}</span>
+              <span className="block text-[11px] text-white/45">{text}</span>
             </label>
           ))}
         </div>
       </fieldset>
 
       <fieldset>
-        <legend className="mb-1 font-display text-lg font-bold">4 · Alérgenos que evitas (opcional)</legend>
-        <p className="mb-3 text-sm text-ash-ink">Te avisaremos en los kits que los contengan.</p>
-        <div className="flex flex-wrap gap-2">
+        <legend className={legend}>
+          <span className={step}>4</span> {t({ es: 'Alérgenos que evitas (opcional)', en: 'Allergens you avoid (optional)' })}
+        </legend>
+        <div className="flex flex-wrap gap-1.5">
           {ALLERGENS.map((a) => (
             <label key={a.code} className="cursor-pointer">
               <input type="checkbox" name="avoidAllergens" value={a.code} className="peer sr-only" />
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-line py-1 pr-3 pl-1 text-xs font-medium transition-colors peer-checked:border-chef peer-checked:bg-almendra-soft peer-checked:text-teja peer-focus-visible:ring-2 peer-focus-visible:ring-chef-ink">
-                <AllergenIcon code={a.code} size={22} /> {a.label}
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] py-1 pr-3 pl-1 text-xs text-white/75 transition-colors peer-checked:border-chef peer-checked:bg-chef/15 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-white/60">
+                <AllergenIcon code={a.code} size={20} /> {allergenLabel(a.code, locale)}
               </span>
             </label>
           ))}
         </div>
       </fieldset>
 
-      <div className="space-y-3 border-t border-line pt-6">
-        <label className="flex items-start gap-3 text-sm">
-          <input type="checkbox" name="marketingOptIn" className="mt-0.5 size-4 shrink-0 accent-chef-ink" />
-          <span>Quiero recibir recetas nuevas y promociones por email (opcional).</span>
+      <div className="space-y-3 border-t border-white/10 pt-5 text-sm text-white/75">
+        <label className="flex items-start gap-3">
+          <input type="checkbox" name="marketingOptIn" className={darkCheck} />
+          <span>{t({ es: 'Quiero recibir recetas nuevas y promociones por email (opcional).', en: 'Send me new recipes and offers by email (optional).' })}</span>
         </label>
-        <label className="flex items-start gap-3 text-sm">
-          <input type="checkbox" name="acceptPrivacy" className="mt-0.5 size-4 shrink-0 accent-chef-ink" required />
+        <label className="flex items-start gap-3">
+          <input type="checkbox" name="acceptPrivacy" className={darkCheck} required />
           <span>
-            He leído y acepto la{' '}
-            <Link href="/legal/privacidad" target="_blank" className="text-teja underline underline-offset-2">
-              política de privacidad
+            {t({ es: 'He leído y acepto la', en: 'I have read and accept the' })}{' '}
+            <Link href="/legal/privacidad" target="_blank" className="font-medium text-white underline underline-offset-2">
+              {t({ es: 'política de privacidad', en: 'privacy policy' })}
             </Link>
             .
           </span>
         </label>
-        {f.acceptPrivacy && <p className="text-xs text-teja">{f.acceptPrivacy}</p>}
+        {f.acceptPrivacy && <p className="text-xs text-[#ff8a7a]">{f.acceptPrivacy}</p>}
       </div>
 
-      <FormMessage state={state} />
-      <Button type="submit" size="lg" className="btn-sheen w-full" disabled={pending}>
-        {pending ? 'Creando cuenta…' : 'Crear mi cuenta'}
-      </Button>
+      <AuthMessage state={state} />
+      <button type="submit" className={primary} disabled={pending}>
+        {pending ? t({ es: 'Creando cuenta…', en: 'Creating account…' }) : t({ es: 'Crear mi cuenta', en: 'Create my account' })}
+      </button>
     </form>
   )
 }
 
-const providers = (process.env.NEXT_PUBLIC_AUTH_PROVIDERS ?? '')
-  .split(',')
-  .map((p) => p.trim())
-  .filter((p) => p === 'google' || p === 'apple')
 
 /** Botones «Continuar con Google / Apple» (solo si están activados en Supabase y en NEXT_PUBLIC_AUTH_PROVIDERS). */
 export function SocialButtons({ next }: { next: string }) {
-  if (providers.length === 0) return null
+  const { t } = useI18n()
+  if (authProviders.length === 0) return null
   return (
-    <div className="space-y-3">
-      {providers.map((provider) => (
+    <div className="space-y-2.5">
+      {authProviders.map((provider) => (
         <form key={provider} action={signInWithProvider}>
           <input type="hidden" name="provider" value={provider} />
           <input type="hidden" name="next" value={next} />
-          <Button type="submit" variant="secondary" size="lg" className="w-full">
+          <button
+            type="submit"
+            className="inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-[15px] font-semibold text-white transition-colors hover:border-white/25 hover:bg-white/[0.08]"
+          >
             {provider === 'google' ? <GoogleMark /> : <AppleMark />}
-            Continuar con {provider === 'google' ? 'Google' : 'Apple'}
-          </Button>
+            {t({ es: 'Continuar con', en: 'Continue with' })} {provider === 'google' ? 'Google' : 'Apple'}
+          </button>
         </form>
       ))}
-      <div className="flex items-center gap-3 py-2 text-xs text-ash-ink">
-        <span className="h-px flex-1 bg-line" /> o con tu email <span className="h-px flex-1 bg-line" />
-      </div>
     </div>
   )
 }
@@ -263,39 +377,49 @@ function AppleMark() {
 }
 
 export function ResetRequestForm() {
+  const { t } = useI18n()
   const [state, action, pending] = useActionState(requestPasswordReset, null)
-  if (state?.ok) return <FormMessage state={state} />
+  if (state?.ok) return <AuthMessage state={state} />
   return (
-    <form action={action} className="space-y-4" noValidate>
-      <FormField label="Email" name="email" type="email" autoComplete="email" required />
-      <FormMessage state={state} />
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
-        {pending ? 'Enviando…' : 'Enviar enlace'}
-      </Button>
+    <form action={action} onSubmit={keepValues(action)} className="space-y-4" noValidate>
+      <AuthField label="Email" name="email" type="email" autoComplete="email" placeholder={t({ es: 'tu@email.com', en: 'you@email.com' })} required />
+      <AuthMessage state={state} />
+      <button type="submit" className={primary} disabled={pending}>
+        {pending ? t({ es: 'Enviando…', en: 'Sending…' }) : t({ es: 'Enviar enlace', en: 'Send link' })}
+      </button>
     </form>
   )
 }
 
 export function NewPasswordForm() {
+  const { t } = useI18n()
   const [state, action, pending] = useActionState(updatePassword, null)
   if (state?.ok) {
     return (
       <div className="space-y-4">
-        <FormMessage state={state} />
-        <Link href="/cuenta" className="text-sm text-teja hover:underline">
-          Ir a mi cuenta
+        <AuthMessage state={state} />
+        <Link href="/cuenta" className={primary}>
+          {t({ es: 'Ir a mi cuenta', en: 'Go to my account' })}
         </Link>
       </div>
     )
   }
   return (
-    <form action={action} className="space-y-4" noValidate>
-      <FormField label="Nueva contraseña" name="password" type="password" autoComplete="new-password" required minLength={8} hint="Mínimo 8 caracteres." />
-      <FormField label="Repite la contraseña" name="confirm" type="password" autoComplete="new-password" required minLength={8} />
-      <FormMessage state={state} />
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
-        {pending ? 'Guardando…' : 'Guardar contraseña'}
-      </Button>
+    <form action={action} onSubmit={keepValues(action)} className="space-y-4" noValidate>
+      <AuthField
+        label={t({ es: 'Nueva contraseña', en: 'New password' })}
+        name="password"
+        type="password"
+        autoComplete="new-password"
+        required
+        minLength={8}
+        hint={t({ es: 'Mínimo 8 caracteres.', en: 'At least 8 characters.' })}
+      />
+      <AuthField label={t({ es: 'Repite la contraseña', en: 'Repeat the password' })} name="confirm" type="password" autoComplete="new-password" required minLength={8} />
+      <AuthMessage state={state} />
+      <button type="submit" className={primary} disabled={pending}>
+        {pending ? t({ es: 'Guardando…', en: 'Saving…' }) : t({ es: 'Guardar contraseña', en: 'Save password' })}
+      </button>
     </form>
   )
 }

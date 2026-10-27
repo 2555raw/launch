@@ -8,6 +8,7 @@ import {
   mapProductDetail,
   mapProductSummary,
   normalizeSearch,
+  translationsOf,
 } from './mappers'
 import { DEFAULT_PAGE_SIZE, type CatalogRepository } from './repository'
 
@@ -139,14 +140,14 @@ export function createSupabaseCatalog(): CatalogRepository {
     async listRecentReviews(limit = 3) {
       const { data, error } = await db()
         .from('reviews')
-        .select('id, rating, title, body, author_name, is_verified, created_at, product:products(name, slug)')
+        .select('id, rating, title, body, author_name, is_verified, created_at, product:products(name, slug, translations)')
         .eq('status', 'approved')
         .eq('is_verified', true)
         .gte('rating', 4)
         .order('created_at', { ascending: false })
         .limit(limit)
       if (error) fail('opiniones recientes', error)
-      return (data ?? []).map((r: any) => ({ ...mapReview(r), productName: r.product?.name ?? '', productSlug: r.product?.slug ?? '' }))
+      return (data ?? []).map((r: any) => ({ ...mapReview(r), productName: r.product?.name ?? '', productSlug: r.product?.slug ?? '', translations: translationsOf(r.product?.translations) }))
     },
 
     async getVariantsForQuote(variantIds) {
@@ -155,7 +156,7 @@ export function createSupabaseCatalog(): CatalogRepository {
       const { data, error } = await db()
         .from('product_variants')
         .select(
-          'id, sku, name, price_cents, compare_at_price_cents, stock, is_active, product:products(id, slug, name, status, tax_rate_bps, images:product_images(url, position))',
+          'id, sku, name, price_cents, compare_at_price_cents, stock, is_active, product:products(id, slug, name, status, tax_rate_bps, translations, images:product_images(url, position))',
         )
         .in('id', ids)
       if (error) fail('variantes', error)
@@ -175,6 +176,7 @@ export function createSupabaseCatalog(): CatalogRepository {
           productPublished: v.product?.status === 'published',
           taxRateBps: v.product?.tax_rate_bps ?? 1000,
           imageUrl: images[0]?.url ?? null,
+          translations: translationsOf(v.product?.translations),
         }
       })
     },

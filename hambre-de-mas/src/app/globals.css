@@ -382,3 +382,9 @@
 .bg-almendra .steam span {
   background: radial-gradient(circle, rgb(191 45 17 / 0.28), rgb(191 45 17 / 0) 70%);
 }
+
+/* Remolino ASCII de las pantallas de acceso: gira muy despacio. */
+.auth-swirl {
+  mask-image: radial-gradient(closest-side, #000 70%, transparent 100%);
+  animation: spin-slow 240s linear infinite;
+}

@@ -3,6 +3,7 @@
 import { writeFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { demoCategories, demoId, demoProducts, demoPromotions } from '../src/data/demo-catalog.ts'
+import { demoCategoriesEn, demoProductsEn } from '../src/data/demo-catalog-en.ts'
 
 const q = (value: string | null | undefined) => (value == null ? 'null' : `'${value.replace(/'/g, "''")}'`)
 const arr = (values: string[]) => `array[${values.map(q).join(', ')}]::text[]`
@@ -19,9 +20,20 @@ const lines: string[] = [
 
 for (const c of demoCategories) {
   lines.push(
-    `insert into public.categories (id, slug, name, tagline, description, level, accent, image_url, position) values (` +
-      [q(demoId('category', c.slug)), q(c.slug), q(c.name), q(c.tagline), q(c.description), c.level ?? 'null', q(c.accent), q(c.image), c.position].join(', ') +
-      `) on conflict (id) do nothing;`,
+    `insert into public.categories (id, slug, name, tagline, description, level, accent, image_url, position, translations) values (` +
+      [
+        q(demoId('category', c.slug)),
+        q(c.slug),
+        q(c.name),
+        q(c.tagline),
+        q(c.description),
+        c.level ?? 'null',
+        q(c.accent),
+        q(c.image),
+        c.position,
+        json(demoCategoriesEn[c.slug] ? { en: demoCategoriesEn[c.slug] } : {}),
+      ].join(', ') +
+      `) on conflict (id) do update set translations = excluded.translations;`,
   )
 }
 lines.push('')
@@ -29,7 +41,7 @@ lines.push('')
 for (const p of demoProducts) {
   const id = demoId('product', p.slug)
   lines.push(
-    `insert into public.products (id, slug, name, subtitle, description, category_id, tax_rate_bps, status, is_featured, is_demo, badge, sales_count, attributes, specs, tags, allergens, allergen_traces, recipe_allergens, recipe, includes, published_at, created_at) values (` +
+    `insert into public.products (id, slug, name, subtitle, description, category_id, tax_rate_bps, status, is_featured, is_demo, badge, sales_count, attributes, specs, tags, allergens, allergen_traces, recipe_allergens, recipe, includes, translations, published_at, created_at) values (` +
       [
         q(id),
         q(p.slug),
@@ -51,10 +63,11 @@ for (const p of demoProducts) {
         arr(p.allergens.recipe ?? []),
         json(p.recipe),
         arr(p.includes),
+        json(demoProductsEn[p.slug] ? { en: demoProductsEn[p.slug] } : {}),
         `now() - interval '${p.publishedDaysAgo} days'`,
         `now() - interval '${p.publishedDaysAgo} days'`,
       ].join(', ') +
-      `) on conflict (id) do nothing;`,
+      `) on conflict (id) do update set translations = excluded.translations;`,
   )
   p.images.forEach((img, i) => {
     lines.push(

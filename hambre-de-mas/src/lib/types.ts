@@ -1,7 +1,29 @@
 // Tipos de dominio compartidos entre servidor y cliente.
 import type { Allergen } from '@/lib/allergens'
+import type { Locale } from '@/lib/i18n/config'
 
 export type Accent = 'chef' | 'teja' | 'hoja' | 'almendra'
+
+/** Textos traducidos por idioma (el español va en los campos normales). */
+export type Translations<T> = Partial<Record<Exclude<Locale, 'es'>, T>>
+
+export type CategoryTranslation = Partial<{ name: string; tagline: string; description: string }>
+
+export type ProductTranslation = Partial<{
+  name: string
+  subtitle: string
+  badge: string
+  description: string
+  includes: string[]
+  specs: { label: string; value: string }[]
+  recipe: Recipe
+  /** Nombre de cada variante, por SKU. */
+  variants: Record<string, string>
+  /** Texto alternativo de cada imagen, en el orden de la galería. */
+  imageAlts: string[]
+  seoTitle: string
+  seoDescription: string
+}>
 
 export type Category = {
   id: string
@@ -13,6 +35,7 @@ export type Category = {
   accent: Accent
   imageUrl: string | null
   position: number
+  translations?: Translations<CategoryTranslation>
 }
 
 export type ProductImage = {
@@ -67,10 +90,11 @@ export type ProductSummary = {
   tags: string[]
   /** Alérgenos que contiene el kit. */
   allergens: Allergen[]
-  category: Pick<Category, 'slug' | 'name' | 'level' | 'accent'> | null
+  category: Pick<Category, 'slug' | 'name' | 'level' | 'accent' | 'translations'> | null
   image: ProductImage | null
   hoverImage: ProductImage | null
   variantCount: number
+  translations?: Translations<ProductTranslation>
 }
 
 export type ProductDetail = ProductSummary & {
@@ -134,6 +158,7 @@ export type VariantForQuote = {
   productPublished: boolean
   taxRateBps: number
   imageUrl: string | null
+  translations?: Translations<ProductTranslation>
 }
 
 export type Promotion = {

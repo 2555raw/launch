@@ -13,9 +13,11 @@ const env = (value: string | undefined) => (value && value.trim() !== '' ? value
 export const site = {
   name: 'Hambre de Más',
   shortName: 'Hambre de Más',
-  tagline: 'Cocina lo que te flipa.',
-  description:
-    'Kits de cocina para adolescentes. Eliges tu nivel, te llega a casa con los ingredientes secos y la receta con vídeo, y desbloqueas el siguiente plato.',
+  tagline: { es: 'Cocina lo que te flipa.', en: 'Cook what you crave.' },
+  description: {
+    es: 'Kits de cocina para adolescentes. Eliges tu nivel, te llega a casa con todo medido y la receta paso a paso en un QR, y desbloqueas el siguiente plato.',
+    en: 'Cooking kits for teens. Pick your level, get everything pre-measured at home with a step-by-step recipe on a QR code, and unlock the next dish.',
+  },
   url: (env(process.env.NEXT_PUBLIC_SITE_URL) ?? 'http://localhost:3000').replace(/\/$/, ''),
   locale: 'es-ES',
   currency: 'EUR',
@@ -34,6 +36,8 @@ export const company = {
   phone: env(process.env.NEXT_PUBLIC_COMPANY_PHONE),
   registry: env(process.env.NEXT_PUBLIC_COMPANY_REGISTRY),
   supportHours: env(process.env.NEXT_PUBLIC_SUPPORT_HOURS) ?? 'De lunes a viernes, de 9:00 a 18:00',
+  /** Horario en inglés; si no se configura, se usa el de arriba. */
+  supportHoursEn: env(process.env.NEXT_PUBLIC_SUPPORT_HOURS_EN) ?? (process.env.NEXT_PUBLIC_SUPPORT_HOURS ? null : 'Monday to Friday, 9:00 to 18:00 (CET)'),
 }
 
 export const isCompanyInfoComplete = Boolean(

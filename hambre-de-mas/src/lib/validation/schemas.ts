@@ -1,6 +1,8 @@
 import { z } from 'zod'
 import { ALLERGEN_CODES, type Allergen } from '@/lib/allergens'
 import { commerce, isShippablePostalCode } from '@/lib/config/commerce'
+import type { Locale } from '@/lib/i18n/config'
+import { VALIDATION_EN } from './messages-en'
 
 const allergenList = z.array(z.enum(ALLERGEN_CODES as [Allergen, ...Allergen[]])).max(14).default([])
 
@@ -281,16 +283,21 @@ export const fulfillmentSchema = z.object({
 })
 
 /** Primer mensaje de error de un resultado de Zod, para mostrar al usuario. */
-export function firstError(error: z.ZodError) {
-  return error.issues[0]?.message ?? 'Revisa los datos del formulario'
+/** Traduce un mensaje de validación al idioma del cliente (si hay traducción). */
+export function localizeMessage(message: string, locale: Locale = 'es') {
+  return locale === 'en' ? (VALIDATION_EN[message] ?? message) : message
+}
+
+export function firstError(error: z.ZodError, locale: Locale = 'es') {
+  return localizeMessage(error.issues[0]?.message ?? 'Revisa los datos del formulario', locale)
 }
 
 /** Errores por campo (ruta con puntos) para pintarlos junto a cada input. */
-export function fieldErrors(error: z.ZodError) {
+export function fieldErrors(error: z.ZodError, locale: Locale = 'es') {
   const out: Record<string, string> = {}
   for (const issue of error.issues) {
     const key = issue.path.join('.')
-    if (!out[key]) out[key] = issue.message
+    if (!out[key]) out[key] = localizeMessage(issue.message, locale)
   }
   return out
 }

@@ -102,7 +102,7 @@ describe('startCheckout', () => {
     const [params, options] = stripe.checkout.sessions.create.mock.calls[0] as unknown as [Stripe.Checkout.SessionCreateParams, Stripe.RequestOptions]
     expect(options).toEqual({ idempotencyKey: 'checkout-order-1' })
     expect(params.client_reference_id).toBe('order-1')
-    expect(params.metadata).toEqual({ order_id: 'order-1', order_number: 'HDM-001001' })
+    expect(params.metadata).toEqual({ order_id: 'order-1', order_number: 'HDM-001001', locale: 'es' })
     expect(params.line_items?.[0]).toMatchObject({ quantity: 2, price_data: { unit_amount: 3500, currency: 'eur' } })
     expect(params.discounts).toEqual([{ coupon: 'co_1' }])
     expect(params.success_url).toBe('https://tienda.test/checkout/exito?session_id={CHECKOUT_SESSION_ID}')

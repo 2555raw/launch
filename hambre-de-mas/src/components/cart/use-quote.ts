@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '@/lib/i18n/client'
 import type { Quote } from '@/lib/pricing/quote'
 import { useCart } from './cart-context'
 
@@ -10,12 +11,14 @@ import { useCart } from './cart-context'
  */
 export function useCartQuote({ enabled = true }: { enabled?: boolean } = {}) {
   const { items, promoCode, hydrated, syncFromServer } = useCart()
+  const { locale, t } = useI18n()
   const [quote, setQuote] = useState<Quote | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const request = useRef(0)
 
-  const key = JSON.stringify({ items: items.map((i) => [i.variantId, i.quantity]), promoCode })
+  // El idioma también cuenta: los nombres y avisos llegan traducidos del servidor.
+  const key = JSON.stringify({ items: items.map((i) => [i.variantId, i.quantity]), promoCode, locale })
 
   useEffect(() => {
     if (!enabled || !hydrated || items.length === 0) return
@@ -40,13 +43,13 @@ export function useCartQuote({ enabled = true }: { enabled?: boolean } = {}) {
           data.quote.lines.map((l) => ({ variantId: l.variantId, maxQuantity: l.availableQuantity, priceCents: l.unitPriceCents || undefined })),
         )
       } catch {
-        if (id === request.current) setError('No hemos podido actualizar los precios. Revisa tu conexión.')
+        if (id === request.current) setError(t({ es: 'No hemos podido actualizar los precios. Revisa tu conexión.', en: "We couldn't update the prices. Check your connection." }))
       } finally {
         if (id === request.current) setLoading(false)
       }
     }, 250)
     return () => clearTimeout(timer)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` resume items y promoCode
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` resume items, promoCode e idioma
   }, [key, enabled, hydrated])
 
   // Con la cesta vacía no hay presupuesto que mostrar.

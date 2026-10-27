@@ -8,6 +8,7 @@
  *
  * Todos los importes son céntimos con IVA incluido.
  */
+import type { Locale } from '@/lib/i18n/config'
 import type { Promotion, VariantForQuote } from '@/lib/types'
 
 export type QuoteRequestLine = { variantId: string; quantity: number }
@@ -72,6 +73,8 @@ export type QuoteInput = {
   promotion?: Promotion | null
   now?: Date
   config: QuoteConfig
+  /** Idioma de los mensajes para el cliente (por defecto, español). */
+  locale?: Locale
 }
 
 /** Stripe no cobra importes inferiores a 0,50 €. */
@@ -96,7 +99,9 @@ export function evaluatePromotion(
   code: string,
   subtotalCents: number,
   now: Date,
+  locale: Locale = 'es',
 ): PromotionResult {
+  const tr = (es: string, en: string) => (locale === 'en' ? en : es)
   const fail = (message: string): PromotionResult => ({
     code,
     applied: false,
@@ -105,15 +110,17 @@ export function evaluatePromotion(
     promotionId: promotion?.id ?? null,
   })
 
-  if (!promotion || !promotion.isActive) return fail('Este código no existe o ya no está activo.')
-  if (promotion.startsAt && new Date(promotion.startsAt) > now) return fail('Este código todavía no está activo.')
-  if (promotion.endsAt && new Date(promotion.endsAt) <= now) return fail('Este código ha caducado.')
+  if (!promotion || !promotion.isActive) return fail(tr('Este código no existe o ya no está activo.', "This code doesn't exist or is no longer active."))
+  if (promotion.startsAt && new Date(promotion.startsAt) > now) return fail(tr('Este código todavía no está activo.', "This code isn't active yet."))
+  if (promotion.endsAt && new Date(promotion.endsAt) <= now) return fail(tr('Este código ha caducado.', 'This code has expired.'))
   if (promotion.maxRedemptions != null && promotion.timesRedeemed >= promotion.maxRedemptions) {
-    return fail('Este código ya se ha agotado.')
+    return fail(tr('Este código ya se ha agotado.', 'This code has been used up.'))
   }
   if (subtotalCents < promotion.minSubtotalCents) {
-    const missing = promotion.minSubtotalCents - subtotalCents
-    return fail(`Añade ${(missing / 100).toFixed(2).replace('.', ',')} € más para usar este código.`)
+    const missing = (promotion.minSubtotalCents - subtotalCents) / 100
+    return fail(
+      tr(`Añade ${missing.toFixed(2).replace('.', ',')} € más para usar este código.`, `Add €${missing.toFixed(2)} more to use this code.`),
+    )
   }
 
   let discount =
@@ -122,18 +129,20 @@ export function evaluatePromotion(
       : Math.min(promotion.value, subtotalCents)
   // Nunca dejar el pedido por debajo del cobro mínimo.
   discount = Math.max(0, Math.min(discount, subtotalCents - MIN_CHARGE_CENTS))
-  if (discount <= 0) return fail('Este código no se puede aplicar a este pedido.')
+  if (discount <= 0) return fail(tr('Este código no se puede aplicar a este pedido.', "This code can't be applied to this order."))
 
   return {
     code: promotion.code,
     applied: true,
     discountCents: discount,
-    message: promotion.description ?? 'Descuento aplicado',
+    // La descripción del código está en español: en inglés se usa un texto genérico.
+    message: locale === 'en' ? `Code ${promotion.code} applied` : (promotion.description ?? 'Descuento aplicado'),
     promotionId: promotion.id,
   }
 }
 
-export function computeQuote({ requested, variants, promotion, promotionCode, now = new Date(), config }: QuoteInput): Quote {
+export function computeQuote({ requested, variants, promotion, promotionCode, now = new Date(), config, locale = 'es' }: QuoteInput): Quote {
+  const tr = (es: string, en: string) => (locale === 'en' ? en : es)
   const byId = new Map(variants.map((v) => [v.variantId, v]))
   const lines: QuoteLine[] = []
 
@@ -144,7 +153,7 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
         variantId: req.variantId,
         productId: null,
         productSlug: null,
-        productName: 'Producto no disponible',
+        productName: tr('Producto no disponible', 'Product unavailable'),
         variantName: '',
         sku: null,
         imageUrl: null,
@@ -156,7 +165,7 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
         lineTotalCents: 0,
         taxRateBps: 0,
         status: 'not_found',
-        message: 'Este producto ya no está a la venta.',
+        message: tr('Este producto ya no está a la venta.', 'This product is no longer on sale.'),
       })
       continue
     }
@@ -168,13 +177,15 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
     let message: string | null = null
     if (available === 0) {
       status = 'unavailable'
-      message = sellable ? 'Agotado. Elimínalo para continuar.' : 'Ya no está a la venta.'
+      message = sellable
+        ? tr('Agotado. Elimínalo para continuar.', 'Sold out. Remove it to continue.')
+        : tr('Ya no está a la venta.', 'No longer on sale.')
     } else if (quantity < req.quantity) {
       status = 'adjusted'
       message =
         variant.stock < config.maxQuantityPerLine || variant.stock < req.quantity
-          ? `Solo quedan ${available} ${available === 1 ? 'unidad' : 'unidades'}.`
-          : `Máximo ${config.maxQuantityPerLine} unidades por pedido.`
+          ? tr(`Solo quedan ${available} ${available === 1 ? 'unidad' : 'unidades'}.`, `Only ${available} left.`)
+          : tr(`Máximo ${config.maxQuantityPerLine} unidades por pedido.`, `Maximum ${config.maxQuantityPerLine} per order.`)
     }
 
     lines.push({
@@ -202,7 +213,7 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
   const itemCount = billable.reduce((sum, l) => sum + l.quantity, 0)
 
   const code = promotionCode?.trim().toUpperCase() ?? ''
-  const promotionResult = code ? evaluatePromotion(promotion, code, subtotalCents, now) : null
+  const promotionResult = code ? evaluatePromotion(promotion, code, subtotalCents, now, locale) : null
   const discountCents = promotionResult?.applied ? promotionResult.discountCents : 0
 
   const afterDiscount = subtotalCents - discountCents

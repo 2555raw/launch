@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import { ClockIcon } from '@/components/ui/icons'
 import { AllergenStrip } from './allergen-icons'
@@ -5,6 +7,7 @@ import { LevelChip } from '@/components/ui/level-chip'
 import { Price } from '@/components/ui/price'
 import { ProductImage } from '@/components/ui/product-image'
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 import type { ProductSummary } from '@/lib/types'
 
 /** Tarjeta minimalista: imagen protagonista, nombre, precio. Al pasar el ratón muestra la segunda foto. */
@@ -19,6 +22,7 @@ export function ProductCard({
   className?: string
   sizes?: string
 }) {
+  const { t } = useI18n()
   const soldOut = product.totalStock <= 0
   return (
     <Link
@@ -56,7 +60,7 @@ export function ProductCard({
           {product.category && <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} overlay />}
         </div>
         {soldOut && (
-          <span className="absolute right-4 bottom-4 rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white backdrop-blur">Agotado</span>
+          <span className="absolute right-4 bottom-4 rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white backdrop-blur">{t({ es: 'Agotado', en: 'Sold out' })}</span>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-5 sm:p-6">

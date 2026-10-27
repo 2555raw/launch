@@ -1,8 +1,12 @@
+'use client'
+
 import { JarIcon, SnowflakeIcon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 
 /** Indica si el kit es 100 % de despensa o incluye frescos refrigerados. */
 export function StorageChip({ storage, className }: { storage?: 'seco' | 'fresco'; className?: string }) {
+  const { t } = useI18n()
   if (!storage) return null
   const fresh = storage === 'fresco'
   return (
@@ -14,7 +18,9 @@ export function StorageChip({ storage, className }: { storage?: 'seco' | 'fresco
       )}
     >
       {fresh ? <SnowflakeIcon size={15} /> : <JarIcon size={15} />}
-      {fresh ? 'Incluye frescos · envío refrigerado' : '100 % seco · de despensa'}
+      {fresh
+        ? t({ es: 'Incluye frescos · envío refrigerado', en: 'Includes fresh food · ships chilled' })
+        : t({ es: '100 % seco · de despensa', en: '100% dry · cupboard-friendly' })}
     </span>
   )
 }

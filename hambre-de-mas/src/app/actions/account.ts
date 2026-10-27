@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { requireUser } from '@/lib/auth/session'
+import { getI18n } from '@/lib/i18n/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { fieldErrors, firstError, profileSchema, savedAddressSchema } from '@/lib/validation/schemas'
 
@@ -11,6 +12,7 @@ export type FormState = { ok?: boolean; message?: string; fields?: Record<string
 
 export async function updateProfile(_prev: FormState, formData: FormData): Promise<FormState> {
   const user = await requireUser('/cuenta')
+  const { locale, t } = await getI18n()
   const parsed = profileSchema.safeParse({
     fullName: formData.get('fullName'),
     phone: formData.get('phone') ?? '',
@@ -18,7 +20,7 @@ export async function updateProfile(_prev: FormState, formData: FormData): Promi
     avoidAllergens: formData.getAll('avoidAllergens'),
     marketingOptIn: formData.get('marketingOptIn') === 'on',
   })
-  if (!parsed.success) return { message: firstError(parsed.error), fields: fieldErrors(parsed.error) }
+  if (!parsed.success) return { message: firstError(parsed.error, locale), fields: fieldErrors(parsed.error, locale) }
   const supabase = await createSupabaseServerClient()
   const { error } = await supabase
     .from('profiles')
@@ -30,13 +32,14 @@ export async function updateProfile(_prev: FormState, formData: FormData): Promi
       marketing_opt_in: parsed.data.marketingOptIn,
     })
     .eq('id', user.id)
-  if (error) return { message: 'No hemos podido guardar los cambios.' }
+  if (error) return { message: t({ es: 'No hemos podido guardar los cambios.', en: "We couldn't save your changes." }) }
   revalidatePath('/cuenta')
-  return { ok: true, message: 'Datos guardados.' }
+  return { ok: true, message: t({ es: 'Datos guardados.', en: 'Details saved.' }) }
 }
 
 export async function saveAddress(_prev: FormState, formData: FormData): Promise<FormState> {
   const user = await requireUser('/cuenta/direcciones')
+  const { locale, t } = await getI18n()
   const parsed = savedAddressSchema.safeParse({
     label: formData.get('label') ?? '',
     fullName: formData.get('fullName'),
@@ -49,7 +52,7 @@ export async function saveAddress(_prev: FormState, formData: FormData): Promise
     country: 'ES',
     isDefault: formData.get('isDefault') === 'on',
   })
-  if (!parsed.success) return { message: firstError(parsed.error), fields: fieldErrors(parsed.error) }
+  if (!parsed.success) return { message: firstError(parsed.error, locale), fields: fieldErrors(parsed.error, locale) }
   const a = parsed.data
   const row = {
     user_id: user.id,
@@ -67,9 +70,9 @@ export async function saveAddress(_prev: FormState, formData: FormData): Promise
   const supabase = await createSupabaseServerClient()
   const id = formData.get('id')?.toString()
   const { error } = id ? await supabase.from('addresses').update(row).eq('id', id) : await supabase.from('addresses').insert(row)
-  if (error) return { message: 'No hemos podido guardar la dirección.' }
+  if (error) return { message: t({ es: 'No hemos podido guardar la dirección.', en: "We couldn't save the address." }) }
   revalidatePath('/cuenta/direcciones')
-  return { ok: true, message: 'Dirección guardada.' }
+  return { ok: true, message: t({ es: 'Dirección guardada.', en: 'Address saved.' }) }
 }
 
 export async function deleteAddress(formData: FormData) {

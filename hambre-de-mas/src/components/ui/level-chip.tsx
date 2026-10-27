@@ -1,4 +1,7 @@
+'use client'
+
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 import type { Accent } from '@/lib/types'
 
 const styles: Record<Accent, string> = {
@@ -29,6 +32,7 @@ export function LevelChip({
   overlay?: boolean
   className?: string
 }) {
+  const { t } = useI18n()
   return (
     <span
       className={cn(
@@ -38,7 +42,7 @@ export function LevelChip({
       )}
     >
       {overlay && <span aria-hidden className={cn('size-1.5 rounded-full', dots[accent])} />}
-      {level ? `Nivel ${level}` : (name ?? 'Especial')}
+      {level ? t({ es: `Nivel ${level}`, en: `Level ${level}` }) : (name ?? t({ es: 'Especial', en: 'Special' }))}
     </span>
   )
 }

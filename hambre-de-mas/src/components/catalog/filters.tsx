@@ -5,7 +5,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/button'
 import { CheckIcon, ChevronDownIcon, CloseIcon } from '@/components/ui/icons'
-import { ALLERGENS } from '@/lib/allergens'
+import { ALLERGENS, allergenLabel } from '@/lib/allergens'
+import { useI18n } from '@/lib/i18n/client'
 import { AllergenIcon } from '@/components/product/allergen-icons'
 import { dietOptions, difficultyOptions, priceOptions, sortOptions, timeOptions } from '@/lib/catalog/params'
 import { cn } from '@/lib/cn'
@@ -86,6 +87,8 @@ function Option({ checked, onChange, label, type = 'checkbox', name }: { checked
 
 export function FilterPanel({ categories, lockCategory = false }: { categories: CategoryOption[]; lockCategory?: boolean }) {
   const { params, update, toggleInList } = useParamsUpdater()
+  const { locale, t } = useI18n()
+  const label = (o: { label: string; labelEn: string }) => (locale === 'en' ? o.labelEn : o.label)
   const has = (key: string, value: string) => (params.get(key) ?? '').split(',').includes(value)
   const min = params.get('min') ?? ''
   const max = params.get('max') ?? ''
@@ -93,37 +96,39 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
   return (
     <div>
       {!lockCategory && (
-        <Group title="Nivel">
-          <Option type="radio" name="categoria" label="Todos" checked={!params.get('categoria')} onChange={() => update({ categoria: null })} />
+        <Group title={t({ es: 'Nivel', en: 'Level' })}>
+          <Option type="radio" name="categoria" label={t({ es: 'Todos', en: 'All' })} checked={!params.get('categoria')} onChange={() => update({ categoria: null })} />
           {categories.map((c) => (
             <Option key={c.slug} type="radio" name="categoria" label={c.name} checked={params.get('categoria') === c.slug} onChange={() => update({ categoria: c.slug })} />
           ))}
         </Group>
       )}
-      <Group title="Precio">
+      <Group title={t({ es: 'Precio', en: 'Price' })}>
         {priceOptions.map((o) => (
           <Option
             key={o.label}
             type="radio"
             name="precio"
-            label={o.label}
+            label={label(o)}
             checked={min === o.min && max === o.max && Boolean(min || max)}
             onChange={() => update({ min: o.min || null, max: o.max || null })}
           />
         ))}
         {(min || max) && (
           <button type="button" onClick={() => update({ min: null, max: null })} className="pt-1 text-xs text-teja hover:underline">
-            Quitar filtro de precio
+            {t({ es: 'Quitar filtro de precio', en: 'Clear price filter' })}
           </button>
         )}
       </Group>
-      <Group title="Dieta y sabor">
+      <Group title={t({ es: 'Dieta y sabor', en: 'Diet and flavour' })}>
         {dietOptions.map((o) => (
-          <Option key={o.value} label={o.label} checked={has('dieta', o.value)} onChange={() => toggleInList('dieta', o.value)} />
+          <Option key={o.value} label={label(o)} checked={has('dieta', o.value)} onChange={() => toggleInList('dieta', o.value)} />
         ))}
       </Group>
-      <Group title="Sin alérgenos" defaultOpen={Boolean(params.get('sin'))}>
-        <p className="pb-1 text-xs text-ash-ink">Oculta los kits que los contienen, en trazas o en la receta.</p>
+      <Group title={t({ es: 'Sin alérgenos', en: 'Allergen-free' })} defaultOpen={Boolean(params.get('sin'))}>
+        <p className="pb-1 text-xs text-ash-ink">
+          {t({ es: 'Oculta los kits que los contienen, en trazas o en la receta.', en: 'Hides kits that contain them, as traces or in the recipe.' })}
+        </p>
         {ALLERGENS.map((a) => (
           <label key={a.code} className="flex cursor-pointer items-center gap-3 rounded-lg py-1 text-sm text-ink/85 hover:text-ink">
             <input
@@ -133,29 +138,29 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
               className="size-4 shrink-0 accent-chef-ink"
             />
             <AllergenIcon code={a.code} size={22} />
-            Sin {a.label.toLowerCase()}
+            {t({ es: `Sin ${a.label.toLowerCase()}`, en: `No ${allergenLabel(a.code, 'en').toLowerCase()}` })}
           </label>
         ))}
       </Group>
-      <Group title="Tiempo de cocina">
+      <Group title={t({ es: 'Tiempo de cocina', en: 'Cooking time' })}>
         {timeOptions.map((o) => (
           <Option
             key={o.value}
             type="radio"
             name="tiempo"
-            label={o.label}
+            label={label(o)}
             checked={params.get('tiempo') === o.value}
             onChange={() => update({ tiempo: params.get('tiempo') === o.value ? null : o.value })}
           />
         ))}
       </Group>
-      <Group title="Dificultad">
+      <Group title={t({ es: 'Dificultad', en: 'Difficulty' })}>
         {difficultyOptions.map((o) => (
-          <Option key={o.value} label={o.label} checked={has('dificultad', o.value)} onChange={() => toggleInList('dificultad', o.value)} />
+          <Option key={o.value} label={label(o)} checked={has('dificultad', o.value)} onChange={() => toggleInList('dificultad', o.value)} />
         ))}
       </Group>
       <div className="py-4">
-        <Option label="Solo con stock" checked={params.get('stock') === '1'} onChange={() => update({ stock: params.get('stock') === '1' ? null : '1' })} />
+        <Option label={t({ es: 'Solo con stock', en: 'In stock only' })} checked={params.get('stock') === '1'} onChange={() => update({ stock: params.get('stock') === '1' ? null : '1' })} />
       </div>
     </div>
   )
@@ -163,9 +168,10 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
 
 export function SortSelect() {
   const { params, update } = useParamsUpdater()
+  const { locale, t } = useI18n()
   return (
     <label className="relative inline-flex items-center gap-2 text-sm">
-      <span className="hidden text-ash-ink sm:inline">Ordenar por</span>
+      <span className="hidden text-ash-ink sm:inline">{t({ es: 'Ordenar por', en: 'Sort by' })}</span>
       <select
         value={params.get('orden') ?? 'destacados'}
         onChange={(e) => update({ orden: e.target.value === 'destacados' ? null : e.target.value })}
@@ -173,7 +179,7 @@ export function SortSelect() {
       >
         {sortOptions.map((o) => (
           <option key={o.value} value={o.value}>
-            {o.label}
+            {locale === 'en' ? o.labelEn : o.label}
           </option>
         ))}
       </select>
@@ -186,10 +192,12 @@ export function SortSelect() {
 export function MobileFilters({ categories, count, lockCategory }: { categories: CategoryOption[]; count: number; lockCategory?: boolean }) {
   const [open, setOpen] = useState(false)
   const { update } = useParamsUpdater()
+  const { t } = useI18n()
   return (
     <>
       <Button variant="secondary" size="sm" onClick={() => setOpen(true)} className="lg:hidden">
-        Filtros{count > 0 && <span className="grid size-5 place-items-center rounded-full bg-ink text-[11px] text-white">{count}</span>}
+        {t({ es: 'Filtros', en: 'Filters' })}
+        {count > 0 && <span className="grid size-5 place-items-center rounded-full bg-ink text-[11px] text-white">{count}</span>}
       </Button>
       <AnimatePresence>
         {open && (
@@ -204,7 +212,7 @@ export function MobileFilters({ categories, count, lockCategory }: { categories:
             <motion.div
               role="dialog"
               aria-modal="true"
-              aria-label="Filtros"
+              aria-label={t({ es: 'Filtros', en: 'Filters' })}
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
@@ -212,8 +220,8 @@ export function MobileFilters({ categories, count, lockCategory }: { categories:
               className="fixed inset-x-0 bottom-0 z-[80] flex max-h-[85dvh] flex-col rounded-t-[28px] bg-white lg:hidden"
             >
               <div className="flex items-center justify-between px-6 pt-5 pb-2">
-                <h2 className="font-display text-xl font-bold">Filtros</h2>
-                <button type="button" onClick={() => setOpen(false)} className="grid size-9 place-items-center rounded-full bg-mist" aria-label="Cerrar filtros">
+                <h2 className="font-display text-xl font-bold">{t({ es: 'Filtros', en: 'Filters' })}</h2>
+                <button type="button" onClick={() => setOpen(false)} className="grid size-9 place-items-center rounded-full bg-mist" aria-label={t({ es: 'Cerrar filtros', en: 'Close filters' })}>
                   <CloseIcon size={18} />
                 </button>
               </div>
@@ -225,9 +233,9 @@ export function MobileFilters({ categories, count, lockCategory }: { categories:
                   variant="secondary"
                   onClick={() => update({ categoria: null, min: null, max: null, dieta: null, sin: null, tiempo: null, dificultad: null, stock: null, destacados: null })}
                 >
-                  Limpiar
+                  {t({ es: 'Limpiar', en: 'Clear' })}
                 </Button>
-                <Button onClick={() => setOpen(false)}>Ver resultados</Button>
+                <Button onClick={() => setOpen(false)}>{t({ es: 'Ver resultados', en: 'Show results' })}</Button>
               </div>
             </motion.div>
           </>

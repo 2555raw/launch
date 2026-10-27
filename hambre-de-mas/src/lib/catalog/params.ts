@@ -10,38 +10,38 @@ import { DEFAULT_PAGE_SIZE } from './repository'
 
 export type SearchParams = Record<string, string | string[] | undefined>
 
-export const sortOptions: { value: string; key: SortKey; label: string }[] = [
-  { value: 'destacados', key: 'featured', label: 'Destacados' },
-  { value: 'novedades', key: 'newest', label: 'Novedades' },
-  { value: 'populares', key: 'popular', label: 'Más vendidos' },
-  { value: 'precio-asc', key: 'price-asc', label: 'Precio: de menor a mayor' },
-  { value: 'precio-desc', key: 'price-desc', label: 'Precio: de mayor a menor' },
+export const sortOptions: { value: string; key: SortKey; label: string; labelEn: string }[] = [
+  { value: 'destacados', key: 'featured', label: 'Destacados', labelEn: 'Featured' },
+  { value: 'novedades', key: 'newest', label: 'Novedades', labelEn: 'Newest' },
+  { value: 'populares', key: 'popular', label: 'Más vendidos', labelEn: 'Best sellers' },
+  { value: 'precio-asc', key: 'price-asc', label: 'Precio: de menor a mayor', labelEn: 'Price: low to high' },
+  { value: 'precio-desc', key: 'price-desc', label: 'Precio: de mayor a menor', labelEn: 'Price: high to low' },
 ]
 
 export const dietOptions = [
-  { value: 'vegano', label: 'Vegano' },
-  { value: 'vegetariano', label: 'Vegetariano' },
-  { value: 'sin-gluten', label: 'Sin gluten' },
-  { value: 'picante', label: 'Picante' },
+  { value: 'vegano', label: 'Vegano', labelEn: 'Vegan' },
+  { value: 'vegetariano', label: 'Vegetariano', labelEn: 'Vegetarian' },
+  { value: 'sin-gluten', label: 'Sin gluten', labelEn: 'Gluten-free' },
+  { value: 'picante', label: 'Picante', labelEn: 'Spicy' },
 ]
 
 export const timeOptions = [
-  { value: '15', label: 'Hasta 15 min' },
-  { value: '30', label: 'Hasta 30 min' },
-  { value: '45', label: 'Hasta 45 min' },
+  { value: '15', label: 'Hasta 15 min', labelEn: 'Up to 15 min' },
+  { value: '30', label: 'Hasta 30 min', labelEn: 'Up to 30 min' },
+  { value: '45', label: 'Hasta 45 min', labelEn: 'Up to 45 min' },
 ]
 
 export const difficultyOptions = [
-  { value: '1', label: 'Fácil' },
-  { value: '2', label: 'Media' },
-  { value: '3', label: 'Reto' },
+  { value: '1', label: 'Fácil', labelEn: 'Easy' },
+  { value: '2', label: 'Media', labelEn: 'Medium' },
+  { value: '3', label: 'Reto', labelEn: 'Challenge' },
 ]
 
 export const priceOptions = [
-  { min: '', max: '15', label: 'Hasta 15 €' },
-  { min: '15', max: '25', label: '15 € – 25 €' },
-  { min: '25', max: '40', label: '25 € – 40 €' },
-  { min: '40', max: '', label: 'Más de 40 €' },
+  { min: '', max: '15', label: 'Hasta 15 €', labelEn: 'Up to €15' },
+  { min: '15', max: '25', label: '15 € – 25 €', labelEn: '€15 – €25' },
+  { min: '25', max: '40', label: '25 € – 40 €', labelEn: '€25 – €40' },
+  { min: '40', max: '', label: 'Más de 40 €', labelEn: 'Over €40' },
 ]
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)

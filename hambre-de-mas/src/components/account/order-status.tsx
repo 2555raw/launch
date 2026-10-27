@@ -1,10 +1,16 @@
+'use client'
+
 import { CheckIcon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
-import { fulfillmentStatusLabel, orderStatusLabel } from '@/lib/orders/mapper'
+import { useI18n } from '@/lib/i18n/client'
+import { fulfillmentStatusLabel, fulfillmentStatusLabelEn, orderStatusLabel, orderStatusLabelEn } from '@/lib/orders/mapper'
 import type { FulfillmentStatus, OrderStatus } from '@/lib/types'
 
 export function OrderStatusBadge({ status, fulfillment }: { status: OrderStatus; fulfillment?: FulfillmentStatus }) {
-  const label = status === 'paid' && fulfillment && fulfillment !== 'unfulfilled' ? fulfillmentStatusLabel[fulfillment] : orderStatusLabel[status]
+  const { locale } = useI18n()
+  const fulfillmentLabels = locale === 'en' ? fulfillmentStatusLabelEn : fulfillmentStatusLabel
+  const statusLabels = locale === 'en' ? orderStatusLabelEn : orderStatusLabel
+  const label = status === 'paid' && fulfillment && fulfillment !== 'unfulfilled' ? fulfillmentLabels[fulfillment] : statusLabels[status]
   const tone =
     status === 'paid'
       ? fulfillment === 'delivered'
@@ -16,18 +22,19 @@ export function OrderStatusBadge({ status, fulfillment }: { status: OrderStatus;
   return <span className={cn('inline-flex rounded-full px-3 py-1 text-xs font-semibold', tone)}>{label}</span>
 }
 
-const steps: { key: FulfillmentStatus; label: string }[] = [
-  { key: 'unfulfilled', label: 'Pagado' },
-  { key: 'preparing', label: 'Preparando' },
-  { key: 'shipped', label: 'Enviado' },
-  { key: 'delivered', label: 'Entregado' },
+const steps: { key: FulfillmentStatus; label: { es: string; en: string } }[] = [
+  { key: 'unfulfilled', label: { es: 'Pagado', en: 'Paid' } },
+  { key: 'preparing', label: { es: 'Preparando', en: 'Preparing' } },
+  { key: 'shipped', label: { es: 'Enviado', en: 'Shipped' } },
+  { key: 'delivered', label: { es: 'Entregado', en: 'Delivered' } },
 ]
 
 export function OrderTimeline({ fulfillment }: { fulfillment: FulfillmentStatus }) {
-  if (fulfillment === 'returned') return <p className="mt-6 text-sm text-ash-ink">Este pedido se ha devuelto.</p>
+  const { t } = useI18n()
+  if (fulfillment === 'returned') return <p className="mt-6 text-sm text-ash-ink">{t({ es: 'Este pedido se ha devuelto.', en: 'This order has been returned.' })}</p>
   const current = steps.findIndex((s) => s.key === fulfillment)
   return (
-    <ol className="mt-8 grid grid-cols-4 gap-2" aria-label="Estado del envío">
+    <ol className="mt-8 grid grid-cols-4 gap-2" aria-label={t({ es: 'Estado del envío', en: 'Delivery status' })}>
       {steps.map((s, i) => {
         const done = i <= current
         return (
@@ -37,7 +44,7 @@ export function OrderTimeline({ fulfillment }: { fulfillment: FulfillmentStatus 
               {done ? <CheckIcon size={14} strokeWidth={2.5} /> : i + 1}
             </span>
             <span className={cn('mt-1.5', done ? 'font-medium text-ink' : 'text-ash-ink')} aria-current={i === current ? 'step' : undefined}>
-              {s.label}
+              {t(s.label)}
             </span>
           </li>
         )

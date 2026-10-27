@@ -1,6 +1,7 @@
 import 'server-only'
 import type Stripe from 'stripe'
 import { sendOrderConfirmation } from '@/lib/email/order-confirmation'
+import { isLocale } from '@/lib/i18n/config'
 import type { OrdersService } from '@/lib/orders/service'
 
 /**
@@ -31,7 +32,8 @@ export async function confirmPaidSession(orders: OrdersService, session: Stripe.
   })
   if (result === 'paid') {
     const order = await orders.getById(orderId)
-    if (order) await sendOrderConfirmation(order).catch((e) => console.error('[webhook] email', e))
+    const locale = isLocale(session.metadata?.locale) ? session.metadata.locale : 'es'
+    if (order) await sendOrderConfirmation(order, locale).catch((e) => console.error('[webhook] email', e))
   }
   return { handled: true, result, orderId }
 }

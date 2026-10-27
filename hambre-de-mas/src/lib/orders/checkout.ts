@@ -4,6 +4,7 @@ import { commerce } from '@/lib/config/commerce'
 import { NEWSLETTER_CONSENT } from '@/lib/config/consent'
 import { site } from '@/lib/config/site'
 import { isStripeConfigured } from '@/lib/env'
+import type { Locale } from '@/lib/i18n/config'
 import { quoteCart } from '@/lib/pricing/server-quote'
 import type { Quote } from '@/lib/pricing/quote'
 import { getStripe } from '@/lib/stripe/client'
@@ -16,6 +17,18 @@ import { signOrderId } from './token'
 export type CheckoutResult =
   | { ok: true; url: string; orderId: string }
   | { ok: false; code: string; message: string; quote?: Quote }
+
+/** Mensajes en inglés de los errores de create_order (en español están en service.ts). */
+const orderErrorsEn: Record<string, string> = {
+  empty_cart: 'Your bag is empty.',
+  variant_not_found: 'One of the products no longer exists.',
+  variant_unavailable: 'One of the products is no longer on sale.',
+  invalid_quantity: 'There is an invalid quantity in your bag.',
+  price_changed: 'The price of a product has just changed. Please check your bag.',
+  insufficient_stock: 'Someone beat you to it: there is no longer enough stock of one product.',
+  subtotal_mismatch: 'Your bag total has changed. Please check your bag.',
+  promotion_invalid: 'The promo code is no longer valid.',
+}
 
 /** Convierte una ruta relativa en URL absoluta solo si es pública (https). */
 function publicImage(url: string | null) {
@@ -33,26 +46,33 @@ function publicImage(url: string | null) {
  */
 export async function startCheckout(
   input: CheckoutInput,
-  options: { userId: string | null; origin: string },
+  options: { userId: string | null; origin: string; locale?: Locale },
   deps: { orders?: OrdersService; stripe?: Stripe } = {},
 ): Promise<CheckoutResult> {
+  const en = options.locale === 'en'
+  const tr = (es: string, english: string) => (en ? english : es)
   if (!isServiceRoleConfigured() || (!deps.stripe && !isStripeConfigured())) {
     return {
       ok: false,
       code: 'payments_not_configured',
-      message: 'Los pagos todavía no están activados en esta tienda.',
+      message: tr('Los pagos todavía no están activados en esta tienda.', "Payments aren't enabled in this shop yet."),
     }
   }
 
   const quote = await quoteCart(input.items, input.promoCode)
   if (!quote.isClean) {
-    return { ok: false, code: 'cart_changed', message: 'Tu carrito ha cambiado: revisa las cantidades disponibles.', quote }
+    return {
+      ok: false,
+      code: 'cart_changed',
+      message: tr('Tu carrito ha cambiado: revisa las cantidades disponibles.', 'Your bag has changed: please check the available quantities.'),
+      quote,
+    }
   }
   if (input.promoCode && !quote.promotion?.applied) {
-    return { ok: false, code: 'promotion_invalid', message: quote.promotion?.message ?? 'El código no es válido.', quote }
+    return { ok: false, code: 'promotion_invalid', message: quote.promotion?.message ?? tr('El código no es válido.', 'The code is not valid.'), quote }
   }
   if (!quote.isPurchasable) {
-    return { ok: false, code: 'not_purchasable', message: 'El pedido mínimo es de 0,50 €.', quote }
+    return { ok: false, code: 'not_purchasable', message: tr('El pedido mínimo es de 0,50 €.', 'The minimum order is €0.50.'), quote }
   }
 
   const orders = deps.orders ?? createOrdersService()
@@ -79,14 +99,16 @@ export async function startCheckout(
     })
   } catch (error) {
     if (error instanceof OrderError) {
-      return { ok: false, code: error.code, message: error.message, quote: await quoteCart(input.items, input.promoCode) }
+      const message = en ? (orderErrorsEn[error.code] ?? "We couldn't create your order. Please try again.") : error.message
+      return { ok: false, code: error.code, message, quote: await quoteCart(input.items, input.promoCode) }
     }
     throw error
   }
 
   try {
     const number = formatOrderNumber(order.number)
-    const metadata = { order_id: order.id, order_number: number }
+    // El idioma viaja con el pago para escribir el email de confirmación en el mismo.
+    const metadata = { order_id: order.id, order_number: number, locale: en ? 'en' : 'es' }
 
     let coupon: string | undefined
     if (quote.discountCents > 0) {
@@ -107,12 +129,12 @@ export async function startCheckout(
     const session = await stripe.checkout.sessions.create(
       {
         mode: 'payment',
-        locale: 'es',
+        locale: en ? 'en' : 'es',
         currency: 'eur',
         customer_email: input.email,
         client_reference_id: order.id,
         metadata,
-        payment_intent_data: { metadata, description: `Pedido ${number}` },
+        payment_intent_data: { metadata, description: `${tr('Pedido', 'Order')} ${number}` },
         line_items: billable.map((l) => ({
           quantity: l.quantity,
           price_data: {
@@ -130,7 +152,7 @@ export async function startCheckout(
           {
             shipping_rate_data: {
               type: 'fixed_amount',
-              display_name: quote.shippingCents > 0 ? 'Envío estándar' : 'Envío gratis',
+              display_name: quote.shippingCents > 0 ? tr('Envío estándar', 'Standard shipping') : tr('Envío gratis', 'Free shipping'),
               fixed_amount: { amount: quote.shippingCents, currency: 'eur' },
               tax_behavior: 'inclusive',
               delivery_estimate: {
@@ -162,6 +184,10 @@ export async function startCheckout(
   } catch (error) {
     console.error('[checkout] fallo al crear la sesión de pago', error)
     await orders.release(order.id, 'cancelled', 'No se pudo crear la sesión de pago').catch(() => undefined)
-    return { ok: false, code: 'payment_error', message: 'No hemos podido conectar con la pasarela de pago. Inténtalo de nuevo.' }
+    return {
+      ok: false,
+      code: 'payment_error',
+      message: tr('No hemos podido conectar con la pasarela de pago. Inténtalo de nuevo.', "We couldn't reach the payment gateway. Please try again."),
+    }
   }
 }

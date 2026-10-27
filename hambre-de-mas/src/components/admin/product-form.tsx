@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { MinusIcon, PlusIcon } from '@/components/ui/icons'
 import { AllergenIcon } from '@/components/product/allergen-icons'
 import { ALLERGENS } from '@/lib/allergens'
+import type { ProductTranslation } from '@/lib/types'
 import { Card, Label, Notice, field } from './ui'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- fila de producto sin tipar */
@@ -42,6 +43,7 @@ export function ProductForm({ categories, product }: { categories: { id: string;
       : [{ sku: '', name: '2 personas', price: '', compareAt: '', stock: '0', isActive: true }],
   )
   const errors = state?.fields ?? {}
+  const en: ProductTranslation = product?.translations?.en ?? {}
 
   const setVariant = (i: number, patch: Partial<VariantRow>) => setVariants((rows) => rows.map((r, j) => (i === j ? { ...r, ...patch } : r)))
 
@@ -98,6 +100,33 @@ export function ProductForm({ categories, product }: { categories: { id: string;
         stock: v.stock,
         isActive: v.isActive,
       })),
+      translationEn: {
+        name: text('en_name'),
+        subtitle: text('en_subtitle'),
+        badge: text('en_badge'),
+        description: text('en_description'),
+        includes: lines('en_includes'),
+        specs: lines('en_specs').map((l) => {
+          const [label, ...rest] = l.split(':')
+          return { label: label?.trim() ?? '', value: rest.join(':').trim() }
+        }),
+        recipe: {
+          youAdd: lines('en_youAdd'),
+          steps: lines('en_steps').map((l) => {
+            const [title, ...rest] = l.split(':')
+            return { title: title?.trim() ?? '', text: rest.join(':').trim() }
+          }),
+          tips: lines('en_tips'),
+        },
+        variants: Object.fromEntries(
+          lines('en_variants')
+            .map((l) => {
+              const [sku, ...rest] = l.split(':')
+              return [sku?.trim() ?? '', rest.join(':').trim()] as const
+            })
+            .filter(([sku, label]) => sku && label),
+        ),
+      },
     })
   }
 
@@ -290,6 +319,76 @@ export function ProductForm({ categories, product }: { categories: { id: string;
             <textarea id="tips" name="tips" rows={2} defaultValue={(product?.recipe?.tips ?? []).join('\n')} className={`${field} mt-1 h-auto py-2`} />
           </div>
           <p className="text-xs text-ash-ink">La receta se publica en /receta/{product?.slug ?? 'slug-del-producto'} y es lo que abre el QR de la tarjeta del kit.</p>
+        </div>
+      </Card>
+
+      <Card title="Inglés (opcional)">
+        <p className="mb-4 text-xs text-ash-ink">
+          Textos de la tienda en inglés. Lo que dejes vacío se muestra en español. Mismo formato que arriba: una línea por elemento y
+          «Título: texto» en los pasos.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label htmlFor="en_name">Nombre</Label>
+            <input id="en_name" name="en_name" defaultValue={en.name ?? ''} placeholder="Homemade ramen kit" className={`${field} mt-1`} />
+          </div>
+          <div>
+            <Label htmlFor="en_badge">Etiqueta</Label>
+            <input id="en_badge" name="en_badge" defaultValue={en.badge ?? ''} placeholder="New" className={`${field} mt-1`} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="en_subtitle">Subtítulo</Label>
+            <input id="en_subtitle" name="en_subtitle" defaultValue={en.subtitle ?? ''} className={`${field} mt-1`} />
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="en_description">Descripción</Label>
+            <textarea id="en_description" name="en_description" rows={3} defaultValue={en.description ?? ''} className={`${field} mt-1 h-auto py-2`} />
+          </div>
+          <div>
+            <Label htmlFor="en_includes">Qué incluye</Label>
+            <textarea id="en_includes" name="en_includes" rows={4} defaultValue={(en.includes ?? []).join('\n')} className={`${field} mt-1 h-auto py-2`} />
+          </div>
+          <div>
+            <Label htmlFor="en_specs">Información técnica («Etiqueta: valor»)</Label>
+            <textarea
+              id="en_specs"
+              name="en_specs"
+              rows={4}
+              defaultValue={(en.specs ?? []).map((s) => `${s.label}: ${s.value}`).join('\n')}
+              className={`${field} mt-1 h-auto py-2`}
+            />
+          </div>
+          <div>
+            <Label htmlFor="en_youAdd">Lo que pone el cliente</Label>
+            <textarea id="en_youAdd" name="en_youAdd" rows={2} defaultValue={(en.recipe?.youAdd ?? []).join('\n')} className={`${field} mt-1 h-auto py-2`} />
+          </div>
+          <div>
+            <Label htmlFor="en_variants">Variantes («SKU: nombre»)</Label>
+            <textarea
+              id="en_variants"
+              name="en_variants"
+              rows={2}
+              defaultValue={Object.entries(en.variants ?? {})
+                .map(([sku, label]) => `${sku}: ${label}`)
+                .join('\n')}
+              placeholder="HDM-RAM-2: Serves 2"
+              className={`${field} mt-1 h-auto py-2`}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="en_steps">Pasos («Título: explicación»)</Label>
+            <textarea
+              id="en_steps"
+              name="en_steps"
+              rows={6}
+              defaultValue={(en.recipe?.steps ?? []).map((s) => `${s.title}: ${s.text}`).join('\n')}
+              className={`${field} mt-1 h-auto py-2`}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Label htmlFor="en_tips">Trucos de chef</Label>
+            <textarea id="en_tips" name="en_tips" rows={2} defaultValue={(en.recipe?.tips ?? []).join('\n')} className={`${field} mt-1 h-auto py-2`} />
+          </div>
         </div>
       </Card>
 

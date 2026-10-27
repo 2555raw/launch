@@ -14,6 +14,7 @@ import {
   fulfillmentSchema,
   productInputSchema,
   promotionInputSchema,
+  type ProductInput,
 } from '@/lib/validation/schemas'
 
 /**
@@ -29,6 +30,20 @@ const refreshStore = () => revalidatePath('/', 'layout')
 // ---------------------------------------------------------------------------
 // Productos
 // ---------------------------------------------------------------------------
+
+/** Quita los campos vacíos de la traducción para que se muestre el texto en español. */
+function compactTranslation(input: ProductInput['translationEn']) {
+  if (!input) return {}
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(input)) {
+    if (value == null) continue
+    if (Array.isArray(value) && value.length === 0) continue
+    if (key === 'recipe' && typeof value === 'object' && !Object.values(value as object).some((v) => Array.isArray(v) && v.length)) continue
+    if (key === 'variants' && Object.keys(value as object).length === 0) continue
+    out[key] = value
+  }
+  return out
+}
 
 export async function saveProduct(_prev: AdminState, formData: FormData): Promise<AdminState> {
   await requireAdmin()
@@ -69,6 +84,7 @@ export async function saveProduct(_prev: AdminState, formData: FormData): Promis
     specs: p.specs,
     seo_title: p.seoTitle ?? null,
     seo_description: p.seoDescription ?? null,
+    translations: { en: compactTranslation(p.translationEn) },
   }
 
   let id = productId

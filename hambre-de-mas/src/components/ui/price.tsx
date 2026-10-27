@@ -1,4 +1,7 @@
+'use client'
+
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 import { formatPrice } from '@/lib/money'
 
 export function Price({
@@ -14,6 +17,7 @@ export function Price({
   className?: string
   size?: 'sm' | 'md' | 'lg'
 }) {
+  const { locale, t } = useI18n()
   const onSale = compareAt != null && compareAt > cents
   return (
     <p className={cn('flex flex-wrap items-baseline gap-x-2', className)}>
@@ -26,13 +30,13 @@ export function Price({
           size === 'sm' && 'text-sm',
         )}
       >
-        {from && <span className="font-normal text-ash-ink">Desde </span>}
-        {formatPrice(cents)}
+        {from && <span className="font-normal text-ash-ink">{t({ es: 'Desde ', en: 'From ' })}</span>}
+        {formatPrice(cents, locale)}
       </span>
       {onSale && (
         <span className={cn('text-ash-ink line-through tabular-nums', size === 'lg' ? 'text-base' : 'text-sm')}>
-          <span className="sr-only">Antes </span>
-          {formatPrice(compareAt)}
+          <span className="sr-only">{t({ es: 'Antes ', en: 'Was ' })}</span>
+          {formatPrice(compareAt, locale)}
         </span>
       )}
     </p>

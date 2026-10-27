@@ -69,3 +69,20 @@ export const fulfillmentStatusLabel: Record<Order['fulfillmentStatus'], string> 
   delivered: 'Entregado',
   returned: 'Devuelto',
 }
+
+export const orderStatusLabelEn: Record<Order['status'], string> = {
+  pending: 'Awaiting payment',
+  paid: 'Paid',
+  cancelled: 'Cancelled',
+  expired: 'Expired',
+  refunded: 'Refunded',
+  requires_review: 'Under review',
+}
+
+export const fulfillmentStatusLabelEn: Record<Order['fulfillmentStatus'], string> = {
+  unfulfilled: 'Not prepared yet',
+  preparing: 'Preparing',
+  shipped: 'Shipped',
+  delivered: 'Delivered',
+  returned: 'Returned',
+}

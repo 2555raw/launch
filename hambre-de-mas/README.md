@@ -29,8 +29,9 @@ Rojo Chef, Rojo Teja, Verde Hoja y Almendra.
 9. [Pruebas](#pruebas)
 10. [Arquitectura](#arquitectura)
 11. [Seguridad](#seguridad)
-12. [Decisiones de diseño](#decisiones-de-diseño)
-13. [Limitaciones conocidas y siguientes pasos](#limitaciones-conocidas-y-siguientes-pasos)
+12. [Idiomas (español e inglés)](#idiomas-español-e-inglés)
+13. [Decisiones de diseño](#decisiones-de-diseño)
+14. [Limitaciones conocidas y siguientes pasos](#limitaciones-conocidas-y-siguientes-pasos)
 
 ---
 
@@ -52,8 +53,13 @@ Rojo Chef, Rojo Teja, Verde Hoja y Almendra.
   y Baleares), aceptación de condiciones, newsletter opcional.
 - Pago con Stripe Checkout, páginas de pago completado y cancelado, email de confirmación (Resend, opcional).
 
+**Idiomas**
+- Toda la parte de clientes en español e inglés, con selector ES/EN en la cabecera, el menú móvil,
+  el pie y las pantallas de acceso. Ver [Idiomas](#idiomas-español-e-inglés).
+
 **Cuentas (Supabase Auth)**
-- Registro, acceso, cierre de sesión, recuperación y cambio de contraseña.
+- Registro, acceso, cierre de sesión, recuperación y cambio de contraseña, en pantallas propias a
+  pantalla completa (fondo oscuro con un remolino de caracteres animado por CSS).
 - Perfil, historial de pedidos con seguimiento de envío, direcciones de envío.
 
 **Panel de administración** (`/admin`, solo rol `admin`)
@@ -342,6 +348,29 @@ con IVA incluido, con `check` que impiden cantidades e importes inválidos.
 - Límite de peticiones en checkout, login, registro, newsletter y presupuesto (en memoria: con varias
   instancias usa Redis/Upstash).
 - Redirecciones tras el login solo a rutas internas; enlaces de cancelación firmados con HMAC.
+
+---
+
+## Idiomas (español e inglés)
+
+- **Cómo se elige**: el selector ES/EN guarda la cookie `hdm_locale` (un año). En la primera visita,
+  sin cookie, se usa el idioma preferido del navegador (inglés solo si lo prefiere al español).
+- **Textos de la interfaz**: se escriben junto a donde se usan, como pares
+  `t({ es: '…', en: '…' })` (`src/lib/i18n`). TypeScript obliga a dar los dos idiomas, así que no se
+  puede quedar un texto sin traducir. Para añadir un tercer idioma, se añade a `LOCALES` en
+  `src/lib/i18n/config.ts` y el compilador señala cada texto que falta.
+- **Catálogo**: el español va en las columnas de siempre y las traducciones en la columna
+  `translations` de `products` y `categories` (migración `20261028000100_translations.sql`). Se
+  editan en el panel, en la tarjeta «Inglés (opcional)» de cada producto. Lo que no esté traducido se
+  muestra en español. La búsqueda encuentra los kits también por su nombre en inglés.
+- **Pago y emails**: Stripe Checkout se abre en el idioma del cliente y el email de confirmación se
+  envía en ese idioma (el idioma viaja en los metadatos del pago).
+- **Qué queda en español**: el panel de administración (uso interno) y los **textos legales**. En
+  inglés, las páginas legales avisan de que solo existen en español y que esa es la versión válida.
+  Si vas a vender a clientes de habla inglesa, valora con tu asesoría traducirlos.
+- **SEO**: el idioma va en una cookie, no en la URL, así que los buscadores indexan la versión en
+  español. Si necesitas posicionar en inglés, el siguiente paso es servirlo con prefijo (`/en/...`)
+  y etiquetas `hreflang`.
 
 ---
 

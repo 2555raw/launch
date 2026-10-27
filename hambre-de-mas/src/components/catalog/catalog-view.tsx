@@ -5,6 +5,7 @@ import { buttonClass } from '@/components/ui/button'
 import { getCatalog } from '@/lib/catalog'
 import { activeFilterCount, parseCatalogParams, type SearchParams } from '@/lib/catalog/params'
 import { DEFAULT_PAGE_SIZE } from '@/lib/catalog/repository'
+import { getI18n } from '@/lib/i18n/server'
 import type { ProductFilter } from '@/lib/types'
 import { FilterPanel, MobileFilters, SortSelect } from './filters'
 
@@ -15,7 +16,7 @@ export async function CatalogView({
   basePath,
   resetHref,
   lockCategory = false,
-  emptyMessage = 'No hay kits que coincidan con estos filtros.',
+  emptyMessage,
 }: {
   params: SearchParams
   base?: ProductFilter
@@ -26,6 +27,7 @@ export async function CatalogView({
   emptyMessage?: string
 }) {
   const catalog = getCatalog()
+  const { t } = await getI18n()
   const filter = parseCatalogParams(params, base)
   const [{ items, total }, categories] = await Promise.all([catalog.listProducts(filter), catalog.listCategories()])
   const pages = Math.max(1, Math.ceil(total / DEFAULT_PAGE_SIZE))
@@ -42,7 +44,7 @@ export async function CatalogView({
 
   return (
     <div className="container-page grid gap-10 pb-24 lg:grid-cols-[230px_1fr]">
-      <aside className="hidden lg:block" aria-label="Filtros">
+      <aside className="hidden lg:block" aria-label={t({ es: 'Filtros', en: 'Filters' })}>
         <div className="sticky top-20">
           <Suspense>
             <FilterPanel categories={categoryOptions} lockCategory={lockCategory} />
@@ -50,7 +52,7 @@ export async function CatalogView({
         </div>
       </aside>
 
-      <section aria-label="Productos">
+      <section aria-label={t({ es: 'Productos', en: 'Products' })}>
         <div className="mb-6 flex items-center justify-between gap-4">
           <p className="text-sm text-ash-ink" aria-live="polite">
             {total} {total === 1 ? 'kit' : 'kits'}
@@ -65,10 +67,10 @@ export async function CatalogView({
 
         {items.length === 0 ? (
           <div className="rounded-[28px] bg-mist px-6 py-20 text-center">
-            <p className="font-display text-2xl font-bold">Nada por aquí</p>
-            <p className="mt-2 text-ash-ink">{emptyMessage}</p>
+            <p className="font-display text-2xl font-bold">{t({ es: 'Nada por aquí', en: 'Nothing here' })}</p>
+            <p className="mt-2 text-ash-ink">{emptyMessage ?? t({ es: 'No hay kits que coincidan con estos filtros.', en: 'No kits match these filters.' })}</p>
             <Link href={resetHref ?? basePath} className={buttonClass('secondary', 'md', 'mt-6')}>
-              Quitar filtros
+              {t({ es: 'Quitar filtros', en: 'Clear filters' })}
             </Link>
           </div>
         ) : (
@@ -82,7 +84,7 @@ export async function CatalogView({
         )}
 
         {pages > 1 && (
-          <nav aria-label="Paginación" className="mt-12 flex items-center justify-center gap-2">
+          <nav aria-label={t({ es: 'Paginación', en: 'Pagination' })} className="mt-12 flex items-center justify-center gap-2">
             {Array.from({ length: pages }, (_, i) => i + 1).map((p) => (
               <Link
                 key={p}

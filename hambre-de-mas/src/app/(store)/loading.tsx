@@ -1,7 +1,12 @@
+'use client'
+
+import { useI18n } from '@/lib/i18n/client'
+
 /** Esqueleto mientras carga una página de la tienda. */
 export default function Loading() {
+  const { t } = useI18n()
   return (
-    <div className="container-page animate-pulse pt-12 pb-24" aria-busy="true" aria-label="Cargando">
+    <div className="container-page animate-pulse pt-12 pb-24" aria-busy="true" aria-label={t({ es: 'Cargando', en: 'Loading' })}>
       <div className="h-4 w-24 rounded-full bg-mist" />
       <div className="mt-4 h-14 w-2/3 rounded-2xl bg-mist" />
       <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

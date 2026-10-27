@@ -16,12 +16,14 @@ import { JsonLd } from '@/components/seo/json-ld'
 import { getCatalog } from '@/lib/catalog'
 import { recipeQrSvg } from '@/lib/recipes/qr'
 import { company, site } from '@/lib/config/site'
+import { getI18n } from '@/lib/i18n/server'
 
 // El catálogo se regenera como mucho cada minuto (ISR).
 export const revalidate = 60
 
 export default async function HomePage() {
   const catalog = getCatalog()
+  const { t } = await getI18n()
   const [categories, newest, featured, popular, reviews] = await Promise.all([
     catalog.listCategories(),
     catalog.listProducts({ sort: 'newest', limit: 6 }),
@@ -62,7 +64,7 @@ export default async function HomePage() {
       />
       <Hero
         product={heroProduct}
-        includes={heroDetail?.includes.filter((i) => !/tarjeta/i.test(i))}
+        includes={heroDetail?.includes.filter((i) => !/tarjeta|recipe card/i.test(i))}
         qrSvg={heroQr}
         recipeHref={heroDetail ? `/receta/${heroDetail.slug}` : undefined}
       />
@@ -72,11 +74,11 @@ export default async function HomePage() {
       <NewArrivals products={newest.items} />
       <ProductGridSection
         id="destacados"
-        strong="Destacados."
-        soft="Los kits que más os flipan."
+        strong={t({ es: 'Destacados.', en: 'Featured.' })}
+        soft={t({ es: 'Los kits que más os flipan.', en: 'The kits you love most.' })}
         products={featuredGrid}
         href="/tienda?destacados=1"
-        linkLabel="Ver destacados"
+        linkLabel={t({ es: 'Ver destacados', en: 'See featured' })}
       />
       <HowItWorks />
       <BestSellers products={popular.items} />

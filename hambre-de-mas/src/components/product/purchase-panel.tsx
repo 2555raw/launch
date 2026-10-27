@@ -11,19 +11,21 @@ import { Price } from '@/components/ui/price'
 import { StockLabel } from '@/components/ui/stock-label'
 import { cn } from '@/lib/cn'
 import { commerce } from '@/lib/config/commerce'
+import { useI18n } from '@/lib/i18n/client'
 import { formatPrice, percentOff } from '@/lib/money'
 import type { ProductDetail } from '@/lib/types'
 
 export function PurchasePanel({ product }: { product: ProductDetail }) {
   const router = useRouter()
   const { addItem, items } = useCart()
+  const { locale, t } = useI18n()
   const firstAvailable = product.variants.find((v) => v.stock > 0) ?? product.variants[0]
   const [variantId, setVariantId] = useState(firstAvailable?.id ?? '')
   const [quantity, setQuantity] = useState(1)
   const [added, setAdded] = useState(false)
 
   const variant = product.variants.find((v) => v.id === variantId) ?? firstAvailable
-  if (!variant) return <p className="text-ash-ink">Este producto no tiene variantes disponibles.</p>
+  if (!variant) return <p className="text-ash-ink">{t({ es: 'Este producto no tiene variantes disponibles.', en: 'This product has no available options.' })}</p>
 
   const inCart = items.find((i) => i.variantId === variant.id)?.quantity ?? 0
   const maxForVariant = Math.min(variant.stock, commerce.maxQuantityPerLine)
@@ -54,15 +56,20 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
       <div>
         <Price cents={variant.priceCents} compareAt={variant.compareAtPriceCents} size="lg" />
         <p className="mt-1 text-xs text-ash-ink">
-          IVA incluido
-          {variant.compareAtPriceCents ? ` · Ahorras ${formatPrice(variant.compareAtPriceCents - variant.priceCents)} (−${percentOff(variant.priceCents, variant.compareAtPriceCents)} %)` : ''}
+          {t({ es: 'IVA incluido', en: 'VAT included' })}
+          {variant.compareAtPriceCents
+            ? t({
+                es: ` · Ahorras ${formatPrice(variant.compareAtPriceCents - variant.priceCents)} (−${percentOff(variant.priceCents, variant.compareAtPriceCents)} %)`,
+                en: ` · You save ${formatPrice(variant.compareAtPriceCents - variant.priceCents, 'en')} (−${percentOff(variant.priceCents, variant.compareAtPriceCents)}%)`,
+              })
+            : ''}
         </p>
       </div>
 
       {product.variants.length > 1 && (
         <fieldset>
           <legend className="mb-3 text-[15px] font-semibold">
-            Elige tamaño <span className="font-normal text-ash-ink">· {variant.name}</span>
+            {t({ es: 'Elige tamaño', en: 'Choose size' })} <span className="font-normal text-ash-ink">· {variant.name}</span>
           </legend>
           <div className="grid grid-cols-2 gap-3" role="radiogroup">
             {product.variants.map((v) => {
@@ -90,8 +97,8 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
                     className="sr-only"
                   />
                   <span className="text-[15px] font-semibold">{v.name}</span>
-                  <span className="text-sm text-ash-ink tabular-nums">{formatPrice(v.priceCents)}</span>
-                  {out && <span className="mt-1 text-xs text-teja">Agotado</span>}
+                  <span className="text-sm text-ash-ink tabular-nums">{formatPrice(v.priceCents, locale)}</span>
+                  {out && <span className="mt-1 text-xs text-teja">{t({ es: 'Agotado', en: 'Sold out' })}</span>}
                   {selected && (
                     <motion.span layoutId="variant-check" className="absolute top-3 right-3 grid size-5 place-items-center rounded-full bg-ink text-white">
                       <CheckIcon size={12} strokeWidth={2.5} />
@@ -111,7 +118,10 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
             <QuantityStepper value={quantity} max={Math.max(1, canAdd)} onChange={(n) => setQuantity(Math.max(1, Math.min(n, Math.max(1, canAdd))))} label={product.name} />
             {inCart > 0 && (
               <span className="text-sm text-ash-ink">
-                Ya tienes {inCart} en la cesta{canAdd === 0 ? ' (máximo disponible)' : ''}
+                {t({
+                  es: `Ya tienes ${inCart} en la cesta${canAdd === 0 ? ' (máximo disponible)' : ''}`,
+                  en: `You already have ${inCart} in your bag${canAdd === 0 ? ' (maximum available)' : ''}`,
+                })}
               </span>
             )}
           </div>
@@ -141,12 +151,12 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
             >
               {added ? (
                 <>
-                  <CheckIcon size={18} /> Añadido
+                  <CheckIcon size={18} /> {t({ es: 'Añadido', en: 'Added' })}
                 </>
               ) : soldOut ? (
-                'Agotado'
+                t({ es: 'Agotado', en: 'Sold out' })
               ) : (
-                'Añadir a la cesta'
+                t({ es: 'Añadir a la cesta', en: 'Add to bag' })
               )}
             </motion.span>
           </AnimatePresence>
@@ -160,7 +170,7 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
             router.push('/checkout')
           }}
         >
-          Comprar ahora
+          {t({ es: 'Comprar ahora', en: 'Buy now' })}
         </Button>
       </div>
     </div>

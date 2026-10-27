@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { CloseIcon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 import { formatPrice } from '@/lib/money'
 import type { Quote } from '@/lib/pricing/quote'
 import { useCart } from './cart-context'
@@ -20,6 +21,7 @@ function Row({ label, value, strong, muted }: { label: React.ReactNode; value: R
 
 export function PromoCodeField() {
   const { promoCode, setPromoCode } = useCart()
+  const { t } = useI18n()
   const [open, setOpen] = useState(Boolean(promoCode))
   const [value, setValue] = useState(promoCode ?? '')
 
@@ -27,7 +29,7 @@ export function PromoCodeField() {
     return (
       <div className="flex items-center justify-between rounded-2xl bg-mist px-4 py-3 text-sm">
         <span>
-          Código <strong className="font-semibold">{promoCode}</strong>
+          {t({ es: 'Código', en: 'Code' })} <strong className="font-semibold">{promoCode}</strong>
         </span>
         <button
           type="button"
@@ -36,9 +38,9 @@ export function PromoCodeField() {
             setValue('')
           }}
           className="inline-flex items-center gap-1 text-ash-ink hover:text-teja"
-          aria-label="Quitar código promocional"
+          aria-label={t({ es: 'Quitar código promocional', en: 'Remove promo code' })}
         >
-          <CloseIcon size={14} /> Quitar
+          <CloseIcon size={14} /> {t({ es: 'Quitar', en: 'Remove' })}
         </button>
       </div>
     )
@@ -53,56 +55,79 @@ export function PromoCodeField() {
       className="flex gap-2"
     >
       <label htmlFor="promo" className="sr-only">
-        Código promocional
+        {t({ es: 'Código promocional', en: 'Promo code' })}
       </label>
       <input
         id="promo"
         value={value}
         onChange={(e) => setValue(e.target.value.toUpperCase())}
-        placeholder="Código promocional"
+        placeholder={t({ es: 'Código promocional', en: 'Promo code' })}
         maxLength={32}
         autoComplete="off"
         className="h-11 min-w-0 flex-1 rounded-full border border-line-strong px-4 text-sm uppercase placeholder:normal-case focus:border-ink focus:outline-none"
       />
       <Button type="submit" variant="secondary" size="md">
-        Aplicar
+        {t({ es: 'Aplicar', en: 'Apply' })}
       </Button>
     </form>
   ) : (
     <button type="button" onClick={() => setOpen(true)} className="text-sm text-teja hover:underline">
-      ¿Tienes un código promocional?
+      {t({ es: '¿Tienes un código promocional?', en: 'Got a promo code?' })}
     </button>
   )
 }
 
 export function OrderSummary({ quote, loading, children }: { quote: Quote | null; loading: boolean; children?: React.ReactNode }) {
+  const { locale, t } = useI18n()
+  const price = (cents: number) => formatPrice(cents, locale)
   return (
     <div className={cn('space-y-5 transition-opacity', loading && 'opacity-60')} aria-busy={loading}>
       <dl className="space-y-3">
-        <Row label="Subtotal" value={quote ? formatPrice(quote.subtotalCents) : '—'} />
+        <Row label="Subtotal" value={quote ? price(quote.subtotalCents) : '—'} />
         <AnimatePresence initial={false}>
           {quote && quote.discountCents > 0 && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-              <Row label={`Descuento (${quote.promotion?.code})`} value={<span className="text-hoja-ink">−{formatPrice(quote.discountCents)}</span>} />
+              <Row
+                label={`${t({ es: 'Descuento', en: 'Discount' })} (${quote.promotion?.code})`}
+                value={<span className="text-hoja-ink">−{price(quote.discountCents)}</span>}
+              />
             </motion.div>
           )}
         </AnimatePresence>
         <Row
-          label="Envío"
-          value={quote ? (quote.shippingCents === 0 && quote.itemCount > 0 ? <span className="text-hoja-ink">Gratis</span> : formatPrice(quote.shippingCents)) : '—'}
+          label={t({ es: 'Envío', en: 'Shipping' })}
+          value={
+            quote ? (
+              quote.shippingCents === 0 && quote.itemCount > 0 ? (
+                <span className="text-hoja-ink">{t({ es: 'Gratis', en: 'Free' })}</span>
+              ) : (
+                price(quote.shippingCents)
+              )
+            ) : (
+              '—'
+            )
+          }
         />
         {quote && quote.freeShippingRemainingCents > 0 && quote.itemCount > 0 && (
-          <p className="text-xs text-ash-ink">Añade {formatPrice(quote.freeShippingRemainingCents)} más y el envío es gratis.</p>
+          <p className="text-xs text-ash-ink">
+            {t({
+              es: `Añade ${price(quote.freeShippingRemainingCents)} más y el envío es gratis.`,
+              en: `Add ${price(quote.freeShippingRemainingCents)} more for free shipping.`,
+            })}
+          </p>
         )}
         <div className="border-t border-line pt-3">
-          <Row label="Total" value={quote ? formatPrice(quote.totalCents) : '—'} strong />
+          <Row label="Total" value={quote ? price(quote.totalCents) : '—'} strong />
           {quote && quote.taxes.length > 0 && (
             <p className="mt-1 text-right text-xs text-ash-ink">
-              Incluye{' '}
-              {quote.taxes.map((t, i) => (
-                <span key={t.rateBps}>
-                  {i > 0 && ' y '}
-                  {formatPrice(t.amountCents)} de IVA ({t.rateBps / 100} %)
+              {t({ es: 'Incluye', en: 'Includes' })}{' '}
+              {quote.taxes.map((tax, i) => (
+                <span key={tax.rateBps}>
+                  {i > 0 && t({ es: ' y ', en: ' and ' })}
+                  {t({
+                    es: `${price(tax.amountCents)} de IVA (${tax.rateBps / 100} %)`,
+                    en: `${price(tax.amountCents)} VAT (${tax.rateBps / 100}%)`,
+                  })}
                 </span>
               ))}
             </p>

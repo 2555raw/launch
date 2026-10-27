@@ -200,6 +200,26 @@ export const variantInputSchema = z
     path: ['compareAt'],
   })
 
+const optionalLines = (max: number, length: number) => z.array(z.string().trim().min(1).max(length)).max(max).optional()
+
+/** Textos en inglés del producto (todos opcionales: lo que falte se muestra en español). */
+export const productTranslationInputSchema = z.object({
+  name: optionalTrimmed(120),
+  subtitle: optionalTrimmed(200),
+  badge: optionalTrimmed(24),
+  description: optionalTrimmed(5000),
+  includes: optionalLines(30, 120),
+  specs: z.array(z.object({ label: z.string().trim().min(1).max(60), value: z.string().trim().min(1).max(400) })).max(20).optional(),
+  recipe: z
+    .object({
+      youAdd: z.array(z.string().trim().min(1).max(120)).max(20).default([]),
+      steps: z.array(z.object({ title: z.string().trim().min(1).max(80), text: z.string().trim().min(1).max(800) })).max(30).default([]),
+      tips: z.array(z.string().trim().min(1).max(300)).max(10).default([]),
+    })
+    .optional(),
+  variants: z.record(z.string().trim().max(40), z.string().trim().min(1).max(80)).optional(),
+})
+
 export const productInputSchema = z.object({
   name: trimmed(120, 'El nombre'),
   slug: slugSchema,
@@ -230,6 +250,7 @@ export const productInputSchema = z.object({
   seoTitle: optionalTrimmed(70),
   seoDescription: optionalTrimmed(170),
   variants: z.array(variantInputSchema).min(1, { error: 'Añade al menos una variante' }).max(30),
+  translationEn: productTranslationInputSchema.optional(),
 })
 
 export type ProductInput = z.infer<typeof productInputSchema>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 import { ChevronLeftIcon, ChevronRightIcon } from './icons'
 
 /**
@@ -9,6 +10,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from './icons'
  * flechas en escritorio y gesto táctil en móvil.
  */
 export function Scroller({ children, label, className }: { children: React.ReactNode; label: string; className?: string }) {
+  const { t } = useI18n()
   const ref = useRef<HTMLDivElement>(null)
   const [canPrev, setCanPrev] = useState(false)
   const [canNext, setCanNext] = useState(false)
@@ -57,7 +59,7 @@ export function Scroller({ children, label, className }: { children: React.React
           type="button"
           onClick={() => scroll(-1)}
           disabled={!canPrev}
-          aria-label="Anterior"
+          aria-label={t({ es: 'Anterior', en: 'Previous' })}
           className="pointer-events-auto grid size-9 place-items-center rounded-full bg-mist text-ink transition-[background-color,opacity] hover:bg-line disabled:opacity-35"
         >
           <ChevronLeftIcon size={18} />
@@ -66,7 +68,7 @@ export function Scroller({ children, label, className }: { children: React.React
           type="button"
           onClick={() => scroll(1)}
           disabled={!canNext}
-          aria-label="Siguiente"
+          aria-label={t({ es: 'Siguiente', en: 'Next' })}
           className="pointer-events-auto grid size-9 place-items-center rounded-full bg-mist text-ink transition-[background-color,opacity] hover:bg-line disabled:opacity-35"
         >
           <ChevronRightIcon size={18} />

@@ -7,6 +7,7 @@ import { Button, buttonClass } from '@/components/ui/button'
 import { LockIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 import { formatPrice } from '@/lib/money'
 import type { Quote } from '@/lib/pricing/quote'
 import type { Address } from '@/lib/types'
@@ -50,6 +51,7 @@ function Field({ label, name, error, className, children }: { label: string; nam
 
 export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Props) {
   const router = useRouter()
+  const { locale, t } = useI18n()
   const { items, promoCode, hydrated, syncFromServer } = useCart()
   const { quote, loading } = useCartQuote()
   const defaultAddress = addresses.find((a) => a.isDefault) ?? addresses[0]
@@ -128,10 +130,10 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
         setServerQuote(data.quote)
         syncFromServer(data.quote.lines.map((l) => ({ variantId: l.variantId, maxQuantity: l.availableQuantity })))
       }
-      setFormError(data.message ?? 'No hemos podido iniciar el pago.')
+      setFormError(data.message ?? t({ es: 'No hemos podido iniciar el pago.', en: "We couldn't start the payment." }))
       setSubmitting(false)
     } catch {
-      setFormError('Sin conexión con el servidor. Inténtalo de nuevo.')
+      setFormError(t({ es: 'Sin conexión con el servidor. Inténtalo de nuevo.', en: 'No connection to the server. Please try again.' }))
       setSubmitting(false)
     }
   }
@@ -143,44 +145,50 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
     <form onSubmit={submit} noValidate className="container-page grid gap-12 pt-10 pb-24 lg:grid-cols-[1fr_400px]">
       <div className="space-y-10">
         <header>
-          <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl">Finalizar compra.</h1>
+          <h1 className="font-display text-4xl font-extrabold tracking-tight sm:text-5xl">{t({ es: 'Finalizar compra.', en: 'Checkout.' })}</h1>
           {!user && (
             <p className="mt-3 text-[15px] text-ash-ink">
-              Compras como invitado.{' '}
+              {t({ es: 'Compras como invitado.', en: "You're checking out as a guest." })}{' '}
               <Link href="/cuenta/acceder?next=/checkout" className="text-teja hover:underline">
-                Inicia sesión
+                {t({ es: 'Inicia sesión', en: 'Sign in' })}
               </Link>{' '}
-              para guardar tus direcciones y ver tus pedidos.
+              {t({ es: 'para guardar tus direcciones y ver tus pedidos.', en: 'to save your addresses and see your orders.' })}
             </p>
           )}
         </header>
 
         {!paymentsEnabled && (
           <div className="rounded-2xl bg-almendra-soft p-5 text-sm text-teja" role="status">
-            <strong className="font-semibold">Pagos no activados.</strong> Esta tienda todavía no tiene configurados Supabase y Stripe, así que
-            no se pueden hacer pedidos. Consulta el README para activarlos.
+            <strong className="font-semibold">{t({ es: 'Pagos no activados.', en: 'Payments not enabled.' })}</strong>{' '}
+            {t({
+              es: 'Esta tienda todavía no tiene configurados Supabase y Stripe, así que no se pueden hacer pedidos. Consulta el README para activarlos.',
+              en: "This shop doesn't have Supabase and Stripe set up yet, so orders can't be placed. See the README to enable them.",
+            })}
           </div>
         )}
         {paymentsEnabled && testMode && (
           <div className="rounded-2xl bg-mist p-5 text-sm text-ash-ink" role="status">
-            <strong className="font-semibold text-ink">Modo de prueba de Stripe.</strong> No se hará ningún cargo real. Usa la tarjeta
-            4242 4242 4242 4242, cualquier fecha futura y cualquier CVC.
+            <strong className="font-semibold text-ink">{t({ es: 'Modo de prueba de Stripe.', en: 'Stripe test mode.' })}</strong>{' '}
+            {t({
+              es: 'No se hará ningún cargo real. Usa la tarjeta 4242 4242 4242 4242, cualquier fecha futura y cualquier CVC.',
+              en: 'No real charge will be made. Use card 4242 4242 4242 4242, any future date and any CVC.',
+            })}
           </div>
         )}
 
         <section aria-labelledby="contacto" className="space-y-4">
           <h2 id="contacto" className="font-display text-2xl font-bold">
-            Contacto
+            {t({ es: 'Contacto', en: 'Contact' })}
           </h2>
           <Field label="Email" name="email" error={err('email')}>
             <input id="email" type="email" autoComplete="email" required value={form.email} onChange={set('email')} className={input} aria-invalid={Boolean(err('email'))} aria-describedby={err('email') ? 'email-error' : undefined} />
           </Field>
-          <p className="text-xs text-ash-ink">Te enviaremos aquí la confirmación del pedido.</p>
+          <p className="text-xs text-ash-ink">{t({ es: 'Te enviaremos aquí la confirmación del pedido.', en: "We'll send your order confirmation here." })}</p>
         </section>
 
         <section aria-labelledby="envio" className="space-y-4">
           <h2 id="envio" className="font-display text-2xl font-bold">
-            Dirección de envío
+            {t({ es: 'Dirección de envío', en: 'Delivery address' })}
           </h2>
           {addresses.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -192,43 +200,48 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
             </div>
           )}
           <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Nombre y apellidos" name="fullName" error={err('fullName')} className="sm:col-span-2">
+            <Field label={t({ es: 'Nombre y apellidos', en: 'Full name' })} name="fullName" error={err('fullName')} className="sm:col-span-2">
               <input id="fullName" autoComplete="name" required value={form.fullName} onChange={set('fullName')} className={input} aria-invalid={Boolean(err('fullName'))} />
             </Field>
-            <Field label="Dirección" name="line1" error={err('line1')} className="sm:col-span-2">
-              <input id="line1" autoComplete="address-line1" required value={form.line1} onChange={set('line1')} placeholder="Calle, número" className={input} aria-invalid={Boolean(err('line1'))} />
+            <Field label={t({ es: 'Dirección', en: 'Address' })} name="line1" error={err('line1')} className="sm:col-span-2">
+              <input id="line1" autoComplete="address-line1" required value={form.line1} onChange={set('line1')} placeholder={t({ es: 'Calle, número', en: 'Street, number' })} className={input} aria-invalid={Boolean(err('line1'))} />
             </Field>
-            <Field label="Piso, puerta… (opcional)" name="line2" className="sm:col-span-2">
+            <Field label={t({ es: 'Piso, puerta… (opcional)', en: 'Flat, floor… (optional)' })} name="line2" className="sm:col-span-2">
               <input id="line2" autoComplete="address-line2" value={form.line2} onChange={set('line2')} className={input} />
             </Field>
-            <Field label="Código postal" name="postalCode" error={err('postalCode')}>
+            <Field label={t({ es: 'Código postal', en: 'Postcode' })} name="postalCode" error={err('postalCode')}>
               <input id="postalCode" inputMode="numeric" autoComplete="postal-code" maxLength={5} required value={form.postalCode} onChange={set('postalCode')} className={input} aria-invalid={Boolean(err('postalCode'))} />
             </Field>
-            <Field label="Ciudad" name="city" error={err('city')}>
+            <Field label={t({ es: 'Ciudad', en: 'City' })} name="city" error={err('city')}>
               <input id="city" autoComplete="address-level2" required value={form.city} onChange={set('city')} className={input} aria-invalid={Boolean(err('city'))} />
             </Field>
-            <Field label="Provincia" name="province" error={err('province')}>
+            <Field label={t({ es: 'Provincia', en: 'Province' })} name="province" error={err('province')}>
               <select id="province" autoComplete="address-level1" required value={form.province} onChange={set('province')} className={input} aria-invalid={Boolean(err('province'))}>
-                <option value="">Elige provincia</option>
+                <option value="">{t({ es: 'Elige provincia', en: 'Choose province' })}</option>
                 {provinces.map((p) => (
                   <option key={p}>{p}</option>
                 ))}
               </select>
             </Field>
-            <Field label="Teléfono (para el repartidor)" name="phone" error={err('phone')}>
+            <Field label={t({ es: 'Teléfono (para el repartidor)', en: 'Phone (for the courier)' })} name="phone" error={err('phone')}>
               <input id="phone" type="tel" autoComplete="tel" value={form.phone} onChange={set('phone')} className={input} aria-invalid={Boolean(err('phone'))} />
             </Field>
           </div>
-          <p className="text-xs text-ash-ink">Enviamos a Península y Baleares. Canarias, Ceuta y Melilla, próximamente.</p>
+          <p className="text-xs text-ash-ink">
+            {t({
+              es: 'Enviamos a Península y Baleares. Canarias, Ceuta y Melilla, próximamente.',
+              en: 'We ship to mainland Spain and the Balearic Islands. Canary Islands, Ceuta and Melilla coming soon.',
+            })}
+          </p>
           {user && (
             <label className="flex items-center gap-3 text-sm">
               <input type="checkbox" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} className="size-4 accent-chef-ink" />
-              Guardar esta dirección en mi cuenta
+              {t({ es: 'Guardar esta dirección en mi cuenta', en: 'Save this address to my account' })}
             </label>
           )}
         </section>
 
-        <section aria-label="Consentimientos" className="space-y-3 border-t border-line pt-6">
+        <section aria-label={t({ es: 'Consentimientos', en: 'Consents' })} className="space-y-3 border-t border-line pt-6">
           <label className="flex items-start gap-3 text-sm">
             <input
               type="checkbox"
@@ -238,13 +251,13 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
               aria-invalid={Boolean(err('acceptTerms'))}
             />
             <span>
-              He leído y acepto las{' '}
+              {t({ es: 'He leído y acepto las', en: 'I have read and accept the' })}{' '}
               <Link href="/legal/condiciones" target="_blank" className="text-teja underline underline-offset-2">
-                condiciones de compra
+                {t({ es: 'condiciones de compra', en: 'terms of sale' })}
               </Link>{' '}
-              y la{' '}
+              {t({ es: 'y la', en: 'and the' })}{' '}
               <Link href="/legal/privacidad" target="_blank" className="text-teja underline underline-offset-2">
-                política de privacidad
+                {t({ es: 'política de privacidad', en: 'privacy policy' })}
               </Link>
               .
             </span>
@@ -252,14 +265,14 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
           {err('acceptTerms') && <p className="text-xs text-teja">{err('acceptTerms')}</p>}
           <label className="flex items-start gap-3 text-sm text-ash-ink">
             <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} className="mt-0.5 size-4 shrink-0 accent-chef-ink" />
-            Quiero recibir novedades y promociones por email (opcional).
+            {t({ es: 'Quiero recibir novedades y promociones por email (opcional).', en: 'Send me news and offers by email (optional).' })}
           </label>
         </section>
       </div>
 
-      <aside aria-label="Tu pedido">
+      <aside aria-label={t({ es: 'Tu pedido', en: 'Your order' })}>
         <div className="sticky top-20 rounded-[28px] bg-mist p-6">
-          <h2 className="mb-4 font-display text-xl font-bold">Tu pedido</h2>
+          <h2 className="mb-4 font-display text-xl font-bold">{t({ es: 'Tu pedido', en: 'Your order' })}</h2>
           <ul className="mb-5 space-y-3">
             {items.map((item) => {
               const line = shownQuote?.lines.find((l) => l.variantId === item.variantId)
@@ -272,11 +285,11 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
                     </span>
                   </span>
                   <span className="min-w-0 flex-1 text-sm">
-                    <span className="block truncate font-medium">{item.name}</span>
-                    <span className="block text-ash-ink">{item.variantName}</span>
+                    <span className="block truncate font-medium">{line?.productId ? line.productName : item.name}</span>
+                    <span className="block text-ash-ink">{line?.productId ? line.variantName : item.variantName}</span>
                     {line?.message && <span className="block text-xs text-teja">{line.message}</span>}
                   </span>
-                  <span className="text-sm tabular-nums">{formatPrice((line?.unitPriceCents || item.priceCents) * item.quantity)}</span>
+                  <span className="text-sm tabular-nums">{formatPrice((line?.unitPriceCents || item.priceCents) * item.quantity, locale)}</span>
                 </li>
               )
             })}
@@ -290,10 +303,17 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
             )}
             <Button type="submit" size="lg" className="w-full" disabled={!paymentsEnabled || submitting || loading || !shownQuote?.isPurchasable}>
               <LockIcon size={18} />
-              {submitting ? 'Conectando con Stripe…' : shownQuote ? `Pagar ${formatPrice(shownQuote.totalCents)}` : 'Pagar'}
+              {submitting
+                ? t({ es: 'Conectando con Stripe…', en: 'Connecting to Stripe…' })
+                : shownQuote
+                  ? t({ es: `Pagar ${formatPrice(shownQuote.totalCents)}`, en: `Pay ${formatPrice(shownQuote.totalCents, 'en')}` })
+                  : t({ es: 'Pagar', en: 'Pay' })}
             </Button>
             <p className={cn('text-center text-xs text-ash-ink')}>
-              Te llevaremos a la página segura de Stripe para pagar. Nunca vemos ni guardamos los datos de tu tarjeta.
+              {t({
+                es: 'Te llevaremos a la página segura de Stripe para pagar. Nunca vemos ni guardamos los datos de tu tarjeta.',
+                en: "We'll take you to Stripe's secure page to pay. We never see or store your card details.",
+              })}
             </p>
           </OrderSummary>
         </div>

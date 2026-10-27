@@ -6,19 +6,21 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useId, useRef, useState } from 'react'
 import { ArrowRightIcon, SearchIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
+import { useI18n } from '@/lib/i18n/client'
 import { formatPrice } from '@/lib/money'
 
 type Suggestion = { slug: string; name: string; subtitle: string | null; priceCents: number; imageUrl: string | null }
 
 const quickLinks = [
-  { href: '/tienda?orden=novedades', label: 'Novedades' },
-  { href: '/categoria/primer-bocado', label: 'Kits sin fuego' },
-  { href: '/tienda?dieta=vegano', label: 'Recetas veganas' },
-  { href: '/categoria/caja-sorpresa', label: 'Caja sorpresa' },
+  { href: '/tienda?orden=novedades', label: { es: 'Novedades', en: 'New arrivals' } },
+  { href: '/categoria/primer-bocado', label: { es: 'Kits sin fuego', en: 'No-cook kits' } },
+  { href: '/tienda?dieta=vegano', label: { es: 'Recetas veganas', en: 'Vegan recipes' } },
+  { href: '/categoria/caja-sorpresa', label: { es: 'Caja sorpresa', en: 'Surprise box' } },
 ]
 
 export function SearchPanel({ onClose }: { onClose: () => void }) {
   const router = useRouter()
+  const { locale, t } = useI18n()
   const inputRef = useRef<HTMLInputElement>(null)
   const listId = useId()
   const [q, setQ] = useState('')
@@ -76,7 +78,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
         >
           <SearchIcon size={24} className="shrink-0 text-ash" />
           <label htmlFor="buscador" className="sr-only">
-            Buscar kits
+            {t({ es: 'Buscar kits', en: 'Search kits' })}
           </label>
           <input
             ref={inputRef}
@@ -84,7 +86,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
             type="search"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar kits, recetas, ingredientes…"
+            placeholder={t({ es: 'Buscar kits, recetas, ingredientes…', en: 'Search kits, recipes, ingredients…' })}
             autoComplete="off"
             aria-controls={listId}
             className="w-full bg-transparent font-display text-2xl font-semibold text-ink placeholder:text-ash/70 focus:outline-none sm:text-[28px]"
@@ -94,12 +96,12 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
         <div id={listId} aria-live="polite" className="mt-6">
           {q.trim().length < 2 ? (
             <>
-              <p className="mb-3 text-xs text-ash-ink">Enlaces rápidos</p>
+              <p className="mb-3 text-xs text-ash-ink">{t({ es: 'Enlaces rápidos', en: 'Quick links' })}</p>
               <ul className="space-y-1">
                 {quickLinks.map((l) => (
                   <li key={l.href}>
                     <Link href={l.href} onClick={onClose} className="flex items-center gap-2 py-1.5 text-sm font-medium hover:text-teja">
-                      <ArrowRightIcon size={14} className="text-ash" /> {l.label}
+                      <ArrowRightIcon size={14} className="text-ash" /> {t(l.label)}
                     </Link>
                   </li>
                 ))}
@@ -107,7 +109,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
             </>
           ) : visible.length > 0 ? (
             <>
-              <p className="mb-3 text-xs text-ash-ink">Sugerencias</p>
+              <p className="mb-3 text-xs text-ash-ink">{t({ es: 'Sugerencias', en: 'Suggestions' })}</p>
               <ul className="divide-y divide-line">
                 {visible.map((r) => (
                   <li key={r.slug}>
@@ -119,7 +121,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
                         <p className="truncate text-sm font-semibold group-hover:text-teja">{r.name}</p>
                         <p className="truncate text-xs text-ash-ink">{r.subtitle}</p>
                       </div>
-                      <span className="text-sm tabular-nums">{formatPrice(r.priceCents)}</span>
+                      <span className="text-sm tabular-nums">{formatPrice(r.priceCents, locale)}</span>
                     </Link>
                   </li>
                 ))}
@@ -129,11 +131,18 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
                 onClick={onClose}
                 className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-teja hover:underline"
               >
-                Ver todos los resultados <ArrowRightIcon size={14} />
+                {t({ es: 'Ver todos los resultados', en: 'See all results' })} <ArrowRightIcon size={14} />
               </Link>
             </>
           ) : (
-            !loading && <p className="text-sm text-ash-ink">No encontramos nada con «{q.trim()}». Prueba con «ramen» o «pizza».</p>
+            !loading && (
+              <p className="text-sm text-ash-ink">
+                {t({
+                  es: `No encontramos nada con «${q.trim()}». Prueba con «ramen» o «pizza».`,
+                  en: `Nothing found for “${q.trim()}”. Try “ramen” or “pizza”.`,
+                })}
+              </p>
+            )
           )}
         </div>
       </div>

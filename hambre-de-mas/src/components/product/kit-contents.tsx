@@ -1,5 +1,8 @@
+'use client'
+
 import { QrIcon, SnowflakeIcon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 
 /** Sobrecito de especias (papel con la parte de arriba dentada). */
 export function SachetIcon({ size = 22, className }: { size?: number; className?: string }) {
@@ -21,26 +24,28 @@ function PackIcon({ size = 22 }: { size?: number }) {
   )
 }
 
-const FRESH = /fresc|salmón|pollo|carne|mozzarella|albahaca|limón|lima|nata|mantequilla|yogur natural|obleas|^col\b|zanahoria/i
+const FRESH =
+  /fresc|salmón|pollo|carne|mozzarella|albahaca|limón|lima|nata|mantequilla|yogur natural|obleas|^col\b|zanahoria|fresh|salmon|chicken|lemon|butter|cream|wrappers|minced/i
 
 type Kind = 'sobre' | 'fresco' | 'tarjeta' | 'despensa'
 
 export function classifyKitItem(item: string, storage?: 'seco' | 'fresco'): Kind {
-  if (/^sobres? /i.test(item)) return 'sobre'
-  if (/tarjeta/i.test(item)) return 'tarjeta'
+  if (/^sobres? |sachets?\b/i.test(item)) return 'sobre'
+  if (/tarjeta|recipe card|qr recipe/i.test(item)) return 'tarjeta'
   if (storage === 'fresco' && FRESH.test(item)) return 'fresco'
   return 'despensa'
 }
 
-const kinds: Record<Kind, { label: string; className: string; icon: React.ReactNode }> = {
-  sobre: { label: 'Sobre individual', className: 'bg-almendra text-teja', icon: <SachetIcon /> },
-  fresco: { label: 'Fresco · refrigerado', className: 'bg-[#E4F1FB] text-[#14507A]', icon: <SnowflakeIcon size={20} /> },
-  tarjeta: { label: 'Con QR', className: 'bg-ink text-white', icon: <QrIcon size={20} /> },
-  despensa: { label: 'De despensa', className: 'bg-mist text-ink', icon: <PackIcon /> },
+const kinds: Record<Kind, { label: { es: string; en: string }; className: string; icon: React.ReactNode }> = {
+  sobre: { label: { es: 'Sobre individual', en: 'Single sachet' }, className: 'bg-almendra text-teja', icon: <SachetIcon /> },
+  fresco: { label: { es: 'Fresco · refrigerado', en: 'Fresh · chilled' }, className: 'bg-[#E4F1FB] text-[#14507A]', icon: <SnowflakeIcon size={20} /> },
+  tarjeta: { label: { es: 'Con QR', en: 'With QR' }, className: 'bg-ink text-white', icon: <QrIcon size={20} /> },
+  despensa: { label: { es: 'De despensa', en: 'Cupboard' }, className: 'bg-mist text-ink', icon: <PackIcon /> },
 }
 
 /** «Qué trae el kit»: cada elemento con un icono según cómo viene. */
 export function KitContents({ items, storage }: { items: string[]; storage?: 'seco' | 'fresco' }) {
+  const { t } = useI18n()
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
       {items.map((item) => {
@@ -50,7 +55,7 @@ export function KitContents({ items, storage }: { items: string[]; storage?: 'se
             <span className={cn('grid size-11 shrink-0 place-items-center rounded-xl', kind.className)}>{kind.icon}</span>
             <span className="min-w-0">
               <span className="block text-[15px] leading-snug font-medium">{item}</span>
-              <span className="block text-xs text-ash-ink">{kind.label}</span>
+              <span className="block text-xs text-ash-ink">{t(kind.label)}</span>
             </span>
           </li>
         )

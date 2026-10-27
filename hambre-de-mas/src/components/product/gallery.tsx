@@ -5,15 +5,17 @@ import { useState } from 'react'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { cn } from '@/lib/cn'
+import { useI18n } from '@/lib/i18n/client'
 import type { ProductImage as Img } from '@/lib/types'
 
 export function Gallery({ images, name }: { images: Img[]; name: string }) {
+  const { t } = useI18n()
   const [index, setIndex] = useState(0)
   const current = images[index]
   const go = (delta: number) => setIndex((i) => (i + delta + images.length) % images.length)
 
   if (!current) {
-    return <div className="aspect-square rounded-[32px] bg-mist" aria-label="Sin imagen" />
+    return <div className="aspect-square rounded-[32px] bg-mist" aria-label={t({ es: 'Sin imagen', en: 'No image' })} />
   }
 
   return (
@@ -21,8 +23,8 @@ export function Gallery({ images, name }: { images: Img[]; name: string }) {
       <div
         className="group relative aspect-square overflow-hidden rounded-[32px] bg-mist"
         role="region"
-        aria-roledescription="carrusel"
-        aria-label={`Imágenes de ${name}`}
+        aria-roledescription={t({ es: 'carrusel', en: 'carousel' })}
+        aria-label={t({ es: `Imágenes de ${name}`, en: `Images of ${name}` })}
         onKeyDown={(e) => {
           if (e.key === 'ArrowRight') go(1)
           if (e.key === 'ArrowLeft') go(-1)
@@ -49,7 +51,7 @@ export function Gallery({ images, name }: { images: Img[]; name: string }) {
         </AnimatePresence>
 
         <p className="absolute bottom-4 left-4 rounded-full bg-white/85 px-2.5 py-1 text-[11px] font-medium text-ink/75 backdrop-blur">
-          Sugerencia de presentación
+          {t({ es: 'Sugerencia de presentación', en: 'Serving suggestion' })}
         </p>
         {images.length > 1 && (
           <>
@@ -57,7 +59,7 @@ export function Gallery({ images, name }: { images: Img[]; name: string }) {
               type="button"
               onClick={() => go(-1)}
               className="absolute top-1/2 left-4 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-ink opacity-0 shadow-card backdrop-blur transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-              aria-label="Imagen anterior"
+              aria-label={t({ es: 'Imagen anterior', en: 'Previous image' })}
             >
               <ChevronLeftIcon size={18} />
             </button>
@@ -65,7 +67,7 @@ export function Gallery({ images, name }: { images: Img[]; name: string }) {
               type="button"
               onClick={() => go(1)}
               className="absolute top-1/2 right-4 grid size-10 -translate-y-1/2 place-items-center rounded-full bg-white/85 text-ink opacity-0 shadow-card backdrop-blur transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
-              aria-label="Imagen siguiente"
+              aria-label={t({ es: 'Imagen siguiente', en: 'Next image' })}
             >
               <ChevronRightIcon size={18} />
             </button>
@@ -77,13 +79,13 @@ export function Gallery({ images, name }: { images: Img[]; name: string }) {
       </div>
 
       {images.length > 1 && (
-        <ul className="flex gap-3" aria-label="Miniaturas">
+        <ul className="flex gap-3" aria-label={t({ es: 'Miniaturas', en: 'Thumbnails' })}>
           {images.map((img, i) => (
             <li key={img.id}>
               <button
                 type="button"
                 onClick={() => setIndex(i)}
-                aria-label={`Ver imagen ${i + 1}: ${img.alt || name}`}
+                aria-label={t({ es: `Ver imagen ${i + 1}: ${img.alt || name}`, en: `View image ${i + 1}: ${img.alt || name}` })}
                 aria-current={i === index}
                 className={cn(
                   'relative block size-18 overflow-hidden rounded-2xl bg-mist ring-2 ring-offset-2 transition-[box-shadow,opacity] sm:size-20',

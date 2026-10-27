@@ -2,11 +2,15 @@ import type { Metadata } from 'next'
 import { CheckoutForm } from '@/components/cart/checkout-form'
 import { getCurrentUser, getProfile } from '@/lib/auth/session'
 import { isStripeConfigured, isStripeTestMode } from '@/lib/env'
+import { getI18n } from '@/lib/i18n/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { isServiceRoleConfigured } from '@/lib/supabase/service'
 import type { Address } from '@/lib/types'
 
-export const metadata: Metadata = { title: 'Finalizar compra', robots: { index: false } }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n()
+  return { title: t({ es: 'Finalizar compra', en: 'Checkout' }), robots: { index: false } }
+}
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- filas sin tipar de PostgREST */
 

@@ -9,6 +9,8 @@ import { CheckIcon, ClockIcon, FlameIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { getCatalog } from '@/lib/catalog'
 import { site } from '@/lib/config/site'
+import { getI18n } from '@/lib/i18n/server'
+import type { Localized } from '@/lib/i18n/config'
 import { formatPrice } from '@/lib/money'
 
 /**
@@ -32,22 +34,42 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getCatalog().getProduct((await params).slug)
-  if (!product) return { title: 'Receta no encontrada' }
+  const { t } = await getI18n()
+  if (!product) return { title: t({ es: 'Receta no encontrada', en: 'Recipe not found' }) }
   return {
-    title: `Receta: ${product.name.replace(/^Kit\s+/i, '')}`,
-    description: `Paso a paso del ${product.name}. ${product.subtitle ?? ''}`,
+    title: t({ es: `Receta: ${dishName(product.name)}`, en: `Recipe: ${dishName(product.name)}` }),
+    description: t({
+      es: `Paso a paso del ${product.name}. ${product.subtitle ?? ''}`,
+      en: `Step by step for the ${product.name}. ${product.subtitle ?? ''}`,
+    }),
     alternates: { canonical: `/receta/${product.slug}` },
   }
 }
 
-const heatLabel = { 'sin-fuego': 'Sin fuego', microondas: 'Microondas', sarten: 'Sartén', cazo: 'Cazo', horno: 'Horno' } as const
-const difficultyLabel = ['', 'Fácil', 'Media', 'Reto']
+const heatLabel: Record<string, Localized> = {
+  'sin-fuego': { es: 'Sin fuego', en: 'No heat' },
+  microondas: { es: 'Microondas', en: 'Microwave' },
+  sarten: { es: 'Sartén', en: 'Frying pan' },
+  cazo: { es: 'Cazo', en: 'Pot' },
+  horno: { es: 'Horno', en: 'Oven' },
+}
+const difficultyLabel: Localized[] = [
+  { es: '', en: '' },
+  { es: 'Fácil', en: 'Easy' },
+  { es: 'Media', en: 'Medium' },
+  { es: 'Reto', en: 'Challenge' },
+]
+
+/** «Kit Ramen casero» → «Ramen casero» · «Homemade ramen kit» → «Homemade ramen». */
+const dishName = (name: string) => name.replace(/^Kit\s+|\s+kit$/gi, '')
+const isCard = (item: string) => /tarjeta|recipe card/i.test(item)
 
 export default async function RecipePage({ params }: Props) {
   const product = await getCatalog().getProduct((await params).slug)
   if (!product || product.recipe.steps.length === 0) notFound()
-  const dish = product.name.replace(/^Kit\s+/i, '')
+  const dish = dishName(product.name)
   const { recipe } = product
+  const { locale, t } = await getI18n()
   const allAllergens = [...new Set([...product.allergens, ...product.recipeAllergens])]
 
   return (
@@ -60,7 +82,7 @@ export default async function RecipePage({ params }: Props) {
           image: product.images.map((i) => (i.url.startsWith('http') ? i.url : `${site.url}${i.url}`)),
           description: product.subtitle ?? product.description,
           totalTime: product.attributes.minutes ? `PT${product.attributes.minutes}M` : undefined,
-          recipeIngredient: [...product.includes.filter((i) => !/tarjeta/i.test(i)), ...recipe.youAdd],
+          recipeIngredient: [...product.includes.filter((i) => !isCard(i)), ...recipe.youAdd],
           recipeInstructions: recipe.steps.map((s) => ({ '@type': 'HowToStep', name: s.title, text: s.text })),
         }}
       />
@@ -70,7 +92,8 @@ export default async function RecipePage({ params }: Props) {
         <div className="container-page grid items-center gap-8 py-10 sm:py-14 md:grid-cols-[1.2fr_1fr]">
           <div>
             <p className="pop-word text-xs font-bold tracking-[0.18em] text-almendra uppercase">
-              Receta · {product.category?.level ? `Nivel ${product.category.level}` : product.category?.name}
+              {t({ es: 'Receta', en: 'Recipe' })} ·{' '}
+              {product.category?.level ? t({ es: `Nivel ${product.category.level}`, en: `Level ${product.category.level}` }) : product.category?.name}
             </p>
             <h1 className="pop-word mt-3 font-display text-[40px] leading-[1.03] font-extrabold tracking-tight sm:text-6xl" style={{ '--delay': '0.1s' } as React.CSSProperties}>
               {dish}
@@ -83,11 +106,13 @@ export default async function RecipePage({ params }: Props) {
               ) : null}
               {product.attributes.heat && (
                 <li className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5">
-                  <FlameIcon size={15} /> {heatLabel[product.attributes.heat]}
+                  <FlameIcon size={15} /> {heatLabel[product.attributes.heat] ? t(heatLabel[product.attributes.heat]!) : product.attributes.heat}
                 </li>
               )}
               {product.attributes.difficulty ? (
-                <li className="rounded-full bg-white/15 px-3 py-1.5">Dificultad: {difficultyLabel[product.attributes.difficulty]}</li>
+                <li className="rounded-full bg-white/15 px-3 py-1.5">
+                  {t({ es: 'Dificultad', en: 'Difficulty' })}: {t(difficultyLabel[product.attributes.difficulty] ?? difficultyLabel[0]!)}
+                </li>
               ) : null}
               <li>
                 <StorageChip storage={product.attributes.storage} />
@@ -111,10 +136,10 @@ export default async function RecipePage({ params }: Props) {
         {/* Antes de empezar */}
         <aside className="space-y-6 lg:sticky lg:top-20 lg:self-start">
           <section className="rounded-[24px] bg-mist p-6">
-            <h2 className="font-display text-xl font-bold">En tu kit</h2>
+            <h2 className="font-display text-xl font-bold">{t({ es: 'En tu kit', en: 'In your kit' })}</h2>
             <ul className="mt-3 space-y-2 text-[15px]">
               {product.includes
-                .filter((i) => !/tarjeta/i.test(i))
+                .filter((i) => !isCard(i))
                 .map((item) => (
                   <li key={item} className="flex gap-2.5">
                     <span className="mt-2 size-1.5 shrink-0 rounded-full bg-chef" aria-hidden />
@@ -124,7 +149,7 @@ export default async function RecipePage({ params }: Props) {
             </ul>
           </section>
           <section className="rounded-[24px] bg-almendra-soft p-6">
-            <h2 className="font-display text-xl font-bold">Lo que pones tú</h2>
+            <h2 className="font-display text-xl font-bold">{t({ es: 'Lo que pones tú', en: 'What you add' })}</h2>
             <ul className="mt-3 space-y-2 text-[15px]">
               {recipe.youAdd.map((item) => (
                 <li key={item} className="flex gap-2.5">
@@ -136,7 +161,7 @@ export default async function RecipePage({ params }: Props) {
           </section>
           {allAllergens.length > 0 && (
             <section className="rounded-[24px] border border-line p-6">
-              <h2 className="mb-4 font-display text-xl font-bold">Alérgenos</h2>
+              <h2 className="mb-4 font-display text-xl font-bold">{t({ es: 'Alérgenos', en: 'Allergens' })}</h2>
               <AllergenList codes={allAllergens} size={40} />
             </section>
           )}
@@ -145,9 +170,9 @@ export default async function RecipePage({ params }: Props) {
         {/* Pasos */}
         <section aria-labelledby="pasos">
           <h2 id="pasos" className="font-display text-3xl font-extrabold tracking-tight">
-            Paso a paso
+            {t({ es: 'Paso a paso', en: 'Step by step' })}
           </h2>
-          <p className="mt-1 text-[15px] text-ash-ink">Toca cada paso cuando lo termines.</p>
+          <p className="mt-1 text-[15px] text-ash-ink">{t({ es: 'Toca cada paso cuando lo termines.', en: 'Tap each step when you finish it.' })}</p>
           <ol className="mt-6 space-y-4">
             {recipe.steps.map((step, i) => (
               <li key={step.title} className="scroll-reveal">
@@ -168,7 +193,7 @@ export default async function RecipePage({ params }: Props) {
 
           {recipe.tips.length > 0 && (
             <div className="mt-8 rounded-[24px] bg-hoja/15 p-6">
-              <h3 className="font-display text-lg font-bold text-hoja-deep">Trucos de chef</h3>
+              <h3 className="font-display text-lg font-bold text-hoja-deep">{t({ es: 'Trucos de chef', en: 'Chef tips' })}</h3>
               <ul className="mt-2 space-y-1.5 text-[15px] text-hoja-deep">
                 {recipe.tips.map((tip) => (
                   <li key={tip}>· {tip}</li>
@@ -179,11 +204,16 @@ export default async function RecipePage({ params }: Props) {
 
           <div className="mt-10 flex flex-col items-start gap-4 rounded-[28px] bg-ink p-7 text-white sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="font-display text-2xl font-extrabold">¿Te ha flipado?</p>
-              <p className="mt-1 text-white/75">Repite o sube de nivel. Desde {formatPrice(product.priceCents)}.</p>
+              <p className="font-display text-2xl font-extrabold">{t({ es: '¿Te ha flipado?', en: 'Loved it?' })}</p>
+              <p className="mt-1 text-white/75">
+                {t({
+                  es: `Repite o sube de nivel. Desde ${formatPrice(product.priceCents)}.`,
+                  en: `Cook it again or level up. From ${formatPrice(product.priceCents, locale)}.`,
+                })}
+              </p>
             </div>
             <Link href={`/producto/${product.slug}`} className={buttonClass('secondary', 'lg', 'btn-sheen !bg-white ring-0')}>
-              Ver el kit
+              {t({ es: 'Ver el kit', en: 'See the kit' })}
             </Link>
           </div>
         </section>

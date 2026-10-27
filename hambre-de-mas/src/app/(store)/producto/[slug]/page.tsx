@@ -16,7 +16,9 @@ import { LevelChip } from '@/components/ui/level-chip'
 import { getCatalog } from '@/lib/catalog'
 import { commerce } from '@/lib/config/commerce'
 import { site } from '@/lib/config/site'
-import { formatPrice } from '@/lib/money'
+import { getI18n } from '@/lib/i18n/server'
+import type { Localized } from '@/lib/i18n/config'
+import { formatDate, formatPrice } from '@/lib/money'
 import type { Heat } from '@/lib/types'
 
 export const revalidate = 60
@@ -33,20 +35,31 @@ export async function generateStaticParams() {
   }
 }
 
-const heatLabel: Record<Heat, string> = {
-  'sin-fuego': 'Sin fuego',
-  microondas: 'Microondas',
-  sarten: 'Sartén',
-  cazo: 'Cazo',
-  horno: 'Horno',
+const heatLabel: Record<Heat, Localized> = {
+  'sin-fuego': { es: 'Sin fuego', en: 'No heat' },
+  microondas: { es: 'Microondas', en: 'Microwave' },
+  sarten: { es: 'Sartén', en: 'Frying pan' },
+  cazo: { es: 'Cazo', en: 'Pot' },
+  horno: { es: 'Horno', en: 'Oven' },
 }
-const difficultyLabel = ['', 'Fácil', 'Media', 'Reto']
-const tagLabel: Record<string, string> = { vegano: 'Vegano', vegetariano: 'Vegetariano', 'sin-gluten': 'Sin gluten', picante: 'Picante' }
+const difficultyLabel: Localized[] = [
+  { es: '', en: '' },
+  { es: 'Fácil', en: 'Easy' },
+  { es: 'Media', en: 'Medium' },
+  { es: 'Reto', en: 'Challenge' },
+]
+const tagLabel: Record<string, Localized> = {
+  vegano: { es: 'Vegano', en: 'Vegan' },
+  vegetariano: { es: 'Vegetariano', en: 'Vegetarian' },
+  'sin-gluten': { es: 'Sin gluten', en: 'Gluten-free' },
+  picante: { es: 'Picante', en: 'Spicy' },
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const product = await getCatalog().getProduct(slug)
-  if (!product) return { title: 'Producto no encontrado' }
+  const { t } = await getI18n()
+  if (!product) return { title: t({ es: 'Producto no encontrado', en: 'Product not found' }) }
   const description = product.seoDescription ?? product.subtitle ?? product.description.slice(0, 160)
   return {
     title: product.seoTitle ?? product.name,
@@ -71,6 +84,8 @@ export default async function ProductPage({ params }: Props) {
     product.recipe.steps.length ? recipeQrSvg(product.slug) : Promise.resolve(null),
   ])
   const average = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0
+  const { locale, t } = await getI18n()
+  const reviewCount = (n: number) => t({ es: `${n} ${n === 1 ? 'opinión' : 'opiniones'}`, en: `${n} ${n === 1 ? 'review' : 'reviews'}` })
   const absolute = (url: string) => (url.startsWith('http') ? url : `${site.url}${url}`)
 
   return (
@@ -105,7 +120,7 @@ export default async function ProductPage({ params }: Props) {
           '@context': 'https://schema.org',
           '@type': 'BreadcrumbList',
           itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Tienda', item: `${site.url}/tienda` },
+            { '@type': 'ListItem', position: 1, name: t({ es: 'Tienda', en: 'Shop' }), item: `${site.url}/tienda` },
             ...(product.category
               ? [{ '@type': 'ListItem', position: 2, name: product.category.name, item: `${site.url}/categoria/${product.category.slug}` }]
               : []),
@@ -115,11 +130,11 @@ export default async function ProductPage({ params }: Props) {
       />
 
       <div className="container-page pt-6 pb-20">
-        <nav aria-label="Migas de pan" className="mb-6 text-[13px] text-ash-ink">
+        <nav aria-label={t({ es: 'Migas de pan', en: 'Breadcrumb' })} className="mb-6 text-[13px] text-ash-ink">
           <ol className="flex flex-wrap items-center gap-1">
             <li>
               <Link href="/tienda" className="hover:text-ink">
-                Tienda
+                {t({ es: 'Tienda', en: 'Shop' })}
               </Link>
             </li>
             {product.category && (
@@ -145,8 +160,8 @@ export default async function ProductPage({ params }: Props) {
               {product.category && <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} />}
               {product.badge && <span className="text-[12px] font-semibold text-teja">{product.badge}</span>}
               {product.isDemo && (
-                <span className="rounded-full bg-mist px-2.5 py-0.5 text-[11px] font-medium text-ash-ink" title="Producto de ejemplo para la demo de la tienda">
-                  Producto de demostración
+                <span className="rounded-full bg-mist px-2.5 py-0.5 text-[11px] font-medium text-ash-ink" title={t({ es: 'Producto de ejemplo para la demo de la tienda', en: 'Sample product for the shop demo' })}>
+                  {t({ es: 'Producto de demostración', en: 'Demo product' })}
                 </span>
               )}
             </div>
@@ -154,7 +169,7 @@ export default async function ProductPage({ params }: Props) {
             {product.subtitle && <p className="mt-3 text-lg text-ash-ink">{product.subtitle}</p>}
             {reviews.length > 0 && (
               <a href="#opiniones" className="mt-3 inline-flex items-center gap-1.5 text-sm text-ink">
-                <StarIcon size={15} className="text-chef" /> {average.toFixed(1)} · {reviews.length} {reviews.length === 1 ? 'opinión' : 'opiniones'}
+                <StarIcon size={15} className="text-chef" /> {average.toFixed(1)} · {reviewCount(reviews.length)}
               </a>
             )}
 
@@ -166,18 +181,19 @@ export default async function ProductPage({ params }: Props) {
               ) : null}
               {product.attributes.heat && (
                 <li className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1.5">
-                  <FlameIcon size={15} /> {heatLabel[product.attributes.heat]}
+                  <FlameIcon size={15} /> {t(heatLabel[product.attributes.heat])}
                 </li>
               )}
               {product.attributes.difficulty ? (
-                <li className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1.5">Dificultad: {difficultyLabel[product.attributes.difficulty]}</li>
+                <li className="inline-flex items-center gap-1.5 rounded-full bg-mist px-3 py-1.5">{t({ es: 'Dificultad', en: 'Difficulty' })}: {t(difficultyLabel[product.attributes.difficulty] ?? difficultyLabel[0]!)}
+                </li>
               ) : null}
               <li>
                 <StorageChip storage={product.attributes.storage} />
               </li>
-              {product.tags.map((t) => (
-                <li key={t} className="inline-flex items-center gap-1.5 rounded-full bg-hoja/15 px-3 py-1.5 text-hoja-deep">
-                  <LeafIcon size={14} /> {tagLabel[t] ?? t}
+              {product.tags.map((tag) => (
+                <li key={tag} className="inline-flex items-center gap-1.5 rounded-full bg-hoja/15 px-3 py-1.5 text-hoja-deep">
+                  <LeafIcon size={14} /> {tagLabel[tag] ? t(tagLabel[tag]) : tag}
                 </li>
               ))}
             </ul>
@@ -185,13 +201,13 @@ export default async function ProductPage({ params }: Props) {
             <a href="#alergenos" className="mt-5 flex flex-wrap items-center gap-3 text-sm text-ash-ink hover:text-ink">
               {product.allergens.length > 0 ? (
                 <>
-                  <span>Contiene:</span>
+                  <span>{t({ es: 'Contiene:', en: 'Contains:' })}</span>
                   <AllergenStrip codes={product.allergens} max={14} size={26} />
                 </>
               ) : (
-                <span>Sin alérgenos de declaración obligatoria en el kit</span>
+                <span>{t({ es: 'Sin alérgenos de declaración obligatoria en el kit', en: 'No major allergens in the kit' })}</span>
               )}
-              <span className="text-teja underline-offset-2 hover:underline">Ver alérgenos</span>
+              <span className="text-teja underline-offset-2 hover:underline">{t({ es: 'Ver alérgenos', en: 'See allergens' })}</span>
             </a>
 
             <div className="mt-8 border-t border-line pt-8">
@@ -202,11 +218,19 @@ export default async function ProductPage({ params }: Props) {
               <li className="flex gap-3 py-4">
                 <TruckIcon className="mt-0.5 shrink-0" />
                 <span>
-                  <strong className="font-semibold">Envío en {commerce.deliveryEstimate}</strong>
+                  <strong className="font-semibold">
+                    {t({
+                      es: `Envío en ${commerce.deliveryEstimate}`,
+                      en: `Delivery in ${commerce.deliveryEstimate.replace('h laborables', 'working hours')}`,
+                    })}
+                  </strong>
                   <span className="block text-ash-ink">
-                    {formatPrice(commerce.shippingCents)} a Península y Baleares. Gratis desde {formatPrice(commerce.freeShippingThresholdCents)}.{' '}
+                    {t({
+                      es: `${formatPrice(commerce.shippingCents)} a Península y Baleares. Gratis desde ${formatPrice(commerce.freeShippingThresholdCents)}.`,
+                      en: `${formatPrice(commerce.shippingCents, 'en')} to mainland Spain and the Balearic Islands. Free from ${formatPrice(commerce.freeShippingThresholdCents, 'en')}.`,
+                    })}{' '}
                     <Link href="/legal/envios" className="text-teja hover:underline">
-                      Más info
+                      {t({ es: 'Más info', en: 'More info' })}
                     </Link>
                   </span>
                 </span>
@@ -214,11 +238,14 @@ export default async function ProductPage({ params }: Props) {
               <li className="flex gap-3 py-4">
                 <ReturnIcon className="mt-0.5 shrink-0" />
                 <span>
-                  <strong className="font-semibold">Devoluciones</strong>
+                  <strong className="font-semibold">{t({ es: 'Devoluciones', en: 'Returns' })}</strong>
                   <span className="block text-ash-ink">
-                    {commerce.returnDays} días para kits sin abrir. Los alimentos abiertos no se pueden devolver por higiene.{' '}
+                    {t({
+                      es: `${commerce.returnDays} días para kits sin abrir. Los alimentos abiertos no se pueden devolver por higiene.`,
+                      en: `${commerce.returnDays} days for unopened kits. Opened food can't be returned for hygiene reasons.`,
+                    })}{' '}
                     <Link href="/legal/devoluciones" className="text-teja hover:underline">
-                      Ver condiciones
+                      {t({ es: 'Ver condiciones', en: 'See terms' })}
                     </Link>
                   </span>
                 </span>
@@ -232,22 +259,26 @@ export default async function ProductPage({ params }: Props) {
             <div className="grid items-center gap-8 p-8 sm:p-12 md:grid-cols-[1fr_auto]">
               <div>
                 <p className="flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-almendra uppercase">
-                  <QrIcon size={16} /> La receta, en el móvil
+                  <QrIcon size={16} /> {t({ es: 'La receta, en el móvil', en: 'The recipe, on your phone' })}
                 </p>
                 <h2 id="receta-qr" className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-                  Escanéalo y cocina paso a paso.
+                  {t({ es: 'Escanéalo y cocina paso a paso.', en: 'Scan it and cook step by step.' })}
                 </h2>
                 <p className="mt-3 max-w-lg text-white/85">
-                  Es el mismo QR que viene impreso en la tarjeta de tu kit. Ábrelo con la cámara del móvil y tendrás la receta con todos los
-                  pasos, lo que pones tú y los alérgenos.
+                  {t({
+                    es: 'Es el mismo QR que viene impreso en la tarjeta de tu kit. Ábrelo con la cámara del móvil y tendrás la receta con todos los pasos, lo que pones tú y los alérgenos.',
+                    en: "It's the same QR printed on your kit's card. Open it with your phone camera to get the recipe with every step, what you add and the allergens.",
+                  })}
                 </p>
                 <Link href={`/receta/${product.slug}`} className="mt-6 inline-flex items-center gap-2 font-semibold text-white underline underline-offset-4">
-                  Ver la receta aquí →
+                  {t({ es: 'Ver la receta aquí', en: 'See the recipe here' })} →
                 </Link>
               </div>
               <div className="kit-pop mx-auto w-48 rotate-[-4deg] rounded-[22px] bg-white p-4 text-ink shadow-float sm:w-56">
-                <p className="text-[11px] font-extrabold tracking-wider text-teja">RECETA · {product.name.replace(/^Kit\s+/i, '').toUpperCase()}</p>
-                <div className="mt-2 [&_svg]:h-auto [&_svg]:w-full" role="img" aria-label={`Código QR de la receta de ${product.name}`} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+                <p className="text-[11px] font-extrabold tracking-wider text-teja">
+                  {t({ es: 'RECETA', en: 'RECIPE' })} · {product.name.replace(/^Kit\s+|\s+kit$/gi, '').toUpperCase()}
+                </p>
+                <div className="mt-2 [&_svg]:h-auto [&_svg]:w-full" role="img" aria-label={t({ es: `Código QR de la receta de ${product.name}`, en: `QR code for the ${product.name} recipe` })} dangerouslySetInnerHTML={{ __html: qrSvg }} />
               </div>
             </div>
           </section>
@@ -255,18 +286,20 @@ export default async function ProductPage({ params }: Props) {
 
         <div className="mt-20 grid gap-12 border-t border-line pt-16 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
           <Reveal>
-            <h2 className="font-display text-3xl font-extrabold tracking-tight">Qué trae el kit</h2>
-            <p className="mt-2 text-[15px] text-ash-ink">Las especias vienen en sobres individuales, ya pesados para la receta.</p>
+            <h2 className="font-display text-3xl font-extrabold tracking-tight">{t({ es: 'Qué trae el kit', en: "What's in the kit" })}</h2>
+            <p className="mt-2 text-[15px] text-ash-ink">
+              {t({ es: 'Las especias vienen en sobres individuales, ya pesados para la receta.', en: 'Spices come in single sachets, pre-weighed for the recipe.' })}
+            </p>
             <div className="mt-6">
               <KitContents items={product.includes} storage={product.attributes.storage} />
             </div>
           </Reveal>
           <Reveal delay={0.08}>
-            <h2 className="font-display text-3xl font-extrabold tracking-tight">La receta</h2>
+            <h2 className="font-display text-3xl font-extrabold tracking-tight">{t({ es: 'La receta', en: 'The recipe' })}</h2>
             <p className="mt-6 text-[17px] leading-relaxed text-ink/85">{product.description}</p>
             {product.specs.length > 0 && (
               <>
-                <h3 className="mt-10 mb-2 text-[15px] font-semibold">Información técnica</h3>
+                <h3 className="mt-10 mb-2 text-[15px] font-semibold">{t({ es: 'Información técnica', en: 'Product details' })}</h3>
                 <dl className="divide-y divide-line border-y border-line text-sm">
                   {product.specs.map((s) => (
                     <div key={s.label} className="grid grid-cols-[140px_1fr] gap-4 py-3 sm:grid-cols-[180px_1fr]">
@@ -275,8 +308,8 @@ export default async function ProductPage({ params }: Props) {
                     </div>
                   ))}
                   <div className="grid grid-cols-[140px_1fr] gap-4 py-3 sm:grid-cols-[180px_1fr]">
-                    <dt className="text-ash-ink">IVA</dt>
-                    <dd>{product.taxRateBps / 100} % incluido en el precio</dd>
+                    <dt className="text-ash-ink">{t({ es: 'IVA', en: 'VAT' })}</dt>
+                    <dd>{t({ es: `${product.taxRateBps / 100} % incluido en el precio`, en: `${product.taxRateBps / 100}% included in the price` })}</dd>
                   </div>
                 </dl>
               </>
@@ -286,35 +319,42 @@ export default async function ProductPage({ params }: Props) {
 
         <section id="alergenos" aria-labelledby="alergenos-titulo" className="mt-20 scroll-mt-24 border-t border-line pt-16">
           <h2 id="alergenos-titulo" className="font-display text-3xl font-extrabold tracking-tight">
-            Alérgenos
+            {t({ es: 'Alérgenos', en: 'Allergens' })}
           </h2>
           <p className="mt-2 max-w-2xl text-[15px] text-ash-ink">
-            Información de los 14 alérgenos de declaración obligatoria (Reglamento UE 1169/2011). Revísala siempre antes de cocinar.
+            {t({
+              es: 'Información de los 14 alérgenos de declaración obligatoria (Reglamento UE 1169/2011). Revísala siempre antes de cocinar.',
+              en: 'Information on the 14 major allergens (EU Regulation 1169/2011). Always check it before cooking.',
+            })}
           </p>
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
             <div className="rounded-[22px] bg-mist p-6">
-              <h3 className="mb-4 font-semibold">Contiene el kit</h3>
+              <h3 className="mb-4 font-semibold">{t({ es: 'Contiene el kit', en: 'The kit contains' })}</h3>
               {product.allergens.length ? (
                 <AllergenList codes={product.allergens} />
               ) : (
-                <p className="text-sm text-ash-ink">Ninguno de los 14 alérgenos de declaración obligatoria.</p>
+                <p className="text-sm text-ash-ink">{t({ es: 'Ninguno de los 14 alérgenos de declaración obligatoria.', en: 'None of the 14 major allergens.' })}</p>
               )}
             </div>
             <div className="rounded-[22px] bg-mist p-6">
-              <h3 className="mb-4 font-semibold">Puede contener trazas</h3>
+              <h3 className="mb-4 font-semibold">{t({ es: 'Puede contener trazas', en: 'May contain traces' })}</h3>
               {product.allergenTraces.length ? (
                 <AllergenList codes={product.allergenTraces} />
               ) : (
-                <p className="text-sm text-ash-ink">Sin avisos de trazas.</p>
+                <p className="text-sm text-ash-ink">{t({ es: 'Sin avisos de trazas.', en: 'No trace warnings.' })}</p>
               )}
             </div>
             <div className="rounded-[22px] bg-almendra-soft p-6">
-              <h3 className="mb-1 font-semibold">Lo que pones tú</h3>
-              <p className="mb-4 text-xs text-ash-ink">Alérgenos de los ingredientes frescos que pide la receta.</p>
+              <h3 className="mb-1 font-semibold">{t({ es: 'Lo que pones tú', en: 'What you add' })}</h3>
+              <p className="mb-4 text-xs text-ash-ink">
+                {t({ es: 'Alérgenos de los ingredientes frescos que pide la receta.', en: 'Allergens in the fresh ingredients the recipe asks for.' })}
+              </p>
               {product.recipeAllergens.length ? (
                 <AllergenList codes={product.recipeAllergens} />
               ) : (
-                <p className="text-sm text-ash-ink">La receta no añade alérgenos de declaración obligatoria.</p>
+                <p className="text-sm text-ash-ink">
+                  {t({ es: 'La receta no añade alérgenos de declaración obligatoria.', en: "The recipe doesn't add any major allergens." })}
+                </p>
               )}
             </div>
           </div>
@@ -323,24 +363,29 @@ export default async function ProductPage({ params }: Props) {
         <section id="opiniones" aria-labelledby="opiniones-titulo" className="mt-20 border-t border-line pt-16">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h2 id="opiniones-titulo" className="font-display text-3xl font-extrabold tracking-tight">
-              Opiniones verificadas
+              {t({ es: 'Opiniones verificadas', en: 'Verified reviews' })}
             </h2>
             {reviews.length > 0 && (
               <p className="flex items-center gap-2 text-sm">
                 <StarIcon className="text-chef" /> <strong className="text-lg">{average.toFixed(1)}</strong>
-                <span className="text-ash-ink">de 5 · {reviews.length} {reviews.length === 1 ? 'opinión' : 'opiniones'}</span>
+                <span className="text-ash-ink">
+                  {t({ es: 'de 5', en: 'out of 5' })} · {reviewCount(reviews.length)}
+                </span>
               </p>
             )}
           </div>
           {reviews.length === 0 ? (
             <p className="mt-4 max-w-xl text-ash-ink">
-              Todavía no hay opiniones. Solo publicamos opiniones de personas que han comprado este kit, y las revisamos antes de mostrarlas.
+              {t({
+                es: 'Todavía no hay opiniones. Solo publicamos opiniones de personas que han comprado este kit, y las revisamos antes de mostrarlas.',
+                en: 'No reviews yet. We only publish reviews from people who bought this kit, and we check them before showing them.',
+              })}
             </p>
           ) : (
             <ul className="mt-8 grid gap-5 md:grid-cols-2">
               {reviews.map((r) => (
                 <li key={r.id} className="rounded-[22px] bg-mist p-6">
-                  <div className="flex gap-0.5 text-chef" aria-label={`${r.rating} de 5 estrellas`}>
+                  <div className="flex gap-0.5 text-chef" aria-label={t({ es: `${r.rating} de 5 estrellas`, en: `${r.rating} out of 5 stars` })}>
                     {Array.from({ length: 5 }, (_, i) => (
                       <StarIcon key={i} size={15} filled={i < r.rating} />
                     ))}
@@ -348,7 +393,8 @@ export default async function ProductPage({ params }: Props) {
                   {r.title && <p className="mt-3 font-semibold">{r.title}</p>}
                   <p className="mt-2 text-[15px] text-ink/80">{r.body}</p>
                   <p className="mt-4 text-xs text-ash-ink">
-                    {r.authorName} · Compra verificada · {new Date(r.createdAt).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
+                    {r.authorName} · {t({ es: 'Compra verificada', en: 'Verified purchase' })} ·{' '}
+                    {formatDate(r.createdAt, locale, { month: 'long', year: 'numeric' })}
                   </p>
                 </li>
               ))}
@@ -360,7 +406,7 @@ export default async function ProductPage({ params }: Props) {
         {related.length > 0 && (
           <section aria-labelledby="relacionados" className="mt-20 border-t border-line pt-16">
             <h2 id="relacionados" className="mb-8 font-display text-3xl font-extrabold tracking-tight">
-              También te puede flipar
+              {t({ es: 'También te puede flipar', en: 'You might also love' })}
             </h2>
             <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {related.map((p) => (

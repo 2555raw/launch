@@ -100,6 +100,8 @@ export type ProductSummary = {
 export type ProductDetail = ProductSummary & {
   description: string
   includes: string[]
+  /** Foto de cada elemento de `includes` (mismo orden; null si no hay). */
+  includeImages: (string | null)[]
   specs: { label: string; value: string }[]
   /** Puede contener trazas de… */
   allergenTraces: Allergen[]

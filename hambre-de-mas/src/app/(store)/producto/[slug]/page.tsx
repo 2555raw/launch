@@ -198,17 +198,30 @@ export default async function ProductPage({ params }: Props) {
               ))}
             </ul>
 
-            <a href="#alergenos" className="mt-5 flex flex-wrap items-center gap-3 text-sm text-ash-ink hover:text-ink">
-              {product.allergens.length > 0 ? (
-                <>
-                  <span>{t({ es: 'Contiene:', en: 'Contains:' })}</span>
-                  <AllergenStrip codes={product.allergens} max={14} size={26} />
-                </>
-              ) : (
-                <span>{t({ es: 'Sin alérgenos de declaración obligatoria en el kit', en: 'No major allergens in the kit' })}</span>
-              )}
-              <span className="text-teja underline-offset-2 hover:underline">{t({ es: 'Ver alérgenos', en: 'See allergens' })}</span>
-            </a>
+            {product.allergens.length > 0 ? (
+              <a href="#alergenos" className="group mt-5 block text-sm text-ash-ink">
+                <AllergenStrip codes={product.allergens} traces={product.allergenTraces} size={26} layout="row" />
+                <span className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-2.5 rounded-full bg-chef" /> {t({ es: 'Contiene', en: 'Contains' })}
+                  </span>
+                  {product.allergenTraces.length > 0 && (
+                    <span className="flex items-center gap-1.5">
+                      <span className="size-2.5 rounded-full bg-chef/45" /> {t({ es: 'Trazas', en: 'Traces' })}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1.5">
+                    <span className="size-2.5 rounded-full bg-[#C7C7CC]" /> {t({ es: 'No contiene', en: 'Free from' })}
+                  </span>
+                  <span className="text-teja underline-offset-2 group-hover:underline">{t({ es: 'Ver alérgenos', en: 'See allergens' })}</span>
+                </span>
+              </a>
+            ) : (
+              <a href="#alergenos" className="mt-5 inline-block text-sm text-ash-ink hover:text-ink">
+                {t({ es: 'Alérgenos: consulta la información del kit', en: 'Allergens: see the kit information' })}{' '}
+                <span className="text-teja underline-offset-2 hover:underline">{t({ es: 'Ver alérgenos', en: 'See allergens' })}</span>
+              </a>
+            )}
 
             <div className="mt-8 border-t border-line pt-8">
               <PurchasePanel product={product} />
@@ -291,7 +304,7 @@ export default async function ProductPage({ params }: Props) {
               {t({ es: 'Las especias vienen en sobres individuales, ya pesados para la receta.', en: 'Spices come in single sachets, pre-weighed for the recipe.' })}
             </p>
             <div className="mt-6">
-              <KitContents items={product.includes} storage={product.attributes.storage} />
+              <KitContents items={product.includes} images={product.includeImages} storage={product.attributes.storage} />
             </div>
           </Reveal>
           <Reveal delay={0.08}>

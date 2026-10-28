@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { QrIcon, SnowflakeIcon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
 import { useI18n } from '@/lib/i18n/client'
@@ -43,16 +44,42 @@ const kinds: Record<Kind, { label: { es: string; en: string }; className: string
   despensa: { label: { es: 'De despensa', en: 'Cupboard' }, className: 'bg-mist text-ink', icon: <PackIcon /> },
 }
 
-/** «Qué trae el kit»: cada elemento con un icono según cómo viene. */
-export function KitContents({ items, storage }: { items: string[]; storage?: 'seco' | 'fresco' }) {
+/**
+ * «Qué trae el kit»: cada elemento con su foto (si la hay) y una marca según
+ * cómo viene: sobre individual, fresco, de despensa o tarjeta con QR.
+ */
+export function KitContents({
+  items,
+  images = [],
+  storage,
+}: {
+  items: string[]
+  images?: (string | null)[]
+  storage?: 'seco' | 'fresco'
+}) {
   const { t } = useI18n()
   return (
     <ul className="grid gap-3 sm:grid-cols-2">
-      {items.map((item) => {
+      {items.map((item, i) => {
         const kind = kinds[classifyKitItem(item, storage)]
+        const photo = images[i]
         return (
-          <li key={item} className="flex items-center gap-3 rounded-2xl border border-line p-3">
-            <span className={cn('grid size-11 shrink-0 place-items-center rounded-xl', kind.className)}>{kind.icon}</span>
+          <li key={item} className="flex items-center gap-3.5 rounded-2xl border border-line p-2.5 pr-3">
+            {photo ? (
+              <span className="relative size-16 shrink-0">
+                <span className="absolute inset-0 overflow-hidden rounded-xl bg-mist">
+                  <Image src={photo} alt="" fill sizes="64px" className="object-cover" />
+                </span>
+                <span
+                  className={cn('absolute -right-1.5 -bottom-1.5 grid size-6 place-items-center rounded-full ring-2 ring-white [&_svg]:size-3.5', kind.className)}
+                  aria-hidden
+                >
+                  {kind.icon}
+                </span>
+              </span>
+            ) : (
+              <span className={cn('grid size-16 shrink-0 place-items-center rounded-xl', kind.className)}>{kind.icon}</span>
+            )}
             <span className="min-w-0">
               <span className="block text-[15px] leading-snug font-medium">{item}</span>
               <span className="block text-xs text-ash-ink">{t(kind.label)}</span>

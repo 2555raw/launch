@@ -3,6 +3,7 @@ import { demoCategories, demoId, demoProducts, type DemoProduct } from '@/data/d
 import { demoCategoriesEn, demoProductsEn } from '@/data/demo-catalog-en'
 import { sortAllergens } from '@/lib/allergens'
 import type { Category, ProductDetail, ProductFilter, ProductSummary } from '@/lib/types'
+import { ingredientPhotos } from './ingredient-photos'
 import { normalizeSearch } from './mappers'
 import { DEFAULT_PAGE_SIZE, type CatalogRepository } from './repository'
 
@@ -74,6 +75,7 @@ function toDetail(p: DemoProduct): ProductDetail {
     recipeAllergens: sortAllergens(p.allergens.recipe),
     recipe: p.recipe,
     includes: p.includes,
+    includeImages: ingredientPhotos(p.includes),
     specs: p.specs,
     taxRateBps: 1000,
     category: category

@@ -3,7 +3,6 @@ import {
   Benefits,
   Marquee,
   BestSellers,
-  BrandStory,
   HowItWorks,
   LevelsRow,
   NewArrivals,
@@ -83,7 +82,6 @@ export default async function HomePage() {
       <HowItWorks />
       <BestSellers products={popular.items} />
       <Benefits />
-      <BrandStory />
       <VerifiedReviews reviews={reviews} />
       <div className="h-16" />
       <NewsletterSection />

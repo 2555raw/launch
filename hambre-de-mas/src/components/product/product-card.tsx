@@ -67,8 +67,10 @@ export function ProductCard({
         {product.badge && <p className="text-[12px] font-semibold text-teja">{product.badge}</p>}
         <h3 className="font-display text-[19px] leading-snug font-bold">{product.name}</h3>
         {product.subtitle && <p className="line-clamp-2 text-sm text-ash-ink">{product.subtitle}</p>}
+        {/* Sin alérgenos declarados no se pinta (p. ej. la caja sorpresa, que cambia cada mes):
+            todo en gris parecería «sin alérgenos». */}
         {product.allergens.length > 0 && (
-          <div className="mt-2">
+          <div className="mt-3">
             <AllergenStrip codes={product.allergens} />
           </div>
         )}

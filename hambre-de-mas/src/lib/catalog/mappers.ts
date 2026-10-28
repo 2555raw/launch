@@ -1,4 +1,5 @@
 import { sortAllergens } from '@/lib/allergens'
+import { ingredientPhotos } from './ingredient-photos'
 import type { Category, ProductDetail, ProductImage, ProductSummary, Recipe, Variant } from '@/lib/types'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- filas sin tipar de PostgREST */
@@ -90,6 +91,7 @@ export function mapProductDetail(row: any): ProductDetail {
     ...summary,
     description: row.description ?? '',
     includes: row.includes ?? [],
+    includeImages: ingredientPhotos(row.includes ?? []),
     specs: Array.isArray(row.specs) ? row.specs : [],
     allergenTraces: sortAllergens(row.allergen_traces),
     recipeAllergens: sortAllergens(row.recipe_allergens),

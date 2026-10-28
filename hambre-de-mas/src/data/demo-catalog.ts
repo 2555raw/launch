@@ -103,7 +103,7 @@ export const demoCategories: DemoCategory[] = [
   {
     slug: 'primer-bocado',
     name: 'Primer bocado',
-    tagline: 'Sin fuego o con microondas · 100 % seco',
+    tagline: 'Sin fuego o con microondas · 100\u00a0% seco',
     description: 'El nivel 1. Todo llega seco y listo para la despensa: tú solo pones agua. Nada de fuegos, como mucho un microondas.',
     level: 1,
     accent: 'chef',
@@ -113,7 +113,7 @@ export const demoCategories: DemoCategory[] = [
   {
     slug: 'con-ganas',
     name: 'Con ganas',
-    tagline: 'Sartén y cazo · 100 % seco',
+    tagline: 'Sartén y cazo · 100\u00a0% seco',
     description: 'El nivel 2. Sigue siendo todo seco, pero toca encender el fuego: sartén, cazo y recetas que impresionan. Tú pones agua y un chorrito de aceite.',
     level: 2,
     accent: 'hoja',
@@ -286,6 +286,42 @@ export const demoProducts: DemoProduct[] = [
     publishedDaysAgo: 6,
   },
 
+  {
+    slug: 'kit-onigiris-atun',
+    name: 'Kit Onigiris de atún',
+    subtitle: 'Bolas de arroz japonés con atún, mayonesa y furikake. Al microondas.',
+    description:
+      'El snack japonés más famoso, sin encender el fuego. Arroz japonés ya cocido que se calienta en el microondas, atún en lata, mayonesa y furikake (sésamo y alga) para rebozarlos. Les das forma de triángulo con las manos y los envuelves en alga nori.',
+    category: 'primer-bocado',
+    variants: [
+      { name: '2 personas', sku: 'HDM-ONI-2', price: 1590, stock: 30 },
+      { name: '4 personas', sku: 'HDM-ONI-4', price: 2790, stock: 18 },
+    ],
+    images: [
+      { file: 'onigiri-1.jpg', alt: 'Onigiri rebozado en furikake sobre una hoja de alga (sugerencia de presentación)' },
+      { file: 'onigiri-2.jpg', alt: 'Manos sujetando un onigiri envuelto en alga' },
+    ],
+    attributes: { minutes: 15, difficulty: 1, heat: 'microondas', storage: 'seco' },
+    tags: ['sin-gluten'],
+    allergens: { contains: ['pescado', 'huevos', 'sesamo', 'soja'] },
+    includes: ['Vasitos de arroz japonés ya cocido', 'Lata de atún al natural', 'Sobre de mayonesa', 'Sobre de furikake (sésamo y alga)', 'Láminas de alga nori', 'Tarjeta de receta con QR'],
+    specs: [{ label: 'Tú pones', value: 'Nada: solo un microondas.' }, dryConservation, recipeCard],
+    recipe: {
+      youAdd: ['Nada: solo un microondas y un poco de agua para mojarte las manos'],
+      steps: [
+        { title: 'Calienta el arroz', text: 'Abre un poco la tapa de los vasitos y caliéntalos 1 minuto en el microondas. Deja que se templen para no quemarte.' },
+        { title: 'Prepara el relleno', text: 'Escurre el atún y mézclalo en un bol con la mayonesa.' },
+        { title: 'Forma los onigiris', text: 'Mójate las manos, coge un puñado de arroz, haz un hueco en el centro, pon una cucharada de relleno y ciérralo apretando hasta formar un triángulo.' },
+        { title: 'Reboza', text: 'Pasa los lados por el furikake para que se peguen el sésamo y el alga.' },
+        { title: 'Envuelve', text: 'Pon una tira de alga nori en la base justo antes de comer, para que cruja.' },
+      ],
+      tips: ['Con las manos mojadas el arroz no se pega.', 'Para llevar al instituto, envuelve cada onigiri en film y pon el alga al comer.'],
+    },
+    badge: 'Nuevo',
+    salesCount: 22,
+    publishedDaysAgo: 3,
+  },
+
   // Nivel 2 · Con ganas (100 % seco, con fuego)
   {
     slug: 'kit-ramen-casero',
@@ -422,6 +458,42 @@ export const demoProducts: DemoProduct[] = [
     },
     salesCount: 140,
     publishedDaysAgo: 80,
+  },
+
+  {
+    slug: 'kit-falafel-pita',
+    name: 'Kit Falafel con pita',
+    subtitle: 'Falafel crujiente a la sartén, pan de pita, salsa de tahini y encurtidos.',
+    description:
+      'La mezcla de falafel lleva garbanzo, hierbas y especias: solo añades agua, formas las bolitas y las doras en la sartén. Rellenas el pan de pita con los falafels, la salsa de tahini, los pepinillos y una pizca de zumaque. Todo de despensa.',
+    category: 'con-ganas',
+    variants: [
+      { name: '2 personas', sku: 'HDM-FAL-2', price: 1890, stock: 26 },
+      { name: '4 personas', sku: 'HDM-FAL-4', price: 3290, stock: 14 },
+    ],
+    images: [
+      { file: 'falafel-1.jpg', alt: 'Falafels dorados, uno abierto por la mitad' },
+      { file: 'falafel-2.jpg', alt: 'Bol de falafels con encurtidos (sugerencia de presentación)' },
+    ],
+    attributes: { minutes: 25, difficulty: 2, heat: 'sarten', storage: 'seco' },
+    tags: ['vegano', 'vegetariano'],
+    allergens: { contains: ['gluten', 'sesamo'], traces: ['mostaza'] },
+    includes: ['Mezcla para falafel (garbanzo, hierbas y especias)', 'Pan de pita', 'Sobre de salsa de tahini', 'Pepinillos encurtidos', 'Sobre de zumaque', 'Tarjeta de receta con QR'],
+    specs: [{ label: 'Tú pones', value: 'Agua y aceite.' }, dryConservation, recipeCard],
+    recipe: {
+      youAdd: ['150 ml de agua', '4 cucharadas de aceite'],
+      steps: [
+        { title: 'Hidrata la mezcla', text: 'Mezcla el falafel con 150 ml de agua y deja reposar 10 minutos: tiene que quedar una masa que se pueda moldear.' },
+        { title: 'Forma las bolitas', text: 'Con las manos húmedas, haz bolitas del tamaño de una nuez y aplánalas un poco.' },
+        { title: 'Dóralas', text: 'Sartén con el aceite a fuego medio. Dora los falafels 3 minutos por cada lado y sácalos a un papel de cocina.' },
+        { title: 'Calienta el pan', text: 'Unos segundos en la sartén, sin aceite, para que se abra mejor.' },
+        { title: 'Rellena', text: 'Abre la pita, pon 3 o 4 falafels, salsa de tahini, pepinillos y una pizca de zumaque.' },
+      ],
+      tips: ['Si la masa se deshace, añade una cucharadita más de la mezcla seca.', 'No los muevas hasta que estén dorados: así no se rompen.'],
+    },
+    badge: 'Nuevo',
+    salesCount: 16,
+    publishedDaysAgo: 5,
   },
 
   // Nivel 3 · Hambre de más (incluye frescos, envío refrigerado)
@@ -603,6 +675,44 @@ export const demoProducts: DemoProduct[] = [
     },
     salesCount: 88,
     publishedDaysAgo: 50,
+  },
+
+  {
+    slug: 'kit-smash-burgers',
+    name: 'Kit Smash burgers',
+    subtitle: 'Carne fresca aplastada a la plancha, cheddar fundido y pan brioche.',
+    description:
+      'Las hamburguesas de moda: bolas de carne de vacuno fresca que se aplastan en la sartén muy caliente para que queden con costra. Llega refrigerado con la carne, el cheddar, el pan brioche y la cebolla; además, pepinillos, salsa burger y un sobre de sal y pimienta.',
+    category: 'hambre-de-mas',
+    variants: [
+      { name: '2 personas', sku: 'HDM-SMB-2', price: 2690, stock: 20 },
+      { name: '4 personas', sku: 'HDM-SMB-4', price: 4490, stock: 10 },
+    ],
+    images: [
+      { file: 'burger-1.jpg', alt: 'Smash burger doble con cheddar y pepinillos' },
+      { file: 'burger-2.jpg', alt: 'Hamburguesa doble con queso fundido en pan con sésamo' },
+    ],
+    attributes: { minutes: 30, difficulty: 3, heat: 'sarten', storage: 'fresco' },
+    tags: [],
+    allergens: { contains: ['gluten', 'leche', 'huevos', 'mostaza', 'sesamo'] },
+    includes: ['Carne picada de vacuno fresca', 'Pan brioche', 'Lonchas de queso cheddar', 'Cebolla roja fresca', 'Pepinillos encurtidos', 'Sobre de salsa burger', 'Sobre de sal y pimienta', 'Tarjeta de receta con QR'],
+    specs: [{ label: 'Tú pones', value: 'Un chorrito de aceite.' }, freshConservation, recipeCard],
+    recipe: {
+      youAdd: ['1 cucharada de aceite'],
+      steps: [
+        { title: 'Haz las bolas', text: 'Divide la carne en bolas iguales (2 por hamburguesa). No la amases: cuanto menos la toques, más jugosa.' },
+        { title: 'Prepara todo', text: 'Corta la cebolla en aros muy finos, abre los panes y ten a mano el queso: luego va todo muy rápido.' },
+        { title: 'Tuesta el pan', text: 'Sartén caliente sin aceite: tuesta el pan por la cara de dentro 1 minuto y resérvalo.' },
+        { title: 'Aplasta', text: 'Sube el fuego al máximo con un chorrito de aceite. Pon las bolas y aplástalas con una espátula hasta dejarlas finas. Sal y pimienta.' },
+        { title: 'Vuelta y queso', text: 'A los 2 minutos, cuando tengan costra, dales la vuelta, pon el cheddar encima y 1 minuto más.' },
+        { title: 'Monta', text: 'Pan, salsa burger, dos carnes con queso, cebolla, pepinillos y tapa. ¡A por ella!' },
+      ],
+      tips: ['La sartén tiene que estar muy caliente: si no humea un poco, espera.', 'Lávate las manos después de tocar la carne cruda.'],
+    },
+    featured: true,
+    badge: 'Nuevo',
+    salesCount: 40,
+    publishedDaysAgo: 2,
   },
 
   // Caja sorpresa

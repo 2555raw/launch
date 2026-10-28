@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/cn'
-import { allergenInfo, allergenLabel, type Allergen } from '@/lib/allergens'
+import { ALLERGEN_CODES, allergenInfo, allergenLabel, type Allergen } from '@/lib/allergens'
 import { useI18n } from '@/lib/i18n/client'
 
 /**
@@ -116,7 +116,24 @@ const glyphs: Record<Allergen, React.ReactNode> = {
   ),
 }
 
-export function AllergenIcon({ code, size = 40, className }: { code: Allergen; size?: number; className?: string }) {
+export function AllergenIcon({
+  code,
+  size = 40,
+  className,
+  muted = false,
+  title,
+  decorative = false,
+}: {
+  code: Allergen
+  size?: number
+  className?: string
+  /** En gris: el kit no lo contiene. */
+  muted?: boolean
+  /** Texto del tooltip (por defecto, el nombre del alérgeno). */
+  title?: string
+  /** Sin nombre accesible propio (cuando el contenedor ya lo describe). */
+  decorative?: boolean
+}) {
   const { locale } = useI18n()
   const info = allergenInfo(code)
   const label = allergenLabel(code, locale)
@@ -125,13 +142,14 @@ export function AllergenIcon({ code, size = 40, className }: { code: Allergen; s
       width={size}
       height={size}
       viewBox="0 0 48 48"
-      role="img"
-      aria-label={label}
+      role={decorative ? undefined : 'img'}
+      aria-label={decorative ? undefined : label}
+      aria-hidden={decorative || undefined}
       className={cn('shrink-0', className)}
       style={{ color: info.color }}
     >
-      <title>{label}</title>
-      <circle cx="24" cy="24" r="24" fill={info.color} />
+      <title>{title ?? label}</title>
+      <circle cx="24" cy="24" r="24" fill={muted ? '#C7C7CC' : info.color} />
       {glyphs[code]}
     </svg>
   )
@@ -152,17 +170,62 @@ export function AllergenList({ codes, size = 44 }: { codes: Allergen[]; size?: n
   )
 }
 
-/** Versión compacta para tarjetas: solo iconos, con «+n» si no caben. */
-export function AllergenStrip({ codes, max = 5, size = 22 }: { codes: Allergen[]; max?: number; size?: number }) {
+/**
+ * Los 14 alérgenos de un vistazo: en color los que contiene el kit, a medio
+ * color los que puede contener en trazas y en gris el resto.
+ */
+export function AllergenStrip({
+  codes,
+  traces = [],
+  size = 20,
+  layout = 'grid',
+  className,
+}: {
+  codes: Allergen[]
+  traces?: Allergen[]
+  size?: number
+  /** grid: dos filas de 7 (tarjetas) · row: una fila que salta de línea (ficha). */
+  layout?: 'grid' | 'row'
+  className?: string
+}) {
   const { locale, t } = useI18n()
-  if (codes.length === 0) return null
-  const shown = codes.slice(0, max)
+  const names = (list: Allergen[]) => list.map((c) => allergenLabel(c, locale)).join(', ')
+  const label = [
+    codes.length
+      ? `${t({ es: 'Contiene', en: 'Contains' })}: ${names(codes)}`
+      : t({ es: 'Sin alérgenos de declaración obligatoria', en: 'No major allergens' }),
+    traces.length ? `${t({ es: 'Puede contener trazas de', en: 'May contain traces of' })}: ${names(traces)}` : '',
+  ]
+    .filter(Boolean)
+    .join('. ')
   return (
-    <p className="flex items-center gap-1" aria-label={`${t({ es: 'Contiene', en: 'Contains' })}: ${codes.map((c) => allergenLabel(c, locale)).join(', ')}`}>
-      {shown.map((code) => (
-        <AllergenIcon key={code} code={code} size={size} />
-      ))}
-      {codes.length > max && <span className="text-xs text-ash-ink">+{codes.length - max}</span>}
+    <p
+      role="img"
+      aria-label={label}
+      className={cn(layout === 'grid' ? 'inline-grid grid-cols-7 gap-1' : 'flex flex-wrap items-center gap-1', className)}
+    >
+      {ALLERGEN_CODES.map((code) => {
+        const contains = codes.includes(code)
+        const trace = !contains && traces.includes(code)
+        const name = allergenLabel(code, locale)
+        return (
+          <AllergenIcon
+            key={code}
+            code={code}
+            size={size}
+            decorative
+            muted={!contains && !trace}
+            className={cn(trace && 'opacity-50')}
+            title={
+              contains
+                ? `${t({ es: 'Contiene', en: 'Contains' })} ${name.toLowerCase()}`
+                : trace
+                  ? `${t({ es: 'Trazas de', en: 'Traces of' })} ${name.toLowerCase()}`
+                  : `${t({ es: 'Sin', en: 'No' })} ${name.toLowerCase()}`
+            }
+          />
+        )
+      })}
     </p>
   )
 }

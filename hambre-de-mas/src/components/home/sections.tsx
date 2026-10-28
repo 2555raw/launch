@@ -4,7 +4,7 @@ import { NewsletterForm } from '@/components/layout/newsletter-form'
 import { Reveal, RevealLi } from '@/components/motion/reveal'
 import { ProductCard } from '@/components/product/product-card'
 import { ButtonLink } from '@/components/ui/button'
-import { ArrowRightIcon, ChevronRightIcon, LeafIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
+import { ArrowRightIcon, ChevronRightIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { Scroller } from '@/components/ui/scroller'
 import { cn } from '@/lib/cn'
@@ -25,75 +25,67 @@ export function SectionTitle({ strong, soft, id, action }: { strong: string; sof
   )
 }
 
-const levelCard: Record<Category['accent'], { card: string; label: string; ring: string; chip: string }> = {
-  chef: { card: 'bg-chef text-white', label: 'text-white/80', ring: '#FDE4CF', chip: 'bg-white text-teja' },
-  hoja: { card: 'bg-hoja text-hoja-deep', label: 'text-hoja-deep/75', ring: '#1F4D12', chip: 'bg-hoja-deep text-white' },
-  teja: { card: 'bg-teja text-white', label: 'text-white/80', ring: '#FDE4CF', chip: 'bg-almendra text-teja' },
-  almendra: { card: 'bg-almendra text-teja', label: 'text-teja/75', ring: '#BF2D11', chip: 'bg-teja text-white' },
+/** Tres barras que se llenan según el nivel (como la cobertura del móvil). */
+function LevelBars({ level }: { level: number }) {
+  return (
+    <span aria-hidden className="flex items-end gap-0.5">
+      {[1, 2, 3].map((n) => (
+        <span key={n} className={cn('w-1 rounded-full', n <= level ? 'bg-chef-ink' : 'bg-line-strong')} style={{ height: 4 + n * 3 }} />
+      ))}
+    </span>
+  )
 }
 
-/**
- * Mapa de niveles al estilo videojuego: tarjetas de color unidas por un
- * camino punteado que avanza, con la foto dentro de un aro que gira.
- */
+/** Los niveles como tarjetas de categoría: foto grande, nivel, nombre y enlace. */
 export async function LevelsRow({ categories }: { categories: Category[] }) {
   const { t } = await getI18n()
   return (
-    <section aria-labelledby="niveles" className="relative pt-10 pb-16">
+    <section aria-labelledby="niveles" className="pt-10 pb-16">
       <SectionTitle
         id="niveles"
         strong={t({ es: 'Elige tu nivel.', en: 'Pick your level.' })}
         soft={t({ es: 'Empieza sin fuego y acaba cocinando el mundo.', en: 'Start with no heat and end up cooking the world.' })}
       />
-      <div className="container-page relative">
-        {/* Camino que une los niveles */}
-        <svg aria-hidden viewBox="0 0 1000 60" preserveAspectRatio="none" className="absolute inset-x-10 top-1/2 hidden h-16 -translate-y-1/2 lg:block">
-          <path d="M0 30 C 120 -10, 230 70, 333 30 S 560 -10, 666 30 S 880 70, 1000 30" fill="none" stroke="#E5E5EA" strokeWidth="6" strokeLinecap="round" />
-          <path d="M0 30 C 120 -10, 230 70, 333 30 S 560 -10, 666 30 S 880 70, 1000 30" fill="none" stroke="#E63A2E" strokeWidth="6" strokeLinecap="round" strokeDasharray="2 22" className="path-march" />
-        </svg>
-        <ol className="relative grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((c, i) => {
-            const style = levelCard[c.accent]
-            return (
-              <li key={c.slug} className="scroll-reveal" style={{ animationDelay: `${i * 80}ms` }}>
-                <Link
-                  href={`/categoria/${c.slug}`}
-                  className={cn(
-                    'group relative flex h-full min-h-[300px] flex-col overflow-hidden rounded-[28px] p-6 shadow-card transition-[transform,box-shadow] duration-500 ease-[var(--ease-apple)] hover:-translate-y-2 hover:-rotate-1 hover:shadow-card-hover',
-                    style.card,
+      <ol className="container-page grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {categories.map((c) => (
+          <li key={c.slug}>
+            <Link
+              href={`/categoria/${c.slug}`}
+              className="group flex h-full flex-col overflow-hidden rounded-[var(--radius-tile)] bg-white shadow-card ring-1 ring-black/[0.03] transition-[box-shadow,transform] duration-500 ease-[var(--ease-apple)] hover:-translate-y-1 hover:shadow-card-hover"
+            >
+              <span className="relative block aspect-[4/3] overflow-hidden bg-mist">
+                {c.imageUrl && (
+                  <Image
+                    src={c.imageUrl}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 92vw"
+                    className="object-cover transition-transform duration-700 ease-[var(--ease-apple)] group-hover:scale-[1.04]"
+                  />
+                )}
+              </span>
+              <span className="flex flex-1 flex-col p-6">
+                <span className="flex items-center gap-2 text-[12px] font-semibold tracking-[0.08em] text-teja uppercase">
+                  {c.level ? (
+                    <>
+                      <LevelBars level={c.level} />
+                      {t({ es: `Nivel ${c.level}`, en: `Level ${c.level}` })}
+                    </>
+                  ) : (
+                    t({ es: 'Cada mes', en: 'Every month' })
                   )}
-                >
-                  <span aria-hidden className="pointer-events-none absolute -top-6 -right-2 font-display text-[150px] leading-none font-extrabold opacity-15 transition-transform duration-500 group-hover:scale-110">
-                    {c.level ?? '?'}
-                  </span>
-                  <span className={cn('text-xs font-bold tracking-[0.16em] uppercase', style.label)}>{c.level ? t({ es: `Nivel ${c.level}`, en: `Level ${c.level}` }) : t({ es: 'Cada mes', en: 'Every month' })}</span>
-                  <span className="mt-1 font-display text-[26px] leading-tight font-extrabold">{c.name}</span>
-                  <span className={cn('mt-1 max-w-[16rem] text-sm', style.label)}>{c.tagline}</span>
-
-                  <span className="relative mt-auto ml-auto block size-36 translate-x-3 translate-y-3">
-                    <svg aria-hidden viewBox="0 0 100 100" className="spin-slow absolute inset-0">
-                      <circle cx="50" cy="50" r="47" fill="none" stroke={style.ring} strokeWidth="3" strokeDasharray="6 7" strokeLinecap="round" />
-                    </svg>
-                    <span className="absolute inset-[10px] overflow-hidden rounded-full bg-white/30 shadow-float">
-                      {c.imageUrl && (
-                        <Image src={c.imageUrl} alt="" fill sizes="144px" className="object-cover transition-transform duration-700 ease-[var(--ease-apple)] group-hover:scale-115 group-hover:rotate-6" />
-                      )}
-                    </span>
-                  </span>
-                  <span className={cn('absolute bottom-5 left-6 inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition-transform duration-300 group-hover:translate-x-1', style.chip)}>
-                    {c.level
-                      ? i === 0
-                        ? t({ es: 'Empieza aquí', en: 'Start here' })
-                        : t({ es: 'Desbloquear', en: 'Unlock' })
-                      : t({ es: 'Sorpréndeme', en: 'Surprise me' })}{' '}
-                    <ArrowRightIcon size={13} />
-                  </span>
-                </Link>
-              </li>
-            )
-          })}
-        </ol>
-      </div>
+                </span>
+                <span className="mt-2 font-display text-[22px] leading-tight font-bold">{c.name}</span>
+                <span className="mt-1 text-sm text-ash-ink">{c.tagline}</span>
+                <span className="mt-auto inline-flex items-center gap-1 pt-5 text-[15px] font-medium text-teja">
+                  {t({ es: 'Ver kits', en: 'See kits' })}
+                  <ChevronRightIcon size={16} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+                </span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
     </section>
   )
 }
@@ -329,7 +321,14 @@ export async function HowItWorks() {
         </Reveal>
         <Reveal delay={0.1} className="relative">
           <div className="relative aspect-[4/5] overflow-hidden rounded-[36px] bg-mist shadow-float sm:aspect-[5/6]">
-            <Image src="/demo/home/ingredientes.jpg" alt={t({ es: 'Ingredientes frescos sobre una tabla de madera', en: 'Fresh ingredients on a wooden board' })} fill sizes="(min-width: 1024px) 45vw, 92vw" className="object-cover" />
+            <Image
+              src="/demo/home/cocinando.jpg"
+              alt={t({ es: 'Una chica salteando verduras en una sartén', en: 'A girl stir-frying vegetables in a pan' })}
+              fill
+              sizes="(min-width: 1024px) 45vw, 92vw"
+              quality={85}
+              className="object-cover"
+            />
           </div>
           <div className="absolute -bottom-6 -left-2 flex items-center gap-3 rounded-[20px] bg-white p-4 pr-6 shadow-float sm:-left-8">
             <span className="grid size-11 place-items-center rounded-2xl bg-ink text-white">
@@ -341,66 +340,6 @@ export async function HowItWorks() {
             </span>
           </div>
         </Reveal>
-      </div>
-    </section>
-  )
-}
-
-export async function BrandStory() {
-  const { t } = await getI18n()
-  return (
-    <section aria-labelledby="marca" className="px-3 sm:px-6">
-      <div className="relative mx-auto max-w-[88rem] overflow-hidden rounded-[40px] bg-almendra px-6 py-16 sm:px-12 sm:py-24">
-        <div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[1fr_1.2fr]">
-          <Reveal className="flex justify-center">
-            <div className="relative w-full max-w-[380px]">
-              <div className="steam -top-[18%] left-[25%] w-[50%]" aria-hidden>
-                <span />
-                <span />
-                <span />
-              </div>
-              <div className="float-anim" style={{ '--dur': '5s' } as React.CSSProperties}>
-                <Image src="/brand/logo-720.png" alt={t({ es: 'Logotipo de Hambre de Más: un gorro de chef con el nombre en curva', en: 'Hambre de Más logo: a chef’s hat with the name curved across it' })} width={720} height={653} className="hat-anim w-full" />
-              </div>
-            </div>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <p className="eyebrow">{t({ es: 'Nuestra marca', en: 'Our brand' })}</p>
-            <h2 id="marca" className="mt-3 font-display text-4xl leading-[1.05] font-extrabold tracking-tight text-teja sm:text-5xl">
-              {t({ es: '¿Con hambre de más?', en: 'Hungry for more?' })}
-            </h2>
-            <p className="mt-5 text-lg text-teja/90">
-              {t({
-                es: 'Somos una tienda de kits de cocina para chavales de 12 a 18 años. El nombre juega con un doble sentido:',
-                en: 'We’re a cooking kit shop for 12 to 18-year-olds. “Hambre de Más” means “hungry for more” in Spanish, and it works two ways:',
-              })}
-            </p>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[22px] bg-white/70 p-6">
-                <p className="font-display text-xl font-bold text-chef">{t({ es: 'Hambre de comida', en: 'Hungry for food' })}</p>
-                <p className="mt-2 text-[15px] text-teja/90">
-                  {t({ es: 'Siempre tenéis hambre. Se entiende al instante y conecta con vuestro día a día.', en: "You're always hungry. It clicks instantly and fits your everyday life." })}
-                </p>
-              </div>
-              <div className="rounded-[22px] bg-white/70 p-6">
-                <p className="font-display text-xl font-bold text-chef">{t({ es: 'Hambre de más', en: 'Hungry for more' })}</p>
-                <p className="mt-2 text-[15px] text-teja/90">
-                  {t({
-                    es: 'Ganas de aprender, de ser independientes, de probar sabores nuevos y de subir de nivel.',
-                    en: 'Wanting to learn, to be independent, to try new flavours and to level up.',
-                  })}
-                </p>
-              </div>
-            </div>
-            <p className="mt-6 flex items-start gap-2 text-sm text-teja/80">
-              <LeafIcon size={18} className="mt-0.5 shrink-0 text-hoja-ink" />
-              {t({
-                es: 'El detalle escondido: la H de «Hambre» esconde un tenedor y la tilde de «Más» es una hoja. Comida fresca y de verdad.',
-                en: 'The hidden detail: the H in “Hambre” hides a fork and the accent on “Más” is a leaf. Fresh, real food.',
-              })}
-            </p>
-          </Reveal>
-        </div>
       </div>
     </section>
   )

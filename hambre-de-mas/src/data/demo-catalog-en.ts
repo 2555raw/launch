@@ -319,6 +319,73 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     variants: serves('HDM-YAK'),
     imageAlts: ['Stir-fried noodles on a black plate', 'Bowl of noodles with lime and veg'],
   },
+  'kit-onigiris-atun': {
+    name: 'Tuna onigiri kit',
+    subtitle: 'Japanese rice balls with tuna, mayo and furikake. Microwave only.',
+    description:
+      "Japan's favourite snack, without turning on the hob. Ready-cooked Japanese rice you warm in the microwave, tinned tuna, mayo and furikake (sesame and seaweed) to coat them. Shape them into triangles with your hands and wrap them in nori.",
+    badge: 'New',
+    includes: ['Cups of ready-cooked Japanese rice', 'Tin of tuna in water', 'Mayonnaise sachet', 'Furikake sachet (sesame and seaweed)', 'Nori seaweed sheets', 'Recipe card with QR'],
+    specs: [{ label: 'You add', value: 'Nothing: just a microwave.' }, dryStorage, recipeCard],
+    recipe: {
+      youAdd: ['Nothing: just a microwave and a little water to wet your hands'],
+      steps: [
+        { title: 'Warm the rice', text: 'Peel back the lid of the rice cups a little and microwave for 1 minute. Let it cool slightly so you don’t burn yourself.' },
+        { title: 'Make the filling', text: 'Drain the tuna and mix it in a bowl with the mayo.' },
+        { title: 'Shape the onigiri', text: 'Wet your hands, take a handful of rice, make a dip in the middle, add a spoonful of filling and close it, pressing into a triangle.' },
+        { title: 'Coat them', text: 'Roll the sides in the furikake so the sesame and seaweed stick.' },
+        { title: 'Wrap', text: 'Put a strip of nori around the base just before eating so it stays crunchy.' },
+      ],
+      tips: ['With wet hands the rice won’t stick.', 'For a school lunch, wrap each onigiri in cling film and add the nori when you eat.'],
+    },
+    variants: serves('HDM-ONI'),
+    imageAlts: ['Onigiri coated in furikake on a sheet of seaweed (serving suggestion)', 'Hands holding an onigiri wrapped in seaweed'],
+  },
+  'kit-falafel-pita': {
+    name: 'Falafel and pita kit',
+    subtitle: 'Crispy pan-fried falafel, pita bread, tahini sauce and pickles.',
+    description:
+      'The falafel mix has chickpeas, herbs and spices: just add water, shape the balls and fry them in a pan. Fill the pita with the falafel, tahini sauce, pickles and a pinch of sumac. All from the cupboard.',
+    badge: 'New',
+    includes: ['Falafel mix (chickpeas, herbs and spices)', 'Pita bread', 'Tahini sauce sachet', 'Pickled gherkins', 'Sumac sachet', 'Recipe card with QR'],
+    specs: [{ label: 'You add', value: 'Water and oil.' }, dryStorage, recipeCard],
+    recipe: {
+      youAdd: ['150 ml water', '4 tablespoons oil'],
+      steps: [
+        { title: 'Hydrate the mix', text: 'Mix the falafel with 150 ml water and leave for 10 minutes: you want a dough you can shape.' },
+        { title: 'Shape the balls', text: 'With damp hands, make walnut-sized balls and flatten them slightly.' },
+        { title: 'Fry them', text: 'Pan with the oil on medium heat. Fry the falafel for 3 minutes each side and drain on kitchen paper.' },
+        { title: 'Warm the bread', text: 'A few seconds in the dry pan so it opens more easily.' },
+        { title: 'Fill', text: 'Open the pita and add 3 or 4 falafel, tahini sauce, gherkins and a pinch of sumac.' },
+      ],
+      tips: ['If the dough falls apart, add another teaspoon of the dry mix.', 'Don’t move them until they’re golden: that way they don’t break.'],
+    },
+    variants: serves('HDM-FAL'),
+    imageAlts: ['Golden falafel, one split in half', 'Bowl of falafel with pickles (serving suggestion)'],
+  },
+  'kit-smash-burgers': {
+    name: 'Smash burgers kit',
+    subtitle: 'Fresh beef smashed on a hot pan, melted cheddar and brioche buns.',
+    description:
+      'The burger everyone’s talking about: balls of fresh beef smashed in a very hot pan for a crispy crust. It arrives chilled with the beef, cheddar, brioche buns and onion, plus pickles, burger sauce and a salt and pepper sachet.',
+    badge: 'New',
+    includes: ['Fresh minced beef', 'Brioche buns', 'Cheddar slices', 'Fresh red onion', 'Pickled gherkins', 'Burger sauce sachet', 'Salt and pepper sachet', 'Recipe card with QR'],
+    specs: [{ label: 'You add', value: 'A splash of oil.' }, freshStorage, recipeCard],
+    recipe: {
+      youAdd: ['1 tablespoon oil'],
+      steps: [
+        { title: 'Make the balls', text: 'Split the beef into equal balls (2 per burger). Don’t knead it: the less you handle it, the juicier it stays.' },
+        { title: 'Get everything ready', text: 'Slice the onion into very thin rings, open the buns and have the cheese at hand: it all goes fast after this.' },
+        { title: 'Toast the buns', text: 'Hot pan, no oil: toast the cut side of the buns for 1 minute and set aside.' },
+        { title: 'Smash', text: 'Turn the heat to max with a splash of oil. Add the balls and press them flat with a spatula. Salt and pepper.' },
+        { title: 'Flip and cheese', text: 'After 2 minutes, when they have a crust, flip them, put the cheddar on top and cook 1 more minute.' },
+        { title: 'Build', text: 'Bun, burger sauce, two cheesy patties, onion, gherkins and the lid. Dig in!' },
+      ],
+      tips: ['The pan has to be really hot: if it isn’t smoking a little, wait.', 'Wash your hands after touching raw meat.'],
+    },
+    variants: serves('HDM-SMB'),
+    imageAlts: ['Double smash burger with cheddar and gherkins', 'Double cheeseburger in a sesame bun'],
+  },
   'caja-sorpresa': {
     name: 'Surprise box',
     subtitle: "A new kit every month. You won't know which until you open the box.",

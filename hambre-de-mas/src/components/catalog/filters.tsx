@@ -125,7 +125,7 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
           <Option key={o.value} label={label(o)} checked={has('dieta', o.value)} onChange={() => toggleInList('dieta', o.value)} />
         ))}
       </Group>
-      <Group title={t({ es: 'Sin alérgenos', en: 'Allergen-free' })} defaultOpen={Boolean(params.get('sin'))}>
+      <Group title={t({ es: 'Sin alérgenos', en: 'Allergen-free' })}>
         <p className="pb-1 text-xs text-ash-ink">
           {t({ es: 'Oculta los kits que los contienen, en trazas o en la receta.', en: 'Hides kits that contain them, as traces or in the recipe.' })}
         </p>
@@ -159,9 +159,6 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
           <Option key={o.value} label={label(o)} checked={has('dificultad', o.value)} onChange={() => toggleInList('dificultad', o.value)} />
         ))}
       </Group>
-      <div className="py-4">
-        <Option label={t({ es: 'Solo con stock', en: 'In stock only' })} checked={params.get('stock') === '1'} onChange={() => update({ stock: params.get('stock') === '1' ? null : '1' })} />
-      </div>
     </div>
   )
 }

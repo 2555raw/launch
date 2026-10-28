@@ -220,6 +220,14 @@ export const legalPages: Record<string, LegalPage> = {
                 <td>Contrato de encargo (art. 28 RGPD)</td>
               </tr>
               <tr>
+                <td>Anthropic (si se activa el asistente de ayuda con IA)</td>
+                <td>
+                  Generar las respuestas del chat de ayuda. Solo recibe lo que escribes en el chat; la tienda no guarda las conversaciones. No
+                  escribas datos personales ni de pago en el chat.
+                </td>
+                <td>Contrato de encargo (art. 28 RGPD) y cláusulas contractuales tipo</td>
+              </tr>
+              <tr>
                 <td>Empresas de transporte</td>
                 <td>Entrega del pedido (nombre, dirección y teléfono)</td>
                 <td>Necesario para la ejecución del contrato</td>

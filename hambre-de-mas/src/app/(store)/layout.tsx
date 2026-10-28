@@ -1,4 +1,5 @@
 import { CartDrawer } from '@/components/cart/cart-drawer'
+import { HelpWidget } from '@/components/help/help-widget'
 import { DemoBanner } from '@/components/layout/demo-banner'
 import { Footer } from '@/components/layout/footer'
 import { Header } from '@/components/layout/header'
@@ -13,6 +14,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
       <main id="contenido">{children}</main>
       <Footer categories={categories} />
       <CartDrawer />
+      <HelpWidget />
     </>
   )
 }

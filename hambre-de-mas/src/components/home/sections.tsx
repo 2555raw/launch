@@ -9,7 +9,9 @@ import { ProductImage } from '@/components/ui/product-image'
 import { Scroller } from '@/components/ui/scroller'
 import { cn } from '@/lib/cn'
 import { commerce } from '@/lib/config/commerce'
+import { getCatalog } from '@/lib/catalog'
 import { getI18n } from '@/lib/i18n/server'
+import { LevelsShowcase, type LevelSlide } from './levels-showcase'
 import { formatPrice } from '@/lib/money'
 import type { Category, ProductSummary, Review } from '@/lib/types'
 
@@ -25,69 +27,23 @@ export function SectionTitle({ strong, soft, id, action }: { strong: string; sof
   )
 }
 
-/** Tres barras que se llenan según el nivel (como la cobertura del móvil). */
-function LevelBars({ level }: { level: number }) {
-  return (
-    <span aria-hidden className="flex items-end gap-0.5">
-      {[1, 2, 3].map((n) => (
-        <span key={n} className={cn('w-1 rounded-full', n <= level ? 'bg-chef-ink' : 'bg-line-strong')} style={{ height: 4 + n * 3 }} />
-      ))}
-    </span>
-  )
-}
-
-/** Los niveles como tarjetas de categoría: foto grande, nivel, nombre y enlace. */
+/** Los niveles en escaparate, cada uno con la foto de su kit más vendido. */
 export async function LevelsRow({ categories }: { categories: Category[] }) {
-  const { t } = await getI18n()
-  return (
-    <section aria-labelledby="niveles" className="pt-10 pb-16">
-      <SectionTitle
-        id="niveles"
-        strong={t({ es: 'Elige tu nivel.', en: 'Pick your level.' })}
-        soft={t({ es: 'Empieza sin fuego y acaba cocinando el mundo.', en: 'Start with no heat and end up cooking the world.' })}
-      />
-      <ol className="container-page grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {categories.map((c) => (
-          <li key={c.slug}>
-            <Link
-              href={`/categoria/${c.slug}`}
-              className="group flex h-full flex-col overflow-hidden rounded-[var(--radius-tile)] bg-white shadow-card ring-1 ring-black/[0.03] transition-[box-shadow,transform] duration-500 ease-[var(--ease-apple)] hover:-translate-y-1 hover:shadow-card-hover"
-            >
-              <span className="relative block aspect-[4/3] overflow-hidden bg-mist">
-                {c.imageUrl && (
-                  <Image
-                    src={c.imageUrl}
-                    alt=""
-                    fill
-                    sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 92vw"
-                    className="object-cover transition-transform duration-700 ease-[var(--ease-apple)] group-hover:scale-[1.04]"
-                  />
-                )}
-              </span>
-              <span className="flex flex-1 flex-col p-6">
-                <span className="flex items-center gap-2 text-[12px] font-semibold tracking-[0.08em] text-teja uppercase">
-                  {c.level ? (
-                    <>
-                      <LevelBars level={c.level} />
-                      {t({ es: `Nivel ${c.level}`, en: `Level ${c.level}` })}
-                    </>
-                  ) : (
-                    t({ es: 'Cada mes', en: 'Every month' })
-                  )}
-                </span>
-                <span className="mt-2 font-display text-[22px] leading-tight font-bold">{c.name}</span>
-                <span className="mt-1 text-sm text-ash-ink">{c.tagline}</span>
-                <span className="mt-auto inline-flex items-center gap-1 pt-5 text-[15px] font-medium text-teja">
-                  {t({ es: 'Ver kits', en: 'See kits' })}
-                  <ChevronRightIcon size={16} className="transition-transform duration-300 group-hover:translate-x-0.5" />
-                </span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ol>
-    </section>
-  )
+  const { locale } = await getI18n()
+  const catalog = getCatalog()
+  const tops = await Promise.all(categories.map((c) => catalog.listProducts({ category: c.slug, sort: 'popular', limit: 1 })))
+  const slides: LevelSlide[] = categories.map((c, i) => {
+    const top = tops[i]?.items[0]
+    return {
+      slug: c.slug,
+      level: c.level,
+      name: c.name,
+      tagline: c.tagline,
+      image: top?.image?.url ?? c.imageUrl ?? '/demo/home/hero-ramen.jpg',
+      product: top ? { name: top.name, slug: top.slug, price: formatPrice(top.priceCents, locale) } : null,
+    }
+  })
+  return <LevelsShowcase slides={slides} />
 }
 
 /** Cinta de texto en movimiento bajo la portada. */

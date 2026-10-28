@@ -30,8 +30,9 @@ Rojo Chef, Rojo Teja, Verde Hoja y Almendra.
 10. [Arquitectura](#arquitectura)
 11. [Seguridad](#seguridad)
 12. [Idiomas (español e inglés)](#idiomas-español-e-inglés)
-13. [Decisiones de diseño](#decisiones-de-diseño)
-14. [Limitaciones conocidas y siguientes pasos](#limitaciones-conocidas-y-siguientes-pasos)
+13. [Asistente de ayuda](#asistente-de-ayuda)
+14. [Decisiones de diseño](#decisiones-de-diseño)
+15. [Limitaciones conocidas y siguientes pasos](#limitaciones-conocidas-y-siguientes-pasos)
 
 ---
 
@@ -371,6 +372,29 @@ con IVA incluido, con `check` que impiden cantidades e importes inválidos.
 - **SEO**: el idioma va en una cookie, no en la URL, así que los buscadores indexan la versión en
   español. Si necesitas posicionar en inglés, el siguiente paso es servirlo con prefijo (`/en/...`)
   y etiquetas `hreflang`.
+
+---
+
+## Asistente de ayuda
+
+El botón rojo de abajo a la derecha abre un panel con tres opciones: preguntar al asistente, buscar
+en las preguntas frecuentes y escribir al email de atención al cliente (`NEXT_PUBLIC_COMPANY_EMAIL`,
+por defecto HambreDeMas@gmail.com).
+
+- **Con IA**: añade `ANTHROPIC_API_KEY` (clave de https://console.anthropic.com) y el asistente
+  responde con Claude (`claude-opus-5-5`, esfuerzo bajo para que conteste rápido). Sus instrucciones
+  están en `src/lib/assistant/prompt.ts`: los datos de envío, devoluciones y pago salen de la
+  configuración, y el catálogo publicado se lee en cada pregunta, así que no hay que mantener nada a
+  mano. Solo responde con esa información; lo que no sepa (el estado de un pedido concreto, una
+  incidencia) lo deriva al email.
+- **Respaldo**: si el modelo declina una pregunta, la API la reintenta sola con el modelo de respaldo
+  recomendado por Anthropic (`fallbacks: "default"`); si aun así no responde, o la API falla, el
+  cliente ve un mensaje que le invita a escribir al email.
+- **Sin clave**: el panel funciona igual y responde con la pregunta frecuente que mejor encaje
+  (`src/lib/assistant/faq.ts`, donde también se editan las preguntas del panel).
+- **Privacidad y coste**: las conversaciones no se guardan en la tienda; se envían a Anthropic para
+  generar la respuesta (añádelo a la política de privacidad si activas la IA). Cada IP puede hacer
+  15 preguntas por minuto y cada conversación se limita a 20 mensajes de 1000 caracteres.
 
 ---
 

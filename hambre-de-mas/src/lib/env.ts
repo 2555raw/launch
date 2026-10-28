@@ -31,6 +31,11 @@ export function isStripeTestMode() {
   return (read('STRIPE_SECRET_KEY') ?? '').startsWith('sk_test_')
 }
 
+/** True si el asistente de ayuda puede usar Claude; si no, responde con las preguntas frecuentes. */
+export function isAssistantConfigured() {
+  return Boolean(read('ANTHROPIC_API_KEY'))
+}
+
 export const serverEnv = {
   serviceRoleKey: () => read('SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_SECRET_KEY'),
   stripeSecretKey: () => read('STRIPE_SECRET_KEY'),
@@ -38,4 +43,5 @@ export const serverEnv = {
   resendApiKey: () => read('RESEND_API_KEY'),
   emailFrom: () => read('EMAIL_FROM'),
   cronSecret: () => read('CRON_SECRET'),
+  anthropicApiKey: () => read('ANTHROPIC_API_KEY'),
 }

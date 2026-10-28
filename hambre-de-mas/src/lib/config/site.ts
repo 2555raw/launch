@@ -32,7 +32,8 @@ export const company = {
   legalName: env(process.env.NEXT_PUBLIC_COMPANY_LEGAL_NAME),
   taxId: env(process.env.NEXT_PUBLIC_COMPANY_TAX_ID),
   address: env(process.env.NEXT_PUBLIC_COMPANY_ADDRESS),
-  email: env(process.env.NEXT_PUBLIC_COMPANY_EMAIL),
+  /** Email de atención al cliente. */
+  email: env(process.env.NEXT_PUBLIC_COMPANY_EMAIL) ?? 'HambreDeMas@gmail.com',
   phone: env(process.env.NEXT_PUBLIC_COMPANY_PHONE),
   registry: env(process.env.NEXT_PUBLIC_COMPANY_REGISTRY),
   supportHours: env(process.env.NEXT_PUBLIC_SUPPORT_HOURS) ?? 'De lunes a viernes, de 9:00 a 18:00',

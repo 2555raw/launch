@@ -8,7 +8,7 @@ import { CheckIcon, ChevronDownIcon, CloseIcon } from '@/components/ui/icons'
 import { ALLERGENS, allergenLabel } from '@/lib/allergens'
 import { useI18n } from '@/lib/i18n/client'
 import { AllergenIcon } from '@/components/product/allergen-icons'
-import { dietOptions, difficultyOptions, priceOptions, sortOptions, timeOptions } from '@/lib/catalog/params'
+import { dietOptions, sortOptions, timeOptions } from '@/lib/catalog/params'
 import { cn } from '@/lib/cn'
 
 type CategoryOption = { slug: string; name: string }
@@ -90,8 +90,6 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
   const { locale, t } = useI18n()
   const label = (o: { label: string; labelEn: string }) => (locale === 'en' ? o.labelEn : o.label)
   const has = (key: string, value: string) => (params.get(key) ?? '').split(',').includes(value)
-  const min = params.get('min') ?? ''
-  const max = params.get('max') ?? ''
 
   return (
     <div>
@@ -103,23 +101,6 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
           ))}
         </Group>
       )}
-      <Group title={t({ es: 'Precio', en: 'Price' })}>
-        {priceOptions.map((o) => (
-          <Option
-            key={o.label}
-            type="radio"
-            name="precio"
-            label={label(o)}
-            checked={min === o.min && max === o.max && Boolean(min || max)}
-            onChange={() => update({ min: o.min || null, max: o.max || null })}
-          />
-        ))}
-        {(min || max) && (
-          <button type="button" onClick={() => update({ min: null, max: null })} className="pt-1 text-xs text-teja hover:underline">
-            {t({ es: 'Quitar filtro de precio', en: 'Clear price filter' })}
-          </button>
-        )}
-      </Group>
       <Group title={t({ es: 'Dieta y sabor', en: 'Diet and flavour' })}>
         {dietOptions.map((o) => (
           <Option key={o.value} label={label(o)} checked={has('dieta', o.value)} onChange={() => toggleInList('dieta', o.value)} />
@@ -152,11 +133,6 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
             checked={params.get('tiempo') === o.value}
             onChange={() => update({ tiempo: params.get('tiempo') === o.value ? null : o.value })}
           />
-        ))}
-      </Group>
-      <Group title={t({ es: 'Dificultad', en: 'Difficulty' })}>
-        {difficultyOptions.map((o) => (
-          <Option key={o.value} label={label(o)} checked={has('dificultad', o.value)} onChange={() => toggleInList('dificultad', o.value)} />
         ))}
       </Group>
     </div>

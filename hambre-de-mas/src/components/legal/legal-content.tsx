@@ -178,6 +178,11 @@ export const legalPages: Record<string, LegalPage> = {
           podremos tramitar el pedido o crear la cuenta. Los alérgenos que nos indiques solo se usan para avisarte en la tienda y adaptar
           envíos; no se utilizan para ninguna otra finalidad.
         </p>
+        <p>
+          Avisos de compras recientes: durante unas horas después de una compra, la tienda puede mostrar a otros visitantes un aviso del tipo
+          «Alguien de Madrid ha comprado el Kit Ramen». Solo se muestran el producto y la provincia (deducida del código postal); nunca tu
+          nombre, tu ciudad, tu dirección ni el importe, así que el aviso no permite identificarte.
+        </p>
 
         <h2>3. Menores de edad</h2>
         <p>

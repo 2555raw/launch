@@ -26,6 +26,8 @@ export const commerce = {
   /** Plazos orientativos que se muestran en la ficha de producto. */
   deliveryEstimate: '24-72 h laborables',
   returnDays: 14,
+  /** Avisos de «alguien ha comprado…» con compras reales. NEXT_PUBLIC_RECENT_PURCHASES=off los quita. */
+  showRecentPurchases: process.env.NEXT_PUBLIC_RECENT_PURCHASES !== 'off',
 }
 
 /**

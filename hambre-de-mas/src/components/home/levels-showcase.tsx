@@ -52,7 +52,7 @@ export function LevelsShowcase({ slides }: { slides: LevelSlide[] }) {
             alt=""
             fill
             sizes="100vw"
-            quality={40}
+            quality={70}
             data-active={i === active}
             data-slide={i}
             className="scale-125 object-cover opacity-0 blur-3xl transition-opacity duration-1000 data-[active=true]:opacity-60"
@@ -117,7 +117,7 @@ export function LevelsShowcase({ slides }: { slides: LevelSlide[] }) {
                 alt={i === active ? s.name : ''}
                 fill
                 sizes="(min-width: 1024px) 620px, 92vw"
-                quality={80}
+                quality={85}
                 data-active={i === active}
                 data-slide={i}
                 className="scale-105 object-cover opacity-0 transition-[opacity,transform] duration-700 ease-[var(--ease-apple)] data-[active=true]:scale-100 data-[active=true]:opacity-100"

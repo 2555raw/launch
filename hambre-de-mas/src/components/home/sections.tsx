@@ -6,6 +6,7 @@ import { ProductCard } from '@/components/product/product-card'
 import { ReviewAuthor } from '@/components/product/review-author'
 import { ButtonLink } from '@/components/ui/button'
 import { LevelBars } from '@/components/home/levels-showcase'
+import { PurchaseGlobe } from '@/components/home/purchase-globe'
 import { ArrowRightIcon, ChevronRightIcon, GiftIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { Scroller } from '@/components/ui/scroller'
@@ -15,6 +16,7 @@ import { getCatalog } from '@/lib/catalog'
 import { getI18n } from '@/lib/i18n/server'
 import { LevelsShowcase, type LevelSlide } from './levels-showcase'
 import { formatPrice } from '@/lib/money'
+import { PURCHASE_MAP_DAYS, type PurchasePoint } from '@/lib/orders/activity'
 import type { Category, ProductSummary, Review } from '@/lib/types'
 
 /** Titular de sección de dos tonos, al estilo de la Apple Store. */
@@ -392,6 +394,64 @@ export async function VerifiedReviews({ reviews }: { reviews: (Review & { produc
           </li>
         ))}
       </ul>
+    </section>
+  )
+}
+
+/** Globo con las provincias desde las que se han pedido kits de verdad. */
+export async function PurchaseMapSection({ points }: { points: PurchasePoint[] }) {
+  const { t } = await getI18n()
+  const hasOrders = points.length > 0
+  return (
+    <section aria-labelledby="mapa-pedidos" className="container-page py-20 sm:py-24">
+      <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
+        <Reveal>
+          <p className="eyebrow">{t({ es: 'Pedidos', en: 'Orders' })}</p>
+          <h2 id="mapa-pedidos" className="mt-3 font-display text-[34px] leading-[1.08] font-extrabold tracking-tight text-balance sm:text-5xl">
+            {points.length >= 10
+              ? t({ es: 'Se cocina por toda España.', en: 'Cooking all over Spain.' })
+              : hasOrders
+                ? t({ es: 'Así viajan nuestros kits.', en: 'Where our kits travel.' })
+              : t({ es: 'Llegamos a toda la Península y Baleares.', en: 'We deliver across mainland Spain and the Balearics.' })}{' '}
+            <span className="text-chef">{t({ es: 'Gira la bola.', en: 'Spin the globe.' })}</span>
+          </h2>
+          <p className="mt-5 max-w-md text-lg leading-relaxed text-ash-ink">
+            {hasOrders
+              ? t({
+                  es: `Cada punto es una provincia desde la que se han pedido kits en los últimos ${PURCHASE_MAP_DAYS} días. Cuantos más pedidos, más grande.`,
+                  en: `Each dot is a province that has ordered kits in the last ${PURCHASE_MAP_DAYS} days. The more orders, the bigger the dot.`,
+                })
+              : t({
+                  es: `Te lo llevamos a casa en ${commerce.deliveryEstimate}, con los kits de nivel 3 refrigerados. Aquí verás desde dónde se piden.`,
+                  en: 'We deliver in 24–72 working hours, with level 3 kits chilled. This is where you will see where orders come from.',
+                })}
+          </p>
+          {hasOrders && (
+            <>
+              <p className="mt-8 font-display text-5xl font-extrabold tabular-nums">
+                {points.length}{' '}
+                <span className="text-lg font-semibold text-ash-ink">{t({ es: points.length === 1 ? 'provincia' : 'provincias', en: points.length === 1 ? 'province' : 'provinces' })}</span>
+              </p>
+              <ul className="mt-5 flex flex-wrap gap-2">
+                {points.slice(0, 10).map((p) => (
+                  <li key={p.province} className="flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm text-ink/80 ring-1 ring-line">
+                    <span aria-hidden className="size-2 rounded-full bg-chef" />
+                    {p.province}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+        </Reveal>
+        <PurchaseGlobe
+          points={points.map(({ lat, lng, orders }) => ({ lat, lng, orders }))}
+          label={
+            hasOrders
+              ? t({ es: `Bola del mundo con pedidos desde: ${points.map((p) => p.province).join(', ')}`, en: `Globe with orders from: ${points.map((p) => p.province).join(', ')}` })
+              : t({ es: 'Bola del mundo centrada en España', en: 'Globe centred on Spain' })
+          }
+        />
+      </div>
     </section>
   )
 }

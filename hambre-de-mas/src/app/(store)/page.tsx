@@ -8,6 +8,7 @@ import {
   NewArrivals,
   NewsletterSection,
   ProductGridSection,
+  PurchaseMapSection,
   StoreIntro,
   VerifiedReviews,
 } from '@/components/home/sections'
@@ -16,6 +17,7 @@ import { getCatalog } from '@/lib/catalog'
 import { recipeQrSvg } from '@/lib/recipes/qr'
 import { company, site } from '@/lib/config/site'
 import { getI18n } from '@/lib/i18n/server'
+import { getPurchaseMap } from '@/lib/orders/activity'
 
 // El catálogo se regenera como mucho cada minuto (ISR).
 export const revalidate = 60
@@ -23,12 +25,13 @@ export const revalidate = 60
 export default async function HomePage() {
   const catalog = getCatalog()
   const { t } = await getI18n()
-  const [categories, newest, featured, popular, reviews] = await Promise.all([
+  const [categories, newest, featured, popular, reviews, purchaseMap] = await Promise.all([
     catalog.listCategories(),
     catalog.listProducts({ sort: 'newest', limit: 6 }),
     catalog.listProducts({ featured: true, sort: 'popular', limit: 8 }),
     catalog.listProducts({ sort: 'popular', limit: 6 }),
     catalog.listRecentReviews(3),
+    getPurchaseMap(),
   ])
 
   const heroProduct = featured.items[0] ?? popular.items[0] ?? null
@@ -82,6 +85,7 @@ export default async function HomePage() {
       <HowItWorks />
       <BestSellers products={popular.items} />
       <Benefits />
+      <PurchaseMapSection points={purchaseMap} />
       <VerifiedReviews reviews={reviews} />
       <div className="h-16" />
       <NewsletterSection />

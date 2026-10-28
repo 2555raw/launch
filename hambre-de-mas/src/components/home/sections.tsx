@@ -4,7 +4,8 @@ import { NewsletterForm } from '@/components/layout/newsletter-form'
 import { Reveal, RevealLi } from '@/components/motion/reveal'
 import { ProductCard } from '@/components/product/product-card'
 import { ButtonLink } from '@/components/ui/button'
-import { ArrowRightIcon, ChevronRightIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
+import { LevelBars } from '@/components/home/levels-showcase'
+import { ArrowRightIcon, ChevronRightIcon, GiftIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { Scroller } from '@/components/ui/scroller'
 import { cn } from '@/lib/cn'
@@ -46,32 +47,36 @@ export async function LevelsRow({ categories }: { categories: Category[] }) {
   return <LevelsShowcase slides={slides} />
 }
 
-/** Cinta de texto en movimiento bajo la portada. */
-export async function Marquee() {
+/** Accesos rápidos bajo la portada: píldoras transparentes que se rellenan de rojo al pasar el ratón. */
+export async function QuickLinks({ categories }: { categories: Category[] }) {
   const { t } = await getI18n()
-  const words = t({
-    es: ['Cocina lo que te flipa', 'Nivel 1 · sin fuego', 'Nivel 2 · sartén y cazo', 'Nivel 3 · recetas del mundo', 'Receta con QR en cada kit', 'Envío gratis desde 40 €'],
-    en: ['Cook what you crave', 'Level 1 · no heat', 'Level 2 · pan and pot', 'Level 3 · world recipes', 'QR recipe in every kit', 'Free shipping from €40'],
-  })
-  const row = (hidden: boolean) => (
-    <ul className="flex shrink-0 items-center" aria-hidden={hidden || undefined}>
-      {words.map((w) => (
-        <li key={w} className="flex items-center gap-6 px-6 text-sm font-semibold tracking-[0.08em] whitespace-nowrap uppercase">
-          {w}
-          <svg viewBox="0 0 24 24" className="size-3 text-chef" aria-hidden>
-            <path d="M12 2l2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6z" fill="currentColor" />
-          </svg>
-        </li>
-      ))}
-    </ul>
-  )
+  const links: { href: string; label: string; icon?: React.ReactNode }[] = [
+    ...categories.map((c) => ({
+      href: `/categoria/${c.slug}`,
+      label: c.level ? t({ es: `Nivel ${c.level}`, en: `Level ${c.level}` }) : c.name,
+      icon: c.level ? <LevelBars level={c.level} /> : <GiftIcon size={17} />,
+    })),
+    { href: '/tienda?orden=novedades', label: t({ es: 'Novedades', en: 'New in' }) },
+    { href: '/tienda?tiempo=15', label: t({ es: 'Hasta 15 min', en: 'Up to 15 min' }) },
+    { href: '/tienda?dieta=vegetariano', label: t({ es: 'Vegetariano', en: 'Vegetarian' }) },
+    { href: '/tienda?dieta=sin-gluten', label: t({ es: 'Sin gluten', en: 'Gluten-free' }) },
+  ]
   return (
-    <div className="marquee overflow-hidden border-y border-line bg-white py-3.5 text-ink/75" role="presentation">
-      <div className="marquee-track">
-        {row(false)}
-        {row(true)}
-      </div>
-    </div>
+    <nav aria-label={t({ es: 'Accesos rápidos', en: 'Quick links' })}>
+      <ul className="container-page flex gap-2.5 overflow-x-auto py-6 [scrollbar-width:none] sm:flex-wrap sm:justify-center sm:gap-3 [&::-webkit-scrollbar]:hidden">
+        {links.map((l) => (
+          <li key={l.href} className="shrink-0">
+            <Link
+              href={l.href}
+              className="flex h-11 items-center gap-2.5 rounded-full px-5 text-[15px] font-medium whitespace-nowrap text-ink/75 ring-1 ring-line transition-[background-color,color,box-shadow] duration-200 hover:bg-chef hover:text-white hover:ring-chef focus-visible:bg-chef focus-visible:text-white"
+            >
+              {l.icon}
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   )
 }
 

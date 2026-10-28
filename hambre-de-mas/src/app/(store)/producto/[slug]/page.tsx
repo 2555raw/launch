@@ -287,11 +287,11 @@ export default async function ProductPage({ params }: Props) {
                   {t({ es: 'Ver la receta aquí', en: 'See the recipe here' })} →
                 </Link>
               </div>
-              <div className="kit-pop mx-auto w-48 rotate-[-4deg] rounded-[22px] bg-white p-4 text-ink shadow-float sm:w-56">
-                <p className="text-[11px] font-extrabold tracking-wider text-teja">
+              <div className="kit-pop mx-auto w-52 rotate-[-4deg] rounded-[24px] bg-white px-4 pt-4 pb-3 text-ink shadow-float sm:w-60 md:mr-8 lg:mr-14">
+                <p className="text-center text-[11px] font-extrabold tracking-wider text-teja">
                   {t({ es: 'RECETA', en: 'RECIPE' })} · {product.name.replace(/^Kit\s+|\s+kit$/gi, '').toUpperCase()}
                 </p>
-                <div className="mt-2 [&_svg]:h-auto [&_svg]:w-full" role="img" aria-label={t({ es: `Código QR de la receta de ${product.name}`, en: `QR code for the ${product.name} recipe` })} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+                <div className="mx-auto mt-2 [&_svg]:mx-auto [&_svg]:h-auto [&_svg]:w-full" role="img" aria-label={t({ es: `Código QR de la receta de ${product.name}`, en: `QR code for the ${product.name} recipe` })} dangerouslySetInnerHTML={{ __html: qrSvg }} />
               </div>
             </div>
           </section>

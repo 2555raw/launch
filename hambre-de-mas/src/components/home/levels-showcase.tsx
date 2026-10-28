@@ -17,7 +17,7 @@ export type LevelSlide = {
 }
 
 /** Tres barras que se llenan según el nivel. */
-function LevelBars({ level }: { level: number }) {
+export function LevelBars({ level }: { level: number }) {
   return (
     <span aria-hidden className="flex items-end gap-[3px]">
       {[1, 2, 3].map((n) => (

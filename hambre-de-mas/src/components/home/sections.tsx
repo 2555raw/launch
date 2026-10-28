@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { NewsletterForm } from '@/components/layout/newsletter-form'
 import { Reveal, RevealLi } from '@/components/motion/reveal'
 import { ProductCard } from '@/components/product/product-card'
+import { ReviewAuthor } from '@/components/product/review-author'
 import { ButtonLink } from '@/components/ui/button'
 import { LevelBars } from '@/components/home/levels-showcase'
 import { ArrowRightIcon, ChevronRightIcon, GiftIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
@@ -374,12 +375,20 @@ export async function VerifiedReviews({ reviews }: { reviews: (Review & { produc
             </div>
             {r.title && <p className="mt-3 font-semibold">{r.title}</p>}
             <p className="mt-2 line-clamp-5 text-[15px] text-ink/80">{r.body}</p>
-            <p className="mt-auto pt-4 text-xs text-ash-ink">
-              {r.authorName} · {t({ es: 'compra verificada', en: 'verified purchase' })} ·{' '}
-              <Link href={`/producto/${r.productSlug}`} className="text-teja hover:underline">
-                {r.productName}
-              </Link>
-            </p>
+            <div className="mt-auto pt-5">
+              <ReviewAuthor
+                name={r.authorName}
+                verifiedLabel={r.isVerified ? t({ es: 'Compra verificada', en: 'Verified purchase' }) : null}
+                meta={
+                  <>
+                    <span aria-hidden>·</span>
+                    <Link href={`/producto/${r.productSlug}`} className="truncate text-teja hover:underline">
+                      {r.productName}
+                    </Link>
+                  </>
+                }
+              />
+            </div>
           </li>
         ))}
       </ul>

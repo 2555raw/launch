@@ -9,6 +9,7 @@ import { StorageChip } from '@/components/product/storage-chip'
 import { recipeQrSvg } from '@/lib/recipes/qr'
 import { ProductCard } from '@/components/product/product-card'
 import { PurchasePanel } from '@/components/product/purchase-panel'
+import { ReviewAuthor } from '@/components/product/review-author'
 import { ReviewForm } from '@/components/product/review-form'
 import { JsonLd } from '@/components/seo/json-ld'
 import { ChevronRightIcon, ClockIcon, FlameIcon, LeafIcon, QrIcon, ReturnIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
@@ -405,10 +406,18 @@ export default async function ProductPage({ params }: Props) {
                   </div>
                   {r.title && <p className="mt-3 font-semibold">{r.title}</p>}
                   <p className="mt-2 text-[15px] text-ink/80">{r.body}</p>
-                  <p className="mt-4 text-xs text-ash-ink">
-                    {r.authorName} · {t({ es: 'Compra verificada', en: 'Verified purchase' })} ·{' '}
-                    {formatDate(r.createdAt, locale, { month: 'long', year: 'numeric' })}
-                  </p>
+                  <div className="mt-5">
+                    <ReviewAuthor
+                      name={r.authorName}
+                      verifiedLabel={r.isVerified ? t({ es: 'Compra verificada', en: 'Verified purchase' }) : null}
+                      meta={
+                        <>
+                          <span aria-hidden>·</span>
+                          {formatDate(r.createdAt, locale, { day: 'numeric', month: 'long', year: 'numeric' })}
+                        </>
+                      }
+                    />
+                  </div>
                 </li>
               ))}
             </ul>

@@ -235,6 +235,15 @@ Funciona en cualquier hosting de Next.js. Con **Vercel**:
    con el dominio definitivo.
 5. Opcional: crea un Vercel Cron que llame a `/api/cron/expire-orders` cada 15 minutos.
 
+Con **Railway** (la configuración está en `railway.json`):
+
+1. En railway.com: **New Project → Deploy from GitHub repo** y elige este repositorio y la rama.
+2. En el servicio, **Settings → Source → Root Directory** = `hambre-de-mas`.
+3. **Settings → Networking → Generate Domain** para tener una URL pública.
+4. En **Variables**, pon al menos `NEXT_PUBLIC_SITE_URL` con esa URL (sin Supabase ni Stripe, la
+   tienda arranca en modo demostración). Añade el resto de `.env.example` cuando los tengas.
+5. Railway vuelve a desplegar solo con cada push a la rama.
+
 Scripts:
 
 | Comando | Qué hace |

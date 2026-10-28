@@ -25,7 +25,7 @@ export type CartItem = {
 type State = { items: CartItem[]; promoCode: string | null }
 
 type Action =
-  | { type: 'hydrate'; state: State }
+  | { type: 'hydrate'; state: State; merge?: boolean }
   | { type: 'add'; item: CartItem }
   | { type: 'setQuantity'; variantId: string; quantity: number }
   | { type: 'remove'; variantId: string }
@@ -38,8 +38,14 @@ const clamp = (n: number, max: number) => Math.max(1, Math.min(Math.floor(n), Ma
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'hydrate':
-      return action.state
+    case 'hydrate': {
+      // Lo añadido antes de leer el almacenamiento (un clic muy rápido) se suma a lo guardado
+      if (!action.merge || state.items.length === 0) return action.state
+      return state.items.reduce((acc, item) => reducer(acc, { type: 'add', item }), {
+        ...action.state,
+        promoCode: state.promoCode ?? action.state.promoCode,
+      })
+    }
     case 'add': {
       const existing = state.items.find((i) => i.variantId === action.item.variantId)
       if (existing) {
@@ -123,18 +129,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [lastAdded, setLastAdded] = useState<CartItem | null>(null)
-  const skipWrite = useRef(true)
+  // Último estado leído o escrito en localStorage: solo se escribe si cambia
+  const synced = useRef<string | null>(null)
 
   useEffect(() => {
     // localStorage solo existe en el navegador: se lee tras montar para no
     // romper la hidratación del HTML del servidor.
-    dispatch({ type: 'hydrate', state: readStorage() })
+    const stored = readStorage()
+    synced.current = JSON.stringify(stored)
+    dispatch({ type: 'hydrate', state: stored, merge: true })
     // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización con un sistema externo (localStorage)
     setHydrated(true)
     const onStorage = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY) {
-        skipWrite.current = true
-        dispatch({ type: 'hydrate', state: readStorage() })
+        const stored = readStorage()
+        synced.current = JSON.stringify(stored)
+        dispatch({ type: 'hydrate', state: stored })
       }
     }
     window.addEventListener('storage', onStorage)
@@ -143,12 +153,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return
-    if (skipWrite.current) {
-      skipWrite.current = false
-      return
-    }
+    const json = JSON.stringify(state)
+    if (json === synced.current) return
+    synced.current = json
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+      window.localStorage.setItem(STORAGE_KEY, json)
     } catch {
       // Modo privado o almacenamiento lleno: el carrito sigue en memoria.
     }

@@ -23,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(site.url),
     title: {
-      default: `${site.name} · ${t({ es: 'Kits de cocina para adolescentes', en: 'Cooking kits for teens' })}`,
+      default: site.name,
       template: `%s · ${site.name}`,
     },
     description,

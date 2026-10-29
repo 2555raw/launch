@@ -29,6 +29,9 @@ export const commerce = {
   /** Packs por nivel: con este número de kits del mismo nivel se descuenta un porcentaje (0 lo desactiva). */
   bundleMinKits: int(process.env.NEXT_PUBLIC_BUNDLE_MIN_KITS, 3),
   bundlePercent: int(process.env.NEXT_PUBLIC_BUNDLE_PERCENT, 10),
+  /** Días tras la entrega (o tras el envío, si no se marca la entrega) para pedir opinión por email. */
+  reviewRequestAfterDeliveryDays: 2,
+  reviewRequestAfterShippingDays: 6,
   /** Avisos de «alguien ha comprado…» con compras reales. NEXT_PUBLIC_RECENT_PURCHASES=off los quita. */
   showRecentPurchases: process.env.NEXT_PUBLIC_RECENT_PURCHASES !== 'off',
 }

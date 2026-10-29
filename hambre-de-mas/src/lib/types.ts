@@ -233,6 +233,11 @@ export type Order = {
   /** Regalo: sin precios en el paquete y, si lo hay, con mensaje en la tarjeta. */
   isGift: boolean
   giftMessage: string | null
+  /** Idioma en el que compró (para los emails). */
+  locale: 'es' | 'en'
+  shippedAt: string | null
+  deliveredAt: string | null
+  reviewRequestedAt: string | null
   paidAt: string | null
   createdAt: string
   expiresAt: string

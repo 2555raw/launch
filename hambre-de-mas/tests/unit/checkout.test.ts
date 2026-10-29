@@ -73,7 +73,7 @@ function deps() {
   const orders = {
     createPendingOrder: vi.fn(async () => ({ id: 'order-1', number: 1001 })),
     attachCheckoutSession: vi.fn(async () => undefined),
-    markAsGift: vi.fn(async () => undefined),
+    setOrderDetails: vi.fn(async () => undefined),
     release: vi.fn(async () => 'cancelled'),
     saveAddress: vi.fn(),
     subscribeNewsletter: vi.fn(),
@@ -121,13 +121,13 @@ describe('startCheckout', () => {
   it('marca el pedido como regalo con su mensaje', async () => {
     const { orders, deps: d } = deps()
     await startCheckout({ ...input, gift: true, giftMessage: '¡Feliz cumple, Leo!' }, { userId: null, origin: 'https://tienda.test' }, d)
-    expect(orders.markAsGift).toHaveBeenCalledWith('order-1', '¡Feliz cumple, Leo!')
+    expect(orders.setOrderDetails).toHaveBeenCalledWith('order-1', { locale: 'es', isGift: true, giftMessage: '¡Feliz cumple, Leo!' })
   })
 
-  it('sin regalo no toca nada', async () => {
+  it('guarda el idioma del cliente aunque no sea regalo', async () => {
     const { orders, deps: d } = deps()
-    await startCheckout(input, { userId: null, origin: 'https://tienda.test' }, d)
-    expect(orders.markAsGift).not.toHaveBeenCalled()
+    await startCheckout(input, { userId: null, origin: 'https://tienda.test', locale: 'en' }, d)
+    expect(orders.setOrderDetails).toHaveBeenCalledWith('order-1', { locale: 'en', isGift: false, giftMessage: null })
   })
 
   it('no crea nada si el carrito ha cambiado', async () => {

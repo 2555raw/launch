@@ -413,12 +413,24 @@ export default async function ProductPage({ params }: Props) {
             )}
           </div>
           {reviews.length === 0 ? (
-            <p className="mt-4 max-w-xl text-ash-ink">
-              {t({
-                es: 'Todavía no hay opiniones. Solo publicamos opiniones de personas que han comprado este kit, y las revisamos antes de mostrarlas.',
-                en: 'No reviews yet. We only publish reviews from people who bought this kit, and we check them before showing them.',
-              })}
-            </p>
+            <div className="mt-6 flex max-w-2xl flex-col gap-4 rounded-[24px] bg-almendra-soft p-6 sm:flex-row sm:items-center sm:gap-6 sm:p-7">
+              <div className="flex shrink-0 gap-1 text-chef" aria-hidden>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <StarIcon key={i} size={22} filled={false} />
+                ))}
+              </div>
+              <div>
+                <p className="font-display text-xl font-bold">
+                  {t({ es: 'Sé el primero en contar qué tal te ha salido.', en: 'Be the first to tell us how it turned out.' })}
+                </p>
+                <p className="mt-1 text-[15px] text-ash-ink">
+                  {t({
+                    es: 'Solo publicamos opiniones de personas que han comprado este kit, y las revisamos antes de mostrarlas.',
+                    en: 'We only publish reviews from people who bought this kit, and we check them before showing them.',
+                  })}
+                </p>
+              </div>
+            </div>
           ) : (
             <ul className="mt-8 grid gap-5 md:grid-cols-2">
               {reviews.map((r) => (

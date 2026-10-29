@@ -81,9 +81,35 @@ export function createOrdersService() {
       return { id: data.id, number: Number(data.number) }
     },
 
-    async markAsGift(orderId: string, message: string | null) {
-      const { error } = await db().from('orders').update({ is_gift: true, gift_message: message }).eq('id', orderId)
-      if (error) throw new Error(`[pedidos] marcar regalo: ${error.message}`)
+    /** Idioma del cliente (para los emails) y, si lo es, regalo con su mensaje. */
+    async setOrderDetails(orderId: string, details: { locale: 'es' | 'en'; isGift: boolean; giftMessage: string | null }) {
+      const { error } = await db()
+        .from('orders')
+        .update({ locale: details.locale, is_gift: details.isGift, gift_message: details.isGift ? details.giftMessage : null })
+        .eq('id', orderId)
+      if (error) throw new Error(`[pedidos] guardar detalles: ${error.message}`)
+    },
+
+    /** Pedidos entregados (o enviados hace días) a los que aún no se ha pedido opinión. */
+    async listDueReviewRequests(deliveredDaysAgo: number, shippedDaysAgo: number, limit = 50): Promise<Order[]> {
+      const day = 86_400_000
+      const delivered = new Date(Date.now() - deliveredDaysAgo * day).toISOString()
+      const shipped = new Date(Date.now() - shippedDaysAgo * day).toISOString()
+      const { data, error } = await db()
+        .from('orders')
+        .select(ORDER_SELECT)
+        .eq('status', 'paid')
+        .is('review_requested_at', null)
+        .or(`delivered_at.lte.${delivered},shipped_at.lte.${shipped}`)
+        .order('shipped_at', { ascending: true })
+        .limit(limit)
+      if (error) throw new Error(`[pedidos] opiniones pendientes: ${error.message}`)
+      return (data ?? []).map(mapOrder)
+    },
+
+    async markReviewRequested(orderId: string) {
+      const { error } = await db().from('orders').update({ review_requested_at: new Date().toISOString() }).eq('id', orderId)
+      if (error) throw new Error(`[pedidos] marcar opinión pedida: ${error.message}`)
     },
 
     async attachCheckoutSession(orderId: string, sessionId: string) {

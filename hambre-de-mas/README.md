@@ -165,6 +165,12 @@ select cron.schedule('caducar-pedidos', '*/15 * * * *', $$select public.expire_s
 
 (o llama a `GET /api/cron/expire-orders` con `Authorization: Bearer $CRON_SECRET`).
 
+Opcional: pide opinión por email a quien ya tiene su pedido con una llamada diaria a
+`GET /api/cron/review-requests` (misma cabecera). Envía un email por pedido 2 días después de
+marcarlo como entregado en el panel (o 6 días después de marcarlo como enviado), con un enlace a la
+sección de opiniones de cada kit. Necesita el proveedor de email (`RESEND_API_KEY`); sin él no se
+marca ningún pedido, así que los emails salen cuando lo configures.
+
 ---
 
 ## Configurar Stripe

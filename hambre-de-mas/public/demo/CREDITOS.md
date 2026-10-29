@@ -46,7 +46,7 @@ El logotipo (`public/brand`) se ha recortado de la guía de identidad visual de 
 | products/chili-1.jpg | https://images.unsplash.com/photo-1658308766948-01c85ade2737 |
 | products/poke-1.jpg | https://images.unsplash.com/photo-1768326119213-e0ad875083a3 |
 | products/fajitas-1.jpg | https://images.unsplash.com/photo-1569692062823-f1196218f0a2 |
-| products/carbonara-1.jpg | https://images.unsplash.com/photo-1764586119076-61711e8ed25a |
+| products/carbonara-1.jpg | https://images.unsplash.com/photo-1633337474564-1d9478ca4e2e |
 | home/cocinando.jpg | https://images.unsplash.com/photo-1683556262029-56f31fbf75ee |
 
 ## Ingredientes («Qué trae el kit»)

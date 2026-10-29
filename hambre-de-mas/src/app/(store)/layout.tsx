@@ -4,6 +4,7 @@ import { DemoBanner } from '@/components/layout/demo-banner'
 import { Footer } from '@/components/layout/footer'
 import { Header, type MenuData, type MenuKit } from '@/components/layout/header'
 import { RecentPurchases } from '@/components/layout/recent-purchases'
+import { ShippingBar } from '@/components/layout/shipping-bar'
 import { getCatalog, isDemoMode } from '@/lib/catalog'
 import { getLocale } from '@/lib/i18n/server'
 import { formatPrice } from '@/lib/money'
@@ -36,6 +37,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
   }
   return (
     <>
+      <ShippingBar />
       <Header categories={categories} menu={menu} />
       <main id="contenido">{children}</main>
       <Footer categories={categories} />

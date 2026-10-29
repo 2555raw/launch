@@ -97,7 +97,17 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
                     className="sr-only"
                   />
                   <span className="text-[15px] font-semibold">{v.name}</span>
-                  <span className="text-sm text-ash-ink tabular-nums">{formatPrice(v.priceCents, locale)}</span>
+                  <span className="text-sm text-ash-ink tabular-nums">
+                    {formatPrice(v.priceCents, locale)}
+                    {v.compareAtPriceCents && v.compareAtPriceCents > v.priceCents && (
+                      <s className="ml-1.5 text-xs text-ash">{formatPrice(v.compareAtPriceCents, locale)}</s>
+                    )}
+                  </span>
+                  {v.compareAtPriceCents && v.compareAtPriceCents > v.priceCents && (
+                    <span className="mt-1.5 w-fit rounded-full bg-chef-ink px-2 py-0.5 text-[11px] font-semibold text-white">
+                      {t({ es: `Ahorras ${percentOff(v.priceCents, v.compareAtPriceCents)} %`, en: `Save ${percentOff(v.priceCents, v.compareAtPriceCents)}%` })}
+                    </span>
+                  )}
                   {out && <span className="mt-1 text-xs text-teja">{t({ es: 'Agotado', en: 'Sold out' })}</span>}
                   {selected && (
                     <motion.span layoutId="variant-check" className="absolute top-3 right-3 grid size-5 place-items-center rounded-full bg-ink text-white">

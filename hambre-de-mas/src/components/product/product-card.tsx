@@ -9,6 +9,7 @@ import { ProductImage } from '@/components/ui/product-image'
 import { cn } from '@/lib/cn'
 import { useI18n } from '@/lib/i18n/client'
 import type { ProductSummary } from '@/lib/types'
+import { ProductBadge } from './product-badge'
 
 /** Tarjeta minimalista: imagen protagonista, nombre, precio. Al pasar el ratón muestra la segunda foto. */
 export function ProductCard({
@@ -59,12 +60,12 @@ export function ProductCard({
         <div className="absolute top-4 left-4 flex flex-wrap gap-2">
           {product.category && <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} overlay />}
         </div>
+        {product.badge && <ProductBadge badge={product.badge} className="absolute top-4 right-4" />}
         {soldOut && (
           <span className="absolute right-4 bottom-4 rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white backdrop-blur">{t({ es: 'Agotado', en: 'Sold out' })}</span>
         )}
       </div>
       <div className="flex flex-1 flex-col gap-1 p-5 sm:p-6">
-        {product.badge && <p className="text-[12px] font-semibold text-teja">{product.badge}</p>}
         <h3 className="font-display text-[19px] leading-snug font-bold">{product.name}</h3>
         {product.subtitle && <p className="line-clamp-2 text-sm text-ash-ink">{product.subtitle}</p>}
         {/* Sin alérgenos declarados no se pinta (p. ej. la caja sorpresa, que cambia cada mes):

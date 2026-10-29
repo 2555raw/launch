@@ -194,7 +194,7 @@ export const demoProducts: DemoProduct[] = [
     category: 'primer-bocado',
     variants: [
       { name: '2 personas', sku: 'HDM-BWL-2', price: 1590, stock: 35 },
-      { name: '4 personas', sku: 'HDM-BWL-4', price: 2790, stock: 20 },
+      { name: '4 personas', sku: 'HDM-BWL-4', price: 2790, compareAt: 3180, stock: 20 },
     ],
     images: [
       { file: 'bowl-1.jpg', alt: 'Bowl con garbanzos, tomate y lombarda' },
@@ -250,7 +250,6 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['Si lo dejas para mañana, guarda la granola aparte para que siga crujiente.'],
     },
-    badge: 'Oferta',
     salesCount: 80,
     publishedDaysAgo: 60,
   },
@@ -281,9 +280,8 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['Para un toque ácido, añade unas gotas de limón si tienes en casa.'],
     },
-    badge: 'Nuevo',
     salesCount: 12,
-    publishedDaysAgo: 6,
+    publishedDaysAgo: 52,
   },
 
   {
@@ -317,9 +315,8 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['Con las manos mojadas el arroz no se pega.', 'Para llevar al instituto, envuelve cada onigiri en film y pon el alga al comer.'],
     },
-    badge: 'Nuevo',
     salesCount: 22,
-    publishedDaysAgo: 3,
+    publishedDaysAgo: 38,
   },
 
   {
@@ -362,7 +359,7 @@ export const demoProducts: DemoProduct[] = [
     category: 'primer-bocado',
     variants: [
       { name: '2 personas', sku: 'HDM-NAC-2', price: 1290, stock: 45 },
-      { name: '4 personas', sku: 'HDM-NAC-4', price: 2190, stock: 25 },
+      { name: '4 personas', sku: 'HDM-NAC-4', price: 2190, compareAt: 2580, stock: 25 },
     ],
     images: [{ file: 'nachos-1.jpg', alt: 'Bandeja de nachos con queso fundido y maíz dulce (sugerencia de presentación)' }],
     attributes: { minutes: 10, difficulty: 1, heat: 'microondas', storage: 'seco' },
@@ -410,9 +407,8 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['Si la masa está muy seca, añade unas gotas de agua; si está muy blanda, un poco más de avena.', 'En un táper en la nevera aguantan 5 días.'],
     },
-    badge: 'Nuevo',
     salesCount: 26,
-    publishedDaysAgo: 7,
+    publishedDaysAgo: 56,
   },
 
   // Nivel 2 · Con ganas (100 % seco, con fuego)
@@ -425,7 +421,7 @@ export const demoProducts: DemoProduct[] = [
     category: 'con-ganas',
     variants: [
       { name: '2 personas', sku: 'HDM-RAM-2', price: 3500, stock: 60 },
-      { name: '4 personas', sku: 'HDM-RAM-4', price: 5900, stock: 30 },
+      { name: '4 personas', sku: 'HDM-RAM-4', price: 5900, compareAt: 7000, stock: 30 },
     ],
     images: [
       { file: 'ramen-1.jpg', alt: 'Bol de ramen de miso con setas shiitake, cebolleta y aceite de chile (sugerencia de presentación)' },
@@ -460,7 +456,7 @@ export const demoProducts: DemoProduct[] = [
     category: 'con-ganas',
     variants: [
       { name: '2 personas', sku: 'HDM-TAC-2', price: 2290, stock: 28 },
-      { name: '4 personas', sku: 'HDM-TAC-4', price: 3890, stock: 18 },
+      { name: '4 personas', sku: 'HDM-TAC-4', price: 3890, compareAt: 4580, stock: 18 },
     ],
     images: [{ file: 'tacos-1.jpg', alt: 'Plato con tres tacos de verduras' }],
     attributes: { minutes: 25, difficulty: 2, heat: 'sarten', storage: 'seco' },
@@ -480,6 +476,7 @@ export const demoProducts: DemoProduct[] = [
       tips: ['Apila las tortillas calientes envueltas en un paño para que no se sequen.'],
     },
     featured: true,
+    badge: 'Más vendido',
     salesCount: 175,
     publishedDaysAgo: 100,
   },
@@ -514,6 +511,7 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['La primera tortita casi nunca sale bien: es la de prueba.', 'Si se queman por fuera y están crudas por dentro, baja el fuego.'],
     },
+    badge: 'Más vendido',
     salesCount: 210,
     publishedDaysAgo: 130,
   },
@@ -583,9 +581,8 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['Si la masa se deshace, añade una cucharadita más de la mezcla seca.', 'No los muevas hasta que estén dorados: así no se rompen.'],
     },
-    badge: 'Nuevo',
     salesCount: 16,
-    publishedDaysAgo: 5,
+    publishedDaysAgo: 46,
   },
 
   {
@@ -597,7 +594,7 @@ export const demoProducts: DemoProduct[] = [
     category: 'con-ganas',
     variants: [
       { name: '2 personas', sku: 'HDM-PAD-2', price: 1990, stock: 30 },
-      { name: '4 personas', sku: 'HDM-PAD-4', price: 3390, stock: 18 },
+      { name: '4 personas', sku: 'HDM-PAD-4', price: 3390, compareAt: 3980, stock: 18 },
     ],
     images: [{ file: 'pad-thai-1.jpg', alt: 'Plato de pad thai con fideos de arroz, brotes y cebollino (sugerencia de presentación)' }],
     attributes: { minutes: 20, difficulty: 2, heat: 'sarten', storage: 'seco' },
@@ -691,7 +688,7 @@ export const demoProducts: DemoProduct[] = [
     category: 'hambre-de-mas',
     variants: [
       { name: '2 personas', sku: 'HDM-CUR-2', price: 2790, stock: 26 },
-      { name: '4 personas', sku: 'HDM-CUR-4', price: 4690, stock: 14 },
+      { name: '4 personas', sku: 'HDM-CUR-4', price: 4690, compareAt: 5580, stock: 14 },
     ],
     images: [
       { file: 'curry-1.jpg', alt: 'Lomos de salmón en salsa de curry rojo con rodajas de limón' },
@@ -715,9 +712,8 @@ export const demoProducts: DemoProduct[] = [
       tips: ['Mueve el salmón lo menos posible: si lo tocas mucho, se rompe.', 'Si pica demasiado, añade más leche de coco.'],
     },
     featured: true,
-    badge: 'Nuevo',
     salesCount: 30,
-    publishedDaysAgo: 4,
+    publishedDaysAgo: 42,
   },
   {
     slug: 'kit-butter-chicken',
@@ -751,6 +747,7 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['Con tres cosas a la vez, prepara todo antes de encender el fuego.'],
     },
+    badge: 'Más vendido',
     salesCount: 150,
     publishedDaysAgo: 70,
   },
@@ -783,9 +780,8 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['Las primeras quedan feas: a la décima te salen perfectas.', 'Puedes congelarlas crudas y cocinarlas otro día.'],
     },
-    badge: 'Nuevo',
     salesCount: 18,
-    publishedDaysAgo: 9,
+    publishedDaysAgo: 62,
   },
   {
     slug: 'kit-pizza-napolitana',
@@ -824,6 +820,7 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['Usa guantes de horno para sacar la bandeja: está ardiendo.'],
     },
+    badge: 'Más vendido',
     salesCount: 260,
     publishedDaysAgo: 140,
   },
@@ -871,7 +868,7 @@ export const demoProducts: DemoProduct[] = [
     category: 'hambre-de-mas',
     variants: [
       { name: '2 personas', sku: 'HDM-SMB-2', price: 2690, stock: 20 },
-      { name: '4 personas', sku: 'HDM-SMB-4', price: 4490, stock: 10 },
+      { name: '4 personas', sku: 'HDM-SMB-4', price: 4490, compareAt: 5380, stock: 10 },
     ],
     images: [
       { file: 'burger-1.jpg', alt: 'Smash burger doble con cheddar y pepinillos' },
@@ -895,9 +892,8 @@ export const demoProducts: DemoProduct[] = [
       tips: ['La sartén tiene que estar muy caliente: si no humea un poco, espera.', 'Lávate las manos después de tocar la carne cruda.'],
     },
     featured: true,
-    badge: 'Nuevo',
     salesCount: 40,
-    publishedDaysAgo: 2,
+    publishedDaysAgo: 34,
   },
 
   {
@@ -941,7 +937,7 @@ export const demoProducts: DemoProduct[] = [
     category: 'hambre-de-mas',
     variants: [
       { name: '2 personas', sku: 'HDM-FAJ-2', price: 2490, stock: 22 },
-      { name: '4 personas', sku: 'HDM-FAJ-4', price: 4190, stock: 12 },
+      { name: '4 personas', sku: 'HDM-FAJ-4', price: 4190, compareAt: 4980, stock: 12 },
     ],
     images: [{ file: 'fajitas-1.jpg', alt: 'Fajita de pollo con pimientos enrollada, junto a un bote de salsa y media lima' }],
     attributes: { minutes: 30, difficulty: 3, heat: 'sarten', storage: 'fresco' },
@@ -991,7 +987,7 @@ export const demoProducts: DemoProduct[] = [
       ],
       tips: ['Si la sartén está muy caliente, el huevo cuaja y se hace tortilla: espera un minuto.', 'El agua de cocción con almidón es lo que hace la salsa cremosa.'],
     },
-    salesCount: 170,
+    salesCount: 125,
     publishedDaysAgo: 50,
   },
 
@@ -1032,7 +1028,7 @@ export const demoProducts: DemoProduct[] = [
     },
     featured: true,
     salesCount: 64,
-    publishedDaysAgo: 30,
+    publishedDaysAgo: 75,
   },
 ]
 

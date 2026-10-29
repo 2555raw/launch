@@ -161,8 +161,7 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
 
 export function SortSelect() {
   const { params, update } = useParamsUpdater()
-  // Con el filtro de novedades, por defecto se ordena por las más recientes
-  const defaultSort = params.get('nuevos') === '1' ? 'novedades' : 'destacados'
+  const defaultSort = 'destacados'
   const { locale, t } = useI18n()
   return (
     <label className="relative inline-flex items-center gap-2 text-sm">
@@ -172,7 +171,8 @@ export function SortSelect() {
         onChange={(e) => update({ orden: e.target.value === defaultSort ? null : e.target.value })}
         className="h-9 appearance-none rounded-full bg-mist py-0 pr-9 pl-4 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-chef-ink"
       >
-        {sortOptions.map((o) => (
+        {/* «Novedades» ya está como filtro a la izquierda */}
+        {sortOptions.filter((o) => o.value !== 'novedades').map((o) => (
           <option key={o.value} value={o.value}>
             {locale === 'en' ? o.labelEn : o.label}
           </option>

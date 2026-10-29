@@ -7,6 +7,7 @@ import { Gallery } from '@/components/product/gallery'
 import { KitContents } from '@/components/product/kit-contents'
 import { StorageChip } from '@/components/product/storage-chip'
 import { recipeQrSvg } from '@/lib/recipes/qr'
+import { ProductBadge } from '@/components/product/product-badge'
 import { ProductCard } from '@/components/product/product-card'
 import { PurchasePanel } from '@/components/product/purchase-panel'
 import { ReviewAuthor } from '@/components/product/review-author'
@@ -159,7 +160,7 @@ export default async function ProductPage({ params }: Props) {
           <div>
             <div className="flex flex-wrap items-center gap-2">
               {product.category && <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} />}
-              {product.badge && <span className="text-[12px] font-semibold text-teja">{product.badge}</span>}
+              {product.badge && <ProductBadge badge={product.badge} />}
             </div>
             <h1 className="mt-3 font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">{product.name}</h1>
             {product.subtitle && <p className="mt-3 text-lg text-ash-ink">{product.subtitle}</p>}

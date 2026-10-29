@@ -49,11 +49,9 @@ export async function Hero({ picks, qrSvg, recipeHref, rating }: Props) {
                 {word}&nbsp;
               </span>
             ))}
-          <span className="hero-word relative text-chef" style={v({ '--delay': '0.55s' })}>
+          <span className="hero-word relative isolate text-chef" style={v({ '--delay': '0.55s' })}>
             {t({ es: 'flipa.', en: 'crave.' })}
-            <svg aria-hidden viewBox="0 0 200 20" preserveAspectRatio="none" className="hero-underline absolute -bottom-[0.12em] left-[2%] h-[0.22em] w-[92%]">
-              <path d="M3 14 C 50 4, 120 4, 197 12" pathLength={1} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
-            </svg>
+            <span aria-hidden className="hero-mark absolute inset-x-[-0.08em] top-[0.2em] bottom-[0.02em] -z-10 rounded-[0.18em] bg-almendra" />
           </span>
         </h1>
         <p className="rise-in mt-6 max-w-2xl text-lg leading-relaxed text-ash-ink sm:text-xl" style={v({ '--delay': '0.75s' })}>

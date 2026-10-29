@@ -81,7 +81,6 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Yoghurt cream you whip with water, granola and berries.',
     description:
       'Layers of yoghurt cream (it comes as a powder and you whip it with cold water), honey granola and freeze-dried berries that get all their flavour back. Four jars in ten minutes.',
-    badge: 'Offer',
     includes: ['Yoghurt cream sachet', 'Honey granola', 'Freeze-dried berries', 'Chia seed sachet', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Cold water.' }, dryStorage, recipeCard],
     recipe: {
@@ -102,7 +101,6 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Freeze-dried guacamole, crunchy bread and seeds with mild chilli.',
     description:
       'Guacamole made with freeze-dried avocado: you mix it with water and it tastes freshly made. Spread it on toasted sourdough and finish with our seed and mild chilli mix.',
-    badge: 'New',
     includes: ['Toasted sourdough bread', 'Freeze-dried guacamole', 'Seed and mild chilli sachet', 'Sea salt flakes sachet', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water.' }, dryStorage, recipeCard],
     recipe: {
@@ -145,6 +143,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Al pastor textured soy, corn tortillas and pineapple salsa.',
     description:
       'Tacos with textured soy marinated in al pastor adobo, cooked in a pan. The texture of minced meat with no fridge needed. The kit brings the corn tortillas and a pineapple salsa with a little kick.',
+    badge: 'Best seller',
     includes: ['Textured soy', 'Al pastor adobo sachet', '12 corn tortillas', 'Pineapple and chilli salsa', 'Crispy onion', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water and a splash of oil.' }, dryStorage, recipeCard],
     recipe: {
@@ -166,6 +165,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Complete mix: just add water. Fluffy, tall and with syrup.',
     description:
       'The mix already contains powdered milk and egg, so you only add water. We show you how to control the heat of the pan so they come out golden and super tall. Includes maple syrup and chocolate chips.',
+    badge: 'Best seller',
     includes: ['Complete pancake mix', 'Maple syrup', 'Chocolate chips', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water and a little oil.' }, dryStorage, recipeCard],
     recipe: {
@@ -208,7 +208,6 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Fresh salmon in Thai red curry with coconut milk and jasmine rice.',
     description:
       'A trip to Bangkok in 35 minutes. Level 3: the kit brings the fresh salmon and lemon, plus red curry paste, coconut milk, jasmine rice and herbs. You learn to sear fish without it falling apart and to balance sweet, salty, sour and spicy.',
-    badge: 'New',
     includes: ['Fresh salmon fillets', 'Lemon', 'Red curry paste', 'Coconut milk', 'Jasmine rice', 'Fresh oregano', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water and oil.' }, freshStorage, recipeCard],
     recipe: {
@@ -231,6 +230,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Fresh chicken in a tomato, butter and garam masala sauce.',
     description:
       'The Indian dish everybody loves. It arrives chilled with the chicken thighs, yoghurt, cream and butter, plus spices, tomato and the mix to make naan in a pan. Level 3 because you juggle three things at once.',
+    badge: 'Best seller',
     includes: ['Fresh chicken thighs', 'Plain yoghurt, cream and butter', 'Garam masala and marinade spice sachets', 'Tomato purée', 'Naan mix', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water.' }, freshStorage, recipeCard],
     recipe: {
@@ -253,7 +253,6 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Fresh wrappers, pork and cabbage filling, and ponzu sauce.',
     description:
       'The level 3 challenge: sealing gyozas with their pleats. It arrives chilled with the wrappers, minced pork and cabbage, plus filling spices and ponzu sauce for dipping. We teach you the pleat and the steam-and-fry technique.',
-    badge: 'New',
     includes: ['30 gyoza wrappers', 'Fresh minced pork', 'Fresh cabbage and spring onion', 'Filling spice sachet', 'Ponzu sauce', 'Sesame oil', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water and oil.' }, freshStorage, recipeCard],
     recipe: {
@@ -276,6 +275,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Slow-proved dough, fresh mozzarella and basil.',
     description:
       'Type 00 flour, yeast and San Marzano tomatoes, plus the fresh stuff: fior di latte mozzarella and basil. Stretch by hand, bake at full power and get a puffy, charred crust.',
+    badge: 'Best seller',
     includes: ['Type 00 flour', 'Dried yeast sachet', 'San Marzano tomatoes', 'Fresh fior di latte mozzarella', 'Fresh basil', 'Recipe card with QR'],
     specs: [
       { label: 'You add', value: 'Warm water and olive oil.' },
@@ -324,7 +324,6 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Japanese rice balls with tuna, mayo and furikake. Microwave only.',
     description:
       "Japan's favourite snack, without turning on the hob. Ready-cooked Japanese rice you warm in the microwave, tinned tuna, mayo and furikake (sesame and seaweed) to coat them. Shape them into triangles with your hands and wrap them in nori.",
-    badge: 'New',
     includes: ['Cups of ready-cooked Japanese rice', 'Tin of tuna in water', 'Mayonnaise sachet', 'Furikake sachet (sesame and seaweed)', 'Nori seaweed sheets', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Nothing: just a microwave.' }, dryStorage, recipeCard],
     recipe: {
@@ -346,7 +345,6 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Crispy pan-fried falafel, pita bread, tahini sauce and pickles.',
     description:
       'The falafel mix has chickpeas, herbs and spices: just add water, shape the balls and fry them in a pan. Fill the pita with the falafel, tahini sauce, pickles and a pinch of sumac. All from the cupboard.',
-    badge: 'New',
     includes: ['Falafel mix (chickpeas, herbs and spices)', 'Pita bread', 'Tahini sauce sachet', 'Pickled gherkins', 'Sumac sachet', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water and oil.' }, dryStorage, recipeCard],
     recipe: {
@@ -368,7 +366,6 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Fresh beef smashed on a hot pan, melted cheddar and brioche buns.',
     description:
       'The burger everyone’s talking about: balls of fresh beef smashed in a very hot pan for a crispy crust. It arrives chilled with the beef, cheddar, brioche buns and onion, plus pickles, burger sauce and a salt and pepper sachet.',
-    badge: 'New',
     includes: ['Fresh minced beef', 'Brioche buns', 'Cheddar slices', 'Fresh red onion', 'Pickled gherkins', 'Burger sauce sachet', 'Salt and pepper sachet', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'A splash of oil.' }, freshStorage, recipeCard],
     recipe: {
@@ -432,7 +429,6 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     subtitle: 'Oats, dates, peanut butter and cocoa. No oven, no hob.',
     description:
       'The snack for before training or break time. Rolled oats, chopped dates, peanut butter and pure cocoa: mix it all, roll into balls with your hands and coat them in cocoa. About 16 balls for every 2 servings.',
-    badge: 'New',
     includes: ['Rolled oats', 'Chopped dates', 'Peanut butter', 'Pure cocoa powder', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'A little warm water.' }, dryStorage, recipeCard],
     recipe: {

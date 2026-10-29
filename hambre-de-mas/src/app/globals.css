@@ -414,8 +414,9 @@
   to { opacity: 1; filter: blur(0); transform: none; }
 }
 .hero-word { display: inline-block; animation: hero-word 0.9s var(--ease-apple) var(--delay, 0s) both; }
-@keyframes hero-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
-.hero-underline path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: hero-draw 0.8s var(--ease-apple) 0.9s forwards; }
+/* Subrayado de rotulador detrás de «flipa»: se pinta de izquierda a derecha */
+@keyframes hero-mark { from { transform: rotate(-2deg) scaleX(0); } to { transform: rotate(-2deg) scaleX(1); } }
+.hero-mark { transform-origin: left center; animation: hero-mark 0.7s var(--ease-apple) 0.95s both; }
 @keyframes hero-fan-left { from { opacity: 0; transform: translateX(62%) rotate(6deg) scale(0.9); } to { opacity: 1; transform: none; } }
 @keyframes hero-fan-right { from { opacity: 0; transform: translateX(-62%) rotate(-6deg) scale(0.9); } to { opacity: 1; transform: none; } }
 @keyframes hero-rise { from { opacity: 0; transform: translateY(90px) scale(0.92); } to { opacity: 1; transform: none; } }
@@ -430,3 +431,16 @@
 }
 .hero-drop { animation: hero-drop 0.9s var(--ease-apple) 1.5s both; }
 .hero-depth { translate: calc(var(--mx, 0) * var(--d, 10px)) calc(var(--my, 0) * var(--d, 10px)); transition: translate 0.4s var(--ease-apple); }
+
+/* «Nuevo»: un brillo que cruza la etiqueta de vez en cuando */
+.badge-new { overflow: hidden; isolation: isolate; }
+.badge-new::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.55) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: badge-shine 3.2s var(--ease-apple) 1s infinite;
+}
+@keyframes badge-shine { 0%, 55% { transform: translateX(-120%); } 85%, 100% { transform: translateX(120%); } }

@@ -64,7 +64,7 @@ const euros = (v: string | string[] | undefined) => {
 export function parseCatalogParams(params: SearchParams, base: ProductFilter = {}): ProductFilter & { page: number } {
   const page = Math.max(1, Number.parseInt(one(params.pagina) ?? '1', 10) || 1)
   const newArrivals = one(params.nuevos) === '1'
-  const sort = sortOptions.find((o) => o.value === one(params.orden))?.key ?? base.sort ?? (newArrivals ? 'newest' : 'featured')
+  const sort = sortOptions.find((o) => o.value === one(params.orden))?.key ?? base.sort ?? 'featured'
   const diets = list(params.dieta).filter((d) => dietOptions.some((o) => o.value === d))
   const excludeAllergens = list(params.sin).filter((a): a is Allergen => (ALLERGEN_CODES as string[]).includes(a))
   const difficulty = list(params.dificultad)

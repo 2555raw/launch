@@ -160,6 +160,8 @@ export type VariantForQuote = {
   productPublished: boolean
   taxRateBps: number
   imageUrl: string | null
+  /** Nivel de la categoría del kit (1, 2, 3) o null; decide los packs por nivel. */
+  categoryLevel?: number | null
   translations?: Translations<ProductTranslation>
 }
 

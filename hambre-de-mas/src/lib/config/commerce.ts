@@ -26,6 +26,9 @@ export const commerce = {
   /** Plazos orientativos que se muestran en la ficha de producto. */
   deliveryEstimate: '24-72 h laborables',
   returnDays: 14,
+  /** Packs por nivel: con este número de kits del mismo nivel se descuenta un porcentaje (0 lo desactiva). */
+  bundleMinKits: int(process.env.NEXT_PUBLIC_BUNDLE_MIN_KITS, 3),
+  bundlePercent: int(process.env.NEXT_PUBLIC_BUNDLE_PERCENT, 10),
   /** Avisos de «alguien ha comprado…» con compras reales. NEXT_PUBLIC_RECENT_PURCHASES=off los quita. */
   showRecentPurchases: process.env.NEXT_PUBLIC_RECENT_PURCHASES !== 'off',
 }

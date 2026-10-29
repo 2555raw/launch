@@ -12,7 +12,7 @@ import { PurchasePanel } from '@/components/product/purchase-panel'
 import { ReviewAuthor } from '@/components/product/review-author'
 import { ReviewForm } from '@/components/product/review-form'
 import { JsonLd } from '@/components/seo/json-ld'
-import { ChevronRightIcon, ClockIcon, FlameIcon, LeafIcon, QrIcon, ReturnIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
+import { ChevronRightIcon, ClockIcon, FlameIcon, GiftIcon, LeafIcon, QrIcon, ReturnIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { LevelChip } from '@/components/ui/level-chip'
 import { getCatalog } from '@/lib/catalog'
 import { commerce } from '@/lib/config/commerce'
@@ -229,6 +229,30 @@ export default async function ProductPage({ params }: Props) {
             </div>
 
             <ul className="mt-8 divide-y divide-line rounded-[20px] bg-mist px-5 text-sm">
+              {product.category?.level && commerce.bundleMinKits > 0 && commerce.bundlePercent > 0 && (
+                <li className="flex gap-3 py-4">
+                  <GiftIcon className="mt-0.5 shrink-0 text-chef" />
+                  <span>
+                    <strong className="font-semibold">
+                      {t({
+                        es: `Pack Nivel ${product.category.level}: ${commerce.bundleMinKits} kits, −${commerce.bundlePercent} %`,
+                        en: `Level ${product.category.level} bundle: ${commerce.bundleMinKits} kits, ${commerce.bundlePercent}% off`,
+                      })}
+                    </strong>
+                    <span className="block text-ash-ink">
+                      {t({
+                        es: `Llévate ${commerce.bundleMinKits} kits de este nivel (o más) y se descuenta solo en la cesta.`,
+                        en: `Take ${commerce.bundleMinKits} or more kits from this level and the discount applies automatically in your bag.`,
+                      })}{' '}
+                      {(
+                        <Link href={`/categoria/${product.category.slug}`} className="text-teja hover:underline">
+                          {t({ es: 'Ver kits del nivel', en: 'See level kits' })}
+                        </Link>
+                      )}
+                    </span>
+                  </span>
+                </li>
+              )}
               <li className="flex gap-3 py-4">
                 <TruckIcon className="mt-0.5 shrink-0" />
                 <span>

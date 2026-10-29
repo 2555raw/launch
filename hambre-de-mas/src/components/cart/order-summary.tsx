@@ -85,11 +85,19 @@ export function OrderSummary({ quote, loading, children }: { quote: Quote | null
       <dl className="space-y-3">
         <Row label="Subtotal" value={quote ? price(quote.subtotalCents) : '—'} />
         <AnimatePresence initial={false}>
-          {quote && quote.discountCents > 0 && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+          {quote?.bundles.map((b) => (
+            <motion.div key={`pack-${b.level}`} initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+              <Row
+                label={t({ es: `Pack Nivel ${b.level} (${b.kits} kits)`, en: `Level ${b.level} bundle (${b.kits} kits)` })}
+                value={<span className="text-hoja-ink">−{price(b.discountCents)}</span>}
+              />
+            </motion.div>
+          ))}
+          {quote && quote.promotionDiscountCents > 0 && (
+            <motion.div key="promo" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
               <Row
                 label={`${t({ es: 'Descuento', en: 'Discount' })} (${quote.promotion?.code})`}
-                value={<span className="text-hoja-ink">−{price(quote.discountCents)}</span>}
+                value={<span className="text-hoja-ink">−{price(quote.promotionDiscountCents)}</span>}
               />
             </motion.div>
           )}
@@ -108,6 +116,14 @@ export function OrderSummary({ quote, loading, children }: { quote: Quote | null
             )
           }
         />
+        {quote?.bundleHint && (
+          <p className="rounded-2xl bg-almendra-soft px-4 py-3 text-[13px] text-teja">
+            {t({
+              es: `Añade ${quote.bundleHint.missing} ${quote.bundleHint.missing === 1 ? 'kit' : 'kits'} más de Nivel ${quote.bundleHint.level} y te descontamos un ${quote.bundleHint.percent} % en todos los de ese nivel.`,
+              en: `Add ${quote.bundleHint.missing} more Level ${quote.bundleHint.level} ${quote.bundleHint.missing === 1 ? 'kit' : 'kits'} and get ${quote.bundleHint.percent}% off all kits of that level.`,
+            })}
+          </p>
+        )}
         {quote && quote.freeShippingRemainingCents > 0 && quote.itemCount > 0 && (
           <p className="text-xs text-ash-ink">
             {t({

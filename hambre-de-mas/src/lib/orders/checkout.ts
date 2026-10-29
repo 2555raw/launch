@@ -118,7 +118,11 @@ export async function startCheckout(
           currency: 'eur',
           duration: 'once',
           max_redemptions: 1,
-          name: `${quote.promotion?.code ?? 'Descuento'} · ${number}`.slice(0, 40),
+          name: [quote.bundleDiscountCents > 0 ? tr('Pack', 'Bundle') : null, quote.promotion?.applied ? quote.promotion.code : null]
+            .filter(Boolean)
+            .concat(String(number))
+            .join(' · ')
+            .slice(0, 40),
           metadata,
         },
         { idempotencyKey: `coupon-${order.id}` },

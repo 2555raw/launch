@@ -32,7 +32,12 @@ export type QuoteLine = {
   taxRateBps: number
   status: QuoteLineStatus
   message: string | null
+  /** Nivel del kit (1, 2, 3) o null. */
+  level: number | null
 }
+
+/** Descuento por llevar varios kits del mismo nivel. */
+export type BundleResult = { level: number; kits: number; discountCents: number }
 
 export type PromotionResult = {
   code: string
@@ -46,7 +51,14 @@ export type Quote = {
   lines: QuoteLine[]
   itemCount: number
   subtotalCents: number
+  /** Descuento total: packs por nivel + código promocional. */
   discountCents: number
+  /** Packs por nivel aplicados. */
+  bundles: BundleResult[]
+  bundleDiscountCents: number
+  /** Si falta poco para un pack: cuántos kits faltan y de qué nivel. */
+  bundleHint: { level: number; missing: number; percent: number } | null
+  promotionDiscountCents: number
   shippingCents: number
   taxCents: number
   taxes: { rateBps: number; amountCents: number }[]
@@ -64,6 +76,10 @@ export type QuoteConfig = {
   freeShippingThresholdCents: number
   shippingTaxRateBps: number
   maxQuantityPerLine: number
+  /** Kits del mismo nivel para el pack (0 o sin definir: sin packs). */
+  bundleMinKits?: number
+  /** Porcentaje de descuento del pack. */
+  bundlePercent?: number
 }
 
 export type QuoteInput = {
@@ -166,6 +182,7 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
         taxRateBps: 0,
         status: 'not_found',
         message: tr('Este producto ya no está a la venta.', 'This product is no longer on sale.'),
+        level: null,
       })
       continue
     }
@@ -205,6 +222,7 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
       taxRateBps: variant.taxRateBps,
       status,
       message,
+      level: variant.categoryLevel ?? null,
     })
   }
 
@@ -212,9 +230,34 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
   const subtotalCents = billable.reduce((sum, l) => sum + l.lineTotalCents, 0)
   const itemCount = billable.reduce((sum, l) => sum + l.quantity, 0)
 
+  // Packs: con bundleMinKits kits del mismo nivel, un bundlePercent menos en esos kits
+  const bundles: BundleResult[] = []
+  let bundleHint: Quote['bundleHint'] = null
+  const minKits = config.bundleMinKits ?? 0
+  const percent = Math.min(config.bundlePercent ?? 0, 50)
+  if (minKits > 0 && percent > 0) {
+    const byLevel = new Map<number, { kits: number; cents: number }>()
+    for (const line of billable) {
+      if (line.level == null) continue
+      const group = byLevel.get(line.level) ?? { kits: 0, cents: 0 }
+      group.kits += line.quantity
+      group.cents += line.lineTotalCents
+      byLevel.set(line.level, group)
+    }
+    for (const [level, group] of [...byLevel].sort(([a], [b]) => a - b)) {
+      if (group.kits >= minKits) bundles.push({ level, kits: group.kits, discountCents: Math.round((group.cents * percent) / 100) })
+      else if (!bundleHint || minKits - group.kits < bundleHint.missing) bundleHint = { level, missing: minKits - group.kits, percent }
+    }
+    if (bundles.length > 0) bundleHint = null
+  }
+  // Nunca por debajo del cobro mínimo
+  const bundleDiscountCents = Math.max(0, Math.min(bundles.reduce((sum, b) => sum + b.discountCents, 0), subtotalCents - MIN_CHARGE_CENTS))
+
+  // El código promocional se calcula sobre lo que queda tras el pack
   const code = promotionCode?.trim().toUpperCase() ?? ''
-  const promotionResult = code ? evaluatePromotion(promotion, code, subtotalCents, now, locale) : null
-  const discountCents = promotionResult?.applied ? promotionResult.discountCents : 0
+  const promotionResult = code ? evaluatePromotion(promotion, code, subtotalCents - bundleDiscountCents, now, locale) : null
+  const promotionDiscountCents = promotionResult?.applied ? promotionResult.discountCents : 0
+  const discountCents = bundleDiscountCents + promotionDiscountCents
 
   const afterDiscount = subtotalCents - discountCents
   const shippingCents =
@@ -249,6 +292,10 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
     itemCount,
     subtotalCents,
     discountCents,
+    bundles,
+    bundleDiscountCents,
+    bundleHint,
+    promotionDiscountCents,
     shippingCents,
     taxCents,
     taxes,

@@ -10,6 +10,8 @@ export const quoteConfig: QuoteConfig = {
   freeShippingThresholdCents: commerce.freeShippingThresholdCents,
   shippingTaxRateBps: commerce.shippingTaxRateBps,
   maxQuantityPerLine: commerce.maxQuantityPerLine,
+  bundleMinKits: commerce.bundleMinKits,
+  bundlePercent: commerce.bundlePercent,
 }
 
 /** Presupuesto calculado íntegramente con datos del servidor. */

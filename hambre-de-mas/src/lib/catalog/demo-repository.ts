@@ -203,6 +203,7 @@ export function createDemoCatalog(): CatalogRepository {
             productPublished: true,
             taxRateBps: p.taxRateBps,
             imageUrl: p.image?.url ?? null,
+            categoryLevel: p.category?.level ?? null,
             translations: p.translations,
           })),
       )

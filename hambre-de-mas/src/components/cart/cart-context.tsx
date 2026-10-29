@@ -25,7 +25,7 @@ export type CartItem = {
 type State = { items: CartItem[]; promoCode: string | null }
 
 type Action =
-  | { type: 'hydrate'; state: State; merge?: boolean }
+  | { type: 'hydrate'; state: State; pending?: CartItem[] }
   | { type: 'add'; item: CartItem }
   | { type: 'setQuantity'; variantId: string; quantity: number }
   | { type: 'remove'; variantId: string }
@@ -38,14 +38,9 @@ const clamp = (n: number, max: number) => Math.max(1, Math.min(Math.floor(n), Ma
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'hydrate': {
+    case 'hydrate':
       // Lo añadido antes de leer el almacenamiento (un clic muy rápido) se suma a lo guardado
-      if (!action.merge || state.items.length === 0) return action.state
-      return state.items.reduce((acc, item) => reducer(acc, { type: 'add', item }), {
-        ...action.state,
-        promoCode: state.promoCode ?? action.state.promoCode,
-      })
-    }
+      return (action.pending ?? []).reduce((acc, item) => reducer(acc, { type: 'add', item }), action.state)
     case 'add': {
       const existing = state.items.find((i) => i.variantId === action.item.variantId)
       if (existing) {
@@ -131,13 +126,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lastAdded, setLastAdded] = useState<CartItem | null>(null)
   // Último estado leído o escrito en localStorage: solo se escribe si cambia
   const synced = useRef<string | null>(null)
+  // Productos añadidos antes de leer localStorage
+  const pending = useRef<CartItem[] | null>([])
 
   useEffect(() => {
     // localStorage solo existe en el navegador: se lee tras montar para no
     // romper la hidratación del HTML del servidor.
     const stored = readStorage()
     synced.current = JSON.stringify(stored)
-    dispatch({ type: 'hydrate', state: stored, merge: true })
+    dispatch({ type: 'hydrate', state: stored, pending: pending.current ?? [] })
+    pending.current = null
     // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización con un sistema externo (localStorage)
     setHydrated(true)
     const onStorage = (e: StorageEvent) => {
@@ -164,6 +162,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [state, hydrated])
 
   const addItem = useCallback((item: CartItem, options?: { openDrawer?: boolean }) => {
+    pending.current?.push(item)
     dispatch({ type: 'add', item })
     setLastAdded(item)
     if (options?.openDrawer !== false) setDrawerOpen(true)

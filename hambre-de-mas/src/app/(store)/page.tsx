@@ -8,7 +8,6 @@ import {
   NewsletterSection,
   ProductGridSection,
   PurchaseMapSection,
-  StoreIntro,
   VerifiedReviews,
 } from '@/components/home/sections'
 import { JsonLd } from '@/components/seo/json-ld'
@@ -69,7 +68,6 @@ export default async function HomePage() {
         qrSvg={heroQr}
         recipeHref={heroDetail ? `/receta/${heroDetail.slug}` : undefined}
       />
-      <StoreIntro />
       <LevelsRow categories={categories} />
       <NewArrivals products={newest.items} />
       <ProductGridSection

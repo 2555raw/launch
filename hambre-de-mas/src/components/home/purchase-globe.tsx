@@ -3,20 +3,24 @@
 import createGlobe from 'cobe'
 import { useEffect, useRef } from 'react'
 
-export type GlobePoint = { lat: number; lng: number; orders: number }
+export type GlobePoint = { id: string; label: string; detail: string; lat: number; lng: number; orders: number }
 
 /** Ángulos de la bola para dejar un punto de frente. */
 const facing = (lat: number, lng: number): [number, number] => [Math.PI - ((lng * Math.PI) / 180 - Math.PI / 2), (lat * Math.PI) / 180]
 const [SPAIN_PHI, SPAIN_THETA] = facing(40.2, -3.7)
+/** Cuántos puntos llevan etiqueta (los de más pedidos); el resto, solo el punto. */
+const MAX_LABELS = 8
 
 /**
- * Bola del mundo que se gira arrastrando, con un punto rojo por provincia
- * desde la que han comprado (más grande cuantos más pedidos). Arranca de
- * frente a España, gira sola muy despacio y no se anima con «reducir
- * movimiento». Solo se anima mientras está a la vista.
+ * Bola del mundo oscura que se gira arrastrando, con un punto rojo que late
+ * por cada provincia desde la que han comprado (más grande cuantos más
+ * pedidos) y una etiqueta «Madrid · 12 pedidos» pegada a los principales.
+ * Arranca de frente a España, gira sola muy despacio, se para con «reducir
+ * movimiento» y solo se anima mientras está a la vista.
  */
 export function PurchaseGlobe({ points, label }: { points: GlobePoint[]; label: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const labelsRef = useRef<(HTMLSpanElement | null)[]>([])
   const drag = useRef<{ x: number; y: number } | null>(null)
   const offset = useRef({ phi: 0, theta: 0 })
   const view = useRef({ phi: SPAIN_PHI, theta: SPAIN_THETA })
@@ -26,21 +30,47 @@ export function PurchaseGlobe({ points, label }: { points: GlobePoint[]; label: 
     if (!canvas) return
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const max = Math.max(1, ...points.map((p) => p.orders))
+    const baseSize = points.map((p) => 0.03 + 0.05 * Math.sqrt(p.orders / max))
     let globe: ReturnType<typeof createGlobe> | null = null
     let frame = 0
     let visible = false
+    let tick = 0
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     const size = () => canvas.offsetWidth * dpr
+    const root = document.documentElement
+
+    const markers = (pulse: number) =>
+      points.map((p, i) => ({
+        id: p.id,
+        location: [p.lat, p.lng] as [number, number],
+        size: baseSize[i]! * (1 + 0.18 * Math.sin(pulse + i * 0.9)),
+      }))
+
+    // cobe deja junto al lienzo un punto invisible por marcador: ahí colgamos las etiquetas
+    const placeLabels = () => {
+      const anchors = [...(canvas.parentElement?.children ?? [])].filter((el) => el !== canvas) as HTMLElement[]
+      const style = getComputedStyle(root)
+      labelsRef.current.forEach((el, i) => {
+        const anchor = anchors[i]
+        if (!el || !anchor) return
+        el.style.left = anchor.style.left
+        el.style.top = anchor.style.top
+        el.style.opacity = style.getPropertyValue(`--cobe-visible-${points[i]!.id}`).trim() ? '1' : '0'
+      })
+    }
 
     const loop = () => {
       if (!globe || !visible) return
+      tick += 1
       if (!drag.current && !reduced) view.current.phi += 0.0016
       globe.update({
         phi: view.current.phi + offset.current.phi,
         theta: Math.max(-0.6, Math.min(1.1, view.current.theta + offset.current.theta)),
         width: size(),
         height: size(),
+        ...(reduced ? {} : { markers: markers(tick / 18) }),
       })
+      placeLabels()
       frame = requestAnimationFrame(loop)
     }
 
@@ -52,17 +82,17 @@ export function PurchaseGlobe({ points, label }: { points: GlobePoint[]; label: 
           height: size(),
           phi: view.current.phi,
           theta: view.current.theta,
-          dark: 0,
-          diffuse: 1.2,
+          dark: 1,
+          diffuse: 1.6,
           scale: 1,
-          mapSamples: 20000,
-          mapBrightness: 5.5,
-          mapBaseBrightness: 0.02,
-          baseColor: [1, 1, 1],
-          markerColor: [0.902, 0.227, 0.18],
-          glowColor: [0.96, 0.94, 0.92],
-          markerElevation: 0.01,
-          markers: points.map((p) => ({ location: [p.lat, p.lng], size: 0.025 + 0.045 * Math.sqrt(p.orders / max) })),
+          mapSamples: 24000,
+          mapBrightness: 7,
+          mapBaseBrightness: 0.04,
+          baseColor: [0.22, 0.2, 0.19],
+          markerColor: [0.95, 0.27, 0.2],
+          glowColor: [0.42, 0.16, 0.12],
+          markerElevation: 0.015,
+          markers: markers(0),
         })
         canvas.style.opacity = '1'
       }
@@ -111,6 +141,19 @@ export function PurchaseGlobe({ points, label }: { points: GlobePoint[]; label: 
         onPointerUp={release}
         onPointerCancel={release}
       />
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        {points.slice(0, MAX_LABELS).map((p, i) => (
+          <span
+            key={p.id}
+            ref={(el) => {
+              labelsRef.current[i] = el
+            }}
+            className="absolute -translate-x-1/2 -translate-y-[calc(100%+10px)] rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium whitespace-nowrap text-white opacity-0 ring-1 ring-white/20 backdrop-blur-md transition-opacity duration-300"
+          >
+            {p.label} <span className="text-white/60">· {p.detail}</span>
+          </span>
+        ))}
+      </div>
     </div>
   )
 }

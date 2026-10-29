@@ -4,9 +4,8 @@ import { NewsletterForm } from '@/components/layout/newsletter-form'
 import { Reveal, RevealLi } from '@/components/motion/reveal'
 import { ProductCard } from '@/components/product/product-card'
 import { ReviewAuthor } from '@/components/product/review-author'
-import { ButtonLink } from '@/components/ui/button'
 import { PurchaseGlobe } from '@/components/home/purchase-globe'
-import { ArrowRightIcon, ChevronRightIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
+import { ChevronRightIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { Scroller } from '@/components/ui/scroller'
 import { cn } from '@/lib/cn'
@@ -368,55 +367,84 @@ export async function VerifiedReviews({ reviews }: { reviews: (Review & { produc
 export async function PurchaseMapSection({ points }: { points: PurchasePoint[] }) {
   const { t } = await getI18n()
   const hasOrders = points.length > 0
+  const total = points.reduce((sum, p) => sum + p.orders, 0)
+  const top = points.slice(0, 6)
+  const max = Math.max(1, ...top.map((p) => p.orders))
+  const slug = (s: string) =>
+    s
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
   return (
-    <section aria-labelledby="mapa-pedidos" className="container-page py-20 sm:py-24">
-      <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr] lg:gap-16">
-        <Reveal>
-          <p className="eyebrow">{t({ es: 'Pedidos', en: 'Orders' })}</p>
-          <h2 id="mapa-pedidos" className="mt-3 font-display text-[34px] leading-[1.08] font-extrabold tracking-tight text-balance sm:text-5xl">
-            {points.length >= 10
-              ? t({ es: 'Se cocina por toda España.', en: 'Cooking all over Spain.' })
-              : hasOrders
-                ? t({ es: 'Así viajan nuestros kits.', en: 'Where our kits travel.' })
-              : t({ es: 'Llegamos a toda la Península y Baleares.', en: 'We deliver across mainland Spain and the Balearics.' })}{' '}
-            <span className="text-chef">{t({ es: 'Gira la bola.', en: 'Spin the globe.' })}</span>
-          </h2>
-          <p className="mt-5 max-w-md text-lg leading-relaxed text-ash-ink">
-            {hasOrders
-              ? t({
-                  es: `Cada punto es una provincia desde la que se han pedido kits en los últimos ${PURCHASE_MAP_DAYS} días. Cuantos más pedidos, más grande.`,
-                  en: `Each dot is a province that has ordered kits in the last ${PURCHASE_MAP_DAYS} days. The more orders, the bigger the dot.`,
-                })
-              : t({
-                  es: `Te lo llevamos a casa en ${commerce.deliveryEstimate}, con los kits de nivel 3 refrigerados. Aquí verás desde dónde se piden.`,
-                  en: 'We deliver in 24–72 working hours, with level 3 kits chilled. This is where you will see where orders come from.',
-                })}
-          </p>
-          {hasOrders && (
-            <>
-              <p className="mt-8 font-display text-5xl font-extrabold tabular-nums">
-                {points.length}{' '}
-                <span className="text-lg font-semibold text-ash-ink">{t({ es: points.length === 1 ? 'provincia' : 'provincias', en: points.length === 1 ? 'province' : 'provinces' })}</span>
-              </p>
-              <ul className="mt-5 flex flex-wrap gap-2">
-                {points.slice(0, 10).map((p) => (
-                  <li key={p.province} className="flex items-center gap-2 rounded-full px-3.5 py-1.5 text-sm text-ink/80 ring-1 ring-line">
-                    <span aria-hidden className="size-2 rounded-full bg-chef" />
-                    {p.province}
-                  </li>
-                ))}
-              </ul>
-            </>
-          )}
-        </Reveal>
-        <PurchaseGlobe
-          points={points.map(({ lat, lng, orders }) => ({ lat, lng, orders }))}
-          label={
-            hasOrders
-              ? t({ es: `Bola del mundo con pedidos desde: ${points.map((p) => p.province).join(', ')}`, en: `Globe with orders from: ${points.map((p) => p.province).join(', ')}` })
-              : t({ es: 'Bola del mundo centrada en España', en: 'Globe centred on Spain' })
-          }
-        />
+    <section aria-labelledby="mapa-pedidos" className="px-3 py-16 sm:px-6 sm:py-20">
+      <div className="relative isolate mx-auto max-w-[88rem] overflow-hidden rounded-[40px] bg-[#141110] text-white">
+        <div aria-hidden className="absolute -top-40 right-0 -z-10 size-[620px] rounded-full bg-chef/20 blur-[140px]" />
+        <div className="grid items-center gap-6 px-6 py-14 sm:px-12 lg:grid-cols-[1fr_1.15fr] lg:gap-12 lg:py-16">
+          <Reveal>
+            <p className="text-[12px] font-semibold tracking-[0.16em] text-almendra uppercase">{t({ es: 'Pedidos', en: 'Orders' })}</p>
+            <h2 id="mapa-pedidos" className="mt-3 font-display text-[34px] leading-[1.06] font-extrabold tracking-tight text-balance sm:text-5xl">
+              {points.length >= 10
+                ? t({ es: 'Se cocina por toda España.', en: 'Cooking all over Spain.' })
+                : hasOrders
+                  ? t({ es: 'Así viajan nuestros kits.', en: 'Where our kits travel.' })
+                  : t({ es: 'Llegamos a toda la Península y Baleares.', en: 'We deliver across mainland Spain and the Balearics.' })}{' '}
+              <span className="text-chef">{t({ es: 'Gira la bola.', en: 'Spin the globe.' })}</span>
+            </h2>
+            <p className="mt-5 max-w-md text-[17px] leading-relaxed text-white/65">
+              {hasOrders
+                ? t({
+                    es: `Cada punto es una provincia desde la que se han pedido kits en los últimos ${PURCHASE_MAP_DAYS} días. Cuantos más pedidos, más grande.`,
+                    en: `Each dot is a province that has ordered kits in the last ${PURCHASE_MAP_DAYS} days. The more orders, the bigger the dot.`,
+                  })
+                : t({
+                    es: `Te lo llevamos a casa en ${commerce.deliveryEstimate}, con los kits de nivel 3 refrigerados. Aquí verás desde dónde se piden.`,
+                    en: 'We deliver in 24–72 working hours, with level 3 kits chilled. This is where you will see where orders come from.',
+                  })}
+            </p>
+            {hasOrders && (
+              <>
+                <dl className="mt-8 flex gap-10">
+                  <div>
+                    <dt className="text-[13px] text-white/55">{t({ es: 'Pedidos', en: 'Orders' })}</dt>
+                    <dd className="font-display text-4xl font-extrabold tabular-nums">{total}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[13px] text-white/55">{t({ es: 'Provincias', en: 'Provinces' })}</dt>
+                    <dd className="font-display text-4xl font-extrabold tabular-nums">{points.length}</dd>
+                  </div>
+                </dl>
+                <ol className="mt-8 max-w-md space-y-3">
+                  {top.map((p, i) => (
+                    <li key={p.province} className="grid grid-cols-[1.25rem_7.5rem_1fr_auto] items-center gap-3 text-sm">
+                      <span className="text-white/40 tabular-nums">{i + 1}</span>
+                      <span className="truncate font-medium">{p.province}</span>
+                      <span className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                        <span className="block h-full rounded-full bg-chef" style={{ width: `${Math.max(6, (p.orders / max) * 100)}%` }} />
+                      </span>
+                      <span className="text-white/60 tabular-nums">{p.orders}</span>
+                    </li>
+                  ))}
+                </ol>
+              </>
+            )}
+          </Reveal>
+          <PurchaseGlobe
+            points={points.map((p) => ({
+              id: slug(p.province),
+              label: p.province,
+              detail: t({ es: `${p.orders} ${p.orders === 1 ? 'pedido' : 'pedidos'}`, en: `${p.orders} ${p.orders === 1 ? 'order' : 'orders'}` }),
+              lat: p.lat,
+              lng: p.lng,
+              orders: p.orders,
+            }))}
+            label={
+              hasOrders
+                ? t({ es: `Bola del mundo con pedidos desde: ${points.map((p) => p.province).join(', ')}`, en: `Globe with orders from: ${points.map((p) => p.province).join(', ')}` })
+                : t({ es: 'Bola del mundo centrada en España', en: 'Globe centred on Spain' })
+            }
+          />
+        </div>
       </div>
     </section>
   )
@@ -445,21 +473,3 @@ export async function NewsletterSection() {
   )
 }
 
-export async function StoreIntro() {
-  const { t } = await getI18n()
-  return (
-    <section className="container-page pt-6 pb-10 sm:pt-10">
-      <Reveal className="flex flex-col justify-between gap-6 border-t border-line pt-10 lg:flex-row lg:items-end">
-        <h2 className="max-w-3xl font-display text-[34px] leading-[1.08] font-extrabold tracking-tight sm:text-5xl">
-          {t({ es: 'Tienda.', en: 'Shop.' })}{' '}
-          <span className="text-chef">{t({ es: 'La forma más rica de aprender a cocinar.', en: 'The tastiest way to learn to cook.' })}</span>
-        </h2>
-        <div className="flex items-center gap-3">
-          <ButtonLink href="/tienda" variant="secondary" size="sm">
-            {t({ es: 'Ver todos los kits', en: 'See all kits' })} <ArrowRightIcon size={15} />
-          </ButtonLink>
-        </div>
-      </Reveal>
-    </section>
-  )
-}

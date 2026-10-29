@@ -24,6 +24,7 @@ export async function Footer({ categories }: { categories: Pick<Category, 'slug'
         { href: '/legal/devoluciones', label: t({ es: 'Cambios y devoluciones', en: 'Returns and exchanges' }) },
         { href: '/contacto', label: t({ es: 'Contacto', en: 'Contact' }) },
         { href: '/#como-funciona', label: t({ es: 'Cómo funciona', en: 'How it works' }) },
+        ...(company.email ? [{ href: `mailto:${company.email}`, label: company.email }] : []),
       ],
     },
     {
@@ -63,9 +64,15 @@ export async function Footer({ categories }: { categories: Pick<Category, 'slug'
               <ul className="space-y-2">
                 {col.links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="hover:text-ink hover:underline">
-                      {link.label}
-                    </Link>
+                    {link.href.startsWith('mailto:') ? (
+                      <a href={link.href} className="break-all text-teja hover:underline">
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link href={link.href} className="hover:text-ink hover:underline">
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

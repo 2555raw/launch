@@ -52,8 +52,8 @@ export async function Footer({ categories }: { categories: Pick<Category, 'slug'
       <div className="container-page py-12">
         <p className="border-b border-line-strong/60 pb-5 leading-relaxed">
           {t({
-            es: 'Precios con IVA incluido. Envío gratis en pedidos desde 40 € a Península y Baleares. Los kits de nivel 1 y 2 son 100 % secos (tú pones agua y aceite) y los de nivel 3 incluyen ingredientes frescos y se envían refrigerados. Cada kit trae su receta con QR. Recomendamos que los menores de 14 años cocinen con la supervisión de un adulto.',
-            en: 'Prices include VAT. Free shipping on orders from €40 to mainland Spain and the Balearic Islands. Level 1 and 2 kits are 100% dry (you add water and oil); level 3 kits include fresh ingredients and ship chilled. Every kit comes with a QR recipe. We recommend that under-14s cook with an adult around.',
+            es: 'Precios con IVA incluido. Envío gratis en pedidos desde 40 € a Península y Baleares. Los kits Primer bocado y Con ganas son 100 % secos (tú pones agua y aceite) y los de Hambre de más incluyen ingredientes frescos y se envían refrigerados. Cada kit trae su receta con QR. Recomendamos que los menores de 14 años cocinen con la supervisión de un adulto.',
+            en: 'Prices include VAT. Free shipping on orders from €40 to mainland Spain and the Balearic Islands. First bite and Getting hungry kits are 100% dry (you add water and oil); Hungry for more kits include fresh ingredients and ship chilled. Every kit comes with a QR recipe. We recommend that under-14s cook with an adult around.',
           })}
         </p>
 

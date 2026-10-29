@@ -107,7 +107,7 @@ export const demoCategories: DemoCategory[] = [
     slug: 'primer-bocado',
     name: 'Primer bocado',
     tagline: 'Sin fuego o con microondas · 100\u00a0% seco',
-    description: 'El nivel 1. Todo llega seco y listo para la despensa: tú solo pones agua. Nada de fuegos, como mucho un microondas.',
+    description: 'Para empezar. Todo llega seco y listo para la despensa: tú solo pones agua. Nada de fuegos, como mucho un microondas.',
     level: 1,
     accent: 'chef',
     image: '/demo/products/wraps-1.jpg',
@@ -117,7 +117,7 @@ export const demoCategories: DemoCategory[] = [
     slug: 'con-ganas',
     name: 'Con ganas',
     tagline: 'Sartén y cazo · 100\u00a0% seco',
-    description: 'El nivel 2. Sigue siendo todo seco, pero toca encender el fuego: sartén, cazo y recetas que impresionan. Tú pones agua y un chorrito de aceite.',
+    description: 'El siguiente paso. Sigue siendo todo seco, pero toca encender el fuego: sartén, cazo y recetas que impresionan. Tú pones agua y un chorrito de aceite.',
     level: 2,
     accent: 'hoja',
     image: '/demo/products/ramen-1.jpg',
@@ -127,7 +127,7 @@ export const demoCategories: DemoCategory[] = [
     slug: 'hambre-de-mas',
     name: 'Hambre de más',
     tagline: 'Recetas del mundo · con ingredientes frescos',
-    description: 'El nivel 3. Ya sabes cocinar: este kit trae también los ingredientes frescos (carne, verdura, lácteos) y llega refrigerado.',
+    description: 'El reto. Ya sabes cocinar: este kit trae también los ingredientes frescos (carne, verdura, lácteos) y llega refrigerado.',
     level: 3,
     accent: 'teja',
     image: '/demo/products/curry-1.jpg',
@@ -687,7 +687,7 @@ export const demoProducts: DemoProduct[] = [
     name: 'Kit Curry rojo de salmón',
     subtitle: 'Salmón fresco en curry rojo tailandés con leche de coco y arroz jazmín.',
     description:
-      'Un viaje a Bangkok en 35 minutos. Nivel 3: el kit trae el salmón fresco y el limón, además de la pasta de curry rojo, la leche de coco, el arroz jazmín y las hierbas. Aprendes a marcar el pescado sin que se rompa y a equilibrar dulce, salado, ácido y picante.',
+      'Un viaje a Bangkok en 35 minutos. Es de Hambre de más: el kit trae el salmón fresco y el limón, además de la pasta de curry rojo, la leche de coco, el arroz jazmín y las hierbas. Aprendes a marcar el pescado sin que se rompa y a equilibrar dulce, salado, ácido y picante.',
     category: 'hambre-de-mas',
     variants: [
       { name: '2 personas', sku: 'HDM-CUR-2', price: 2790, stock: 26 },
@@ -723,7 +723,7 @@ export const demoProducts: DemoProduct[] = [
     name: 'Kit Butter chicken con naan',
     subtitle: 'Pollo fresco en salsa de tomate, mantequilla y garam masala.',
     description:
-      'El plato indio que gusta a todo el mundo. Llega refrigerado con los muslos de pollo, el yogur, la nata y la mantequilla; además, especias, tomate y la mezcla para hacer naan en la sartén. Nivel 3 porque hay que coordinar tres elaboraciones a la vez.',
+      'El plato indio que gusta a todo el mundo. Llega refrigerado con los muslos de pollo, el yogur, la nata y la mantequilla; además, especias, tomate y la mezcla para hacer naan en la sartén. Es de Hambre de más porque hay que coordinar tres elaboraciones a la vez.',
     category: 'hambre-de-mas',
     variants: [
       { name: '2 personas', sku: 'HDM-BTC-2', price: 2990, stock: 20 },
@@ -759,7 +759,7 @@ export const demoProducts: DemoProduct[] = [
     name: 'Kit Gyozas caseras',
     subtitle: 'Obleas frescas, relleno de cerdo y col, y salsa ponzu.',
     description:
-      'El reto del nivel 3: cerrar gyozas con sus pliegues. Llega refrigerado con las obleas, la carne picada y la col; además, especias para el relleno y salsa ponzu para mojar. Te enseñamos el pliegue y la técnica de vapor y sartén.',
+      'El reto de Hambre de más: cerrar gyozas con sus pliegues. Llega refrigerado con las obleas, la carne picada y la col; además, especias para el relleno y salsa ponzu para mojar. Te enseñamos el pliegue y la técnica de vapor y sartén.',
     category: 'hambre-de-mas',
     variants: [
       { name: '2 personas', sku: 'HDM-GYO-2', price: 2490, stock: 18 },
@@ -1000,7 +1000,7 @@ export const demoProducts: DemoProduct[] = [
     name: 'Caja sorpresa',
     subtitle: 'Un kit nuevo cada mes. No sabrás cuál hasta abrir la caja.',
     description:
-      'Cada mes enviamos un kit distinto con recetas que no están en la tienda. Las cajas de 1 y 3 meses son de niveles 1 y 2 (100 % secas); la de 6 meses incluye un kit de nivel 3 con frescos. Pagas por adelantado y la recibes la primera semana de cada mes. No se renueva sola.',
+      'Cada mes enviamos un kit distinto con recetas que no están en la tienda. Las cajas de 1 y 3 meses son kits Primer bocado y Con ganas (100 % secos); la de 6 meses incluye un kit Hambre de más con frescos. Pagas por adelantado y la recibes la primera semana de cada mes. No se renueva sola.',
     category: 'caja-sorpresa',
     variants: [
       { name: '1 mes', sku: 'HDM-SRP-1', price: 3490, stock: 100 },

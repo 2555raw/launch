@@ -9,8 +9,8 @@ export const howItWorksSteps = [
     n: 2,
     title: { es: 'Te llega a casa', en: 'It arrives at home' },
     text: {
-      es: 'Niveles 1 y 2: todo seco, directo a la despensa. Nivel 3: con frescos y en caja refrigerada.',
-      en: 'Levels 1 and 2: all dry, straight into the cupboard. Level 3: with fresh food in a chilled box.',
+      es: 'Primer bocado y Con ganas: todo seco, directo a la despensa. Hambre de más: con frescos y en caja refrigerada.',
+      en: 'First bite and Getting hungry: all dry, straight into the cupboard. Hungry for more: with fresh food in a chilled box.',
     },
   },
   {

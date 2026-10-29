@@ -90,7 +90,7 @@ export function CartDrawer() {
                 </span>
                 <p className="font-display text-xl font-bold">{t({ es: 'Tu cesta está vacía', en: 'Your bag is empty' })}</p>
                 <p className="text-sm text-ash-ink">
-                  {t({ es: '¿Con hambre de más? Empieza por el nivel 1 o ve directo al ramen.', en: 'Hungry for more? Start with level 1 or go straight for the ramen.' })}
+                  {t({ es: '¿Con hambre de más? Empieza por un Primer bocado o ve directo al ramen.', en: 'Hungry for more? Start with a First bite kit or go straight for the ramen.' })}
                 </p>
                 <Link href="/tienda" className={buttonClass('primary', 'md')} onClick={closeDrawer}>
                   {t({ es: 'Ver los kits', en: 'Browse kits' })}

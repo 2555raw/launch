@@ -29,9 +29,9 @@ export function ProfileForm({ fullName, phone, marketingOptIn, cookingLevel, avo
         </label>
         <select id="cookingLevel" name="cookingLevel" defaultValue={cookingLevel ? String(cookingLevel) : ''} className={inputClass}>
           <option value="">{t({ es: 'Sin indicar', en: 'Not set' })}</option>
-          <option value="1">{t({ es: 'Nivel 1 · Empiezo', en: 'Level 1 · Beginner' })}</option>
-          <option value="2">{t({ es: 'Nivel 2 · Me defiendo', en: 'Level 2 · Getting there' })}</option>
-          <option value="3">{t({ es: 'Nivel 3 · Voy a por todas', en: 'Level 3 · Bring it on' })}</option>
+          <option value="1">{t({ es: 'Primer bocado · Empiezo', en: 'First bite · Beginner' })}</option>
+          <option value="2">{t({ es: 'Con ganas · Me defiendo', en: 'Getting hungry · Getting there' })}</option>
+          <option value="3">{t({ es: 'Hambre de más · Voy a por todas', en: 'Hungry for more · Bring it on' })}</option>
         </select>
       </div>
       <fieldset>

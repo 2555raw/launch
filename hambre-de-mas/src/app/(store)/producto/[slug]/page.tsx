@@ -204,7 +204,7 @@ export default async function ProductPage({ params }: Props) {
                   <LevelBars level={level.level} />
                 </span>
                 <span>
-                  <strong className="text-teja">{level.name}.</strong> {level.description.replace(/^El nivel \d\.\s*|^Level \d\.\s*/, '')}{' '}
+                  <strong className="text-teja">{level.name}.</strong> {level.description}{' '}
                   <span className="whitespace-nowrap text-teja group-hover:underline">{t({ es: 'Ver los kits', en: 'See the kits' })} →</span>
                 </span>
               </Link>

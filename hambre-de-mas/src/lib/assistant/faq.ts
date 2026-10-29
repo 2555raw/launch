@@ -25,8 +25,8 @@ export const FAQS: Faq[] = [
     id: 'niveles',
     question: { es: '¿Qué nivel elijo?', en: 'Which level should I pick?' },
     answer: {
-      es: 'Nivel 1 «Primer bocado»: recetas sin fuego o con microondas, ideal si nunca has cocinado. Nivel 2 «Con ganas»: sartén y cazo, platos completos en 20-30 minutos. Nivel 3 «Hambre de más»: recetas del mundo con ingredientes frescos. Si no lo tienes claro, empieza por el 1: cada kit desbloquea el siguiente.',
-      en: 'Level 1 "First bite": no-cook or microwave recipes, ideal if you have never cooked. Level 2 "Getting hungry": pan and pot, full meals in 20-30 minutes. Level 3 "Hungry for more": world recipes with fresh ingredients. If in doubt, start with level 1: each kit unlocks the next.',
+      es: '«Primer bocado»: recetas sin fuego o con microondas, ideal si nunca has cocinado. «Con ganas»: sartén y cazo, platos completos en 20-30 minutos. «Hambre de más»: recetas del mundo con ingredientes frescos. Si no lo tienes claro, empieza por Primer bocado (o haz el test «¿Qué nivel eres?»): cada kit desbloquea el siguiente.',
+      en: '"First bite": no-cook or microwave recipes, ideal if you have never cooked. "Getting hungry": pan and pot, full meals in 20-30 minutes. "Hungry for more": world recipes with fresh ingredients. If in doubt, start with First bite (or take the "Which level are you?" quiz): each kit unlocks the next.',
     },
     keywords: ['nivel', 'level', 'elijo', 'empiezo', 'empezar', 'principiante', 'beginner', 'dificil', 'facil', 'difficulty', 'easy'],
   },
@@ -34,8 +34,8 @@ export const FAQS: Faq[] = [
     id: 'que-trae',
     question: { es: '¿Qué trae cada kit?', en: 'What comes in each kit?' },
     answer: {
-      es: 'Todos los ingredientes secos ya medidos, las salsas y especias, y una tarjeta con QR que abre la receta paso a paso. Los kits de nivel 1 y 2 son 100 % secos: tú pones agua y, a veces, un chorrito de aceite. Los de nivel 3 incluyen frescos y llegan refrigerados. En cada ficha verás la lista completa en «Qué trae el kit».',
-      en: 'All the dry ingredients pre-measured, the sauces and spices, and a card with a QR code that opens the step-by-step recipe. Level 1 and 2 kits are 100% dry: you add water and sometimes a splash of oil. Level 3 kits include fresh ingredients and arrive chilled. Each product page lists everything under "What\'s in the kit".',
+      es: 'Todos los ingredientes secos ya medidos, las salsas y especias, y una tarjeta con QR que abre la receta paso a paso. Los kits Primer bocado y Con ganas son 100 % secos: tú pones agua y, a veces, un chorrito de aceite. Los de Hambre de más incluyen frescos y llegan refrigerados. En cada ficha verás la lista completa en «Qué trae el kit».',
+      en: 'All the dry ingredients pre-measured, the sauces and spices, and a card with a QR code that opens the step-by-step recipe. First bite and Getting hungry kits are 100% dry: you add water and sometimes a splash of oil. Hungry for more kits include fresh ingredients and arrive chilled. Each product page lists everything under "What\'s in the kit".',
     },
     keywords: ['trae', 'incluye', 'contiene', 'ingredientes', 'qr', 'receta', 'include', 'includes', 'contains', 'ingredients', 'recipe', 'comes'],
   },
@@ -94,11 +94,47 @@ export const FAQS: Faq[] = [
     keywords: ['sorpresa', 'regalo', 'regalar', 'suscripcion', 'mes', 'meses', 'surprise', 'gift', 'subscription', 'month', 'monthly'],
   },
   {
+    id: 'packs',
+    question: { es: '¿Hay descuentos si compro varios kits?', en: 'Are there discounts if I buy several kits?' },
+    answer: {
+      es: `Sí. Si llevas ${commerce.bundleMinKits} kits o más del mismo nivel, la cesta te descuenta un ${commerce.bundlePercent} % en todos ellos sin poner ningún código. Además, en algunos kits el tamaño de 4 personas sale más barato que dos de 2.`,
+      en: `Yes. If you take ${commerce.bundleMinKits} or more kits from the same level, your bag takes ${commerce.bundlePercent}% off all of them with no code needed. On some kits the serves-4 size is also cheaper than two serves-2 kits.`,
+    },
+    keywords: ['descuento', 'descuentos', 'pack', 'packs', 'oferta', 'barato', 'varios', 'discount', 'discounts', 'bundle', 'offer', 'cheaper'],
+  },
+  {
+    id: 'regalo',
+    question: { es: '¿Puedo enviarlo como regalo?', en: 'Can I send it as a gift?' },
+    answer: {
+      es: 'Sí. Al pagar marca «Es un regalo»: lo enviamos sin precios en el paquete y, si quieres, escribimos tu mensaje en una tarjeta. Pon la dirección de la persona que lo recibe.',
+      en: 'Yes. At checkout tick "It\'s a gift": we ship it with no prices in the box and, if you like, we write your message on a card. Use the address of the person receiving it.',
+    },
+    keywords: ['regalo', 'regalar', 'cumpleanos', 'tarjeta', 'mensaje', 'gift', 'present', 'birthday', 'card', 'message'],
+  },
+  {
+    id: 'qr',
+    question: { es: '¿Cómo funciona el QR de la receta?', en: 'How does the recipe QR code work?' },
+    answer: {
+      es: 'Cada kit trae una tarjeta con un código QR. Escanéalo con la cámara del móvil y se abre la receta paso a paso, con un modo vídeo que va pasando los pasos solo mientras cocinas. También la tienes en la ficha de cada kit.',
+      en: 'Every kit comes with a card with a QR code. Scan it with your phone camera and the step-by-step recipe opens, with a video mode that moves through the steps on its own while you cook. It\'s also on each kit\'s page.',
+    },
+    keywords: ['qr', 'codigo', 'escanear', 'movil', 'video', 'pasos', 'paso', 'code', 'scan', 'phone', 'steps', 'step'],
+  },
+  {
+    id: 'nutricion',
+    question: { es: '¿Puedo ver las calorías y la proteína?', en: 'Can I see the calories and protein?' },
+    answer: {
+      es: 'Sí. En la ficha de cada kit verás las calorías, la proteína, los hidratos y las grasas por ración (valores aproximados). Los kits con 25 g de proteína o más llevan la etiqueta «Alto en proteína» y salen en la sección «Para el gym».',
+      en: 'Yes. Each kit\'s page shows calories, protein, carbs and fat per serving (approximate values). Kits with 25 g of protein or more carry the "High protein" tag and appear in the "For the gym" section.',
+    },
+    keywords: ['calorias', 'kcal', 'proteina', 'proteinas', 'gym', 'gimnasio', 'nutricion', 'nutricional', 'dieta', 'calories', 'protein', 'nutrition', 'macros'],
+  },
+  {
     id: 'edad',
     question: { es: '¿Desde qué edad se puede cocinar?', en: 'From what age can you cook?' },
     answer: {
-      es: 'Los kits están pensados para adolescentes. Recomendamos que los menores de 14 años cocinen con la supervisión de un adulto, sobre todo en los niveles 2 y 3, donde hay fuego y cuchillos.',
-      en: 'The kits are designed for teens. We recommend that under-14s cook with an adult around, especially at levels 2 and 3, where there is heat and knives.',
+      es: 'Los kits están pensados para adolescentes. Recomendamos que los menores de 14 años cocinen con la supervisión de un adulto, sobre todo en Con ganas y Hambre de más, donde hay fuego y cuchillos.',
+      en: 'The kits are designed for teens. We recommend that under-14s cook with an adult around, especially for Getting hungry and Hungry for more, where there is heat and knives.',
     },
     keywords: ['edad', 'anos', 'nino', 'ninos', 'menor', 'supervision', 'adulto', 'age', 'old', 'kid', 'kids', 'child', 'adult'],
   },

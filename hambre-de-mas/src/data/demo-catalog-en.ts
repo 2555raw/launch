@@ -9,17 +9,17 @@ export const demoCategoriesEn: Record<string, CategoryTranslation> = {
   'primer-bocado': {
     name: 'First bite',
     tagline: 'No heat or microwave only · 100% dry',
-    description: 'Level 1. Everything arrives dry and ready for the cupboard: you just add water. No hob, a microwave at most.',
+    description: 'To get started. Everything arrives dry and ready for the cupboard: you just add water. No hob, a microwave at most.',
   },
   'con-ganas': {
     name: 'Getting hungry',
     tagline: 'Pan and pot · 100% dry',
-    description: 'Level 2. Still all dry, but now you turn on the hob: pans, pots and recipes that impress. You add water and a splash of oil.',
+    description: 'The next step. Still all dry, but now you turn on the hob: pans, pots and recipes that impress. You add water and a splash of oil.',
   },
   'hambre-de-mas': {
     name: 'Hungry for more',
     tagline: 'World recipes · with fresh ingredients',
-    description: 'Level 3. You can cook now: these kits also bring the fresh ingredients (meat, fish, veg, dairy) and arrive chilled.',
+    description: 'The challenge. You can cook now: these kits also bring the fresh ingredients (meat, fish, veg, dairy) and arrive chilled.',
   },
   'caja-sorpresa': {
     name: 'Surprise box',
@@ -207,7 +207,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     name: 'Red salmon curry kit',
     subtitle: 'Fresh salmon in Thai red curry with coconut milk and jasmine rice.',
     description:
-      'A trip to Bangkok in 35 minutes. Level 3: the kit brings the fresh salmon and lemon, plus red curry paste, coconut milk, jasmine rice and herbs. You learn to sear fish without it falling apart and to balance sweet, salty, sour and spicy.',
+      'A trip to Bangkok in 35 minutes. It’s a Hungry for more kit: it brings the fresh salmon and lemon, plus red curry paste, coconut milk, jasmine rice and herbs. You learn to sear fish without it falling apart and to balance sweet, salty, sour and spicy.',
     includes: ['Fresh salmon fillets', 'Lemon', 'Red curry paste', 'Coconut milk', 'Jasmine rice', 'Fresh oregano', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water and oil.' }, freshStorage, recipeCard],
     recipe: {
@@ -229,7 +229,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     name: 'Butter chicken with naan kit',
     subtitle: 'Fresh chicken in a tomato, butter and garam masala sauce.',
     description:
-      'The Indian dish everybody loves. It arrives chilled with the chicken thighs, yoghurt, cream and butter, plus spices, tomato and the mix to make naan in a pan. Level 3 because you juggle three things at once.',
+      'The Indian dish everybody loves. It arrives chilled with the chicken thighs, yoghurt, cream and butter, plus spices, tomato and the mix to make naan in a pan. It’s Hungry for more because you juggle three things at once.',
     badge: 'Best seller',
     includes: ['Fresh chicken thighs', 'Plain yoghurt, cream and butter', 'Garam masala and marinade spice sachets', 'Tomato purée', 'Naan mix', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water.' }, freshStorage, recipeCard],
@@ -252,7 +252,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     name: 'Homemade gyoza kit',
     subtitle: 'Fresh wrappers, pork and cabbage filling, and ponzu sauce.',
     description:
-      'The level 3 challenge: sealing gyozas with their pleats. It arrives chilled with the wrappers, minced pork and cabbage, plus filling spices and ponzu sauce for dipping. We teach you the pleat and the steam-and-fry technique.',
+      'The Hungry for more challenge: sealing gyozas with their pleats. It arrives chilled with the wrappers, minced pork and cabbage, plus filling spices and ponzu sauce for dipping. We teach you the pleat and the steam-and-fry technique.',
     includes: ['30 gyoza wrappers', 'Fresh minced pork', 'Fresh cabbage and spring onion', 'Filling spice sachet', 'Ponzu sauce', 'Sesame oil', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water and oil.' }, freshStorage, recipeCard],
     recipe: {
@@ -574,7 +574,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     name: 'Surprise box',
     subtitle: "A new kit every month. You won't know which until you open the box.",
     description:
-      "Every month we send a different kit with recipes that aren't in the shop. The 1- and 3-month boxes are level 1 and 2 (100% dry); the 6-month box includes a level 3 kit with fresh ingredients. You pay upfront and get it in the first week of each month. It doesn't renew automatically.",
+      "Every month we send a different kit with recipes that aren't in the shop. The 1- and 3-month boxes are First bite and Getting hungry kits (100% dry); the 6-month box includes a Hungry for more kit with fresh ingredients. You pay upfront and get it in the first week of each month. It doesn't renew automatically.",
     includes: ['One surprise kit a month', 'Exclusive QR recipe', 'Collectable level sticker'],
     specs: [
       { label: 'Deliveries', value: 'The first week of each month, to the same address.' },

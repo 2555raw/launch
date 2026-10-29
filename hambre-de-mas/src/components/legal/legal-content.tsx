@@ -332,7 +332,7 @@ export const legalPages: Record<string, LegalPage> = {
         </p>
         <h2>2. Productos y precios</h2>
         <p>
-          Vendemos kits de cocina con receta. Los kits de nivel 1 y 2 contienen solo ingredientes secos; los de nivel 3 incluyen además
+          Vendemos kits de cocina con receta. Los kits Primer bocado y Con ganas contienen solo ingredientes secos; los de Hambre de más incluyen además
           ingredientes frescos refrigerados. Lo que tiene que poner el cliente (agua, aceite) se indica en cada ficha. Todos los precios
           incluyen el IVA aplicable. Los gastos de envío se muestran antes de pagar.
         </p>
@@ -392,9 +392,9 @@ export const legalPages: Record<string, LegalPage> = {
           Preparamos los pedidos en días laborables. El plazo orientativo de entrega es de {commerce.deliveryEstimate}. Recibirás el número de
           seguimiento cuando el pedido salga de nuestro almacén; también lo verás en <Link href="/cuenta/pedidos">tus pedidos</Link>.
         </p>
-        <h2>Kits con frescos (nivel 3)</h2>
+        <h2>Kits con frescos (Hambre de más)</h2>
         <p>
-          Los kits de nivel 3 incluyen ingredientes refrigerados y se envían en caja isotérmica con acumuladores de frío, en entrega de
+          Los kits Hambre de más incluyen ingredientes refrigerados y se envían en caja isotérmica con acumuladores de frío, en entrega de
           24 horas laborables. Guarda los frescos en la nevera nada más recibir el pedido. Si la caja llega dañada o caliente, no consumas
           los frescos y escríbenos con una foto: te lo reponemos.
         </p>

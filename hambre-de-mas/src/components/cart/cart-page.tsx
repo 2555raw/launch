@@ -29,8 +29,8 @@ export function CartPageClient() {
         <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight">{t({ es: 'Tu cesta está vacía.', en: 'Your bag is empty.' })}</h1>
         <p className="mt-3 max-w-md text-ash-ink">
           {t({
-            es: '¿Con hambre de más? Empieza por un kit de nivel 1 o ve directo a por el ramen.',
-            en: 'Hungry for more? Start with a level 1 kit or go straight for the ramen.',
+            es: '¿Con hambre de más? Empieza por un kit Primer bocado o ve directo a por el ramen.',
+            en: 'Hungry for more? Start with a First bite kit or go straight for the ramen.',
           })}
         </p>
         <Link href="/tienda" className={buttonClass('primary', 'lg', 'mt-8')}>

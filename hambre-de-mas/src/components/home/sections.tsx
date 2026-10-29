@@ -5,9 +5,8 @@ import { Reveal, RevealLi } from '@/components/motion/reveal'
 import { ProductCard } from '@/components/product/product-card'
 import { ReviewAuthor } from '@/components/product/review-author'
 import { ButtonLink } from '@/components/ui/button'
-import { LevelBars } from '@/components/home/levels-showcase'
 import { PurchaseGlobe } from '@/components/home/purchase-globe'
-import { ArrowRightIcon, ChevronRightIcon, GiftIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
+import { ArrowRightIcon, ChevronRightIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { Scroller } from '@/components/ui/scroller'
 import { cn } from '@/lib/cn'
@@ -48,39 +47,6 @@ export async function LevelsRow({ categories }: { categories: Category[] }) {
     }
   })
   return <LevelsShowcase slides={slides} />
-}
-
-/** Accesos rápidos bajo la portada: píldoras transparentes que se rellenan de rojo al pasar el ratón. */
-export async function QuickLinks({ categories }: { categories: Category[] }) {
-  const { t } = await getI18n()
-  const links: { href: string; label: string; icon?: React.ReactNode }[] = [
-    ...categories.map((c) => ({
-      href: `/categoria/${c.slug}`,
-      label: c.level ? t({ es: `Nivel ${c.level}`, en: `Level ${c.level}` }) : c.name,
-      icon: c.level ? <LevelBars level={c.level} /> : <GiftIcon size={17} />,
-    })),
-    { href: '/tienda?orden=novedades', label: t({ es: 'Novedades', en: 'New in' }) },
-    { href: '/tienda?tiempo=15', label: t({ es: 'Hasta 15 min', en: 'Up to 15 min' }) },
-    { href: '/tienda?dieta=vegetariano', label: t({ es: 'Vegetariano', en: 'Vegetarian' }) },
-    { href: '/tienda?dieta=sin-gluten', label: t({ es: 'Sin gluten', en: 'Gluten-free' }) },
-  ]
-  return (
-    <nav aria-label={t({ es: 'Accesos rápidos', en: 'Quick links' })}>
-      <ul className="container-page flex gap-2.5 overflow-x-auto py-6 [scrollbar-width:none] sm:flex-wrap sm:justify-center sm:gap-3 [&::-webkit-scrollbar]:hidden">
-        {links.map((l) => (
-          <li key={l.href} className="shrink-0">
-            <Link
-              href={l.href}
-              className="flex h-11 items-center gap-2.5 rounded-full px-5 text-[15px] font-medium whitespace-nowrap text-ink/75 ring-1 ring-line transition-[background-color,color,box-shadow] duration-200 hover:bg-chef hover:text-white hover:ring-chef focus-visible:bg-chef focus-visible:text-white"
-            >
-              {l.icon}
-              {l.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
 }
 
 /** Tarjeta grande para el carrusel de novedades. */

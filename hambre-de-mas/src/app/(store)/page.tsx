@@ -1,7 +1,6 @@
 import { Hero } from '@/components/home/hero'
 import {
   Benefits,
-  QuickLinks,
   BestSellers,
   HowItWorks,
   LevelsRow,
@@ -70,7 +69,6 @@ export default async function HomePage() {
         qrSvg={heroQr}
         recipeHref={heroDetail ? `/receta/${heroDetail.slug}` : undefined}
       />
-      <QuickLinks categories={categories} />
       <StoreIntro />
       <LevelsRow categories={categories} />
       <NewArrivals products={newest.items} />

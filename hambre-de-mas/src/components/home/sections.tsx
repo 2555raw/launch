@@ -40,6 +40,8 @@ export async function LevelsRow({ categories }: { categories: Category[] }) {
       level: c.level,
       name: c.name,
       tagline: c.tagline,
+      description: c.description,
+      kits: tops[i]?.total ?? 0,
       image: top?.image?.url ?? c.imageUrl ?? '/demo/home/hero-ramen.jpg',
       product: top ? { name: top.name, slug: top.slug, price: formatPrice(top.priceCents, locale) } : null,
     }

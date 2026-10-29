@@ -376,26 +376,6 @@
   animation: spin-slow 240s linear infinite;
 }
 
-/* Escaparate de niveles: la barra del botón activo se llena y, al acabar,
-   el componente pasa al siguiente (evento animationend). */
-@keyframes levels-progress {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
-}
-.levels-progress {
-  transform: scaleX(0);
-}
-[data-active='true'] > .levels-progress {
-  animation: levels-progress 6s linear forwards;
-}
-.levels-showcase:hover [data-active='true'] > .levels-progress {
-  animation-play-state: paused;
-}
-/* Sin animaciones no hay barra ni cambio automático: se elige a mano. */
-@media (prefers-reduced-motion: reduce) {
-  .levels-progress { display: none; }
-}
-
 /* Puntos de «escribiendo…» del asistente */
 @keyframes typing-dot {
   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }

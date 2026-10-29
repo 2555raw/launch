@@ -267,7 +267,9 @@ export function Header({ categories }: { categories: NavCategory[] }) {
             >
               <nav aria-label={t({ es: 'Menú móvil', en: 'Mobile menu' })} className="container-page pt-4 pb-12">
                 <ul className="space-y-1">
-                  {[{ href: '/tienda', label: t({ es: 'Tienda', en: 'Shop' }) }, ...categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name })), ...links].map(
+                  {[{ href: '/tienda', label: t({ es: 'Tienda', en: 'Shop' }) }, ...categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name })), ...links]
+                    .filter((l, i, all) => all.findIndex((x) => x.href === l.href) === i)
+                    .map(
                     (item, i) => (
                       <motion.li
                         key={item.href}

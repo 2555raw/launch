@@ -6,13 +6,12 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { CloseIcon } from '@/components/ui/icons'
+import type { ActivityItem } from '@/app/api/actividad/route'
 import { useI18n } from '@/lib/i18n/client'
 
-type Purchase = { key: string; href: string | null; name: string; image: string | null; province: string | null; paidAt: string }
-
 const SEEN_KEY = 'hdm-seen-purchases'
-const FIRST_DELAY = 8_000
-const GAP = 70_000
+const FIRST_DELAY = 6_000
+const GAP = 40_000
 const VISIBLE = 6_500
 const REFRESH = 60_000
 
@@ -30,15 +29,16 @@ const markSeen = (key: string) => {
 }
 
 /**
- * Avisos de «alguien de Madrid ha comprado…». Solo con compras reales de
- * las últimas horas (/api/actividad); cada una se enseña una vez por sesión,
- * con un minuto largo entre aviso y aviso. Si no hay compras, no sale nada.
+ * Avisos de abajo a la izquierda (/api/actividad): primero «alguien de
+ * Madrid ha comprado…» con compras reales de las últimas horas y, detrás,
+ * novedades y ventajas de la tienda. Cada aviso sale una vez por sesión,
+ * con unos 40 segundos entre uno y otro.
  */
 export function RecentPurchases() {
   const { t } = useI18n()
   const pathname = usePathname()
-  const [current, setCurrent] = useState<(Purchase & { minutes: number }) | null>(null)
-  const queue = useRef<Purchase[]>([])
+  const [current, setCurrent] = useState<(ActivityItem & { minutes: number }) | null>(null)
+  const queue = useRef<ActivityItem[]>([])
   const lastShown = useRef(0)
   const hidden = /^\/(checkout|cesta)/.test(pathname)
 
@@ -47,11 +47,13 @@ export function RecentPurchases() {
     const load = async () => {
       try {
         const res = await fetch('/api/actividad', { cache: 'no-store' })
-        const data = (await res.json()) as { purchases?: Purchase[] }
+        const data = (await res.json()) as { items?: ActivityItem[] }
         if (cancelled) return
         const seen = new Set(readSeen())
         const queued = new Set(queue.current.map((p) => p.key))
-        for (const p of data.purchases ?? []) if (!seen.has(p.key) && !queued.has(p.key)) queue.current.push(p)
+        const fresh = (data.items ?? []).filter((p) => !seen.has(p.key) && !queued.has(p.key))
+        // Las compras reales van siempre delante
+        queue.current = [...fresh.filter((p) => p.kind === 'purchase'), ...queue.current, ...fresh.filter((p) => p.kind !== 'purchase')]
       } catch {}
     }
     load()
@@ -66,7 +68,7 @@ export function RecentPurchases() {
       if (!next) return
       lastShown.current = now
       markSeen(next.key)
-      setCurrent({ ...next, minutes: Math.max(1, Math.round((now - new Date(next.paidAt).getTime()) / 60_000)) })
+      setCurrent({ ...next, minutes: next.paidAt ? Math.max(1, Math.round((now - new Date(next.paidAt).getTime()) / 60_000)) : 0 })
     }, 2_000)
     return () => {
       cancelled = true
@@ -106,18 +108,20 @@ export function RecentPurchases() {
           )}
           <span className="min-w-0 text-[13px] leading-snug">
             <span className="block text-ash-ink">
-              {current.province
-                ? t({ es: `Alguien de ${current.province} ha comprado`, en: `Someone in ${current.province} bought` })
-                : t({ es: 'Alguien ha comprado', en: 'Someone bought' })}
+              {current.kind === 'purchase'
+                ? current.province
+                  ? t({ es: `Alguien de ${current.province} ha comprado`, en: `Someone in ${current.province} bought` })
+                  : t({ es: 'Alguien ha comprado', en: 'Someone bought' })
+                : current.eyebrow}
             </span>
             {current.href ? (
               <Link href={current.href} className="block truncate font-semibold text-ink hover:text-teja">
-                {current.name}
+                {current.title}
               </Link>
             ) : (
-              <span className="block truncate font-semibold text-ink">{current.name}</span>
+              <span className="block truncate font-semibold text-ink">{current.title}</span>
             )}
-            <span className="block text-[12px] text-ash">{ago(current.minutes)}</span>
+            <span className="block truncate text-[12px] text-ash">{current.kind === 'purchase' ? ago(current.minutes) : current.meta}</span>
           </span>
           <button
             type="button"

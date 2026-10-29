@@ -32,10 +32,11 @@ export default async function HomePage() {
   const heroProduct = featured.items[0] ?? popular.items[0] ?? null
   const featuredGrid = featured.items.filter((p) => p.id !== heroProduct?.id).slice(0, 4)
 
-  // Portada: el kit más pedido de cada nivel (sin repetir el ramen, que ya sale en otras secciones)
+  // Portada: el kit más pedido de cada nivel, sin el ramen ni los wraps (ya salen en otras secciones)
+  const heroSkip = new Set(['kit-ramen-casero', 'kit-wraps-crujientes'])
   const levels = categories.filter((c) => c.level).sort((a, b) => (a.level ?? 0) - (b.level ?? 0))
   const tops = await Promise.all(levels.map((c) => catalog.listProducts({ category: c.slug, sort: 'popular', limit: 3 })))
-  const heroPicks = tops.flatMap((page) => page.items.filter((p) => p.slug !== 'kit-ramen-casero').slice(0, 1))
+  const heroPicks = tops.flatMap((page) => page.items.filter((p) => !heroSkip.has(p.slug)).slice(0, 1))
   const center = heroPicks.length >= 3 ? heroPicks[1] : heroPicks[0]
   const heroQr = center ? await recipeQrSvg(center.slug) : null
   const allReviews = await catalog.listRecentReviews(100)

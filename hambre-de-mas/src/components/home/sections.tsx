@@ -15,6 +15,7 @@ import { getI18n } from '@/lib/i18n/server'
 import { LevelsShowcase, type LevelSlide } from './levels-showcase'
 import { formatPrice } from '@/lib/money'
 import type { Category, ProductSummary, Review } from '@/lib/types'
+import { howItWorksSteps } from '@/lib/how-it-works'
 
 /** Titular de sección de dos tonos, al estilo de la Apple Store. */
 export function SectionTitle({ strong, soft, id, action }: { strong: string; soft?: string; id?: string; action?: React.ReactNode }) {
@@ -94,7 +95,7 @@ export async function NewArrivals({ products }: { products: ProductSummary[] }) 
         strong={t({ es: 'Lo último.', en: 'Just in.' })}
         soft={t({ es: 'Recién salido del horno.', en: 'Fresh out of the oven.' })}
         action={
-          <Link href="/tienda?orden=novedades" className="hidden shrink-0 items-center gap-1 text-[15px] text-teja hover:underline sm:inline-flex">
+          <Link href="/tienda?nuevos=1" className="hidden shrink-0 items-center gap-1 text-[15px] text-teja hover:underline sm:inline-flex">
             {t({ es: 'Ver novedades', en: 'See new arrivals' })} <ChevronRightIcon size={16} />
           </Link>
         }
@@ -195,30 +196,6 @@ export async function BestSellers({ products }: { products: ProductSummary[] }) 
   )
 }
 
-const steps = [
-  {
-    n: 1,
-    title: { es: 'Eliges tu kit', en: 'Pick your kit' },
-    text: { es: 'En la tienda, según tu nivel y lo que te apetezca.', en: "In the shop, by your level and whatever you're craving." },
-  },
-  {
-    n: 2,
-    title: { es: 'Te llega a casa', en: 'It arrives at home' },
-    text: {
-      es: 'Niveles 1 y 2: todo seco, directo a la despensa. Nivel 3: con frescos y en caja refrigerada.',
-      en: 'Levels 1 and 2: all dry, straight into the cupboard. Level 3: with fresh food in a chilled box.',
-    },
-  },
-  {
-    n: 3,
-    title: { es: 'Escaneas y cocinas', en: 'Scan and cook' },
-    text: {
-      es: 'El QR de la tarjeta abre la receta paso a paso. Completas el nivel y desbloqueas el siguiente.',
-      en: 'The QR on the card opens the step-by-step recipe. Finish the level and unlock the next one.',
-    },
-  },
-]
-
 export async function HowItWorks() {
   const { t } = await getI18n()
   return (
@@ -236,7 +213,7 @@ export async function HowItWorks() {
             })}
           </p>
           <ol className="mt-10 space-y-4">
-            {steps.map((s, i) => (
+            {howItWorksSteps.map((s, i) => (
               <RevealLi key={s.n} delay={0.1 + i * 0.08} className="flex gap-5 rounded-[22px] bg-almendra-soft p-5">
                   <span className="jiggle-hover grid size-11 shrink-0 place-items-center rounded-full bg-chef-ink font-display text-lg font-extrabold text-white">
                     {s.n}

@@ -26,7 +26,7 @@ function PackIcon({ size = 22 }: { size?: number }) {
 }
 
 const FRESH =
-  /fresc|salmón|pollo|carne|mozzarella|albahaca|limón|lima|nata|mantequilla|yogur natural|obleas|^col\b|zanahoria|fresh|salmon|chicken|lemon|butter|cream|wrappers|minced/i
+  /fresc|salmón|pollo|carne|mozzarella|albahaca|limón|lima|nata|mantequilla|yogur natural|obleas|^col\b|zanahoria|aguacate|mango|pepino\b|edamame|pimiento|^cebolla$|guanciale|huevos|pecorino|fresh|salmon|chicken|lemon|butter|cream|wrappers|minced|avocado|cucumber|green pepper|^onion$|eggs/i
 
 type Kind = 'sobre' | 'fresco' | 'tarjeta' | 'despensa'
 

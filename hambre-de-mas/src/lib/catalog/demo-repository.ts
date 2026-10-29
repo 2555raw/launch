@@ -5,6 +5,7 @@ import { demoReviews } from '@/data/demo-reviews'
 import { sortAllergens } from '@/lib/allergens'
 import type { Category, ProductDetail, ProductFilter, ProductSummary, Review } from '@/lib/types'
 import { ingredientPhotos } from './ingredient-photos'
+import { newArrivalsSince } from './params'
 import { normalizeSearch } from './mappers'
 import { DEFAULT_PAGE_SIZE, type CatalogRepository } from './repository'
 
@@ -170,6 +171,7 @@ export function createDemoCatalog(): CatalogRepository {
 
     async listProducts(filter: ProductFilter = {}) {
       const words = normalizeSearch(filter.q ?? '')
+      const since = newArrivalsSince()
       let items = products.filter((p) => {
         if (filter.category && p.category?.slug !== filter.category) return false
         if (words.length && !words.every((w) => searchIndex.get(p.id)!.includes(w))) return false
@@ -181,6 +183,7 @@ export function createDemoCatalog(): CatalogRepository {
         if (filter.maxMinutes != null && (p.attributes.minutes ?? 0) > filter.maxMinutes) return false
         if (filter.inStock && p.totalStock <= 0) return false
         if (filter.featured && !p.isFeatured) return false
+        if (filter.newArrivals && (p.publishedAt ?? '') < since) return false
         return true
       })
       const sorters: Record<string, (a: ProductDetail, b: ProductDetail) => number> = {

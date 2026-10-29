@@ -429,26 +429,4 @@
   100% { opacity: 1; transform: none; }
 }
 .hero-drop { animation: hero-drop 0.9s var(--ease-apple) 1.5s both; }
-@keyframes hero-bubble { 0% { opacity: 0; transform: scale(0); } 70% { opacity: 1; transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
-.hero-bubble { animation: hero-bubble 0.7s var(--ease-apple) var(--delay, 1.4s) both; }
 .hero-depth { translate: calc(var(--mx, 0) * var(--d, 10px)) calc(var(--my, 0) * var(--d, 10px)); transition: translate 0.4s var(--ease-apple); }
-
-/* Cursor con la hoja de la tilde de «MÁS» (solo con ratón). La punta, arriba
-   a la izquierda, es la que señala. */
-@media (pointer: fine) {
-  html {
-    cursor: url('/brand/cursor-hoja.svg') 3 3, auto;
-  }
-  a,
-  button:not(:disabled),
-  [role='button'],
-  [role='tab'],
-  summary,
-  select,
-  label:has(input[type='checkbox'], input[type='radio']),
-  input[type='checkbox'],
-  input[type='radio'],
-  .cursor-pointer {
-    cursor: url('/brand/cursor-hoja-pulsar.svg') 3 3, pointer;
-  }
-}

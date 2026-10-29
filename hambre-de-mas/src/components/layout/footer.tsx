@@ -14,7 +14,7 @@ export async function Footer({ categories }: { categories: Pick<Category, 'slug'
       links: [
         { href: '/tienda', label: t({ es: 'Todos los kits', en: 'All kits' }) },
         ...categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name })),
-        { href: '/tienda?orden=novedades', label: t({ es: 'Novedades', en: 'New arrivals' }) },
+        { href: '/tienda?nuevos=1', label: t({ es: 'Novedades', en: 'New arrivals' }) },
       ],
     },
     {

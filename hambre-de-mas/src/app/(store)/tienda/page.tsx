@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ShopPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams
   const featured = params.destacados === '1'
-  const newest = params.orden === 'novedades'
+  const newest = params.nuevos === '1' || params.orden === 'novedades'
   const { t } = await getI18n()
   return (
     <>

@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 import { buttonClass } from '@/components/ui/button'
 import { ArrowRightIcon, ChevronRightIcon, PlayIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
@@ -25,15 +24,6 @@ type Props = {
 }
 
 const v = (vars: Record<string, string | number>) => vars as React.CSSProperties
-
-/** Ingredientes que flotan alrededor de los kits (con más o menos profundidad al mover el ratón). */
-const BUBBLES = [
-  { src: '/demo/ingredients/chile.jpg', className: '-left-2 top-[46%] size-20 lg:-left-8 lg:size-24', depth: '28px', delay: '1.35s' },
-  { src: '/demo/ingredients/albahaca.jpg', className: 'left-[24%] -top-6 size-14 lg:size-16', depth: '18px', delay: '1.5s' },
-  { src: '/demo/ingredients/limon.jpg', className: 'right-[22%] bottom-2 size-16 lg:size-20', depth: '24px', delay: '1.65s' },
-  { src: '/demo/ingredients/tomate-entero.jpg', className: '-right-2 top-[58%] size-14 lg:-right-6 lg:size-[72px]', depth: '32px', delay: '1.8s' },
-  { src: '/demo/ingredients/sesamo.jpg', className: 'left-[30%] bottom-0 size-12', depth: '16px', delay: '1.95s' },
-]
 
 export async function Hero({ picks, qrSvg, recipeHref, rating }: Props) {
   const { locale, t } = await getI18n()
@@ -95,22 +85,6 @@ export async function Hero({ picks, qrSvg, recipeHref, rating }: Props) {
 
         {/* Un kit por nivel, en abanico */}
         <HeroStage className="relative mt-12 h-[290px] w-full max-w-5xl sm:mt-14 sm:h-[520px] lg:h-[560px]">
-          {BUBBLES.map((b) => (
-            <span
-              key={b.src}
-              aria-hidden
-              className={cn('absolute z-20 hidden sm:block', b.className)}
-              style={v({ '--d': b.depth })}
-            >
-              <span className="hero-depth block size-full">
-                <span className="hero-bubble block size-full" style={v({ '--delay': b.delay })}>
-                  <span className="float-soft relative block size-full overflow-hidden rounded-full shadow-[0_18px_40px_-12px_rgb(29_29_31/0.45)] ring-4 ring-white" style={v({ animationDelay: b.delay })}>
-                    <Image src={b.src} alt="" fill sizes="96px" className="object-cover" />
-                  </span>
-                </span>
-              </span>
-            </span>
-          ))}
           {left && <KitCard product={left} locale={locale} side="left" className="left-0 w-[46%] -rotate-6 sm:left-[2%] sm:w-[34%]" enter="hero-fan-left" delay="0s" />}
           {right && <KitCard product={right} locale={locale} side="right" className="right-0 w-[46%] rotate-6 sm:right-[2%] sm:w-[34%]" enter="hero-fan-right" delay="1.5s" />}
           {center && (

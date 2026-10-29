@@ -140,6 +140,8 @@ export type ProductFilter = {
   maxMinutes?: number
   inStock?: boolean
   featured?: boolean
+  /** Solo novedades: publicados en los últimos NEW_ARRIVAL_DAYS días. */
+  newArrivals?: boolean
   sort?: SortKey
   limit?: number
   offset?: number

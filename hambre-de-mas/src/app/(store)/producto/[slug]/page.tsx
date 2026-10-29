@@ -160,11 +160,6 @@ export default async function ProductPage({ params }: Props) {
             <div className="flex flex-wrap items-center gap-2">
               {product.category && <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} />}
               {product.badge && <span className="text-[12px] font-semibold text-teja">{product.badge}</span>}
-              {product.isDemo && (
-                <span className="rounded-full bg-mist px-2.5 py-0.5 text-[11px] font-medium text-ash-ink" title={t({ es: 'Producto de ejemplo para la demo de la tienda', en: 'Sample product for the shop demo' })}>
-                  {t({ es: 'Producto de demostración', en: 'Demo product' })}
-                </span>
-              )}
             </div>
             <h1 className="mt-3 font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">{product.name}</h1>
             {product.subtitle && <p className="mt-3 text-lg text-ash-ink">{product.subtitle}</p>}

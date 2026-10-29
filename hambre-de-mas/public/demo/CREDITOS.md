@@ -38,6 +38,15 @@ El logotipo (`public/brand`) se ha recortado de la guía de identidad visual de 
 | products/falafel-2.jpg | https://images.unsplash.com/photo-1786174045076-1cd880429ef1 |
 | products/burger-1.jpg | https://images.unsplash.com/photo-1607013251379-e6eecfffe234 |
 | products/burger-2.jpg | https://images.unsplash.com/photo-1572802419224-296b0aeee0d9 |
+| products/mug-cake-1.jpg | https://images.unsplash.com/photo-1511938842055-c59f750525b4 |
+| products/nachos-1.jpg | https://images.unsplash.com/photo-1775708856908-aafcf9baa5d0 |
+| products/bolitas-1.jpg | https://images.unsplash.com/photo-1775201630951-665651af1747 |
+| products/pad-thai-1.jpg | https://images.unsplash.com/photo-1645500498403-970672caf43e |
+| products/risotto-1.jpg | https://images.unsplash.com/photo-1680420574628-225def8eea0a |
+| products/chili-1.jpg | https://images.unsplash.com/photo-1658308766948-01c85ade2737 |
+| products/poke-1.jpg | https://images.unsplash.com/photo-1768326119213-e0ad875083a3 |
+| products/fajitas-1.jpg | https://images.unsplash.com/photo-1569692062823-f1196218f0a2 |
+| products/carbonara-1.jpg | https://images.unsplash.com/photo-1764586119076-61711e8ed25a |
 | home/cocinando.jpg | https://images.unsplash.com/photo-1683556262029-56f31fbf75ee |
 
 ## Ingredientes («Qué trae el kit»)
@@ -111,3 +120,23 @@ Fotos de referencia de cada ingrediente (`public/demo/ingredients`). Se asignan 
 | ingredients/verduras-frescas.jpg | https://images.unsplash.com/photo-1597362925123-77861d3fbac7 |
 | ingredients/verduras-secas.jpg | https://images.unsplash.com/photo-1608270680728-639d6556b7bd |
 | ingredients/yogur.jpg | https://images.unsplash.com/photo-1571212515416-fef01fc43637 |
+| ingredients/cacao.jpg | https://images.unsplash.com/photo-1770123366817-743776f66d6a |
+| ingredients/totopos.jpg | https://images.unsplash.com/photo-1764025248642-6b0b403ac004 |
+| ingredients/jalapenos.jpg | https://images.unsplash.com/photo-1597115580039-b849ed2d6398 |
+| ingredients/maiz.jpg | https://images.unsplash.com/photo-1634467524884-897d0af5e104 |
+| ingredients/avena.jpg | https://images.unsplash.com/photo-1790676725483-6226cb102a84 |
+| ingredients/datiles.jpg | https://images.unsplash.com/photo-1629738601425-494c3d6ba3e2 |
+| ingredients/cacahuete.jpg | https://images.unsplash.com/photo-1549978113-29eb25c8177f |
+| ingredients/fideos-arroz.jpg | https://images.unsplash.com/photo-1633352615955-f0c99e8b7e5a |
+| ingredients/tamarindo.jpg | https://images.unsplash.com/photo-1771229389277-a0a7546913f9 |
+| ingredients/tofu.jpg | https://images.unsplash.com/photo-1722635940350-d1b2e5129379 |
+| ingredients/boletus.jpg | https://images.unsplash.com/photo-1586783547771-67674e583dfd |
+| ingredients/queso-curado.jpg | https://images.unsplash.com/photo-1655662844300-e59c3d2e7587 |
+| ingredients/alubias.jpg | https://images.unsplash.com/photo-1579705745811-a32bef7856a3 |
+| ingredients/aguacate.jpg | https://images.unsplash.com/photo-1601039641847-7857b994d704 |
+| ingredients/mango.jpg | https://images.unsplash.com/photo-1673010960635-d0d1ad81b90a |
+| ingredients/pepino.jpg | https://images.unsplash.com/photo-1589621316382-008455b857cd |
+| ingredients/edamame.jpg | https://images.unsplash.com/photo-1557621956-ce58555aa0ce |
+| ingredients/lima.jpg | https://images.unsplash.com/photo-1578855691621-8a08ea00d1fb |
+| ingredients/guanciale.jpg | https://images.unsplash.com/photo-1765332773090-96ffcaacb6e7 |
+| ingredients/huevos.jpg | https://images.unsplash.com/photo-1498654077810-12c21d4d6dc3 |

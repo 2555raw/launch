@@ -12,7 +12,7 @@ import { formatPrice } from '@/lib/money'
 type Suggestion = { slug: string; name: string; subtitle: string | null; priceCents: number; imageUrl: string | null }
 
 const quickLinks = [
-  { href: '/tienda?orden=novedades', label: { es: 'Novedades', en: 'New arrivals' } },
+  { href: '/tienda?nuevos=1', label: { es: 'Novedades', en: 'New arrivals' } },
   { href: '/categoria/primer-bocado', label: { es: 'Kits sin fuego', en: 'No-cook kits' } },
   { href: '/tienda?dieta=vegano', label: { es: 'Recetas veganas', en: 'Vegan recipes' } },
   { href: '/categoria/caja-sorpresa', label: { es: 'Caja sorpresa', en: 'Surprise box' } },

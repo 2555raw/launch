@@ -10,6 +10,7 @@ import {
   normalizeSearch,
   translationsOf,
 } from './mappers'
+import { newArrivalsSince } from './params'
 import { DEFAULT_PAGE_SIZE, type CatalogRepository } from './repository'
 
 /* eslint-disable @typescript-eslint/no-explicit-any -- filas sin tipar de PostgREST */
@@ -71,6 +72,7 @@ export function createSupabaseCatalog(): CatalogRepository {
       if (filter.maxMinutes != null) query = query.lte('minutes', filter.maxMinutes)
       if (filter.inStock) query = query.gt('total_stock', 0)
       if (filter.featured) query = query.eq('is_featured', true)
+      if (filter.newArrivals) query = query.gte('published_at', newArrivalsSince())
 
       switch (filter.sort ?? 'featured') {
         case 'newest':

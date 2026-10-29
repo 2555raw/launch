@@ -95,9 +95,29 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
     <div>
       {!lockCategory && (
         <Group title={t({ es: 'Nivel', en: 'Level' })}>
-          <Option type="radio" name="categoria" label={t({ es: 'Todos', en: 'All' })} checked={!params.get('categoria')} onChange={() => update({ categoria: null })} />
+          <Option
+            type="radio"
+            name="categoria"
+            label={t({ es: 'Todos', en: 'All' })}
+            checked={!params.get('categoria') && !params.get('nuevos')}
+            onChange={() => update({ categoria: null, nuevos: null })}
+          />
+          <Option
+            type="radio"
+            name="categoria"
+            label={t({ es: 'Novedades', en: 'New arrivals' })}
+            checked={params.get('nuevos') === '1'}
+            onChange={() => update({ categoria: null, nuevos: '1' })}
+          />
           {categories.map((c) => (
-            <Option key={c.slug} type="radio" name="categoria" label={c.name} checked={params.get('categoria') === c.slug} onChange={() => update({ categoria: c.slug })} />
+            <Option
+              key={c.slug}
+              type="radio"
+              name="categoria"
+              label={c.name}
+              checked={params.get('categoria') === c.slug}
+              onChange={() => update({ categoria: c.slug, nuevos: null })}
+            />
           ))}
         </Group>
       )}
@@ -141,13 +161,15 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
 
 export function SortSelect() {
   const { params, update } = useParamsUpdater()
+  // Con el filtro de novedades, por defecto se ordena por las más recientes
+  const defaultSort = params.get('nuevos') === '1' ? 'novedades' : 'destacados'
   const { locale, t } = useI18n()
   return (
     <label className="relative inline-flex items-center gap-2 text-sm">
       <span className="hidden text-ash-ink sm:inline">{t({ es: 'Ordenar por', en: 'Sort by' })}</span>
       <select
-        value={params.get('orden') ?? 'destacados'}
-        onChange={(e) => update({ orden: e.target.value === 'destacados' ? null : e.target.value })}
+        value={params.get('orden') ?? defaultSort}
+        onChange={(e) => update({ orden: e.target.value === defaultSort ? null : e.target.value })}
         className="h-9 appearance-none rounded-full bg-mist py-0 pr-9 pl-4 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-chef-ink"
       >
         {sortOptions.map((o) => (
@@ -204,7 +226,7 @@ export function MobileFilters({ categories, count, lockCategory }: { categories:
               <div className="grid grid-cols-2 gap-3 border-t border-line p-4">
                 <Button
                   variant="secondary"
-                  onClick={() => update({ categoria: null, min: null, max: null, dieta: null, sin: null, tiempo: null, dificultad: null, stock: null, destacados: null })}
+                  onClick={() => update({ categoria: null, nuevos: null, min: null, max: null, dieta: null, sin: null, tiempo: null, dificultad: null, stock: null, destacados: null })}
                 >
                   {t({ es: 'Limpiar', en: 'Clear' })}
                 </Button>

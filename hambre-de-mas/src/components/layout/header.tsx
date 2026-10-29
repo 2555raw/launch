@@ -6,8 +6,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-context'
-import { BagIcon, ChevronRightIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from '@/components/ui/icons'
+import { ArrowRightIcon, BagIcon, ChevronRightIcon, CloseIcon, GiftIcon, MenuIcon, SearchIcon, UserIcon } from '@/components/ui/icons'
+import { dietOptions, timeOptions } from '@/lib/catalog/params'
 import { cn } from '@/lib/cn'
+import { howItWorksSteps } from '@/lib/how-it-works'
 import { useI18n } from '@/lib/i18n/client'
 import type { Category } from '@/lib/types'
 import { LocaleSwitcher } from './locale-switcher'
@@ -18,20 +20,31 @@ const ease = [0.28, 0.11, 0.32, 1] as const
 
 type NavCategory = Pick<Category, 'slug' | 'name' | 'tagline' | 'level' | 'imageUrl'>
 
-const navLinks = [
-  { href: '/tienda?orden=novedades', label: { es: 'Novedades', en: 'New' } },
-  { href: '/tienda?destacados=1', label: { es: 'Destacados', en: 'Featured' } },
-  { href: '/categoria/caja-sorpresa', label: { es: 'Caja sorpresa', en: 'Surprise box' } },
-  { href: '/#como-funciona', label: { es: 'Cómo funciona', en: 'How it works' } },
+export type MenuKit = { slug: string; name: string; image: string | null; price: string; level: number | null }
+export type MenuData = {
+  newest: MenuKit[]
+  featured: MenuKit[]
+  box: { image: string | null; subtitle: string | null; options: { name: string; price: string }[] } | null
+}
+
+type MenuId = 'niveles' | 'tienda' | 'novedades' | 'destacados' | 'caja' | 'como'
+
+const navItems: { id: MenuId; href: string | null; label: { es: string; en: string } }[] = [
+  { id: 'niveles', href: null, label: { es: 'Kits por nivel', en: 'Kits by level' } },
+  { id: 'tienda', href: '/tienda', label: { es: 'Tienda', en: 'Shop' } },
+  { id: 'novedades', href: '/tienda?nuevos=1', label: { es: 'Novedades', en: 'New' } },
+  { id: 'destacados', href: '/tienda?destacados=1', label: { es: 'Destacados', en: 'Featured' } },
+  { id: 'caja', href: '/categoria/caja-sorpresa', label: { es: 'Caja sorpresa', en: 'Surprise box' } },
+  { id: 'como', href: '/#como-funciona', label: { es: 'Cómo funciona', en: 'How it works' } },
 ]
 
-export function Header({ categories }: { categories: NavCategory[] }) {
+export function Header({ categories, menu }: { categories: NavCategory[]; menu: MenuData }) {
   const pathname = usePathname()
   const { t } = useI18n()
-  const links = navLinks.map((link) => ({ href: link.href, label: t(link.label) }))
+  const links = navItems.flatMap((item) => (item.href && item.id !== 'tienda' ? [{ href: item.href, label: t(item.label) }] : []))
   const { count, hydrated, openDrawer } = useCart()
   const [scrolled, setScrolled] = useState(false)
-  const [flyout, setFlyout] = useState(false)
+  const [flyout, setFlyout] = useState<MenuId | null>(null)
   const [mobile, setMobile] = useState(false)
   const [search, setSearch] = useState(false)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -47,7 +60,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
   const [lastPath, setLastPath] = useState(pathname)
   if (lastPath !== pathname) {
     setLastPath(pathname)
-    setFlyout(false)
+    setFlyout(null)
     setMobile(false)
     setSearch(false)
   }
@@ -55,7 +68,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setFlyout(false)
+        setFlyout(null)
         setMobile(false)
         setSearch(false)
       }
@@ -71,16 +84,23 @@ export function Header({ categories }: { categories: NavCategory[] }) {
     }
   }, [mobile])
 
-  const openFlyout = () => {
+  const openFlyout = (id: MenuId) => {
     if (closeTimer.current) clearTimeout(closeTimer.current)
     setSearch(false)
-    setFlyout(true)
+    setFlyout(id)
+  }
+  const keepOpen = () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current)
   }
   const scheduleClose = () => {
-    closeTimer.current = setTimeout(() => setFlyout(false), 120)
+    closeTimer.current = setTimeout(() => setFlyout(null), 140)
+  }
+  // Al pulsar cualquier enlace del menú, se cierra (aunque la ruta no cambie, p. ej. /tienda → /tienda?nuevos=1)
+  const closeOnLink = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest('a')) setFlyout(null)
   }
 
-  const overlayOpen = flyout || search
+  const overlayOpen = flyout !== null || search
 
   return (
     <>
@@ -101,28 +121,29 @@ export function Header({ categories }: { categories: NavCategory[] }) {
         <nav aria-label={t({ es: 'Principal', en: 'Main' })} className="container-page flex h-14 items-center justify-between gap-4">
           <Logo />
 
-          <ul className="hidden items-center gap-7 text-[13px] text-ink/85 lg:flex">
-            <li onMouseEnter={openFlyout} onMouseLeave={scheduleClose}>
-              <button
-                type="button"
-                aria-expanded={flyout}
-                aria-controls="flyout-kits"
-                onClick={() => (flyout ? setFlyout(false) : openFlyout())}
-                className="py-4 transition-colors hover:text-ink"
-              >
-                {t({ es: 'Kits por nivel', en: 'Kits by level' })}
-              </button>
-            </li>
-            <li>
-              <Link href="/tienda" className="py-4 transition-colors hover:text-ink">
-                {t({ es: 'Tienda', en: 'Shop' })}
-              </Link>
-            </li>
-            {links.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="py-4 transition-colors hover:text-ink">
-                  {link.label}
-                </Link>
+          <ul className="hidden items-center gap-7 text-[13px] text-ink/85 lg:flex" onClick={closeOnLink}>
+            {navItems.map((item) => (
+              <li key={item.id} onMouseEnter={() => openFlyout(item.id)} onMouseLeave={scheduleClose}>
+                {item.href ? (
+                  <Link
+                    href={item.href}
+                    onFocus={() => openFlyout(item.id)}
+                    aria-controls="menu-desplegable"
+                    className={cn('py-4 transition-colors hover:text-ink', flyout === item.id && 'text-ink')}
+                  >
+                    {t(item.label)}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    aria-expanded={flyout === item.id}
+                    aria-controls="menu-desplegable"
+                    onClick={() => (flyout === item.id ? setFlyout(null) : openFlyout(item.id))}
+                    className={cn('py-4 transition-colors hover:text-ink', flyout === item.id && 'text-ink')}
+                  >
+                    {t(item.label)}
+                  </button>
+                )}
               </li>
             ))}
           </ul>
@@ -132,7 +153,7 @@ export function Header({ categories }: { categories: NavCategory[] }) {
             <button
               type="button"
               onClick={() => {
-                setFlyout(false)
+                setFlyout(null)
                 setSearch((s) => !s)
               }}
               className="grid size-10 place-items-center rounded-full text-ink/80 transition-colors hover:bg-mist hover:text-ink"
@@ -183,71 +204,33 @@ export function Header({ categories }: { categories: NavCategory[] }) {
           </div>
         </nav>
 
-        {/* Flyout de escritorio con los niveles */}
+        {/* Menús desplegables de escritorio, uno por enlace */}
         <AnimatePresence>
           {flyout && (
             <motion.div
-              id="flyout-kits"
+              id="menu-desplegable"
               key="flyout"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.32, ease }}
-              onMouseEnter={openFlyout}
+              onMouseEnter={keepOpen}
               onMouseLeave={scheduleClose}
+              onClick={closeOnLink}
               className="absolute inset-x-0 top-full hidden overflow-hidden bg-white shadow-[0_20px_40px_-20px_rgb(0_0_0/0.15)] lg:block"
             >
-              <div className="container-page grid grid-cols-[1fr_2.5fr] gap-12 pt-6 pb-10">
-                <div>
-                  <p className="mb-3 text-xs text-ash-ink">{t({ es: 'Comprar kits', en: 'Shop kits' })}</p>
-                  <ul className="space-y-2">
-                    <li>
-                      <Link href="/tienda" className="font-display text-2xl font-bold hover:text-teja">
-                        {t({ es: 'Ver toda la tienda', en: 'Shop all kits' })}
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/tienda?orden=novedades" className="font-display text-2xl font-bold hover:text-teja">
-                        {t({ es: 'Novedades', en: 'New arrivals' })}
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/tienda?orden=populares" className="font-display text-2xl font-bold hover:text-teja">
-                        {t({ es: 'Los más vendidos', en: 'Best sellers' })}
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
-                <ul className="grid grid-cols-4 gap-4">
-                  {categories.map((c, i) => (
-                    <motion.li
-                      key={c.slug}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.05 + i * 0.04, duration: 0.3, ease }}
-                    >
-                      <Link href={`/categoria/${c.slug}`} className="group block">
-                        <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-mist">
-                          {c.imageUrl && (
-                            <Image
-                              src={c.imageUrl}
-                              alt=""
-                              fill
-                              sizes="220px"
-                              className="object-cover transition-transform duration-500 ease-[var(--ease-apple)] group-hover:scale-105"
-                            />
-                          )}
-                        </div>
-                        <p className="mt-3 text-[11px] font-semibold tracking-wide text-teja uppercase">
-                          {c.level ? t({ es: `Nivel ${c.level}`, en: `Level ${c.level}` }) : t({ es: 'Cada mes', en: 'Every month' })}
-                        </p>
-                        <p className="text-sm font-semibold">{c.name}</p>
-                        <p className="text-xs text-ash-ink">{c.tagline}</p>
-                      </Link>
-                    </motion.li>
-                  ))}
-                </ul>
-              </div>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={flyout}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18, ease }}
+                  className="container-page pt-6 pb-10"
+                >
+                  <MenuPanel id={flyout} categories={categories} menu={menu} />
+                </motion.div>
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
@@ -314,12 +297,217 @@ export function Header({ categories }: { categories: NavCategory[] }) {
             transition={{ duration: 0.3 }}
             className="fixed inset-0 z-40 bg-ink/20 backdrop-blur-sm"
             onClick={() => {
-              setFlyout(false)
+              setFlyout(null)
               setSearch(false)
             }}
           />
         )}
       </AnimatePresence>
     </>
+  )
+}
+
+function MenuHeading({ children }: { children: React.ReactNode }) {
+  return <p className="mb-3 text-xs text-ash-ink">{children}</p>
+}
+
+function BigLinks({ links }: { links: { href: string; label: string }[] }) {
+  return (
+    <ul className="space-y-2">
+      {links.map((l) => (
+        <li key={l.href}>
+          <Link href={l.href} className="font-display text-2xl font-bold hover:text-teja">
+            {l.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function SmallLinks({ title, links }: { title: string; links: { href: string; label: string }[] }) {
+  return (
+    <div>
+      <MenuHeading>{title}</MenuHeading>
+      <ul className="space-y-1.5">
+        {links.map((l) => (
+          <li key={l.href}>
+            <Link href={l.href} className="text-[15px] font-semibold text-ink/85 hover:text-teja">
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+function Stagger({ i, children }: { i: number; children: React.ReactNode }) {
+  return (
+    <motion.li initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 + i * 0.04, duration: 0.3, ease }}>
+      {children}
+    </motion.li>
+  )
+}
+
+function KitTiles({ kits }: { kits: MenuKit[] }) {
+  const { t } = useI18n()
+  return (
+    <ul className="grid grid-cols-4 gap-4">
+      {kits.map((k, i) => (
+        <Stagger key={k.slug} i={i}>
+          <Link href={`/producto/${k.slug}`} className="group block">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-mist">
+              {k.image && (
+                <Image src={k.image} alt="" fill sizes="220px" className="object-cover transition-transform duration-500 ease-[var(--ease-apple)] group-hover:scale-105" />
+              )}
+            </div>
+            <p className="mt-3 text-[11px] font-semibold tracking-wide text-teja uppercase">
+              {k.level ? t({ es: `Nivel ${k.level}`, en: `Level ${k.level}` }) : t({ es: 'Cada mes', en: 'Every month' })}
+            </p>
+            <p className="text-sm font-semibold">{k.name}</p>
+            <p className="text-xs text-ash-ink tabular-nums">{t({ es: `Desde ${k.price}`, en: `From ${k.price}` })}</p>
+          </Link>
+        </Stagger>
+      ))}
+    </ul>
+  )
+}
+
+function MenuPanel({ id, categories, menu }: { id: MenuId; categories: NavCategory[]; menu: MenuData }) {
+  const { locale, t } = useI18n()
+  const shopLinks = [
+    { href: '/tienda', label: t({ es: 'Ver toda la tienda', en: 'Shop all kits' }) },
+    { href: '/tienda?nuevos=1', label: t({ es: 'Novedades', en: 'New arrivals' }) },
+    { href: '/tienda?orden=populares', label: t({ es: 'Los más vendidos', en: 'Best sellers' }) },
+  ]
+
+  if (id === 'niveles') {
+    return (
+      <div className="grid grid-cols-[1fr_2.5fr] gap-12">
+        <div>
+          <MenuHeading>{t({ es: 'Comprar kits', en: 'Shop kits' })}</MenuHeading>
+          <BigLinks links={shopLinks} />
+        </div>
+        <ul className="grid grid-cols-4 gap-4">
+          {categories.map((c, i) => (
+            <Stagger key={c.slug} i={i}>
+              <Link href={`/categoria/${c.slug}`} className="group block">
+                <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-mist">
+                  {c.imageUrl && (
+                    <Image src={c.imageUrl} alt="" fill sizes="220px" className="object-cover transition-transform duration-500 ease-[var(--ease-apple)] group-hover:scale-105" />
+                  )}
+                </div>
+                <p className="mt-3 text-[11px] font-semibold tracking-wide text-teja uppercase">
+                  {c.level ? t({ es: `Nivel ${c.level}`, en: `Level ${c.level}` }) : t({ es: 'Cada mes', en: 'Every month' })}
+                </p>
+                <p className="text-sm font-semibold">{c.name}</p>
+                <p className="text-xs text-ash-ink">{c.tagline}</p>
+              </Link>
+            </Stagger>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
+  if (id === 'tienda') {
+    const label = (o: { label: string; labelEn: string }) => (locale === 'en' ? o.labelEn : o.label)
+    return (
+      <div className="grid grid-cols-[1fr_2.5fr] gap-12">
+        <div>
+          <MenuHeading>{t({ es: 'Tienda', en: 'Shop' })}</MenuHeading>
+          <BigLinks links={[...shopLinks, { href: '/tienda?destacados=1', label: t({ es: 'Destacados', en: 'Featured' }) }]} />
+        </div>
+        <div className="grid grid-cols-3 gap-8">
+          <SmallLinks title={t({ es: 'Por nivel', en: 'By level' })} links={categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name }))} />
+          <SmallLinks title={t({ es: 'Por dieta y sabor', en: 'By diet and flavour' })} links={dietOptions.map((o) => ({ href: `/tienda?dieta=${o.value}`, label: label(o) }))} />
+          <SmallLinks title={t({ es: 'Por tiempo', en: 'By time' })} links={timeOptions.map((o) => ({ href: `/tienda?tiempo=${o.value}`, label: label(o) }))} />
+        </div>
+      </div>
+    )
+  }
+
+  if (id === 'novedades' || id === 'destacados') {
+    const isNew = id === 'novedades'
+    return (
+      <div className="grid grid-cols-[1fr_2.5fr] gap-12">
+        <div>
+          <MenuHeading>{isNew ? t({ es: 'Novedades', en: 'New arrivals' }) : t({ es: 'Destacados', en: 'Featured' })}</MenuHeading>
+          <p className="font-display text-2xl leading-tight font-bold">
+            {isNew ? t({ es: 'Recién salidos del horno.', en: 'Fresh out of the oven.' }) : t({ es: 'Los que más os flipan.', en: 'The ones you love most.' })}
+          </p>
+          <Link
+            href={isNew ? '/tienda?nuevos=1' : '/tienda?destacados=1'}
+            className="mt-5 inline-flex items-center gap-1.5 text-[15px] font-semibold text-teja hover:underline"
+          >
+            {isNew ? t({ es: 'Ver todas las novedades', en: 'See all new kits' }) : t({ es: 'Ver todos los destacados', en: 'See all featured kits' })}
+            <ArrowRightIcon size={15} />
+          </Link>
+        </div>
+        <KitTiles kits={isNew ? menu.newest : menu.featured} />
+      </div>
+    )
+  }
+
+  if (id === 'caja') {
+    return (
+      <div className="grid grid-cols-[1fr_2.5fr] gap-12">
+        <div>
+          <MenuHeading>{t({ es: 'Caja sorpresa', en: 'Surprise box' })}</MenuHeading>
+          <p className="font-display text-2xl leading-tight font-bold">{t({ es: 'Cocina algo distinto cada mes.', en: 'Cook something different every month.' })}</p>
+          {menu.box?.subtitle && <p className="mt-2 text-sm text-ash-ink">{menu.box.subtitle}</p>}
+          <Link href="/categoria/caja-sorpresa" className="mt-5 inline-flex items-center gap-1.5 text-[15px] font-semibold text-teja hover:underline">
+            {t({ es: 'Elegir mi caja', en: 'Choose my box' })} <ArrowRightIcon size={15} />
+          </Link>
+        </div>
+        <div className="grid grid-cols-[1.4fr_1fr] gap-6">
+          <Link href="/categoria/caja-sorpresa" className="group relative block aspect-[16/8] overflow-hidden rounded-2xl bg-mist">
+            {menu.box?.image && (
+              <Image src={menu.box.image} alt="" fill sizes="480px" className="object-cover transition-transform duration-500 ease-[var(--ease-apple)] group-hover:scale-105" />
+            )}
+          </Link>
+          <ul className="space-y-2.5">
+            {menu.box?.options.map((o, i) => (
+              <Stagger key={o.name} i={i}>
+                <Link href="/categoria/caja-sorpresa" className="flex items-center justify-between gap-3 rounded-2xl bg-mist px-4 py-3 transition-colors hover:bg-almendra-soft">
+                  <span className="flex items-center gap-2.5 text-sm font-semibold">
+                    <GiftIcon size={16} className="text-teja" /> {o.name}
+                  </span>
+                  <span className="text-sm text-ash-ink tabular-nums">{o.price}</span>
+                </Link>
+              </Stagger>
+            ))}
+          </ul>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="grid grid-cols-[1fr_2.5fr] gap-12">
+      <div>
+        <MenuHeading>{t({ es: 'Cómo funciona', en: 'How it works' })}</MenuHeading>
+        <p className="font-display text-2xl leading-tight font-bold">{t({ es: 'Aprender a cocinar como si fuera un videojuego.', en: 'Learn to cook like it’s a video game.' })}</p>
+        <Link href="/#como-funciona" className="mt-5 inline-flex items-center gap-1.5 text-[15px] font-semibold text-teja hover:underline">
+          {t({ es: 'Ver cómo funciona', en: 'See how it works' })} <ArrowRightIcon size={15} />
+        </Link>
+      </div>
+      <ol className="grid grid-cols-3 gap-4">
+        {howItWorksSteps.map((s, i) => (
+          <motion.li
+            key={s.n}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.05 + i * 0.04, duration: 0.3, ease }}
+            className="rounded-[22px] bg-almendra-soft p-5"
+          >
+            <span className="grid size-10 place-items-center rounded-full bg-chef-ink font-display text-lg font-extrabold text-white">{s.n}</span>
+            <p className="mt-4 font-display text-lg font-bold text-teja">{t(s.title)}</p>
+            <p className="mt-1 text-sm text-ink/80">{t(s.text)}</p>
+          </motion.li>
+        ))}
+      </ol>
+    </div>
   )
 }

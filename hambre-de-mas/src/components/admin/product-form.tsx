@@ -69,7 +69,10 @@ export function ProductForm({ categories, product }: { categories: { id: string;
       difficulty: text('difficulty') || undefined,
       heat: text('heat') || undefined,
       storage: text('storage') || undefined,
+      kcal: text('kcal') || undefined,
       protein: text('protein') || undefined,
+      carbs: text('carbs') || undefined,
+      fat: text('fat') || undefined,
       recipe: {
         youAdd: lines('youAdd'),
         steps: lines('steps').map((l) => {
@@ -268,11 +271,7 @@ export function ProductForm({ categories, product }: { categories: { id: string;
               <option value="horno">Horno</option>
             </select>
           </div>
-          <div>
-            <Label htmlFor="protein">Proteína por ración (g)</Label>
-            <input id="protein" name="protein" inputMode="numeric" defaultValue={product?.attributes?.protein ?? ''} className={`${field} mt-1`} />
-          </div>
-          <div className="sm:col-span-2">
+          <div className="sm:col-span-3">
             <Label htmlFor="storage">Conservación</Label>
             <select id="storage" name="storage" defaultValue={product?.attributes?.storage ?? ''} className={`${field} mt-1`}>
               <option value="">—</option>
@@ -280,6 +279,22 @@ export function ProductForm({ categories, product }: { categories: { id: string;
               <option value="fresco">Incluye frescos, envío refrigerado (nivel 3)</option>
             </select>
           </div>
+          <fieldset className="grid grid-cols-2 gap-4 sm:col-span-3 sm:grid-cols-4">
+            <legend className="mb-2 text-sm font-medium">Valores nutricionales por ración (aprox.; rellena los cuatro)</legend>
+            {(
+              [
+                ['kcal', 'Calorías (kcal)'],
+                ['protein', 'Proteína (g)'],
+                ['carbs', 'Hidratos (g)'],
+                ['fat', 'Grasas (g)'],
+              ] as const
+            ).map(([key, label]) => (
+              <div key={key}>
+                <Label htmlFor={key}>{label}</Label>
+                <input id={key} name={key} inputMode="numeric" defaultValue={product?.attributes?.nutrition?.[key] ?? ''} className={`${field} mt-1`} />
+              </div>
+            ))}
+          </fieldset>
           <div className="sm:col-span-3">
             <Label htmlFor="tags">Etiquetas (separadas por comas)</Label>
             <input id="tags" name="tags" defaultValue={(product?.tags ?? []).join(', ')} placeholder="vegano, vegetariano, sin-gluten, picante, alto-en-proteina" className={`${field} mt-1`} />

@@ -16,12 +16,13 @@ import { JsonLd } from '@/components/seo/json-ld'
 import { ChevronRightIcon, ClockIcon, DumbbellIcon, FlameIcon, GiftIcon, LeafIcon, QrIcon, ReturnIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { LevelChip } from '@/components/ui/level-chip'
 import { getCatalog } from '@/lib/catalog'
+import { cn } from '@/lib/cn'
 import { commerce } from '@/lib/config/commerce'
 import { site } from '@/lib/config/site'
 import { getI18n } from '@/lib/i18n/server'
 import type { Localized } from '@/lib/i18n/config'
 import { formatDate, formatPrice } from '@/lib/money'
-import type { Heat } from '@/lib/types'
+import type { Heat, Nutrition } from '@/lib/types'
 
 export const revalidate = 60
 
@@ -56,6 +57,36 @@ const tagLabel: Record<string, Localized> = {
   'sin-gluten': { es: 'Sin gluten', en: 'Gluten-free' },
   picante: { es: 'Picante', en: 'Spicy' },
   'alto-en-proteina': { es: 'Alto en proteína', en: 'High protein' },
+}
+
+/** Valores nutricionales aproximados por ración: calorías, proteína, hidratos y grasas. */
+async function NutritionPanel({ nutrition }: { nutrition: Nutrition }) {
+  const { t } = await getI18n()
+  const items = [
+    { value: nutrition.kcal, unit: 'kcal', label: t({ es: 'Calorías', en: 'Calories' }), strong: true },
+    { value: nutrition.protein, unit: 'g', label: t({ es: 'Proteína', en: 'Protein' }) },
+    { value: nutrition.carbs, unit: 'g', label: t({ es: 'Hidratos', en: 'Carbs' }) },
+    { value: nutrition.fat, unit: 'g', label: t({ es: 'Grasas', en: 'Fat' }) },
+  ]
+  return (
+    <div className="mt-6">
+      <p className="text-[13px] font-semibold">
+        {t({ es: 'Valores nutricionales', en: 'Nutrition' })}{' '}
+        <span className="font-normal text-ash-ink">· {t({ es: 'por ración, aprox.', en: 'per serving, approx.' })}</span>
+      </p>
+      <dl className="mt-2 grid grid-cols-4 gap-2">
+        {items.map((item) => (
+          <div key={item.label} className={cn('flex flex-col-reverse rounded-2xl px-3 py-2.5', item.strong ? 'bg-ink text-white' : 'bg-mist')}>
+            <dt className={cn('text-[11px]', item.strong ? 'text-white/70' : 'text-ash-ink')}>{item.label}</dt>
+            <dd className="font-display text-lg leading-tight font-extrabold tabular-nums">
+              {item.value}
+              <span className={cn('ml-0.5 text-xs font-semibold', item.strong ? 'text-white/60' : 'text-ash-ink')}>{item.unit}</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  )
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -193,8 +224,10 @@ export default async function ProductPage({ params }: Props) {
                 tag === 'alto-en-proteina' ? (
                   <li key={tag} className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 font-medium text-white">
                     <DumbbellIcon size={15} /> {t(tagLabel[tag]!)}
-                    {product.attributes.protein ? (
-                      <span className="text-white/70">· {t({ es: `${product.attributes.protein} g/ración`, en: `${product.attributes.protein} g/serving` })}</span>
+                    {product.attributes.nutrition ? (
+                      <span className="text-white/70">
+                        · {t({ es: `${product.attributes.nutrition.protein} g/ración`, en: `${product.attributes.nutrition.protein} g/serving` })}
+                      </span>
                     ) : null}
                   </li>
                 ) : (
@@ -204,6 +237,8 @@ export default async function ProductPage({ params }: Props) {
                 ),
               )}
             </ul>
+
+            {product.attributes.nutrition && <NutritionPanel nutrition={product.attributes.nutrition} />}
 
             {product.allergens.length > 0 ? (
               <a href="#alergenos" className="group mt-5 block text-sm text-ash-ink">

@@ -200,7 +200,7 @@ export async function BestSellers({ products }: { products: ProductSummary[] }) 
 export async function GymSection({ products: all, total }: { products: ProductSummary[]; total: number }) {
   if (all.length === 0) return null
   const { locale, t } = await getI18n()
-  const max = Math.max(...all.map((p) => p.attributes.protein ?? 0))
+  const max = Math.max(...all.map((p) => p.attributes.nutrition?.protein ?? 0))
   const products = all.slice(0, 4)
   return (
     <section aria-labelledby="gym" className="py-16">
@@ -217,8 +217,8 @@ export async function GymSection({ products: all, total }: { products: ProductSu
               </h2>
               <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-white/70">
                 {t({
-                  es: 'Pollo, salmón, ternera, huevo y legumbres. Recetas con 20 g de proteína o más por ración para recuperar después del entreno.',
-                  en: 'Chicken, salmon, beef, egg and pulses. Recipes with 20 g of protein or more per serving to recover after a workout.',
+                  es: 'Pollo, salmón, ternera, huevo y legumbres. Recetas con 25 g de proteína o más por ración para recuperar después del entreno.',
+                  en: 'Chicken, salmon, beef, egg and pulses. Recipes with 25 g of protein or more per serving to recover after a workout.',
                 })}
               </p>
             </div>
@@ -258,9 +258,9 @@ export async function GymSection({ products: all, total }: { products: ProductSu
                       />
                     )}
                     <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
-                    {p.attributes.protein ? (
+                    {p.attributes.nutrition ? (
                       <span className="absolute top-3 left-3 rounded-full bg-white px-2.5 py-1 text-[12px] font-bold text-ink">
-                        {p.attributes.protein} g {t({ es: 'proteína', en: 'protein' })}
+                        {p.attributes.nutrition.protein} g {t({ es: 'proteína', en: 'protein' })}
                       </span>
                     ) : null}
                     <div className="absolute inset-x-3 bottom-3">

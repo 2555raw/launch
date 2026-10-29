@@ -1,4 +1,4 @@
-import { FlameIcon, SparkIcon } from '@/components/ui/icons'
+import { SparkIcon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
 
 const isNew = (badge: string) => /^(nuevo|new)$/i.test(badge.trim())
@@ -18,7 +18,7 @@ export function ProductBadge({ badge, className }: { badge: string; className?: 
   if (isBestSeller(badge)) {
     return (
       <span className={cn('inline-flex items-center gap-1 rounded-full bg-ink px-2.5 py-1 text-[11px] font-bold tracking-wide text-white uppercase shadow-sm', className)}>
-        <FlameIcon size={12} /> {badge}
+        <span aria-hidden className="text-[13px] leading-none">🔥</span> {badge}
       </span>
     )
   }

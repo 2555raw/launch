@@ -64,8 +64,16 @@ export type ProductAttributes = {
   heat?: Heat
   /** seco: todo de despensa · fresco: incluye refrigerados */
   storage?: 'seco' | 'fresco'
-  /** Gramos de proteína por ración (aproximado). */
-  protein?: number
+  /** Valores nutricionales aproximados por ración. */
+  nutrition?: Nutrition
+}
+
+export type Nutrition = {
+  kcal: number
+  /** Gramos por ración. */
+  protein: number
+  carbs: number
+  fat: number
 }
 
 export type Recipe = {

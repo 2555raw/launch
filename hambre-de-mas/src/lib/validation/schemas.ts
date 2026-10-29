@@ -236,7 +236,10 @@ export const productInputSchema = z.object({
   difficulty: z.coerce.number().int().min(1).max(3).optional(),
   heat: z.enum(['sin-fuego', 'microondas', 'sarten', 'cazo', 'horno']).optional(),
   storage: z.enum(['seco', 'fresco']).optional(),
-  protein: z.coerce.number().int().min(0).max(200).optional(),
+  kcal: z.coerce.number().int().min(0).max(5000).optional(),
+  protein: z.coerce.number().int().min(0).max(500).optional(),
+  carbs: z.coerce.number().int().min(0).max(500).optional(),
+  fat: z.coerce.number().int().min(0).max(500).optional(),
   recipe: z
     .object({
       youAdd: z.array(z.string().trim().min(1).max(120)).max(20).default([]),

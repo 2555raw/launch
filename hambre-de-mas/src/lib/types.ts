@@ -64,6 +64,8 @@ export type ProductAttributes = {
   heat?: Heat
   /** seco: todo de despensa · fresco: incluye refrigerados */
   storage?: 'seco' | 'fresco'
+  /** Gramos de proteína por ración (aproximado). */
+  protein?: number
 }
 
 export type Recipe = {

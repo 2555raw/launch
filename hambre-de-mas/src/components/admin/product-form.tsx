@@ -69,6 +69,7 @@ export function ProductForm({ categories, product }: { categories: { id: string;
       difficulty: text('difficulty') || undefined,
       heat: text('heat') || undefined,
       storage: text('storage') || undefined,
+      protein: text('protein') || undefined,
       recipe: {
         youAdd: lines('youAdd'),
         steps: lines('steps').map((l) => {
@@ -267,7 +268,11 @@ export function ProductForm({ categories, product }: { categories: { id: string;
               <option value="horno">Horno</option>
             </select>
           </div>
-          <div className="sm:col-span-3">
+          <div>
+            <Label htmlFor="protein">Proteína por ración (g)</Label>
+            <input id="protein" name="protein" inputMode="numeric" defaultValue={product?.attributes?.protein ?? ''} className={`${field} mt-1`} />
+          </div>
+          <div className="sm:col-span-2">
             <Label htmlFor="storage">Conservación</Label>
             <select id="storage" name="storage" defaultValue={product?.attributes?.storage ?? ''} className={`${field} mt-1`}>
               <option value="">—</option>
@@ -277,7 +282,7 @@ export function ProductForm({ categories, product }: { categories: { id: string;
           </div>
           <div className="sm:col-span-3">
             <Label htmlFor="tags">Etiquetas (separadas por comas)</Label>
-            <input id="tags" name="tags" defaultValue={(product?.tags ?? []).join(', ')} placeholder="vegano, vegetariano, sin-gluten, picante" className={`${field} mt-1`} />
+            <input id="tags" name="tags" defaultValue={(product?.tags ?? []).join(', ')} placeholder="vegano, vegetariano, sin-gluten, picante, alto-en-proteina" className={`${field} mt-1`} />
           </div>
           <div className="sm:col-span-3">
             <Label htmlFor="includes">Qué trae el kit (una línea por elemento)</Label>

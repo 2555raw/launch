@@ -29,6 +29,7 @@ export const dietOptions = [
   { value: 'vegetariano', label: 'Vegetariano', labelEn: 'Vegetarian' },
   { value: 'sin-gluten', label: 'Sin gluten', labelEn: 'Gluten-free' },
   { value: 'picante', label: 'Picante', labelEn: 'Spicy' },
+  { value: 'alto-en-proteina', label: 'Alto en proteína', labelEn: 'High protein' },
 ]
 
 export const timeOptions = [

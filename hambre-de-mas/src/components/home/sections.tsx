@@ -5,7 +5,7 @@ import { Reveal, RevealLi } from '@/components/motion/reveal'
 import { ProductCard } from '@/components/product/product-card'
 import { ButtonLink } from '@/components/ui/button'
 import { ReviewAuthor } from '@/components/product/review-author'
-import { ChevronRightIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
+import { ChevronRightIcon, DumbbellIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { Scroller } from '@/components/ui/scroller'
 import { cn } from '@/lib/cn'
@@ -191,6 +191,90 @@ export async function BestSellers({ products }: { products: ProductSummary[] }) 
             </RevealLi>
           ))}
         </ol>
+      </div>
+    </section>
+  )
+}
+
+/** «Para el gym»: kits altos en proteína (etiqueta alto-en-proteina), con los gramos por ración. */
+export async function GymSection({ products: all, total }: { products: ProductSummary[]; total: number }) {
+  if (all.length === 0) return null
+  const { locale, t } = await getI18n()
+  const max = Math.max(...all.map((p) => p.attributes.protein ?? 0))
+  const products = all.slice(0, 4)
+  return (
+    <section aria-labelledby="gym" className="py-16">
+      <div className="container-page">
+        <div className="overflow-hidden rounded-[36px] bg-ink p-7 text-white sm:p-10 lg:p-12">
+          <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-end lg:gap-16">
+            <div>
+              <p className="inline-flex w-fit items-center gap-2 rounded-full bg-white/10 px-3.5 py-1.5 text-[13px] font-semibold ring-1 ring-white/15">
+                <DumbbellIcon size={16} /> {t({ es: 'Para el gym', en: 'For the gym' })}
+              </p>
+              <h2 id="gym" className="mt-5 font-display text-[34px] leading-[1.05] font-extrabold tracking-tight text-balance sm:text-[48px]">
+                {t({ es: 'Alto en proteína.', en: 'High in protein.' })}{' '}
+                <span className="text-chef">{t({ es: 'Para después de entrenar.', en: 'For after training.' })}</span>
+              </h2>
+              <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-white/70">
+                {t({
+                  es: 'Pollo, salmón, ternera, huevo y legumbres. Recetas con 20 g de proteína o más por ración para recuperar después del entreno.',
+                  en: 'Chicken, salmon, beef, egg and pulses. Recipes with 20 g of protein or more per serving to recover after a workout.',
+                })}
+              </p>
+            </div>
+            <div>
+              <dl className="grid grid-cols-2 gap-3">
+                <div className="rounded-2xl bg-white/[0.07] p-4 ring-1 ring-white/10">
+                  <dt className="text-xs text-white/60">{t({ es: 'Hasta', en: 'Up to' })}</dt>
+                  <dd className="font-display text-2xl font-extrabold">
+                    {max} g <span className="text-sm font-semibold text-white/60">{t({ es: '/ración', en: '/serving' })}</span>
+                  </dd>
+                </div>
+                <div className="rounded-2xl bg-white/[0.07] p-4 ring-1 ring-white/10">
+                  <dt className="text-xs text-white/60">{t({ es: 'Kits', en: 'Kits' })}</dt>
+                  <dd className="font-display text-2xl font-extrabold">{total}</dd>
+                </div>
+              </dl>
+              <Link
+                href="/tienda?dieta=alto-en-proteina"
+                className="mt-4 inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-chef-ink px-6 text-[15px] font-semibold text-white transition-colors hover:bg-teja"
+              >
+                {t({ es: 'Ver kits altos en proteína', en: 'See high-protein kits' })} <ChevronRightIcon size={16} />
+              </Link>
+            </div>
+          </div>
+          <ul className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            {products.map((p) => (
+              <li key={p.id}>
+                <Link href={`/producto/${p.slug}`} className="group block">
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-[22px] bg-white/10">
+                    {p.image && (
+                      <ProductImage
+                        src={p.image.url}
+                        alt={p.image.alt}
+                        fill
+                        sizes="(min-width: 1024px) 200px, 45vw"
+                        className="object-cover transition-transform duration-700 ease-[var(--ease-apple)] group-hover:scale-105"
+                      />
+                    )}
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent" />
+                    {p.attributes.protein ? (
+                      <span className="absolute top-3 left-3 rounded-full bg-white px-2.5 py-1 text-[12px] font-bold text-ink">
+                        {p.attributes.protein} g {t({ es: 'proteína', en: 'protein' })}
+                      </span>
+                    ) : null}
+                    <div className="absolute inset-x-3 bottom-3">
+                      <p className="text-[15px] leading-snug font-semibold">{p.name}</p>
+                      <p className="text-xs text-white/70 tabular-nums">
+                        {t({ es: 'Desde', en: 'From' })} {formatPrice(p.priceCents, locale)}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   )

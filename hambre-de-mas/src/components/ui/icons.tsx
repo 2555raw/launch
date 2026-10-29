@@ -134,6 +134,12 @@ export const FlameIcon = (p: IconProps) => (
   </Icon>
 )
 
+export const DumbbellIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11" />
+  </Icon>
+)
+
 export const LeafIcon = (p: IconProps) => (
   <Icon {...p}>
     <path d="M5 19c0-8 5-13 15-14-1 10-6 15-14 15" />

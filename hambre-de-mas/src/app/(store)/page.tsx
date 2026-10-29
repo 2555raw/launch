@@ -1,14 +1,5 @@
 import { Hero } from '@/components/home/hero'
-import {
-  Benefits,
-  BestSellers,
-  HowItWorks,
-  LevelsRow,
-  NewArrivals,
-  NewsletterSection,
-  ProductGridSection,
-  VerifiedReviews,
-} from '@/components/home/sections'
+import { Benefits, BestSellers, GymSection, HowItWorks, LevelsRow, NewArrivals, NewsletterSection, ProductGridSection, VerifiedReviews } from '@/components/home/sections'
 import { JsonLd } from '@/components/seo/json-ld'
 import { DEMO_RATING } from '@/data/demo-reviews'
 import { getCatalog, isDemoMode } from '@/lib/catalog'
@@ -22,12 +13,13 @@ export const revalidate = 60
 export default async function HomePage() {
   const catalog = getCatalog()
   const { t } = await getI18n()
-  const [categories, newest, featured, popular, reviews] = await Promise.all([
+  const [categories, newest, featured, popular, reviews, gym] = await Promise.all([
     catalog.listCategories(),
-    catalog.listProducts({ sort: 'newest', limit: 6 }),
+    catalog.listProducts({ newArrivals: true, sort: 'newest', limit: 6 }),
     catalog.listProducts({ featured: true, sort: 'popular', limit: 8 }),
     catalog.listProducts({ sort: 'popular', limit: 6 }),
     catalog.listRecentReviews(16),
+    catalog.listProducts({ tags: ['alto-en-proteina'], sort: 'popular', limit: 24 }),
   ])
 
   const heroProduct = featured.items[0] ?? popular.items[0] ?? null
@@ -84,6 +76,7 @@ export default async function HomePage() {
         href="/tienda?destacados=1"
         linkLabel={t({ es: 'Ver destacados', en: 'See featured' })}
       />
+      <GymSection products={gym.items} total={gym.total} />
       <HowItWorks />
       <BestSellers products={popular.items} />
       <Benefits />

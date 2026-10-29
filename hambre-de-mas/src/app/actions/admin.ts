@@ -74,6 +74,7 @@ export async function saveProduct(_prev: AdminState, formData: FormData): Promis
       ...(p.difficulty != null ? { difficulty: p.difficulty } : {}),
       ...(p.heat ? { heat: p.heat } : {}),
       ...(p.storage ? { storage: p.storage } : {}),
+      ...(p.protein != null ? { protein: p.protein } : {}),
     },
     tags: p.tags,
     allergens: p.allergens,

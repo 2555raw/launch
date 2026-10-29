@@ -13,7 +13,7 @@ import { PurchasePanel } from '@/components/product/purchase-panel'
 import { ReviewAuthor } from '@/components/product/review-author'
 import { ReviewForm } from '@/components/product/review-form'
 import { JsonLd } from '@/components/seo/json-ld'
-import { ChevronRightIcon, ClockIcon, FlameIcon, GiftIcon, LeafIcon, QrIcon, ReturnIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
+import { ChevronRightIcon, ClockIcon, DumbbellIcon, FlameIcon, GiftIcon, LeafIcon, QrIcon, ReturnIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { LevelChip } from '@/components/ui/level-chip'
 import { getCatalog } from '@/lib/catalog'
 import { commerce } from '@/lib/config/commerce'
@@ -55,6 +55,7 @@ const tagLabel: Record<string, Localized> = {
   vegetariano: { es: 'Vegetariano', en: 'Vegetarian' },
   'sin-gluten': { es: 'Sin gluten', en: 'Gluten-free' },
   picante: { es: 'Picante', en: 'Spicy' },
+  'alto-en-proteina': { es: 'Alto en proteína', en: 'High protein' },
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -188,11 +189,20 @@ export default async function ProductPage({ params }: Props) {
               <li>
                 <StorageChip storage={product.attributes.storage} />
               </li>
-              {product.tags.map((tag) => (
-                <li key={tag} className="inline-flex items-center gap-1.5 rounded-full bg-hoja/15 px-3 py-1.5 text-hoja-deep">
-                  <LeafIcon size={14} /> {tagLabel[tag] ? t(tagLabel[tag]) : tag}
-                </li>
-              ))}
+              {product.tags.map((tag) =>
+                tag === 'alto-en-proteina' ? (
+                  <li key={tag} className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 font-medium text-white">
+                    <DumbbellIcon size={15} /> {t(tagLabel[tag]!)}
+                    {product.attributes.protein ? (
+                      <span className="text-white/70">· {t({ es: `${product.attributes.protein} g/ración`, en: `${product.attributes.protein} g/serving` })}</span>
+                    ) : null}
+                  </li>
+                ) : (
+                  <li key={tag} className="inline-flex items-center gap-1.5 rounded-full bg-hoja/15 px-3 py-1.5 text-hoja-deep">
+                    <LeafIcon size={14} /> {tagLabel[tag] ? t(tagLabel[tag]) : tag}
+                  </li>
+                ),
+              )}
             </ul>
 
             {product.allergens.length > 0 ? (

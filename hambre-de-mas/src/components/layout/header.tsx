@@ -417,7 +417,13 @@ function MenuPanel({ id, categories, menu }: { id: MenuId; categories: NavCatego
       <div className="grid grid-cols-[1fr_2.5fr] gap-12">
         <div>
           <MenuHeading>{t({ es: 'Tienda', en: 'Shop' })}</MenuHeading>
-          <BigLinks links={[...shopLinks, { href: '/tienda?destacados=1', label: t({ es: 'Destacados', en: 'Featured' }) }]} />
+          <BigLinks
+            links={[
+              ...shopLinks,
+              { href: '/tienda?destacados=1', label: t({ es: 'Destacados', en: 'Featured' }) },
+              { href: '/tienda?dieta=alto-en-proteina', label: t({ es: 'Para el gym', en: 'For the gym' }) },
+            ]}
+          />
         </div>
         <div className="grid grid-cols-3 gap-8">
           <SmallLinks title={t({ es: 'Por nivel', en: 'By level' })} links={categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name }))} />

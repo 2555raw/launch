@@ -20,7 +20,7 @@ const ease = [0.28, 0.11, 0.32, 1] as const
 
 type NavCategory = Pick<Category, 'slug' | 'name' | 'tagline' | 'level' | 'imageUrl'>
 
-export type MenuKit = { slug: string; name: string; image: string | null; price: string; level: number | null }
+export type MenuKit = { slug: string; name: string; image: string | null; price: string; level: number | null; levelName: string | null }
 export type MenuData = {
   newest: MenuKit[]
   featured: MenuKit[]
@@ -363,7 +363,7 @@ function KitTiles({ kits }: { kits: MenuKit[] }) {
               )}
             </div>
             <p className="mt-3 text-[11px] font-semibold tracking-wide text-teja uppercase">
-              {k.level ? t({ es: `Nivel ${k.level}`, en: `Level ${k.level}` }) : t({ es: 'Cada mes', en: 'Every month' })}
+              {k.levelName ?? t({ es: 'Cada mes', en: 'Every month' })}
             </p>
             <p className="text-sm font-semibold">{k.name}</p>
             <p className="text-xs text-ash-ink tabular-nums">{t({ es: `Desde ${k.price}`, en: `From ${k.price}` })}</p>
@@ -398,10 +398,7 @@ function MenuPanel({ id, categories, menu }: { id: MenuId; categories: NavCatego
                     <Image src={c.imageUrl} alt="" fill sizes="220px" className="object-cover transition-transform duration-500 ease-[var(--ease-apple)] group-hover:scale-105" />
                   )}
                 </div>
-                <p className="mt-3 text-[11px] font-semibold tracking-wide text-teja uppercase">
-                  {c.level ? t({ es: `Nivel ${c.level}`, en: `Level ${c.level}` }) : t({ es: 'Cada mes', en: 'Every month' })}
-                </p>
-                <p className="text-sm font-semibold">{c.name}</p>
+                <p className="mt-3 text-sm font-semibold">{c.name}</p>
                 <p className="text-xs text-ash-ink">{c.tagline}</p>
               </Link>
             </Stagger>

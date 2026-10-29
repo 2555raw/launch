@@ -93,7 +93,7 @@ export default async function RecipePage({ params }: Props) {
           <div>
             <p className="pop-word text-xs font-bold tracking-[0.18em] text-almendra uppercase">
               {t({ es: 'Receta', en: 'Recipe' })} ·{' '}
-              {product.category?.level ? t({ es: `Nivel ${product.category.level}`, en: `Level ${product.category.level}` }) : product.category?.name}
+              {product.category?.name}
             </p>
             <h1 className="pop-word mt-3 font-display text-[40px] leading-[1.03] font-extrabold tracking-tight sm:text-6xl" style={{ '--delay': '0.1s' } as React.CSSProperties}>
               {dish}

@@ -34,10 +34,12 @@ export type QuoteLine = {
   message: string | null
   /** Nivel del kit (1, 2, 3) o null. */
   level: number | null
+  /** Nombre del nivel (p. ej. «Primer bocado»). */
+  levelName?: string | null
 }
 
 /** Descuento por llevar varios kits del mismo nivel. */
-export type BundleResult = { level: number; kits: number; discountCents: number }
+export type BundleResult = { level: number; name: string | null; kits: number; discountCents: number }
 
 export type PromotionResult = {
   code: string
@@ -57,7 +59,7 @@ export type Quote = {
   bundles: BundleResult[]
   bundleDiscountCents: number
   /** Si falta poco para un pack: cuántos kits faltan y de qué nivel. */
-  bundleHint: { level: number; missing: number; percent: number } | null
+  bundleHint: { level: number; name: string | null; missing: number; percent: number } | null
   promotionDiscountCents: number
   shippingCents: number
   taxCents: number
@@ -223,6 +225,7 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
       status,
       message,
       level: variant.categoryLevel ?? null,
+      levelName: variant.categoryName ?? null,
     })
   }
 
@@ -236,17 +239,17 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
   const minKits = config.bundleMinKits ?? 0
   const percent = Math.min(config.bundlePercent ?? 0, 50)
   if (minKits > 0 && percent > 0) {
-    const byLevel = new Map<number, { kits: number; cents: number }>()
+    const byLevel = new Map<number, { name: string | null; kits: number; cents: number }>()
     for (const line of billable) {
       if (line.level == null) continue
-      const group = byLevel.get(line.level) ?? { kits: 0, cents: 0 }
+      const group = byLevel.get(line.level) ?? { name: line.levelName ?? null, kits: 0, cents: 0 }
       group.kits += line.quantity
       group.cents += line.lineTotalCents
       byLevel.set(line.level, group)
     }
     for (const [level, group] of [...byLevel].sort(([a], [b]) => a - b)) {
-      if (group.kits >= minKits) bundles.push({ level, kits: group.kits, discountCents: Math.round((group.cents * percent) / 100) })
-      else if (!bundleHint || minKits - group.kits < bundleHint.missing) bundleHint = { level, missing: minKits - group.kits, percent }
+      if (group.kits >= minKits) bundles.push({ level, name: group.name, kits: group.kits, discountCents: Math.round((group.cents * percent) / 100) })
+      else if (!bundleHint || minKits - group.kits < bundleHint.missing) bundleHint = { level, name: group.name, missing: minKits - group.kits, percent }
     }
     if (bundles.length > 0) bundleHint = null
   }

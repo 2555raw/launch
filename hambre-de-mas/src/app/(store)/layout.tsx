@@ -25,6 +25,7 @@ export default async function StoreLayout({ children }: { children: React.ReactN
     image: p.image?.url ?? null,
     price: formatPrice(p.priceCents, locale),
     level: p.category?.level ?? null,
+    levelName: p.category?.name ?? null,
   })
   const menu: MenuData = {
     newest: newest.items.map(kit),

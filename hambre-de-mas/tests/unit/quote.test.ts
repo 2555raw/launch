@@ -170,8 +170,8 @@ describe('evaluatePromotion', () => {
 describe('packs por nivel', () => {
   const packs: QuoteConfig = { ...config, bundleMinKits: 3, bundlePercent: 10 }
   const V3 = '33333333-3333-4333-8333-333333333333'
-  const n1a = variant({ categoryLevel: 1 })
-  const n1b = variant({ variantId: V2, sku: 'SKU-2', priceCents: 1290, categoryLevel: 1 })
+  const n1a = variant({ categoryLevel: 1, categoryName: 'Primer bocado' })
+  const n1b = variant({ variantId: V2, sku: 'SKU-2', priceCents: 1290, categoryLevel: 1, categoryName: 'Primer bocado' })
   const n2 = variant({ variantId: V3, sku: 'SKU-3', priceCents: 3500, categoryLevel: 2 })
 
   it('descuenta el porcentaje solo en los kits del nivel que llega al mínimo', () => {
@@ -185,7 +185,7 @@ describe('packs por nivel', () => {
       config: packs,
     })
     // Nivel 1: 2 × 16,90 + 12,90 = 46,70 → 10 % = 4,67. El de nivel 2 no entra.
-    expect(q.bundles).toEqual([{ level: 1, kits: 3, discountCents: 467 }])
+    expect(q.bundles).toEqual([{ level: 1, name: 'Primer bocado', kits: 3, discountCents: 467 }])
     expect(q.discountCents).toBe(467)
     expect(q.totalCents).toBe(q.subtotalCents - 467)
     expect(q.bundleHint).toBeNull()
@@ -194,7 +194,7 @@ describe('packs por nivel', () => {
   it('avisa de cuántos kits faltan para el pack', () => {
     const q = computeQuote({ requested: [{ variantId: n1a.variantId, quantity: 2 }], variants: [n1a], config: packs })
     expect(q.bundles).toEqual([])
-    expect(q.bundleHint).toEqual({ level: 1, missing: 1, percent: 10 })
+    expect(q.bundleHint).toEqual({ level: 1, name: 'Primer bocado', missing: 1, percent: 10 })
   })
 
   it('el código promocional se calcula sobre lo que queda tras el pack', () => {

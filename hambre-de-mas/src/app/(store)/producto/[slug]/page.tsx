@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { Reveal } from '@/components/motion/reveal'
 import { AllergenList, AllergenStrip } from '@/components/product/allergen-icons'
 import { Gallery } from '@/components/product/gallery'
+import { LevelBars } from '@/components/home/levels-showcase'
 import { KitContents } from '@/components/product/kit-contents'
 import { StorageChip } from '@/components/product/storage-chip'
 import { recipeQrSvg } from '@/lib/recipes/qr'
@@ -112,10 +113,11 @@ export default async function ProductPage({ params }: Props) {
   const catalog = getCatalog()
   const product = await catalog.getProduct(slug)
   if (!product) notFound()
-  const [related, reviews, qrSvg] = await Promise.all([
+  const [related, reviews, qrSvg, level] = await Promise.all([
     catalog.listRelated(product, 4),
     catalog.listReviews(product.id),
     product.recipe.steps.length ? recipeQrSvg(product.slug) : Promise.resolve(null),
+    product.category ? catalog.getCategory(product.category.slug) : Promise.resolve(null),
   ])
   const average = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0
   const { locale, t } = await getI18n()
@@ -191,11 +193,22 @@ export default async function ProductPage({ params }: Props) {
 
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              {product.category && <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} />}
+              {product.category && <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} hint={level?.tagline} />}
               {product.badge && <ProductBadge badge={product.badge} />}
             </div>
             <h1 className="mt-3 font-display text-4xl leading-[1.05] font-extrabold tracking-tight sm:text-5xl">{product.name}</h1>
             {product.subtitle && <p className="mt-3 text-lg text-ash-ink">{product.subtitle}</p>}
+            {level?.level && level.description && (
+              <Link href={`/categoria/${level.slug}`} className="group mt-4 flex items-start gap-3 rounded-2xl bg-almendra-soft px-4 py-3 text-sm text-ink/80">
+                <span className="mt-0.5 shrink-0 text-teja">
+                  <LevelBars level={level.level} />
+                </span>
+                <span>
+                  <strong className="text-teja">{level.name}.</strong> {level.description.replace(/^El nivel \d\.\s*|^Level \d\.\s*/, '')}{' '}
+                  <span className="whitespace-nowrap text-teja group-hover:underline">{t({ es: 'Ver los kits', en: 'See the kits' })} →</span>
+                </span>
+              </Link>
+            )}
             {reviews.length > 0 && (
               <a href="#opiniones" className="mt-3 inline-flex items-center gap-1.5 text-sm text-ink">
                 <StarIcon size={15} className="text-chef" /> {average.toFixed(1)} · {reviewCount(reviews.length)}
@@ -276,8 +289,8 @@ export default async function ProductPage({ params }: Props) {
                   <span>
                     <strong className="font-semibold">
                       {t({
-                        es: `Pack Nivel ${product.category.level}: ${commerce.bundleMinKits} kits, −${commerce.bundlePercent} %`,
-                        en: `Level ${product.category.level} bundle: ${commerce.bundleMinKits} kits, ${commerce.bundlePercent}% off`,
+                        es: `Pack ${product.category.name}: ${commerce.bundleMinKits} kits, −${commerce.bundlePercent} %`,
+                        en: `${product.category.name} bundle: ${commerce.bundleMinKits} kits, ${commerce.bundlePercent}% off`,
                       })}
                     </strong>
                     <span className="block text-ash-ink">

@@ -11,7 +11,7 @@ import { AllergenIcon } from '@/components/product/allergen-icons'
 import { dietOptions, sortOptions, timeOptions } from '@/lib/catalog/params'
 import { cn } from '@/lib/cn'
 
-type CategoryOption = { slug: string; name: string }
+type CategoryOption = { slug: string; name: string; tagline?: string | null }
 
 function useParamsUpdater() {
   const router = useRouter()
@@ -66,7 +66,22 @@ function Group({ title, children, defaultOpen = true }: { title: string; childre
   )
 }
 
-function Option({ checked, onChange, label, type = 'checkbox', name }: { checked: boolean; onChange: () => void; label: string; type?: 'checkbox' | 'radio'; name?: string }) {
+function Option({
+  checked,
+  onChange,
+  label,
+  hint,
+  type = 'checkbox',
+  name,
+}: {
+  checked: boolean
+  onChange: () => void
+  label: string
+  /** Explicación corta debajo de la opción. */
+  hint?: string | null
+  type?: 'checkbox' | 'radio'
+  name?: string
+}) {
   return (
     <label className="flex cursor-pointer items-center gap-3 rounded-lg py-1.5 text-sm text-ink/85 hover:text-ink">
       <input type={type} name={name} checked={checked} onChange={onChange} className="peer sr-only" />
@@ -80,7 +95,14 @@ function Option({ checked, onChange, label, type = 'checkbox', name }: { checked
       >
         {checked && <CheckIcon size={12} strokeWidth={2.5} />}
       </span>
-      {label}
+      {hint ? (
+        <span className="leading-tight">
+          {label}
+          <span className="block text-xs text-ash-ink">{hint}</span>
+        </span>
+      ) : (
+        label
+      )}
     </label>
   )
 }
@@ -115,6 +137,7 @@ export function FilterPanel({ categories, lockCategory = false }: { categories: 
               type="radio"
               name="categoria"
               label={c.name}
+              hint={c.tagline}
               checked={params.get('categoria') === c.slug}
               onChange={() => update({ categoria: c.slug, nuevos: null })}
             />

@@ -32,7 +32,7 @@ export async function CatalogView({
   const [{ items, total }, categories] = await Promise.all([catalog.listProducts(filter), catalog.listCategories()])
   const pages = Math.max(1, Math.ceil(total / DEFAULT_PAGE_SIZE))
   const filters = activeFilterCount(params)
-  const categoryOptions = categories.map((c) => ({ slug: c.slug, name: c.name }))
+  const categoryOptions = categories.map((c) => ({ slug: c.slug, name: c.name, tagline: c.tagline }))
 
   const pageHref = (page: number) => {
     const qs = new URLSearchParams()

@@ -179,7 +179,7 @@ export async function BestSellers({ products }: { products: ProductSummary[] }) 
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[11px] font-semibold tracking-wide text-teja uppercase">
-                      {p.category?.level ? t({ es: `Nivel ${p.category.level}`, en: `Level ${p.category.level}` }) : p.category?.name}
+                      {p.category?.name}
                     </span>
                     <span className="block truncate font-semibold sm:text-[17px]">{p.name}</span>
                     <span className="block text-sm text-ash-ink tabular-nums">

@@ -174,6 +174,9 @@ export type VariantForQuote = {
   imageUrl: string | null
   /** Nivel de la categoría del kit (1, 2, 3) o null; decide los packs por nivel. */
   categoryLevel?: number | null
+  /** Nombre del nivel (p. ej. «Primer bocado»), para el texto de los packs. */
+  categoryName?: string | null
+  categoryTranslations?: Translations<CategoryTranslation>
   translations?: Translations<ProductTranslation>
 }
 

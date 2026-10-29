@@ -136,7 +136,7 @@ function KitCard({
   enter?: string
   children?: React.ReactNode
 }) {
-  const level = product.category?.level
+  const level = product.category?.name
   return (
     <div className={cn('absolute top-0 sm:top-6', big && 'top-0 sm:top-0', enter, className)}>
       <div className="hero-depth" style={v({ '--d': big ? '6px' : '14px' })}>
@@ -162,7 +162,7 @@ function KitCard({
                 side === 'left' ? 'left-3 sm:left-4' : 'right-3 sm:right-4',
               )}
             >
-              {level && <span className="block text-[10px] font-bold tracking-wider text-teja uppercase">{locale === 'en' ? 'Level' : 'Nivel'} {level}</span>}
+              {level && <span className="block text-[10px] font-bold tracking-wider text-teja uppercase">{level}</span>}
               <span className="block truncate font-display text-[13px] font-bold text-ink sm:text-[15px]">{product.name}</span>
               <span className="block text-[12px] font-semibold text-ink/70 tabular-nums">{formatPrice(product.priceCents, locale)}</span>
             </span>
@@ -173,7 +173,7 @@ function KitCard({
             <span className="min-w-0">
               {level && (
                 <span className="block text-[10px] font-bold tracking-wider text-teja uppercase sm:text-[11px]">
-                  {locale === 'en' ? 'Level' : 'Nivel'} {level}
+                  {level}
                 </span>
               )}
               <span className={cn('block truncate font-display font-bold text-ink', big ? 'text-[15px] sm:text-lg' : 'text-[13px] sm:text-base')}>{product.name}</span>

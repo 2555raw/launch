@@ -158,7 +158,7 @@ export function createSupabaseCatalog(): CatalogRepository {
       const { data, error } = await db()
         .from('product_variants')
         .select(
-          'id, sku, name, price_cents, compare_at_price_cents, stock, is_active, product:products(id, slug, name, status, tax_rate_bps, translations, category:categories(level), images:product_images(url, position))',
+          'id, sku, name, price_cents, compare_at_price_cents, stock, is_active, product:products(id, slug, name, status, tax_rate_bps, translations, category:categories(level, name, translations), images:product_images(url, position))',
         )
         .in('id', ids)
       if (error) fail('variantes', error)
@@ -179,6 +179,8 @@ export function createSupabaseCatalog(): CatalogRepository {
           taxRateBps: v.product?.tax_rate_bps ?? 1000,
           imageUrl: images[0]?.url ?? null,
           categoryLevel: v.product?.category?.level ?? null,
+          categoryName: v.product?.category?.name ?? null,
+          categoryTranslations: translationsOf(v.product?.category?.translations),
           translations: translationsOf(v.product?.translations),
         }
       })

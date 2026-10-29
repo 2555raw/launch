@@ -23,6 +23,7 @@ export function LevelChip({
   accent,
   name,
   overlay = false,
+  hint,
   className,
 }: {
   level: number | null
@@ -30,11 +31,14 @@ export function LevelChip({
   name?: string
   /** Versión neutra para ir encima de una foto. */
   overlay?: boolean
+  /** Qué es el nivel (aparece al pasar el ratón). */
+  hint?: string | null
   className?: string
 }) {
   const { t } = useI18n()
   return (
     <span
+      title={hint ?? undefined}
       className={cn(
         'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide uppercase',
         overlay ? 'bg-white/90 text-ink backdrop-blur' : styles[accent],
@@ -42,7 +46,7 @@ export function LevelChip({
       )}
     >
       {overlay && <span aria-hidden className={cn('size-1.5 rounded-full', dots[accent])} />}
-      {level ? t({ es: `Nivel ${level}`, en: `Level ${level}` }) : (name ?? t({ es: 'Especial', en: 'Special' }))}
+      {name ?? (level ? t({ es: `Nivel ${level}`, en: `Level ${level}` }) : t({ es: 'Especial', en: 'Special' }))}
     </span>
   )
 }

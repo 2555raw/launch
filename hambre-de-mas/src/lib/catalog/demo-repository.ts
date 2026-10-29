@@ -238,6 +238,8 @@ export function createDemoCatalog(): CatalogRepository {
             taxRateBps: p.taxRateBps,
             imageUrl: p.image?.url ?? null,
             categoryLevel: p.category?.level ?? null,
+            categoryName: p.category?.name ?? null,
+            categoryTranslations: p.category?.translations,
             translations: p.translations,
           })),
       )

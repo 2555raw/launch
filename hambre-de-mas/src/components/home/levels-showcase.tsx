@@ -57,7 +57,7 @@ export function LevelsShowcase({ slides }: { slides: LevelSlide[] }) {
       <ul className="mt-10 flex flex-col gap-3 lg:h-[560px] lg:flex-row">
         {slides.map((s, i) => {
           const open = i === active
-          const tag = s.level ? t({ es: `Nivel ${s.level}`, en: `Level ${s.level}` }) : t({ es: 'Cada mes', en: 'Every month' })
+          const tag = s.tagline ?? t({ es: 'Cada mes', en: 'Every month' })
           return (
             <li
               key={s.slug}
@@ -108,7 +108,6 @@ export function LevelsShowcase({ slides }: { slides: LevelSlide[] }) {
                 </div>
                 <div className="max-w-xl">
                   <h3 className="font-display text-[34px] leading-tight font-extrabold sm:text-[44px]">{s.name}</h3>
-                  {s.tagline && <p className="mt-1 text-[15px] font-medium text-almendra">{s.tagline}</p>}
                   {s.description && <p className="mt-3 hidden text-[15px] leading-relaxed text-white/80 sm:block">{s.description}</p>}
                   <div className="mt-6 flex flex-wrap items-center gap-3">
                     <Link

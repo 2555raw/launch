@@ -83,6 +83,7 @@ export function localizeVariantForQuote(variant: VariantForQuote, locale: Locale
     ...strip(variant),
     productName: text(tr.name, variant.productName),
     variantName: text(tr.variants?.[variant.sku], variant.variantName),
+    categoryName: variant.categoryName == null ? null : text(pick<{ name: string }>(variant.categoryTranslations, locale).name, variant.categoryName),
   }
 }
 

@@ -405,3 +405,30 @@
 }
 .review-stars svg { animation: star-fill 3.2s ease-in-out infinite; animation-delay: calc(var(--i) * 0.18s); }
 @media (prefers-reduced-motion: reduce) { .review-stars svg { animation: none; } }
+
+/* Entrada de la portada: palabras que se enfocan, subrayado que se dibuja,
+   tarjetas que se abren en abanico desde el centro e ingredientes que
+   aparecen y siguen al ratón (--mx, --my). */
+@keyframes hero-word {
+  from { opacity: 0; filter: blur(14px); transform: translateY(0.35em) scale(0.96); }
+  to { opacity: 1; filter: blur(0); transform: none; }
+}
+.hero-word { display: inline-block; animation: hero-word 0.9s var(--ease-apple) var(--delay, 0s) both; }
+@keyframes hero-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+.hero-underline path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: hero-draw 0.8s var(--ease-apple) 0.9s forwards; }
+@keyframes hero-fan-left { from { opacity: 0; transform: translateX(62%) rotate(6deg) scale(0.9); } to { opacity: 1; transform: none; } }
+@keyframes hero-fan-right { from { opacity: 0; transform: translateX(-62%) rotate(-6deg) scale(0.9); } to { opacity: 1; transform: none; } }
+@keyframes hero-rise { from { opacity: 0; transform: translateY(90px) scale(0.92); } to { opacity: 1; transform: none; } }
+.hero-fan-left { animation: hero-fan-left 1.1s var(--ease-apple) 0.75s both; }
+.hero-fan-right { animation: hero-fan-right 1.1s var(--ease-apple) 0.75s both; }
+.hero-rise { animation: hero-rise 1s var(--ease-apple) 0.45s both; }
+@keyframes hero-drop {
+  0% { opacity: 0; transform: translateY(-70px) rotate(-24deg); }
+  60% { opacity: 1; transform: translateY(8px) rotate(5deg); }
+  80% { transform: translateY(-3px) rotate(-1deg); }
+  100% { opacity: 1; transform: none; }
+}
+.hero-drop { animation: hero-drop 0.9s var(--ease-apple) 1.5s both; }
+@keyframes hero-bubble { 0% { opacity: 0; transform: scale(0); } 70% { opacity: 1; transform: scale(1.15); } 100% { opacity: 1; transform: scale(1); } }
+.hero-bubble { animation: hero-bubble 0.7s var(--ease-apple) var(--delay, 1.4s) both; }
+.hero-depth { translate: calc(var(--mx, 0) * var(--d, 10px)) calc(var(--my, 0) * var(--d, 10px)); transition: translate 0.4s var(--ease-apple); }

@@ -1,8 +1,10 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import { buttonClass } from '@/components/ui/button'
 import { ArrowRightIcon, ChevronRightIcon, PlayIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { cn } from '@/lib/cn'
+import { HeroStage } from './hero-stage'
 import { getI18n } from '@/lib/i18n/server'
 import { formatPrice } from '@/lib/money'
 import type { ProductSummary } from '@/lib/types'
@@ -24,6 +26,15 @@ type Props = {
 
 const v = (vars: Record<string, string | number>) => vars as React.CSSProperties
 
+/** Ingredientes que flotan alrededor de los kits (con más o menos profundidad al mover el ratón). */
+const BUBBLES = [
+  { src: '/demo/ingredients/chile.jpg', className: '-left-2 top-[46%] size-20 lg:-left-8 lg:size-24', depth: '28px', delay: '1.35s' },
+  { src: '/demo/ingredients/albahaca.jpg', className: 'left-[24%] -top-6 size-14 lg:size-16', depth: '18px', delay: '1.5s' },
+  { src: '/demo/ingredients/limon.jpg', className: 'right-[22%] bottom-2 size-16 lg:size-20', depth: '24px', delay: '1.65s' },
+  { src: '/demo/ingredients/tomate-entero.jpg', className: '-right-2 top-[58%] size-14 lg:-right-6 lg:size-[72px]', depth: '32px', delay: '1.8s' },
+  { src: '/demo/ingredients/sesamo.jpg', className: 'left-[30%] bottom-0 size-12', depth: '16px', delay: '1.95s' },
+]
+
 export async function Hero({ picks, qrSvg, recipeHref, rating }: Props) {
   const { locale, t } = await getI18n()
   const [left, center, right] = picks.length >= 3 ? [picks[0], picks[1], picks[2]] : [undefined, picks[0], undefined]
@@ -40,19 +51,28 @@ export async function Hero({ picks, qrSvg, recipeHref, rating }: Props) {
           {t({ es: 'De sin fuego a recetas del mundo', en: 'From no-heat to world recipes' })}
           <ChevronRightIcon size={14} className="transition-transform group-hover:translate-x-0.5" />
         </Link>
-        <h1
-          className="rise-in mt-7 max-w-4xl font-display text-[46px] leading-[1.02] font-extrabold tracking-[-0.04em] text-balance text-ink sm:text-7xl lg:text-[96px]"
-          style={v({ '--delay': '0.08s' })}
-        >
-          {t({ es: 'Cocina lo que te', en: 'Cook what you' })} <span className="text-chef">{t({ es: 'flipa.', en: 'crave.' })}</span>
+        <h1 className="mt-7 max-w-4xl font-display text-[46px] leading-[1.02] font-extrabold tracking-[-0.04em] text-balance text-ink sm:text-7xl lg:text-[96px]">
+          {t({ es: 'Cocina lo que te', en: 'Cook what you' })
+            .split(' ')
+            .map((word, i) => (
+              <span key={i} className="hero-word" style={v({ '--delay': `${0.1 + i * 0.09}s` })}>
+                {word}&nbsp;
+              </span>
+            ))}
+          <span className="hero-word relative text-chef" style={v({ '--delay': '0.55s' })}>
+            {t({ es: 'flipa.', en: 'crave.' })}
+            <svg aria-hidden viewBox="0 0 200 20" preserveAspectRatio="none" className="hero-underline absolute -bottom-[0.12em] left-[2%] h-[0.22em] w-[92%]">
+              <path d="M3 14 C 50 4, 120 4, 197 12" pathLength={1} fill="none" stroke="currentColor" strokeWidth="6" strokeLinecap="round" />
+            </svg>
+          </span>
         </h1>
-        <p className="rise-in mt-6 max-w-2xl text-lg leading-relaxed text-ash-ink sm:text-xl" style={v({ '--delay': '0.16s' })}>
+        <p className="rise-in mt-6 max-w-2xl text-lg leading-relaxed text-ash-ink sm:text-xl" style={v({ '--delay': '0.75s' })}>
           {t({
             es: 'Kits de cocina para adolescentes. Todo medido en la caja, la receta paso a paso en un QR y tres niveles para ir subiendo.',
             en: 'Cooking kits for teens. Everything pre-measured in the box, a step-by-step recipe on a QR code and three levels to climb.',
           })}
         </p>
-        <div className="rise-in mt-9 flex flex-wrap items-center justify-center gap-3" style={v({ '--delay': '0.24s' })}>
+        <div className="rise-in mt-9 flex flex-wrap items-center justify-center gap-3" style={v({ '--delay': '0.85s' })}>
           <Link href="/tienda" className={buttonClass('primary', 'lg')}>
             {t({ es: 'Elegir mi kit', en: 'Pick my kit' })}
           </Link>
@@ -62,7 +82,7 @@ export async function Hero({ picks, qrSvg, recipeHref, rating }: Props) {
           </Link>
         </div>
         {rating && rating.count > 0 && (
-          <p className="rise-in mt-6 flex items-center gap-2 text-sm text-ash-ink" style={v({ '--delay': '0.3s' })}>
+          <p className="rise-in mt-6 flex items-center gap-2 text-sm text-ash-ink" style={v({ '--delay': '0.95s' })}>
             <span className="flex gap-0.5 text-chef">
               {Array.from({ length: 5 }, (_, i) => (
                 <StarIcon key={i} size={15} />
@@ -74,16 +94,32 @@ export async function Hero({ picks, qrSvg, recipeHref, rating }: Props) {
         )}
 
         {/* Un kit por nivel, en abanico */}
-        <div className="rise-in relative mt-12 h-[290px] w-full max-w-5xl sm:mt-14 sm:h-[520px] lg:h-[560px]" style={v({ '--delay': '0.32s' })}>
-          {left && <KitCard product={left} locale={locale} side="left" className="left-0 w-[46%] -rotate-6 sm:left-[2%] sm:w-[34%]" delay="0s" />}
-          {right && <KitCard product={right} locale={locale} side="right" className="right-0 w-[46%] rotate-6 sm:right-[2%] sm:w-[34%]" delay="1.5s" />}
+        <HeroStage className="relative mt-12 h-[290px] w-full max-w-5xl sm:mt-14 sm:h-[520px] lg:h-[560px]">
+          {BUBBLES.map((b) => (
+            <span
+              key={b.src}
+              aria-hidden
+              className={cn('absolute z-20 hidden sm:block', b.className)}
+              style={v({ '--d': b.depth })}
+            >
+              <span className="hero-depth block size-full">
+                <span className="hero-bubble block size-full" style={v({ '--delay': b.delay })}>
+                  <span className="float-soft relative block size-full overflow-hidden rounded-full shadow-[0_18px_40px_-12px_rgb(29_29_31/0.45)] ring-4 ring-white" style={v({ animationDelay: b.delay })}>
+                    <Image src={b.src} alt="" fill sizes="96px" className="object-cover" />
+                  </span>
+                </span>
+              </span>
+            </span>
+          ))}
+          {left && <KitCard product={left} locale={locale} side="left" className="left-0 w-[46%] -rotate-6 sm:left-[2%] sm:w-[34%]" enter="hero-fan-left" delay="0s" />}
+          {right && <KitCard product={right} locale={locale} side="right" className="right-0 w-[46%] rotate-6 sm:right-[2%] sm:w-[34%]" enter="hero-fan-right" delay="1.5s" />}
           {center && (
-            <KitCard product={center} locale={locale} className="left-1/2 z-10 w-[58%] -translate-x-1/2 sm:w-[40%]" delay="0.75s" big>
+            <KitCard product={center} locale={locale} className="left-1/2 z-10 w-[58%] -translate-x-1/2 sm:w-[40%]" enter="hero-rise" delay="0.75s" big>
               {qrSvg && recipeHref && (
                 <a
                   href={recipeHref}
                   aria-label={t({ es: 'Ver la receta del kit', en: 'See the kit recipe' })}
-                  className="absolute -top-5 -right-6 hidden w-28 -rotate-3 rounded-2xl bg-white p-2.5 shadow-float ring-1 ring-line transition-transform hover:rotate-0 sm:block lg:-right-10 lg:w-32"
+                  className="hero-drop absolute -top-5 -right-6 hidden w-28 -rotate-3 rounded-2xl bg-white p-2.5 shadow-float ring-1 ring-line transition-transform hover:rotate-0 sm:block lg:-right-10 lg:w-32"
                 >
                   <span className="block [&_svg]:h-auto [&_svg]:w-full" dangerouslySetInnerHTML={{ __html: qrSvg }} />
                   <span className="mt-1 block text-center text-[10px] leading-tight font-semibold text-ink">
@@ -93,7 +129,7 @@ export async function Hero({ picks, qrSvg, recipeHref, rating }: Props) {
               )}
             </KitCard>
           )}
-        </div>
+        </HeroStage>
       </div>
 
       <div className="container-page pb-14">
@@ -114,6 +150,7 @@ function KitCard({
   delay,
   big = false,
   side,
+  enter,
   children,
 }: {
   product: ProductSummary
@@ -123,11 +160,14 @@ function KitCard({
   big?: boolean
   /** Tarjetas laterales: la etiqueta va arriba, en la esquina que no tapa la del centro. */
   side?: 'left' | 'right'
+  /** Animación de entrada (globals.css). */
+  enter?: string
   children?: React.ReactNode
 }) {
   const level = product.category?.level
   return (
-    <div className={cn('absolute top-0 sm:top-6', big && 'top-0 sm:top-0', className)}>
+    <div className={cn('absolute top-0 sm:top-6', big && 'top-0 sm:top-0', enter, className)}>
+      <div className="hero-depth" style={v({ '--d': big ? '6px' : '14px' })}>
       <div className="float-soft relative" style={v({ animationDelay: delay })}>
         <Link
           href={`/producto/${product.slug}`}
@@ -172,6 +212,7 @@ function KitCard({
           )}
         </Link>
         {children}
+      </div>
       </div>
     </div>
   )

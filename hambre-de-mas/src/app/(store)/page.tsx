@@ -10,7 +10,8 @@ import {
   VerifiedReviews,
 } from '@/components/home/sections'
 import { JsonLd } from '@/components/seo/json-ld'
-import { getCatalog } from '@/lib/catalog'
+import { DEMO_RATING } from '@/data/demo-reviews'
+import { getCatalog, isDemoMode } from '@/lib/catalog'
 import { recipeQrSvg } from '@/lib/recipes/qr'
 import { company, site } from '@/lib/config/site'
 import { getI18n } from '@/lib/i18n/server'
@@ -32,17 +33,20 @@ export default async function HomePage() {
   const heroProduct = featured.items[0] ?? popular.items[0] ?? null
   const featuredGrid = featured.items.filter((p) => p.id !== heroProduct?.id).slice(0, 4)
 
-  // Portada: el kit más pedido de cada nivel, sin el ramen ni los wraps (ya salen en otras secciones)
-  const heroSkip = new Set(['kit-ramen-casero', 'kit-wraps-crujientes'])
+  // Portada: el kit más pedido de cada nivel, sin el ramen, los wraps ni la pizza (ya salen en otras secciones)
+  const heroSkip = new Set(['kit-ramen-casero', 'kit-wraps-crujientes', 'kit-pizza-napolitana'])
   const levels = categories.filter((c) => c.level).sort((a, b) => (a.level ?? 0) - (b.level ?? 0))
   const tops = await Promise.all(levels.map((c) => catalog.listProducts({ category: c.slug, sort: 'popular', limit: 3 })))
   const heroPicks = tops.flatMap((page) => page.items.filter((p) => !heroSkip.has(p.slug)).slice(0, 1))
   const center = heroPicks.length >= 3 ? heroPicks[1] : heroPicks[0]
   const heroQr = center ? await recipeQrSvg(center.slug) : null
   const allReviews = await catalog.listRecentReviews(100)
-  const heroRating = allReviews.length
-    ? { average: allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length, count: allReviews.length }
-    : null
+  // En el prototipo (modo demo) la nota resume también las valoraciones sin texto
+  const heroRating = isDemoMode()
+    ? DEMO_RATING
+    : allReviews.length
+      ? { average: allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length, count: allReviews.length }
+      : null
 
   return (
     <>

@@ -54,7 +54,7 @@ describe('catálogo traducido', () => {
     expect(en.variants[0]?.name).toBe('Serves 2')
     expect(en.recipe.steps[0]?.title).toBe('Soak the mushrooms')
     expect(en.category?.name).toBe('Getting hungry')
-    expect(en.image?.alt).toMatch(/Ramen bowl/)
+    expect(en.image?.alt).toMatch(/miso ramen/)
     expect('translations' in en).toBe(false)
     expect('translations' in (en.category ?? {})).toBe(false)
     // Lo que no depende del idioma no cambia

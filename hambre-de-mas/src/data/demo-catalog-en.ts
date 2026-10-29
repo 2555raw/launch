@@ -127,7 +127,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     includes: ['Ramen noodles', 'Miso broth sachet', 'Dried shiitake mushrooms', 'Freeze-dried spring onion', 'Nori seaweed', 'Chilli and sesame oil', 'Recipe card with QR'],
     specs: [{ label: 'You add', value: 'Water.' }, dryStorage, recipeCard],
     recipe: {
-      youAdd: ['1 litre water (serves 2)', 'Optional, to make it look like the photo: boiled eggs and prawns'],
+      youAdd: ['1 litre water (serves 2)'],
       steps: [
         { title: 'Soak the mushrooms', text: 'Put the shiitake in a glass of hot tap water for 10 minutes. Keep that water: it’s full of flavour.' },
         { title: 'Make the broth', text: 'Heat the water in a pot (including the mushroom water). When it boils, turn the heat down and stir in the miso broth. Don’t let it boil hard again.' },
@@ -138,7 +138,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Cook the noodles separately so the broth stays clear.', 'Spicier: more chilli oil. Milder: sesame only.'],
     },
     variants: serves('HDM-RAM'),
-    imageAlts: ['Ramen bowl with egg and prawns (serving suggestion)', 'Ramen in a dark bowl'],
+    imageAlts: ['Bowl of miso ramen with shiitake mushrooms, spring onion and chilli oil (serving suggestion)'],
   },
   'kit-tacos-al-pastor': {
     name: 'Tacos al pastor kit',

@@ -5,6 +5,9 @@
  * Las fechas son relativas: «hace N días, a tal hora».
  */
 
+/** Nota global del prototipo: las opiniones con texto de abajo más valoraciones solo con estrellas. */
+export const DEMO_RATING = { average: 4.8, count: 173 }
+
 export type DemoReview = {
   product: string
   rating: 4 | 5
@@ -33,7 +36,7 @@ export const demoReviews: DemoReview[] = [
   { product: 'kit-yakisoba', rating: 5, title: 'Wok en casa', body: 'Huele a restaurante asiático toda la casa. Las verduras frescas vienen ya cortadas en la medida justa.', author: 'Adrián M.', daysAgo: 10, at: '21:02' },
   { product: 'kit-parfait-frutos-rojos', rating: 5, title: 'Merienda top', body: 'Se monta en cinco minutos y queda precioso en un vaso. Lo hice para mis amigas y todas preguntaron dónde lo había comprado.', author: 'Paula R.', daysAgo: 11, at: '17:48' },
   { product: 'kit-tostadas-aguacate', rating: 4, title: 'Fácil y rico', body: 'El guacamole liofilizado me sorprendió, sabe a aguacate de verdad. Las semillas con chile le dan mucha gracia.', author: 'Mario G.', daysAgo: 12, at: '09:30' },
-  { product: 'kit-ramen-casero', rating: 5, title: 'Lo he pedido tres veces', body: 'Ya es tradición en mi casa. Le pongo huevo cocido como en la foto y queda espectacular.', author: 'Andrea H.', daysAgo: 13, at: '20:18' },
+  { product: 'kit-ramen-casero', rating: 5, title: 'Lo he pedido tres veces', body: 'Ya es tradición en mi casa. Con las setas y el aceite de chile queda espectacular.', author: 'Andrea H.', daysAgo: 13, at: '20:18' },
   { product: 'caja-sorpresa', rating: 5, title: 'Regalo perfecto', body: 'Se la regalé a mi sobrino por su cumpleaños (3 meses). Cada mes me manda foto de lo que ha cocinado. Gran idea.', author: 'Cristina A.', daysAgo: 14, at: '11:52' },
   { product: 'kit-tacos-al-pastor', rating: 5, title: 'Sabor brutal', body: 'Las tortillas de maíz se calientan en un minuto en la sartén. Ideal para una peli con amigos.', author: 'Iker E.', daysAgo: 16, at: '21:25' },
   { product: 'kit-smash-burgers', rating: 5, title: 'Mi padre ya no quiere ir al burger', body: 'Lo dice él, no yo. El cheddar fundido y la salsa burger son top. Llegó en caja con frío y todo perfecto.', author: 'Lola J.', daysAgo: 18, at: '14:40' },

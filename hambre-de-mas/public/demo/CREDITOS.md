@@ -13,8 +13,7 @@ propias de los kits antes de abrir la tienda.
 | products/parfait-1.jpg | https://images.unsplash.com/photo-1488477181946-6428a0291777 |
 | products/parfait-2.jpg | https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea |
 | products/tostadas-1.jpg | https://images.unsplash.com/photo-1482049016688-2d3e1b311543 |
-| products/ramen-1.jpg, home/hero-ramen.jpg | https://images.unsplash.com/photo-1569718212165-3a8278d5f624 |
-| products/ramen-2.jpg | https://images.unsplash.com/photo-1509680859026-7d8cfc6894f4 |
+| products/ramen-1.jpg, home/hero-ramen.jpg | https://images.unsplash.com/photo-1755548299985-6a36aa7ab289 |
 | products/tacos-1.jpg | https://images.unsplash.com/photo-1551504734-5ee1c4a1479b |
 | products/tortitas-1.jpg | https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445 |
 | products/tortitas-2.jpg | https://images.unsplash.com/photo-1484723091739-30a097e8f929 |

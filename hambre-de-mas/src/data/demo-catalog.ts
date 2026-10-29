@@ -335,8 +335,7 @@ export const demoProducts: DemoProduct[] = [
       { name: '4 personas', sku: 'HDM-RAM-4', price: 5900, stock: 30 },
     ],
     images: [
-      { file: 'ramen-1.jpg', alt: 'Bol de ramen con huevo y gambas (sugerencia de presentación)' },
-      { file: 'ramen-2.jpg', alt: 'Ramen en un bol oscuro' },
+      { file: 'ramen-1.jpg', alt: 'Bol de ramen de miso con setas shiitake, cebolleta y aceite de chile (sugerencia de presentación)' },
     ],
     attributes: { minutes: 25, difficulty: 2, heat: 'cazo', storage: 'seco' },
     tags: [],
@@ -344,7 +343,7 @@ export const demoProducts: DemoProduct[] = [
     includes: ['Fideos ramen', 'Sobre de caldo de miso', 'Setas shiitake deshidratadas', 'Cebolleta liofilizada', 'Alga nori', 'Aceite de chile y sésamo', 'Tarjeta de receta con QR'],
     specs: [{ label: 'Tú pones', value: 'Agua.' }, dryConservation, recipeCard],
     recipe: {
-      youAdd: ['1 litro de agua (2 personas)', 'Opcional, para dejarlo como en la foto: huevos cocidos y gambas'],
+      youAdd: ['1 litro de agua (2 personas)'],
       steps: [
         { title: 'Hidrata las setas', text: 'Pon las setas shiitake en un vaso con agua caliente del grifo 10 minutos. Guarda esa agua: tiene mucho sabor.' },
         { title: 'Haz el caldo', text: 'En un cazo, calienta el agua (incluida la de las setas). Cuando hierva, baja el fuego y disuelve el caldo de miso removiendo. Que no vuelva a hervir fuerte.' },

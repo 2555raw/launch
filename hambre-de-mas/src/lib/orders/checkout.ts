@@ -97,6 +97,7 @@ export async function startCheckout(
       expiresAt: new Date(now + commerce.reservationMinutes * 60_000),
       items: billable.map((l) => ({ variantId: l.variantId, quantity: l.quantity, unitPriceCents: l.unitPriceCents })),
     })
+    if (input.gift) await orders.markAsGift(order.id, input.giftMessage ?? null)
   } catch (error) {
     if (error instanceof OrderError) {
       const message = en ? (orderErrorsEn[error.code] ?? "We couldn't create your order. Please try again.") : error.message

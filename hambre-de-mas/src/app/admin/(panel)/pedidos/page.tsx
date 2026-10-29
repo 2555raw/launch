@@ -23,7 +23,7 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
   const supabase = await createSupabaseServerClient()
   let query = supabase
     .from('orders')
-    .select('id, number, email, customer_name, total_cents, status, fulfillment_status, created_at, items:order_items(quantity)')
+    .select('id, number, email, customer_name, total_cents, status, fulfillment_status, created_at, is_gift, items:order_items(quantity)')
     .order('created_at', { ascending: false })
     .limit(100)
   if (estado === 'por-enviar') query = query.eq('status', 'paid').in('fulfillment_status', ['unfulfilled', 'preparing'])
@@ -80,7 +80,10 @@ export default async function AdminOrdersPage({ searchParams }: { searchParams: 
                 </td>
                 <td className={`${table.td} text-ash-ink`}>{new Date(o.created_at).toLocaleString('es-ES', { dateStyle: 'short', timeStyle: 'short' })}</td>
                 <td className={table.td}>
-                  <span className="block">{o.customer_name}</span>
+                  <span className="block">
+                    {o.customer_name}
+                    {o.is_gift && <span className="ml-1.5 rounded-full bg-almendra-soft px-2 py-0.5 text-[11px] font-medium text-teja">Regalo</span>}
+                  </span>
                   <span className="block text-xs text-ash-ink">{o.email}</span>
                 </td>
                 <td className={table.td}>{(o.items ?? []).reduce((s: number, i: { quantity: number }) => s + i.quantity, 0)}</td>

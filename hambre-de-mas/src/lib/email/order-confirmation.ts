@@ -33,6 +33,7 @@ export async function sendOrderConfirmation(order: Order, locale: Locale = 'es')
 <tr><td style="padding:6px 0;color:#6e6e73">${tr('Envío', 'Shipping')}</td><td style="text-align:right;color:#6e6e73">${order.shippingCents ? price(order.shippingCents) : tr('Gratis', 'Free')}</td></tr>
 ${order.discountCents ? `<tr><td style="padding:6px 0;color:#6e6e73">${tr('Descuento', 'Discount')}</td><td style="text-align:right;color:#6e6e73">−${price(order.discountCents)}</td></tr>` : ''}
 <tr><td style="padding:10px 0;font-weight:700;border-top:1px solid #e5e5ea">${tr('Total (IVA incl.)', 'Total (VAT incl.)')}</td><td style="text-align:right;font-weight:700;border-top:1px solid #e5e5ea">${price(order.totalCents)}</td></tr></table>
+${order.isGift ? `<p style="font-size:14px;color:#bf2d11">🎁 ${tr('Va como regalo: sin precios en el paquete', 'Sent as a gift: no prices in the box')}${order.giftMessage ? `${tr(' y con tu mensaje', ' and with your message')}: «${escape(order.giftMessage)}»` : ''}.</p>` : ''}
 <p style="font-size:14px;color:#6e6e73">${tr('Envío a', 'Shipping to')}: ${escape(a.fullName)}, ${escape(a.line1)}${a.line2 ? ', ' + escape(a.line2) : ''}, ${escape(a.postalCode)} ${escape(a.city)} (${escape(a.province)})</p>
 <p style="font-size:14px"><a style="color:#bf2d11" href="${site.url}/cuenta/pedidos">${tr('Ver mis pedidos', 'See my orders')}</a></p>
 </div></body></html>`

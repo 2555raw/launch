@@ -44,6 +44,8 @@ export function mapOrder(r: any): Order {
     trackingNumber: r.tracking_number,
     trackingUrl: r.tracking_url,
     adminNotes: r.admin_notes,
+    isGift: Boolean(r.is_gift),
+    giftMessage: r.gift_message ?? null,
     paidAt: r.paid_at,
     createdAt: r.created_at,
     expiresAt: r.expires_at,

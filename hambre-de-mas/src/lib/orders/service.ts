@@ -81,6 +81,11 @@ export function createOrdersService() {
       return { id: data.id, number: Number(data.number) }
     },
 
+    async markAsGift(orderId: string, message: string | null) {
+      const { error } = await db().from('orders').update({ is_gift: true, gift_message: message }).eq('id', orderId)
+      if (error) throw new Error(`[pedidos] marcar regalo: ${error.message}`)
+    },
+
     async attachCheckoutSession(orderId: string, sessionId: string) {
       const { error } = await db().from('orders').update({ stripe_checkout_session_id: sessionId }).eq('id', orderId)
       if (error) throw new Error(`[pedidos] guardar sesión: ${error.message}`)

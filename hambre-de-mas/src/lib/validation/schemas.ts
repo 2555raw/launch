@@ -79,6 +79,8 @@ export const checkoutSchema = z.object({
   acceptTerms: z.literal(true, { error: 'Tienes que aceptar las condiciones de compra' }),
   newsletter: z.boolean().optional().default(false),
   saveAddress: z.boolean().optional().default(false),
+  gift: z.boolean().optional().default(false),
+  giftMessage: optionalTrimmed(300),
 })
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>

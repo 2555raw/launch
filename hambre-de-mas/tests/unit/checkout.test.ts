@@ -65,12 +65,15 @@ const input: CheckoutInput = {
   acceptTerms: true,
   newsletter: false,
   saveAddress: false,
+  gift: false,
+  giftMessage: undefined,
 }
 
 function deps() {
   const orders = {
     createPendingOrder: vi.fn(async () => ({ id: 'order-1', number: 1001 })),
     attachCheckoutSession: vi.fn(async () => undefined),
+    markAsGift: vi.fn(async () => undefined),
     release: vi.fn(async () => 'cancelled'),
     saveAddress: vi.fn(),
     subscribeNewsletter: vi.fn(),
@@ -113,6 +116,18 @@ describe('startCheckout', () => {
     expect(params.success_url).toBe('https://tienda.test/checkout/exito?session_id={CHECKOUT_SESSION_ID}')
     expect(params.cancel_url).toMatch(/^https:\/\/tienda\.test\/checkout\/cancelado\?pedido=order-1&t=/)
     expect(orders.attachCheckoutSession).toHaveBeenCalledWith('order-1', 'cs_1')
+  })
+
+  it('marca el pedido como regalo con su mensaje', async () => {
+    const { orders, deps: d } = deps()
+    await startCheckout({ ...input, gift: true, giftMessage: '¡Feliz cumple, Leo!' }, { userId: null, origin: 'https://tienda.test' }, d)
+    expect(orders.markAsGift).toHaveBeenCalledWith('order-1', '¡Feliz cumple, Leo!')
+  })
+
+  it('sin regalo no toca nada', async () => {
+    const { orders, deps: d } = deps()
+    await startCheckout(input, { userId: null, origin: 'https://tienda.test' }, d)
+    expect(orders.markAsGift).not.toHaveBeenCalled()
   })
 
   it('no crea nada si el carrito ha cambiado', async () => {

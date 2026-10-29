@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { Button, buttonClass } from '@/components/ui/button'
-import { LockIcon } from '@/components/ui/icons'
+import { GiftIcon, LockIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { cn } from '@/lib/cn'
 import { useI18n } from '@/lib/i18n/client'
@@ -67,6 +67,8 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
   })
   const [acceptTerms, setAcceptTerms] = useState(false)
   const [newsletter, setNewsletter] = useState(false)
+  const [gift, setGift] = useState(false)
+  const [giftMessage, setGiftMessage] = useState('')
   const [saveAddress, setSaveAddress] = useState(Boolean(user) && addresses.length === 0)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
@@ -118,6 +120,8 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
           acceptTerms,
           newsletter,
           saveAddress,
+          gift,
+          giftMessage: gift ? giftMessage : undefined,
         }),
       })
       const data = (await res.json()) as { url?: string; message?: string; fields?: Record<string, string>; quote?: Quote }
@@ -238,6 +242,40 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
               <input type="checkbox" checked={saveAddress} onChange={(e) => setSaveAddress(e.target.checked)} className="size-4 accent-chef-ink" />
               {t({ es: 'Guardar esta dirección en mi cuenta', en: 'Save this address to my account' })}
             </label>
+          )}
+        </section>
+
+        <section aria-labelledby="regalo" className="border-t border-line pt-6">
+          <label className="flex cursor-pointer items-start gap-3">
+            <input type="checkbox" checked={gift} onChange={(e) => setGift(e.target.checked)} className="mt-1 size-4 shrink-0 accent-chef-ink" />
+            <span>
+              <span id="regalo" className="flex items-center gap-2 font-semibold">
+                <GiftIcon size={18} className="text-chef" /> {t({ es: 'Es un regalo', en: "It's a gift" })}
+              </span>
+              <span className="mt-0.5 block text-sm text-ash-ink">
+                {t({
+                  es: 'Lo enviamos sin precios en el paquete. Si quieres, escribimos tu mensaje en una tarjeta.',
+                  en: "We ship it with no prices in the box. If you like, we'll write your message on a card.",
+                })}
+              </span>
+            </span>
+          </label>
+          {gift && (
+            <div className="mt-4 pl-7">
+              <label htmlFor="mensaje-regalo" className="text-sm font-medium">
+                {t({ es: 'Mensaje para la tarjeta (opcional)', en: 'Card message (optional)' })}
+              </label>
+              <textarea
+                id="mensaje-regalo"
+                value={giftMessage}
+                onChange={(e) => setGiftMessage(e.target.value)}
+                maxLength={300}
+                rows={3}
+                placeholder={t({ es: '¡Feliz cumple! A ver qué tal te sale el ramen 🍜', en: 'Happy birthday! Let me know how the ramen turns out 🍜' })}
+                className="mt-1.5 w-full resize-none rounded-2xl border border-line-strong px-4 py-3 text-[15px] focus:border-ink focus:outline-none"
+              />
+              <p className="mt-1 text-right text-xs text-ash">{giftMessage.length}/300</p>
+            </div>
           )}
         </section>
 

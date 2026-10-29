@@ -74,6 +74,16 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
           </Card>
         </div>
         <div className="space-y-6">
+          {order.isGift && (
+            <Card title="🎁 Es un regalo">
+              <p className="text-sm font-medium text-teja">No incluir precios ni factura en el paquete.</p>
+              {order.giftMessage ? (
+                <blockquote className="mt-3 rounded-xl bg-almendra-soft px-4 py-3 text-sm whitespace-pre-line">{order.giftMessage}</blockquote>
+              ) : (
+                <p className="mt-2 text-sm text-ash-ink">Sin mensaje para la tarjeta.</p>
+              )}
+            </Card>
+          )}
           <Card title="Cliente y envío">
             <p className="text-sm">
               {a.fullName}

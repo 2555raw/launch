@@ -230,6 +230,9 @@ export type Order = {
   trackingNumber: string | null
   trackingUrl: string | null
   adminNotes: string | null
+  /** Regalo: sin precios en el paquete y, si lo hay, con mensaje en la tarjeta. */
+  isGift: boolean
+  giftMessage: string | null
   paidAt: string | null
   createdAt: string
   expiresAt: string

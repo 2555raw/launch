@@ -7,7 +7,9 @@ import { StorageChip } from '@/components/product/storage-chip'
 import { buttonClass } from '@/components/ui/button'
 import { CheckIcon, ClockIcon, FlameIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
+import { RecipePlayer, type PlayerStep } from '@/components/recipe/recipe-player'
 import { getCatalog } from '@/lib/catalog'
+import { ingredientPhoto } from '@/lib/catalog/ingredient-photos'
 import { site } from '@/lib/config/site'
 import { getI18n } from '@/lib/i18n/server'
 import type { Localized } from '@/lib/i18n/config'
@@ -71,6 +73,9 @@ export default async function RecipePage({ params }: Props) {
   const { recipe } = product
   const { locale, t } = await getI18n()
   const allAllergens = [...new Set([...product.allergens, ...product.recipeAllergens])]
+  // Para el modo vídeo: de fondo las fotos del plato y, en cada paso, la del ingrediente que nombra
+  const backgrounds = product.images.map((i) => i.url)
+  const playerSteps: PlayerStep[] = recipe.steps.map((s) => ({ ...s, ingredient: ingredientPhoto(`${s.title} ${s.text}`) }))
 
   return (
     <article className="pb-24">
@@ -91,11 +96,11 @@ export default async function RecipePage({ params }: Props) {
       <header className="relative overflow-hidden bg-chef-ink text-white">
         <div className="container-page grid items-center gap-8 py-10 sm:py-14 md:grid-cols-[1.2fr_1fr]">
           <div>
-            <p className="pop-word text-xs font-bold tracking-[0.18em] text-almendra uppercase">
+            <p className="pop-word block! text-xs font-bold tracking-[0.18em] text-almendra uppercase">
               {t({ es: 'Receta', en: 'Recipe' })} ·{' '}
               {product.category?.name}
             </p>
-            <h1 className="pop-word mt-3 font-display text-[40px] leading-[1.03] font-extrabold tracking-tight sm:text-6xl" style={{ '--delay': '0.1s' } as React.CSSProperties}>
+            <h1 className="pop-word block! mt-3 font-display text-[40px] leading-[1.03] font-extrabold tracking-tight sm:text-6xl" style={{ '--delay': '0.1s' } as React.CSSProperties}>
               {dish}
             </h1>
             <ul className="pop-word mt-6 flex flex-wrap gap-2 text-[13px]" style={{ '--delay': '0.2s' } as React.CSSProperties}>
@@ -118,6 +123,9 @@ export default async function RecipePage({ params }: Props) {
                 <StorageChip storage={product.attributes.storage} />
               </li>
             </ul>
+            <div className="pop-word mt-7" style={{ '--delay': '0.3s' } as React.CSSProperties}>
+              <RecipePlayer dish={dish} steps={playerSteps} backgrounds={backgrounds} productSlug={product.slug} variant="dark" />
+            </div>
           </div>
           {product.image && (
             <div className="kit-pop relative mx-auto aspect-square w-full max-w-[340px] overflow-hidden rounded-full border-[6px] border-white shadow-float">
@@ -172,7 +180,12 @@ export default async function RecipePage({ params }: Props) {
           <h2 id="pasos" className="font-display text-3xl font-extrabold tracking-tight">
             {t({ es: 'Paso a paso', en: 'Step by step' })}
           </h2>
-          <p className="mt-1 text-[15px] text-ash-ink">{t({ es: 'Toca cada paso cuando lo termines.', en: 'Tap each step when you finish it.' })}</p>
+          <div className="mt-1 flex flex-wrap items-center justify-between gap-4">
+            <p className="text-[15px] text-ash-ink">
+              {t({ es: 'Toca cada paso cuando lo termines, o ponlo en modo vídeo y cocina sin tocar el móvil.', en: 'Tap each step when you finish it, or switch to video mode and cook hands-free.' })}
+            </p>
+            <RecipePlayer dish={dish} steps={playerSteps} backgrounds={backgrounds} productSlug={product.slug} />
+          </div>
           <ol className="mt-6 space-y-4">
             {recipe.steps.map((step, i) => (
               <li key={step.title} className="scroll-reveal">

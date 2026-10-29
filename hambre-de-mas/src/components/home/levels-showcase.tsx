@@ -50,7 +50,10 @@ export function LevelsShowcase({ slides }: { slides: LevelSlide[] }) {
           {t({
             es: 'Empiezas sin encender el fuego, pasas a la sartén y acabas cocinando recetas del mundo. Cada kit desbloquea el siguiente.',
             en: 'Start without turning on the hob, move on to the pan and end up cooking world recipes. Each kit unlocks the next.',
-          })}
+          })}{' '}
+          <Link href="/test-nivel" className="font-semibold whitespace-nowrap text-teja hover:underline">
+            {t({ es: '¿No sabes cuál? Haz el test →', en: 'Not sure? Take the quiz →' })}
+          </Link>
         </p>
       </div>
 

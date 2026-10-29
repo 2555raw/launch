@@ -250,7 +250,13 @@ export function Header({ categories, menu }: { categories: NavCategory[]; menu: 
             >
               <nav aria-label={t({ es: 'Menú móvil', en: 'Mobile menu' })} className="container-page pt-4 pb-12">
                 <ul className="space-y-1">
-                  {[{ href: '/tienda', label: t({ es: 'Tienda', en: 'Shop' }) }, ...categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name })), ...links]
+                  {[
+                    { href: '/tienda', label: t({ es: 'Tienda', en: 'Shop' }) },
+                    ...categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name })),
+                    ...links,
+                    { href: '/test-nivel', label: t({ es: '¿Qué nivel eres?', en: 'Which level are you?' }) },
+                    { href: '/preguntas-frecuentes', label: t({ es: 'Preguntas frecuentes', en: 'FAQ' }) },
+                  ]
                     .filter((l, i, all) => all.findIndex((x) => x.href === l.href) === i)
                     .map(
                     (item, i) => (
@@ -381,13 +387,14 @@ function MenuPanel({ id, categories, menu }: { id: MenuId; categories: NavCatego
     { href: '/tienda?nuevos=1', label: t({ es: 'Novedades', en: 'New arrivals' }) },
     { href: '/tienda?orden=populares', label: t({ es: 'Los más vendidos', en: 'Best sellers' }) },
   ]
+  const quizLink = { href: '/test-nivel', label: t({ es: '¿Qué nivel eres?', en: 'Which level are you?' }) }
 
   if (id === 'niveles') {
     return (
       <div className="grid grid-cols-[1fr_2.5fr] gap-12">
         <div>
           <MenuHeading>{t({ es: 'Comprar kits', en: 'Shop kits' })}</MenuHeading>
-          <BigLinks links={shopLinks} />
+          <BigLinks links={[...shopLinks, quizLink]} />
         </div>
         <ul className="grid grid-cols-4 gap-4">
           {categories.map((c, i) => (
@@ -419,6 +426,7 @@ function MenuPanel({ id, categories, menu }: { id: MenuId; categories: NavCatego
               ...shopLinks,
               { href: '/tienda?destacados=1', label: t({ es: 'Destacados', en: 'Featured' }) },
               { href: '/tienda?dieta=alto-en-proteina', label: t({ es: 'Para el gym', en: 'For the gym' }) },
+              { href: '/comparar', label: t({ es: 'Comparar kits', en: 'Compare kits' }) },
             ]}
           />
         </div>

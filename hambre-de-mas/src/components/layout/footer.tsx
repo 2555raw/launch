@@ -15,11 +15,15 @@ export async function Footer({ categories }: { categories: Pick<Category, 'slug'
         { href: '/tienda', label: t({ es: 'Todos los kits', en: 'All kits' }) },
         ...categories.map((c) => ({ href: `/categoria/${c.slug}`, label: c.name })),
         { href: '/tienda?nuevos=1', label: t({ es: 'Novedades', en: 'New arrivals' }) },
+        { href: '/test-nivel', label: t({ es: '¿Qué nivel eres?', en: 'Which level are you?' }) },
+        { href: '/comparar', label: t({ es: 'Comparar kits', en: 'Compare kits' }) },
       ],
     },
     {
       title: t({ es: 'Ayuda', en: 'Help' }),
       links: [
+        { href: '/preguntas-frecuentes', label: t({ es: 'Preguntas frecuentes', en: 'FAQ' }) },
+        { href: '/quienes-somos', label: t({ es: 'Quiénes somos', en: 'About us' }) },
         { href: '/legal/envios', label: t({ es: 'Envíos', en: 'Shipping' }) },
         { href: '/legal/devoluciones', label: t({ es: 'Cambios y devoluciones', en: 'Returns and exchanges' }) },
         { href: '/contacto', label: t({ es: 'Contacto', en: 'Contact' }) },

@@ -252,6 +252,11 @@ export default async function ProductPage({ params }: Props) {
             </ul>
 
             {product.attributes.nutrition && <NutritionPanel nutrition={product.attributes.nutrition} />}
+            {product.category?.level ? (
+              <Link href={`/comparar?kits=${product.slug}`} className="mt-3 inline-block text-sm font-medium text-teja hover:underline">
+                {t({ es: 'Comparar con otros kits →', en: 'Compare with other kits →' })}
+              </Link>
+            ) : null}
 
             {product.allergens.length > 0 ? (
               <a href="#alergenos" className="group mt-5 block text-sm text-ash-ink">

@@ -8,6 +8,7 @@ import { ReviewAuthor } from '@/components/product/review-author'
 import { ChevronRightIcon, DumbbellIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { Scroller } from '@/components/ui/scroller'
+import { HandNote, Scribble } from '@/components/ui/scribble'
 import { cn } from '@/lib/cn'
 import { commerce } from '@/lib/config/commerce'
 import { getCatalog } from '@/lib/catalog'
@@ -18,11 +19,33 @@ import type { Category, ProductSummary, Review } from '@/lib/types'
 import { howItWorksSteps } from '@/lib/how-it-works'
 
 /** Titular de sección de dos tonos, al estilo de la Apple Store. */
-export function SectionTitle({ strong, soft, id, action }: { strong: string; soft?: string; id?: string; action?: React.ReactNode }) {
+export function SectionTitle({
+  strong,
+  soft,
+  id,
+  action,
+  mark,
+}: {
+  strong: string
+  soft?: string
+  id?: string
+  action?: React.ReactNode
+  /** Trazo a mano: «circle» rodea la parte negra; «underline» subraya la roja. */
+  mark?: 'circle' | 'underline'
+}) {
   return (
     <div className="container-page mb-6 flex items-end justify-between gap-6">
       <h2 id={id} className="max-w-3xl font-display text-[28px] leading-tight font-bold tracking-tight sm:text-[34px]">
-        {strong} {soft && <span className="text-chef">{soft}</span>}
+        <span className="relative inline-block">
+          {strong}
+          {mark === 'circle' && <Scribble shape="circle" className="absolute -top-3 -left-4 h-[calc(100%+1.5rem)] w-[calc(100%+2rem)] text-chef" />}
+        </span>{' '}
+        {soft && (
+          <span className="relative text-chef">
+            {soft}
+            {mark === 'underline' && <Scribble shape="underline" className="absolute -bottom-2.5 left-0 h-3 w-full" />}
+          </span>
+        )}
       </h2>
       {action}
     </div>
@@ -93,6 +116,7 @@ export async function NewArrivals({ products }: { products: ProductSummary[] }) 
       <SectionTitle
         id="novedades"
         strong={t({ es: 'Lo último.', en: 'Just in.' })}
+        mark="circle"
         soft={t({ es: 'Recién salido del horno.', en: 'Fresh out of the oven.' })}
         action={
           <Link href="/tienda?nuevos=1" className="hidden shrink-0 items-center gap-1 text-[15px] text-teja hover:underline sm:inline-flex">
@@ -168,7 +192,12 @@ export async function BestSellers({ products }: { products: ProductSummary[] }) 
       <div className="container-page">
         <ol className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {products.map((p, i) => (
-            <RevealLi key={p.id} delay={i * 0.05} className="min-w-0">
+            <RevealLi key={p.id} delay={i * 0.05} className="relative min-w-0">
+                {i === 0 && (
+                  <HandNote arrow="down-left" className="absolute -top-9 right-6 z-10 sm:right-10">
+                    {t({ es: '¡el favorito!', en: 'the favourite!' })}
+                  </HandNote>
+                )}
                 <Link
                   href={`/producto/${p.slug}`}
                   className="group flex items-center gap-5 rounded-[22px] bg-white p-4 pr-6 shadow-card transition-shadow duration-300 hover:shadow-card-hover"
@@ -243,7 +272,11 @@ export async function GymSection({ products: all, total }: { products: ProductSu
               </Link>
             </div>
           </div>
-          <ul className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <div className="relative mt-10">
+          <HandNote arrow="down-right" className="absolute -top-8 right-2 z-10 text-almendra sm:right-8">
+            {t({ es: '¡pura proteína!', en: 'pure protein!' })}
+          </HandNote>
+          <ul className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             {products.map((p) => (
               <li key={p.id}>
                 <Link href={`/producto/${p.slug}`} className="group block">
@@ -274,6 +307,7 @@ export async function GymSection({ products: all, total }: { products: ProductSu
               </li>
             ))}
           </ul>
+          </div>
         </div>
       </div>
     </section>
@@ -321,6 +355,9 @@ export async function HowItWorks() {
               className="object-cover"
             />
           </div>
+          <HandNote arrow="down-left" className="absolute bottom-28 left-24 text-white drop-shadow-[0_2px_6px_rgb(0_0_0/0.55)] sm:left-16">
+            {t({ es: '¡así de fácil!', en: 'that easy!' })}
+          </HandNote>
           <div className="absolute -bottom-6 -left-2 flex items-center gap-3 rounded-[20px] bg-white p-4 pr-6 shadow-float sm:-left-8">
             <span className="grid size-11 place-items-center rounded-2xl bg-ink text-white">
               <PlayIcon size={22} />

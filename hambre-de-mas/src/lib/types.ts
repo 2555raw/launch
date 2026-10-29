@@ -104,6 +104,8 @@ export type ProductSummary = {
   image: ProductImage | null
   hoverImage: ProductImage | null
   variantCount: number
+  /** Variante que añade el botón rápido de la tarjeta: la más barata con stock (o null si no queda). */
+  quickAdd: { variantId: string; sku: string; name: string; priceCents: number; stock: number } | null
   translations?: Translations<ProductTranslation>
 }
 

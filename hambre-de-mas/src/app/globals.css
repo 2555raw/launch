@@ -28,6 +28,7 @@
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-display: var(--font-montserrat), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-caveat), 'Comic Sans MS', cursive;
 
   --radius-card: 1.125rem;
   --radius-tile: 1.75rem;
@@ -448,3 +449,10 @@
 /* Panel de filtros: se desplaza con la rueda, pero sin barra visible */
 .filters-scroll { scrollbar-width: none; }
 .filters-scroll::-webkit-scrollbar { display: none; }
+
+/* Esqueletos de carga: gris con un brillo que los recorre */
+.skeleton {
+  background: linear-gradient(100deg, var(--color-mist) 30%, #fbfbfd 50%, var(--color-mist) 70%) 0 0 / 220% 100%;
+  animation: skeleton-shine 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-shine { from { background-position: 120% 0; } to { background-position: -120% 0; } }

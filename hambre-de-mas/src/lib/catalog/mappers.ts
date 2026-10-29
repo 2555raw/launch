@@ -5,7 +5,7 @@ import type { Category, ProductDetail, ProductImage, ProductSummary, Recipe, Var
 /* eslint-disable @typescript-eslint/no-explicit-any -- filas sin tipar de PostgREST */
 
 export const PRODUCT_SUMMARY_SELECT =
-  'id, slug, name, subtitle, price_cents, compare_at_price_cents, badge, is_featured, is_demo, total_stock, sales_count, published_at, attributes, tags, allergens, translations, category:categories(slug, name, level, accent, translations), images:product_images(id, url, alt, position), variants:product_variants(id, is_active)'
+  'id, slug, name, subtitle, price_cents, compare_at_price_cents, badge, is_featured, is_demo, total_stock, sales_count, published_at, attributes, tags, allergens, translations, category:categories(slug, name, level, accent, translations), images:product_images(id, url, alt, position), variants:product_variants(id, sku, name, price_cents, stock, is_active)'
 
 export const PRODUCT_DETAIL_SELECT =
   'id, slug, name, subtitle, description, price_cents, compare_at_price_cents, badge, is_featured, is_demo, total_stock, sales_count, published_at, attributes, tags, allergens, allergen_traces, recipe_allergens, recipe, includes, specs, tax_rate_bps, seo_title, seo_description, category_id, translations, category:categories(slug, name, level, accent, translations), images:product_images(id, url, alt, position), variants:product_variants(id, sku, name, price_cents, compare_at_price_cents, stock, is_active, position)'
@@ -51,6 +51,12 @@ export function mapVariants(rows: any[] | null | undefined): Variant[] {
     .sort((a, b) => a.position - b.position || a.priceCents - b.priceCents)
 }
 
+/** La variante más barata que queda en stock (para «Añadir» desde la tarjeta). */
+export function quickAddOf(variants: { id: string; sku: string; name: string; priceCents: number; stock: number; isActive: boolean }[]): ProductSummary['quickAdd'] {
+  const v = variants.filter((x) => x.isActive && x.stock > 0).sort((a, b) => a.priceCents - b.priceCents)[0]
+  return v ? { variantId: v.id, sku: v.sku, name: v.name, priceCents: v.priceCents, stock: v.stock } : null
+}
+
 export function mapProductSummary(row: any): ProductSummary {
   const images = mapImages(row.images)
   return {
@@ -81,6 +87,9 @@ export function mapProductSummary(row: any): ProductSummary {
     image: images[0] ?? null,
     hoverImage: images[1] ?? null,
     variantCount: (row.variants ?? []).filter((v: any) => v.is_active !== false).length,
+    quickAdd: quickAddOf(
+      (row.variants ?? []).map((v: any) => ({ id: v.id, sku: v.sku, name: v.name, priceCents: v.price_cents, stock: v.stock, isActive: v.is_active !== false })),
+    ),
     translations: translationsOf(row.translations),
   }
 }

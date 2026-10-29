@@ -55,6 +55,7 @@ export function localizeProductSummary(product: ProductSummary, locale: Locale):
     category: product.category ? localizeCategory(product.category, locale) : null,
     image: image(product.image, 0),
     hoverImage: image(product.hoverImage, 1),
+    quickAdd: product.quickAdd ? { ...product.quickAdd, name: text(tr.variants?.[product.quickAdd.sku], product.quickAdd.name) } : null,
   }
 }
 

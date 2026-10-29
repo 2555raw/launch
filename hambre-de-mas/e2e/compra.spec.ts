@@ -18,9 +18,9 @@ test('compra completa como invitado: buscar, añadir, código, pagar y confirmar
   await expect(page).toHaveURL(/\/producto\/kit-ramen-casero/)
 
   // Variante y cantidad
-  await page.getByText('4 personas').click()
+  await page.getByText('4 personas', { exact: true }).click()
   await expect(page.getByText('59,00 €').first()).toBeVisible()
-  await page.getByText('2 personas').click()
+  await page.getByText('2 personas', { exact: true }).click()
   await page.getByRole('button', { name: 'Añadir una unidad' }).click()
   await page.getByRole('button', { name: 'Añadir a la cesta' }).click()
 

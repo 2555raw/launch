@@ -6,7 +6,7 @@ import { sortAllergens } from '@/lib/allergens'
 import type { Category, ProductDetail, ProductFilter, ProductSummary, Review } from '@/lib/types'
 import { ingredientPhotos } from './ingredient-photos'
 import { newArrivalsSince } from './params'
-import { normalizeSearch } from './mappers'
+import { normalizeSearch, quickAddOf } from './mappers'
 import { DEFAULT_PAGE_SIZE, type CatalogRepository } from './repository'
 
 /**
@@ -89,6 +89,7 @@ function toDetail(p: DemoProduct): ProductDetail {
     hoverImage: images[1] ?? null,
     variants,
     variantCount: variants.length,
+    quickAdd: quickAddOf(variants),
     seoTitle: null,
     seoDescription: null,
     translations: demoProductsEn[p.slug] ? { en: demoProductsEn[p.slug] } : {},
@@ -124,6 +125,7 @@ function summary(p: ProductDetail): ProductSummary {
     image: p.image,
     hoverImage: p.hoverImage,
     variantCount: p.variantCount,
+    quickAdd: quickAddOf(p.variants),
     translations: p.translations,
   }
 }

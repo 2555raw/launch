@@ -3,8 +3,8 @@ import Link from 'next/link'
 import { NewsletterForm } from '@/components/layout/newsletter-form'
 import { Reveal, RevealLi } from '@/components/motion/reveal'
 import { ProductCard } from '@/components/product/product-card'
+import { ButtonLink } from '@/components/ui/button'
 import { ReviewAuthor } from '@/components/product/review-author'
-import { PurchaseGlobe } from '@/components/home/purchase-globe'
 import { ChevronRightIcon, PlayIcon, ReturnIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
 import { Scroller } from '@/components/ui/scroller'
@@ -14,7 +14,6 @@ import { getCatalog } from '@/lib/catalog'
 import { getI18n } from '@/lib/i18n/server'
 import { LevelsShowcase, type LevelSlide } from './levels-showcase'
 import { formatPrice } from '@/lib/money'
-import { PURCHASE_MAP_DAYS, type PurchasePoint } from '@/lib/orders/activity'
 import type { Category, ProductSummary, Review } from '@/lib/types'
 
 /** Titular de sección de dos tonos, al estilo de la Apple Store. */
@@ -322,130 +321,103 @@ export async function Benefits() {
   )
 }
 
-export async function VerifiedReviews({ reviews }: { reviews: (Review & { productName: string; productSlug: string })[] }) {
-  if (reviews.length === 0) return null
-  const { t } = await getI18n()
+type HomeReview = Review & { productName: string; productSlug: string }
+
+function ReviewCard({ review, verifiedLabel, starsLabel }: { review: HomeReview; verifiedLabel: string; starsLabel: string }) {
   return (
-    <section aria-labelledby="opiniones" className="bg-mist py-16">
+    <article className="flex h-full w-[320px] shrink-0 flex-col rounded-[24px] bg-white p-6 shadow-card ring-1 ring-black/[0.03] sm:w-[360px]">
+      <div className="flex gap-0.5 text-chef" aria-label={starsLabel}>
+        {Array.from({ length: 5 }, (_, i) => (
+          <StarIcon key={i} size={16} filled={i < review.rating} />
+        ))}
+      </div>
+      {review.title && <p className="mt-3 font-semibold">{review.title}</p>}
+      <p className="mt-2 line-clamp-4 text-[15px] leading-relaxed text-ink/80">{review.body}</p>
+      <div className="mt-auto pt-5">
+        <ReviewAuthor
+          name={review.authorName}
+          verifiedLabel={review.isVerified ? verifiedLabel : null}
+          meta={
+            <>
+              <span aria-hidden>·</span>
+              <Link href={`/producto/${review.productSlug}`} className="truncate text-teja hover:underline">
+                {review.productName}
+              </Link>
+            </>
+          }
+        />
+      </div>
+    </article>
+  )
+}
+
+/**
+ * Opiniones verificadas en movimiento: con suficientes, dos filas que se
+ * desplazan solas en sentidos contrarios (se paran al pasar el ratón). Con
+ * pocas, una fila fija; sin ninguna, una invitación a dejar la primera.
+ * Siempre son opiniones reales de compras verificadas.
+ */
+export async function VerifiedReviews({ reviews }: { reviews: HomeReview[] }) {
+  const { t } = await getI18n()
+  const verified = t({ es: 'Compra verificada', en: 'Verified purchase' })
+  const stars = (r: HomeReview) => t({ es: `${r.rating} de 5 estrellas`, en: `${r.rating} out of 5 stars` })
+  const card = (r: HomeReview, hidden = false) => (
+    <li key={`${r.id}${hidden ? '-copia' : ''}`} aria-hidden={hidden || undefined} className="flex">
+      <ReviewCard review={r} verifiedLabel={verified} starsLabel={stars(r)} />
+    </li>
+  )
+  const rows = reviews.length >= 6 ? [reviews.filter((_, i) => i % 2 === 0), reviews.filter((_, i) => i % 2 === 1)] : [reviews]
+  const moving = reviews.length >= 4
+
+  return (
+    <section aria-labelledby="opiniones" className="overflow-hidden bg-mist py-20">
       <SectionTitle
         id="opiniones"
         strong={t({ es: 'Opiniones verificadas.', en: 'Verified reviews.' })}
         soft={t({ es: 'Solo de quien ha comprado y cocinado el kit.', en: 'Only from people who bought and cooked the kit.' })}
       />
-      <ul className="container-page grid gap-5 md:grid-cols-3">
-        {reviews.map((r) => (
-          <li key={r.id} className="flex flex-col rounded-[22px] bg-white p-6 shadow-card">
-            <div className="flex gap-0.5 text-chef" aria-label={t({ es: `${r.rating} de 5 estrellas`, en: `${r.rating} out of 5 stars` })}>
+      {reviews.length === 0 ? (
+        <div className="container-page">
+          <Reveal className="flex flex-col items-start gap-6 rounded-[32px] bg-white p-8 shadow-card sm:flex-row sm:items-center sm:p-10">
+            <div className="review-stars flex gap-1.5 text-chef" aria-hidden>
               {Array.from({ length: 5 }, (_, i) => (
-                <StarIcon key={i} size={16} filled={i < r.rating} />
+                <span key={i} style={{ '--i': i } as React.CSSProperties}>
+                  <StarIcon size={30} />
+                </span>
               ))}
             </div>
-            {r.title && <p className="mt-3 font-semibold">{r.title}</p>}
-            <p className="mt-2 line-clamp-5 text-[15px] text-ink/80">{r.body}</p>
-            <div className="mt-auto pt-5">
-              <ReviewAuthor
-                name={r.authorName}
-                verifiedLabel={r.isVerified ? t({ es: 'Compra verificada', en: 'Verified purchase' }) : null}
-                meta={
-                  <>
-                    <span aria-hidden>·</span>
-                    <Link href={`/producto/${r.productSlug}`} className="truncate text-teja hover:underline">
-                      {r.productName}
-                    </Link>
-                  </>
-                }
-              />
+            <div className="flex-1">
+              <p className="font-display text-2xl font-bold">{t({ es: 'Aquí van las opiniones de verdad.', en: 'Real reviews go here.' })}</p>
+              <p className="mt-1.5 max-w-xl text-ash-ink">
+                {t({
+                  es: 'Cuando cocines tu kit te escribiremos para que nos cuentes qué tal. Solo publicamos opiniones de compras verificadas.',
+                  en: "Once you've cooked your kit we'll email you to ask how it went. We only publish reviews from verified purchases.",
+                })}
+              </p>
             </div>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
-/** Globo con las provincias desde las que se han pedido kits de verdad. */
-export async function PurchaseMapSection({ points }: { points: PurchasePoint[] }) {
-  const { t } = await getI18n()
-  const hasOrders = points.length > 0
-  const total = points.reduce((sum, p) => sum + p.orders, 0)
-  const top = points.slice(0, 6)
-  const max = Math.max(1, ...top.map((p) => p.orders))
-  const slug = (s: string) =>
-    s
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-  return (
-    <section aria-labelledby="mapa-pedidos" className="px-3 py-16 sm:px-6 sm:py-20">
-      <div className="relative isolate mx-auto max-w-[88rem] overflow-hidden rounded-[40px] bg-[#141110] text-white">
-        <div aria-hidden className="absolute -top-40 right-0 -z-10 size-[620px] rounded-full bg-chef/20 blur-[140px]" />
-        <div className="grid items-center gap-6 px-6 py-14 sm:px-12 lg:grid-cols-[1fr_1.15fr] lg:gap-12 lg:py-16">
-          <Reveal>
-            <p className="text-[12px] font-semibold tracking-[0.16em] text-almendra uppercase">{t({ es: 'Pedidos', en: 'Orders' })}</p>
-            <h2 id="mapa-pedidos" className="mt-3 font-display text-[34px] leading-[1.06] font-extrabold tracking-tight text-balance sm:text-5xl">
-              {points.length >= 10
-                ? t({ es: 'Se cocina por toda España.', en: 'Cooking all over Spain.' })
-                : hasOrders
-                  ? t({ es: 'Así viajan nuestros kits.', en: 'Where our kits travel.' })
-                  : t({ es: 'Llegamos a toda la Península y Baleares.', en: 'We deliver across mainland Spain and the Balearics.' })}{' '}
-              <span className="text-chef">{t({ es: 'Gira la bola.', en: 'Spin the globe.' })}</span>
-            </h2>
-            <p className="mt-5 max-w-md text-[17px] leading-relaxed text-white/65">
-              {hasOrders
-                ? t({
-                    es: `Cada punto es una provincia desde la que se han pedido kits en los últimos ${PURCHASE_MAP_DAYS} días. Cuantos más pedidos, más grande.`,
-                    en: `Each dot is a province that has ordered kits in the last ${PURCHASE_MAP_DAYS} days. The more orders, the bigger the dot.`,
-                  })
-                : t({
-                    es: `Te lo llevamos a casa en ${commerce.deliveryEstimate}, con los kits de nivel 3 refrigerados. Aquí verás desde dónde se piden.`,
-                    en: 'We deliver in 24–72 working hours, with level 3 kits chilled. This is where you will see where orders come from.',
-                  })}
-            </p>
-            {hasOrders && (
-              <>
-                <dl className="mt-8 flex gap-10">
-                  <div>
-                    <dt className="text-[13px] text-white/55">{t({ es: 'Pedidos', en: 'Orders' })}</dt>
-                    <dd className="font-display text-4xl font-extrabold tabular-nums">{total}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[13px] text-white/55">{t({ es: 'Provincias', en: 'Provinces' })}</dt>
-                    <dd className="font-display text-4xl font-extrabold tabular-nums">{points.length}</dd>
-                  </div>
-                </dl>
-                <ol className="mt-8 max-w-md space-y-3">
-                  {top.map((p, i) => (
-                    <li key={p.province} className="grid grid-cols-[1.25rem_7.5rem_1fr_auto] items-center gap-3 text-sm">
-                      <span className="text-white/40 tabular-nums">{i + 1}</span>
-                      <span className="truncate font-medium">{p.province}</span>
-                      <span className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                        <span className="block h-full rounded-full bg-chef" style={{ width: `${Math.max(6, (p.orders / max) * 100)}%` }} />
-                      </span>
-                      <span className="text-white/60 tabular-nums">{p.orders}</span>
-                    </li>
-                  ))}
-                </ol>
-              </>
-            )}
+            <ButtonLink href="/tienda" size="md">
+              {t({ es: 'Elegir mi kit', en: 'Pick my kit' })}
+            </ButtonLink>
           </Reveal>
-          <PurchaseGlobe
-            points={points.map((p) => ({
-              id: slug(p.province),
-              label: p.province,
-              detail: t({ es: `${p.orders} ${p.orders === 1 ? 'pedido' : 'pedidos'}`, en: `${p.orders} ${p.orders === 1 ? 'order' : 'orders'}` }),
-              lat: p.lat,
-              lng: p.lng,
-              orders: p.orders,
-            }))}
-            label={
-              hasOrders
-                ? t({ es: `Bola del mundo con pedidos desde: ${points.map((p) => p.province).join(', ')}`, en: `Globe with orders from: ${points.map((p) => p.province).join(', ')}` })
-                : t({ es: 'Bola del mundo centrada en España', en: 'Globe centred on Spain' })
-            }
-          />
         </div>
-      </div>
+      ) : moving ? (
+        <div className="reviews-marquee space-y-5 [mask-image:linear-gradient(90deg,transparent,#000_6%,#000_94%,transparent)]">
+          {rows.map((row, r) => (
+            <ul key={r} className="reviews-track flex w-max gap-5" data-reverse={r === 1 || undefined} style={{ '--n': row.length } as React.CSSProperties}>
+              {row.map((review) => card(review))}
+              {row.map((review) => card(review, true))}
+            </ul>
+          ))}
+        </div>
+      ) : (
+        <ul className="container-page flex gap-5 overflow-x-auto pb-2 [scrollbar-width:none]">
+          {reviews.map((review, i) => (
+            <RevealLi key={review.id} delay={i * 0.08} className="flex">
+              <ReviewCard review={review} verifiedLabel={verified} starsLabel={stars(review)} />
+            </RevealLi>
+          ))}
+        </ul>
+      )}
     </section>
   )
 }

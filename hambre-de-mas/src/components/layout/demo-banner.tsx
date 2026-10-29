@@ -5,10 +5,10 @@ export async function DemoBanner() {
   const { t } = await getI18n()
   return (
     <div className="bg-ink px-4 py-2 text-center text-[12px] text-white/85">
-      <strong className="font-semibold text-white">{t({ es: 'Modo demostración.', en: 'Demo mode.' })}</strong>{' '}
+      <strong className="font-semibold text-white">{t({ es: 'Prototipo.', en: 'Prototype.' })}</strong>{' '}
       {t({
-        es: 'Catálogo de ejemplo sin base de datos: puedes navegar y llenar la cesta, pero no hacer pedidos. Configura Supabase y Stripe para activarlo (ver README).',
-        en: "Sample catalogue with no database: you can browse and fill the bag, but you can't place orders. Set up Supabase and Stripe to enable it (see README).",
+        es: 'Tienda de demostración: el catálogo, las opiniones y las compras que ves son de ejemplo y no se hacen pedidos reales.',
+        en: 'Demo shop: the catalogue, reviews and purchases you see are examples and no real orders are placed.',
       })}
     </div>
   )

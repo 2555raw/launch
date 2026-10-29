@@ -1,8 +1,9 @@
 import 'server-only'
 import { demoCategories, demoId, demoProducts, type DemoProduct } from '@/data/demo-catalog'
 import { demoCategoriesEn, demoProductsEn } from '@/data/demo-catalog-en'
+import { demoReviews } from '@/data/demo-reviews'
 import { sortAllergens } from '@/lib/allergens'
-import type { Category, ProductDetail, ProductFilter, ProductSummary } from '@/lib/types'
+import type { Category, ProductDetail, ProductFilter, ProductSummary, Review } from '@/lib/types'
 import { ingredientPhotos } from './ingredient-photos'
 import { normalizeSearch } from './mappers'
 import { DEFAULT_PAGE_SIZE, type CatalogRepository } from './repository'
@@ -126,6 +127,35 @@ function summary(p: ProductDetail): ProductSummary {
   }
 }
 
+/** Opiniones de ejemplo del prototipo, con fecha relativa a hoy (más recientes primero). */
+function exampleReviews(): (Review & { productName: string; productSlug: string; translations?: ProductSummary['translations'] })[] {
+  const now = new Date()
+  return demoReviews
+    .flatMap((r, i) => {
+      const product = products.find((p) => p.slug === r.product)
+      if (!product) return []
+      const [h, m] = r.at.split(':').map(Number)
+      const date = new Date(now)
+      date.setDate(date.getDate() - r.daysAgo)
+      date.setHours(h ?? 12, m ?? 0, 0, 0)
+      return [
+        {
+          id: demoId('review', `${r.product}-${i}`),
+          rating: r.rating,
+          title: r.title,
+          body: r.body,
+          authorName: r.author,
+          isVerified: true,
+          createdAt: date.toISOString(),
+          productName: product.name,
+          productSlug: product.slug,
+          translations: product.translations,
+        },
+      ]
+    })
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+}
+
 export function createDemoCatalog(): CatalogRepository {
   return {
     source: 'demo',
@@ -176,12 +206,13 @@ export function createDemoCatalog(): CatalogRepository {
       return [...same, ...others.sort((a, b) => b.salesCount - a.salesCount)].slice(0, limit).map(summary)
     },
 
-    async listReviews() {
-      return []
+    async listReviews(productId) {
+      const slug = products.find((p) => p.id === productId)?.slug
+      return exampleReviews().filter((r) => r.productSlug === slug)
     },
 
-    async listRecentReviews() {
-      return []
+    async listRecentReviews(limit = 6) {
+      return exampleReviews().slice(0, limit)
     },
 
     async getVariantsForQuote(variantIds) {

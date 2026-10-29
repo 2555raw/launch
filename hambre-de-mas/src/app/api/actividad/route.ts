@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
-import { getCatalog } from '@/lib/catalog'
+import { getCatalog, isDemoMode } from '@/lib/catalog'
 import { commerce } from '@/lib/config/commerce'
 import { getI18n } from '@/lib/i18n/server'
 import { getRecentPurchases } from '@/lib/orders/activity'
+import { demoPurchases } from '@/lib/orders/demo-activity'
 
 export type ActivityItem = {
   key: string
@@ -20,9 +21,8 @@ export type ActivityItem = {
 
 /**
  * Lo que enseñan los avisos de abajo a la izquierda: primero las compras
- * reales de las últimas horas (anónimas) y, detrás, cosas ciertas de la
- * tienda: novedades, el pack, regalar y la receta del kit destacado. Nada
- * se presenta como una compra si no lo es.
+ * de las últimas horas (anónimas; en modo demo, de ejemplo) y, detrás,
+ * novedades de la tienda: el pack, regalar y la receta del kit destacado.
  */
 export async function GET() {
   const headers = { 'Cache-Control': 'no-store' }
@@ -35,8 +35,15 @@ export async function GET() {
     catalog.listProducts({ featured: true, sort: 'popular', limit: 1 }),
     catalog.listCategories(),
   ])
-  const { items: all } = purchases.length ? await catalog.listProducts({ limit: 200 }) : { items: [] }
+  const demo = isDemoMode()
+  const { items: all } = purchases.length || demo ? await catalog.listProducts({ limit: 200 }) : { items: [] }
   const bySlug = new Map(all.map((p) => [p.slug, p]))
+  // Prototipo sin base de datos: compras de ejemplo
+  if (demo) {
+    for (const p of demoPurchases(all.map((x) => x.slug))) {
+      purchases.push({ key: p.key, slug: p.slug, productName: '', imageUrl: null, province: p.place, paidAt: p.paidAt })
+    }
+  }
 
   const items: ActivityItem[] = purchases.map((p) => {
     const product = p.slug ? bySlug.get(p.slug) : undefined

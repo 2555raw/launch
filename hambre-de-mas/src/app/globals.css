@@ -403,3 +403,25 @@
 }
 .typing-dot { animation: typing-dot 1s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .typing-dot { animation: none; } }
+
+/* Opiniones en movimiento: dos filas que se desplazan en sentidos contrarios */
+@keyframes reviews-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 10px)); }
+}
+.reviews-track { animation: reviews-scroll calc(var(--n, 6) * 9s) linear infinite; }
+.reviews-track[data-reverse] { animation-direction: reverse; }
+.reviews-marquee:hover .reviews-track { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .reviews-track { animation: none; }
+  .reviews-marquee { overflow-x: auto; }
+}
+
+/* Estrellas que se encienden una a una (opiniones vacías) */
+@keyframes star-fill {
+  0%, 15% { transform: scale(1); fill: transparent; }
+  25%, 75% { transform: scale(1.15); fill: currentColor; }
+  85%, 100% { transform: scale(1); fill: transparent; }
+}
+.review-stars svg { animation: star-fill 3.2s ease-in-out infinite; animation-delay: calc(var(--i) * 0.18s); }
+@media (prefers-reduced-motion: reduce) { .review-stars svg { animation: none; } }

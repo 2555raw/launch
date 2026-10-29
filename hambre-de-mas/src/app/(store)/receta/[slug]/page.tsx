@@ -180,12 +180,7 @@ export default async function RecipePage({ params }: Props) {
           <h2 id="pasos" className="font-display text-3xl font-extrabold tracking-tight">
             {t({ es: 'Paso a paso', en: 'Step by step' })}
           </h2>
-          <div className="mt-1 flex flex-wrap items-center justify-between gap-4">
-            <p className="text-[15px] text-ash-ink">
-              {t({ es: 'Toca cada paso cuando lo termines, o ponlo en modo vídeo y cocina sin tocar el móvil.', en: 'Tap each step when you finish it, or switch to video mode and cook hands-free.' })}
-            </p>
-            <RecipePlayer dish={dish} steps={playerSteps} backgrounds={backgrounds} productSlug={product.slug} />
-          </div>
+          <p className="mt-1 text-[15px] text-ash-ink">{t({ es: 'Toca cada paso cuando lo termines.', en: 'Tap each step when you finish it.' })}</p>
           <ol className="mt-6 space-y-4">
             {recipe.steps.map((step, i) => (
               <li key={step.title} className="scroll-reveal">

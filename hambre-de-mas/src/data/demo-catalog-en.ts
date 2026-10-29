@@ -53,7 +53,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['If the hummus is too thick, add water a teaspoon at a time.', 'Warm the tortilla for 10 seconds in the microwave so it doesn’t crack when you roll it.'],
     },
     variants: serves('HDM-WRP'),
-    imageAlts: ['Two veggie wraps cut in half', 'Ingredients on a chopping board'],
+    imageAlts: ['Two veggie wraps cut in half', 'Vegetable wrap rolled up on a plate'],
   },
   'kit-bowl-arcoiris': {
     name: 'Rainbow bowl kit',
@@ -74,7 +74,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['The bowl keeps for a day in the fridge: perfect for a school lunch.'],
     },
     variants: serves('HDM-BWL'),
-    imageAlts: ['Bowl with chickpeas, tomato and red cabbage', 'Colourful veg bowl seen from above'],
+    imageAlts: ['Bowl with chickpeas, tomato and red cabbage', 'Bowl of spiced chickpeas with colourful vegetables'],
   },
   'kit-parfait-frutos-rojos': {
     name: 'Berry parfait kit',
@@ -94,7 +94,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Making it for tomorrow? Keep the granola separate so it stays crunchy.'],
     },
     variants: serves('HDM-PRF'),
-    imageAlts: ['Jars of yoghurt with strawberries', 'Bowl of mixed fruit'],
+    imageAlts: ['Jars of yoghurt with strawberries', 'Glass of yoghurt layered with granola and berries'],
   },
   'kit-tostadas-aguacate': {
     name: 'Guacamole toast kit',
@@ -114,7 +114,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['For a tangy touch, add a few drops of lemon if you have some at home.'],
     },
     variants: serves('HDM-TST'),
-    imageAlts: ['Avocado and egg toast (serving suggestion)'],
+    imageAlts: ['Avocado and egg toast (serving suggestion)', 'Avocado toast with a poached egg (serving suggestion)'],
   },
   'kit-ramen-casero': {
     name: 'Homemade ramen kit',
@@ -136,7 +136,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Cook the noodles separately so the broth stays clear.', 'Spicier: more chilli oil. Milder: sesame only.'],
     },
     variants: serves('HDM-RAM'),
-    imageAlts: ['Bowl of miso ramen with shiitake mushrooms, spring onion and chilli oil (serving suggestion)'],
+    imageAlts: ['Bowl of miso ramen with shiitake mushrooms, spring onion and chilli oil (serving suggestion)', 'Ramen noodles lifted with chopsticks from a creamy broth with mushrooms'],
   },
   'kit-tacos-al-pastor': {
     name: 'Tacos al pastor kit',
@@ -158,7 +158,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Stack the warm tortillas wrapped in a tea towel so they don’t dry out.'],
     },
     variants: serves('HDM-TAC'),
-    imageAlts: ['Plate with three veggie tacos'],
+    imageAlts: ['Plate with three veggie tacos', 'Vegetable tacos with lime'],
   },
   'kit-tortitas-americanas': {
     name: 'American pancakes kit',
@@ -180,7 +180,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['The first pancake almost never works: it’s the test one.', 'Burnt outside and raw inside? Turn the heat down.'],
     },
     variants: serves('HDM-TRT'),
-    imageAlts: ['Stack of pancakes with banana and syrup', 'French toast with blueberries and banana'],
+    imageAlts: ['Stack of pancakes with banana and syrup', 'Pancake stack with blueberries, banana and syrup'],
   },
   'kit-penne-arrabbiata': {
     name: "Penne all'arrabbiata kit",
@@ -201,7 +201,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Pasta water is full of starch: that’s what makes the sauce stick.'],
     },
     variants: serves('HDM-PEN'),
-    imageAlts: ['Plate of penne with tomato sauce', 'Pan with pasta'],
+    imageAlts: ['Plate of penne with tomato sauce', 'Penne with tomato sauce, basil and grated cheese'],
   },
   'kit-curry-rojo-thai': {
     name: 'Red salmon curry kit',
@@ -223,7 +223,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Move the salmon as little as possible: if you keep touching it, it breaks.', 'Too spicy? Add more coconut milk.'],
     },
     variants: serves('HDM-CUR'),
-    imageAlts: ['Salmon fillets in red curry sauce with lemon slices', 'Pan of curry with fresh herbs'],
+    imageAlts: ['Salmon fillets in red curry sauce with lemon slices', 'Fish in coconut curry with broccoli'],
   },
   'kit-butter-chicken': {
     name: 'Butter chicken with naan kit',
@@ -268,7 +268,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['The first ones look ugly: by the tenth they’ll be perfect.', 'You can freeze them raw and cook them another day.'],
     },
     variants: serves('HDM-GYO'),
-    imageAlts: ['Steamed gyozas in a bamboo steamer'],
+    imageAlts: ['Steamed gyozas in a bamboo steamer', 'Pan-fried golden gyozas'],
   },
   'kit-pizza-napolitana': {
     name: 'Neapolitan pizza kit',
@@ -296,7 +296,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Use oven gloves to take the tray out: it’s scorching.'],
     },
     variants: { 'HDM-PIZ-2': '2 pizzas', 'HDM-PIZ-4': '4 pizzas' },
-    imageAlts: ['Freshly baked margherita pizza', 'Pizza cut into slices'],
+    imageAlts: ['Freshly baked margherita pizza', 'Margherita pizza with fresh mozzarella and basil'],
   },
   'kit-yakisoba': {
     name: 'Yakisoba kit',
@@ -317,7 +317,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['If your pan is small, do it in two batches: overcrowded veg steam instead of frying.'],
     },
     variants: serves('HDM-YAK'),
-    imageAlts: ['Stir-fried noodles on a black plate', 'Bowl of noodles with lime and veg'],
+    imageAlts: ['Stir-fried noodles on a black plate', 'Stir-fried noodles with carrot, cabbage and spring onion'],
   },
   'kit-onigiris-atun': {
     name: 'Tuna onigiri kit',
@@ -402,7 +402,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['If it’s still very runny when you poke it, give it 15 more seconds.', 'With a scoop of ice cream on top it’s next level.'],
     },
     variants: serves('HDM-MUG'),
-    imageAlts: ['Mug with a fluffy chocolate sponge and a spoon (serving suggestion)'],
+    imageAlts: ['Mug with a fluffy chocolate sponge and a spoon (serving suggestion)', 'Chocolate cake with a molten centre'],
   },
   'kit-nachos-queso': {
     name: 'Cheesy nachos kit',
@@ -422,7 +422,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['If the sauce thickens, add a tablespoon of water and stir.', 'Perfect for a movie night with friends.'],
     },
     variants: serves('HDM-NAC'),
-    imageAlts: ['Tray of nachos with melted cheese and sweet corn (serving suggestion)'],
+    imageAlts: ['Tray of nachos with melted cheese and sweet corn (serving suggestion)', 'Nachos covered in melted cheese with jalapeños'],
   },
   'kit-bolitas-energeticas': {
     name: 'Cocoa energy balls kit',
@@ -442,7 +442,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['If the mix is too dry, add a few drops of water; too soft, a little more oats.', 'They keep 5 days in a tub in the fridge.'],
     },
     variants: serves('HDM-BOL'),
-    imageAlts: ['Cocoa-dusted energy balls on a plate (serving suggestion)'],
+    imageAlts: ['Cocoa-dusted energy balls on a plate (serving suggestion)', 'Oat and nut energy balls'],
   },
   'kit-pad-thai': {
     name: 'Pad thai kit',
@@ -463,7 +463,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Don’t soak the noodles in boiling water: they break when you stir-fry.', 'A squeeze of lime on top makes it even better.'],
     },
     variants: serves('HDM-PAD'),
-    imageAlts: ['Plate of pad thai with rice noodles, bean sprouts and chives (serving suggestion)'],
+    imageAlts: ['Plate of pad thai with rice noodles, bean sprouts and chives (serving suggestion)', 'Pad thai with peanuts, bean sprouts, chives and lemon'],
   },
   'kit-risotto-setas': {
     name: 'Mushroom risotto kit',
@@ -484,7 +484,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Stirring releases the starch: that’s why it’s creamy without cream.', 'It should be loose, not dry: add a little more stock if needed.'],
     },
     variants: serves('HDM-RIS'),
-    imageAlts: ['Creamy mushroom risotto with parsley in a dark bowl (serving suggestion)'],
+    imageAlts: ['Creamy mushroom risotto with parsley in a dark bowl (serving suggestion)', 'Mushroom risotto with parmesan and chives'],
   },
   'kit-chili-sin-carne': {
     name: 'Chilli sin carne kit',
@@ -504,7 +504,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['It’s even tastier the next day.', 'Less spicy: use only half the spice sachet.'],
     },
     variants: serves('HDM-CHL'),
-    imageAlts: ['Bowl of red bean chilli with avocado and yoghurt (serving suggestion)'],
+    imageAlts: ['Bowl of red bean chilli with avocado and yoghurt (serving suggestion)', 'Red bean and corn chilli with yoghurt and spring onion (serving suggestion)'],
   },
   'kit-poke-salmon': {
     name: 'Salmon poke kit',
@@ -526,7 +526,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Wash your hands and use a clean board for the raw fish.', 'Eat the poke the same day you make it.'],
     },
     variants: serves('HDM-POK'),
-    imageAlts: ['Poke bowl with diced salmon, edamame, mango, cucumber and avocado'],
+    imageAlts: ['Poke bowl with diced salmon, edamame, mango, cucumber and avocado', 'Poke bowl with edamame, mango and vegetables'],
   },
   'kit-fajitas-pollo': {
     name: 'Chicken fajitas kit',
@@ -547,7 +547,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['Wash your hands and the board after cutting raw chicken.', 'Don’t overfill the tortilla or it will tear when you roll it.'],
     },
     variants: serves('HDM-FAJ'),
-    imageAlts: ['Rolled chicken and pepper fajita next to a jar of salsa and half a lime'],
+    imageAlts: ['Rolled chicken and pepper fajita next to a jar of salsa and half a lime', 'Grilled chicken strips with peppers and tortillas'],
   },
   'kit-carbonara': {
     name: 'Spaghetti carbonara kit',
@@ -568,7 +568,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
       tips: ['If the pan is too hot the egg scrambles: wait a minute.', 'The starchy cooking water is what makes the sauce creamy.'],
     },
     variants: serves('HDM-CAR'),
-    imageAlts: ['Spaghetti carbonara with guanciale and pecorino in a deep plate'],
+    imageAlts: ['Spaghetti carbonara with guanciale and pecorino in a deep plate', 'Spaghetti carbonara with grated pecorino'],
   },
   'caja-sorpresa': {
     name: 'Surprise box',

@@ -7,27 +7,20 @@ propias de los kits antes de abrir la tienda.
 | Archivo | Foto original |
 | --- | --- |
 | products/wraps-1.jpg | https://images.unsplash.com/photo-1626700051175-6818013e1d4f |
-| products/wraps-2.jpg, home/ingredientes.jpg | https://images.unsplash.com/photo-1466637574441-749b8f19452f |
+| home/ingredientes.jpg | https://images.unsplash.com/photo-1466637574441-749b8f19452f |
 | products/bowl-1.jpg | https://images.unsplash.com/photo-1512621776951-a57141f2eefd |
-| products/bowl-2.jpg | https://images.unsplash.com/photo-1546069901-ba9599a7e63c |
 | products/parfait-1.jpg | https://images.unsplash.com/photo-1488477181946-6428a0291777 |
-| products/parfait-2.jpg | https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea |
 | products/tostadas-1.jpg | https://images.unsplash.com/photo-1482049016688-2d3e1b311543 |
 | products/ramen-1.jpg, home/hero-ramen.jpg | https://images.unsplash.com/photo-1755548299985-6a36aa7ab289 |
 | products/tacos-1.jpg | https://images.unsplash.com/photo-1551504734-5ee1c4a1479b |
 | products/tortitas-1.jpg | https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445 |
-| products/tortitas-2.jpg | https://images.unsplash.com/photo-1484723091739-30a097e8f929 |
 | products/pasta-1.jpg | https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9 |
-| products/pasta-2.jpg | https://images.unsplash.com/photo-1551183053-bf91a1d81141 |
 | products/curry-1.jpg | https://images.unsplash.com/photo-1574484284002-952d92456975 |
-| products/curry-2.jpg | https://images.unsplash.com/photo-1596797038530-2c107229654b |
 | products/butter-1.jpg | https://images.unsplash.com/photo-1565557623262-b51c2513a641 |
 | products/butter-2.jpg | https://images.unsplash.com/photo-1585937421612-70a008356fbe |
 | products/gyozas-1.jpg | https://images.unsplash.com/photo-1563245372-f21724e3856d |
 | products/pizza-1.jpg | https://images.unsplash.com/photo-1513104890138-7c749659a591 |
-| products/pizza-2.jpg | https://images.unsplash.com/photo-1565299624946-b28f40a0ae38 |
 | products/noodles-1.jpg | https://images.unsplash.com/photo-1612929633738-8fe44f7ec841 |
-| products/noodles-2.jpg | https://images.unsplash.com/photo-1617093727343-374698b1b08d |
 | products/sorpresa-1.jpg | https://images.unsplash.com/photo-1606787366850-de6330128bfc |
 | products/sorpresa-2.jpg | https://images.unsplash.com/photo-1504674900247-0877df9cc836 |
 
@@ -47,6 +40,27 @@ El logotipo (`public/brand`) se ha recortado de la guía de identidad visual de 
 | products/poke-1.jpg | https://images.unsplash.com/photo-1768326119213-e0ad875083a3 |
 | products/fajitas-1.jpg | https://images.unsplash.com/photo-1569692062823-f1196218f0a2 |
 | products/carbonara-1.jpg | https://images.unsplash.com/photo-1633337474564-1d9478ca4e2e |
+| products/bolitas-2.jpg | https://images.unsplash.com/photo-1716392916280-e17fb5a2c191 |
+| products/bowl-3.jpg | https://images.unsplash.com/photo-1688807450144-9d10de5eb913 |
+| products/carbonara-2.jpg | https://images.unsplash.com/photo-1608756687911-aa1599ab3bd9 |
+| products/chili-2.jpg | https://images.unsplash.com/photo-1638329389022-daef2efb71b3 |
+| products/curry-3.jpg | https://images.unsplash.com/photo-1761314036779-84078bec535c |
+| products/fajitas-2.jpg | https://images.unsplash.com/photo-1689773976415-293dd893f77e |
+| products/gyozas-2.jpg | https://images.unsplash.com/photo-1738681336104-608b4e7dc3b0 |
+| products/mug-cake-2.jpg | https://images.unsplash.com/photo-1617305855058-336d24456869 |
+| products/nachos-2.jpg | https://images.unsplash.com/photo-1789990646690-b5222896487c |
+| products/noodles-3.jpg | https://images.unsplash.com/photo-1674516585728-0bcb28e0ca52 |
+| products/pad-thai-2.jpg | https://images.unsplash.com/photo-1637806931098-af30b519be53 |
+| products/parfait-3.jpg | https://images.unsplash.com/photo-1550594645-25c5bd703258 |
+| products/pasta-3.jpg | https://images.unsplash.com/photo-1788599760377-fb4008792b0a |
+| products/pizza-3.jpg | https://images.unsplash.com/photo-1682264788192-9abdec90c425 |
+| products/poke-2.jpg | https://images.unsplash.com/photo-1670816978291-a5cf23d87968 |
+| products/ramen-2.jpg | https://images.unsplash.com/photo-1653697469316-955d5ebe5994 |
+| products/risotto-2.jpg | https://images.unsplash.com/photo-1723476662512-6abc972f1167 |
+| products/tacos-2.jpg | https://images.unsplash.com/photo-1565299585323-38d6b0865b47 |
+| products/tortitas-3.jpg | https://images.unsplash.com/photo-1528207776546-365bb710ee93 |
+| products/tostadas-2.jpg | https://images.unsplash.com/photo-1687276287139-88f7333c8ca4 |
+| products/wraps-3.jpg | https://images.unsplash.com/photo-1752095809096-f09d22c466c5 |
 | home/cocinando.jpg | https://images.unsplash.com/photo-1683556262029-56f31fbf75ee |
 
 ## Ingredientes («Qué trae el kit»)

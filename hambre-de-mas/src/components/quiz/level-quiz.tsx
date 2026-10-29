@@ -34,7 +34,7 @@ const QUESTIONS: Question[] = [
     answers: [
       { score: 0, photo: '/demo/products/mug-cake-1.jpg', label: { es: 'Solo el microondas (o nada)', en: 'Just the microwave (or nothing)' } },
       { score: 1, photo: '/demo/products/pad-thai-1.jpg', label: { es: 'Fuego: sartén y cazo', en: 'The hob: pan and pot' } },
-      { score: 2, photo: '/demo/products/pizza-2.jpg', label: { es: 'De todo, también el horno', en: 'Everything, oven included' } },
+      { score: 2, photo: '/demo/products/pizza-3.jpg', label: { es: 'De todo, también el horno', en: 'Everything, oven included' } },
     ],
   },
   {

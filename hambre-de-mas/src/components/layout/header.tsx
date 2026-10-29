@@ -118,8 +118,8 @@ export function Header({ categories, menu }: { categories: NavCategory[]; menu: 
           scrolled && !overlayOpen && !mobile && 'shadow-[0_1px_0_var(--color-line)]',
         )}
       >
-        <nav aria-label={t({ es: 'Principal', en: 'Main' })} className="container-page flex h-16 items-center justify-between gap-4 lg:h-[76px]">
-          <Logo badge />
+        <nav aria-label={t({ es: 'Principal', en: 'Main' })} className="container-page flex h-14 items-center justify-between gap-4">
+          <Logo />
 
           <ul className="hidden items-center gap-7 text-[13px] text-ink/85 lg:flex" onClick={closeOnLink}>
             {navItems.map((item) => (
@@ -217,7 +217,7 @@ export function Header({ categories, menu }: { categories: NavCategory[]; menu: 
               onMouseEnter={keepOpen}
               onMouseLeave={scheduleClose}
               onClick={closeOnLink}
-              className="absolute inset-x-0 top-full z-20 hidden overflow-hidden bg-white shadow-[0_20px_40px_-20px_rgb(0_0_0/0.15)] lg:block"
+              className="absolute inset-x-0 top-full hidden overflow-hidden bg-white shadow-[0_20px_40px_-20px_rgb(0_0_0/0.15)] lg:block"
             >
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div
@@ -243,7 +243,7 @@ export function Header({ categories, menu }: { categories: NavCategory[]; menu: 
             <motion.div
               id="menu-movil"
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'calc(100dvh - 4rem)' }}
+              animate={{ opacity: 1, height: 'calc(100dvh - 3.5rem)' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.35, ease }}
               className="overflow-y-auto bg-white lg:hidden"

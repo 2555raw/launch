@@ -62,7 +62,7 @@ export function SearchPanel({ onClose }: { onClose: () => void }) {
       animate={{ height: 'auto', opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
       transition={{ duration: 0.32, ease: [0.28, 0.11, 0.32, 1] }}
-      className="absolute inset-x-0 top-full z-20 overflow-hidden bg-white shadow-[0_20px_40px_-20px_rgb(0_0_0/0.15)]"
+      className="absolute inset-x-0 top-full overflow-hidden bg-white shadow-[0_20px_40px_-20px_rgb(0_0_0/0.15)]"
     >
       <div className="container-page max-w-3xl pt-4 pb-10">
         <form

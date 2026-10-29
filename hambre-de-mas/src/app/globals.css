@@ -445,7 +445,9 @@
 }
 @keyframes badge-shine { 0%, 55% { transform: translateX(-120%); } 85%, 100% { transform: translateX(120%); } }
 
-/* Barra de desplazamiento fina del panel de filtros */
-.filters-scroll { scrollbar-width: thin; scrollbar-color: var(--color-line-strong) transparent; }
-.filters-scroll::-webkit-scrollbar { width: 6px; }
-.filters-scroll::-webkit-scrollbar-thumb { background: var(--color-line-strong); border-radius: 999px; }
+/* Panel de filtros: se desplaza con la rueda, pero sin barra visible */
+.filters-scroll { scrollbar-width: none; }
+.filters-scroll::-webkit-scrollbar { display: none; }
+
+/* «HAMBRE DE MÁS» del pie: ocupa todo el ancho (13 letras → ~10,6 vw) */
+.brand-wordmark { font-size: clamp(2.6rem, 10.6vw, 17rem); }

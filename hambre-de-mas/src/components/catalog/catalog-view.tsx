@@ -45,8 +45,8 @@ export async function CatalogView({
   return (
     <div className="container-page grid gap-10 pb-24 lg:grid-cols-[230px_1fr]">
       <aside className="hidden lg:block" aria-label={t({ es: 'Filtros', en: 'Filters' })}>
-        {/* Más alto que la pantalla: se desplaza solo, con la rueda del ratón encima */}
-        <div className="filters-scroll sticky top-20 -mr-3 max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain pr-3 pb-6">
+        {/* Más alto que la pantalla: se desplaza solo, con la rueda del ratón encima (sin barra visible) */}
+        <div className="filters-scroll sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto overscroll-contain pb-6">
           <Suspense>
             <FilterPanel categories={categoryOptions} lockCategory={lockCategory} />
           </Suspense>

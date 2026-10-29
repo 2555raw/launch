@@ -20,7 +20,7 @@ export default async function ResetRequestPage() {
         />
         <ResetRequestForm />
         <p className="mt-6 text-center text-sm">
-          <Link href="/cuenta/acceder" className="font-semibold text-white underline-offset-2 hover:underline">
+          <Link href="/cuenta/acceder" className="font-semibold text-teja underline-offset-2 hover:underline">
             {t({ es: 'Volver a iniciar sesión', en: 'Back to sign in' })}
           </Link>
         </p>

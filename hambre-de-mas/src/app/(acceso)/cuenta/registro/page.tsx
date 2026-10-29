@@ -32,9 +32,9 @@ export default async function SignUpPage({ searchParams }: { searchParams: Promi
           </>
         )}
         <SignUpForm next={target} />
-        <p className="mt-6 text-center text-sm text-white/55">
+        <p className="mt-6 text-center text-sm text-ash-ink">
           {t({ es: '¿Ya tienes cuenta?', en: 'Already have an account?' })}{' '}
-          <Link href={`/cuenta/acceder?next=${encodeURIComponent(target)}`} className="font-semibold text-white underline-offset-2 hover:underline">
+          <Link href={`/cuenta/acceder?next=${encodeURIComponent(target)}`} className="font-semibold text-teja underline-offset-2 hover:underline">
             {t({ es: 'Inicia sesión', en: 'Sign in' })}
           </Link>
         </p>

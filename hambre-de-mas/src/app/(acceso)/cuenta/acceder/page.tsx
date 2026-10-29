@@ -33,9 +33,9 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
             <SocialButtons next={target} />
           </>
         )}
-        <p className="mt-6 text-center text-sm text-white/55">
+        <p className="mt-6 text-center text-sm text-ash-ink">
           {t({ es: '¿Primera vez por aquí?', en: 'New here?' })}{' '}
-          <Link href={`/cuenta/registro?next=${encodeURIComponent(target)}`} className="font-semibold text-white underline-offset-2 hover:underline">
+          <Link href={`/cuenta/registro?next=${encodeURIComponent(target)}`} className="font-semibold text-teja underline-offset-2 hover:underline">
             {t({ es: 'Crea tu cuenta', en: 'Create an account' })}
           </Link>
         </p>

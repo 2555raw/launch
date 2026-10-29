@@ -77,7 +77,7 @@ export function FormMessage({ state }: { state: AuthState }) {
  * ---------------------------------------------------------------------- */
 
 const darkInput =
-  'h-12 w-full rounded-xl border border-white/10 bg-white/[0.05] px-4 text-[15px] text-white transition-colors placeholder:text-white/30 focus:border-white/40 focus:bg-white/[0.08] focus:outline-none aria-[invalid=true]:border-chef [color-scheme:dark]'
+  'h-12 w-full rounded-xl border border-line-strong bg-white px-4 text-[15px] text-ink transition-colors placeholder:text-ash focus:border-ink focus:outline-none aria-[invalid=true]:border-teja'
 
 const darkCheck = 'mt-0.5 size-[18px] shrink-0 rounded-md accent-chef'
 
@@ -93,7 +93,7 @@ function AuthField({
   return (
     <div className={className}>
       <div className="mb-1.5 flex items-baseline justify-between gap-3">
-        <label htmlFor={name} className="text-[11px] font-semibold tracking-[0.12em] text-white/55 uppercase">
+        <label htmlFor={name} className="text-[11px] font-semibold tracking-[0.12em] text-ash-ink uppercase">
           {label}
         </label>
         {aside}
@@ -107,7 +107,7 @@ function AuthField({
         {...props}
       />
       {hint && !error && (
-        <p id={`${name}-hint`} className="mt-1 text-xs text-white/40">
+        <p id={`${name}-hint`} className="mt-1 text-xs text-ash">
           {hint}
         </p>
       )}
@@ -142,7 +142,7 @@ export function AuthHeading({ title, lead }: { title: string; lead?: string }) {
   return (
     <div className="mb-6">
       <h1 className="font-display text-[26px] leading-tight font-bold tracking-tight">{title}</h1>
-      {lead && <p className="mt-1.5 text-sm text-white/55">{lead}</p>}
+      {lead && <p className="mt-1.5 text-sm text-ash-ink">{lead}</p>}
     </div>
   )
 }
@@ -150,8 +150,8 @@ export function AuthHeading({ title, lead }: { title: string; lead?: string }) {
 export function AuthDivider() {
   const { t } = useI18n()
   return (
-    <div className="my-5 flex items-center gap-3 text-xs text-white/40">
-      <span className="h-px flex-1 bg-white/10" /> {t({ es: 'o', en: 'or' })} <span className="h-px flex-1 bg-white/10" />
+    <div className="my-5 flex items-center gap-3 text-xs text-ash">
+      <span className="h-px flex-1 bg-line" /> {t({ es: 'o', en: 'or' })} <span className="h-px flex-1 bg-line" />
     </div>
   )
 }
@@ -180,7 +180,7 @@ export function SignInForm({ next }: { next: string }) {
         required
         error={state?.fields?.password}
         aside={
-          <Link href="/cuenta/recuperar" className="text-xs text-white/55 underline-offset-2 hover:text-white hover:underline">
+          <Link href="/cuenta/recuperar" className="text-xs text-ash-ink underline-offset-2 hover:text-ink hover:underline">
             {t({ es: '¿La has olvidado?', en: 'Forgot it?' })}
           </Link>
         }
@@ -203,8 +203,8 @@ export function SignUpForm({ next }: { next: string }) {
   const f = state?.fields ?? {}
   if (state?.ok) return <AuthMessage state={state} />
 
-  const legend = 'mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-[0.12em] text-white/55 uppercase'
-  const step = 'grid size-5 place-items-center rounded-full bg-white/10 text-[10px] text-white'
+  const legend = 'mb-3 flex items-center gap-2 text-[11px] font-semibold tracking-[0.12em] text-ash-ink uppercase'
+  const step = 'grid size-5 place-items-center rounded-full bg-chef text-[10px] text-white'
 
   return (
     <form action={action} onSubmit={keepValues(action)} className="space-y-7" noValidate>
@@ -247,7 +247,7 @@ export function SignUpForm({ next }: { next: string }) {
           <AuthField label={t({ es: 'Teléfono (opcional)', en: 'Phone (optional)' })} name="phone" type="tel" autoComplete="tel" error={f.phone} />
         </div>
         {needsGuardian && (
-          <label className="flex animate-fade-in items-start gap-3 rounded-xl bg-almendra/10 p-4 text-sm text-almendra ring-1 ring-almendra/20">
+          <label className="flex animate-fade-in items-start gap-3 rounded-xl bg-almendra-soft p-4 text-sm text-teja ring-1 ring-almendra">
             <input type="checkbox" name="guardianConsent" className={darkCheck} />
             <span>
               {t({
@@ -276,13 +276,13 @@ export function SignUpForm({ next }: { next: string }) {
               key={value}
               className={cn(
                 'cursor-pointer rounded-xl border p-3 text-center transition-colors',
-                level === value ? 'border-chef bg-chef/15' : 'border-white/10 bg-white/[0.03] hover:border-white/25',
+                level === value ? 'border-chef bg-chef/[0.06]' : 'border-line bg-white hover:border-line-strong',
               )}
             >
               <input type="radio" name="cookingLevel" value={value} checked={level === value} onChange={() => setLevel(value)} className="sr-only" />
               <span className="block font-display text-2xl font-extrabold text-chef">{value}</span>
               <span className="block text-[13px] font-semibold">{title}</span>
-              <span className="block text-[11px] text-white/45">{text}</span>
+              <span className="block text-[11px] text-ash">{text}</span>
             </label>
           ))}
         </div>
@@ -296,7 +296,7 @@ export function SignUpForm({ next }: { next: string }) {
           {ALLERGENS.map((a) => (
             <label key={a.code} className="cursor-pointer">
               <input type="checkbox" name="avoidAllergens" value={a.code} className="peer sr-only" />
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.03] py-1 pr-3 pl-1 text-xs text-white/75 transition-colors peer-checked:border-chef peer-checked:bg-chef/15 peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-white/60">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-line bg-white py-1 pr-3 pl-1 text-xs text-ink/80 transition-colors peer-checked:border-chef peer-checked:bg-chef/[0.06] peer-checked:text-teja peer-focus-visible:ring-2 peer-focus-visible:ring-ink/40">
                 <AllergenIcon code={a.code} size={20} /> {allergenLabel(a.code, locale)}
               </span>
             </label>
@@ -304,7 +304,7 @@ export function SignUpForm({ next }: { next: string }) {
         </div>
       </fieldset>
 
-      <div className="space-y-3 border-t border-white/10 pt-5 text-sm text-white/75">
+      <div className="space-y-3 border-t border-line pt-5 text-sm text-ink/80">
         <label className="flex items-start gap-3">
           <input type="checkbox" name="marketingOptIn" className={darkCheck} />
           <span>{t({ es: 'Quiero recibir recetas nuevas y promociones por email (opcional).', en: 'Send me new recipes and offers by email (optional).' })}</span>
@@ -313,7 +313,7 @@ export function SignUpForm({ next }: { next: string }) {
           <input type="checkbox" name="acceptPrivacy" className={darkCheck} required />
           <span>
             {t({ es: 'He leído y acepto la', en: 'I have read and accept the' })}{' '}
-            <Link href="/legal/privacidad" target="_blank" className="font-medium text-white underline underline-offset-2">
+            <Link href="/legal/privacidad" target="_blank" className="font-medium text-ink underline underline-offset-2">
               {t({ es: 'política de privacidad', en: 'privacy policy' })}
             </Link>
             .
@@ -343,7 +343,7 @@ export function SocialButtons({ next }: { next: string }) {
           <input type="hidden" name="next" value={next} />
           <button
             type="submit"
-            className="inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] text-[15px] font-semibold text-white transition-colors hover:border-white/25 hover:bg-white/[0.08]"
+            className="inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-line-strong bg-white text-[15px] font-semibold text-ink transition-colors hover:bg-mist"
           >
             {provider === 'google' ? <GoogleMark /> : <AppleMark />}
             {t({ es: 'Continuar con', en: 'Continue with' })} {provider === 'google' ? 'Google' : 'Apple'}

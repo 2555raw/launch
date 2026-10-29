@@ -4,7 +4,7 @@ import { getI18n } from '@/lib/i18n/server'
 export async function DemoBanner() {
   const { t } = await getI18n()
   return (
-    <p className="bg-ink px-4 pt-2 pb-6 text-center text-[11px] text-white/40">
+    <p className="bg-mist px-4 pb-6 text-center text-[11px] text-ash">
       <strong className="font-semibold">{t({ es: 'Prototipo.', en: 'Prototype.' })}</strong>{' '}
       {t({
         es: 'Tienda de demostración: el catálogo, las opiniones y las compras que ves son de ejemplo y no se hacen pedidos reales.',

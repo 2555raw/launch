@@ -109,24 +109,6 @@ export async function Footer({ categories }: { categories: Pick<Category, 'slug'
           </div>
         </div>
       </div>
-
-      {/* El nombre de la marca a todo lo ancho; cada letra se levanta al pasar el ratón */}
-      <div className="overflow-hidden bg-ink px-3 pt-10 pb-4 sm:px-5 sm:pt-14 sm:pb-6">
-        <p className="mb-4 flex justify-between gap-4 text-[12px] text-white/50 sm:mb-6 sm:text-[13px]">
-          <span>{t(site.tagline)}</span>
-          <span className="hidden sm:inline">{t({ es: 'Kits de cocina para subir de nivel', en: 'Cooking kits to level up' })}</span>
-        </p>
-        <p
-          aria-label={site.name}
-          className="brand-wordmark flex justify-between pb-[0.04em] font-display leading-[0.82] font-extrabold tracking-[-0.04em] text-chef uppercase select-none"
-        >
-          {[...site.name.toUpperCase()].map((ch, i) => (
-            <span key={i} aria-hidden className={ch === ' ' ? 'w-[0.18em]' : 'inline-block transition-transform duration-300 ease-[var(--ease-apple)] hover:-translate-y-[0.08em]'}>
-              {ch === ' ' ? '' : ch}
-            </span>
-          ))}
-        </p>
-      </div>
     </footer>
   )
 }

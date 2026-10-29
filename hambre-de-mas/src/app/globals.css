@@ -448,6 +448,3 @@
 /* Panel de filtros: se desplaza con la rueda, pero sin barra visible */
 .filters-scroll { scrollbar-width: none; }
 .filters-scroll::-webkit-scrollbar { display: none; }
-
-/* «HAMBRE DE MÁS» del pie: ocupa todo el ancho (13 letras → ~10,6 vw) */
-.brand-wordmark { font-size: clamp(2.6rem, 10.6vw, 17rem); }

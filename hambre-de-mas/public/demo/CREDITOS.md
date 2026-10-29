@@ -128,7 +128,7 @@ Fotos de referencia de cada ingrediente (`public/demo/ingredients`). Se asignan 
 | ingredients/datiles.jpg | https://images.unsplash.com/photo-1629738601425-494c3d6ba3e2 |
 | ingredients/cacahuete.jpg | https://images.unsplash.com/photo-1549978113-29eb25c8177f |
 | ingredients/fideos-arroz.jpg | https://images.unsplash.com/photo-1633352615955-f0c99e8b7e5a |
-| ingredients/tamarindo.jpg | https://images.unsplash.com/photo-1771229389277-a0a7546913f9 |
+| ingredients/tamarindo.jpg | https://images.unsplash.com/photo-1549333393-8934f7640b72 |
 | ingredients/tofu.jpg | https://images.unsplash.com/photo-1722635940350-d1b2e5129379 |
 | ingredients/boletus.jpg | https://images.unsplash.com/photo-1586783547771-67674e583dfd |
 | ingredients/queso-curado.jpg | https://images.unsplash.com/photo-1655662844300-e59c3d2e7587 |

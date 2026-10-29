@@ -304,9 +304,6 @@ export function RecipePlayer({
                           </motion.div>
                         ) : (
                           <motion.div key="fin" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-                            <span aria-hidden className="text-7xl">
-                              🍽️
-                            </span>
                             <h2 className="mt-4 font-display text-5xl font-extrabold">
                               {t({
                                 es: '¡Listo! Que aproveche.',

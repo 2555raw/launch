@@ -1,6 +1,7 @@
 'use client'
 
 import { AnimatePresence, motion } from 'framer-motion'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { LevelBars } from '@/components/home/levels-showcase'
@@ -14,7 +15,7 @@ import type { Localized } from '@/lib/i18n/config'
 export type QuizLevel = { slug: string; level: number; name: string; tagline: string | null; description: string | null }
 export type QuizKit = { slug: string; name: string; level: number; tags: string[]; minutes: number | null; image: string | null; price: string }
 
-type Answer = { label: Localized<string>; emoji: string; score?: number; pref?: string }
+type Answer = { label: Localized<string>; photo: string; score?: number; pref?: string }
 type Question = { id: string; title: Localized<string>; answers: Answer[] }
 
 const QUESTIONS: Question[] = [
@@ -22,37 +23,37 @@ const QUESTIONS: Question[] = [
     id: 'experiencia',
     title: { es: '¿Has cocinado alguna vez?', en: 'Have you ever cooked?' },
     answers: [
-      { emoji: '🙈', score: 0, label: { es: 'Nunca, ni un huevo frito', en: 'Never, not even a fried egg' } },
-      { emoji: '🍳', score: 1, label: { es: 'Alguna cosa sencilla', en: 'A few simple things' } },
-      { emoji: '👨‍🍳', score: 2, label: { es: 'Me defiendo bastante bien', en: 'I can hold my own' } },
+      { score: 0, photo: '/demo/ingredients/huevos.jpg', label: { es: 'Nunca, ni un huevo frito', en: 'Never, not even a fried egg' } },
+      { score: 1, photo: '/demo/products/tostadas-1.jpg', label: { es: 'Alguna cosa sencilla', en: 'A few simple things' } },
+      { score: 2, photo: '/demo/products/pizza-1.jpg', label: { es: 'Me defiendo bastante bien', en: 'I can hold my own' } },
     ],
   },
   {
     id: 'cocina',
     title: { es: '¿Qué puedes usar en tu cocina?', en: 'What can you use in your kitchen?' },
     answers: [
-      { emoji: '📦', score: 0, label: { es: 'Solo el microondas (o nada)', en: 'Just the microwave (or nothing)' } },
-      { emoji: '🔥', score: 1, label: { es: 'Fuego: sartén y cazo', en: 'The hob: pan and pot' } },
-      { emoji: '🏠', score: 2, label: { es: 'De todo, también el horno', en: 'Everything, oven included' } },
+      { score: 0, photo: '/demo/products/mug-cake-1.jpg', label: { es: 'Solo el microondas (o nada)', en: 'Just the microwave (or nothing)' } },
+      { score: 1, photo: '/demo/products/pad-thai-1.jpg', label: { es: 'Fuego: sartén y cazo', en: 'The hob: pan and pot' } },
+      { score: 2, photo: '/demo/products/pizza-2.jpg', label: { es: 'De todo, también el horno', en: 'Everything, oven included' } },
     ],
   },
   {
     id: 'tiempo',
     title: { es: '¿Cuánto tiempo quieres pasar cocinando?', en: 'How long do you want to spend cooking?' },
     answers: [
-      { emoji: '⚡', score: 0, pref: 'rapido', label: { es: 'Menos de 15 minutos', en: 'Under 15 minutes' } },
-      { emoji: '⏱️', score: 1, label: { es: 'Entre 20 y 30 minutos', en: '20 to 30 minutes' } },
-      { emoji: '🍲', score: 2, label: { es: 'Lo que haga falta', en: 'As long as it takes' } },
+      { score: 0, pref: 'rapido', photo: '/demo/products/parfait-1.jpg', label: { es: 'Menos de 15 minutos', en: 'Under 15 minutes' } },
+      { score: 1, photo: '/demo/products/tacos-1.jpg', label: { es: 'Entre 20 y 30 minutos', en: '20 to 30 minutes' } },
+      { score: 2, photo: '/demo/products/gyozas-1.jpg', label: { es: 'Lo que haga falta', en: 'As long as it takes' } },
     ],
   },
   {
     id: 'antojo',
     title: { es: '¿Qué te apetece más?', en: 'What are you craving?' },
     answers: [
-      { emoji: '🌶️', pref: 'picante', label: { es: 'Algo picante', en: 'Something spicy' } },
-      { emoji: '🥦', pref: 'vegetariano', label: { es: 'Sin carne', en: 'No meat' } },
-      { emoji: '💪', pref: 'alto-en-proteina', label: { es: 'Mucha proteína', en: 'Lots of protein' } },
-      { emoji: '😋', label: { es: 'Me da igual, sorpréndeme', en: 'Anything, surprise me' } },
+      { pref: 'picante', photo: '/demo/ingredients/chile.jpg', label: { es: 'Algo picante', en: 'Something spicy' } },
+      { pref: 'vegetariano', photo: '/demo/ingredients/verduras-frescas.jpg', label: { es: 'Sin carne', en: 'No meat' } },
+      { pref: 'alto-en-proteina', photo: '/demo/products/burger-1.jpg', label: { es: 'Mucha proteína', en: 'Lots of protein' } },
+      { photo: '/demo/products/sorpresa-1.jpg', label: { es: 'Me da igual, sorpréndeme', en: 'Anything, surprise me' } },
     ],
   },
 ]
@@ -118,18 +119,18 @@ export function LevelQuiz({ levels, kits }: { levels: QuizLevel[]; kits: QuizKit
             aria-live="polite"
           >
             <h2 className="font-display text-3xl font-extrabold tracking-tight text-balance sm:text-4xl">{t(question.title)}</h2>
-            <ul className={cn('mt-8 grid gap-3', question.answers.length === 4 ? 'sm:grid-cols-2' : 'sm:grid-cols-3')}>
+            <ul className={cn('mt-8 grid gap-3', question.answers.length === 4 ? 'grid-cols-2 lg:grid-cols-4' : 'sm:grid-cols-3')}>
               {question.answers.map((a) => (
                 <li key={a.label.es}>
                   <button
                     type="button"
                     onClick={() => setAnswers((prev) => [...prev, a])}
-                    className="group flex h-full w-full flex-col items-start gap-3 rounded-[22px] border-2 border-line bg-white p-5 text-left transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-ink"
+                    className="group flex h-full w-full flex-col overflow-hidden rounded-[22px] border-2 border-line bg-white text-left transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-ink"
                   >
-                    <span aria-hidden className="text-3xl transition-transform duration-300 group-hover:scale-110">
-                      {a.emoji}
+                    <span className="relative block aspect-[16/10] w-full overflow-hidden bg-mist">
+                      <Image src={a.photo} alt="" fill sizes="(min-width: 640px) 240px, 90vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
                     </span>
-                    <span className="text-[16px] font-semibold">{t(a.label)}</span>
+                    <span className="p-4 text-[16px] font-semibold">{t(a.label)}</span>
                   </button>
                 </li>
               ))}

@@ -444,3 +444,8 @@
   animation: badge-shine 3.2s var(--ease-apple) 1s infinite;
 }
 @keyframes badge-shine { 0%, 55% { transform: translateX(-120%); } 85%, 100% { transform: translateX(120%); } }
+
+/* Barra de desplazamiento fina del panel de filtros */
+.filters-scroll { scrollbar-width: thin; scrollbar-color: var(--color-line-strong) transparent; }
+.filters-scroll::-webkit-scrollbar { width: 6px; }
+.filters-scroll::-webkit-scrollbar-thumb { background: var(--color-line-strong); border-radius: 999px; }

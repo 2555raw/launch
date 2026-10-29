@@ -9,6 +9,7 @@ import { StorageChip } from '@/components/product/storage-chip'
 import { recipeQrSvg } from '@/lib/recipes/qr'
 import { ProductCard } from '@/components/product/product-card'
 import { PurchasePanel } from '@/components/product/purchase-panel'
+import { KitUnboxing } from '@/components/product/kit-unboxing'
 import { ReviewAuthor } from '@/components/product/review-author'
 import { ReviewForm } from '@/components/product/review-form'
 import { JsonLd } from '@/components/seo/json-ld'
@@ -320,6 +321,18 @@ export default async function ProductPage({ params }: Props) {
               </div>
             </div>
           </section>
+        )}
+
+        {product.includes.length > 0 && (
+          <KitUnboxing
+            name={product.name}
+            level={product.category?.level ?? null}
+            levelName={product.category?.name ?? null}
+            items={product.includes}
+            images={product.includeImages}
+            storage={product.attributes.storage}
+            qrSvg={qrSvg}
+          />
         )}
 
         <div className="mt-20 grid gap-12 border-t border-line pt-16 lg:grid-cols-[1fr_1.2fr] lg:gap-20">

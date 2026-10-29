@@ -31,8 +31,17 @@ export default async function HomePage() {
 
   const heroProduct = featured.items[0] ?? popular.items[0] ?? null
   const featuredGrid = featured.items.filter((p) => p.id !== heroProduct?.id).slice(0, 4)
-  const heroDetail = heroProduct ? await catalog.getProduct(heroProduct.slug) : null
-  const heroQr = heroDetail?.recipe.steps.length ? await recipeQrSvg(heroDetail.slug) : null
+
+  // Portada: el kit más pedido de cada nivel (sin repetir el ramen, que ya sale en otras secciones)
+  const levels = categories.filter((c) => c.level).sort((a, b) => (a.level ?? 0) - (b.level ?? 0))
+  const tops = await Promise.all(levels.map((c) => catalog.listProducts({ category: c.slug, sort: 'popular', limit: 3 })))
+  const heroPicks = tops.flatMap((page) => page.items.filter((p) => p.slug !== 'kit-ramen-casero').slice(0, 1))
+  const center = heroPicks.length >= 3 ? heroPicks[1] : heroPicks[0]
+  const heroQr = center ? await recipeQrSvg(center.slug) : null
+  const allReviews = await catalog.listRecentReviews(100)
+  const heroRating = allReviews.length
+    ? { average: allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length, count: allReviews.length }
+    : null
 
   return (
     <>
@@ -59,12 +68,7 @@ export default async function HomePage() {
           },
         }}
       />
-      <Hero
-        product={heroProduct}
-        includes={heroDetail?.includes.filter((i) => !/tarjeta|recipe card/i.test(i))}
-        qrSvg={heroQr}
-        recipeHref={heroDetail ? `/receta/${heroDetail.slug}` : undefined}
-      />
+      <Hero picks={heroPicks} qrSvg={heroQr} recipeHref={center ? `/receta/${center.slug}` : undefined} rating={heroRating} />
       <LevelsRow categories={categories} />
       <NewArrivals products={newest.items} />
       <ProductGridSection

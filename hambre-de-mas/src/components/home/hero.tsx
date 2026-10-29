@@ -1,155 +1,190 @@
 import Link from 'next/link'
 import { buttonClass } from '@/components/ui/button'
-import { ArrowRightIcon, ChevronRightIcon, PlayIcon, ShieldIcon, TruckIcon } from '@/components/ui/icons'
+import { ArrowRightIcon, ChevronRightIcon, PlayIcon, ShieldIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
+import { cn } from '@/lib/cn'
 import { getI18n } from '@/lib/i18n/server'
 import { formatPrice } from '@/lib/money'
 import type { ProductSummary } from '@/lib/types'
 
 /**
- * Portada sobre fondo blanco: titular, llamadas a la acción y el kit destacado
- * en una sola foto grande, con la tarjeta de receta (QR real) y la ficha de
- * compra encima. Las entradas son CSS (globals.css), así que funcionan aunque
- * el JavaScript no haya cargado.
+ * Portada: titular centrado y, debajo, un kit por nivel en abanico (el del
+ * centro, más grande, con la tarjeta del QR de su receta). Las entradas y el
+ * vaivén son CSS (globals.css), así que funcionan sin JavaScript.
  */
 
 type Props = {
-  product: ProductSummary | null
-  includes?: string[]
-  /** SVG del QR que abre la receta del kit. */
+  /** Un kit por nivel (1, 2 y 3), en ese orden. */
+  picks: ProductSummary[]
+  /** SVG del QR de la receta del kit del centro. */
   qrSvg?: string | null
   recipeHref?: string
+  rating?: { average: number; count: number } | null
 }
 
 const v = (vars: Record<string, string | number>) => vars as React.CSSProperties
 
-export async function Hero({ product, includes, qrSvg, recipeHref }: Props) {
+export async function Hero({ picks, qrSvg, recipeHref, rating }: Props) {
   const { locale, t } = await getI18n()
+  const [left, center, right] = picks.length >= 3 ? [picks[0], picks[1], picks[2]] : [undefined, picks[0], undefined]
+
   return (
     <section className="relative overflow-hidden bg-white">
-      <div className="container-page grid items-center gap-12 pt-10 pb-16 sm:pt-14 lg:min-h-[min(760px,calc(100dvh-3.5rem))] lg:grid-cols-[1fr_1fr] lg:gap-16 lg:py-16">
-        <div className="max-w-xl">
-          <Link
-            href="/#niveles"
-            className="rise-in group inline-flex items-center gap-2 rounded-full bg-almendra-soft py-1.5 pr-3 pl-1.5 text-[13px] font-medium text-teja transition-colors hover:bg-almendra"
-          >
-            <span className="rounded-full bg-chef-ink px-2 py-0.5 text-[11px] font-semibold tracking-wide text-white uppercase">
-              {t({ es: '3 niveles', en: '3 levels' })}
-            </span>
-            {t({ es: 'De sin fuego a recetas del mundo', en: 'From no-heat to world recipes' })}
-            <ChevronRightIcon size={14} className="transition-transform group-hover:translate-x-0.5" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-0 h-[520px] bg-[radial-gradient(60%_60%_at_50%_0%,rgb(253_228_207/0.7),transparent)]" />
+      <div className="container-page relative flex flex-col items-center pt-12 pb-10 text-center sm:pt-16">
+        <Link
+          href="/#niveles"
+          className="rise-in group inline-flex items-center gap-2 rounded-full bg-white py-1.5 pr-3 pl-1.5 text-[13px] font-medium text-teja shadow-[0_1px_0_rgb(0_0_0/0.04),0_6px_20px_-10px_rgb(191_45_17/0.35)] ring-1 ring-almendra transition-colors hover:bg-almendra-soft"
+        >
+          <span className="rounded-full bg-chef-ink px-2 py-0.5 text-[11px] font-semibold tracking-wide text-white uppercase">{t({ es: '3 niveles', en: '3 levels' })}</span>
+          {t({ es: 'De sin fuego a recetas del mundo', en: 'From no-heat to world recipes' })}
+          <ChevronRightIcon size={14} className="transition-transform group-hover:translate-x-0.5" />
+        </Link>
+        <h1
+          className="rise-in mt-7 max-w-4xl font-display text-[46px] leading-[1.02] font-extrabold tracking-[-0.04em] text-balance text-ink sm:text-7xl lg:text-[96px]"
+          style={v({ '--delay': '0.08s' })}
+        >
+          {t({ es: 'Cocina lo que te', en: 'Cook what you' })} <span className="text-chef">{t({ es: 'flipa.', en: 'crave.' })}</span>
+        </h1>
+        <p className="rise-in mt-6 max-w-2xl text-lg leading-relaxed text-ash-ink sm:text-xl" style={v({ '--delay': '0.16s' })}>
+          {t({
+            es: 'Kits de cocina para adolescentes. Todo medido en la caja, la receta paso a paso en un QR y tres niveles para ir subiendo.',
+            en: 'Cooking kits for teens. Everything pre-measured in the box, a step-by-step recipe on a QR code and three levels to climb.',
+          })}
+        </p>
+        <div className="rise-in mt-9 flex flex-wrap items-center justify-center gap-3" style={v({ '--delay': '0.24s' })}>
+          <Link href="/tienda" className={buttonClass('primary', 'lg')}>
+            {t({ es: 'Elegir mi kit', en: 'Pick my kit' })}
           </Link>
-          <h1
-            className="rise-in mt-6 font-display text-[44px] leading-[1.03] font-extrabold tracking-[-0.035em] text-balance text-ink sm:text-6xl lg:text-[76px]"
-            style={v({ '--delay': '0.08s' })}
-          >
-            {t({ es: 'Cocina lo que te', en: 'Cook what you' })} <span className="text-chef">{t({ es: 'flipa.', en: 'crave.' })}</span>
-          </h1>
-          <p className="rise-in mt-6 max-w-md text-lg leading-relaxed text-ash-ink sm:text-xl" style={v({ '--delay': '0.16s' })}>
-            {t({
-              es: 'Kits de cocina para adolescentes. Todo medido en la caja, la receta paso a paso en un QR y tres niveles para ir subiendo.',
-              en: 'Cooking kits for teens. Everything pre-measured in the box, a step-by-step recipe on a QR code and three levels to climb.',
-            })}
-          </p>
-          <div className="rise-in mt-9 flex flex-wrap items-center gap-3" style={v({ '--delay': '0.24s' })}>
-            <Link href="/tienda" className={buttonClass('primary', 'lg')}>
-              {t({ es: 'Elegir mi kit', en: 'Pick my kit' })}
-            </Link>
-            <Link href="/#como-funciona" className={buttonClass('secondary', 'lg', 'group')}>
-              {t({ es: 'Cómo funciona', en: 'How it works' })}
-              <ArrowRightIcon size={17} className="transition-transform duration-300 group-hover:translate-x-0.5" />
-            </Link>
-          </div>
-          <ul className="rise-in mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-line pt-6" style={v({ '--delay': '0.32s' })}>
-            <HeroFact icon={<TruckIcon size={18} />} title={t({ es: 'Envío gratis', en: 'Free shipping' })} text={t({ es: 'desde 40 €', en: 'from €40' })} />
-            <HeroFact icon={<PlayIcon size={18} />} title={t({ es: 'Receta en QR', en: 'QR recipe' })} text={t({ es: 'en cada kit', en: 'in every kit' })} />
-            <HeroFact icon={<ShieldIcon size={18} />} title={t({ es: 'Pago seguro', en: 'Secure payment' })} text={t({ es: 'con Stripe', en: 'with Stripe' })} />
-          </ul>
+          <Link href="/#como-funciona" className={buttonClass('secondary', 'lg', 'group')}>
+            {t({ es: 'Cómo funciona', en: 'How it works' })}
+            <ArrowRightIcon size={17} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+          </Link>
         </div>
+        {rating && rating.count > 0 && (
+          <p className="rise-in mt-6 flex items-center gap-2 text-sm text-ash-ink" style={v({ '--delay': '0.3s' })}>
+            <span className="flex gap-0.5 text-chef">
+              {Array.from({ length: 5 }, (_, i) => (
+                <StarIcon key={i} size={15} />
+              ))}
+            </span>
+            <strong className="font-semibold text-ink">{rating.average.toFixed(1).replace('.', locale === 'en' ? '.' : ',')}</strong>
+            {t({ es: `de ${rating.count} opiniones`, en: `from ${rating.count} reviews` })}
+          </p>
+        )}
 
-        <FeaturedKit product={product} includes={includes} qrSvg={qrSvg} recipeHref={recipeHref} locale={locale} />
+        {/* Un kit por nivel, en abanico */}
+        <div className="rise-in relative mt-12 h-[290px] w-full max-w-5xl sm:mt-14 sm:h-[520px] lg:h-[560px]" style={v({ '--delay': '0.32s' })}>
+          {left && <KitCard product={left} locale={locale} side="left" className="left-0 w-[46%] -rotate-6 sm:left-[2%] sm:w-[34%]" delay="0s" />}
+          {right && <KitCard product={right} locale={locale} side="right" className="right-0 w-[46%] rotate-6 sm:right-[2%] sm:w-[34%]" delay="1.5s" />}
+          {center && (
+            <KitCard product={center} locale={locale} className="left-1/2 z-10 w-[58%] -translate-x-1/2 sm:w-[40%]" delay="0.75s" big>
+              {qrSvg && recipeHref && (
+                <a
+                  href={recipeHref}
+                  aria-label={t({ es: 'Ver la receta del kit', en: 'See the kit recipe' })}
+                  className="absolute -top-5 -right-6 hidden w-28 -rotate-3 rounded-2xl bg-white p-2.5 shadow-float ring-1 ring-line transition-transform hover:rotate-0 sm:block lg:-right-10 lg:w-32"
+                >
+                  <span className="block [&_svg]:h-auto [&_svg]:w-full" dangerouslySetInnerHTML={{ __html: qrSvg }} />
+                  <span className="mt-1 block text-center text-[10px] leading-tight font-semibold text-ink">
+                    {t({ es: 'Escanea y cocina', en: 'Scan and cook' })}
+                  </span>
+                </a>
+              )}
+            </KitCard>
+          )}
+        </div>
+      </div>
+
+      <div className="container-page pb-14">
+        <ul className="mx-auto grid max-w-3xl grid-cols-3 gap-4 border-t border-line pt-7">
+          <HeroFact icon={<TruckIcon size={18} />} title={t({ es: 'Envío gratis', en: 'Free shipping' })} text={t({ es: 'desde 40 €', en: 'from €40' })} />
+          <HeroFact icon={<PlayIcon size={18} />} title={t({ es: 'Receta en QR', en: 'QR recipe' })} text={t({ es: 'en cada kit', en: 'in every kit' })} />
+          <HeroFact icon={<ShieldIcon size={18} />} title={t({ es: 'Pago seguro', en: 'Secure payment' })} text={t({ es: 'con Stripe', en: 'with Stripe' })} />
+        </ul>
       </div>
     </section>
   )
 }
 
+function KitCard({
+  product,
+  locale,
+  className,
+  delay,
+  big = false,
+  side,
+  children,
+}: {
+  product: ProductSummary
+  locale: 'es' | 'en'
+  className?: string
+  delay: string
+  big?: boolean
+  /** Tarjetas laterales: la etiqueta va arriba, en la esquina que no tapa la del centro. */
+  side?: 'left' | 'right'
+  children?: React.ReactNode
+}) {
+  const level = product.category?.level
+  return (
+    <div className={cn('absolute top-0 sm:top-6', big && 'top-0 sm:top-0', className)}>
+      <div className="float-soft relative" style={v({ animationDelay: delay })}>
+        <Link
+          href={`/producto/${product.slug}`}
+          className={cn(
+            'group relative block aspect-[4/5] overflow-hidden rounded-[28px] bg-mist shadow-[0_40px_80px_-30px_rgb(29_29_31/0.45)] ring-1 ring-black/5 transition-transform duration-500 ease-[var(--ease-apple)] hover:-translate-y-2 sm:rounded-[36px]',
+          )}
+        >
+          <ProductImage
+            src={product.image?.url ?? '/demo/products/wraps-1.jpg'}
+            alt={product.image?.alt ?? product.name}
+            fill
+            priority={big}
+            sizes="(min-width: 1024px) 420px, 50vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          {side ? (
+            <span
+              className={cn(
+                'absolute top-3 hidden max-w-[58%] rounded-2xl bg-white/90 px-3 py-2 text-left backdrop-blur sm:top-4 sm:block',
+                side === 'left' ? 'left-3 sm:left-4' : 'right-3 sm:right-4',
+              )}
+            >
+              {level && <span className="block text-[10px] font-bold tracking-wider text-teja uppercase">{locale === 'en' ? 'Level' : 'Nivel'} {level}</span>}
+              <span className="block truncate font-display text-[13px] font-bold text-ink sm:text-[15px]">{product.name}</span>
+              <span className="block text-[12px] font-semibold text-ink/70 tabular-nums">{formatPrice(product.priceCents, locale)}</span>
+            </span>
+          ) : (
+          <>
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute inset-x-3 bottom-3 flex items-center justify-between gap-2 rounded-2xl bg-white/90 px-3.5 py-2.5 text-left backdrop-blur sm:inset-x-4 sm:bottom-4">
+            <span className="min-w-0">
+              {level && (
+                <span className="block text-[10px] font-bold tracking-wider text-teja uppercase sm:text-[11px]">
+                  {locale === 'en' ? 'Level' : 'Nivel'} {level}
+                </span>
+              )}
+              <span className={cn('block truncate font-display font-bold text-ink', big ? 'text-[15px] sm:text-lg' : 'text-[13px] sm:text-base')}>{product.name}</span>
+            </span>
+            <span className="shrink-0 text-[13px] font-semibold text-ink tabular-nums sm:text-sm">{formatPrice(product.priceCents, locale)}</span>
+          </div>
+          </>
+          )}
+        </Link>
+        {children}
+      </div>
+    </div>
+  )
+}
+
 function HeroFact({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <li className="flex flex-col gap-1.5 text-[13px] leading-snug sm:flex-row sm:items-start sm:gap-2.5">
-      <span className="mt-0.5 text-chef-ink">{icon}</span>
+    <li className="flex flex-col items-center gap-1.5 text-center text-[13px] leading-snug sm:flex-row sm:justify-center sm:gap-2.5 sm:text-left">
+      <span className="text-chef-ink">{icon}</span>
       <span>
         <strong className="block font-semibold text-ink">{title}</strong>
         <span className="text-ash-ink">{text}</span>
       </span>
     </li>
-  )
-}
-
-function FeaturedKit({ product, includes, qrSvg, recipeHref, locale }: Props & { locale: 'es' | 'en' }) {
-  const t = <T,>(text: { es: T; en: T }) => text[locale]
-  const image = product?.image?.url ?? '/demo/home/hero-ramen.jpg'
-  const level = product?.category?.level
-  const contents = (includes ?? []).slice(0, 3)
-
-  return (
-    <div className="rise-in relative mx-auto w-full max-w-[560px] lg:mr-0" style={v({ '--delay': '0.2s' })}>
-      <div className="relative aspect-[4/5] overflow-hidden rounded-[36px] bg-mist">
-        <ProductImage
-          src={image}
-          alt={product?.image?.alt ?? t({ es: 'Plato terminado del kit destacado', en: 'Finished dish from the featured kit' })}
-          fill
-          priority
-          sizes="(min-width: 1024px) 560px, 100vw"
-          className="object-cover"
-        />
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/45 to-transparent" />
-        {level && (
-          <p className="absolute top-5 left-5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-ink backdrop-blur">
-            {t({ es: 'Nivel', en: 'Level' })} {level}
-            {product?.category?.name ? ` · ${product.category.name}` : ''}
-          </p>
-        )}
-
-        {product && (
-          <div className="absolute inset-x-4 bottom-4 rounded-[24px] bg-white/95 p-5 shadow-float backdrop-blur sm:inset-x-5 sm:bottom-5">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold tracking-wide text-teja uppercase">{product.badge ?? t({ es: 'Kit destacado', en: 'Featured kit' })}</p>
-                <p className="mt-0.5 font-display text-lg leading-tight font-bold text-ink sm:text-xl">{product.name}</p>
-              </div>
-              <p className="shrink-0 text-[15px] text-ink tabular-nums">
-                <span className="text-ash-ink">{t({ es: 'Desde ', en: 'From ' })}</span>
-                <strong className="font-semibold">{formatPrice(product.priceCents, locale)}</strong>
-              </p>
-            </div>
-            {contents.length > 0 && (
-              <p className="mt-2 line-clamp-1 text-[13px] text-ash-ink">
-                {t({ es: 'En la caja', en: 'In the box' })}: {contents.join(' · ')}
-              </p>
-            )}
-            <Link href={`/producto/${product.slug}`} className={buttonClass('primary', 'md', 'mt-4 w-full')}>
-              {t({ es: 'Ver el kit', en: 'See the kit' })}
-            </Link>
-          </div>
-        )}
-      </div>
-
-      {qrSvg && recipeHref && (
-        <div className="absolute top-4 right-4 w-[clamp(104px,26%,144px)] sm:top-8 sm:-right-6">
-          <div className="float-soft rounded-2xl bg-white p-3 shadow-float ring-1 ring-line">
-            <a
-              href={recipeHref}
-              aria-label={t({ es: 'Ver la receta del kit destacado', en: 'See the featured kit recipe' })}
-              className="block [&_svg]:h-auto [&_svg]:w-full"
-              dangerouslySetInnerHTML={{ __html: qrSvg }}
-            />
-            <p className="mt-2 text-center text-[11px] leading-tight font-semibold text-ink">
-              {t({ es: 'Escanea', en: 'Scan' })}
-              <span className="block font-normal text-ash-ink">{t({ es: 'y cocina paso a paso', en: 'and cook step by step' })}</span>
-            </p>
-          </div>
-        </div>
-      )}
-    </div>
   )
 }

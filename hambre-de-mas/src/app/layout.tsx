@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Caveat, Inter, Montserrat } from 'next/font/google'
+import { Inter, Montserrat } from 'next/font/google'
 import { CartProvider } from '@/components/cart/cart-context'
 import { CookieConsent } from '@/components/legal/cookie-consent'
 import { MotionProvider } from '@/components/motion/motion-provider'
@@ -16,8 +16,6 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
   display: 'swap',
 })
-// Letra de rotulador para las notas escritas a mano (ver Scribble)
-const caveat = Caveat({ subsets: ['latin'], weight: ['600', '700'], variable: '--font-caveat', display: 'swap' })
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getI18n()
@@ -53,7 +51,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { locale } = await getI18n()
   return (
-    <html lang={locale} className={`${inter.variable} ${montserrat.variable} ${caveat.variable}`}>
+    <html lang={locale} className={`${inter.variable} ${montserrat.variable}`}>
       <body className="min-h-dvh">
         <I18nProvider locale={locale}>
           <MotionProvider>

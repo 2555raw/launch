@@ -156,6 +156,15 @@ export const newsletterSchema = z.object({
   consent: z.literal(true, { error: 'Necesitamos tu consentimiento' }),
 })
 
+/** Encargo de una edición que aún no se puede comprar (no se paga nada). */
+export const preorderSchema = z.object({
+  variantId: z.uuid({ error: 'Elige un tamaño' }),
+  quantity: z.coerce.number().int().min(1).max(commerce.maxQuantityPerLine),
+  fullName: trimmed(120, 'El nombre'),
+  email: emailSchema,
+  consent: z.literal(true, { error: 'Necesitamos tu consentimiento' }),
+})
+
 export const reviewSchema = z.object({
   productId: z.uuid(),
   rating: z.coerce.number().int().min(1).max(5),

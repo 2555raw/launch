@@ -1,4 +1,5 @@
 import { sortAllergens } from '@/lib/allergens'
+import { isPreorder } from '@/lib/preorder'
 import { ingredientPhotos } from './ingredient-photos'
 import type { Category, ProductDetail, ProductImage, ProductSummary, Recipe, Variant } from '@/lib/types'
 
@@ -87,7 +88,8 @@ export function mapProductSummary(row: any): ProductSummary {
     image: images[0] ?? null,
     hoverImage: images[1] ?? null,
     variantCount: (row.variants ?? []).filter((v: any) => v.is_active !== false).length,
-    quickAdd: quickAddOf(
+    // Lo que solo se puede encargar no lleva «Añadir» rápido
+    quickAdd: isPreorder(row.attributes) ? null : quickAddOf(
       (row.variants ?? []).map((v: any) => ({ id: v.id, sku: v.sku, name: v.name, priceCents: v.price_cents, stock: v.stock, isActive: v.is_active !== false })),
     ),
     translations: translationsOf(row.translations),

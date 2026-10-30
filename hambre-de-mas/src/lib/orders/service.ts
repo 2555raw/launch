@@ -1,6 +1,7 @@
 import 'server-only'
 import { createSupabaseServiceClient } from '@/lib/supabase/service'
 import type { Order, ShippingAddress } from '@/lib/types'
+import type { Locale } from '@/lib/i18n/config'
 import { ORDER_SELECT, mapOrder } from './mapper'
 
 /**
@@ -201,6 +202,17 @@ export function createOrdersService() {
           is_default: (count ?? 0) === 0,
         })
       if (error) console.warn('[pedidos] no se pudo guardar la dirección', error.message)
+    },
+
+    /** Guarda (o actualiza) el encargo de una edición que aún no está a la venta. */
+    async savePreorder(input: { productId: string; variantId: string; quantity: number; name: string; email: string; locale: Locale }) {
+      const { error } = await db()
+        .from('preorders')
+        .upsert(
+          { product_id: input.productId, variant_id: input.variantId, quantity: input.quantity, name: input.name, email: input.email, locale: input.locale },
+          { onConflict: 'variant_id,email' },
+        )
+      if (error) throw new Error(`[encargos] no se pudo guardar: ${error.message}`)
     },
 
     async subscribeNewsletter(email: string, consentText: string) {

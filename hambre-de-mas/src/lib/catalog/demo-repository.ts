@@ -3,6 +3,7 @@ import { demoCategories, demoId, demoProducts, type DemoProduct } from '@/data/d
 import { demoCategoriesEn, demoProductsEn } from '@/data/demo-catalog-en'
 import { demoReviews } from '@/data/demo-reviews'
 import { sortAllergens } from '@/lib/allergens'
+import { isPreorder } from '@/lib/preorder'
 import type { Category, ProductDetail, ProductFilter, ProductSummary, Review } from '@/lib/types'
 import { ingredientPhotos } from './ingredient-photos'
 import { newArrivalsSince } from './params'
@@ -89,7 +90,7 @@ function toDetail(p: DemoProduct): ProductDetail {
     hoverImage: images[1] ?? null,
     variants,
     variantCount: variants.length,
-    quickAdd: quickAddOf(variants),
+    quickAdd: isPreorder(p.attributes) ? null : quickAddOf(variants),
     seoTitle: null,
     seoDescription: null,
     translations: demoProductsEn[p.slug] ? { en: demoProductsEn[p.slug] } : {},
@@ -125,7 +126,7 @@ function summary(p: ProductDetail): ProductSummary {
     image: p.image,
     hoverImage: p.hoverImage,
     variantCount: p.variantCount,
-    quickAdd: quickAddOf(p.variants),
+    quickAdd: isPreorder(p.attributes) ? null : quickAddOf(p.variants),
     translations: p.translations,
   }
 }
@@ -239,6 +240,7 @@ export function createDemoCatalog(): CatalogRepository {
             productPublished: true,
             taxRateBps: p.taxRateBps,
             imageUrl: p.image?.url ?? null,
+            preorderRelease: isPreorder(p.attributes) ? p.attributes.preorder!.releaseDate : null,
             categoryLevel: p.category?.level ?? null,
             categoryName: p.category?.name ?? null,
             categoryTranslations: p.category?.translations,

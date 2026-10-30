@@ -162,3 +162,17 @@ Fotos de referencia de cada ingrediente (`public/demo/ingredients`). Se asignan 
 | quiz/microondas.jpg | https://images.unsplash.com/photo-1690731849383-514935755156 |
 | quiz/fuego.jpg | https://images.unsplash.com/photo-1581622558638-818128465982 |
 | quiz/horno.jpg | https://images.unsplash.com/photo-1565357253897-79d691886a73 |
+
+## Caja Sobremesa (edición Navidad)
+
+| Archivo | Foto original | Autor |
+| --- | --- | --- |
+| products/navidad-1.jpg | https://unsplash.com/photos/9JNsMz9R7iQ | sofia lyu |
+| products/navidad-2.jpg | https://unsplash.com/photos/XWosrwqzJD8 | Zion C |
+| ingredients/codillo.jpg | https://unsplash.com/photos/9JNsMz9R7iQ | sofia lyu |
+| ingredients/patatas.jpg | https://unsplash.com/photos/bHt442hBEjI | Alicia Christin Gerald |
+| ingredients/lombarda.jpg | https://unsplash.com/photos/i1hgnckG_DE | Don Ricardo |
+| ingredients/pasas.jpg | https://unsplash.com/photos/2-gYuTl3in4 | Karyna Panchenko |
+| ingredients/miel-mostaza.jpg | https://unsplash.com/photos/0CnPTkMwEg8 | Barring family International |
+| ingredients/romero.jpg | https://unsplash.com/photos/RN9xjijWZF8 | Átila Matias |
+| ingredients/turron.jpg | https://unsplash.com/photos/2jpW0k8SjYg | Bruno Delebecque |

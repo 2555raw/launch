@@ -32,6 +32,7 @@ export const VALIDATION_EN: Record<string, string> = {
   'Con menos de 14 años necesitas el permiso de tu madre, padre o tutor': 'Under 14 you need permission from your parent or guardian',
   'Escribe tu contraseña': 'Enter your password',
   'Necesitamos tu consentimiento': 'We need your consent',
+  'Elige un tamaño': 'Choose a size',
   'Cuéntanos un poco más (mínimo 10 caracteres)': 'Tell us a bit more (at least 10 characters)',
   'Revisa los datos del formulario': 'Please check the form',
 }

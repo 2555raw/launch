@@ -24,6 +24,7 @@ import { getI18n } from '@/lib/i18n/server'
 import type { Localized } from '@/lib/i18n/config'
 import { formatDate, formatPrice } from '@/lib/money'
 import type { Heat, Nutrition } from '@/lib/types'
+import { isPreorder, releaseLabel } from '@/lib/preorder'
 
 export const revalidate = 60
 
@@ -316,10 +317,15 @@ export default async function ProductPage({ params }: Props) {
                 <TruckIcon className="mt-0.5 shrink-0" />
                 <span>
                   <strong className="font-semibold">
-                    {t({
-                      es: `Envío en ${commerce.deliveryEstimate}`,
-                      en: `Delivery in ${commerce.deliveryEstimate.replace('h laborables', 'working hours')}`,
-                    })}
+                    {product.attributes.preorder && isPreorder(product.attributes)
+                      ? t({
+                          es: `Sale el ${releaseLabel(product.attributes.preorder.releaseDate, locale)}`,
+                          en: `Out on ${releaseLabel(product.attributes.preorder.releaseDate, locale)}`,
+                        })
+                      : t({
+                          es: `Envío en ${commerce.deliveryEstimate}`,
+                          en: `Delivery in ${commerce.deliveryEstimate.replace('h laborables', 'working hours')}`,
+                        })}
                   </strong>
                   <span className="block text-ash-ink">
                     {t({

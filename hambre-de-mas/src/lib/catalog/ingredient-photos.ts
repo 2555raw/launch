@@ -13,6 +13,13 @@ const rules: [RegExp, string | null][] = [
   [/tarjeta|receta exclusiva|pegatina|kit sorpresa/i, null],
   // Primero los nombres compuestos, para que no los capture una regla general
   [/aceite de chile/i, 'aceite-chile'],
+  [/codillo/i, 'codillo'],
+  [/lombarda/i, 'lombarda'],
+  [/patatas/i, 'patatas'],
+  [/pi[ñn]ones|pasas/i, 'pasas'],
+  [/miel/i, 'miel-mostaza'],
+  [/romero|laurel/i, 'romero'],
+  [/turr[oó]n/i, 'turron'],
   [/aceite de s[ée]samo/i, 'aceite-sesamo'],
   [/tortillas? de trigo/i, 'tortilla-trigo'],
   [/tortillas? de ma[ií]z/i, 'tortilla-maiz'],

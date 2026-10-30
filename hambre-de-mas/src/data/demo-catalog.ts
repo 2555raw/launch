@@ -15,7 +15,7 @@
  */
 
 import type { Allergen } from '@/lib/allergens'
-import type { Nutrition } from '@/lib/types'
+import type { Nutrition, Preorder } from '@/lib/types'
 
 /** UUID determinista a partir de un texto, para que demo y base de datos coincidan. */
 export function demoId(kind: string, key: string): string {
@@ -81,6 +81,8 @@ export type DemoProduct = {
     storage: 'seco' | 'fresco'
     /** Valores aproximados por ración; los kits con 25 g de proteína o más llevan la etiqueta alto-en-proteina. */
     nutrition?: Nutrition
+    /** Solo se puede encargar (no comprar) hasta la fecha de salida. */
+    preorder?: Preorder
   }
   tags: string[]
   /** Alérgenos del kit, trazas y los que añade lo que pone el cliente (ver src/lib/allergens.ts). */
@@ -1069,6 +1071,66 @@ export const demoProducts: DemoProduct[] = [
     featured: true,
     salesCount: 64,
     publishedDaysAgo: 75,
+  },
+  {
+    slug: 'caja-sobremesa-navidad',
+    name: 'Caja Sobremesa',
+    subtitle: 'Edición Navidad. Codillo asado con lombarda, patatas panaderas y turrón para después.',
+    description:
+      'En España la Navidad no termina al acabar de comer: empieza la sobremesa, esas horas en las que nadie se levanta de la mesa. Esta caja es para ganártela. El codillo de cerdo llega ya cocinado a baja temperatura durante 12 horas, así que tú solo le das el horno para que la piel quede crujiente, con una salsa de miel y mostaza, patatas panaderas y lombarda con manzana, piñones y pasas, como en casa de los abuelos. Y para la sobremesa, turrón de almendra. Edición limitada: solo se puede encargar y sale el 25 de diciembre.',
+    category: 'caja-sorpresa',
+    variants: [
+      { name: '2 personas', sku: 'HDM-NAV-2', price: 4990, stock: 40 },
+      { name: '4 personas', sku: 'HDM-NAV-4', price: 8990, compareAt: 9980, stock: 20 },
+    ],
+    images: [
+      { file: 'navidad-1.jpg', alt: 'Codillo de cerdo asado con la piel dorada y crujiente' },
+      { file: 'navidad-2.jpg', alt: 'Codillo asado con el hueso a la vista' },
+    ],
+    attributes: {
+      minutes: 75,
+      difficulty: 3,
+      heat: 'horno',
+      storage: 'fresco',
+      nutrition: { kcal: 1050, protein: 62, carbs: 70, fat: 56 },
+      preorder: { releaseDate: '2026-12-25' },
+    },
+    tags: ['alto-en-proteina'],
+    allergens: { contains: ['mostaza', 'frutos-de-cascara'], traces: ['huevos', 'leche', 'cacahuetes'] },
+    includes: [
+      'Codillo de cerdo cocinado 12 h (uno por persona)',
+      'Patatas para hacer panaderas',
+      'Cebolla',
+      'Lombarda cocida con manzana',
+      'Piñones y pasas',
+      'Salsa de miel y mostaza antigua',
+      'Romero y laurel',
+      'Turrón de almendra para la sobremesa',
+      'Tarjeta de receta con QR',
+    ],
+    specs: [
+      { label: 'Tú pones', value: 'Aceite y sal.' },
+      { label: 'Encargo', value: 'Edición limitada. Encárgala ahora sin pagar: te avisamos por email para confirmarla antes del envío.' },
+      { label: 'Entrega', value: 'Sale el 25 de diciembre. El codillo va ya cocinado: solo necesitas una hora de horno.' },
+      freshConservation,
+      recipeCard,
+    ],
+    recipe: {
+      youAdd: ['4 cucharadas de aceite de oliva', 'Sal'],
+      steps: [
+        { title: 'Enciende el horno', text: 'Precalienta el horno a 200 °C. Saca el codillo de la nevera para que no entre frío.' },
+        { title: 'Haz las panaderas', text: 'Corta las patatas en rodajas finas y la cebolla en tiras. Ponlas en una bandeja con aceite, sal, el romero y el laurel, y hornéalas 20 minutos.' },
+        { title: 'Al horno el codillo', text: 'Coloca el codillo encima de las patatas con la piel hacia arriba y píntalo con la mitad de la salsa de miel y mostaza. Hornéalo 40 minutos.' },
+        { title: 'Que cruja', text: 'Vuelve a pintarlo con el resto de la salsa y sube el horno a 220 °C los últimos 10 minutos, hasta que la piel esté dorada y crujiente.' },
+        { title: 'La lombarda', text: 'Mientras, calienta la lombarda en una sartén 8 minutos con un chorrito de aceite, los piñones y las pasas.' },
+        { title: 'A la mesa', text: 'Deja reposar el codillo 5 minutos y sírvelo con las patatas y la lombarda. Usa guantes de horno: la bandeja quema.' },
+        { title: 'La sobremesa', text: 'Recoge lo justo, saca el turrón y no te levantes. Esa es la receta.' },
+      ],
+      tips: ['Si la piel no cruje, ponla 3 minutos con el grill del horno, mirando para que no se queme.', 'El jugo que queda en la bandeja está buenísimo: échalo por encima al servir.'],
+    },
+    badge: 'Edición Navidad',
+    salesCount: 0,
+    publishedDaysAgo: 0,
   },
 ]
 

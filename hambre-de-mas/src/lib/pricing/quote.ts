@@ -189,7 +189,7 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
       continue
     }
 
-    const sellable = variant.isActive && variant.productPublished
+    const sellable = variant.isActive && variant.productPublished && !variant.preorderRelease
     const available = sellable ? Math.max(0, Math.min(variant.stock, config.maxQuantityPerLine)) : 0
     const quantity = Math.min(req.quantity, available)
     let status: QuoteLineStatus = 'ok'
@@ -198,7 +198,9 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
       status = 'unavailable'
       message = sellable
         ? tr('Agotado. Elimínalo para continuar.', 'Sold out. Remove it to continue.')
-        : tr('Ya no está a la venta.', 'No longer on sale.')
+        : variant.preorderRelease
+          ? tr('Solo se puede encargar desde su ficha. Elimínalo para continuar.', 'It can only be pre-ordered from its page. Remove it to continue.')
+          : tr('Ya no está a la venta.', 'No longer on sale.')
     } else if (quantity < req.quantity) {
       status = 'adjusted'
       message =

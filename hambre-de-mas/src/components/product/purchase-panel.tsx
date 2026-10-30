@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button'
 import { CheckIcon } from '@/components/ui/icons'
 import { Price } from '@/components/ui/price'
 import { StockLabel } from '@/components/ui/stock-label'
+import { PreorderForm } from './preorder-form'
 import { cn } from '@/lib/cn'
 import { commerce } from '@/lib/config/commerce'
 import { useI18n } from '@/lib/i18n/client'
 import { flyToCart } from '@/lib/fly-to-cart'
 import { formatPrice, percentOff } from '@/lib/money'
+import { isPreorder } from '@/lib/preorder'
 import type { ProductDetail } from '@/lib/types'
 
 export function PurchasePanel({ product }: { product: ProductDetail }) {
@@ -32,6 +34,8 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
   const maxForVariant = Math.min(variant.stock, commerce.maxQuantityPerLine)
   const canAdd = Math.max(0, maxForVariant - inCart)
   const soldOut = variant.stock <= 0
+  // Ediciones que aún no se venden: en vez de cesta, un formulario de encargo
+  const preorder = isPreorder(product.attributes) ? product.attributes.preorder!.releaseDate : null
 
   const add = (openDrawer: boolean) => {
     if (canAdd <= 0) return false
@@ -122,71 +126,80 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
         </fieldset>
       )}
 
-      <div className="space-y-3">
-        <StockLabel stock={variant.stock} />
-        {!soldOut && (
-          <div className="flex items-center gap-4">
-            <QuantityStepper value={quantity} max={Math.max(1, canAdd)} onChange={(n) => setQuantity(Math.max(1, Math.min(n, Math.max(1, canAdd))))} label={product.name} />
-            {inCart > 0 && (
-              <span className="text-sm text-ash-ink">
-                {t({
-                  es: `Ya tienes ${inCart} en la cesta${canAdd === 0 ? ' (máximo disponible)' : ''}`,
-                  en: `You already have ${inCart} in your bag${canAdd === 0 ? ' (maximum available)' : ''}`,
-                })}
-              </span>
+      {preorder ? (
+        <div className="space-y-5">
+          <QuantityStepper value={quantity} max={commerce.maxQuantityPerLine} onChange={(n) => setQuantity(Math.max(1, Math.min(n, commerce.maxQuantityPerLine)))} label={product.name} />
+          <PreorderForm key={variant.id} variantId={variant.id} quantity={quantity} releaseDate={preorder} />
+        </div>
+      ) : (
+        <>
+          <div className="space-y-3">
+            <StockLabel stock={variant.stock} />
+            {!soldOut && (
+              <div className="flex items-center gap-4">
+                <QuantityStepper value={quantity} max={Math.max(1, canAdd)} onChange={(n) => setQuantity(Math.max(1, Math.min(n, Math.max(1, canAdd))))} label={product.name} />
+                {inCart > 0 && (
+                  <span className="text-sm text-ash-ink">
+                    {t({
+                      es: `Ya tienes ${inCart} en la cesta${canAdd === 0 ? ' (máximo disponible)' : ''}`,
+                      en: `You already have ${inCart} in your bag${canAdd === 0 ? ' (maximum available)' : ''}`,
+                    })}
+                  </span>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Button
-          size="lg"
-          disabled={soldOut || canAdd <= 0}
-          onClick={() => {
-            // La foto vuela a la cesta y, al llegar, se abre el panel
-            if (add(false)) {
-              const photo = document.querySelector<HTMLImageElement>('[data-kit-photo] img')
-              void flyToCart(photo, photo?.currentSrc || product.image?.url).then(openDrawer)
-              setAdded(true)
-              setTimeout(() => setAdded(false), 1800)
-            }
-          }}
-          className="relative overflow-hidden"
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={added ? 'ok' : 'add'}
-              initial={{ y: 14, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -14, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="inline-flex items-center gap-2"
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Button
+              size="lg"
+              disabled={soldOut || canAdd <= 0}
+              onClick={() => {
+                // La foto vuela a la cesta y, al llegar, se abre el panel
+                if (add(false)) {
+                  const photo = document.querySelector<HTMLImageElement>('[data-kit-photo] img')
+                  void flyToCart(photo, photo?.currentSrc || product.image?.url).then(openDrawer)
+                  setAdded(true)
+                  setTimeout(() => setAdded(false), 1800)
+                }
+              }}
+              className="relative overflow-hidden"
             >
-              {added ? (
-                <>
-                  <CheckIcon size={18} /> {t({ es: 'Añadido', en: 'Added' })}
-                </>
-              ) : soldOut ? (
-                t({ es: 'Agotado', en: 'Sold out' })
-              ) : (
-                t({ es: 'Añadir a la cesta', en: 'Add to bag' })
-              )}
-            </motion.span>
-          </AnimatePresence>
-        </Button>
-        <Button
-          size="lg"
-          variant="dark"
-          disabled={soldOut || (canAdd <= 0 && inCart === 0)}
-          onClick={() => {
-            if (canAdd > 0) add(false)
-            router.push('/checkout')
-          }}
-        >
-          {t({ es: 'Comprar ahora', en: 'Buy now' })}
-        </Button>
-      </div>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={added ? 'ok' : 'add'}
+                  initial={{ y: 14, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -14, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="inline-flex items-center gap-2"
+                >
+                  {added ? (
+                    <>
+                      <CheckIcon size={18} /> {t({ es: 'Añadido', en: 'Added' })}
+                    </>
+                  ) : soldOut ? (
+                    t({ es: 'Agotado', en: 'Sold out' })
+                  ) : (
+                    t({ es: 'Añadir a la cesta', en: 'Add to bag' })
+                  )}
+                </motion.span>
+              </AnimatePresence>
+            </Button>
+            <Button
+              size="lg"
+              variant="dark"
+              disabled={soldOut || (canAdd <= 0 && inCart === 0)}
+              onClick={() => {
+                if (canAdd > 0) add(false)
+                router.push('/checkout')
+              }}
+            >
+              {t({ es: 'Comprar ahora', en: 'Buy now' })}
+            </Button>
+          </div>
+        </>
+      )}
     </div>
   )
 }

@@ -66,6 +66,13 @@ export type ProductAttributes = {
   storage?: 'seco' | 'fresco'
   /** Valores nutricionales aproximados por ración. */
   nutrition?: Nutrition
+  /** Edición que solo se puede encargar hasta su fecha de salida. */
+  preorder?: Preorder
+}
+
+export type Preorder = {
+  /** Día de salida (AAAA-MM-DD, hora de España). */
+  releaseDate: string
 }
 
 export type Nutrition = {
@@ -174,6 +181,8 @@ export type VariantForQuote = {
   productPublished: boolean
   taxRateBps: number
   imageUrl: string | null
+  /** Si el kit aún solo se puede encargar, su día de salida (AAAA-MM-DD): no se puede comprar. */
+  preorderRelease?: string | null
   /** Nivel de la categoría del kit (1, 2, 3) o null; decide los packs por nivel. */
   categoryLevel?: number | null
   /** Nombre del nivel (p. ej. «Primer bocado»), para el texto de los packs. */

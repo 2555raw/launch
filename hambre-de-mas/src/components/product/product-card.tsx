@@ -13,6 +13,7 @@ import { commerce } from '@/lib/config/commerce'
 import { useI18n } from '@/lib/i18n/client'
 import { flyToCart } from '@/lib/fly-to-cart'
 import { formatPrice } from '@/lib/money'
+import { isPreorder, releaseLabel } from '@/lib/preorder'
 import { kitPhotoTransition } from '@/lib/view-transitions'
 import type { ProductSummary } from '@/lib/types'
 import { ProductBadge } from './product-badge'
@@ -38,6 +39,7 @@ export function ProductCard({
 }) {
   const { t, locale } = useI18n()
   const soldOut = product.totalStock <= 0
+  const preorder = isPreorder(product.attributes) ? product.attributes.preorder!.releaseDate : null
   const photo = (
     <div className="relative aspect-square overflow-hidden bg-mist">
       {product.image && (
@@ -67,6 +69,11 @@ export function ProductCard({
         {product.category && <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} overlay />}
       </div>
       {product.badge && <ProductBadge badge={product.badge} className="absolute top-4 right-4" />}
+      {preorder && !soldOut && (
+        <span className="absolute right-4 bottom-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-ink shadow-sm backdrop-blur">
+          {t({ es: `Por encargo · sale el ${releaseLabel(preorder, locale)}`, en: `Pre-order · out ${releaseLabel(preorder, locale)}` })}
+        </span>
+      )}
       {soldOut && (
         <span className="absolute right-4 bottom-4 rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white backdrop-blur">
           {t({ es: 'Agotado', en: 'Sold out' })}

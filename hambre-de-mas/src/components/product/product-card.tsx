@@ -13,7 +13,7 @@ import { commerce } from '@/lib/config/commerce'
 import { useI18n } from '@/lib/i18n/client'
 import { flyToCart } from '@/lib/fly-to-cart'
 import { formatPrice } from '@/lib/money'
-import { daysUntilRelease, isPreorder, releaseLabel } from '@/lib/preorder'
+import { dayLabel, fullDaysUntil, isPreorder, isPreorderOpen, preorderClosesAt } from '@/lib/preorder'
 import type { ProductSummary } from '@/lib/types'
 import { ProductBadge } from './product-badge'
 
@@ -34,7 +34,10 @@ export function ProductCard({
 }) {
   const { t, locale } = useI18n()
   const soldOut = product.totalStock <= 0
-  const preorder = isPreorder(product.attributes) ? product.attributes.preorder!.releaseDate : null
+  const preorder = isPreorder(product.attributes) ? product.attributes.preorder! : null
+  const preorderOpen = isPreorderOpen(product.attributes)
+  // Días completos que quedan, como la cuenta atrás de la ficha (0 = último día)
+  const daysLeft = preorder ? fullDaysUntil(preorderClosesAt(preorder)) : 0
   const photo = (
     <div className="relative aspect-square overflow-hidden bg-mist">
       {product.image && (
@@ -73,15 +76,23 @@ export function ProductCard({
           {/* Edición por encargo: cuenta atrás sobre la foto */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-hoja-deep via-hoja-deep/45 to-transparent" />
           <div className="absolute inset-x-5 bottom-4 flex items-end justify-between gap-3 text-white">
-            <p className="flex items-baseline gap-1.5 whitespace-nowrap" suppressHydrationWarning>
-              <span className="font-display text-[44px] leading-none font-bold tabular-nums">{daysUntilRelease(preorder)}</span>
-              <span className="text-[15px] font-semibold text-white/90">
-                {daysUntilRelease(preorder) === 1 ? t({ es: 'día', en: 'day' }) : t({ es: 'días', en: 'days' })}
-              </span>
-            </p>
-            <span className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold whitespace-nowrap backdrop-blur">
-              {t({ es: `Sale el ${releaseLabel(preorder, locale, 'short')}`, en: `Out ${releaseLabel(preorder, locale, 'short')}` })}
-            </span>
+            {preorderOpen ? (
+              // Cuenta atrás hasta que se cierran los encargos
+              daysLeft > 0 ? (
+                <p className="flex items-baseline gap-2 whitespace-nowrap" suppressHydrationWarning>
+                  <span className="font-display text-[44px] leading-none font-bold tabular-nums">{daysLeft}</span>
+                  <span className="text-sm leading-tight font-semibold text-white/90">
+                    {daysLeft === 1 ? t({ es: 'día para', en: 'day left' }) : t({ es: 'días para', en: 'days left' })}
+                    <br />
+                    {t({ es: 'encargarla', en: 'to pre-order' })}
+                  </span>
+                </p>
+              ) : (
+                <p className="text-[15px] font-semibold">{t({ es: 'Último día para encargarla', en: 'Last day to pre-order' })}</p>
+              )
+            ) : (
+              <p className="text-[15px] font-semibold">{t({ es: 'Encargos cerrados', en: 'Pre-orders closed' })}</p>
+            )}
           </div>
         </>
       )}
@@ -104,7 +115,9 @@ export function ProductCard({
         {photo}
         {preorder ? (
           <div className="flex flex-1 flex-col gap-1 p-5 sm:p-6">
-            <p className="text-[11px] font-bold tracking-[0.14em] text-almendra uppercase">{t({ es: 'Edición limitada · por encargo', en: 'Limited edition · pre-order' })}</p>
+            <p className="text-[11px] font-bold tracking-[0.14em] text-almendra uppercase">
+              {t({ es: `Edición limitada · sale el ${dayLabel(preorder.releaseDate, locale, 'short')}`, en: `Limited edition · out ${dayLabel(preorder.releaseDate, locale, 'short')}` })}
+            </p>
             <h3 className="font-display text-[22px] leading-snug font-bold">{product.name}</h3>
             {product.subtitle && <p className="line-clamp-2 text-sm text-white/70">{product.subtitle}</p>}
             {product.allergens.length > 0 && (
@@ -117,10 +130,14 @@ export function ProductCard({
                 {product.variantCount > 1 && <span className="font-normal text-white/60">{t({ es: 'Desde ', en: 'From ' })}</span>}
                 {formatPrice(product.priceCents, locale)}
               </p>
-              <span className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-semibold text-hoja-deep transition-colors duration-300 group-hover:bg-chef-ink group-hover:text-white">
-                {t({ es: 'Encárgala', en: 'Pre-order' })}
-                <ArrowRightIcon size={15} />
-              </span>
+              {preorderOpen ? (
+                <span className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-semibold text-hoja-deep transition-colors duration-300 group-hover:bg-chef-ink group-hover:text-white">
+                  {t({ es: 'Encárgala', en: 'Pre-order' })}
+                  <ArrowRightIcon size={15} />
+                </span>
+              ) : (
+                <span className="inline-flex h-10 items-center rounded-full bg-white/15 px-4 text-[13px] font-semibold text-white/85">{t({ es: 'Ver la caja', en: 'See the box' })}</span>
+              )}
             </div>
           </div>
         ) : (

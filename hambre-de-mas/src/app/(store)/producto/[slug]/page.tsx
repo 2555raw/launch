@@ -24,7 +24,7 @@ import { getI18n } from '@/lib/i18n/server'
 import type { Localized } from '@/lib/i18n/config'
 import { formatDate, formatPrice } from '@/lib/money'
 import type { Heat, Nutrition } from '@/lib/types'
-import { isPreorder, releaseLabel } from '@/lib/preorder'
+import { dayLabel, isPreorder } from '@/lib/preorder'
 
 export const revalidate = 60
 
@@ -319,8 +319,8 @@ export default async function ProductPage({ params }: Props) {
                   <strong className="font-semibold">
                     {product.attributes.preorder && isPreorder(product.attributes)
                       ? t({
-                          es: `Sale el ${releaseLabel(product.attributes.preorder.releaseDate, locale)}`,
-                          en: `Out on ${releaseLabel(product.attributes.preorder.releaseDate, locale)}`,
+                          es: `Sale el ${dayLabel(product.attributes.preorder.releaseDate, locale)}`,
+                          en: `Out on ${dayLabel(product.attributes.preorder.releaseDate, locale)}`,
                         })
                       : t({
                           es: `Envío en ${commerce.deliveryEstimate}`,

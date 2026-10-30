@@ -3,7 +3,7 @@ import { demoCategories, demoId, demoProducts, type DemoProduct } from '@/data/d
 import { demoCategoriesEn, demoProductsEn } from '@/data/demo-catalog-en'
 import { demoReviews } from '@/data/demo-reviews'
 import { sortAllergens } from '@/lib/allergens'
-import { isPreorder } from '@/lib/preorder'
+import { isPreorder, isPreorderOpen } from '@/lib/preorder'
 import type { Category, ProductDetail, ProductFilter, ProductSummary, Review } from '@/lib/types'
 import { ingredientPhotos } from './ingredient-photos'
 import { newArrivalsSince } from './params'
@@ -241,6 +241,7 @@ export function createDemoCatalog(): CatalogRepository {
             taxRateBps: p.taxRateBps,
             imageUrl: p.image?.url ?? null,
             preorderRelease: isPreorder(p.attributes) ? p.attributes.preorder!.releaseDate : null,
+            preorderOpen: isPreorderOpen(p.attributes),
             categoryLevel: p.category?.level ?? null,
             categoryName: p.category?.name ?? null,
             categoryTranslations: p.category?.translations,

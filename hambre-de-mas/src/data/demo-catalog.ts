@@ -1077,7 +1077,7 @@ export const demoProducts: DemoProduct[] = [
     name: 'Caja Sobremesa',
     subtitle: 'Edición Navidad. Codillo asado con lombarda, patatas panaderas y turrón para después.',
     description:
-      'En España la Navidad no termina al acabar de comer: empieza la sobremesa, esas horas en las que nadie se levanta de la mesa. Esta caja es para ganártela. El codillo de cerdo llega ya cocinado a baja temperatura durante 12 horas, así que tú solo le das el horno para que la piel quede crujiente, con una salsa de miel y mostaza, patatas panaderas y lombarda con manzana, piñones y pasas, como en casa de los abuelos. Y para la sobremesa, turrón de almendra. Edición limitada: solo se puede encargar y sale el 25 de diciembre.',
+      'En España la Navidad no termina al acabar de comer: empieza la sobremesa, esas horas en las que nadie se levanta de la mesa. Esta caja es para ganártela. El codillo de cerdo llega ya cocinado a baja temperatura durante 12 horas, así que tú solo le das el horno para que la piel quede crujiente, con una salsa de miel y mostaza, patatas panaderas y lombarda con manzana, piñones y pasas, como en casa de los abuelos. Y para la sobremesa, turrón de almendra. Edición limitada: solo se puede encargar, hasta el 10 de diciembre, y sale el 25.',
     category: 'caja-sorpresa',
     variants: [
       { name: '2 personas', sku: 'HDM-NAV-2', price: 4990, stock: 40 },
@@ -1093,7 +1093,7 @@ export const demoProducts: DemoProduct[] = [
       heat: 'horno',
       storage: 'fresco',
       nutrition: { kcal: 1050, protein: 62, carbs: 70, fat: 56 },
-      preorder: { releaseDate: '2026-12-25' },
+      preorder: { releaseDate: '2026-12-25', closesDate: '2026-12-10' },
     },
     tags: ['alto-en-proteina'],
     allergens: { contains: ['mostaza', 'frutos-de-cascara'], traces: ['huevos', 'leche', 'cacahuetes'] },
@@ -1110,7 +1110,7 @@ export const demoProducts: DemoProduct[] = [
     ],
     specs: [
       { label: 'Tú pones', value: 'Aceite y sal.' },
-      { label: 'Encargo', value: 'Edición limitada. Encárgala ahora sin pagar: te avisamos por email para confirmarla antes del envío.' },
+      { label: 'Encargo', value: 'Edición limitada. Se puede encargar hasta el 10 de diciembre; después se cierran los encargos.' },
       { label: 'Entrega', value: 'Sale el 25 de diciembre. El codillo va ya cocinado: solo necesitas una hora de horno.' },
       freshConservation,
       recipeCard,

@@ -598,7 +598,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     badge: 'Christmas edition',
     subtitle: 'Christmas edition. Roast pork knuckle with red cabbage, sliced roast potatoes and turrón for afterwards.',
     description:
-      "In Spain, Christmas doesn't end when the meal does: that's when the sobremesa starts, the hours when nobody gets up from the table. This box is how you earn it. The pork knuckle (codillo) arrives already slow-cooked for 12 hours, so you just give it time in the oven for crackling skin, with a honey and mustard glaze, sliced roast potatoes and red cabbage with apple, pine nuts and raisins, like at your grandparents'. And for the sobremesa, almond turrón. Limited edition: pre-order only, out on 25 December.",
+      "In Spain, Christmas doesn't end when the meal does: that's when the sobremesa starts, the hours when nobody gets up from the table. This box is how you earn it. The pork knuckle (codillo) arrives already slow-cooked for 12 hours, so you just give it time in the oven for crackling skin, with a honey and mustard glaze, sliced roast potatoes and red cabbage with apple, pine nuts and raisins, like at your grandparents'. And for the sobremesa, almond turrón. Limited edition: pre-order only, until 10 December, and it comes out on the 25th.",
     includes: [
       'Pork knuckle cooked for 12 h (one per person)',
       'Potatoes for slicing and roasting',
@@ -612,7 +612,7 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     ],
     specs: [
       { label: 'You add', value: 'Oil and salt.' },
-      { label: 'Pre-order', value: "Limited edition. Pre-order it now without paying: we'll email you to confirm it before it ships." },
+      { label: 'Pre-order', value: 'Limited edition. Pre-orders are open until 10 December; after that they close.' },
       { label: 'Delivery', value: 'Out on 25 December. The knuckle is already cooked: you only need an hour of oven time.' },
       freshStorage,
       recipeCard,

@@ -35,7 +35,7 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
   const canAdd = Math.max(0, maxForVariant - inCart)
   const soldOut = variant.stock <= 0
   // Ediciones que aún no se venden: en vez de cesta, un formulario de encargo
-  const preorder = isPreorder(product.attributes) ? product.attributes.preorder!.releaseDate : null
+  const preorder = isPreorder(product.attributes) ? product.attributes.preorder! : null
 
   const add = (openDrawer: boolean) => {
     if (canAdd <= 0) return false
@@ -127,10 +127,7 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
       )}
 
       {preorder ? (
-        <div className="space-y-5">
-          <QuantityStepper value={quantity} max={commerce.maxQuantityPerLine} onChange={(n) => setQuantity(Math.max(1, Math.min(n, commerce.maxQuantityPerLine)))} label={product.name} />
-          <PreorderForm key={variant.id} variantId={variant.id} quantity={quantity} releaseDate={preorder} />
-        </div>
+        <PreorderForm key={variant.id} variantId={variant.id} quantity={quantity} onQuantity={setQuantity} preorder={preorder} />
       ) : (
         <>
           <div className="space-y-3">

@@ -73,6 +73,8 @@ export type ProductAttributes = {
 export type Preorder = {
   /** Día de salida (AAAA-MM-DD, hora de España). */
   releaseDate: string
+  /** Último día para encargarla (incluido). Después ya no se puede encargar ni comprar hasta que salga. */
+  closesDate?: string
 }
 
 export type Nutrition = {
@@ -183,6 +185,8 @@ export type VariantForQuote = {
   imageUrl: string | null
   /** Si el kit aún solo se puede encargar, su día de salida (AAAA-MM-DD): no se puede comprar. */
   preorderRelease?: string | null
+  /** Si todavía se puede encargar. */
+  preorderOpen?: boolean
   /** Nivel de la categoría del kit (1, 2, 3) o null; decide los packs por nivel. */
   categoryLevel?: number | null
   /** Nombre del nivel (p. ej. «Primer bocado»), para el texto de los packs. */

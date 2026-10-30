@@ -4,7 +4,7 @@ import { headers } from 'next/headers'
 import { getCatalog } from '@/lib/catalog'
 import { getI18n } from '@/lib/i18n/server'
 import { createOrdersService } from '@/lib/orders/service'
-import { releaseLabel } from '@/lib/preorder'
+import { dayLabel } from '@/lib/preorder'
 import { clientIp, rateLimit } from '@/lib/rate-limit'
 import { isServiceRoleConfigured } from '@/lib/supabase/service'
 import { firstError, preorderSchema } from '@/lib/validation/schemas'
@@ -32,6 +32,9 @@ export async function reservePreorder(_prev: PreorderState, formData: FormData):
   if (!variant?.preorderRelease || !variant.isActive || !variant.productPublished) {
     return { ok: false, message: t({ es: 'Este kit no se puede encargar.', en: "This kit can't be pre-ordered." }) }
   }
+  if (!variant.preorderOpen) {
+    return { ok: false, message: t({ es: 'Se ha acabado el plazo para encargarla.', en: 'Pre-orders for this box have closed.' }) }
+  }
 
   // Sin base de datos (vista previa) no hay dónde guardarlo, pero el recorrido es el mismo
   if (isServiceRoleConfigured()) {
@@ -44,7 +47,7 @@ export async function reservePreorder(_prev: PreorderState, formData: FormData):
       locale,
     })
   }
-  const day = releaseLabel(variant.preorderRelease, locale)
+  const day = dayLabel(variant.preorderRelease, locale)
   return {
     ok: true,
     message: t({

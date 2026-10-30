@@ -1,5 +1,5 @@
 import 'server-only'
-import { isPreorder } from '@/lib/preorder'
+import { isPreorder, isPreorderOpen } from '@/lib/preorder'
 import { createSupabasePublicClient } from '@/lib/supabase/public'
 import type { ProductDetail, ProductFilter, Review } from '@/lib/types'
 import {
@@ -180,6 +180,7 @@ export function createSupabaseCatalog(): CatalogRepository {
           taxRateBps: v.product?.tax_rate_bps ?? 1000,
           imageUrl: images[0]?.url ?? null,
           preorderRelease: isPreorder(v.product?.attributes) ? v.product.attributes.preorder.releaseDate : null,
+          preorderOpen: isPreorderOpen(v.product?.attributes),
           categoryLevel: v.product?.category?.level ?? null,
           categoryName: v.product?.category?.name ?? null,
           categoryTranslations: translationsOf(v.product?.category?.translations),

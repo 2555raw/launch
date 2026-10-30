@@ -111,14 +111,11 @@ test('la caja de Navidad se encarga pagando y avisa de cuándo se envía', async
   await page.goto('/producto/caja-sobremesa-navidad')
   await expect(page.getByText('Se cierran los encargos en')).toBeVisible()
   await expect(page.getByRole('timer')).toBeVisible()
-  await page.getByRole('button', { name: 'Encargar', exact: true }).click()
+  // Un solo botón: encargar es pagar por adelantado
+  await expect(page.getByRole('button', { name: 'Añadir a la cesta' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Encargar y pagar' }).click()
 
-  const drawer = page.getByRole('dialog', { name: /Tu cesta/ })
-  await expect(drawer.getByText('Caja Sobremesa')).toBeVisible()
-  await drawer.getByRole('link', { name: 'Ver cesta' }).click()
-  await expect(page.getByText('Encargo: se envía el 25 de diciembre.')).toBeVisible()
-  await page.getByRole('link', { name: 'Tramitar pedido' }).click()
-
+  await expect(page.getByRole('heading', { name: 'Finalizar compra.' })).toBeVisible()
   await expect(page.getByText('Encargo: se envía el 25 de diciembre.')).toBeVisible()
   await page.getByLabel('Email', { exact: true }).fill('e2e-navidad@example.com')
   await page.getByLabel('Nombre y apellidos').fill('Prueba Navidad')

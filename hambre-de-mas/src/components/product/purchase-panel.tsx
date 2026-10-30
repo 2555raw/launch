@@ -86,56 +86,69 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
         )}
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      {preorder ? (
+        // Encargar es pagar por adelantado: un solo botón que va directo al pago
         <Button
           size="lg"
-          disabled={soldOut || canAdd <= 0}
-          onClick={() => {
-            // La foto vuela a la cesta y, al llegar, se abre el panel
-            if (add(false)) {
-              const photo = document.querySelector<HTMLImageElement>('[data-kit-photo] img')
-              void flyToCart(photo, photo?.currentSrc || product.image?.url).then(openDrawer)
-              setAdded(true)
-              setTimeout(() => setAdded(false), 1800)
-            }
-          }}
-          className="relative overflow-hidden"
-        >
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.span
-              key={added ? 'ok' : 'add'}
-              initial={{ y: 14, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -14, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="inline-flex items-center gap-2"
-            >
-              {added ? (
-                <>
-                  <CheckIcon size={18} /> {t({ es: 'Añadido', en: 'Added' })}
-                </>
-              ) : soldOut ? (
-                t({ es: 'Agotado', en: 'Sold out' })
-              ) : preorder ? (
-                t({ es: 'Encargar', en: 'Pre-order' })
-              ) : (
-                t({ es: 'Añadir a la cesta', en: 'Add to bag' })
-              )}
-            </motion.span>
-          </AnimatePresence>
-        </Button>
-        <Button
-          size="lg"
-          variant="dark"
+          className="w-full"
           disabled={soldOut || (canAdd <= 0 && inCart === 0)}
           onClick={() => {
             if (canAdd > 0) add(false)
             router.push('/checkout')
           }}
         >
-          {preorder ? t({ es: 'Encargar y pagar', en: 'Pre-order and pay' }) : t({ es: 'Comprar ahora', en: 'Buy now' })}
+          {soldOut ? t({ es: 'Agotada', en: 'Sold out' }) : t({ es: 'Encargar y pagar', en: 'Pre-order and pay' })}
         </Button>
-      </div>
+      ) : (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Button
+            size="lg"
+            disabled={soldOut || canAdd <= 0}
+            onClick={() => {
+              // La foto vuela a la cesta y, al llegar, se abre el panel
+              if (add(false)) {
+                const photo = document.querySelector<HTMLImageElement>('[data-kit-photo] img')
+                void flyToCart(photo, photo?.currentSrc || product.image?.url).then(openDrawer)
+                setAdded(true)
+                setTimeout(() => setAdded(false), 1800)
+              }
+            }}
+            className="relative overflow-hidden"
+          >
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.span
+                key={added ? 'ok' : 'add'}
+                initial={{ y: 14, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -14, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="inline-flex items-center gap-2"
+              >
+                {added ? (
+                  <>
+                    <CheckIcon size={18} /> {t({ es: 'Añadido', en: 'Added' })}
+                  </>
+                ) : soldOut ? (
+                  t({ es: 'Agotado', en: 'Sold out' })
+                ) : (
+                  t({ es: 'Añadir a la cesta', en: 'Add to bag' })
+                )}
+              </motion.span>
+            </AnimatePresence>
+          </Button>
+          <Button
+            size="lg"
+            variant="dark"
+            disabled={soldOut || (canAdd <= 0 && inCart === 0)}
+            onClick={() => {
+              if (canAdd > 0) add(false)
+              router.push('/checkout')
+            }}
+          >
+            {t({ es: 'Comprar ahora', en: 'Buy now' })}
+          </Button>
+        </div>
+      )}
     </>
   )
 

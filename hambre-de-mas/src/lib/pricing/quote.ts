@@ -9,6 +9,7 @@
  * Todos los importes son céntimos con IVA incluido.
  */
 import type { Locale } from '@/lib/i18n/config'
+import { dayLabel } from '@/lib/preorder'
 import type { Promotion, VariantForQuote } from '@/lib/types'
 
 export type QuoteRequestLine = { variantId: string; quantity: number }
@@ -36,6 +37,8 @@ export type QuoteLine = {
   level: number | null
   /** Nombre del nivel (p. ej. «Primer bocado»). */
   levelName?: string | null
+  /** Edición por encargo: día en que se envía (AAAA-MM-DD). */
+  preorderRelease?: string | null
 }
 
 /** Descuento por llevar varios kits del mismo nivel. */
@@ -189,7 +192,9 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
       continue
     }
 
-    const sellable = variant.isActive && variant.productPublished && !variant.preorderRelease
+    // Las ediciones por encargo se pagan al encargarlas; cerrado el plazo, no se venden hasta que salen
+    const preorderClosed = Boolean(variant.preorderRelease) && !variant.preorderOpen
+    const sellable = variant.isActive && variant.productPublished && !preorderClosed
     const available = sellable ? Math.max(0, Math.min(variant.stock, config.maxQuantityPerLine)) : 0
     const quantity = Math.min(req.quantity, available)
     let status: QuoteLineStatus = 'ok'
@@ -198,8 +203,8 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
       status = 'unavailable'
       message = sellable
         ? tr('Agotado. Elimínalo para continuar.', 'Sold out. Remove it to continue.')
-        : variant.preorderRelease
-          ? tr('Solo se puede encargar desde su ficha. Elimínalo para continuar.', 'It can only be pre-ordered from its page. Remove it to continue.')
+        : preorderClosed
+          ? tr('Se acabó el plazo para encargarla. Elimínala para continuar.', 'Pre-orders for it have closed. Remove it to continue.')
           : tr('Ya no está a la venta.', 'No longer on sale.')
     } else if (quantity < req.quantity) {
       status = 'adjusted'
@@ -207,6 +212,9 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
         variant.stock < config.maxQuantityPerLine || variant.stock < req.quantity
           ? tr(`Solo quedan ${available} ${available === 1 ? 'unidad' : 'unidades'}.`, `Only ${available} left.`)
           : tr(`Máximo ${config.maxQuantityPerLine} unidades por pedido.`, `Maximum ${config.maxQuantityPerLine} per order.`)
+    } else if (variant.preorderRelease) {
+      const day = dayLabel(variant.preorderRelease, locale)
+      message = tr(`Encargo: se envía el ${day}.`, `Pre-order: ships on ${day}.`)
     }
 
     lines.push({
@@ -228,6 +236,7 @@ export function computeQuote({ requested, variants, promotion, promotionCode, no
       message,
       level: variant.categoryLevel ?? null,
       levelName: variant.categoryName ?? null,
+      preorderRelease: available > 0 ? (variant.preorderRelease ?? null) : null,
     })
   }
 

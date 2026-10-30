@@ -15,6 +15,7 @@ import { flyToCart } from '@/lib/fly-to-cart'
 import { formatPrice } from '@/lib/money'
 import { dayLabel, fullDaysUntil, isPreorder, isPreorderOpen, preorderClosesAt } from '@/lib/preorder'
 import type { ProductSummary } from '@/lib/types'
+import { useNow } from '@/lib/use-now'
 import { ProductBadge } from './product-badge'
 
 /**
@@ -35,9 +36,12 @@ export function ProductCard({
   const { t, locale } = useI18n()
   const soldOut = product.totalStock <= 0
   const preorder = isPreorder(product.attributes) ? product.attributes.preorder! : null
-  const preorderOpen = isPreorderOpen(product.attributes)
+  // La cuenta atrás se recalcula en el navegador (cada minuto): la página puede venir de la caché de otro día
+  const now = useNow(60_000)
+  const live = now ? 'live' : 'ssr'
+  const preorderOpen = isPreorderOpen(product.attributes, now ?? undefined)
   // Días completos que quedan, como la cuenta atrás de la ficha (0 = último día)
-  const daysLeft = preorder ? fullDaysUntil(preorderClosesAt(preorder)) : 0
+  const daysLeft = preorder ? fullDaysUntil(preorderClosesAt(preorder), now ?? undefined) : 0
   const photo = (
     <div className="relative aspect-square overflow-hidden bg-mist">
       {product.image && (
@@ -75,7 +79,7 @@ export function ProductCard({
         <>
           {/* Edición por encargo: cuenta atrás sobre la foto */}
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-hoja-deep via-hoja-deep/45 to-transparent" />
-          <div className="absolute inset-x-5 bottom-4 flex items-end justify-between gap-3 text-white">
+          <div key={live} className="absolute inset-x-5 bottom-4 flex items-end justify-between gap-3 text-white" suppressHydrationWarning>
             {preorderOpen ? (
               // Cuenta atrás hasta que se cierran los encargos
               daysLeft > 0 ? (
@@ -131,7 +135,7 @@ export function ProductCard({
                 {formatPrice(product.priceCents, locale)}
               </p>
               {preorderOpen ? (
-                <span className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-semibold text-hoja-deep transition-colors duration-300 group-hover:bg-chef-ink group-hover:text-white">
+                <span key={live} className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-semibold text-hoja-deep transition-colors duration-300 group-hover:bg-chef-ink group-hover:text-white">
                   {t({ es: 'Encárgala', en: 'Pre-order' })}
                   <ArrowRightIcon size={15} />
                 </span>

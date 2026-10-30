@@ -38,8 +38,16 @@ describe('ediciones por encargo', () => {
     expect(isPreorder(attrs, new Date('2026-12-10T23:00:00Z'))).toBe(true)
   })
 
-  it('no se pueden pagar aunque alguien las meta en la cesta', () => {
-    const q = computeQuote({ requested: [{ variantId: variant.variantId, quantity: 1 }], variants: [variant], config })
+  it('mientras se puede encargar, se paga como cualquier kit y avisa de cuándo se envía', () => {
+    const q = computeQuote({ requested: [{ variantId: variant.variantId, quantity: 1 }], variants: [{ ...variant, preorderOpen: true }], config })
+    expect(q.lines[0]?.status).toBe('ok')
+    expect(q.lines[0]?.message).toBe('Encargo: se envía el 25 de diciembre.')
+    expect(q.lines[0]?.preorderRelease).toBe('2026-12-25')
+    expect(q.isPurchasable).toBe(true)
+  })
+
+  it('cerrado el plazo no se puede pagar aunque alguien la meta en la cesta', () => {
+    const q = computeQuote({ requested: [{ variantId: variant.variantId, quantity: 1 }], variants: [{ ...variant, preorderOpen: false }], config })
     expect(q.lines[0]?.status).toBe('unavailable')
     expect(q.lines[0]?.quantity).toBe(0)
     expect(q.isPurchasable).toBe(false)

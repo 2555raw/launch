@@ -1110,8 +1110,8 @@ export const demoProducts: DemoProduct[] = [
     ],
     specs: [
       { label: 'Tú pones', value: 'Aceite y sal.' },
-      { label: 'Encargo', value: 'Edición limitada. Se puede encargar hasta el 10 de diciembre; después se cierran los encargos.' },
-      { label: 'Entrega', value: 'Sale el 25 de diciembre. El codillo va ya cocinado: solo necesitas una hora de horno.' },
+      { label: 'Encargo', value: 'Edición limitada. Se paga al encargarla y se puede encargar hasta el 10 de diciembre; después se cierran los encargos.' },
+      { label: 'Entrega', value: 'Se envía el 25 de diciembre (si la pides con otros kits, llega todo junto ese día). El codillo va ya cocinado: solo necesitas una hora de horno.' },
       freshConservation,
       recipeCard,
     ],

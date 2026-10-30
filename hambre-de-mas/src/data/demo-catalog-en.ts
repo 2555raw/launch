@@ -612,8 +612,8 @@ export const demoProductsEn: Record<string, ProductTranslation> = {
     ],
     specs: [
       { label: 'You add', value: 'Oil and salt.' },
-      { label: 'Pre-order', value: 'Limited edition. Pre-orders are open until 10 December; after that they close.' },
-      { label: 'Delivery', value: 'Out on 25 December. The knuckle is already cooked: you only need an hour of oven time.' },
+      { label: 'Pre-order', value: 'Limited edition. You pay when you pre-order, and pre-orders are open until 10 December; after that they close.' },
+      { label: 'Delivery', value: 'Ships on 25 December (if you order it with other kits, everything arrives together that day). The knuckle is already cooked: you only need an hour of oven time.' },
       freshStorage,
       recipeCard,
     ],

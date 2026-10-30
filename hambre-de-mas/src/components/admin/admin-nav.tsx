@@ -12,7 +12,6 @@ const links = [
   { href: '/admin/categorias', label: 'Categorías' },
   { href: '/admin/promociones', label: 'Promociones' },
   { href: '/admin/clientes', label: 'Clientes' },
-  { href: '/admin/encargos', label: 'Encargos' },
   { href: '/admin/opiniones', label: 'Opiniones' },
 ]
 

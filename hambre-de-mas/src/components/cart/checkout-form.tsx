@@ -325,7 +325,7 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
                   <span className="min-w-0 flex-1 text-sm">
                     <span className="block truncate font-medium">{line?.productId ? line.productName : item.name}</span>
                     <span className="block text-ash-ink">{line?.productId ? line.variantName : item.variantName}</span>
-                    {line?.message && <span className="block text-xs text-teja">{line.message}</span>}
+                    {line?.message && <span className={cn('block text-xs', line.status === 'ok' ? 'text-ambar' : 'text-teja')}>{line.message}</span>}
                   </span>
                   <span className="text-sm tabular-nums">{formatPrice((line?.unitPriceCents || item.priceCents) * item.quantity, locale)}</span>
                 </li>

@@ -106,3 +106,31 @@ test('filtros del catálogo por URL', async ({ page }) => {
   await page.getByLabel('Ordenar por').selectOption('precio-desc')
   await expect(page).toHaveURL(/orden=precio-desc/)
 })
+
+test('la caja de Navidad se encarga pagando y avisa de cuándo se envía', async ({ page }) => {
+  await page.goto('/producto/caja-sobremesa-navidad')
+  await expect(page.getByText('Se cierran los encargos en')).toBeVisible()
+  await expect(page.getByRole('timer')).toBeVisible()
+  await page.getByRole('button', { name: 'Encargar', exact: true }).click()
+
+  const drawer = page.getByRole('dialog', { name: /Tu cesta/ })
+  await expect(drawer.getByText('Caja Sobremesa')).toBeVisible()
+  await drawer.getByRole('link', { name: 'Ver cesta' }).click()
+  await expect(page.getByText('Encargo: se envía el 25 de diciembre.')).toBeVisible()
+  await page.getByRole('link', { name: 'Tramitar pedido' }).click()
+
+  await expect(page.getByText('Encargo: se envía el 25 de diciembre.')).toBeVisible()
+  await page.getByLabel('Email', { exact: true }).fill('e2e-navidad@example.com')
+  await page.getByLabel('Nombre y apellidos').fill('Prueba Navidad')
+  await page.getByLabel('Dirección', { exact: true }).fill('Calle de Prueba 1')
+  await page.getByLabel('Código postal').fill('28013')
+  await page.getByLabel('Ciudad').fill('Madrid')
+  await page.getByLabel('Provincia').selectOption('Madrid')
+  await page.getByRole('checkbox', { name: /condiciones de compra/ }).check()
+  await page.getByRole('button', { name: /Pagar 49,90/ }).click()
+
+  await expect(page.getByRole('heading', { name: 'Pagar 49,90 €' })).toBeVisible()
+  await expect(page.getByText(/encargo, se envía el 25 de diciembre/)).toBeVisible()
+  await page.locator('#pagar').click()
+  await expect(page.getByRole('heading', { name: '¡A cocinar!' })).toBeVisible()
+})

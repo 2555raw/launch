@@ -7,6 +7,7 @@ import { isStripeConfigured } from '@/lib/env'
 import type { Locale } from '@/lib/i18n/config'
 import { quoteCart } from '@/lib/pricing/server-quote'
 import type { Quote } from '@/lib/pricing/quote'
+import { dayLabel } from '@/lib/preorder'
 import { getStripe } from '@/lib/stripe/client'
 import { isServiceRoleConfigured } from '@/lib/supabase/service'
 import type { CheckoutInput } from '@/lib/validation/schemas'
@@ -147,7 +148,7 @@ export async function startCheckout(
             unit_amount: l.unitPriceCents,
             tax_behavior: 'inclusive',
             product_data: {
-              name: `${l.productName} · ${l.variantName}`,
+              name: `${l.productName} · ${l.variantName}${l.preorderRelease ? ` · ${tr('encargo, se envía el', 'pre-order, ships on')} ${dayLabel(l.preorderRelease, en ? 'en' : 'es')}` : ''}`,
               images: publicImage(l.imageUrl),
               metadata: { variant_id: l.variantId, sku: l.sku ?? '' },
             },

@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useRef, useState, ViewTransition } from 'react'
 import { useCart } from '@/components/cart/cart-context'
-import { CheckIcon, ClockIcon, PlusIcon } from '@/components/ui/icons'
+import { ArrowRightIcon, CheckIcon, ClockIcon, PlusIcon } from '@/components/ui/icons'
 import { AllergenStrip } from './allergen-icons'
 import { LevelChip } from '@/components/ui/level-chip'
 import { Price } from '@/components/ui/price'
@@ -13,7 +13,7 @@ import { commerce } from '@/lib/config/commerce'
 import { useI18n } from '@/lib/i18n/client'
 import { flyToCart } from '@/lib/fly-to-cart'
 import { formatPrice } from '@/lib/money'
-import { isPreorder, releaseLabel } from '@/lib/preorder'
+import { daysUntilRelease, isPreorder, releaseLabel } from '@/lib/preorder'
 import { kitPhotoTransition } from '@/lib/view-transitions'
 import type { ProductSummary } from '@/lib/types'
 import { ProductBadge } from './product-badge'
@@ -70,9 +70,21 @@ export function ProductCard({
       </div>
       {product.badge && <ProductBadge badge={product.badge} className="absolute top-4 right-4" />}
       {preorder && !soldOut && (
-        <span className="absolute right-4 bottom-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-ink shadow-sm backdrop-blur">
-          {t({ es: `Por encargo · sale el ${releaseLabel(preorder, locale)}`, en: `Pre-order · out ${releaseLabel(preorder, locale)}` })}
-        </span>
+        <>
+          {/* Edición por encargo: cuenta atrás sobre la foto */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-hoja-deep via-hoja-deep/45 to-transparent" />
+          <div className="absolute inset-x-5 bottom-4 flex items-end justify-between gap-3 text-white">
+            <p className="flex items-baseline gap-1.5 whitespace-nowrap" suppressHydrationWarning>
+              <span className="font-display text-[44px] leading-none font-bold tabular-nums">{daysUntilRelease(preorder)}</span>
+              <span className="text-[15px] font-semibold text-white/90">
+                {daysUntilRelease(preorder) === 1 ? t({ es: 'día', en: 'day' }) : t({ es: 'días', en: 'days' })}
+              </span>
+            </p>
+            <span className="rounded-full bg-white/15 px-3 py-1.5 text-xs font-semibold whitespace-nowrap backdrop-blur">
+              {t({ es: `Sale el ${releaseLabel(preorder, locale, 'short')}`, en: `Out ${releaseLabel(preorder, locale, 'short')}` })}
+            </span>
+          </div>
+        </>
       )}
       {soldOut && (
         <span className="absolute right-4 bottom-4 rounded-full bg-ink/80 px-3 py-1 text-xs font-medium text-white backdrop-blur">
@@ -87,7 +99,10 @@ export function ProductCard({
         href={`/producto/${product.slug}`}
         // La foto solo puede «viajar» a la ficha si la ficha ya está precargada entera
         prefetch={morph ? true : undefined}
-        className="flex h-full flex-col overflow-hidden rounded-[var(--radius-tile)] bg-white shadow-card ring-1 ring-black/[0.03] transition-shadow duration-500 ease-[var(--ease-apple)] group-hover:shadow-card-hover"
+        className={cn(
+          'flex h-full flex-col overflow-hidden rounded-[var(--radius-tile)] shadow-card ring-1 transition-shadow duration-500 ease-[var(--ease-apple)] group-hover:shadow-card-hover',
+          preorder ? 'bg-hoja-deep text-white ring-white/10' : 'bg-white ring-black/[0.03]',
+        )}
       >
         {morph ? (
           <ViewTransition name={kitPhotoTransition(product.slug)} share="morph" default="none">
@@ -96,25 +111,48 @@ export function ProductCard({
         ) : (
           photo
         )}
-        <div className="flex flex-1 flex-col gap-1 p-5 sm:p-6">
-          <h3 className="font-display text-[19px] leading-snug font-bold">{product.name}</h3>
-          {product.subtitle && <p className="line-clamp-2 text-sm text-ash-ink">{product.subtitle}</p>}
-          {/* Sin alérgenos declarados no se pinta (p. ej. la caja sorpresa, que cambia cada mes):
-            todo en gris parecería «sin alérgenos». */}
-          {product.allergens.length > 0 && (
-            <div className="mt-3">
-              <AllergenStrip codes={product.allergens} />
-            </div>
-          )}
-          <div className="mt-auto flex items-end justify-between gap-3 pt-4">
-            <Price cents={product.priceCents} compareAt={product.compareAtPriceCents} from={product.variantCount > 1} />
-            {product.attributes.minutes ? (
-              <span className="flex items-center gap-1 text-xs text-ash-ink">
-                <ClockIcon size={14} /> {product.attributes.minutes} min
+        {preorder ? (
+          <div className="flex flex-1 flex-col gap-1 p-5 sm:p-6">
+            <p className="text-[11px] font-bold tracking-[0.14em] text-almendra uppercase">{t({ es: 'Edición limitada · por encargo', en: 'Limited edition · pre-order' })}</p>
+            <h3 className="font-display text-[22px] leading-snug font-bold">{product.name}</h3>
+            {product.subtitle && <p className="line-clamp-2 text-sm text-white/70">{product.subtitle}</p>}
+            {product.allergens.length > 0 && (
+              <div className="mt-3 w-fit rounded-xl bg-white/95 p-1.5">
+                <AllergenStrip codes={product.allergens} />
+              </div>
+            )}
+            <div className="mt-auto flex items-center justify-between gap-3 pt-5">
+              <p className="text-[15px] font-semibold tabular-nums">
+                {product.variantCount > 1 && <span className="font-normal text-white/60">{t({ es: 'Desde ', en: 'From ' })}</span>}
+                {formatPrice(product.priceCents, locale)}
+              </p>
+              <span className="inline-flex h-10 items-center gap-1.5 rounded-full bg-white px-4 text-[13px] font-semibold text-hoja-deep transition-colors duration-300 group-hover:bg-chef-ink group-hover:text-white">
+                {t({ es: 'Encárgala', en: 'Pre-order' })}
+                <ArrowRightIcon size={15} />
               </span>
-            ) : null}
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-1 flex-col gap-1 p-5 sm:p-6">
+            <h3 className="font-display text-[19px] leading-snug font-bold">{product.name}</h3>
+            {product.subtitle && <p className="line-clamp-2 text-sm text-ash-ink">{product.subtitle}</p>}
+            {/* Sin alérgenos declarados no se pinta (p. ej. la caja sorpresa, que cambia cada mes):
+              todo en gris parecería «sin alérgenos». */}
+            {product.allergens.length > 0 && (
+              <div className="mt-3">
+                <AllergenStrip codes={product.allergens} />
+              </div>
+            )}
+            <div className="mt-auto flex items-end justify-between gap-3 pt-4">
+              <Price cents={product.priceCents} compareAt={product.compareAtPriceCents} from={product.variantCount > 1} />
+              {product.attributes.minutes ? (
+                <span className="flex items-center gap-1 text-xs text-ash-ink">
+                  <ClockIcon size={14} /> {product.attributes.minutes} min
+                </span>
+              ) : null}
+            </div>
+          </div>
+        )}
       </Link>
       {product.quickAdd && !soldOut && (
         <div className="pointer-events-none absolute inset-x-0 top-0 aspect-square">

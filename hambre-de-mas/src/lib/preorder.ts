@@ -10,7 +10,14 @@ export function isPreorder(attributes: Pick<ProductAttributes, 'preorder'> | nul
   return Boolean(date) && now < releaseStart(date!)
 }
 
-/** «25 de diciembre» / «25 December». */
-export function releaseLabel(date: string, locale: Locale): string {
-  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'es-ES', { day: 'numeric', month: 'long', timeZone: 'Europe/Madrid' }).format(releaseStart(date))
+/** Días que faltan para la salida (1 el día antes). */
+export function daysUntilRelease(date: string, now = new Date()): number {
+  return Math.max(0, Math.ceil((releaseStart(date).getTime() - now.getTime()) / 86_400_000))
+}
+
+/** «25 de diciembre» / «25 December» (con `short`, «25 dic» / «25 Dec»). */
+export function releaseLabel(date: string, locale: Locale, month: 'long' | 'short' = 'long'): string {
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : 'es-ES', { day: 'numeric', month, timeZone: 'Europe/Madrid' })
+    .format(releaseStart(date))
+    .replace('.', '')
 }

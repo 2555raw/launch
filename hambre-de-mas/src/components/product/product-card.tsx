@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRef, useState, ViewTransition } from 'react'
 import { useCart } from '@/components/cart/cart-context'
 import { CheckIcon, ClockIcon, PlusIcon } from '@/components/ui/icons'
 import { AllergenStrip } from './allergen-icons'
@@ -11,22 +11,28 @@ import { ProductImage } from '@/components/ui/product-image'
 import { cn } from '@/lib/cn'
 import { commerce } from '@/lib/config/commerce'
 import { useI18n } from '@/lib/i18n/client'
+import { flyToCart } from '@/lib/fly-to-cart'
 import { formatPrice } from '@/lib/money'
+import { kitPhotoTransition } from '@/lib/view-transitions'
 import type { ProductSummary } from '@/lib/types'
 import { ProductBadge } from './product-badge'
 
 /**
  * Tarjeta minimalista: imagen protagonista, nombre, precio. Al pasar el ratón
  * se levanta, muestra la segunda foto y un botón para añadir sin entrar.
+ * Con `morph`, la foto se convierte en la de la ficha al abrirla (solo donde el
+ * kit sale una vez por página, ver kitPhotoTransition).
  */
 export function ProductCard({
   product,
   priority = false,
+  morph = false,
   className,
   sizes = '(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 90vw',
 }: {
   product: ProductSummary
   priority?: boolean
+  morph?: boolean
   className?: string
   sizes?: string
 }) {
@@ -72,9 +78,17 @@ export function ProductCard({
     <div className={cn('group relative h-full transition-transform duration-500 ease-[var(--ease-apple)] hover:-translate-y-1.5', className)}>
       <Link
         href={`/producto/${product.slug}`}
+        // La foto solo puede «viajar» a la ficha si la ficha ya está precargada entera
+        prefetch={morph ? true : undefined}
         className="flex h-full flex-col overflow-hidden rounded-[var(--radius-tile)] bg-white shadow-card ring-1 ring-black/[0.03] transition-shadow duration-500 ease-[var(--ease-apple)] group-hover:shadow-card-hover"
       >
-        {photo}
+        {morph ? (
+          <ViewTransition name={kitPhotoTransition(product.slug)} share="morph" default="none">
+            {photo}
+          </ViewTransition>
+        ) : (
+          photo
+        )}
         <div className="flex flex-1 flex-col gap-1 p-5 sm:p-6">
           <h3 className="font-display text-[19px] leading-snug font-bold">{product.name}</h3>
           {product.subtitle && <p className="line-clamp-2 text-sm text-ash-ink">{product.subtitle}</p>}
@@ -113,6 +127,7 @@ function QuickAdd({ product, label, price }: { product: ProductSummary; label: s
   const { t } = useI18n()
   const { addItem, items } = useCart()
   const [added, setAdded] = useState(false)
+  const button = useRef<HTMLButtonElement>(null)
   const variant = product.quickAdd!
   const max = Math.min(variant.stock, commerce.maxQuantityPerLine)
   const inCart = items.find((i) => i.variantId === variant.variantId)?.quantity ?? 0
@@ -134,12 +149,17 @@ function QuickAdd({ product, label, price }: { product: ProductSummary; label: s
       },
       { openDrawer: false },
     )
+    // Vuela la foto que se está viendo (la del hover, si el ratón está encima)
+    const imgs = [...(button.current?.closest('.group')?.querySelectorAll('img') ?? [])]
+    const shown = imgs.reduce<HTMLImageElement | undefined>((a, b) => (!a || Number(getComputedStyle(b).opacity) > Number(getComputedStyle(a).opacity) ? b : a), undefined)
+    void flyToCart(shown, shown?.currentSrc || product.image?.url)
     setAdded(true)
     setTimeout(() => setAdded(false), 1600)
   }
 
   return (
     <button
+      ref={button}
       type="button"
       onClick={add}
       disabled={full}

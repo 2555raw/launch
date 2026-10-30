@@ -189,7 +189,7 @@ export default async function ProductPage({ params }: Props) {
         </nav>
 
         <div className="grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
-          <Gallery images={product.images} name={product.name} />
+          <Gallery images={product.images} name={product.name} slug={product.slug} />
 
           <div>
             <div className="flex flex-wrap items-center gap-2">

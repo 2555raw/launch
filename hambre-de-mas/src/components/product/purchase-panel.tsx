@@ -12,12 +12,13 @@ import { StockLabel } from '@/components/ui/stock-label'
 import { cn } from '@/lib/cn'
 import { commerce } from '@/lib/config/commerce'
 import { useI18n } from '@/lib/i18n/client'
+import { flyToCart } from '@/lib/fly-to-cart'
 import { formatPrice, percentOff } from '@/lib/money'
 import type { ProductDetail } from '@/lib/types'
 
 export function PurchasePanel({ product }: { product: ProductDetail }) {
   const router = useRouter()
-  const { addItem, items } = useCart()
+  const { addItem, items, openDrawer } = useCart()
   const { locale, t } = useI18n()
   const firstAvailable = product.variants.find((v) => v.stock > 0) ?? product.variants[0]
   const [variantId, setVariantId] = useState(firstAvailable?.id ?? '')
@@ -143,7 +144,10 @@ export function PurchasePanel({ product }: { product: ProductDetail }) {
           size="lg"
           disabled={soldOut || canAdd <= 0}
           onClick={() => {
-            if (add(true)) {
+            // La foto vuela a la cesta y, al llegar, se abre el panel
+            if (add(false)) {
+              const photo = document.querySelector<HTMLImageElement>('[data-kit-photo] img')
+              void flyToCart(photo, photo?.currentSrc || product.image?.url).then(openDrawer)
               setAdded(true)
               setTimeout(() => setAdded(false), 1800)
             }

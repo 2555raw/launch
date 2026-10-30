@@ -172,6 +172,7 @@ export function Header({ categories, menu }: { categories: NavCategory[]; menu: 
             <button
               type="button"
               onClick={openDrawer}
+              data-cart-target
               className="relative grid size-10 place-items-center rounded-full text-ink/80 transition-colors hover:bg-mist hover:text-ink"
               aria-label={t({ es: `Cesta, ${count} ${count === 1 ? 'producto' : 'productos'}`, en: `Bag, ${count} ${count === 1 ? 'item' : 'items'}` })}
             >

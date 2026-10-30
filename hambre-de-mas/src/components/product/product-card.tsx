@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRef, useState, ViewTransition } from 'react'
+import { useRef, useState } from 'react'
 import { useCart } from '@/components/cart/cart-context'
 import { ArrowRightIcon, CheckIcon, ClockIcon, PlusIcon } from '@/components/ui/icons'
 import { AllergenStrip } from './allergen-icons'
@@ -14,26 +14,21 @@ import { useI18n } from '@/lib/i18n/client'
 import { flyToCart } from '@/lib/fly-to-cart'
 import { formatPrice } from '@/lib/money'
 import { daysUntilRelease, isPreorder, releaseLabel } from '@/lib/preorder'
-import { kitPhotoTransition } from '@/lib/view-transitions'
 import type { ProductSummary } from '@/lib/types'
 import { ProductBadge } from './product-badge'
 
 /**
  * Tarjeta minimalista: imagen protagonista, nombre, precio. Al pasar el ratón
  * se levanta, muestra la segunda foto y un botón para añadir sin entrar.
- * Con `morph`, la foto se convierte en la de la ficha al abrirla (solo donde el
- * kit sale una vez por página, ver kitPhotoTransition).
  */
 export function ProductCard({
   product,
   priority = false,
-  morph = false,
   className,
   sizes = '(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 90vw',
 }: {
   product: ProductSummary
   priority?: boolean
-  morph?: boolean
   className?: string
   sizes?: string
 }) {
@@ -97,20 +92,12 @@ export function ProductCard({
     <div className={cn('group relative h-full transition-transform duration-500 ease-[var(--ease-apple)] hover:-translate-y-1.5', className)}>
       <Link
         href={`/producto/${product.slug}`}
-        // La foto solo puede «viajar» a la ficha si la ficha ya está precargada entera
-        prefetch={morph ? true : undefined}
         className={cn(
           'flex h-full flex-col overflow-hidden rounded-[var(--radius-tile)] shadow-card ring-1 transition-shadow duration-500 ease-[var(--ease-apple)] group-hover:shadow-card-hover',
           preorder ? 'bg-hoja-deep text-white ring-white/10' : 'bg-white ring-black/[0.03]',
         )}
       >
-        {morph ? (
-          <ViewTransition name={kitPhotoTransition(product.slug)} share="morph" default="none">
-            {photo}
-          </ViewTransition>
-        ) : (
-          photo
-        )}
+        {photo}
         {preorder ? (
           <div className="flex flex-1 flex-col gap-1 p-5 sm:p-6">
             <p className="text-[11px] font-bold tracking-[0.14em] text-almendra uppercase">{t({ es: 'Edición limitada · por encargo', en: 'Limited edition · pre-order' })}</p>

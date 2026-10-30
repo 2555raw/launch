@@ -78,7 +78,7 @@ export async function CatalogView({
           <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
             {items.map((p, i) => (
               <li key={p.id} className="animate-fade-in" style={{ animationDelay: `${Math.min(i, 8) * 40}ms` }}>
-                <ProductCard product={p} morph priority={i < 3} sizes="(min-width: 1280px) 30vw, (min-width: 640px) 45vw, 92vw" />
+                <ProductCard product={p} priority={i < 3} sizes="(min-width: 1280px) 30vw, (min-width: 640px) 45vw, 92vw" />
               </li>
             ))}
           </ul>

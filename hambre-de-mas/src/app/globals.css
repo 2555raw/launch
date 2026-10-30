@@ -455,8 +455,3 @@
   animation: skeleton-shine 1.4s ease-in-out infinite;
 }
 @keyframes skeleton-shine { from { background-position: 120% 0; } to { background-position: -120% 0; } }
-
-/* Foto de la tarjeta que se convierte en la de la ficha (React <ViewTransition share="morph">) */
-::view-transition-group(.morph) { animation-duration: 420ms; animation-timing-function: cubic-bezier(0.28, 0.11, 0.32, 1); }
-::view-transition-image-pair(.morph) { animation-name: morph-blur; }
-@keyframes morph-blur { 35% { filter: blur(2px); } }

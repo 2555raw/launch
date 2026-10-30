@@ -115,8 +115,8 @@ export const FAQS: Faq[] = [
     id: 'qr',
     question: { es: '¿Cómo funciona el QR de la receta?', en: 'How does the recipe QR code work?' },
     answer: {
-      es: 'Cada kit trae una tarjeta con un código QR. Escanéalo con la cámara del móvil y se abre la receta paso a paso, con un modo vídeo que va pasando los pasos solo mientras cocinas. También la tienes en la ficha de cada kit.',
-      en: 'Every kit comes with a card with a QR code. Scan it with your phone camera and the step-by-step recipe opens, with a video mode that moves through the steps on its own while you cook. It\'s also on each kit\'s page.',
+      es: 'Cada kit trae una tarjeta con un código QR. Escanéalo con la cámara del móvil y se abre la receta paso a paso. También la tienes en la ficha de cada kit.',
+      en: 'Every kit comes with a card with a QR code. Scan it with your phone camera and the step-by-step recipe opens. It\'s also on each kit\'s page.',
     },
     keywords: ['qr', 'codigo', 'escanear', 'movil', 'video', 'pasos', 'paso', 'code', 'scan', 'phone', 'steps', 'step'],
   },

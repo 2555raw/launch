@@ -7,9 +7,7 @@ import { StorageChip } from '@/components/product/storage-chip'
 import { buttonClass } from '@/components/ui/button'
 import { CheckIcon, ClockIcon, FlameIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
-import { RecipePlayer, type PlayerStep } from '@/components/recipe/recipe-player'
 import { getCatalog } from '@/lib/catalog'
-import { ingredientPhoto } from '@/lib/catalog/ingredient-photos'
 import { site } from '@/lib/config/site'
 import { getI18n } from '@/lib/i18n/server'
 import type { Localized } from '@/lib/i18n/config'
@@ -74,8 +72,6 @@ export default async function RecipePage({ params }: Props) {
   const { locale, t } = await getI18n()
   const allAllergens = [...new Set([...product.allergens, ...product.recipeAllergens])]
   // Para el modo vídeo: de fondo las fotos del plato y, en cada paso, la del ingrediente que nombra
-  const backgrounds = product.images.map((i) => i.url)
-  const playerSteps: PlayerStep[] = recipe.steps.map((s) => ({ ...s, ingredient: ingredientPhoto(`${s.title} ${s.text}`) }))
 
   return (
     <article className="pb-24">
@@ -123,9 +119,6 @@ export default async function RecipePage({ params }: Props) {
                 <StorageChip storage={product.attributes.storage} />
               </li>
             </ul>
-            <div className="pop-word mt-7" style={{ '--delay': '0.3s' } as React.CSSProperties}>
-              <RecipePlayer dish={dish} steps={playerSteps} backgrounds={backgrounds} productSlug={product.slug} variant="dark" />
-            </div>
           </div>
           {product.image && (
             <div className="kit-pop relative mx-auto aspect-square w-full max-w-[340px] overflow-hidden rounded-full border-[6px] border-white shadow-float">

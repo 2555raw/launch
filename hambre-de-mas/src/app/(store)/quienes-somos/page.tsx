@@ -49,8 +49,8 @@ export default async function AboutPage() {
       icon: QrIcon,
       title: t({ es: 'La receta en el móvil', en: 'The recipe on your phone' }),
       text: t({
-        es: 'Un QR en cada caja abre la receta paso a paso, con un modo vídeo que avanza solo mientras cocinas.',
-        en: 'A QR code in every box opens the step-by-step recipe, with a video mode that moves on while you cook.',
+        es: 'Un QR en cada caja abre la receta paso a paso para seguirla mientras cocinas.',
+        en: 'A QR code in every box opens the step-by-step recipe to follow while you cook.',
       }),
     },
     {

@@ -60,10 +60,14 @@ export function ProductCard({
           className="scale-[1.03] object-cover opacity-0 transition-opacity duration-700 ease-[var(--ease-apple)] group-hover:opacity-100"
         />
       )}
-      <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-        {product.category && <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} overlay />}
+      {/* Nivel a la izquierda y etiqueta a la derecha, a la misma altura. En las ediciones
+        por encargo solo va su etiqueta: las dos juntas no caben en una tarjeta estrecha. */}
+      <div className="absolute inset-x-4 top-4 flex flex-wrap items-center justify-between gap-2">
+        {product.category && !(preorder && product.badge) && (
+          <LevelChip level={product.category.level} accent={product.category.accent} name={product.category.name} overlay className="h-6 shadow-sm" />
+        )}
+        {product.badge && <ProductBadge badge={product.badge} className="h-6 py-0" />}
       </div>
-      {product.badge && <ProductBadge badge={product.badge} className="absolute top-4 right-4" />}
       {preorder && !soldOut && (
         <>
           {/* Edición por encargo: cuenta atrás sobre la foto */}

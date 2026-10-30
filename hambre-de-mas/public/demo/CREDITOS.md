@@ -154,3 +154,11 @@ Fotos de referencia de cada ingrediente (`public/demo/ingredients`). Se asignan 
 | ingredients/lima.jpg | https://images.unsplash.com/photo-1578855691621-8a08ea00d1fb |
 | ingredients/guanciale.jpg | https://images.unsplash.com/photo-1765332773090-96ffcaacb6e7 |
 | ingredients/huevos.jpg | https://images.unsplash.com/photo-1498654077810-12c21d4d6dc3 |
+
+## Test «¿Qué nivel eres?»
+
+| Archivo | Foto original |
+| --- | --- |
+| quiz/microondas.jpg | https://images.unsplash.com/photo-1690731849383-514935755156 |
+| quiz/fuego.jpg | https://images.unsplash.com/photo-1581622558638-818128465982 |
+| quiz/horno.jpg | https://images.unsplash.com/photo-1565357253897-79d691886a73 |

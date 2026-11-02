@@ -31,8 +31,9 @@ Rojo Chef, Rojo Teja, Verde Hoja y Almendra.
 11. [Seguridad](#seguridad)
 12. [Idiomas (español e inglés)](#idiomas-español-e-inglés)
 13. [Asistente de ayuda](#asistente-de-ayuda)
-14. [Decisiones de diseño](#decisiones-de-diseño)
-15. [Limitaciones conocidas y siguientes pasos](#limitaciones-conocidas-y-siguientes-pasos)
+14. [SEO y SEM](#seo-y-sem)
+15. [Decisiones de diseño](#decisiones-de-diseño)
+16. [Limitaciones conocidas y siguientes pasos](#limitaciones-conocidas-y-siguientes-pasos)
 
 ---
 
@@ -412,6 +413,36 @@ por defecto HambreDeMas@gmail.com).
   15 preguntas por minuto y cada conversación se limita a 20 mensajes de 1000 caracteres.
 
 ---
+
+## SEO y SEM
+
+**SEO (posicionamiento en Google, sin pagar)**
+- Títulos con lo que se busca («Kits de cocina para adolescentes», «Primer bocado · Kits de cocina»…),
+  descripción y URL canónica en cada página pública; las privadas (cuenta, cesta, pago, búsqueda) van con `noindex`.
+- Datos estructurados (`src/lib/seo.ts`): Product con una oferta por tamaño, envío, devoluciones y
+  disponibilidad (`PreOrder` con fecha para las ediciones por encargo); Recipe con raciones y valores
+  nutricionales; BreadcrumbList en kits, categorías y recetas; ItemList en el catálogo; Organization y
+  WebSite con buscador en la portada; FAQPage en preguntas frecuentes. La valoración media solo se marca
+  con opiniones reales (no con las de ejemplo del modo demo).
+- `sitemap.xml` con kits, categorías, recetas y las fotos de cada kit (Google Imágenes).
+- Imagen para compartir de cada kit generada al vuelo (foto, nombre y precio): `producto/[slug]/opengraph-image.tsx`.
+- Search Console: pon el código de verificación en `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` y envía
+  `https://tu-dominio/sitemap.xml`.
+
+**SEM (anuncios de pago en Google)**
+- **Google Shopping**: feed de productos en `/feed/google-shopping.xml` (una entrada por tamaño, con
+  precio, oferta, envío, disponibilidad y encargos). En Merchant Center: Productos › Fuentes de datos ›
+  Añadir › «Recuperación programada» con esa URL. Las etiquetas `custom_label_0..2` (nivel, alto en
+  proteína, edición especial) sirven para separar campañas o pujas.
+- **Conversiones de Google Ads**: rellena `NEXT_PUBLIC_GOOGLE_ADS_ID` (AW-…) y
+  `NEXT_PUBLIC_GOOGLE_ADS_PURCHASE_LABEL`. Al confirmarse el pago se envía la conversión con el importe y
+  el número de pedido (una sola vez por pedido), y Analytics recibe `add_to_cart`, `begin_checkout` y
+  `purchase` (`src/lib/tracking.ts`).
+- **Consentimiento**: con una cuenta de Ads configurada, el banner de cookies añade la casilla
+  «Publicidad». Nada de Google se carga sin aceptar, y se le pasa la decisión con el modo de
+  consentimiento v2. La política de cookies lo explica automáticamente.
+- Los anuncios llegan con `gclid`/`utm_*` en la URL: Google Ads y Analytics los leen solos, no hace falta
+  tocar nada en la tienda.
 
 ## Decisiones de diseño
 

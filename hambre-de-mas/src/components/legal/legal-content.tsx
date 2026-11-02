@@ -310,8 +310,14 @@ export const legalPages: Record<string, LegalPage> = {
             <strong>Analítica (opcional):</strong> solo se cargan si las aceptas y si la tienda tiene configurada una herramienta (Plausible o
             Google Analytics). Por defecto no hay ninguna activa.
           </li>
+          {process.env.NEXT_PUBLIC_GOOGLE_ADS_ID && (
+            <li>
+              <strong>Publicidad (opcional):</strong> si las aceptas, Google Ads guarda cookies propias (por ejemplo <code>_gcl_au</code>) para
+              saber qué anuncios han traído una compra. No se usan para enseñarte anuncios personalizados en otras webs desde esta tienda.
+            </li>
+          )}
         </ul>
-        <p>No usamos cookies publicitarias ni de seguimiento entre webs.</p>
+        {!process.env.NEXT_PUBLIC_GOOGLE_ADS_ID && <p>No usamos cookies publicitarias ni de seguimiento entre webs.</p>}
         <h2>3. Cómo gestionarlas</h2>
         <p>
           Puedes cambiar tu decisión cuando quieras desde «Configurar cookies» en el pie de página, o borrar las cookies desde la configuración de

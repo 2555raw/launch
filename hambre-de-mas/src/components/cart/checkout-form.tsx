@@ -14,6 +14,7 @@ import type { Address } from '@/lib/types'
 import { useCart } from './cart-context'
 import { OrderSummary, PromoCodeField } from './order-summary'
 import { useCartQuote } from './use-quote'
+import { trackBeginCheckout } from '@/lib/tracking'
 
 type Props = {
   paymentsEnabled: boolean
@@ -78,6 +79,15 @@ export function CheckoutForm({ paymentsEnabled, testMode, user, addresses }: Pro
   useEffect(() => {
     if (hydrated && items.length === 0 && !submitting) router.replace('/cesta')
   }, [hydrated, items.length, router, submitting])
+
+  // Analítica y Google Ads: empieza el pago (una vez, con la cesta ya cargada)
+  const [checkoutTracked, setCheckoutTracked] = useState(false)
+  useEffect(() => {
+    if (!hydrated || checkoutTracked || items.length === 0) return
+    trackBeginCheckout(items.map((i) => ({ id: i.variantId, name: i.name, variant: i.variantName, priceCents: i.priceCents, quantity: i.quantity })))
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- marca de «ya enviado», no afecta al render
+    setCheckoutTracked(true)
+  }, [hydrated, checkoutTracked, items])
 
   const set = (key: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }))

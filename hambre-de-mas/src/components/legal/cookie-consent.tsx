@@ -6,6 +6,7 @@ import Script from 'next/script'
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/lib/i18n/client'
+import { adsId, gaId } from '@/lib/tracking'
 
 /**
  * Banner de consentimiento de cookies.
@@ -13,6 +14,9 @@ import { useI18n } from '@/lib/i18n/client'
  * - Las cookies técnicas (sesión, cesta en localStorage) no necesitan consentimiento.
  * - La analítica solo se carga si el usuario la acepta expresamente, y
  *   solo si hay un proveedor configurado (Plausible o Google Analytics 4).
+ * - La publicidad (medir las ventas que traen los anuncios de Google Ads) es
+ *   otra casilla aparte, que solo aparece si hay una cuenta de Ads configurada.
+ *   Google recibe el consentimiento con su «modo de consentimiento» (v2).
  * - "Rechazar" está al mismo nivel que "Aceptar", como pide la guía de la AEPD.
  * - Se puede cambiar la decisión en cualquier momento desde el pie de página.
  */
@@ -21,7 +25,7 @@ const COOKIE = 'hdm_consent'
 const VERSION = 1
 export const OPEN_COOKIE_SETTINGS = 'hdm:open-cookie-settings'
 
-type Consent = { v: number; analytics: boolean; at: string }
+type Consent = { v: number; analytics: boolean; ads?: boolean; at: string }
 
 function readConsent(): Consent | null {
   const raw = document.cookie.split('; ').find((c) => c.startsWith(`${COOKIE}=`))
@@ -34,16 +38,16 @@ function readConsent(): Consent | null {
   }
 }
 
-function writeConsent(analytics: boolean) {
-  const value: Consent = { v: VERSION, analytics, at: new Date().toISOString() }
+function writeConsent(analytics: boolean, ads: boolean) {
+  const value: Consent = { v: VERSION, analytics, ads, at: new Date().toISOString() }
   const secure = location.protocol === 'https:' ? '; Secure' : ''
   document.cookie = `${COOKIE}=${encodeURIComponent(JSON.stringify(value))}; Path=/; Max-Age=${60 * 60 * 24 * 180}; SameSite=Lax${secure}`
   return value
 }
 
 const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
-const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 export const hasAnalyticsProvider = Boolean(plausibleDomain || gaId)
+export const hasAdsProvider = Boolean(adsId)
 
 export function CookieConsent() {
   const { t } = useI18n()
@@ -51,6 +55,7 @@ export function CookieConsent() {
   const [open, setOpen] = useState(false)
   const [details, setDetails] = useState(false)
   const [analyticsChoice, setAnalyticsChoice] = useState(false)
+  const [adsChoice, setAdsChoice] = useState(false)
 
   useEffect(() => {
     const current = readConsent()
@@ -58,6 +63,7 @@ export function CookieConsent() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- sincronización con un sistema externo (document.cookie)
     setConsent(current)
     setAnalyticsChoice(current?.analytics ?? false)
+    setAdsChoice(current?.ads ?? false)
     if (!current) setOpen(true)
     const reopen = () => {
       setDetails(true)
@@ -67,25 +73,37 @@ export function CookieConsent() {
     return () => window.removeEventListener(OPEN_COOKIE_SETTINGS, reopen)
   }, [])
 
-  const decide = (analytics: boolean) => {
-    const previous = consent?.analytics
-    setConsent(writeConsent(analytics))
+  const decide = (analytics: boolean, ads: boolean) => {
+    const withdrawn = (consent?.analytics && !analytics) || (consent?.ads && !ads)
+    setConsent(writeConsent(analytics, ads))
     setOpen(false)
     // Si se retira el consentimiento, recargar para descargar los scripts.
-    if (previous && !analytics) location.reload()
+    if (withdrawn) location.reload()
   }
+
+  const analyticsOn = Boolean(consent?.analytics)
+  const adsOn = Boolean(consent?.ads && adsId)
+  // Un solo script de Google (gtag) para Analytics y Ads; se carga si se acepta alguno de los dos
+  const loadGtag = (analyticsOn && gaId) || adsOn
+  const granted = (on: boolean) => (on ? 'granted' : 'denied')
 
   return (
     <>
       {consent?.analytics && plausibleDomain && (
         <Script src="https://plausible.io/js/script.js" data-domain={plausibleDomain} strategy="afterInteractive" />
       )}
-      {consent?.analytics && gaId && (
+      {loadGtag && (
         <>
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
-          <Script id="ga-init" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${gaId}',{anonymize_ip:true});`}
+          <Script id="gtag-init" strategy="afterInteractive">
+            {[
+              `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}`,
+              `gtag('consent','default',${JSON.stringify({ analytics_storage: granted(analyticsOn), ad_storage: granted(adsOn), ad_user_data: granted(adsOn), ad_personalization: granted(adsOn) })});`,
+              `gtag('js',new Date());`,
+              analyticsOn && gaId ? `gtag('config','${gaId}',{anonymize_ip:true});` : '',
+              adsOn ? `gtag('config','${adsId}');` : '',
+            ].join('')}
           </Script>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${analyticsOn && gaId ? gaId : adsId}`} strategy="afterInteractive" />
         </>
       )}
 
@@ -108,7 +126,12 @@ export function CookieConsent() {
                   {t({ es: 'Usamos cookies', en: 'We use cookies' })}
                 </h2>
                 <p id="cookies-texto" className="mt-0.5 leading-snug text-ash-ink">
-                  {hasAnalyticsProvider
+                  {hasAdsProvider
+                    ? t({
+                        es: 'Técnicas para que la tienda funcione y, si aceptas, de analítica y para medir nuestros anuncios.',
+                        en: 'Essential ones to run the shop and, if you accept, analytics and ad measurement.',
+                      })
+                    : hasAnalyticsProvider
                     ? t({ es: 'Técnicas para que la tienda funcione y, si aceptas, de analítica.', en: 'Essential ones to run the shop and, if you accept, analytics.' })
                     : t({ es: 'Solo técnicas, para que la tienda funcione (sesión y cesta).', en: 'Only essential ones, to run the shop (session and bag).' })}{' '}
                   <Link href="/legal/cookies" className="text-teja underline underline-offset-2">
@@ -142,19 +165,28 @@ export function CookieConsent() {
                       : t({ es: 'No hay ninguna configurada.', en: 'None set up.' })}
                   </span>
                 </label>
+                {hasAdsProvider && (
+                  <label className="flex items-start gap-2.5">
+                    <input type="checkbox" checked={adsChoice} onChange={(e) => setAdsChoice(e.target.checked)} className="mt-0.5 size-3.5 accent-chef-ink" />
+                    <span>
+                      <strong className="font-semibold">{t({ es: 'Publicidad', en: 'Advertising' })}</strong> ·{' '}
+                      {t({ es: 'Saber qué anuncios de Google traen ventas.', en: 'Measure which Google ads lead to sales.' })}
+                    </span>
+                  </label>
+                )}
               </div>
             )}
 
             {/* Aceptar y rechazar con el mismo peso, como pide la guía de la AEPD. */}
             <div className="mt-3 flex items-center gap-2">
-              <Button size="sm" variant="dark" className="h-8 flex-1 px-3 text-[13px]" onClick={() => decide(true)}>
+              <Button size="sm" variant="dark" className="h-8 flex-1 px-3 text-[13px]" onClick={() => decide(true, true)}>
                 {t({ es: 'Aceptar', en: 'Accept' })}
               </Button>
-              <Button size="sm" variant="dark" className="h-8 flex-1 px-3 text-[13px]" onClick={() => decide(false)}>
+              <Button size="sm" variant="dark" className="h-8 flex-1 px-3 text-[13px]" onClick={() => decide(false, false)}>
                 {t({ es: 'Rechazar', en: 'Reject' })}
               </Button>
               {details ? (
-                <Button size="sm" variant="secondary" className="h-8 px-3 text-[13px]" onClick={() => decide(analyticsChoice)}>
+                <Button size="sm" variant="secondary" className="h-8 px-3 text-[13px]" onClick={() => decide(analyticsChoice, adsChoice)}>
                   {t({ es: 'Guardar', en: 'Save' })}
                 </Button>
               ) : (

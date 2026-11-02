@@ -7,7 +7,11 @@ const isLocalSupabase = supabaseUrl ? ['localhost', '127.0.0.1'].includes(supaba
 // carga tras el consentimiento, ver CookieConsent).
 const analytics = [
   ...(process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN ? ['https://plausible.io'] : []),
-  ...(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ? ['https://www.googletagmanager.com', 'https://*.google-analytics.com'] : []),
+  ...(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ? ['https://www.googletagmanager.com', 'https://*.google-analytics.com'] : []),
+  // Conversiones de Google Ads (solo si hay cuenta configurada; se cargan tras aceptar la publicidad)
+  ...(process.env.NEXT_PUBLIC_GOOGLE_ADS_ID
+    ? ['https://www.googleadservices.com', 'https://googleads.g.doubleclick.net', 'https://*.doubleclick.net', 'https://www.google.com', 'https://www.google.es']
+    : []),
 ].join(' ')
 
 // Política de seguridad de contenidos. El pago se hace en la página de Stripe
@@ -19,6 +23,8 @@ const csp = [
   `img-src 'self' data: blob:${supabaseUrl ? ` ${supabaseUrl.origin}` : ''}${analytics ? ` ${analytics}` : ''}`,
   "font-src 'self'",
   `connect-src 'self'${supabaseUrl ? ` ${supabaseUrl.origin}` : ''}${analytics ? ` ${analytics}` : ''}`,
+  // Google Ads mide algunas conversiones con un iframe propio
+  ...(process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ? ["frame-src 'self' https://td.doubleclick.net https://www.googletagmanager.com"] : []),
   "frame-ancestors 'none'",
   "form-action 'self' https://checkout.stripe.com",
   "base-uri 'self'",

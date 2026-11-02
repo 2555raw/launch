@@ -12,10 +12,10 @@ import { createSupabaseCatalog } from './supabase-repository'
  * demostración en memoria (solo lectura). Los textos llegan ya en el idioma
  * de la petición.
  */
-export const getCatalog = cache((): CatalogRepository => {
-  const base = isSupabaseConfigured() ? createSupabaseCatalog() : createDemoCatalog()
-  return localized(base)
-})
+export const getCatalog = cache((): CatalogRepository => localized(getBaseCatalog()))
+
+/** El catálogo en su idioma base (español), sin traducir: para el feed de Google Shopping. */
+export const getBaseCatalog = cache((): CatalogRepository => (isSupabaseConfigured() ? createSupabaseCatalog() : createDemoCatalog()))
 
 function localized(base: CatalogRepository): CatalogRepository {
   return {

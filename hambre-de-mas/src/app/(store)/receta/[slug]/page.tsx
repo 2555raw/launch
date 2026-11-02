@@ -12,6 +12,7 @@ import { site } from '@/lib/config/site'
 import { getI18n } from '@/lib/i18n/server'
 import type { Localized } from '@/lib/i18n/config'
 import { formatPrice } from '@/lib/money'
+import { absoluteUrl, breadcrumbLd } from '@/lib/seo'
 
 /**
  * Receta paso a paso: es lo que abre el QR de la tarjeta de cada kit.
@@ -43,6 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       en: `Step by step for the ${product.name}. ${product.subtitle ?? ''}`,
     }),
     alternates: { canonical: `/receta/${product.slug}` },
+    openGraph: { images: product.images.slice(0, 1).map((i) => ({ url: i.url, alt: i.alt })) },
   }
 }
 
@@ -71,7 +73,8 @@ export default async function RecipePage({ params }: Props) {
   const { recipe } = product
   const { locale, t } = await getI18n()
   const allAllergens = [...new Set([...product.allergens, ...product.recipeAllergens])]
-  // Para el modo vídeo: de fondo las fotos del plato y, en cada paso, la del ingrediente que nombra
+  // Raciones del tamaño más pequeño («2 personas» → 2)
+  const servings = Number(product.variants[0]?.name.match(/\d+/)?.[0]) || null
 
   return (
     <article className="pb-24">
@@ -80,12 +83,37 @@ export default async function RecipePage({ params }: Props) {
           '@context': 'https://schema.org',
           '@type': 'Recipe',
           name: dish,
-          image: product.images.map((i) => (i.url.startsWith('http') ? i.url : `${site.url}${i.url}`)),
+          image: product.images.map((i) => absoluteUrl(i.url)),
           description: product.subtitle ?? product.description,
+          author: { '@type': 'Organization', name: site.name, url: site.url },
+          keywords: [t({ es: 'recetas para adolescentes', en: 'recipes for teens' }), t({ es: 'kit de cocina', en: 'cooking kit' }), product.category?.name, dish]
+            .filter(Boolean)
+            .join(', '),
+          ...(servings ? { recipeYield: servings } : {}),
           totalTime: product.attributes.minutes ? `PT${product.attributes.minutes}M` : undefined,
           recipeIngredient: [...product.includes.filter((i) => !isCard(i)), ...recipe.youAdd],
           recipeInstructions: recipe.steps.map((s) => ({ '@type': 'HowToStep', name: s.title, text: s.text })),
+          ...(product.attributes.nutrition
+            ? {
+                nutrition: {
+                  '@type': 'NutritionInformation',
+                  servingSize: t({ es: '1 ración', en: '1 serving' }),
+                  calories: `${product.attributes.nutrition.kcal} kcal`,
+                  proteinContent: `${product.attributes.nutrition.protein} g`,
+                  carbohydrateContent: `${product.attributes.nutrition.carbs} g`,
+                  fatContent: `${product.attributes.nutrition.fat} g`,
+                },
+              }
+            : {}),
+          ...(product.tags.includes('vegano') ? { suitableForDiet: 'https://schema.org/VeganDiet' } : product.tags.includes('vegetariano') ? { suitableForDiet: 'https://schema.org/VegetarianDiet' } : {}),
         }}
+      />
+      <JsonLd
+        data={breadcrumbLd([
+          { name: t({ es: 'Tienda', en: 'Shop' }), path: '/tienda' },
+          { name: product.name, path: `/producto/${product.slug}` },
+          { name: t({ es: 'Receta', en: 'Recipe' }), path: `/receta/${product.slug}` },
+        ])}
       />
 
       {/* Cabecera */}

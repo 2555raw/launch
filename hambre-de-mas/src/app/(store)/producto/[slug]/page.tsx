@@ -16,15 +16,15 @@ import { ReviewForm } from '@/components/product/review-form'
 import { JsonLd } from '@/components/seo/json-ld'
 import { ChevronRightIcon, ClockIcon, DumbbellIcon, FlameIcon, GiftIcon, LeafIcon, QrIcon, ReturnIcon, StarIcon, TruckIcon } from '@/components/ui/icons'
 import { LevelChip } from '@/components/ui/level-chip'
-import { getCatalog } from '@/lib/catalog'
+import { getCatalog, isDemoMode } from '@/lib/catalog'
 import { cn } from '@/lib/cn'
 import { commerce } from '@/lib/config/commerce'
-import { site } from '@/lib/config/site'
 import { getI18n } from '@/lib/i18n/server'
 import type { Localized } from '@/lib/i18n/config'
 import { formatDate, formatPrice } from '@/lib/money'
 import type { Heat, Nutrition } from '@/lib/types'
 import { dayLabel, isPreorder } from '@/lib/preorder'
+import { breadcrumbLd, productLd } from '@/lib/seo'
 
 export const revalidate = 60
 
@@ -101,11 +101,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: product.seoTitle ?? product.name,
     description,
     alternates: { canonical: `/producto/${product.slug}` },
-    openGraph: {
-      title: product.name,
-      description,
-      images: product.images.slice(0, 1).map((i) => ({ url: i.url, alt: i.alt })),
-    },
+    // La imagen para compartir la genera opengraph-image.tsx (foto, nombre y precio)
+    openGraph: { title: product.name, description, type: 'website' },
   }
 }
 
@@ -123,47 +120,16 @@ export default async function ProductPage({ params }: Props) {
   const average = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0
   const { locale, t } = await getI18n()
   const reviewCount = (n: number) => t({ es: `${n} ${n === 1 ? 'opinión' : 'opiniones'}`, en: `${n} ${n === 1 ? 'review' : 'reviews'}` })
-  const absolute = (url: string) => (url.startsWith('http') ? url : `${site.url}${url}`)
 
   return (
     <>
+      <JsonLd data={productLd(product, isDemoMode() ? null : { average, count: reviews.length })} />
       <JsonLd
-        data={{
-          '@context': 'https://schema.org',
-          '@type': 'Product',
-          name: product.name,
-          description: product.subtitle ?? product.description,
-          image: product.images.map((i) => absolute(i.url)),
-          sku: product.variants[0]?.sku,
-          brand: { '@type': 'Brand', name: site.name },
-          category: product.category?.name,
-          offers: product.variants.map((v) => ({
-            '@type': 'Offer',
-            sku: v.sku,
-            name: `${product.name} · ${v.name}`,
-            price: (v.priceCents / 100).toFixed(2),
-            priceCurrency: 'EUR',
-            availability: v.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-            url: `${site.url}/producto/${product.slug}`,
-            itemCondition: 'https://schema.org/NewCondition',
-          })),
-          ...(reviews.length
-            ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: average.toFixed(1), reviewCount: reviews.length } }
-            : {}),
-        }}
-      />
-      <JsonLd
-        data={{
-          '@context': 'https://schema.org',
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: t({ es: 'Tienda', en: 'Shop' }), item: `${site.url}/tienda` },
-            ...(product.category
-              ? [{ '@type': 'ListItem', position: 2, name: product.category.name, item: `${site.url}/categoria/${product.category.slug}` }]
-              : []),
-            { '@type': 'ListItem', position: product.category ? 3 : 2, name: product.name, item: `${site.url}/producto/${product.slug}` },
-          ],
-        }}
+        data={breadcrumbLd([
+          { name: t({ es: 'Tienda', en: 'Shop' }), path: '/tienda' },
+          ...(product.category ? [{ name: product.category.name, path: `/categoria/${product.category.slug}` }] : []),
+          { name: product.name, path: `/producto/${product.slug}` },
+        ])}
       />
 
       <div className="container-page pt-6 pb-20">

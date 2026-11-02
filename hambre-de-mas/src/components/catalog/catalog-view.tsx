@@ -8,6 +8,8 @@ import { DEFAULT_PAGE_SIZE } from '@/lib/catalog/repository'
 import { getI18n } from '@/lib/i18n/server'
 import type { ProductFilter } from '@/lib/types'
 import { FilterPanel, MobileFilters, SortSelect } from './filters'
+import { JsonLd } from '@/components/seo/json-ld'
+import { itemListLd } from '@/lib/seo'
 
 /** Rejilla de productos con filtros, orden y paginación (todo por URL). */
 export async function CatalogView({
@@ -54,6 +56,7 @@ export async function CatalogView({
       </aside>
 
       <section aria-label={t({ es: 'Productos', en: 'Products' })}>
+        {items.length > 0 && <JsonLd data={itemListLd(items)} />}
         <div className="mb-6 flex items-center justify-between gap-4">
           <p className="text-sm text-ash-ink" aria-live="polite">
             {total} {total === 1 ? 'kit' : 'kits'}

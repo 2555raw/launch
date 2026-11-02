@@ -23,7 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(site.url),
     title: {
-      default: site.name,
+      // Lo que se busca («kits de cocina para adolescentes») va en el título de la portada
+      default: `${site.name} · ${t({ es: 'Kits de cocina para adolescentes', en: 'Cooking kits for teens' })}`,
       template: `%s · ${site.name}`,
     },
     description,
@@ -38,6 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
       images: [{ url: '/demo/home/hero-ramen.jpg', width: 2000, height: 2000, alt: t({ es: 'Bol de ramen casero', en: 'Bowl of homemade ramen' }) }],
     },
     twitter: { card: 'summary_large_image' },
+    ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION } } : {}),
     formatDetection: { telephone: false },
   }
 }

@@ -6,6 +6,8 @@ import type { SearchParams } from '@/lib/catalog/params'
 import { GiftIcon } from '@/components/ui/icons'
 import { commerce } from '@/lib/config/commerce'
 import { getI18n } from '@/lib/i18n/server'
+import { JsonLd } from '@/components/seo/json-ld'
+import { breadcrumbLd } from '@/lib/seo'
 
 export async function generateStaticParams() {
   try {
@@ -24,9 +26,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { t } = await getI18n()
   if (!category) return { title: t({ es: 'Categoría no encontrada', en: 'Category not found' }) }
   return {
-    title: category.name,
+    title: t({ es: `${category.name} · Kits de cocina`, en: `${category.name} · Cooking kits` }),
     description: category.description ?? category.tagline ?? undefined,
     alternates: { canonical: `/categoria/${category.slug}` },
+    ...(category.imageUrl ? { openGraph: { images: [{ url: category.imageUrl, alt: category.name }] } } : {}),
   }
 }
 
@@ -37,6 +40,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const { t } = await getI18n()
   return (
     <>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: t({ es: 'Tienda', en: 'Shop' }), path: '/tienda' },
+          { name: category.name, path: `/categoria/${category.slug}` },
+        ])}
+      />
       <PageIntro
         eyebrow={category.level ? t({ es: 'Tienda', en: 'Shop' }) : t({ es: 'Cada mes', en: 'Every month' })}
         title={`${category.name}.`} soft={category.tagline ?? undefined}>

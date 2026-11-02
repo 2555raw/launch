@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { commerce } from '@/lib/config/commerce'
+import { trackAddToCart } from '@/lib/tracking'
 
 /**
  * Estado del carrito en el navegador. Se guarda en localStorage para que
@@ -164,6 +165,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addItem = useCallback((item: CartItem, options?: { openDrawer?: boolean }) => {
     pending.current?.push(item)
     dispatch({ type: 'add', item })
+    trackAddToCart({ id: item.variantId, name: item.name, variant: item.variantName, priceCents: item.priceCents, quantity: item.quantity })
     setLastAdded(item)
     if (options?.openDrawer !== false) setDrawerOpen(true)
   }, [])

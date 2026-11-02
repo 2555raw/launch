@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ClearCartOnMount } from '@/components/cart/clear-cart'
+import { PurchaseTracker } from '@/components/cart/purchase-tracker'
 import { buttonClass } from '@/components/ui/button'
 import { CheckIcon, ClockIcon } from '@/components/ui/icons'
 import { ProductImage } from '@/components/ui/product-image'
@@ -54,6 +55,18 @@ export default async function SuccessPage({ searchParams }: { searchParams: Prom
   return (
     <div className="container-page max-w-3xl py-16 sm:py-24">
       {(confirmed || paid) && <ClearCartOnMount />}
+      {confirmed && (
+        <PurchaseTracker
+          order={{
+            id: formatOrderNumber(order.number),
+            totalCents: order.totalCents,
+            shippingCents: order.shippingCents,
+            taxCents: order.taxCents,
+            coupon: order.promotionCode,
+            items: order.items.map((i) => ({ id: i.variantId ?? i.sku, name: i.productName, variant: i.variantName, priceCents: i.unitPriceCents, quantity: i.quantity })),
+          }}
+        />
+      )}
       <div className="text-center">
         <span className={`mx-auto grid size-16 place-items-center rounded-full ${confirmed ? 'bg-hoja/20 text-hoja-deep' : 'bg-almendra text-teja'}`}>
           {confirmed ? <CheckIcon size={30} /> : <ClockIcon size={30} />}

@@ -217,7 +217,8 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .reveal-text { font-weight: 400; margin: 0; font-size: clamp(32px, 4.2vw, 60px); line-height: 1.12; letter-spacing: -.045em; }
 .reveal-text .w { color: rgba(73,52,95,.2); transition: color 1s; }
 .reveal-text .w.on { color: var(--ice); }
-.reveal-text .w.hl.on { color: var(--turq); }
+.reveal-text .w.hl { background-image: linear-gradient(transparent 46%, var(--coral) 46%, var(--coral) 94%, transparent 94%); background-repeat: no-repeat; background-size: 0% 100%; transition: color 1s, background-size .9s var(--ease) .15s; padding: 0 .06em; margin: 0 -.06em; }
+.reveal-text .w.hl.on { color: var(--ice); background-size: 100% 100%; }
 .stats { display: grid; grid-template-columns: 1fr 1fr; margin-top: 120px; }
 .stat { padding: 48px 40px 56px; min-height: 336px; display: grid; align-content: space-between; gap: 36px; border: 1px solid var(--line); background: rgba(255,255,255,.45); transition: background .4s, border-color .4s; }
 .stat:nth-child(even) { transform: translateY(36px); }

@@ -643,8 +643,6 @@ dialog::backdrop { background: rgba(73,52,95,.4); backdrop-filter: blur(4px); }
   </nav>
 </div>
 
-<button class="menu-btn fixed-menu glass" data-open-menu aria-label="Open menu"><span class="dots"><span></span><span></span><span></span><span></span><span></span><span></span></span>Menu</button>
-<a class="btn fixed-cta" href="#" data-link="app"><span class="lbl">Launch app <small class="opt">/almoner</small></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a>
 
 <header class="site-header">
   <div class="wrap">
@@ -1037,10 +1035,6 @@ const DOCS = {
   $$('[data-close-menu]').forEach(b => b.addEventListener('click', e => { if (b.tagName === 'BUTTON' || b.classList.contains('scrim')) e.preventDefault(); closeMenu(); }));
   addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('open')) closeMenu(); });
 
-  /* Fixed header controls after the hero */
-  const fx = [$('.fixed-cta'), $('.fixed-menu')];
-  const onScroll = () => { const on = scrollY > innerHeight * 0.6; fx.forEach(el => el.classList.toggle('on', on)); };
-  addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
   /* Accordions */
   function setupAcc(root, itemSel, single) {

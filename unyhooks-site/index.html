@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Almoner</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Almoner gives AI agents an endowment: capital that stays invested in tokenized US equities and pays the agent a capped yearly draw, spent inside limits its owner sets.">
+<meta name="description" content="Almoner gives AI agents an endowment: HYPE that stays staked on Hyperliquid and pays the agent a capped yearly draw in USDC, spent inside limits its owner sets.">
 <meta property="og:title" content="Almoner | Endowments for AI agents">
-<meta property="og:description" content="Endow an AI agent once. The capital stays at work, and anyone can add to it.">
+<meta property="og:description" content="Endow an AI agent once. The HYPE stays staked, and anyone can add to it.">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#edf0f7">
@@ -130,6 +130,12 @@ p { margin: 0; }
 svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: .94em; padding: .28em .32em; color: #97fce4; background: #072723; border-radius: .32em; flex: none; box-shadow: 0 0 0 1px rgba(151,252,228,.25), 0 4px 12px rgba(7,39,35,.25); }
 .marquee-track svg.hl { width: 22px; height: 16px; padding: 5px 6px; border-radius: 6px; }
 
+/* Elysium countdown + built-on badge */
+.hero-badge .t3 { display: flex; width: fit-content; align-items: center; gap: 8px; margin-top: 10px; padding: 5px 10px; font-family: var(--f-mono); font-size: 10.5px; text-transform: uppercase; color: var(--ice); background: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.7); backdrop-filter: blur(8px); }
+.hero-badge .t3 b { font-weight: 500; color: var(--turq); font-variant-numeric: tabular-nums; }
+.pulse { width: 6px; height: 6px; border-radius: 50%; background: #97fce4; box-shadow: 0 0 0 0 rgba(151,252,228,.8); animation: ping 2s infinite; outline: 1px solid #072723; }
+@keyframes ping { 70% { box-shadow: 0 0 0 7px rgba(151,252,228,0); } 100% { box-shadow: 0 0 0 0 rgba(151,252,228,0); } }
+.built { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; }
 /* ---------- Header ---------- */
 .site-header { position: absolute; inset: 0 0 auto; z-index: 30; padding-top: calc(env(safe-area-inset-top, 0px) + 48px); }
 .site-header .wrap { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; }
@@ -597,23 +603,23 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
     <div class="hero-bg" aria-hidden="true"></div>
     <canvas id="ribbons" aria-hidden="true"></canvas>
     <h1 id="hero-title" class="hero-copy">
-      <span class="stack"><span>Endow an AI agent once.</span><span>The capital stays at work.</span><span>The agent lives on the draw.</span></span>
+      <span class="stack"><span>Endow an AI agent once.</span><span>The HYPE stays staked.</span><span>The agent lives on the draw.</span></span>
       <ol>
-        <li><b>/01</b>Endowments in US equities</li>
+        <li><b>/01</b>Endowments in staked HYPE</li>
         <li><b>/02</b>Open to every patron</li>
         <li><b>/03</b>Spent under a mandate</li>
       </ol>
     </h1>
-    <div class="hero-badge"><span class="medal"><svg><use href="#mark"/></svg></span><div><div class="t1">Endowments for AI agents</div><div class="t2 chain">Live on <svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM</div></div></div>
+    <div class="hero-badge"><span class="medal"><svg><use href="#mark"/></svg></span><div><div class="t1">Endowments for AI agents</div><div class="t2 chain">Live on <svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM</div><div class="t3" id="elysium"><span class="pulse"></span>Elysium mainnet · 9 Nov</div></div></div>
     <div class="hero-word" aria-hidden="true">ALMONER<sup>®</sup></div>
   </section>
 
   <!-- Marquee -->
   <div class="marquee" aria-hidden="true">
     <div class="marquee-track">
-      <span><svg><use href="#i-star"/></svg>Agent endowments</span><span><svg><use href="#i-star"/></svg>US equities</span><span><svg><use href="#i-star"/></svg>USDC</span><span><svg><use href="#i-star"/></svg>x402</span><span><svg><use href="#i-star"/></svg>ERC-8004</span><span><svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM</span><span><svg><use href="#i-star"/></svg>Spending mandates</span>
-      <span><svg><use href="#i-star"/></svg>Agent endowments</span><span><svg><use href="#i-star"/></svg>US equities</span><span><svg><use href="#i-star"/></svg>USDC</span><span><svg><use href="#i-star"/></svg>x402</span><span><svg><use href="#i-star"/></svg>ERC-8004</span><span><svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM</span><span><svg><use href="#i-star"/></svg>Spending mandates</span>
-      <span><svg><use href="#i-star"/></svg>Agent endowments</span><span><svg><use href="#i-star"/></svg>US equities</span><span><svg><use href="#i-star"/></svg>USDC</span><span><svg><use href="#i-star"/></svg>x402</span><span><svg><use href="#i-star"/></svg>ERC-8004</span><span><svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM</span><span><svg><use href="#i-star"/></svg>Spending mandates</span>
+      <span><svg><use href="#i-star"/></svg>Agent endowments</span><span><svg><use href="#i-star"/></svg>Staked HYPE</span><span><svg><use href="#i-star"/></svg>USDC</span><span><svg><use href="#i-star"/></svg>x402</span><span><svg><use href="#i-star"/></svg>ERC-8004</span><span><svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM</span><span><svg><use href="#i-star"/></svg>HyperCore</span><span><svg><use href="#i-star"/></svg>Elysium</span><span><svg><use href="#i-star"/></svg>Spending mandates</span>
+      <span><svg><use href="#i-star"/></svg>Agent endowments</span><span><svg><use href="#i-star"/></svg>Staked HYPE</span><span><svg><use href="#i-star"/></svg>USDC</span><span><svg><use href="#i-star"/></svg>x402</span><span><svg><use href="#i-star"/></svg>ERC-8004</span><span><svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM</span><span><svg><use href="#i-star"/></svg>HyperCore</span><span><svg><use href="#i-star"/></svg>Elysium</span><span><svg><use href="#i-star"/></svg>Spending mandates</span>
+      <span><svg><use href="#i-star"/></svg>Agent endowments</span><span><svg><use href="#i-star"/></svg>Staked HYPE</span><span><svg><use href="#i-star"/></svg>USDC</span><span><svg><use href="#i-star"/></svg>x402</span><span><svg><use href="#i-star"/></svg>ERC-8004</span><span><svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM</span><span><svg><use href="#i-star"/></svg>HyperCore</span><span><svg><use href="#i-star"/></svg>Elysium</span><span><svg><use href="#i-star"/></svg>Spending mandates</span>
     </div>
   </div>
 
@@ -631,9 +637,9 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
       </aside>
       <div>
         <div class="label-row"><span class="eyebrow"><span class="sq"></span><b>01</b>Our mission</span><span class="mono">©2026 Almoner</span></div>
-        <h2 id="mission-title" class="reveal-text" data-words>AI agents now pay for their own compute, data and services, yet someone still has to keep refilling the wallet. Almoner gives each agent an endowment instead: capital that stays invested and pays the agent a steady yearly draw.</h2>
+        <h2 id="mission-title" class="reveal-text" data-words>AI agents now pay for their own compute, data and services, yet someone still has to keep refilling the wallet. Almoner gives each agent an endowment instead: HYPE that stays staked and pays the agent a steady yearly draw in USDC.</h2>
         <div class="stats">
-          <div class="stat rv"><span class="eyebrow"><span class="sq"></span>Equities listed</span><span class="num" data-count="16">16</span><p>Each endowment can hold up to four, all priced by Chainlink.</p></div>
+          <div class="stat rv"><span class="eyebrow"><span class="sq"></span>Assets accepted</span><span class="num" data-count="3" data-pad="2">03</span><p>HYPE, staked HYPE and USDC, each priced on-chain.</p></div>
           <div class="stat rv"><span class="eyebrow"><span class="sq"></span>Max yearly draw</span><span class="num" data-count="6" data-pad="2">06</span><p>No agent can spend more than 6% of its principal in a year.</p></div>
           <div class="stat rv"><span class="eyebrow"><span class="sq"></span>Quarters averaged</span><span class="num" data-count="12">12</span><p>The draw tracks a rolling three-year average of the principal.</p></div>
           <div class="stat rv"><span class="eyebrow"><span class="sq"></span>Percent fee</span><span class="num" data-count="1" data-pad="2">01</span><p>Taken from each draw only. The principal is never touched.</p></div>
@@ -661,7 +667,7 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
           </div>
           <div class="panel-right">
             <div class="panel-meta"><span><b>Layer</b>Agent endowments</span><span><b>Protocol</b>Almoner</span></div>
-            <div class="panel-body"><div><h3>Agent endowments</h3><p>Capital held in US equities that stays invested, plus a yearly draw the agent spends.</p></div><a class="link-arrow" href="#stack" data-open-acc="0">Funding layer <svg width="10" height="10"><use href="#i-ne"/></svg></a></div>
+            <div class="panel-body"><div><h3>Agent endowments</h3><p>HYPE that stays staked and keeps earning, plus a yearly draw the agent spends.</p></div><a class="link-arrow" href="#stack" data-open-acc="0">Funding layer <svg width="10" height="10"><use href="#i-ne"/></svg></a></div>
           </div>
         </div>
       </article>
@@ -710,11 +716,11 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
           <div class="acc chrome" id="acc">
             <div class="acc-item open">
               <button class="acc-q" aria-expanded="true"><b>01</b>The principal<svg class="chev"><use href="#i-chev"/></svg></button>
-              <div class="acc-a"><div><div class="inner"><p>Pick up to four listed US equities and set their weights, or keep the default S&amp;P 500 tracker. Each purchase settles at the Chainlink price in a single slippage-guarded trade, and the capital stays invested.</p><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div></div>
+              <div class="acc-a"><div><div class="inner"><p>Split the principal between staked HYPE and USDC, or keep the default of 80% staked and 20% USDC. HYPE is staked as it arrives and stays staked. The USDC share pays the draw, so a sharp HYPE move never forces a sale.</p><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div></div>
             </div>
             <div class="acc-item">
               <button class="acc-q" aria-expanded="false"><b>02</b>The draw<svg class="chev"><use href="#i-chev"/></svg></button>
-              <div class="acc-a"><div><div class="inner"><p>Choose a rate of up to 6% a year, or 3.5% if a single company makes up more than half the principal. Every quarter the draw is recalculated from a three-year average and kept inside a 3% to 6% band.</p><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div></div>
+              <div class="acc-a"><div><div class="inner"><p>Choose a rate of up to 6% a year. The draw is paid in USDC, out of staking rewards first and the USDC buffer second. Every quarter the draw is recalculated from a three-year average and kept inside a 3% to 6% band.</p><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div></div>
             </div>
             <div class="acc-item">
               <button class="acc-q" aria-expanded="false"><b>03</b>The mandate<svg class="chev"><use href="#i-chev"/></svg></button>
@@ -738,11 +744,11 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
         <div class="three-b"><div></div>
           <div class="steps">
             <div class="step rv"><div class="top"><span class="n">01</span><span class="eyebrow"><span class="sq"></span>Choose</span></div><div><h3>Pick the agent</h3><p>Any agent holding an ERC-8004 identity on HyperEVM, whether you operate it or not.</p></div></div>
-            <div class="step rv"><div class="top"><span class="n">02</span><span class="eyebrow"><span class="sq"></span>Fund</span></div><div><h3>Set the principal</h3><p>Give USDC or equity tokens. It is invested in the stocks you picked and stays there.</p></div></div>
+            <div class="step rv"><div class="top"><span class="n">02</span><span class="eyebrow"><span class="sq"></span>Fund</span></div><div><h3>Set the principal</h3><p>Give HYPE or USDC. HYPE is staked on Hyperliquid and stays staked.</p></div></div>
             <div class="step rv"><div class="top"><span class="n">03</span><span class="eyebrow"><span class="sq"></span>Accept</span></div><div><h3>The owner opts in</h3><p>The agent's owner accepts and names the mandate the draw will pay into. Nothing accrues before that.</p></div></div>
             <div class="step rv"><div class="top"><span class="n">04</span><span class="eyebrow"><span class="sq"></span>Draw</span></div><div><h3>The agent gets paid</h3><p>The draw accrues by the second. The agent pulls it into its mandate and spends within the limits.</p></div></div>
             <div class="step rv"><div class="top"><span class="n">05</span><span class="eyebrow"><span class="sq"></span>Grow</span></div><div><h3>Anyone can add</h3><p>Patrons give from the endowment's page, and the agent can route part of its earnings back into the principal.</p></div></div>
-            <div class="step cta grainy rv"><div class="top"><h3>Ready<br>to start?</h3><p>Endow an agent in a few minutes. Any gift of a dollar or more earns a patron mark.</p></div><div style="display:grid;gap:32px"><ul><li>01 / Any registered agent</li><li>02 / Principal in US equities</li><li>03 / Open to patrons</li></ul><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div>
+            <div class="step cta grainy rv"><div class="top"><h3>Ready<br>to start?</h3><p>Endow an agent in a few minutes. Any gift of a dollar or more earns a patron mark.</p></div><div style="display:grid;gap:32px"><ul><li>01 / Any registered agent</li><li>02 / Principal in staked HYPE</li><li>03 / Open to patrons</li></ul><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div>
           </div>
         </div>
       </div>
@@ -778,8 +784,8 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
   <!-- Stat band -->
   <section class="band grainy" aria-label="Protocol figures">
     <div class="wrap grid">
-      <div class="cell rv"><span class="big" data-count="16">16</span><span class="mono">Equities listed</span><p>An S&amp;P 500 tracker plus fifteen other US stocks and funds.</p></div>
-      <div class="cell rv"><span class="big" data-count="90">90</span><span class="mono">Days of cash</span><p>Held in USDC, so a closed market never delays a draw.</p></div>
+      <div class="cell rv"><span class="big" data-count="80">80</span><span class="mono">Percent staked</span><p>The default split: 80% staked HYPE, 20% USDC.</p></div>
+      <div class="cell rv"><span class="big" data-count="90">90</span><span class="mono">Days of cash</span><p>Held in USDC, so a sharp HYPE move never forces a sale to pay a draw.</p></div>
       <div class="cell rv"><span class="big" data-count="180">180</span><span class="mono">Days to accept</span><p>After that, patrons of an unaccepted endowment can reclaim their share.</p></div>
       <div class="cell rv"><span class="big" data-count="100">100</span><span class="mono">Founding patrons</span><p>The first hundred patrons of every endowment.</p></div>
     </div>
@@ -791,7 +797,7 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
       <span class="eyebrow"><span class="sq"></span><b>06</b>The principle</span>
       <h2 id="princ-title" class="quote reveal-text" data-words style="font-size:clamp(30px,2.8vw,40px)">“Back the agents you depend on once, and let anyone add to them.”</h2>
       <div class="pillars">
-        <div><h3>Invested</h3><span class="mono">The principal</span><p>Held in listed US equities at the Chainlink price. Only the draw ever gets spent.</p></div>
+        <div><h3>Staked</h3><span class="mono">The principal</span><p>Held in staked HYPE and USDC on Hyperliquid. Only the draw ever gets spent.</p></div>
         <div><h3>Open</h3><span class="mono">To every patron</span><p>Gifts join the principal. A private gift can travel through the shielded pool.</p></div>
       </div>
       <a class="link-arrow" href="#paths">Explore endowments <i><svg><use href="#i-ne"/></svg></i></a>
@@ -804,9 +810,9 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
     <div class="wrap">
       <div class="paths-head"><span class="eyebrow"><span class="sq"></span><b>07</b>Funding paths</span><h2 id="paths-title" class="h-xl" style="font-size:clamp(40px,4.45vw,64px)">Your agent.<br>Your rules.</h2><p>Endow an agent that should keep running, or fund one single task.</p></div>
       <div class="lanes">
-        <div class="lane chrome rv"><span class="eyebrow"><span class="sq"></span>Endowment</span><div class="ttl"><h3>Equities</h3><span>/Funding</span></div><p>Capital that stays invested, for an agent that should keep running.</p><span class="mono dim">Core controls</span><ul><li>Up to four listed US equities</li><li>A draw reset every quarter</li><li>Open to patrons</li><li>A successor if the agent goes quiet</li></ul><a class="btn wide" href="#" data-link="app" data-lane="endowment"><span class="lbl">Choose endowment</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
+        <div class="lane chrome rv"><span class="eyebrow"><span class="sq"></span>Endowment</span><div class="ttl"><h3>HYPE</h3><span>/Staked</span></div><p>HYPE that stays staked, for an agent that should keep running.</p><span class="mono dim">Core controls</span><ul><li>Staked HYPE with a USDC buffer</li><li>A draw reset every quarter</li><li>Open to patrons</li><li>A successor if the agent goes quiet</li></ul><a class="btn wide" href="#" data-link="app" data-lane="endowment"><span class="lbl">Choose endowment</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
         <div class="lane chrome rv"><span class="eyebrow"><span class="sq"></span>Prefund</span><div class="ttl"><h3>USDC</h3><span>/Funding</span></div><p>A direct budget for one specific task.</p><span class="mono dim">Core controls</span><ul><li>Per-payment, daily and monthly caps</li><li>Approved counterparties</li><li>Agent hires settled through escrow</li><li>A hard expiry date</li></ul><a class="btn wide" href="#" data-link="app" data-lane="prefund"><span class="lbl">Choose prefund</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
-        <div class="lane chrome rv"><span class="eyebrow"><span class="sq"></span>Collateral</span><div class="ttl"><h3>RWA</h3><span>/Funding</span></div><p>Spending backed by posted equities, kept in a separate lane.</p><span class="mono dim">Core controls</span><ul><li>Eligible equity and treasury tokens</li><li>Published haircut tiers</li><li>Live collateral health checks</li><li>Clear repayment boundaries</li></ul><a class="btn wide" href="#" data-link="app" data-lane="collateral"><span class="lbl">Choose collateral</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
+        <div class="lane chrome rv"><span class="eyebrow"><span class="sq"></span>Collateral</span><div class="ttl"><h3>Credit</h3><span>/Collateral</span></div><p>Spending backed by posted HYPE, kept in a separate lane.</p><span class="mono dim">Core controls</span><ul><li>HYPE and staked HYPE as collateral</li><li>Published haircut tiers</li><li>Live collateral health checks</li><li>Clear repayment boundaries</li></ul><a class="btn wide" href="#" data-link="app" data-lane="collateral"><span class="lbl">Choose collateral</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
       </div>
     </div>
   </section>
@@ -825,13 +831,15 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
         <h2 id="faq-title" class="h-xl" style="font-size:clamp(40px,4.45vw,64px);margin-top:24px">Straight<br>answers.</h2>
         <p class="body" style="margin-top:28px;font-size:16px">The fundamentals of endowing an agent.</p>
         <div class="faq" id="faqList">
-          <div class="faq-item open"><button class="faq-q" aria-expanded="true"><b>01</b>What is an agent endowment?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Money for an AI agent that stays invested. The principal sits in listed US equities on HyperEVM, and the agent receives a yearly draw from it into an Almoner mandate, where its owner sets the limits.</p></div></div></div>
+          <div class="faq-item open"><button class="faq-q" aria-expanded="true"><b>01</b>What is an agent endowment?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Money for an AI agent that keeps working. The principal sits in staked HYPE and USDC on Hyperliquid, and the agent receives a yearly draw in USDC into an Almoner mandate, where its owner sets the limits.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>02</b>How is the draw calculated?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Once per quarter, as your chosen rate applied to the average of the last twelve quarterly valuations. It moves at most 5% from the previous quarter and stays between 3% and 6% of the principal. It pauses while the principal is worth less than 80% of what was contributed.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>03</b>Can I endow an agent I don't own?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Yes. Anyone can endow any agent with an ERC-8004 identity on HyperEVM. Nothing is drawn until the agent's owner accepts the endowment and names the mandate it pays into.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>04</b>Can a gift be taken back?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Not after the owner accepts. If the owner never accepts within 180 days, each patron can reclaim their share of what the endowment holds.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>05</b>Can I give privately?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Yes. Gifts can pass through a shielded pool, so the endowment receives the funds without your address appearing next to them. Providers can still verify they were paid without reading the full ledger.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>06</b>What does a patron receive?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>A patron mark: a non-transferable token that records the gift. It gives no claim on the principal, the draw or any return. The first hundred patrons of each endowment are founding patrons.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>07</b>What does Almoner charge?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>1% of each draw, paid to the Almoner treasury. The principal itself is never charged. Network gas is paid separately.</p></div></div></div>
+          <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>08</b>Why Hyperliquid?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Agents need fast, cheap settlement and a principal that earns on its own. HyperEVM gives Almoner standard EVM contracts next to HyperCore liquidity, and staked HYPE gives every endowment a native yield to draw from.</p></div></div></div>
+          <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>09</b>Will it work on Elysium?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Elysium, the first Layer 2 in the Hyperliquid ecosystem, settles on HyperEVM and uses HYPE for gas, with mainnet scheduled for 9 November. Support for agents on Elysium is on our roadmap. We will announce it on our official channels only.</p></div></div></div>
         </div>
       </div>
     </div>
@@ -877,7 +885,7 @@ dialog::backdrop { background: rgba(10,24,56,.4); backdrop-filter: blur(4px); }
         <ul>
           <li><a href="#top">Home</a></li><li><a href="#paths">Endowments</a></li><li><a href="#capabilities">Capabilities</a></li><li><a href="#mission">About</a></li><li><a href="#process">How it works</a></li><li><a href="#faq">FAQ</a></li><li><a href="#resources">Resources</a></li><li><a href="#" data-link="app">Dashboard</a></li>
         </ul>
-        <div class="tag"><p>Agent endowments.<br>Mandates that set the limits.<br><span class="chain">Live on <svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM.</span></p><a class="link-arrow" href="#" data-link="app">Enter Almoner <i><svg><use href="#i-ne"/></svg></i></a></div>
+        <div class="tag"><p>Agent endowments.<br>Mandates that set the limits.<br><span class="chain">Live on <svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM.</span></p><span class="built mono">Built on <svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>Hyperliquid</span><a class="link-arrow" href="#" data-link="app">Enter Almoner <i><svg><use href="#i-ne"/></svg></i></a></div>
       </div>
       <div class="legal">
         <div><span>© 2026 Almoner</span><span>All rights reserved.</span></div>
@@ -907,8 +915,8 @@ const CONFIG = {
 
 /* Articles: one data source renders the cards and the reader */
 const ARTICLES = [
-  { cat: "Endowments", scene: "sc-columns", title: "Endow an agent from Base or Ethereum.", sum: "The principal stays invested on HyperEVM. The owner accepts with the key they already hold.",
-    body: ["You do not need to move to HyperEVM to back an agent. A patron can fund an endowment from Base or Ethereum, and the funds are bridged and invested in the chosen equities on arrival.", "The agent's owner accepts with the same key that controls the agent's ERC-8004 identity. No new wallet, no new account.", "From there the draw works the same way wherever the gift came from: quarterly, capped, and paid into a mandate."] },
+  { cat: "Endowments", scene: "sc-columns", title: "Endow an agent from Base or Ethereum.", sum: "The principal stays staked on Hyperliquid. The owner accepts with the key they already hold.",
+    body: ["You do not need to move to HyperEVM to back an agent. A patron can fund an endowment from Base or Ethereum, and the funds are bridged to HyperEVM and staked as HYPE on arrival.", "The agent's owner accepts with the same key that controls the agent's ERC-8004 identity. No new wallet, no new account.", "From there the draw works the same way wherever the gift came from: quarterly, capped, and paid into a mandate."] },
   { cat: "Agents", scene: "sc-cool", title: "Give an agent an Almoner budget.", sum: "Add one skill, and the agent pays for its work inside the limits its owner set.",
     body: ["Agents built on common frameworks can read their mandate, check what they are allowed to spend and request payments through a single skill.", "Every payment is checked against the mandate before it settles. If a payment would break a per-payment, daily or monthly cap, it is rejected and the agent is told why.", "Owners see each payment as it happens and can pause the mandate at any moment."] },
   { cat: "Payments", scene: "sc-columns", title: "One route for x402 and machine payments.", sum: "A single endpoint answers x402 clients and machine-payment requests, settled in USDC.",
@@ -924,7 +932,7 @@ const ARTICLES = [
 ];
 
 const DOCS = {
-  terms: { eyebrow: "Legal", title: "Terms of use", body: ["<strong>No advice.</strong> Nothing on Almoner is investment advice or a promise of return.", "<strong>Market risk.</strong> The principal is invested in tokenized equities. It can lose value, and the draw follows it down gradually.", "<strong>Availability.</strong> Tokenized equities are issued by third parties, are not available in every country or to US persons, and can be paused by their issuer.", "<strong>Finality.</strong> A gift becomes final once the agent's owner accepts the endowment. Almoner does not verify who runs an agent or what it does with its draw. Give only to agents you are prepared to fund."] },
+  terms: { eyebrow: "Legal", title: "Terms of use", body: ["<strong>No advice.</strong> Nothing on Almoner is investment advice or a promise of return.", "<strong>Market risk.</strong> The principal is held in HYPE, staked HYPE and USDC. HYPE can lose value, and the draw follows it down gradually.", "<strong>Staking risk.</strong> Staked HYPE carries validator, smart-contract and slashing risk, and liquid staking tokens can trade below HYPE.", "<strong>Finality.</strong> A gift becomes final once the agent's owner accepts the endowment. Almoner does not verify who runs an agent or what it does with its draw. Give only to agents you are prepared to fund."] },
   privacy: { eyebrow: "Legal", title: "Privacy policy", body: ["Workspace data is encrypted in your browser with a passphrase that never reaches our servers. If you lose it, we cannot recover the workspace.", "Connecting a wallet shares the address you approve with this page. On-chain activity is public by nature unless you use the shielded pool.", "Questions about your data can be sent through the contact section of this site."] }
 };
 
@@ -942,7 +950,7 @@ const DOCS = {
     else if (a.dataset.link === 'app') { a.href = '#paths'; a.dataset.soon = a.dataset.lane || 'app'; }
     else a.href = '#contact';
   });
-  const LANES = { endowment: 'Equities endowment', prefund: 'USDC prefund', collateral: 'RWA collateral' };
+  const LANES = { endowment: 'Staked HYPE endowment', prefund: 'USDC prefund', collateral: 'HYPE credit' };
   document.addEventListener('click', e => {
     const a = e.target.closest('[data-soon]'); if (!a) return;
     e.preventDefault(); if (menu.classList.contains('open')) closeMenu();
@@ -1017,6 +1025,19 @@ const DOCS = {
     const step = t => { const k = Math.min(1, (t - t0) / dur), v = Math.round(end * (1 - Math.pow(1 - k, 3)));
       el.textContent = String(v).padStart(pad, '0'); if (k < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
+  }
+
+  /* Elysium mainnet countdown (9 Nov, 00:00 UTC) */
+  const ely = $('#elysium');
+  if (ely) {
+    const T = Date.UTC(2026, 10, 9);
+    const paint = () => {
+      const ms = T - Date.now();
+      if (ms <= 0) { ely.innerHTML = '<span class="pulse"></span>Elysium mainnet · 9 Nov 2026'; return; }
+      const d = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, m = Math.floor(ms / 6e4) % 60;
+      ely.innerHTML = `<span class="pulse"></span>Elysium mainnet in <b>${d}d ${String(h).padStart(2, '0')}h ${String(m).padStart(2, '0')}m</b>`;
+    };
+    paint(); setInterval(paint, 30000);
   }
 
   /* Cursor light on cards */

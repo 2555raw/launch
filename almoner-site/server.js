@@ -14,7 +14,7 @@ const TYPES = {
 };
 const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.json', '.svg', '.txt']);
 // Only the page and its images are public, never the server or package files.
-const PRIVATE = /^\/(server\.js|package(-lock)?\.json|README\.md|node_modules)/;
+const PRIVATE = /^\/(server\.js|package(-lock)?\.json|README\.md|node_modules|tools|railway\.json)/;
 
 function send(res, status, body, headers = {}) {
   res.writeHead(status, { 'content-type': 'text/plain; charset=utf-8', ...headers });

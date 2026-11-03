@@ -761,6 +761,18 @@ footer.contact { padding-block: 90px 40px; }
 .rise-in.in { opacity: 1; transform: none; filter: none; }
 @media (prefers-reduced-motion: reduce) { .rise-in { opacity: 1 !important; transform: none !important; filter: none !important; } }
 
+/* ---------- Clean scrolling ---------- */
+html { scrollbar-width: thin; scrollbar-color: rgba(73,52,95,.35) transparent; }
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-stopped { overflow: hidden; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(73,52,95,.28); border-radius: 8px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: rgba(73,52,95,.5); background-clip: content-box; }
+.scroll-progress { position: fixed; z-index: 150; top: 0; left: 0; right: 0; height: 2px; pointer-events: none; padding-top: env(safe-area-inset-top, 0px); }
+.scroll-progress span { display: block; height: 100%; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, #4cc79a, #5bb8c9 55%, #5a9fd8); }
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1180px) {
   :root { --gx: max(32px, env(safe-area-inset-left, 0px)); --gxr: max(32px, env(safe-area-inset-right, 0px)); }
@@ -846,6 +858,8 @@ footer.contact { padding-block: 90px 40px; }
   .line-reveal .lw, .scroll-words .w { opacity: 1 !important; transform: none !important; }
 }
 </style>
+
+<div class="scroll-progress" aria-hidden="true"><span id="scroll-progress"></span></div>
 </head>
 <body>
 <!-- Shared icons -->
@@ -1289,6 +1303,7 @@ footer.contact { padding-block: 90px 40px; }
   </div>
 </dialog>
 
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script>
 /* ===== Configuration: put your real links here ===== */
 const CONFIG = {
@@ -1391,7 +1406,7 @@ const DOCS = {
   function paintWords() {
     for (const { el, words } of wordBlocks) {
       const r = el.getBoundingClientRect();
-      const p = still ? 1 : Math.min(1, Math.max(0, (innerHeight * .9 - r.top) / (innerHeight * 1.15)));
+      const p = still ? 1 : Math.min(1, Math.max(0, (innerHeight * .95 - r.top) / (innerHeight * .8)));
       const n = p * words.length;
       words.forEach((w, i) => { w.style.opacity = (.2 + .8 * Math.min(1, Math.max(0, n - i))).toFixed(3); });
     }
@@ -1552,6 +1567,19 @@ const DOCS = {
     $d('d-sell-form').addEventListener('submit', e => { e.preventDefault(); toast('Preview only: nothing is sold until the app is live.'); });
     drawPolicy(); render();
   })();
+
+
+  /* Smooth, inertial scrolling (Lenis) + a thin progress line at the top */
+  const bar = document.getElementById('scroll-progress');
+  const paintBar = () => { const max = document.documentElement.scrollHeight - innerHeight; bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`; };
+  addEventListener('scroll', paintBar, { passive: true }); addEventListener('resize', paintBar); paintBar();
+  if (!still && window.Lenis && matchMedia('(pointer: fine)').matches) {
+    const lenis = new Lenis({ duration: 1.15, easing: t => 1 - Math.pow(1 - t, 3.2), smoothWheel: true, wheelMultiplier: 0.95, anchors: { offset: 0 } });
+    const raf = t => { lenis.raf(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf);
+    // pause smooth scrolling while the menu or a dialog is open
+    new MutationObserver(() => (menu.classList.contains('open') || document.getElementById('doc').open) ? lenis.stop() : lenis.start())
+      .observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class', 'open'] });
+  }
 
   /* Cursor light on cards */
   $$('.role, .stat, .lane').forEach(card => card.addEventListener('pointermove', e => {

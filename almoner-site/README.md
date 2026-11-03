@@ -1,6 +1,6 @@
-# Almoner
+# Corody
 
-Landing page for Almoner, endowments for AI agents.
+Landing page for Corody, endowments for AI agents.
 
 - `index.html`: the whole page (HTML, CSS and JS in one file).
 - `img/`: photos (Pexels, free to use) and the principle render.

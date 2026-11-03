@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Almoner</title>
+<title>Corody</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Almoner gives AI agents an endowment: HYPE that stays staked on Hyperliquid and pays the agent a capped yearly draw in USDC, spent inside limits its owner sets.">
-<meta property="og:title" content="Almoner | Endowments for AI agents">
+<meta name="description" content="Corody gives AI agents an endowment: HYPE that stays staked on Hyperliquid and pays the agent a capped yearly draw in USDC, spent inside limits its owner sets.">
+<meta property="og:title" content="Corody | Endowments for AI agents">
 <meta property="og:description" content="Endow an AI agent once. The HYPE stays staked, and anyone can add to it.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Almoner | Endowments for AI agents">
+<meta property="og:image:alt" content="Corody | Endowments for AI agents">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="og.png">
 <meta name="theme-color" content="#f3f4ef">
@@ -593,6 +593,60 @@ footer.contact { padding-block: 90px 40px; }
   .big-word { font-size: 18vw; }
 }
 
+/* ---------- Hero, rebuilt on Bursar's rules (measured at 1440 and 390) ---------- */
+.bz-hero { position: relative; height: 100svh; min-height: 680px; max-height: none; overflow: hidden; isolation: auto; background: #eef0e2; }
+.bz-hero::after { content: none; }
+.bz-hero .hero-stock { position: absolute; inset: -4%; width: 108%; max-width: none; height: 108%; object-fit: cover; z-index: 0; will-change: transform, opacity; }
+.bz-hero .hero-tint { position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(250,246,220,.063), rgba(240,246,230,.19) 60%, rgba(224,238,248,.125)); }
+.bz-hero .site-header { position: relative; inset: auto; z-index: 3; display: flex; align-items: center; gap: 20px; padding: 48px; color: var(--ice); }
+.bz-hero .menu-toggle { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.45; text-transform: uppercase; color: inherit; }
+.bz-hero .menu-toggle > span { font-size: 24px; line-height: 1.45; }
+.bz-hero .small-wordmark { margin-left: 16px; font-size: 21px; font-weight: 600; letter-spacing: -1.3px; line-height: 1.45; }
+.bz-hero .local-time { position: absolute; left: 50%; font-family: var(--f-mono); font-size: 12px; line-height: normal; }
+.bz-hero .local-time em { margin-left: 10px; font-style: normal; color: var(--mist); }
+.bz-hero .action { margin-left: auto; display: inline-flex; align-items: center; justify-content: space-between; min-height: 50px; background: var(--ice); color: #fff; font-family: var(--f-mono); font-size: 13px; text-transform: uppercase; }
+.bz-hero .action-logo { width: 50px; height: 50px; flex-shrink: 0; display: grid; place-items: center; background: var(--brand-grad); }
+.bz-hero .action-logo svg { width: 24px; height: 24px; color: var(--brand-ink); }
+.bz-hero .action-label-wrap { display: block; position: relative; overflow: hidden; padding: 0 22px; line-height: normal; }
+.bz-hero .action-label, .bz-hero .action-label-copy { display: block; font-weight: 400; transition: transform .5s cubic-bezier(.16,1,.3,1); }
+.bz-hero .action-label-copy { position: absolute; top: 100%; left: 22px; white-space: nowrap; }
+.bz-hero .action small { margin-left: 7px; opacity: .55; font-size: 11px; }
+.bz-hero .action:hover .action-label { transform: translateY(-220%); }
+.bz-hero .action:hover .action-label-copy { transform: translateY(-36px); }
+.bz-hero .action-square { width: 50px; min-height: 50px; display: grid; place-items: center; background: var(--coral); color: var(--ice); transition: background .3s, transform .3s; }
+.bz-hero .action-square svg { width: 14px; height: 14px; transition: transform .3s; }
+.bz-hero .action:hover .action-square { background: var(--mint); }
+.bz-hero .action:hover .action-square svg { transform: translate(3px); }
+.bz-hero .hero-copy { position: absolute; z-index: 2; left: 50%; right: 4%; top: 50%; display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 0; font-size: 16px; line-height: 1.3; text-transform: uppercase; color: var(--ice); }
+.bz-hero .hero-copy p { margin: 0; font-weight: 500; }
+.bz-hero .hero-copy > p { padding-right: 30px; }
+.bz-hero .hero-copy > p span { opacity: .6; }
+.bz-hero .hero-copy > div { padding-left: 0; }
+.bz-hero .hero-copy small { margin-right: 9px; opacity: .55; font-family: var(--f-mono); font-size: 14px; font-weight: 400; }
+.bz-hero .hero-bottom { position: absolute; z-index: 2; bottom: 40px; left: 48px; right: 48px; display: grid; grid-template-columns: 1fr 1fr; align-items: end; color: var(--ice); }
+.bz-hero .hero-status { display: flex; align-items: center; gap: 12px; padding-left: 24px; font-size: 13px; line-height: 1.45; }
+.bz-hero .hero-mark { width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; border: 1px solid #fff; display: grid; place-items: center; background: var(--brand-grad); }
+.bz-hero .hero-mark svg { width: 22px; height: 22px; color: var(--brand-ink); }
+.bz-hero .tiny { margin-top: 4px; opacity: .6; font-family: var(--f-mono); font-size: 11px; line-height: normal; }
+.bz-hero h1 { margin: 0; font-family: var(--f-sans); font-size: 11.5vw; font-weight: 500; letter-spacing: -.07em; line-height: .83; white-space: nowrap; }
+.bz-hero h1 sup { vertical-align: top; font-size: .36em; line-height: 1.1; letter-spacing: -.1em; position: relative; top: -.5em; }
+@media (max-width: 900px) {
+  .bz-hero { min-height: 660px; }
+  .bz-hero .site-header { display: grid; grid-template-columns: auto 1fr auto; column-gap: 20px; padding: 24px; }
+  .bz-hero .small-wordmark { margin-left: 0; font-size: 18px; }
+  .bz-hero .local-time, .bz-hero .action-logo, .bz-hero .action small { display: none; }
+  .bz-hero .action { min-height: 40px; font-size: 10px; }
+  .bz-hero .action-label-wrap { padding: 0 10px; }
+  .bz-hero .action-label-copy { left: 10px; }
+  .bz-hero .action:hover .action-label-copy { transform: translateY(-28px); }
+  .bz-hero .action-square { width: 32px; min-height: 40px; }
+  .bz-hero .hero-copy { grid-template-columns: 1fr; gap: 23px; top: 35%; left: 24px; right: 24px; font-size: 15px; }
+  .bz-hero .hero-copy > div { font-size: 13px; }
+  .bz-hero .hero-bottom { display: flex; flex-direction: column; align-items: flex-start; gap: 40px; bottom: 32px; left: 24px; right: 24px; }
+  .bz-hero .hero-status { font-size: 11px; }
+  .bz-hero h1 { font-size: 20.5vw; }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1180px) {
   :root { --gx: max(32px, env(safe-area-inset-left, 0px)); --gxr: max(32px, env(safe-area-inset-right, 0px)); }
@@ -705,7 +759,7 @@ footer.contact { padding-block: 90px 40px; }
   <div class="scrim" data-close-menu></div>
   <nav class="panel-m chrome glass" aria-label="Main menu" role="dialog" aria-modal="true">
     <button class="close" data-close-menu aria-label="Close menu"><svg width="14" height="14"><use href="#i-close"/></svg></button>
-    <div class="mono dim">Explore Almoner</div>
+    <div class="mono dim">Explore Corody</div>
     <ol>
       <li><a href="#top" data-close-menu><b>01</b>Home<svg><use href="#i-ne"/></svg></a></li>
       <li><a href="#paths" data-close-menu><b>02</b>Endowments<svg><use href="#i-ne"/></svg></a></li>
@@ -716,40 +770,36 @@ footer.contact { padding-block: 90px 40px; }
       <li><a href="#" data-link="app" data-close-menu><b>07</b>Dashboard<svg><use href="#i-ne"/></svg></a></li>
     </ol>
     <div class="socials">
-      <a href="#" data-link="x" aria-label="Almoner on X"><svg width="20" height="20"><use href="#i-x"/></svg></a>
-      <a href="#" data-link="github" aria-label="Almoner on GitHub"><svg width="20" height="20"><use href="#i-gh"/></svg></a>
+      <a href="#" data-link="x" aria-label="Corody on X"><svg width="20" height="20"><use href="#i-x"/></svg></a>
+      <a href="#" data-link="github" aria-label="Corody on GitHub"><svg width="20" height="20"><use href="#i-gh"/></svg></a>
     </div>
   </nav>
 </div>
 
 
-<header class="site-header">
-  <div class="wrap">
-    <div class="hdr-left">
-      <button class="menu-btn" data-open-menu aria-label="Open menu"><span class="dots"><span></span><span></span><span></span><span></span><span></span><span></span></span>Menu</button>
-      <a class="wordmark-sm" href="#top" aria-label="Almoner home">ALMONER<sup>®</sup></a>
-    </div>
-    <div class="clock" aria-label="Local time"><span id="clock">--:-- --</span><span>LOCAL TIME</span></div>
-    <div class="hdr-right">
-      <a class="btn" href="#" data-link="app"><span class="ico grainy"><span class="medal"><svg><use href="#mark"/></svg></span></span><span class="lbl">Launch app <small class="opt">/almoner</small></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a>
-    </div>
-  </div>
-</header>
-
 <main id="top">
-  <!-- Hero -->
-  <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-media" aria-hidden="true"><div class="hero-bg"></div><canvas id="ribbons"></canvas></div>
-    <h1 id="hero-title" class="hero-copy">
-      <span class="stack"><span>Endow an AI agent once.</span><span>The HYPE stays staked.</span><span>The agent lives on the draw.</span></span>
-      <ol>
-        <li><b>/01</b>Endowments in staked HYPE</li>
-        <li><b>/02</b>Open to every patron</li>
-        <li><b>/03</b>Spent under a mandate</li>
-      </ol>
-    </h1>
-    <div class="hero-badge"><span class="medal" style="--d:56px"><svg><use href="#mark"/></svg></span><div><div class="t1">Endowments for AI agents</div><div class="t2 chain">Live on <svg class="hl" aria-hidden="true"><use href="#i-hl"/></svg>HyperEVM</div><div class="t3 glass" id="elysium"><span class="pulse"></span>Elysium mainnet · 9 Nov</div></div></div>
-    <div class="hero-word" aria-hidden="true">ALMONER<sup>®</sup></div>
+  <!-- Hero: same structure as Bursar's -->
+  <section class="hero bz-hero" aria-labelledby="hero-title">
+    <img class="hero-stock" src="img/hero-glass.jpg" alt="Flowing translucent glass in yellow, mint and pale blue" width="1600" height="1000" fetchpriority="high" decoding="async">
+    <div class="hero-tint" aria-hidden="true"></div>
+    <header class="site-header">
+      <button type="button" class="menu-toggle" data-open-menu aria-label="Open menu" aria-haspopup="dialog"><span aria-hidden="true">⠿</span>Menu</button>
+      <a class="small-wordmark" href="#top" aria-label="Corody home">CORODY®</a>
+      <span class="local-time"><span id="clock">--:-- --</span><em>LOCAL TIME</em></span>
+      <a class="action" href="#" data-link="app"><span class="action-logo" aria-hidden="true"><svg><use href="#mark"/></svg></span><span class="action-label-wrap"><b class="action-label">Launch app <small>/Corody</small></b><b class="action-label-copy" aria-hidden="true">Launch app <small>/Corody</small></b></span><span class="action-square" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></a>
+    </header>
+    <div class="hero-copy">
+      <p data-enter="0">Endow an AI agent once.<br>The HYPE stays staked.<br><span>The agent lives on the draw.</span></p>
+      <div>
+        <p data-enter="200"><small>/01</small> Endowments in staked HYPE</p>
+        <p data-enter="100"><small>/02</small> Open to every patron</p>
+        <p data-enter="0"><small>/03</small> Spent inside a mandate</p>
+      </div>
+    </div>
+    <div class="hero-bottom">
+      <div class="hero-status"><span class="hero-mark" aria-hidden="true"><svg><use href="#mark"/></svg></span><div>ENDOWMENTS FOR AI AGENTS<div class="tiny">LIVE ON HYPEREVM</div></div></div>
+      <h1 id="hero-title" data-enter="0" data-rise="50">CORODY<sup>®</sup></h1>
+    </div>
   </section>
 
   <!-- Marquee -->
@@ -766,16 +816,16 @@ footer.contact { padding-block: 90px 40px; }
     <div class="wrap split">
       <aside class="stick">
         <div class="poster grainy"><span class="medal"><svg><use href="#mark"/></svg></span></div>
-        <a class="btn wide" href="#paths"><span class="lbl">Endow an agent <small>/almoner</small></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a>
+        <a class="btn wide" href="#paths"><span class="lbl">Endow an agent <small>/corody</small></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a>
         <div class="meta">
-          <div class="meta-top"><span class="mono"><span class="sq"></span>Almoner</span><span class="socials"><a href="#" data-link="x" aria-label="X"><svg width="18" height="18"><use href="#i-x"/></svg></a><a href="#" data-link="github" aria-label="GitHub"><svg width="18" height="18"><use href="#i-gh"/></svg></a></span></div>
+          <div class="meta-top"><span class="mono"><span class="sq"></span>Corody</span><span class="socials"><a href="#" data-link="x" aria-label="X"><svg width="18" height="18"><use href="#i-x"/></svg></a><a href="#" data-link="github" aria-label="GitHub"><svg width="18" height="18"><use href="#i-gh"/></svg></a></span></div>
           <div class="meta-row"><span>Purpose</span><span>Agent endowments</span></div>
           <div class="meta-row"><span>Network</span><span>HyperEVM · Elysium Chain</span></div>
         </div>
       </aside>
       <div>
-        <div class="label-row"><span class="eyebrow"><span class="sq"></span><b>01</b>Our mission</span><span class="mono">©2026 Almoner</span></div>
-        <h2 id="mission-title" class="reveal-text" data-words>AI agents now pay for their own compute, data and services, yet someone still has to keep refilling the wallet. Almoner gives each agent an endowment instead: HYPE that stays staked and pays the agent a steady yearly draw in USDC.</h2>
+        <div class="label-row"><span class="eyebrow"><span class="sq"></span><b>01</b>Our mission</span><span class="mono">©2026 Corody</span></div>
+        <h2 id="mission-title" class="reveal-text" data-words>AI agents now pay for their own compute, data and services, yet someone still has to keep refilling the wallet. Corody gives each agent an endowment instead: HYPE that stays staked and pays the agent a steady yearly draw in USDC.</h2>
         <div class="stats">
           <div class="stat glass"><span class="eyebrow"><span class="sq"></span>Assets accepted</span><span class="num" data-count="3" data-pad="2">03</span><p>HYPE, staked HYPE and USDC, each priced on-chain.</p></div>
           <div class="stat glass"><span class="eyebrow"><span class="sq"></span>Max yearly draw</span><span class="num" data-count="6" data-pad="2">06</span><p>No agent can spend more than 6% of its principal in a year.</p></div>
@@ -804,7 +854,7 @@ footer.contact { padding-block: 90px 40px; }
             <div class="thumb tinted"><img class="photo" src="img/cap-columns.jpg" alt="White architectural fins" style="object-position:30% 50%" loading="lazy" decoding="async"><a class="btn" href="#stack" data-open-acc="0"><span class="lbl">Explore</span><span class="arr"><svg><use href="#i-ne"/></svg></span></a></div>
           </div>
           <div class="panel-right">
-            <div class="panel-meta"><span><b>Layer</b>Agent endowments</span><span><b>Protocol</b>Almoner</span></div>
+            <div class="panel-meta"><span><b>Layer</b>Agent endowments</span><span><b>Protocol</b>Corody</span></div>
             <div class="panel-body"><div><h3>Agent endowments</h3><p>HYPE that stays staked and keeps earning, plus a yearly draw the agent spends.</p></div><a class="link-arrow" href="#stack" data-open-acc="0">Funding layer <svg width="10" height="10"><use href="#i-ne"/></svg></a></div>
           </div>
         </div>
@@ -816,7 +866,7 @@ footer.contact { padding-block: 90px 40px; }
             <div class="thumb tinted"><img class="photo" src="img/cap-stairs.jpg" alt="Staircase on a concrete wall" loading="lazy" decoding="async" style="object-position:70% 40%"><a class="btn" href="#stack" data-open-acc="2"><span class="lbl">Explore</span><span class="arr"><svg><use href="#i-ne"/></svg></span></a></div>
           </div>
           <div class="panel-right">
-            <div class="panel-meta"><span><b>Layer</b>Private mandates</span><span><b>Protocol</b>Almoner</span></div>
+            <div class="panel-meta"><span><b>Layer</b>Private mandates</span><span><b>Protocol</b>Corody</span></div>
             <div class="panel-body"><div><h3>Private mandates</h3><p>The limits an agent spends within, whether the money arrives from a draw or a direct deposit.</p></div><a class="link-arrow" href="#stack" data-open-acc="2">Control layer <svg width="10" height="10"><use href="#i-ne"/></svg></a></div>
           </div>
         </div>
@@ -828,7 +878,7 @@ footer.contact { padding-block: 90px 40px; }
             <div class="thumb tinted"><img class="photo" src="img/cap-glass.jpg" alt="Glass facade" loading="lazy" decoding="async" style="object-position:20% 50%"><a class="btn" href="#faq" data-open-faq="4"><span class="lbl">Explore</span><span class="arr"><svg><use href="#i-ne"/></svg></span></a></div>
           </div>
           <div class="panel-right">
-            <div class="panel-meta"><span><b>Layer</b>Confidential settlement</span><span><b>Protocol</b>Almoner</span></div>
+            <div class="panel-meta"><span><b>Layer</b>Confidential settlement</span><span><b>Protocol</b>Corody</span></div>
             <div class="panel-body"><div><h3>Confidential settlement</h3><p>Private gifts into an endowment, and payments a provider can verify without reading the full ledger.</p></div><a class="link-arrow" href="#faq" data-open-faq="4">Privacy layer <svg width="10" height="10"><use href="#i-ne"/></svg></a></div>
           </div>
         </div>
@@ -862,7 +912,7 @@ footer.contact { padding-block: 90px 40px; }
             </div>
             <div class="acc-item">
               <button class="acc-q" aria-expanded="false"><b>03</b>The mandate<svg class="chev"><use href="#i-chev"/></svg></button>
-              <div class="acc-a"><div><div class="inner"><p>The draw flows into an Almoner mandate. Its per-payment, daily and monthly caps decide what the agent may spend, and the owner can pause it whenever they want.</p><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div></div>
+              <div class="acc-a"><div><div class="inner"><p>The draw flows into an Corody mandate. Its per-payment, daily and monthly caps decide what the agent may spend, and the owner can pause it whenever they want.</p><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div></div>
             </div>
             <div class="acc-item">
               <button class="acc-q" aria-expanded="false"><b>04</b>The successor<svg class="chev"><use href="#i-chev"/></svg></button>
@@ -903,8 +953,8 @@ footer.contact { padding-block: 90px 40px; }
           <span class="medal"><svg><use href="#mark"/></svg></span>
           <p class="h-sm">Funding for agents.<br>Limits from their owners.</p>
           <div class="token">
-            <span class="eyebrow"><span class="sq"></span>$ALMN</span>
-            <p class="body">The Almoner protocol token. Launch details will be announced on our official channels only.</p>
+            <span class="eyebrow"><span class="sq"></span>$CRDY</span>
+            <p class="body">The Corody protocol token. Launch details will be announced on our official channels only.</p>
             <span class="addr">Contract address: not yet published</span>
             <div><a class="btn" href="#contact"><span class="lbl">Get launch updates</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div>
           </div>
@@ -969,14 +1019,14 @@ footer.contact { padding-block: 90px 40px; }
         <h2 id="faq-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px);margin-top:24px">Straight<br>answers.</h2>
         <p class="body" style="margin-top:28px;font-size:16px">The fundamentals of endowing an agent.</p>
         <div class="faq" id="faqList">
-          <div class="faq-item open"><button class="faq-q" aria-expanded="true"><b>01</b>What is an agent endowment?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Money for an AI agent that keeps working. The principal sits in staked HYPE and USDC on Hyperliquid, and the agent receives a yearly draw in USDC into an Almoner mandate, where its owner sets the limits.</p></div></div></div>
+          <div class="faq-item open"><button class="faq-q" aria-expanded="true"><b>01</b>What is an agent endowment?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Money for an AI agent that keeps working. The principal sits in staked HYPE and USDC on Hyperliquid, and the agent receives a yearly draw in USDC into an Corody mandate, where its owner sets the limits.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>02</b>How is the draw calculated?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Once per quarter, as your chosen rate applied to the average of the last twelve quarterly valuations. It moves at most 5% from the previous quarter and stays between 3% and 6% of the principal. It pauses while the principal is worth less than 80% of what was contributed.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>03</b>Can I endow an agent I don't own?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Yes. Anyone can endow any agent with an ERC-8004 identity on HyperEVM. Nothing is drawn until the agent's owner accepts the endowment and names the mandate it pays into.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>04</b>Can a gift be taken back?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Not after the owner accepts. If the owner never accepts within 180 days, each patron can reclaim their share of what the endowment holds.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>05</b>Can I give privately?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Yes. Gifts can pass through a shielded pool, so the endowment receives the funds without your address appearing next to them. Providers can still verify they were paid without reading the full ledger.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>06</b>What does a patron receive?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>A patron mark: a non-transferable token that records the gift. It gives no claim on the principal, the draw or any return. The first hundred patrons of each endowment are founding patrons.</p></div></div></div>
-          <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>07</b>What does Almoner charge?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>1% of each draw, paid to the Almoner treasury. The principal itself is never charged. Network gas is paid separately.</p></div></div></div>
-          <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>08</b>Why Hyperliquid?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Agents need fast, cheap settlement and a principal that earns on its own. HyperEVM gives Almoner standard EVM contracts next to HyperCore liquidity, and staked HYPE gives every endowment a native yield to draw from.</p></div></div></div>
+          <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>07</b>What does Corody charge?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>1% of each draw, paid to the Corody treasury. The principal itself is never charged. Network gas is paid separately.</p></div></div></div>
+          <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>08</b>Why Hyperliquid?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Agents need fast, cheap settlement and a principal that earns on its own. HyperEVM gives Corody standard EVM contracts next to HyperCore liquidity, and staked HYPE gives every endowment a native yield to draw from.</p></div></div></div>
           <div class="faq-item"><button class="faq-q" aria-expanded="false"><b>09</b>Will it work on Elysium?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Elysium, the first Layer 2 in the Hyperliquid ecosystem, settles on HyperEVM and uses HYPE for gas, with mainnet scheduled for 9 November. Support for agents on Elysium is on our roadmap. We will announce it on our official channels only.</p></div></div></div>
         </div>
       </div>
@@ -989,7 +1039,7 @@ footer.contact { padding-block: 90px 40px; }
       <div class="three">
         <span class="eyebrow"><span class="sq"></span><b>09</b>Resources</span>
         <h2 id="res-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">Protocol<br>notes.</h2>
-        <div style="display:grid;gap:22px;align-content:end"><p class="body">A closer look at endowments, mandates and the privacy behind Almoner.</p><a class="link-arrow" href="#resources" data-article="all">All articles <i><svg><use href="#i-ne"/></svg></i></a></div>
+        <div style="display:grid;gap:22px;align-content:end"><p class="body">A closer look at endowments, mandates and the privacy behind Corody.</p><a class="link-arrow" href="#resources" data-article="all">All articles <i><svg><use href="#i-ne"/></svg></i></a></div>
       </div>
       <div class="articles" id="articles"></div>
     </div>
@@ -1001,19 +1051,19 @@ footer.contact { padding-block: 90px 40px; }
   <div class="wrap split">
     <aside class="stick">
       <div class="poster grainy"><span class="medal"><svg><use href="#mark"/></svg></span></div>
-      <a class="btn wide" href="#" data-link="app"><span class="lbl">Open dashboard <small>/almoner</small></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a>
+      <a class="btn wide" href="#" data-link="app"><span class="lbl">Open dashboard <small>/corody</small></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a>
       <div class="meta">
-        <div class="meta-top"><span class="mono"><span class="sq"></span>Almoner</span></div>
+        <div class="meta-top"><span class="mono"><span class="sq"></span>Corody</span></div>
         <div class="meta-row"><span>Purpose</span><span>Agent endowments</span></div>
         <div class="meta-row"><span>Network</span><span>HyperEVM · Elysium Chain</span></div>
       </div>
-      <div class="big-word">ALMONER®</div>
+      <div class="big-word">CORODY®</div>
       <div class="foot-tag">Endowments for AI agents.</div>
     </aside>
     <div class="contact-right">
       <span class="eyebrow"><span class="sq"></span>Contact</span>
       <h2 class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">Back the agents<br>you depend on.</h2>
-      <p class="lead">Got a question? Follow Almoner on X for updates and conversations, and browse the code on GitHub.</p>
+      <p class="lead">Got a question? Follow Corody on X for updates and conversations, and browse the code on GitHub.</p>
       <div class="ghost-row">
         <a class="ghost" href="#" data-link="x"><svg><use href="#i-x"/></svg>Follow us</a>
         <a class="ghost" href="#" data-link="github"><svg><use href="#i-gh"/></svg>GitHub</a>
@@ -1023,10 +1073,10 @@ footer.contact { padding-block: 90px 40px; }
         <ul>
           <li><a href="#top">Home</a></li><li><a href="#paths">Endowments</a></li><li><a href="#capabilities">Capabilities</a></li><li><a href="#mission">About</a></li><li><a href="#" data-doc="roadmap">Roadmap</a></li><li><a href="#contact">Contact</a></li><li><a href="#resources">Resources</a></li><li><a href="#" data-link="app">Dashboard</a></li>
         </ul>
-        <div class="tag"><p>Agent endowments.<br>Mandates that set the limits.<br>Live on HyperEVM.</p><a class="link-arrow" href="#" data-link="app">Enter Almoner <i><svg><use href="#i-ne"/></svg></i></a></div>
+        <div class="tag"><p>Agent endowments.<br>Mandates that set the limits.<br>Live on HyperEVM.</p><a class="link-arrow" href="#" data-link="app">Enter Corody <i><svg><use href="#i-ne"/></svg></i></a></div>
       </div>
       <div class="legal">
-        <div><span>© 2026 Almoner</span><span>All rights reserved.</span></div>
+        <div><span>© 2026 Corody</span><span>All rights reserved.</span></div>
         <div><a href="#" data-doc="terms">Terms</a><a href="#" data-doc="privacy">Privacy policy</a></div>
         <a href="#top">Back to top ↑</a>
       </div>
@@ -1046,19 +1096,19 @@ footer.contact { padding-block: 90px 40px; }
 <script>
 /* ===== Configuration: put your real links here ===== */
 const CONFIG = {
-  appUrl: "",      // e.g. "https://app.almoner.xyz" — empty: buttons scroll to the funding paths
-  xUrl: "",        // e.g. "https://x.com/almoner"
-  githubUrl: ""    // e.g. "https://github.com/almoner"
+  appUrl: "",      // e.g. "https://app.corody.xyz" — empty: buttons scroll to the funding paths
+  xUrl: "",        // e.g. "https://x.com/corody"
+  githubUrl: ""    // e.g. "https://github.com/corody"
 };
 
 /* Articles: one data source renders the cards and the reader */
 const ARTICLES = [
   { cat: "Endowments", scene: "sc-columns", title: "Endow an agent from Base or Ethereum.", sum: "The principal stays staked on Hyperliquid. The owner accepts with the key they already hold.",
     body: ["You do not need to move to HyperEVM to back an agent. A patron can fund an endowment from Base or Ethereum, and the funds are bridged to HyperEVM and staked as HYPE on arrival.", "The agent's owner accepts with the same key that controls the agent's ERC-8004 identity. No new wallet, no new account.", "From there the draw works the same way wherever the gift came from: quarterly, capped, and paid into a mandate."] },
-  { cat: "Agents", scene: "sc-cool", title: "Give an agent an Almoner budget.", sum: "Add one skill, and the agent pays for its work inside the limits its owner set.",
+  { cat: "Agents", scene: "sc-cool", title: "Give an agent an Corody budget.", sum: "Add one skill, and the agent pays for its work inside the limits its owner set.",
     body: ["Agents built on common frameworks can read their mandate, check what they are allowed to spend and request payments through a single skill.", "Every payment is checked against the mandate before it settles. If a payment would break a per-payment, daily or monthly cap, it is rejected and the agent is told why.", "Owners see each payment as it happens and can pause the mandate at any moment."] },
   { cat: "Payments", scene: "sc-columns", title: "One route for x402 and machine payments.", sum: "A single endpoint answers x402 clients and machine-payment requests, settled in USDC.",
-    body: ["Service providers should not have to integrate twice. Almoner exposes one payment route that speaks x402 and standard machine-payment requests.", "Settlement happens in USDC on HyperEVM, and the provider receives a receipt it can verify on its own.", "For the agent, it is one call. For the provider, one integration."] },
+    body: ["Service providers should not have to integrate twice. Corody exposes one payment route that speaks x402 and standard machine-payment requests.", "Settlement happens in USDC on HyperEVM, and the provider receives a receipt it can verify on its own.", "For the agent, it is one call. For the provider, one integration."] },
   { cat: "Mandates", scene: "sc-stairs", title: "A wallet is not a budget.", sum: "Why autonomous agents need explicit spending rules.",
     body: ["Handing an agent a funded wallet gives it the ability to spend everything at once. That is a key, not a budget.", "A mandate turns money into a policy: who the agent may pay, how much per payment, per day and per month, and when the authority expires.", "Rules that are enforced on-chain hold up even when the agent behaves unexpectedly."] },
   { cat: "Endowments", scene: "sc-glass", title: "Endow the agents you depend on.", sum: "Why an agent's budget can come from capital that stays invested.",
@@ -1070,13 +1120,13 @@ const ARTICLES = [
 ];
 
 const DOCS = {
-  roadmap: { eyebrow: "Roadmap", title: "Where Almoner is going.", body: [
+  roadmap: { eyebrow: "Roadmap", title: "Where Corody is going.", body: [
     "<strong>Now · HyperEVM.</strong> Endowments for any agent with an ERC-8004 identity. The principal sits in staked HYPE and USDC, and the draw pays into a spending mandate.",
     "<strong>9 Nov · Elysium.</strong> Elysium, the first Layer 2 in the Hyperliquid ecosystem, opens its mainnet. Support for agents running on Elysium is next on our list.",
     "<strong>Next.</strong> One payment route for x402 and machine-payment clients, HyperCore market data inside mandates, and a public board of endowed agents.",
     "<strong>Later.</strong> Agents paying part of what they earn back into their own principal, and mandate limits that grow with a clean payment record.",
     "Plans ahead can change. Every release is announced on our official channels."] },
-  terms: { eyebrow: "Legal", title: "Terms of use", body: ["<strong>No advice.</strong> Nothing on Almoner is investment advice or a promise of return.", "<strong>Market risk.</strong> The principal is held in HYPE, staked HYPE and USDC. HYPE can lose value, and the draw follows it down gradually.", "<strong>Staking risk.</strong> Staked HYPE carries validator, smart-contract and slashing risk, and liquid staking tokens can trade below HYPE.", "<strong>Finality.</strong> A gift becomes final once the agent's owner accepts the endowment. Almoner does not verify who runs an agent or what it does with its draw. Give only to agents you are prepared to fund."] },
+  terms: { eyebrow: "Legal", title: "Terms of use", body: ["<strong>No advice.</strong> Nothing on Corody is investment advice or a promise of return.", "<strong>Market risk.</strong> The principal is held in HYPE, staked HYPE and USDC. HYPE can lose value, and the draw follows it down gradually.", "<strong>Staking risk.</strong> Staked HYPE carries validator, smart-contract and slashing risk, and liquid staking tokens can trade below HYPE.", "<strong>Finality.</strong> A gift becomes final once the agent's owner accepts the endowment. Corody does not verify who runs an agent or what it does with its draw. Give only to agents you are prepared to fund."] },
   privacy: { eyebrow: "Legal", title: "Privacy policy", body: ["Workspace data is encrypted in your browser with a passphrase that never reaches our servers. If you lose it, we cannot recover the workspace.", "Connecting a wallet shares the address you approve with this page. On-chain activity is public by nature unless you use the shielded pool.", "Questions about your data can be sent through the contact section of this site."] }
 };
 
@@ -1097,15 +1147,15 @@ const DOCS = {
     const a = e.target.closest('[data-soon]'); if (!a) return;
     e.preventDefault(); if (menu.classList.contains('open')) closeMenu();
     const lane = LANES[a.dataset.soon];
-    showDoc('Dashboard', 'The Almoner app opens soon.', [
+    showDoc('Dashboard', 'The Corody app opens soon.', [
       lane ? `You picked the <strong>${lane}</strong> path. We will take you straight there once the app is live.` : 'Endowments, mandates and the patron dashboard are in their final checks.',
-      'Follow Almoner on X to hear the moment it opens. Meanwhile, the five steps below explain exactly what will happen when you endow an agent.'
+      'Follow Corody on X to hear the moment it opens. Meanwhile, the five steps below explain exactly what will happen when you endow an agent.'
     ]);
   });
 
   /* Clock */
   const clock = $('#clock');
-  const tick = () => { clock.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); };
+  const tick = () => { clock.textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }); };
   tick(); setInterval(tick, 15000);
 
   /* Menu */
@@ -1172,14 +1222,27 @@ const DOCS = {
   const lio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); lio.unobserve(e.target); } }), { threshold: .3 });
   $$('.line-reveal').forEach(h => still ? h.classList.add('in') : lio.observe(h));
 
-  /* Bursar hero parallax: the background sinks, grows and fades over the first screen of scroll */
-  const media = $('.hero-media');
+  /* Bursar hero parallax: the glass image sinks 300px, grows to 1.2x and fades to half over the first screen */
+  const stock = $('.hero-stock');
   const parallax = () => {
     const p = Math.min(1, Math.max(0, scrollY / innerHeight));
-    media.style.transform = `translateY(${(300 * p).toFixed(1)}px) scale(${(1 + .2 * p).toFixed(4)})`;
-    media.style.opacity = (1 - .5 * p).toFixed(3);
+    stock.style.transform = `translateY(${(300 * p).toFixed(1)}px) scale(${(1 + .2 * p).toFixed(4)})`;
+    stock.style.opacity = (1 - .5 * p).toFixed(3);
   };
   if (!still) { addEventListener('scroll', parallax, { passive: true }); parallax(); }
+
+  /* Bursar hero entrance, measured frame by frame: opacity 0 -> 1 while rising 10px (copy) or 50px (title),
+     0.9s on an ease-out-expo curve, staggered 100ms: /03, main copy and title first, then /02, then /01 */
+  if (!still) {
+    const ent = $$('[data-enter]');
+    ent.forEach(el => { el.style.opacity = 0; el.style.transform = `translateY(${el.dataset.rise || 10}px)`; });
+    const go = () => ent.forEach(el => {
+      const a = el.animate([{ opacity: 0, transform: `translateY(${el.dataset.rise || 10}px)` }, { opacity: 1, transform: 'none' }],
+        { duration: 1200, delay: 120 + +el.dataset.enter, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'forwards' });
+      a.onfinish = () => { el.style.opacity = ''; el.style.transform = ''; };
+    });
+    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => requestAnimationFrame(go));
+  }
 
   /* Scroll reveal + count-up (elements already in view stay visible) */
   const io = new IntersectionObserver(entries => entries.forEach(e => {
@@ -1211,7 +1274,7 @@ const DOCS = {
   const grid = $('#articles');
   grid.innerHTML = ARTICLES.map((a, i) => `
     <article class="article">
-      <div class="img tinted"><img class="photo" src="img/${['art-5', 'art-2', 'art-6', 'art-4', 'art-8', 'art-3', 'art-7'][i]}.jpg" alt="" loading="lazy" decoding="async"><span class="tag glass">${String(i + 1).padStart(2, '0')} / Almoner</span></div>
+      <div class="img tinted"><img class="photo" src="img/${['art-5', 'art-2', 'art-6', 'art-4', 'art-8', 'art-3', 'art-7'][i]}.jpg" alt="" loading="lazy" decoding="async"><span class="tag glass">${String(i + 1).padStart(2, '0')} / Corody</span></div>
       <span class="eyebrow"><span class="sq"></span>${a.cat}</span>
       <h3>${a.title}</h3><p>${a.sum}</p>
       <a class="link-arrow" href="#" data-article="${i}">Read article <i><svg><use href="#i-ne"/></svg></i></a>
@@ -1233,69 +1296,7 @@ const DOCS = {
   $('[data-close-doc]').addEventListener('click', () => dlg.close());
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
 
-  /* Hero: two satin ribbons sweeping across a pastel wash, like the Bursar hero.
-     Each ribbon is a band of quads whose width follows a slow twist; edge-on parts catch the light. */
-  function satin(canvas, ribbons) {
-    const ctx = canvas.getContext('2d'); let w, h, s;
-    const size = () => { const dpr = Math.min(devicePixelRatio || 1, 2); w = canvas.clientWidth; h = canvas.clientHeight; s = Math.min(w, h * 1.6) / 1440; canvas.width = w * dpr; canvas.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
-    size(); addEventListener('resize', size);
-    let mx = 0, my = 0, tx = 0, ty = 0;
-    addEventListener('pointermove', e => { tx = e.clientX / innerWidth - .5; ty = e.clientY / innerHeight - .5; }, { passive: true });
-    const N = 180;
-    const bez = (a, b, c, d, t) => { const u = 1 - t; return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d; };
-    const dbez = (a, b, c, d, t) => { const u = 1 - t; return 3 * u * u * (b - a) + 6 * u * t * (c - b) + 3 * t * t * (d - c); };
-    function draw(time) {
-      mx += (tx - mx) * .04; my += (ty - my) * .04;
-      ctx.clearRect(0, 0, w, h);
-      const k = time * 0.00024;
-      for (const r of ribbons) {
-        const P = r.p.map(([x, y], n) => [
-          (x + Math.sin(k + r.ph + n) * .035 + mx * .035 * (n % 2 ? 1 : -1)) * w,
-          (y + Math.cos(k * .8 + r.ph + n * 1.7) * .04 + my * .03) * h
-        ]);
-        const L = [], Rr = [], C = [], F = [];
-        for (let i = 0; i <= N; i++) {
-          const t = i / N;
-          const x = bez(P[0][0], P[1][0], P[2][0], P[3][0], t), y = bez(P[0][1], P[1][1], P[2][1], P[3][1], t);
-          let dx = dbez(P[0][0], P[1][0], P[2][0], P[3][0], t), dy = dbez(P[0][1], P[1][1], P[2][1], P[3][1], t);
-          const len = Math.hypot(dx, dy) || 1; dx /= len; dy /= len;
-          const taper = Math.pow(Math.sin(Math.PI * t), .55);
-          const face = Math.abs(Math.sin(Math.PI * t * r.twist + r.ph + k * 1.6));
-          const hw = r.width * s * (.14 + .86 * face) * taper;
-          C.push([x, y]); F.push([face, taper]);
-          L.push([x - dy * hw, y + dx * hw]); Rr.push([x + dy * hw, y - dx * hw]);
-        }
-        // soft glow under the ribbon
-        ctx.save(); ctx.filter = `blur(${Math.round(26 * s + 10)}px)`; ctx.beginPath();
-        C.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-        ctx.strokeStyle = `rgba(255,255,255,${.4 * r.alpha})`; ctx.lineWidth = r.width * s * 3.2; ctx.lineCap = 'round'; ctx.stroke(); ctx.restore();
-        // the satin band itself
-        for (let i = 0; i < N; i++) {
-          const [face, taper] = F[i];
-          const lit = 1 - face;                       // edge-on catches the light
-          const u = i / N, k2 = u < .5 ? u * 2 : (u - .5) * 2;   // yellow -> green -> petrol
-          const A = u < .5 ? [253, 231, 37] : [53, 183, 121], B = u < .5 ? [53, 183, 121] : [49, 104, 142];
-          const br = A[0] + (B[0] - A[0]) * k2, bg = A[1] + (B[1] - A[1]) * k2, bb = A[2] + (B[2] - A[2]) * k2;
-          const cr = Math.round(br + (255 - br) * lit), cg = Math.round(bg + (255 - bg) * lit), cb = Math.round(bb + (255 - bb) * lit);
-          ctx.fillStyle = `rgba(${cr},${cg},${cb},${(.42 + .45 * lit) * taper * r.alpha})`;
-          ctx.beginPath(); ctx.moveTo(L[i][0], L[i][1]); ctx.lineTo(L[i + 1][0], L[i + 1][1]);
-          ctx.lineTo(Rr[i + 1][0] + .4, Rr[i + 1][1] + .4); ctx.lineTo(Rr[i][0], Rr[i][1]); ctx.closePath(); ctx.fill();
-        }
-        // bright rim along one edge
-        ctx.beginPath(); L.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y));
-        const g = ctx.createLinearGradient(C[0][0], C[0][1], C[N][0], C[N][1]);
-        g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(.4, `rgba(255,255,255,${.85 * r.alpha})`); g.addColorStop(.2, `rgba(253,231,37,${.7 * r.alpha})`); g.addColorStop(.75, `rgba(190,230,210,${.7 * r.alpha})`); g.addColorStop(1, 'rgba(255,255,255,0)');
-        ctx.strokeStyle = g; ctx.lineWidth = 1.1; ctx.stroke();
-      }
-      if (!still) requestAnimationFrame(draw);
-    }
-    requestAnimationFrame(draw);
-  }
-  satin($('#ribbons'), [
-    { p: [[.13, 1.08], [.33, -.2], [.86, -.18], [.88, .58]], width: 30, twist: 2.3, ph: 0, alpha: 1 },
-    { p: [[-.06, .84], [.3, .3], [.62, .24], [1.06, .7]], width: 22, twist: 3.1, ph: 1.7, alpha: .85 },
-    { p: [[.02, .62], [.3, .44], [.58, .5], [.98, .9]], width: 9, twist: 2, ph: 3.2, alpha: .5 }
-  ]);
+
 
 })();
 </script>

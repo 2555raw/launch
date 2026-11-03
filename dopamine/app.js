@@ -1,4 +1,4 @@
-/* DOPA-PERP: hero neuron field, dopamine perp simulator, prediction-error lab,
+/* DOPA-PERP: dopamine perp simulator, pathway map, prediction-error lab,
    risk checklist. Plain JS, no dependencies. */
 (() => {
   'use strict';
@@ -7,7 +7,7 @@
   const root = getComputedStyle(document.documentElement);
   const tok = (n) => root.getPropertyValue(n).trim();
   const C = {
-    mint: tok('--mint'), long: tok('--long'), short: tok('--short'), warn: tok('--warn'),
+    accent: tok('--accent'), up: tok('--up'), down: tok('--down'),
     text: tok('--text'), muted: tok('--muted'), line: tok('--line'), panel: tok('--panel'), ink: tok('--ink'),
   };
   const MONO = '500 11px "Geist Mono", ui-monospace, Menlo, monospace';
@@ -32,96 +32,6 @@
     const m = ((Math.floor(min) % 1440) + 1440) % 1440;
     return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
   };
-
-  /* ================= HERO: neuron field ================= */
-  const neuronCv = $('#neurons');
-  const field = { nodes: [], edges: [], pulses: [], visible: true };
-
-  function buildField() {
-    const { w, h } = fit(neuronCv);
-    field.nodes = []; field.edges = []; field.pulses = [];
-    const cx = w * 0.5, cy = h * 0.48;
-    // a soma in the middle, dendrites branching out, plus scattered neighbours
-    const count = Math.round(clamp((w * h) / 5200, 36, 80));
-    for (let i = 0; i < count; i++) {
-      const ang = Math.random() * Math.PI * 2;
-      const rad = Math.pow(Math.random(), 0.7) * Math.min(w, h) * 0.52;
-      field.nodes.push({
-        x: cx + Math.cos(ang) * rad * (w / Math.min(w, h)) * 0.9,
-        y: cy + Math.sin(ang) * rad,
-        ph: Math.random() * 6.28, glow: 0, nb: [],
-      });
-    }
-    field.nodes.unshift({ x: cx, y: cy, ph: 0, glow: 0, nb: [], soma: true });
-    const N = field.nodes;
-    for (let i = 0; i < N.length; i++) {
-      const d = N.map((m, j) => ({ j, d: (m.x - N[i].x) ** 2 + (m.y - N[i].y) ** 2 }))
-        .filter((o) => o.j !== i).sort((a, b) => a.d - b.d);
-      const k = N[i].soma ? 6 : 2 + (i % 2);
-      for (let q = 0; q < k; q++) {
-        const j = d[q].j;
-        if (!N[i].nb.includes(j)) {
-          N[i].nb.push(j); N[j].nb.push(i);
-          field.edges.push({ a: i, b: j, hue: Math.random() < 0.22 ? 'pink' : 'mint' });
-        }
-      }
-    }
-  }
-  function fire(i, depth) {
-    const n = field.nodes[i];
-    n.glow = 1;
-    if (depth > 5) return;
-    n.nb.forEach((j) => {
-      if (Math.random() < (n.soma ? 0.9 : 0.55)) field.pulses.push({ a: i, b: j, t: 0, depth: depth + 1, sp: 0.018 + Math.random() * 0.02 });
-    });
-  }
-  function drawField(time) {
-    const { ctx, w, h } = fit(neuronCv);
-    ctx.clearRect(0, 0, w, h);
-    const N = field.nodes;
-    const pos = (n) => ({ x: n.x + Math.sin(time / 1900 + n.ph) * 3, y: n.y + Math.cos(time / 2300 + n.ph) * 3 });
-    const P = N.map(pos);
-    ctx.lineCap = 'round';
-    field.edges.forEach((e) => {
-      const g = Math.max(N[e.a].glow, N[e.b].glow);
-      ctx.strokeStyle = e.hue === 'pink' ? rgba(C.short, 0.16 + g * 0.5) : rgba(C.mint, 0.13 + g * 0.5);
-      ctx.lineWidth = 0.8 + g * 1.2;
-      ctx.beginPath(); ctx.moveTo(P[e.a].x, P[e.a].y); ctx.lineTo(P[e.b].x, P[e.b].y); ctx.stroke();
-    });
-    N.forEach((n, i) => {
-      const r = (n.soma ? 7 : 1.8) + n.glow * (n.soma ? 5 : 3);
-      ctx.fillStyle = rgba(C.mint, n.soma ? 0.9 : 0.35 + n.glow * 0.65);
-      if (n.glow > 0.05 || n.soma) { ctx.shadowColor = C.mint; ctx.shadowBlur = 14 * Math.max(n.glow, n.soma ? 0.6 : 0); }
-      ctx.beginPath(); ctx.arc(P[i].x, P[i].y, r, 0, 6.283); ctx.fill();
-      ctx.shadowBlur = 0;
-      n.glow *= 0.94;
-    });
-    const next = [];
-    field.pulses.forEach((p) => {
-      p.t += p.sp;
-      const a = P[p.a], b = P[p.b];
-      const x = a.x + (b.x - a.x) * p.t, y = a.y + (b.y - a.y) * p.t;
-      ctx.fillStyle = C.mint; ctx.shadowColor = C.mint; ctx.shadowBlur = 10;
-      ctx.beginPath(); ctx.arc(x, y, 2.2, 0, 6.283); ctx.fill();
-      ctx.shadowBlur = 0;
-      if (p.t >= 1) fire(p.b, p.depth); else next.push(p);
-    });
-    field.pulses = next.slice(-260);
-  }
-  let lastBurst = 0;
-  function fieldLoop(time) {
-    if (field.visible) {
-      if (time - lastBurst > 1500) { lastBurst = time; fire(Math.random() < 0.5 ? 0 : 1 + Math.floor(Math.random() * (field.nodes.length - 1)), 0); }
-      drawField(time);
-    }
-    requestAnimationFrame(fieldLoop);
-  }
-  buildField();
-  if (reduceMotion) { fire(0, 3); drawField(0); }
-  else {
-    new IntersectionObserver((es) => { field.visible = es[0].isIntersecting; }).observe(neuronCv);
-    requestAnimationFrame(fieldLoop);
-  }
 
   /* ================= TERMINAL: dopamine perp simulator ================= */
   // amp: spike height · rise/decay: minutes · crash: share of the spike that comes back
@@ -240,7 +150,7 @@
   const book = $('#book');
   book.innerHTML = MARKETS.map((m) => {
     const hi = m.lev >= HI;
-    return `<li class="book__row" style="--w:${Math.max(4, (m.lev / 50) * 100)}%;--fill:${hi ? C.short : C.long}">
+    return `<li class="book__row${hi ? ' book__row--hi' : ''}" style="--w:${Math.max(4, (m.lev / 50) * 100)}%">
       <div class="book__name"><b>${m.name}</b><span>${m.note}</span></div>
       <span class="lev ${hi ? 'lev--hi' : 'lev--lo'}">${m.lev}×</span>
       <button type="button" class="long ${hi ? 'long--hi' : 'long--lo'}" data-id="${m.id}" aria-label="Open long: ${m.name}, ${m.lev}× leverage">LONG</button>
@@ -309,7 +219,7 @@
     }
     el.posBody.innerHTML = sim.pos.slice().reverse().map((p) => {
       const e = effect(p, sim.now);
-      const phase = e.t < p.tp ? ['Spiking', 'tag--long'] : e.c > e.a ? ['Crashing', 'tag--short'] : ['Fading', 'tag--warn'];
+      const phase = e.t < p.tp ? ['Spiking', 'tag--solid'] : e.c > e.a ? ['Crashing', 'tag--dash'] : ['Fading', 'tag--line'];
       return `<tr><td>${p.m.name}</td><td class="${p.m.lev >= HI ? 'down' : 'up'}">${p.m.lev}×</td><td>${hhmm(p.t0)}</td>
         <td class="${e.v >= 0 ? 'up' : 'down'}">${sign(e.v)}</td><td><span class="tag ${phase[1]}">${phase[0]}</span></td></tr>`;
     }).join('');
@@ -352,16 +262,16 @@
 
     // liquidation line
     ctx.setLineDash([5, 4]);
-    ctx.strokeStyle = rgba(C.short, 0.8);
+    ctx.strokeStyle = rgba(C.text, 0.7);
     ctx.beginPath(); ctx.moveTo(pl, Y(LIQ)); ctx.lineTo(pl + cw, Y(LIQ)); ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = C.short; ctx.textAlign = 'left';
+    ctx.fillStyle = C.text; ctx.textAlign = 'left';
     ctx.fillText('LIQ', pl + 6, Y(LIQ) - 6);
 
     if (pts.length > 1) {
       // baseline
       ctx.setLineDash([2, 4]);
-      ctx.strokeStyle = rgba(C.text, 0.45); ctx.lineWidth = 1.2;
+      ctx.strokeStyle = rgba(C.text, 0.4); ctx.lineWidth = 1.2;
       ctx.beginPath();
       pts.forEach((p, i) => (i ? ctx.lineTo(X(p.t), Y(p.B)) : ctx.moveTo(X(p.t), Y(p.B))));
       ctx.stroke();
@@ -369,32 +279,32 @@
 
       // area + line
       const grad = ctx.createLinearGradient(0, pt, 0, pt + ch);
-      grad.addColorStop(0, rgba(C.mint, 0.26)); grad.addColorStop(1, rgba(C.mint, 0));
+      grad.addColorStop(0, rgba(C.accent, 0.22)); grad.addColorStop(1, rgba(C.accent, 0));
       ctx.beginPath();
       pts.forEach((p, i) => (i ? ctx.lineTo(X(p.t), Y(p.L)) : ctx.moveTo(X(p.t), Y(p.L))));
       ctx.lineTo(X(pts[pts.length - 1].t), pt + ch); ctx.lineTo(X(pts[0].t), pt + ch); ctx.closePath();
       ctx.fillStyle = grad; ctx.fill();
       ctx.beginPath();
       pts.forEach((p, i) => (i ? ctx.lineTo(X(p.t), Y(p.L)) : ctx.moveTo(X(p.t), Y(p.L))));
-      ctx.strokeStyle = C.mint; ctx.lineWidth = 1.8; ctx.lineJoin = 'round'; ctx.stroke();
+      ctx.strokeStyle = C.accent; ctx.lineWidth = 1.8; ctx.lineJoin = 'round'; ctx.stroke();
     }
 
     // fills
     sim.fills.filter((f) => f.t >= t0).forEach((f) => {
       const x = X(f.t), y = pt + ch - 2;
-      ctx.fillStyle = f.hi ? C.short : C.long;
-      ctx.beginPath(); ctx.moveTo(x, y - 8); ctx.lineTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x, y - 8); ctx.lineTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.closePath();
+      if (f.hi) { ctx.strokeStyle = C.text; ctx.lineWidth = 1.2; ctx.stroke(); } else { ctx.fillStyle = C.text; ctx.fill(); }
     });
     sim.liqMarks.filter((t) => t >= t0).forEach((t) => {
       const x = X(t), y = Y(LIQ);
-      ctx.strokeStyle = C.short; ctx.lineWidth = 2;
+      ctx.strokeStyle = C.text; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(x - 5, y - 5); ctx.lineTo(x + 5, y + 5); ctx.moveTo(x + 5, y - 5); ctx.lineTo(x - 5, y + 5); ctx.stroke();
     });
 
     // live price tag
     const L = level(sim.now), up = L >= baseline();
     const ty = Y(L);
-    ctx.fillStyle = up ? C.mint : C.short;
+    ctx.fillStyle = up ? C.accent : C.down;
     ctx.beginPath(); ctx.arc(X(t1), ty, 3.5, 0, 6.283); ctx.fill();
     ctx.fillRect(pl + cw + 2, ty - 10, pr - 4, 20);
     ctx.fillStyle = C.ink; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
@@ -462,7 +372,7 @@
       const top = pt + li * laneH;
       const mid = top + laneH * 0.55;
       const amp = laneH * 0.36;
-      ctx.fillStyle = C.mint; ctx.textAlign = 'left';
+      ctx.fillStyle = C.text; ctx.textAlign = 'left';
       ctx.fillText(ln.label, pl, top + 2);
       ctx.fillStyle = C.muted;
       const lw = ctx.measureText(ln.label).width;
@@ -473,7 +383,7 @@
         const v = t[ln.key];
         const x = pl + i * bw + bw * 0.18;
         const bh = Math.abs(v) * amp;
-        ctx.fillStyle = v >= 0 ? C.mint : C.short;
+        ctx.fillStyle = v >= 0 ? C.accent : C.down;
         ctx.globalAlpha = i === show.length - 1 ? 1 : 0.55 + 0.45 * (i / show.length);
         if (v >= 0) ctx.fillRect(x, mid - bh, bw * 0.64, Math.max(1, bh));
         else ctx.fillRect(x, mid, bw * 0.64, Math.max(1, bh));
@@ -481,7 +391,7 @@
         if (li === 1) {
           const cx = x + bw * 0.32, cy = top + laneH - 4;
           ctx.beginPath(); ctx.arc(cx, cy, Math.min(3, bw * 0.22), 0, 6.283);
-          if (t.r) { ctx.fillStyle = C.mint; ctx.fill(); } else { ctx.strokeStyle = C.muted; ctx.stroke(); }
+          if (t.r) { ctx.fillStyle = C.text; ctx.fill(); } else { ctx.strokeStyle = C.muted; ctx.stroke(); }
         }
       });
     });
@@ -504,6 +414,20 @@
   $('#btnLabReset').addEventListener('click', () => { lab.V = 0; lab.trials = []; renderLab(); });
   for (let i = 0; i < 14; i++) trial(); // example run at 75%
 
+  /* ================= PATHWAYS: trace a route on the MRI ================= */
+  const pwRows = document.querySelectorAll('#pwRows tr');
+  const routes = document.querySelectorAll('.pw__map .route');
+  function pickPath(id) {
+    pwRows.forEach((r) => { const on = r.dataset.p === id; r.classList.toggle('is-on', on); r.setAttribute('aria-selected', String(on)); });
+    routes.forEach((g) => g.classList.toggle('is-on', g.dataset.p === id));
+  }
+  pwRows.forEach((r) => {
+    r.addEventListener('click', () => pickPath(r.dataset.p));
+    r.addEventListener('mouseenter', () => pickPath(r.dataset.p));
+    r.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickPath(r.dataset.p); } });
+  });
+  pickPath('meso');
+
   /* ================= RISK: checklist ================= */
   const RULES = [
     { id: 'sun', t: 'Get outside light in the first hour', d: 'About 10 minutes on a clear morning, 20–30 when it is overcast. It anchors the body clock that times your daily dopamine and cortisol rise.', ev: 'moderate' },
@@ -516,7 +440,7 @@
     { id: 'sleep', t: 'Sleep 7–9 hours', d: 'One night without sleep downregulates D2/D3 receptors in the striatum. Sleep is the cheapest way to pay down tolerance.', ev: 'strong' },
     { id: 'pause', t: 'Pick one 50× habit and pause it for 30 days', d: 'Anna Lembke’s clinical rule of thumb: about four weeks for the pleasure–pain balance to level out. Expect the first two weeks to feel worse.', ev: 'mixed' },
   ];
-  const EV = { strong: ['tag--long', 'strong evidence'], moderate: ['tag--warn', 'moderate evidence'], mixed: ['tag--short', 'early / mixed'] };
+  const EV = { strong: ['tag--solid', 'strong evidence'], moderate: ['tag--line', 'moderate evidence'], mixed: ['tag--dash', 'early / mixed'] };
   const today = new Date().toISOString().slice(0, 10);
   const KEY = 'dopa-perp-rules-' + today;
   let done = {};
@@ -553,6 +477,6 @@
   let rz;
   window.addEventListener('resize', () => {
     clearTimeout(rz);
-    rz = setTimeout(() => { buildField(); if (reduceMotion) { fire(0, 3); drawField(0); } drawRaster(); }, 150);
+    rz = setTimeout(drawRaster, 150);
   });
 })();

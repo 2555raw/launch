@@ -35,33 +35,46 @@
 
 <main id="top">
 
-  <!-- HERO: the dictionary entry from the moodboard, corrected -->
-  <section class="hero">
-    <div class="wrap hero__grid">
-      <div class="hero__copy">
+  <!-- COVER: the moodboard collage, rebuilt -->
+  <section class="cover" aria-label="Cover">
+    <div class="wrap">
+      <div class="collage">
+        <figure class="ph"><img src="img/angiogram.jpg" alt="Angiogram of the brain's blood vessels, seen from above" width="359" height="359"></figure>
+        <figure class="ph"><img src="img/neuron.jpg" alt="A neuron with its dendrites branching out" width="432" height="359"></figure>
+        <figure class="ph"><img src="img/mri.jpg" alt="Sagittal MRI of a human head" width="294" height="359"></figure>
+        <div class="band">
+          <h1 class="band__title">how to fix your dopamine</h1>
+        </div>
+        <figure class="ph"><img src="img/rats.jpg" alt="Two white lab rats with stars over their heads, joined by a thin cord" width="360" height="360"></figure>
+        <figure class="ph ph--def">
+          <img src="img/definition.jpg" alt="Dictionary card: dopamine is a neurotransmitter produced in the human brain, the localization of production is the hypothalamus. Good mood, excitement, satisfaction." width="435" height="360">
+          <a class="stamp" href="#intro">partial ↓</a>
+        </figure>
+        <figure class="ph"><img src="img/scan.jpg" alt="Brain scan of a head breaking apart into particles" width="288" height="360"></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTRO: the dictionary entry, corrected -->
+  <section class="intro" id="intro">
+    <div class="wrap intro__grid">
+      <div class="intro__lead">
         <p class="entry">
           <span class="entry__word">do·pa·mine</span>
           <span class="entry__ipa">/ˈdoʊ.pə.miːn/</span>
           <span class="entry__pos">noun</span>
         </p>
-        <h1>Your dopamine is a perp. <em>Stop trading it at 50×.</em></h1>
-        <ol class="defs">
-          <li>A neurotransmitter made mostly by a few hundred thousand neurons in the midbrain: the <b>ventral tegmental area</b> and the <b>substantia nigra</b>.</li>
-          <li>It doesn't make you feel good. It makes you <b>want</b>, move and learn from surprise.</li>
-          <li class="defs__myth"><s>“the localization of production is the hypothalamus”</s> <span class="tag tag--short">partial</span> The hypothalamus makes a small share, mostly to switch off prolactin. Motivation runs on the midbrain supply.</li>
-        </ol>
+        <h2 class="intro__h">Your dopamine is a perp. <em>Stop trading it at 50×.</em></h2>
         <div class="hero__cta">
-          <a class="btn btn--mint" href="#terminal">Open the terminal</a>
+          <a class="btn btn--solid" href="#terminal">Open the terminal</a>
           <a class="btn btn--ghost" href="#risk">How to fix it</a>
         </div>
       </div>
-      <figure class="hero__viz">
-        <canvas id="neurons" aria-label="Animated network of neurons firing" role="img"></canvas>
-        <figcaption>
-          <span><i class="dot dot--mint"></i>VTA → nucleus accumbens</span>
-          <span class="mono">firing live</span>
-        </figcaption>
-      </figure>
+      <ol class="defs">
+        <li>A neurotransmitter made mostly by a few hundred thousand neurons in the midbrain: the <b>ventral tegmental area</b> and the <b>substantia nigra</b>.</li>
+        <li>It doesn't make you feel good. It makes you <b>want</b>, move and learn from surprise.</li>
+        <li class="defs__myth"><s>“the localization of production is the hypothalamus”</s> <span class="tag tag--dash">partial</span> The hypothalamus makes a small share, mostly to switch off prolactin. Motivation runs on the midbrain supply.</li>
+      </ol>
     </div>
   </section>
 
@@ -79,7 +92,7 @@
           <div class="stat"><span class="stat__k">Mark</span><span class="stat__v" id="sMark">—</span></div>
           <div class="stat"><span class="stat__k">Baseline</span><span class="stat__v" id="sBase">—</span></div>
           <div class="stat"><span class="stat__k">Tolerance <abbr title="The funding you pay on every cheap hit: it dulls the next spike and drags your baseline down.">ⓘ</abbr></span><span class="stat__v" id="sTol">—</span></div>
-          <div class="stat"><span class="stat__k">Liq. level</span><span class="stat__v stat__v--short">55.0</span></div>
+          <div class="stat"><span class="stat__k">Liq. level</span><span class="stat__v stat__v--liq">55.0</span></div>
           <div class="stat"><span class="stat__k">12h avg</span><span class="stat__v" id="sAvg">—</span></div>
           <div class="stat"><span class="stat__k">Clock</span><span class="stat__v" id="sClock">—</span></div>
         </div>
@@ -139,18 +152,46 @@
         <h2>Four pathways, four different jobs</h2>
         <p class="lede">“Dopamine” isn't one switch. The same molecule runs four separate routes in the brain, and each one fails in its own way.</p>
       </div>
-      <div class="tablewrap">
-        <table class="mkts">
-          <thead>
-            <tr><th>Pair</th><th>Route</th><th>Does</th><th>When it breaks</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><b class="mono">MESO-LIMBIC</b></td><td>VTA → nucleus accumbens</td><td>Wanting, craving, cue → reward learning</td><td>Addiction, compulsive scrolling, anhedonia</td></tr>
-            <tr><td><b class="mono">MESO-CORTICAL</b></td><td>VTA → prefrontal cortex</td><td>Focus, working memory, holding a plan</td><td>ADHD-like distractibility, flat motivation</td></tr>
-            <tr><td><b class="mono">NIGRO-STRIATAL</b></td><td>Substantia nigra → dorsal striatum</td><td>Starting and smoothing movement, habits</td><td>Parkinson's disease (60–80% of these neurons lost before symptoms)</td></tr>
-            <tr><td><b class="mono">TUBERO-INFUND.</b></td><td>Hypothalamus (arcuate) → pituitary</td><td>Keeps prolactin in check</td><td>High prolactin, a side effect of some antipsychotics</td></tr>
-          </tbody>
-        </table>
+      <div class="pw">
+        <figure class="pw__map">
+          <div class="pw__crop">
+          <div class="pw__inner">
+          <img src="img/mri.jpg" alt="" width="294" height="359">
+          <svg viewBox="0 0 294 359" aria-hidden="true">
+            <g data-p="meso" class="route">
+              <path d="M176 169 Q150 162 124 144"/><circle cx="176" cy="169" r="4"/><circle cx="124" cy="144" r="4"/>
+              <text x="118" y="158" text-anchor="end">N. accumbens</text><text x="182" y="186">VTA</text>
+            </g>
+            <g data-p="cort" class="route">
+              <path d="M176 169 C150 160 110 140 88 100"/><circle cx="176" cy="169" r="4"/><circle cx="88" cy="100" r="4"/>
+              <text x="84" y="90" text-anchor="middle">Prefrontal cortex</text><text x="182" y="186">VTA</text>
+            </g>
+            <g data-p="nigro" class="route">
+              <path d="M186 160 Q172 122 138 112"/><circle cx="186" cy="160" r="4"/><circle cx="138" cy="112" r="4"/>
+              <text x="132" y="104" text-anchor="end">Dorsal striatum</text><text x="194" y="158">Substantia nigra</text>
+            </g>
+            <g data-p="tubero" class="route">
+              <path d="M158 162 Q154 172 147 176"/><circle cx="158" cy="162" r="4"/><circle cx="147" cy="176" r="4"/>
+              <text x="140" y="192" text-anchor="end">Pituitary</text><text x="164" y="150">Hypothalamus</text>
+            </g>
+          </svg>
+          </div>
+          </div>
+          <figcaption>Schematic. Pick a row to trace its route.</figcaption>
+        </figure>
+        <div class="tablewrap pw__table">
+          <table class="mkts">
+            <thead>
+              <tr><th>Pair</th><th>Route</th><th>Does</th><th>When it breaks</th></tr>
+            </thead>
+            <tbody id="pwRows">
+              <tr data-p="meso" tabindex="0"><td><b class="mono">MESO-LIMBIC</b></td><td>VTA → nucleus accumbens</td><td>Wanting, craving, cue → reward learning</td><td>Addiction, compulsive scrolling, anhedonia</td></tr>
+              <tr data-p="cort" tabindex="0"><td><b class="mono">MESO-CORTICAL</b></td><td>VTA → prefrontal cortex</td><td>Focus, working memory, holding a plan</td><td>ADHD-like distractibility, flat motivation</td></tr>
+              <tr data-p="nigro" tabindex="0"><td><b class="mono">NIGRO-STRIATAL</b></td><td>Substantia nigra → dorsal striatum</td><td>Starting and smoothing movement, habits</td><td>Parkinson's disease (60–80% of these neurons lost before symptoms)</td></tr>
+              <tr data-p="tubero" tabindex="0"><td><b class="mono">TUBERO-INFUND.</b></td><td>Hypothalamus (arcuate) → pituitary</td><td>Keeps prolactin in check</td><td>High prolactin, a side effect of some antipsychotics</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
@@ -158,10 +199,16 @@
   <!-- SIGNAL LAB -->
   <section class="section" id="signal">
     <div class="wrap signal">
+      <div class="signal__top">
       <div class="section__head">
         <p class="eyebrow">03 · Signal lab</p>
         <h2>Dopamine fires on surprise, not on reward</h2>
         <p class="lede">In 1997 Wolfram Schultz showed that dopamine neurons encode <b>reward prediction error</b>: what you got minus what you expected. Run trials below. A cue appears, then juice arrives with probability <i>p</i>. As the brain learns, the burst moves from the juice to the cue.</p>
+      </div>
+      <figure class="signal__fig">
+        <img src="img/rats.jpg" alt="Two white lab rats" width="360" height="360">
+        <figcaption>First recorded in monkeys, since confirmed in rats and mice.</figcaption>
+      </figure>
       </div>
 
       <div class="lab">
@@ -169,7 +216,7 @@
           <label for="pSlider" class="lab__label">Reward probability <b id="pOut" class="mono">75%</b></label>
           <input type="range" id="pSlider" min="0" max="100" step="5" value="75">
           <div class="lab__btns">
-            <button type="button" class="btn btn--mint" id="btnTrial">Run 1 trial</button>
+            <button type="button" class="btn btn--solid" id="btnTrial">Run 1 trial</button>
             <button type="button" class="btn btn--ghost" id="btnAuto" aria-pressed="false">Auto-run</button>
             <button type="button" class="btn btn--ghost" id="btnLabReset">Reset</button>
           </div>
@@ -191,12 +238,14 @@
   <section class="section" id="risk">
     <div class="wrap">
       <div class="section__head">
-        <p class="eyebrow">04 · Risk management</p>
-        <h2>How to fix your dopamine</h2>
+        <p class="eyebrow">04 · Risk management · the fix</p>
+        <h2>Lower your leverage</h2>
         <p class="lede">You can't “fast” from a neurotransmitter, and you shouldn't want to. What works is lowering your leverage: fewer cheap spikes, more slow, earned ones, and enough sleep to reset tolerance. Tick off what you did today. It's saved in this browser only.</p>
       </div>
 
       <div class="risk">
+        <div class="risk__side">
+        <img class="risk__img" src="img/angiogram.jpg" alt="" width="359" height="359">
         <div class="margin">
           <div class="margin__top">
             <span class="eyebrow">Margin health</span>
@@ -205,12 +254,14 @@
           <div class="margin__bar"><span id="mBar"></span></div>
           <p class="margin__msg" id="mMsg">Fully exposed. Start with sunlight.</p>
         </div>
+        </div>
 
         <ul class="rules" id="rules"></ul>
       </div>
 
       <aside class="warn">
-        <b>When this isn't a habits problem.</b> Weeks of feeling nothing, losing interest in everything, or not being able to stop a substance or behavior are reasons to talk to a doctor or therapist, not to tweak a routine.
+        <img src="img/scan.jpg" alt="" width="288" height="360">
+        <p><b>When this isn't a habits problem.</b> Weeks of feeling nothing, losing interest in everything, or not being able to stop a substance or behavior are reasons to talk to a doctor or therapist, not to tweak a routine.</p>
       </aside>
     </div>
   </section>
@@ -221,7 +272,7 @@
   <div class="wrap foot__in">
     <div>
       <p class="brand brand--foot"><span class="brand__mark" aria-hidden="true"></span>DOPA-PERP</p>
-      <p class="muted">Educational only. Not medical advice, not financial advice. Styled after perp-DEX terminals such as Hyperliquid, and not affiliated with them.</p>
+      <p class="muted">Educational only. Not medical advice, not financial advice. Styled after perp-DEX terminals such as Hyperliquid, and not affiliated with them. Collage images from the original moodboard.</p>
     </div>
     <div>
       <p class="eyebrow">Sources</p>

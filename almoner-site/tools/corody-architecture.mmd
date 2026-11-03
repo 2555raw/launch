@@ -1,0 +1,87 @@
+flowchart TB
+  subgraph users["People and agents"]
+    direction LR
+    P["Owner wallet"]
+    C["Console<br/>app.corody.world"]
+    A["Agent<br/>SDK or MCP server"]
+  end
+  subgraph offchain["Services"]
+    direction LR
+    F["Facilitator<br/>x402 payments"]
+    U["Underwriter<br/>spend checks"]
+    R["Resolver service<br/>dispute votes"]
+    S["Provider sidecar<br/>runs on the provider"]
+  end
+  subgraph chain["HyperEVM (chain 999)"]
+    subgraph endow["Endowments"]
+      EF["EndowmentFactory"]
+      EN["Endowment<br/>principal + draw schedule"]
+      PM["PatronMark<br/>non-transferable"]
+    end
+    subgraph mandates["Mandates"]
+      MF["MandateAccountFactory"]
+      MA["MandateAccount<br/>per-payment, daily, monthly caps"]
+    end
+    subgraph settle["Settlement and trust"]
+      E["Escrow"]
+      OR["DisputeOracle"]
+      AR["AgentRegistry<br/>ERC-8004"]
+      REP["Reputation"]
+    end
+    subgraph stake["Staking and assets"]
+      SR["StakeRouter"]
+      PG["PriceGuard<br/>oracle + staleness checks"]
+      CV["CollateralVault<br/>and CreditPool"]
+    end
+    subgraph privacy["Privacy"]
+      DR["DisclosureRegistry"]
+      SL["SolvencyLog"]
+      SP["ShieldedPool"]
+    end
+    subgraph gov["Governance and token"]
+      TL["AdminTimelock"]
+      TOK["CRDY, Staking<br/>Vesting, Buyback"]
+    end
+    subgraph ext["Hyperliquid assets and markets"]
+      USDC[("USDC")]
+      KH["kHYPE / stHYPE<br/>liquid staking"]
+      CW["CoreWriter<br/>HyperCore actions"]
+      PX["Price feeds<br/>HyperCore precompiles, Pyth"]
+    end
+  end
+  P -->|"creates, funds, sets limits"| C
+  C --> EF
+  EF -->|"one endowment per agent"| EN
+  EN -->|"mints on each gift"| PM
+  EN -->|"stakes the principal"| SR
+  SR --> KH
+  SR --> CW
+  EN -->|"quarterly draw in USDC"| MA
+  C --> MF
+  MF --> MA
+  P -.->|"approves payments above threshold"| MA
+  A -->|"pays inside its limits"| MA
+  A -->|"x402 payment"| F
+  F -->|"checks the spend"| U
+  U -->|"reads limits"| MA
+  F -->|"settles"| E
+  MA -->|"locks each payment"| E
+  S -->|"delivers and releases"| E
+  AR -->|"agent identity, provider caps"| E
+  E -->|"records outcomes"| REP
+  E -->|"disputed jobs"| OR
+  R -->|"commits and reveals votes"| OR
+  OR -->|"resolver bonds"| TOK
+  EN --> PG
+  CV --> PG
+  PG --> PX
+  C -->|"private gifts"| privacy
+  E -.->|"balances in daily root"| SL
+  TL -->|"administers"| settle
+  TL -->|"administers"| endow
+  MA --- USDC
+  SP --- USDC
+  classDef own fill:#f3f4ef,stroke:#49345f,color:#49345f
+  classDef extn fill:#ffffff,stroke:#35B779,color:#49345f
+  class P,C,A,F,U,R,S,EF,EN,PM,MF,MA,E,OR,AR,REP,SR,PG,CV,DR,SL,SP,TL,TOK own
+  class USDC,KH,CW,PX extn

@@ -647,6 +647,43 @@ footer.contact { padding-block: 90px 40px; }
   .bz-hero h1 { font-size: 20.5vw; }
 }
 
+/* ---------- Capability cards, measured on Bursar (1440 and 390) ---------- */
+.cap-card { position: relative; display: block; height: 680px; overflow: hidden; color: #fff; }
+.cap-visual { position: absolute; inset: 0; z-index: 0; }
+.cap-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: scale(1.015); }
+.cap-shade { position: absolute; inset: 0; background: linear-gradient(rgba(39,26,52,.24), rgba(44,29,51,.2) 35%, rgba(44,29,51,.44)); }
+.cap-inset { position: absolute; left: 48px; bottom: 80px; width: calc(25% - 24px); height: 270px; overflow: hidden; border: 1px solid rgba(255,255,255,.19); z-index: 1; }
+.cap-inset img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.0556); transition: transform 1.1s cubic-bezier(.16,1,.3,1); will-change: transform; }
+.cap-inset:hover img, .cap-inset:focus-visible img { transform: scale(1.14); }
+.cap-wordmark { position: absolute; left: 50%; bottom: 125px; max-width: 430px; margin: 0; font-size: 56px; font-weight: 400; line-height: 1; letter-spacing: -3px; text-wrap: balance; }
+.cap-info { position: absolute; z-index: 2; top: 54px; left: 48px; right: 48px; display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; pointer-events: none; }
+.cap-info > * { pointer-events: auto; }
+.cap-info .eyebrow { color: inherit; font-size: 10px; line-height: normal; }
+.cap-info > div { display: flex; align-items: center; gap: 10px; }
+.cap-info h4 { margin: 0; font-size: 14px; font-weight: 400; line-height: 1.2; text-transform: uppercase; }
+.cap-info p { margin: 0; font-size: 12px; }
+.view-project { position: absolute; top: 480px; left: 0; z-index: 3; display: flex; align-items: center; gap: 15px; padding: 13px 18px; background: var(--ice); color: #fff; font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; }
+.view-project svg { width: 24px; height: 24px; transition: transform .3s; }
+.view-project:hover svg { transform: translate(3px, -3px); }
+.cap-caption { position: absolute; z-index: 2; left: 50%; right: 48px; bottom: 40px; }
+.cap-caption p { max-width: 390px; margin: 0; font-size: 15px; line-height: 1.45; }
+.cap-caption > a { position: absolute; right: 0; bottom: 0; display: flex; align-items: center; justify-content: flex-end; gap: 20px; max-width: 130px; font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; }
+.cap-caption > a svg { width: 16px; height: 16px; flex-shrink: 0; transition: transform .3s; }
+.cap-caption > a:hover svg { transform: translate(3px, -3px); }
+@media (max-width: 1100px) {
+  .cap-wordmark { max-width: 350px; font-size: 44px; }
+  .cap-caption > a { display: none; }
+}
+@media (max-width: 760px) {
+  .cap-card { height: 650px; }
+  .cap-info { grid-template-columns: 40px 1fr; top: 30px; left: 24px; right: 24px; }
+  .cap-info > div:nth-child(3) { display: none; }
+  .view-project { top: 270px; left: 40px; padding: 0; gap: 10px; background: none; }
+  .cap-inset { width: 48%; height: 190px; bottom: 260px; left: 24px; }
+  .cap-wordmark { max-width: 90%; font-size: 44px; bottom: 165px; left: 24px; right: 24px; }
+  .cap-caption { bottom: 60px; left: 24px; right: 24px; }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1180px) {
   :root { --gx: max(32px, env(safe-area-inset-left, 0px)); --gxr: max(32px, env(safe-area-inset-right, 0px)); }
@@ -847,41 +884,50 @@ footer.contact { padding-block: 90px 40px; }
       </div>
     </div>
     <div class="panels">
-      <article class="panel" id="layer-funding">
-        <img class="photo" src="img/cap-columns.jpg" alt="" loading="lazy" decoding="async">
-        <div class="wrap panel-inner">
-          <div class="panel-left"><span class="num">01</span>
-            <div class="thumb tinted"><img class="photo" src="img/cap-columns.jpg" alt="White architectural fins" style="object-position:30% 50%" loading="lazy" decoding="async"><a class="btn" href="#stack" data-open-acc="0"><span class="lbl">Explore</span><span class="arr"><svg><use href="#i-ne"/></svg></span></a></div>
-          </div>
-          <div class="panel-right">
-            <div class="panel-meta"><span><b>Layer</b>Agent endowments</span><span><b>Protocol</b>Corody</span></div>
-            <div class="panel-body"><div><h3>Agent endowments</h3><p>HYPE that stays staked and keeps earning, plus a yearly draw the agent spends.</p></div><a class="link-arrow" href="#stack" data-open-acc="0">Funding layer <svg width="10" height="10"><use href="#i-ne"/></svg></a></div>
-          </div>
+      <article class="cap-card" id="layer-funding">
+        <div class="cap-visual">
+          <img class="cap-bg" src="img/cap-colonnade.jpg" alt="A rhythmic colonnade in soft light" loading="lazy" decoding="async">
+          <div class="cap-shade" aria-hidden="true"></div>
+          <a class="cap-inset" href="#stack" data-open-acc="0" aria-label="Explore Agent endowments"><img src="img/cap-colonnade-inset.jpg" alt="" loading="lazy" decoding="async" style="object-position:50% 50%"></a>
+          <h3 class="cap-wordmark">Agent endowments</h3>
         </div>
+        <div class="cap-info">
+          <span class="eyebrow">01</span>
+          <div><span class="eyebrow">Layer</span><h4>Agent endowments</h4></div>
+          <div><span class="eyebrow">Protocol</span><p>Corody</p></div>
+          <a class="view-project" href="#stack" data-open-acc="0">Explore <svg><use href="#i-ne"/></svg></a>
+        </div>
+        <div class="cap-caption"><p>HYPE that stays staked and keeps earning, plus a yearly draw the agent spends.</p><a href="#stack" data-open-acc="0">Funding layer <svg><use href="#i-ne"/></svg></a></div>
       </article>
-      <article class="panel" id="layer-control">
-        <img class="photo" src="img/cap-stairs.jpg" alt="" loading="lazy" decoding="async">
-        <div class="wrap panel-inner">
-          <div class="panel-left"><span class="num">02</span>
-            <div class="thumb tinted"><img class="photo" src="img/cap-stairs.jpg" alt="Staircase on a concrete wall" loading="lazy" decoding="async" style="object-position:70% 40%"><a class="btn" href="#stack" data-open-acc="2"><span class="lbl">Explore</span><span class="arr"><svg><use href="#i-ne"/></svg></span></a></div>
-          </div>
-          <div class="panel-right">
-            <div class="panel-meta"><span><b>Layer</b>Private mandates</span><span><b>Protocol</b>Corody</span></div>
-            <div class="panel-body"><div><h3>Private mandates</h3><p>The limits an agent spends within, whether the money arrives from a draw or a direct deposit.</p></div><a class="link-arrow" href="#stack" data-open-acc="2">Control layer <svg width="10" height="10"><use href="#i-ne"/></svg></a></div>
-          </div>
+      <article class="cap-card" id="layer-control">
+        <div class="cap-visual">
+          <img class="cap-bg" src="img/cap-stairs.jpg" alt="Staircase on a concrete wall" loading="lazy" decoding="async">
+          <div class="cap-shade" aria-hidden="true"></div>
+          <a class="cap-inset" href="#stack" data-open-acc="2" aria-label="Explore Private mandates"><img src="img/cap-stairs.jpg" alt="" loading="lazy" decoding="async" style="object-position:70% 40%"></a>
+          <h3 class="cap-wordmark">Private mandates</h3>
         </div>
+        <div class="cap-info">
+          <span class="eyebrow">02</span>
+          <div><span class="eyebrow">Layer</span><h4>Private mandates</h4></div>
+          <div><span class="eyebrow">Protocol</span><p>Corody</p></div>
+          <a class="view-project" href="#stack" data-open-acc="2">Explore <svg><use href="#i-ne"/></svg></a>
+        </div>
+        <div class="cap-caption"><p>The limits an agent spends within, whether the money arrives from a draw or a direct deposit.</p><a href="#stack" data-open-acc="2">Control layer <svg><use href="#i-ne"/></svg></a></div>
       </article>
-      <article class="panel" id="layer-privacy">
-        <img class="photo" src="img/cap-glass.jpg" alt="" loading="lazy" decoding="async">
-        <div class="wrap panel-inner">
-          <div class="panel-left"><span class="num">03</span>
-            <div class="thumb tinted"><img class="photo" src="img/cap-glass.jpg" alt="Glass facade" loading="lazy" decoding="async" style="object-position:20% 50%"><a class="btn" href="#faq" data-open-faq="4"><span class="lbl">Explore</span><span class="arr"><svg><use href="#i-ne"/></svg></span></a></div>
-          </div>
-          <div class="panel-right">
-            <div class="panel-meta"><span><b>Layer</b>Confidential settlement</span><span><b>Protocol</b>Corody</span></div>
-            <div class="panel-body"><div><h3>Confidential settlement</h3><p>Private gifts into an endowment, and payments a provider can verify without reading the full ledger.</p></div><a class="link-arrow" href="#faq" data-open-faq="4">Privacy layer <svg width="10" height="10"><use href="#i-ne"/></svg></a></div>
-          </div>
+      <article class="cap-card" id="layer-privacy">
+        <div class="cap-visual">
+          <img class="cap-bg" src="img/cap-glass.jpg" alt="Glass facade" loading="lazy" decoding="async">
+          <div class="cap-shade" aria-hidden="true"></div>
+          <a class="cap-inset" href="#faq" data-open-faq="4" aria-label="Explore Confidential settlement"><img src="img/cap-glass.jpg" alt="" loading="lazy" decoding="async" style="object-position:20% 50%"></a>
+          <h3 class="cap-wordmark">Confidential settlement</h3>
         </div>
+        <div class="cap-info">
+          <span class="eyebrow">03</span>
+          <div><span class="eyebrow">Layer</span><h4>Confidential settlement</h4></div>
+          <div><span class="eyebrow">Protocol</span><p>Corody</p></div>
+          <a class="view-project" href="#faq" data-open-faq="4">Explore <svg><use href="#i-ne"/></svg></a>
+        </div>
+        <div class="cap-caption"><p>Private gifts into an endowment, and payments a provider can verify without reading the full ledger.</p><a href="#faq" data-open-faq="4">Privacy layer <svg><use href="#i-ne"/></svg></a></div>
       </article>
     </div>
   </section>

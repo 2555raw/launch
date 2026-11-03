@@ -689,6 +689,64 @@ footer.contact { padding-block: 90px 40px; }
 .bz-hero .hero-tint { background: linear-gradient(180deg, rgba(255,255,255,.28) 0%, rgba(255,255,255,0) 24%, rgba(255,255,255,0) 64%, rgba(255,255,255,.22) 100%); }
 .bz-hero .hero-copy > p span { opacity: .6; }
 
+/* ---------- Dashboard preview (the app's asset policy panel) ---------- */
+.dash { margin-top: 72px; max-width: 968px; margin-left: auto; margin-right: auto; }
+.dash-head h3 { margin: 0 0 8px; font-size: 24px; font-weight: 400; letter-spacing: -.5px; }
+.dash-head p { margin: 0 0 24px; color: var(--mist); font-size: 13px; line-height: 1.45; max-width: 92ch; }
+.dash-card { background: #fff; border: 1px solid var(--line-strong); padding: 24px 22px 28px; display: grid; gap: 28px; }
+.dl { display: flex; align-items: center; font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; color: var(--mist); letter-spacing: .02em; }
+.dl .sq { width: 7px; height: 7px; margin-right: 6px; }
+.dash-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
+.dash-stats strong { display: block; margin: 10px 0 8px; font-family: var(--f-mono); font-size: 17px; font-weight: 400; color: var(--ice); }
+.dash-stats small, .dash-list-head small, .dash-policy small { display: block; color: var(--mist); font-size: 11px; line-height: 1.45; }
+.dash-list-head small em { font-style: normal; color: var(--fog); }
+.dash-list-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+.dash-list-head h4, .dash-policy h4, .dash-panel h4 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+.dash-find { display: grid; gap: 6px; width: min(232px, 100%); }
+.dash-find input, .dash-input input, .dash-panel input, .dash-panel select { width: 100%; font: 12px var(--f-mono); color: var(--ice); padding: 12px 12px; border: 1px solid var(--line-strong); background: #fff; border-radius: 0; }
+.dash-find input:focus, .dash-input input:focus, .dash-panel input:focus, .dash-panel select:focus { outline: 2px solid var(--ice); outline-offset: 2px; border-color: var(--ice); }
+.dash-table-wrap { overflow-x: auto; margin-top: -8px; }
+.dash-table { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 12px; }
+.dash-table th { text-align: left; font-family: var(--f-mono); font-size: 10px; font-weight: 400; text-transform: uppercase; color: var(--mist); padding: 10px 10px; border-bottom: 1px solid var(--line-strong); }
+.dash-table td { padding: 14px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.dash-table .r { text-align: right; }
+.dash-table td b { display: block; font-size: 13px; font-weight: 600; }
+.dash-table td small { color: var(--mist); font-size: 11px; }
+.dash-table .mono { font-size: 12px; text-transform: none; }
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 6px; font: 10px var(--f-mono); text-transform: uppercase; border: 1px solid var(--line-strong); color: var(--mist); }
+.pill.on { border-color: #35B779; color: #1f7a4d; }
+.pill.on::before { content: ""; width: 6px; height: 6px; background: #35B779; }
+.pill.side { background: #ebe6f1; border-color: #d8cfe4; color: var(--ice); }
+.pill.side.off { background: none; text-decoration: line-through; color: var(--fog); }
+.dash-empty { margin: 14px 0 0; color: var(--mist); font-size: 12px; }
+.dash-policy { border: 1px solid var(--line-strong); padding: 20px 16px 22px; display: grid; gap: 8px; }
+.dash-policy-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 16px; }
+.dash-policy-grid > div { display: grid; gap: 8px; align-content: start; }
+.dash-input { display: flex; align-items: center; border: 1px solid var(--line-strong); }
+.dash-input input { border: 0; outline-offset: -2px; }
+.dash-input span { padding: 0 12px; font: 11px var(--f-mono); color: var(--mist); }
+.dash-group { font-size: 11px; color: var(--mist); margin: 4px 0 6px; }
+.dash-checks { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.dash-checks label { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; cursor: pointer; }
+.dash-checks input { width: 16px; height: 16px; accent-color: var(--ice); cursor: pointer; }
+.dash-allow button { font: inherit; color: var(--ice); text-decoration: underline; text-decoration-color: #e0828a; text-underline-offset: 2px; }
+.dash-allow button:hover { text-decoration-color: currentColor; }
+.dash-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
+.dash-btn { padding: 12px 18px; border: 1px solid var(--line-strong); background: #fff; font: 11px var(--f-mono); text-transform: uppercase; color: var(--ice); transition: background .2s, border-color .2s; }
+.dash-btn:hover { background: #f3eff7; border-color: var(--ice); }
+.dash-btn.solid { background: var(--ice); color: #fff; border-color: var(--ice); }
+.dash-btn.solid:hover { background: #5b4473; }
+.dash-toast { font: 11px var(--f-mono); color: #1f7a4d; opacity: 0; transition: opacity .3s; }
+.dash-toast.on { opacity: 1; }
+.dash-trade { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.dash-panel { border: 1px solid var(--line-strong); padding: 20px 16px; display: grid; gap: 8px; align-content: start; }
+.dash-panel .dl { margin-top: 6px; }
+.dash-quote { margin: 6px 0 4px; font-size: 12px; color: var(--mist); min-height: 34px; line-height: 1.45; }
+.dash-quote b { color: var(--ice); font-weight: 600; }
+@media (max-width: 860px) {
+  .dash-stats, .dash-policy-grid, .dash-trade { grid-template-columns: 1fr; }
+}
+
 /* ---------- Responsive ---------- */
 @media (max-width: 1180px) {
   :root { --gx: max(32px, env(safe-area-inset-left, 0px)); --gxr: max(32px, env(safe-area-inset-right, 0px)); }
@@ -1056,6 +1114,79 @@ footer.contact { padding-block: 90px 40px; }
     </div>
   </section>
 
+  <!-- Dashboard preview: the mandate's asset policy, as in the app -->
+  <section class="section dash-sec" id="dashboard" aria-labelledby="dash-title">
+    <div class="wrap">
+      <div class="paths-head"><span class="eyebrow"><span class="sq"></span>Dashboard preview</span><h2 id="dash-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">Inside<br>a mandate.</h2><p>What an owner sees in the app. Try it: every control on this panel works.</p></div>
+      <div class="dash">
+        <div class="dash-head">
+          <h3>Assets</h3>
+          <p>The agent can buy any of the listed assets with this mandate's USDC, and sell what you release back to USDC, each at its oracle price within your slippage limit. Prices older than 26 hours are refused.</p>
+        </div>
+        <div class="dash-card">
+          <div class="dash-stats">
+            <div><span class="dl"><span class="sq" id="d-buy-dot"></span>Asset purchases</span><strong id="d-buy-state">Allowed</strong><small id="d-buy-note">Turned on in this mandate's limits.</small></div>
+            <div><span class="dl">Slippage limit</span><strong id="d-slip">1%</strong><small>How far from the oracle price a trade may fill. Never wider than the asset's own limit.</small></div>
+            <div><span class="dl">Assets held, at oracle price</span><strong id="d-held">$0.00</strong><small id="d-held-note">Nothing held yet.</small></div>
+          </div>
+          <div class="dash-list-head">
+            <div><h4>Listed assets</h4><small><span id="d-count">7</span> listed, each priced by its own oracle feed and bought in its own pool. <em>Example figures, not live prices.</em></small></div>
+            <label class="dash-find" for="d-find"><span class="dl">Find an asset</span><input id="d-find" type="search" placeholder="HYPE" autocomplete="off"></label>
+          </div>
+          <div class="dash-table-wrap">
+            <table class="dash-table">
+              <thead><tr><th>Asset</th><th class="r">Oracle price</th><th>Updated</th><th>Eligible</th><th>This mandate</th><th class="r">Held</th><th class="r">Released for sale</th></tr></thead>
+              <tbody id="d-rows"></tbody>
+            </table>
+            <p class="dash-empty" id="d-empty" hidden>No listed asset matches that search.</p>
+          </div>
+          <div class="dash-policy">
+            <h4>Trading policy</h4>
+            <small>Choose which assets the agent may buy, which it may sell, and how far from the oracle price a trade may fill.</small>
+            <div class="dash-policy-grid">
+              <div>
+                <label class="dl" for="d-slip-in">Slippage limit</label>
+                <div class="dash-input"><input id="d-slip-in" type="number" min="0" max="5" step="0.1" value="1"><span>%</span></div>
+                <small>0 uses each asset's own limit, 1%. A wider limit is capped at it.</small>
+              </div>
+              <div>
+                <span class="dl">May buy</span>
+                <div id="d-buy-groups"></div>
+                <small class="dash-allow"><span id="d-buy-n">7 of 7</span> allowed. <button type="button" data-all="buy">Allow all</button> · <button type="button" data-none="buy">Allow none</button></small>
+              </div>
+              <div>
+                <span class="dl">May sell</span>
+                <div class="dash-checks" id="d-sell"></div>
+                <small class="dash-allow"><span id="d-sell-n">7 of 7</span> allowed. <button type="button" data-all="sell">Allow all</button> · <button type="button" data-none="sell">Allow none</button></small>
+              </div>
+            </div>
+            <div class="dash-actions">
+              <button type="button" class="dash-btn" id="d-save-buy">Save the purchase policy</button>
+              <button type="button" class="dash-btn" id="d-save-sell">Save the sale policy</button>
+              <span class="dash-toast" id="d-toast" role="status" aria-live="polite"></span>
+            </div>
+          </div>
+          <div class="dash-trade">
+            <form class="dash-panel" id="d-buy-form">
+              <h4>Buy an asset</h4>
+              <label class="dl" for="d-buy-asset">Asset</label><select id="d-buy-asset"></select>
+              <label class="dl" for="d-buy-amt">Spend (USDC)</label><input id="d-buy-amt" type="number" min="1" step="1" value="100">
+              <p class="dash-quote" id="d-buy-quote"></p>
+              <button class="dash-btn solid" type="submit">Preview purchase</button>
+            </form>
+            <form class="dash-panel" id="d-sell-form">
+              <h4>Sell an asset</h4>
+              <label class="dl" for="d-sell-asset">Asset</label><select id="d-sell-asset"></select>
+              <label class="dl" for="d-sell-amt">Amount</label><input id="d-sell-amt" type="number" min="0" step="0.01" value="1">
+              <p class="dash-quote" id="d-sell-quote"></p>
+              <button class="dash-btn solid" type="submit">Preview sale</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 08 FAQ -->
   <section class="section" id="faq" aria-labelledby="faq-title" style="padding-top:120px">
     <div class="wrap split">
@@ -1314,6 +1445,80 @@ const DOCS = {
     };
     paint(); setInterval(paint, 30000);
   }
+
+  /* Dashboard preview: example data, every control works locally */
+  (() => {
+    const A = [
+      { t: 'HYPE', n: 'Hyperliquid', g: 'Staking', p: 38.42, u: '4m' },
+      { t: 'kHYPE', n: 'Kinetiq staked HYPE', g: 'Staking', p: 38.97, u: '6m' },
+      { t: 'stHYPE', n: 'Staked HYPE (liquid staking)', g: 'Staking', p: 38.88, u: '9m' },
+      { t: 'UBTC', n: 'Unit Bitcoin', g: 'Spot', p: 104210.5, u: '2m' },
+      { t: 'UETH', n: 'Unit Ether', g: 'Spot', p: 3891.2, u: '2m' },
+      { t: 'USOL', n: 'Unit Solana', g: 'Spot', p: 181.35, u: '3m' },
+      { t: 'PURR', n: 'Purr', g: 'Spot', p: 0.214, u: '11m' }
+    ];
+    const buy = new Set(A.map(a => a.t)), sell = new Set(A.map(a => a.t));
+    let pBuy = new Set(buy), pSell = new Set(sell), slip = 1;
+    const $d = id => document.getElementById(id);
+    const usd = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: n < 1 ? 4 : 2 });
+    const rows = $d('d-rows');
+    const render = () => {
+      const q = $d('d-find').value.trim().toLowerCase();
+      const vis = A.filter(a => !q || a.t.toLowerCase().includes(q) || a.n.toLowerCase().includes(q));
+      rows.innerHTML = vis.map(a => `<tr><td><b>${a.t}</b><small>${a.n}</small></td><td class="r mono">${usd(a.p)}</td><td>${a.u} ago</td>
+        <td><span class="pill on">Yes</span></td>
+        <td><span class="pill side${buy.has(a.t) ? '' : ' off'}">Buy</span> <span class="pill side${sell.has(a.t) ? '' : ' off'}">Sell</span></td>
+        <td class="r">None</td><td class="r">None</td></tr>`).join('');
+      $d('d-empty').hidden = vis.length > 0;
+      $d('d-count').textContent = A.length;
+      const on = buy.size > 0;
+      $d('d-buy-state').textContent = on ? 'Allowed' : 'Off';
+      $d('d-buy-note').textContent = on ? `Turned on in this mandate's limits for ${buy.size} of ${A.length} assets.` : 'No asset may be bought under this mandate.';
+      $d('d-buy-dot').style.background = on ? '' : 'var(--fog)';
+      $d('d-slip').textContent = (slip === 0 ? 'Asset default (1%)' : slip + '%');
+      fillSelects(); quotes();
+    };
+    const checkbox = (side, set, a) => `<label><input type="checkbox" data-side="${side}" value="${a.t}"${set.has(a.t) ? ' checked' : ''}>${a.t}</label>`;
+    const drawPolicy = () => {
+      $d('d-buy-groups').innerHTML = ['Staking', 'Spot'].map(g => `<div class="dash-group">${g === 'Staking' ? 'Staked HYPE' : 'Spot assets'}</div><div class="dash-checks">${A.filter(a => a.g === g).map(a => checkbox('buy', pBuy, a)).join('')}</div>`).join('');
+      $d('d-sell').innerHTML = A.map(a => checkbox('sell', pSell, a)).join('');
+      $d('d-buy-n').textContent = `${pBuy.size} of ${A.length}`; $d('d-sell-n').textContent = `${pSell.size} of ${A.length}`;
+    };
+    document.getElementById('dashboard').addEventListener('change', e => {
+      const c = e.target.closest('input[data-side]'); if (!c) return;
+      const set = c.dataset.side === 'buy' ? pBuy : pSell; c.checked ? set.add(c.value) : set.delete(c.value);
+      $d('d-buy-n').textContent = `${pBuy.size} of ${A.length}`; $d('d-sell-n').textContent = `${pSell.size} of ${A.length}`;
+    });
+    document.getElementById('dashboard').addEventListener('click', e => {
+      const all = e.target.closest('[data-all]'), none = e.target.closest('[data-none]'); if (!all && !none) return;
+      const side = (all || none).dataset.all || (all || none).dataset.none, set = side === 'buy' ? pBuy : pSell;
+      set.clear(); if (all) A.forEach(a => set.add(a.t)); drawPolicy();
+    });
+    let tt;
+    const toast = msg => { const t = $d('d-toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('on'), 2600); };
+    const readSlip = () => { const v = Math.min(5, Math.max(0, parseFloat($d('d-slip-in').value) || 0)); $d('d-slip-in').value = v; return v; };
+    $d('d-save-buy').addEventListener('click', () => { slip = readSlip(); buy.clear(); pBuy.forEach(t => buy.add(t)); render(); toast('Purchase policy saved in this preview.'); });
+    $d('d-save-sell').addEventListener('click', () => { slip = readSlip(); sell.clear(); pSell.forEach(t => sell.add(t)); render(); toast('Sale policy saved in this preview.'); });
+    $d('d-find').addEventListener('input', render);
+    const fillSelects = () => {
+      for (const [id, set] of [['d-buy-asset', buy], ['d-sell-asset', sell]]) {
+        const el = $d(id), cur = el.value, opts = A.filter(a => set.has(a.t));
+        el.innerHTML = opts.length ? opts.map(a => `<option value="${a.t}">${a.t}</option>`).join('') : '<option value="">None allowed</option>';
+        if (opts.some(a => a.t === cur)) el.value = cur;
+      }
+    };
+    const eff = () => (slip === 0 ? 1 : Math.min(slip, 1)) / 100;
+    const quotes = () => {
+      const b = A.find(a => a.t === $d('d-buy-asset').value), s2 = A.find(a => a.t === $d('d-sell-asset').value);
+      const amt = Math.max(0, +$d('d-buy-amt').value || 0), qty = Math.max(0, +$d('d-sell-amt').value || 0);
+      $d('d-buy-quote').innerHTML = b ? `About <b>${(amt / b.p).toLocaleString('en-US', { maximumFractionDigits: 6 })} ${b.t}</b>, at least ${(amt / (b.p * (1 + eff()))).toLocaleString('en-US', { maximumFractionDigits: 6 })} after slippage.` : 'This mandate allows no purchases.';
+      $d('d-sell-quote').innerHTML = s2 ? `About <b>${usd(qty * s2.p)}</b> in USDC, at least ${usd(qty * s2.p * (1 - eff()))} after slippage.` : 'This mandate allows no sales.';
+    };
+    ['d-buy-asset', 'd-sell-asset', 'd-buy-amt', 'd-sell-amt'].forEach(id => $d(id).addEventListener('input', quotes));
+    $d('d-buy-form').addEventListener('submit', e => { e.preventDefault(); toast('Preview only: nothing is bought until the app is live.'); });
+    $d('d-sell-form').addEventListener('submit', e => { e.preventDefault(); toast('Preview only: nothing is sold until the app is live.'); });
+    drawPolicy(); render();
+  })();
 
   /* Cursor light on cards */
   $$('.role, .stat, .lane').forEach(card => card.addEventListener('pointermove', e => {

@@ -75,7 +75,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 .mono { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; letter-spacing: .02em; }
 .up { text-transform: uppercase; }
 .dim { color: var(--mist); }
-.sq { display: inline-block; width: 6px; height: 6px; background: var(--azure); margin-right: 8px; vertical-align: 2px; }
+.sq { display: inline-block; width: 6px; height: 6px; background: var(--coral); margin-right: 8px; vertical-align: 2px; }
 .eyebrow { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; display: flex; align-items: center; }
 .eyebrow b { font-weight: 400; color: var(--fog); margin-right: 8px; }
 .h-xl { font-size: clamp(44px, 5.6vw, 80px); line-height: .9; letter-spacing: -.06em; font-weight: 400; text-transform: uppercase; margin: 0; text-wrap: balance; }
@@ -199,7 +199,7 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .tint-2 { background: var(--tint-b); }
 
 /* Sticky identity card */
-.stick { position: sticky; top: 104px; width: min(336px, 100%); display: grid; gap: 24px; align-self: start; }
+.stick { position: sticky; top: 104px; width: 50%; display: grid; gap: 24px; align-self: start; }
 .poster { aspect-ratio: 336 / 448; display: grid; place-items: center; background: var(--brand-grad); }
 .poster .medal { --d: 54%; background: none; box-shadow: none; overflow: visible; }
 .poster .medal::after { content: none; }
@@ -390,7 +390,7 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 /* ---------- Resources ---------- */
 .articles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 72px 24px; margin-top: 64px; }
 .article { display: grid; gap: 16px; align-content: start; }
-.article .img { position: relative; aspect-ratio: 312 / 248; overflow: hidden; }
+.article .img { position: relative; height: 250px; overflow: hidden; }
 .article .img > .photo { position: absolute; inset: 0; transition: transform .6s; }
 .article:hover .img > .photo { transform: scale(1.05); }
 .article .tag { text-transform: uppercase; position: absolute; left: 14px; bottom: 14px; font-family: var(--f-mono); font-size: 10px; padding: 4px 8px; background: rgba(255,255,255,.88); color: var(--ice); }
@@ -558,8 +558,6 @@ footer.contact { padding-block: 90px 40px; }
 .reveal-text .w.hl { background: linear-gradient(90deg, #4cc79a 0%, #5bb8c9 45%, #5a9fd8 80%, #4cc79a 100%); background-size: 220% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; animation: hl-flow 6s linear infinite; }
 @keyframes hl-flow { to { background-position: -220% 0; } }
 /* line-reveal: heading words rise 20px and fade in */
-.line-reveal .lw { display: inline-block; opacity: 0; transform: translateY(20px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
-.line-reveal.in .lw { opacity: 1; transform: none; }
 
 /* ---------- Bursar type, measured at 1440px ---------- */
 .mono, .eyebrow, .clock, .meta-row, .foot-nav ul, .legal { line-height: normal; }
@@ -748,6 +746,20 @@ footer.contact { padding-block: 90px 40px; }
 }
 
 .big-word sup { font-size: .34em; vertical-align: top; position: relative; top: .25em; margin-left: .08em; letter-spacing: 0; }
+
+/* ---------- Bursar scaling above 1440px ---------- */
+.stick .btn { font-size: 13px; }
+#mission-title { font-size: 4.2vw; }
+@media (max-width: 960px) { #mission-title { font-size: 38px; } .stick { width: 100%; } }
+@media (max-width: 520px) { #mission-title { font-size: 34px; } }
+
+/* ---------- Heading mask reveal: words slide up from behind a line ---------- */
+.line-reveal .lwm { display: inline-block; overflow: hidden; vertical-align: top; padding: 0 .04em .12em; margin: 0 -.04em -.12em; }
+.line-reveal .lw { display: inline-block; opacity: 1; transform: translateY(110%); transition: transform 1.1s cubic-bezier(.16,1,.3,1); }
+.line-reveal.in .lw { transform: none; }
+.rise-in { opacity: 0; transform: translateY(18px); filter: blur(4px); transition: opacity 1s cubic-bezier(.2,.7,.2,1), transform 1s cubic-bezier(.2,.7,.2,1), filter 1s cubic-bezier(.2,.7,.2,1); }
+.rise-in.in { opacity: 1; transform: none; filter: none; }
+@media (prefers-reduced-motion: reduce) { .rise-in { opacity: 1 !important; transform: none !important; filter: none !important; } }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1180px) {
@@ -1395,8 +1407,9 @@ const DOCS = {
         c.textContent.split(/(\s+)/).forEach(part => {
           if (!part) return;
           if (/^\s+$/.test(part)) { frag.append(part); return; }
+          const m = document.createElement('span'); m.className = 'lwm';
           const sp = document.createElement('span'); sp.className = 'lw'; sp.textContent = part;
-          sp.style.transitionDelay = (k++ * 0.08) + 's'; frag.append(sp);
+          sp.style.transitionDelay = (k++ * 0.09) + 's'; m.append(sp); frag.append(m);
         });
         c.replaceWith(frag);
       } else if (c.nodeType === 1 && c.tagName !== 'BR') wrap(c);
@@ -1427,6 +1440,24 @@ const DOCS = {
     });
     (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => requestAnimationFrame(go));
   }
+
+
+  /* supporting text next to each heading fades up once the heading has risen */
+  const rises = $$('.cap-head .sub, .cap-head .eyebrow, .cap-head .link-arrow, .proc-head .sub, .eco-head p, .paths-head p');
+  rises.forEach((el, i) => { el.classList.add('rise-in'); el.style.transitionDelay = el.matches('.eyebrow') ? '0s' : '.35s'; });
+  const rio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); rio.unobserve(e.target); } }), { threshold: .2 });
+  rises.forEach(el => still ? el.classList.add('in') : rio.observe(el));
+
+  /* numbers count up from zero when they scroll into view */
+  const counters = $$('[data-count]');
+  const countUp = el => {
+    const end = +el.dataset.count, pad = +(el.dataset.pad || String(end).length), t0 = performance.now(), dur = 1600;
+    const step = t => { const k = Math.min(1, (t - t0) / dur), v = Math.round(end * (1 - Math.pow(1 - k, 4)));
+      el.textContent = String(v).padStart(pad, '0'); if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  };
+  const cio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { countUp(e.target); cio.unobserve(e.target); } }), { threshold: .6 });
+  if (!still) counters.forEach(el => { if (el.getBoundingClientRect().top > innerHeight * .9) { el.textContent = '0'.padStart(+(el.dataset.pad || String(el.dataset.count).length), '0'); cio.observe(el); } });
 
   /* Scroll reveal + count-up (elements already in view stay visible) */
   const io = new IntersectionObserver(entries => entries.forEach(e => {

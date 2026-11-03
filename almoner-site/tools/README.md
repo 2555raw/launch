@@ -1,6 +1,6 @@
 # Hero render
 
-`img/hero-glass.jpg` is a Three.js render (MeshPhysicalMaterial glass: transmission,
+`img/hero-glass.*` is a Three.js render made offline (`scene2.html`, `render2.js`, finished in `post2.py`): thick bevelled slabs with a custom glossy shader (volume shading, specular, glowing fresnel rims) in the Corody palette.
 iridescence, a softbox studio environment) made offline, then finished in `post.py`
 (lens softness, bloom, grain) and a final colour grade.
 

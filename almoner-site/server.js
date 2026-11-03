@@ -61,3 +61,10 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => console.log(`Almoner on :${PORT}`));
+
+// Railway stops the old container with SIGTERM on every redeploy: close cleanly so it is not reported as a crash.
+for (const sig of ['SIGTERM', 'SIGINT']) process.on(sig, () => {
+  server.close(() => process.exit(0));
+  if (server.closeIdleConnections) server.closeIdleConnections();
+  setTimeout(() => process.exit(0), 3000).unref();
+});

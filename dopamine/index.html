@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DOPA-PERP</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Your dopamine is a perp. A trading-terminal guide to dopamine, with a live simulator of how cheap hits liquidate your baseline.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar__in">
+    <a class="brand" href="#top" aria-label="DOPA-PERP home">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span>DOPA<span class="brand__dash">-</span>PERP</span>
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#terminal">Terminal</a>
+      <a href="#pathways">Pathways</a>
+      <a href="#signal">Signal lab</a>
+      <a href="#risk">Fix it</a>
+    </nav>
+    <div class="ticker" aria-live="off">
+      <span class="ticker__label">MARK</span>
+      <span class="ticker__px" id="tickPx">100.0</span>
+      <span class="ticker__chg" id="tickChg">+0.00%</span>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO: the dictionary entry from the moodboard, corrected -->
+  <section class="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="entry">
+          <span class="entry__word">do·pa·mine</span>
+          <span class="entry__ipa">/ˈdoʊ.pə.miːn/</span>
+          <span class="entry__pos">noun</span>
+        </p>
+        <h1>Your dopamine is a perp. <em>Stop trading it at 50×.</em></h1>
+        <ol class="defs">
+          <li>A neurotransmitter made mostly by a few hundred thousand neurons in the midbrain: the <b>ventral tegmental area</b> and the <b>substantia nigra</b>.</li>
+          <li>It doesn't make you feel good. It makes you <b>want</b>, move and learn from surprise.</li>
+          <li class="defs__myth"><s>“the localization of production is the hypothalamus”</s> <span class="tag tag--short">partial</span> The hypothalamus makes a small share, mostly to switch off prolactin. Motivation runs on the midbrain supply.</li>
+        </ol>
+        <div class="hero__cta">
+          <a class="btn btn--mint" href="#terminal">Open the terminal</a>
+          <a class="btn btn--ghost" href="#risk">How to fix it</a>
+        </div>
+      </div>
+      <figure class="hero__viz">
+        <canvas id="neurons" aria-label="Animated network of neurons firing" role="img"></canvas>
+        <figcaption>
+          <span><i class="dot dot--mint"></i>VTA → nucleus accumbens</span>
+          <span class="mono">firing live</span>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- TERMINAL -->
+  <section class="section" id="terminal">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">01 · Simulator</p>
+        <h2>Trade a day of your own dopamine</h2>
+        <p class="lede">Every habit opens a long on your dopamine. Cheap hits come with high leverage: a fast spike, then a crash below where you started, and a little more tolerance each time. Healthy ones trade at 1–3×. Try to end the day above baseline without getting liquidated.</p>
+      </div>
+
+      <div class="term" aria-label="Dopamine trading terminal">
+        <div class="term__stats">
+          <div class="stat"><span class="stat__k">Mark</span><span class="stat__v" id="sMark">—</span></div>
+          <div class="stat"><span class="stat__k">Baseline</span><span class="stat__v" id="sBase">—</span></div>
+          <div class="stat"><span class="stat__k">Tolerance <abbr title="The funding you pay on every cheap hit: it dulls the next spike and drags your baseline down.">ⓘ</abbr></span><span class="stat__v" id="sTol">—</span></div>
+          <div class="stat"><span class="stat__k">Liq. level</span><span class="stat__v stat__v--short">55.0</span></div>
+          <div class="stat"><span class="stat__k">12h avg</span><span class="stat__v" id="sAvg">—</span></div>
+          <div class="stat"><span class="stat__k">Clock</span><span class="stat__v" id="sClock">—</span></div>
+        </div>
+
+        <div class="term__chart">
+          <div class="chart__bar">
+            <span class="pair">DOPA-PERP <span class="muted">· 6h window</span></span>
+            <div class="seg" role="group" aria-label="Simulation speed">
+              <button type="button" id="btnPause" class="seg__b" aria-pressed="false">Pause</button>
+              <button type="button" data-speed="1" class="seg__b is-on">1×</button>
+              <button type="button" data-speed="4" class="seg__b">4×</button>
+            </div>
+          </div>
+          <canvas id="chart" aria-label="Chart of your simulated dopamine level over the last six hours" role="img"></canvas>
+          <div class="banner" id="liqBanner" hidden>
+            <b>LIQUIDATED</b> <span>Level fell under 55. Motivation offline for a while.</span>
+          </div>
+        </div>
+
+        <div class="term__book">
+          <div class="book__head">
+            <span>Market</span><span>Lev.</span><span></span>
+          </div>
+          <ul class="book" id="book"></ul>
+          <button type="button" class="btn btn--sleep" id="btnSleep">Close all · Sleep 8h</button>
+          <p class="book__note">Sleep closes every position and pays down most of your tolerance.</p>
+        </div>
+
+        <div class="term__pos">
+          <div class="tabs" role="tablist" aria-label="Positions and fills">
+            <button type="button" role="tab" id="tabPos" aria-selected="true" aria-controls="panePos" class="tab is-on">Positions <span id="posCount" class="count">0</span></button>
+            <button type="button" role="tab" id="tabLog" aria-selected="false" aria-controls="paneLog" class="tab">Fills</button>
+            <button type="button" id="btnReset" class="tab tab--end">Reset day</button>
+          </div>
+          <div id="panePos" role="tabpanel" aria-labelledby="tabPos" class="pane">
+            <div class="tablewrap">
+              <table class="pos">
+                <thead><tr><th>Market</th><th>Lev.</th><th>Opened</th><th>Effect now</th><th>Phase</th></tr></thead>
+                <tbody id="posBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div id="paneLog" role="tabpanel" aria-labelledby="tabLog" class="pane" hidden>
+            <ul class="log" id="log"></ul>
+          </div>
+        </div>
+      </div>
+      <p class="fine">Illustrative model built on opponent-process theory (Solomon &amp; Corbit) and the pleasure–pain balance described by Anna Lembke. The shapes are realistic; the numbers are not measurements. The day opens with an example morning already loaded.</p>
+    </div>
+  </section>
+
+  <!-- PATHWAYS -->
+  <section class="section" id="pathways">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">02 · Markets</p>
+        <h2>Four pathways, four different jobs</h2>
+        <p class="lede">“Dopamine” isn't one switch. The same molecule runs four separate routes in the brain, and each one fails in its own way.</p>
+      </div>
+      <div class="tablewrap">
+        <table class="mkts">
+          <thead>
+            <tr><th>Pair</th><th>Route</th><th>Does</th><th>When it breaks</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><b class="mono">MESO-LIMBIC</b></td><td>VTA → nucleus accumbens</td><td>Wanting, craving, cue → reward learning</td><td>Addiction, compulsive scrolling, anhedonia</td></tr>
+            <tr><td><b class="mono">MESO-CORTICAL</b></td><td>VTA → prefrontal cortex</td><td>Focus, working memory, holding a plan</td><td>ADHD-like distractibility, flat motivation</td></tr>
+            <tr><td><b class="mono">NIGRO-STRIATAL</b></td><td>Substantia nigra → dorsal striatum</td><td>Starting and smoothing movement, habits</td><td>Parkinson's disease (60–80% of these neurons lost before symptoms)</td></tr>
+            <tr><td><b class="mono">TUBERO-INFUND.</b></td><td>Hypothalamus (arcuate) → pituitary</td><td>Keeps prolactin in check</td><td>High prolactin, a side effect of some antipsychotics</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SIGNAL LAB -->
+  <section class="section" id="signal">
+    <div class="wrap signal">
+      <div class="section__head">
+        <p class="eyebrow">03 · Signal lab</p>
+        <h2>Dopamine fires on surprise, not on reward</h2>
+        <p class="lede">In 1997 Wolfram Schultz showed that dopamine neurons encode <b>reward prediction error</b>: what you got minus what you expected. Run trials below. A cue appears, then juice arrives with probability <i>p</i>. As the brain learns, the burst moves from the juice to the cue.</p>
+      </div>
+
+      <div class="lab">
+        <div class="lab__ctrl">
+          <label for="pSlider" class="lab__label">Reward probability <b id="pOut" class="mono">75%</b></label>
+          <input type="range" id="pSlider" min="0" max="100" step="5" value="75">
+          <div class="lab__btns">
+            <button type="button" class="btn btn--mint" id="btnTrial">Run 1 trial</button>
+            <button type="button" class="btn btn--ghost" id="btnAuto" aria-pressed="false">Auto-run</button>
+            <button type="button" class="btn btn--ghost" id="btnLabReset">Reset</button>
+          </div>
+          <dl class="lab__read">
+            <div><dt>Expected (V)</dt><dd id="rV" class="mono">0.00</dd></div>
+            <div><dt>Last error (δ)</dt><dd id="rD" class="mono">—</dd></div>
+            <div><dt>Trials</dt><dd id="rN" class="mono">0</dd></div>
+          </dl>
+          <p class="lab__tip">Try it: learn at 100%, and the reward-time burst fades to nothing because a certain reward is no news. Then drop to 0%: every missing reward now shows up as a dip.</p>
+        </div>
+        <div class="lab__viz">
+          <canvas id="raster" aria-label="Bar chart of dopamine response at the cue and at the reward across recent trials" role="img"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RISK MANAGEMENT -->
+  <section class="section" id="risk">
+    <div class="wrap">
+      <div class="section__head">
+        <p class="eyebrow">04 · Risk management</p>
+        <h2>How to fix your dopamine</h2>
+        <p class="lede">You can't “fast” from a neurotransmitter, and you shouldn't want to. What works is lowering your leverage: fewer cheap spikes, more slow, earned ones, and enough sleep to reset tolerance. Tick off what you did today. It's saved in this browser only.</p>
+      </div>
+
+      <div class="risk">
+        <div class="margin">
+          <div class="margin__top">
+            <span class="eyebrow">Margin health</span>
+            <span class="mono" id="mPct">0%</span>
+          </div>
+          <div class="margin__bar"><span id="mBar"></span></div>
+          <p class="margin__msg" id="mMsg">Fully exposed. Start with sunlight.</p>
+        </div>
+
+        <ul class="rules" id="rules"></ul>
+      </div>
+
+      <aside class="warn">
+        <b>When this isn't a habits problem.</b> Weeks of feeling nothing, losing interest in everything, or not being able to stop a substance or behavior are reasons to talk to a doctor or therapist, not to tweak a routine.
+      </aside>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <div>
+      <p class="brand brand--foot"><span class="brand__mark" aria-hidden="true"></span>DOPA-PERP</p>
+      <p class="muted">Educational only. Not medical advice, not financial advice. Styled after perp-DEX terminals such as Hyperliquid, and not affiliated with them.</p>
+    </div>
+    <div>
+      <p class="eyebrow">Sources</p>
+      <ul class="src">
+        <li>Schultz, Dayan &amp; Montague (1997). A neural substrate of prediction and reward. <i>Science</i>.</li>
+        <li>Berridge &amp; Robinson (1998). What is the role of dopamine in reward? <i>Brain Res Rev</i>.</li>
+        <li>Volkow et al. (2012). Sleep deprivation downregulates D2/D3 receptors in human striatum. <i>J Neurosci</i>.</li>
+        <li>Šrámek et al. (2000). Responses to cold water immersion. <i>Eur J Appl Physiol</i>.</li>
+        <li>Lembke (2021). <i>Dopamine Nation</i>. Dutton.</li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

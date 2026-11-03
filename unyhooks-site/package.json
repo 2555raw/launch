@@ -1,15 +1,10 @@
 {
-  "name": "unyhooks-site",
+  "name": "almoner-site",
   "version": "1.0.0",
   "private": true,
-  "description": "UnyHooks: chat to build Uniswap V4 hooks on Robinhood Chain. Static site plus a small server for the AI chat.",
+  "description": "Almoner: endowments for AI agents. Static landing page served by a dependency-free Node server.",
   "scripts": {
-    "start": "node server.js",
-    "build:3d": "npm i --no-save three@0.186.1 esbuild@0.24.0 && npx esbuild src/scene3d.js --bundle --format=esm --minify --target=es2020 --outfile=scene3d.js"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.131.0",
-    "ethers": "^6.17.0"
+    "start": "node server.js"
   },
   "engines": {
     "node": ">=18"

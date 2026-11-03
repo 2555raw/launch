@@ -182,7 +182,6 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .hero-badge { position: absolute; left: var(--gx); bottom: 48px; display: flex; align-items: center; gap: 12px; color: var(--ice); }
 .hero-badge .t1 { font-size: 16px; text-transform: uppercase; }
 .hero-badge .t2 { font-family: var(--f-mono); font-size: 13px; color: var(--mist); text-transform: uppercase; margin-top: 4px; }
-.load .hero-copy, .load .hero-word, .load .hero-badge { opacity: 0; transform: translateY(24px); }
 .hero-copy, .hero-badge { transition: opacity 1s ease, transform 1s ease; }
 .hero-word { transition: opacity 1.2s ease .1s, transform 1.2s ease .1s; }
 .hero-copy { transition-delay: .2s; } .hero-badge { transition-delay: .35s; }
@@ -190,7 +189,6 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 /* ---------- Marquee ---------- */
 .marquee { border-bottom: 1px solid var(--line); background: var(--void); overflow: hidden; padding-block: 32px; }
 .marquee-track { display: flex; width: max-content; animation: marq 38s linear infinite; }
-.marquee:hover .marquee-track { animation-play-state: paused; }
 .marquee-track span { display: inline-flex; align-items: center; gap: 9px; padding-right: 72px; font-size: 18px; font-weight: 600; letter-spacing: -.5px; white-space: nowrap; }
 .marquee-track svg { width: 18px; height: 18px; color: var(--azure); }
 @keyframes marq { to { transform: translateX(-33.3333%); } }
@@ -220,9 +218,6 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 72px; }
 .label-row .mono:last-child { font-size: 10.4px; }
 .reveal-text { font-weight: 400; margin: 0; font-size: clamp(32px, 4.2vw, 60px); line-height: 1.12; letter-spacing: -.045em; }
-.reveal-text .w { color: rgba(73,52,95,.2); transition: color 1s; }
-.reveal-text .w.on { color: var(--ice); }
-.reveal-text .w.hl.on { color: var(--coral); text-shadow: 0 1px 2px rgba(73,52,95,.28); }
 .stats { display: grid; grid-template-columns: 1fr 1fr; margin-top: 120px; }
 .stat { padding: 48px 40px 56px; min-height: 336px; display: grid; align-content: space-between; gap: 36px; border: 1px solid var(--line); background: rgba(255,255,255,.45); transition: background .4s, border-color .4s; }
 .stat:nth-child(even) { transform: translateY(36px); }
@@ -339,7 +334,6 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .role:nth-child(n+3) { border-top: 1px solid var(--line); }
 .role .shield { position: absolute; right: 36px; top: 40px; width: 22px; height: 22px; color: var(--ice); stroke-dasharray: 90; stroke-dashoffset: 0; transition: color .3s, transform .6s var(--ease); }
 .role:hover .shield { color: var(--turq); transform: scale(1.15) rotate(-6deg); animation: draw 1s var(--ease) both; }
-.role.rv:not(.pre) .shield { animation: draw 1.4s var(--ease) .3s both; }
 @keyframes draw { from { stroke-dashoffset: 90; } to { stroke-dashoffset: 0; } }
 .role h3 { font-size: 32px; font-weight: 400; letter-spacing: -.04em; margin: 44px 0 6px; }
 .role p { color: var(--mist); font-size: 15px; max-width: 30ch; }
@@ -534,9 +528,6 @@ dialog::backdrop { background: rgba(73,52,95,.4); backdrop-filter: blur(4px); }
 .lanes { gap: 0; }
 .lane, .lane:nth-child(n) { margin-top: 0; padding: 48px; min-height: 612px; }
 /* entrance offsets, as Bursar staggers its cards while they reveal */
-.stats .rv.pre:nth-child(even) { transform: translateY(120px); }
-.steps .rv.pre:nth-child(3n+2) { transform: translateY(180px); }
-.steps .rv.pre:nth-child(3n) { transform: translateY(360px); }
 /* section rhythm */
 #mission { padding-block: 80px 100px; }
 #mission-title { padding-block: 70px 85px; font-size: clamp(32px, 4.2vw, 61px); }
@@ -557,7 +548,49 @@ footer.contact { padding-block: 90px 40px; }
   .lane, .lane:nth-child(n) { min-height: 0; padding: 36px 24px 32px; }
   .stat, .stat.glass { min-height: 0; padding: 32px 22px 36px; }
   .role, .role.glass { min-height: 0; }
-  .steps .rv.pre:nth-child(n), .stats .rv.pre:nth-child(n) { transform: translateY(35px); }
+}
+
+/* ---------- Bursar motion ---------- */
+.hero-media { position: absolute; inset: 0; z-index: -1; isolation: isolate; will-change: transform, opacity; transform-origin: 50% 0; }
+.hero-media .hero-bg { z-index: 0; }
+.hero-media #ribbons { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+/* scroll-words: each word goes from .2 to full opacity as the sentence scrolls through */
+.scroll-words .w { opacity: .2; }
+.reveal-text .w.hl { color: var(--coral); text-shadow: 0 1px 2px rgba(73,52,95,.28); }
+/* line-reveal: heading words rise 20px and fade in */
+.line-reveal .lw { display: inline-block; opacity: 0; transform: translateY(20px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+.line-reveal.in .lw { opacity: 1; transform: none; }
+
+/* ---------- Bursar type, measured at 1440px ---------- */
+.mono, .eyebrow, .clock, .meta-row, .foot-nav ul, .legal { line-height: normal; }
+.menu-btn { font-size: 14px; }
+.wordmark-sm { font-size: 21px; letter-spacing: -1.3px; }
+.site-header .btn { font-size: 13px; }
+.hero-copy li { font-weight: 400; }
+.cap-head .sub { line-height: 1.45; }
+.panel-body h3 { font-size: 56px; letter-spacing: -3px; }
+.h-xl { line-height: .98; }
+#cap-title { line-height: .9; }
+.acc-q { letter-spacing: normal; }
+.acc-a p { font-size: 17px; line-height: 1.4286; }
+.step h3 { letter-spacing: -1.2px; }
+.step p { font-size: 16px; line-height: 1.5; }
+.step .n { line-height: 1; letter-spacing: -2px; }
+.step.cta h3 { font-size: 32px; line-height: 1.05; letter-spacing: -3px; white-space: normal; }
+.eco-left .h-sm { line-height: 1.45; letter-spacing: -1px; }
+.role h3 { font-size: 29px; line-height: 1.05; letter-spacing: -1.3px; margin-top: 70px; margin-bottom: 20px; }
+.band .big { font-size: 64px; line-height: 1.45; letter-spacing: -6px; }
+.pillars h3 { font-size: 34px; line-height: 1.45; letter-spacing: -1px; }
+.lane .ttl h3 { font-size: 60px; letter-spacing: -3px; }
+.lane ul { font-size: 14px; gap: 14px; }
+.faq-left .h-sm { letter-spacing: -1.5px; }
+.article h3 { letter-spacing: -1px; }
+.contact-right .h-xl { letter-spacing: -3px; }
+.big-word { font-size: 4.1vw; line-height: 1.45; letter-spacing: -.06em; }
+@media (max-width: 960px) {
+  .band .big { font-size: 64px; }
+  .lane .ttl h3 { font-size: 48px; }
+  .big-word { font-size: 18vw; }
 }
 
 /* ---------- Responsive ---------- */
@@ -641,7 +674,8 @@ footer.contact { padding-block: 90px 40px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
-  .rv.pre, .load .hero-copy, .load .hero-word, .load .hero-badge { opacity: 1; transform: none; filter: none; }
+  .rv.pre { opacity: 1; transform: none; filter: none; }
+  .line-reveal .lw, .scroll-words .w { opacity: 1 !important; transform: none !important; }
 }
 </style>
 </head>
@@ -705,8 +739,7 @@ footer.contact { padding-block: 90px 40px; }
 <main id="top">
   <!-- Hero -->
   <section class="hero" aria-labelledby="hero-title">
-    <div class="hero-bg" aria-hidden="true"></div>
-    <canvas id="ribbons" aria-hidden="true"></canvas>
+    <div class="hero-media" aria-hidden="true"><div class="hero-bg"></div><canvas id="ribbons"></canvas></div>
     <h1 id="hero-title" class="hero-copy">
       <span class="stack"><span>Endow an AI agent once.</span><span>The HYPE stays staked.</span><span>The agent lives on the draw.</span></span>
       <ol>
@@ -744,10 +777,10 @@ footer.contact { padding-block: 90px 40px; }
         <div class="label-row"><span class="eyebrow"><span class="sq"></span><b>01</b>Our mission</span><span class="mono">©2026 Almoner</span></div>
         <h2 id="mission-title" class="reveal-text" data-words>AI agents now pay for their own compute, data and services, yet someone still has to keep refilling the wallet. Almoner gives each agent an endowment instead: HYPE that stays staked and pays the agent a steady yearly draw in USDC.</h2>
         <div class="stats">
-          <div class="stat glass rv"><span class="eyebrow"><span class="sq"></span>Assets accepted</span><span class="num" data-count="3" data-pad="2">03</span><p>HYPE, staked HYPE and USDC, each priced on-chain.</p></div>
-          <div class="stat glass rv"><span class="eyebrow"><span class="sq"></span>Max yearly draw</span><span class="num" data-count="6" data-pad="2">06</span><p>No agent can spend more than 6% of its principal in a year.</p></div>
-          <div class="stat glass rv"><span class="eyebrow"><span class="sq"></span>Quarters averaged</span><span class="num" data-count="12">12</span><p>The draw tracks a rolling three-year average of the principal.</p></div>
-          <div class="stat glass rv"><span class="eyebrow"><span class="sq"></span>Percent fee</span><span class="num" data-count="1" data-pad="2">01</span><p>Taken from each draw only. The principal is never touched.</p></div>
+          <div class="stat glass"><span class="eyebrow"><span class="sq"></span>Assets accepted</span><span class="num" data-count="3" data-pad="2">03</span><p>HYPE, staked HYPE and USDC, each priced on-chain.</p></div>
+          <div class="stat glass"><span class="eyebrow"><span class="sq"></span>Max yearly draw</span><span class="num" data-count="6" data-pad="2">06</span><p>No agent can spend more than 6% of its principal in a year.</p></div>
+          <div class="stat glass"><span class="eyebrow"><span class="sq"></span>Quarters averaged</span><span class="num" data-count="12">12</span><p>The draw tracks a rolling three-year average of the principal.</p></div>
+          <div class="stat glass"><span class="eyebrow"><span class="sq"></span>Percent fee</span><span class="num" data-count="1" data-pad="2">01</span><p>Taken from each draw only. The principal is never touched.</p></div>
         </div>
       </div>
     </div>
@@ -759,7 +792,7 @@ footer.contact { padding-block: 90px 40px; }
       <div class="left"><a class="link-arrow" href="#stack">All capabilities <i><svg><use href="#i-ne"/></svg></i></a></div>
       <div class="right">
         <span class="eyebrow"><span class="sq"></span><b>02</b>Capabilities</span>
-        <h2 id="cap-title" class="h-xl">Funded.<br>On purpose.</h2>
+        <h2 id="cap-title" class="h-xl line-reveal">Funded.<br>On purpose.</h2>
         <p class="sub">Where an agent's money comes from, what it is allowed to spend, and who can see it.</p>
       </div>
     </div>
@@ -809,7 +842,7 @@ footer.contact { padding-block: 90px 40px; }
       <div class="wrap">
         <div class="three">
           <span class="eyebrow"><span class="sq"></span><b>03</b>The stack</span>
-          <h2 id="stack-title" class="h-xl" style="font-size:clamp(40px,4.45vw,64px)">What you<br>define.</h2>
+          <h2 id="stack-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">What you<br>define.</h2>
           <div class="mini-card">
             <span class="eyebrow"><span class="sq"></span>Endowments</span>
             <p class="h-sm">Endow an agent once.</p>
@@ -844,16 +877,16 @@ footer.contact { padding-block: 90px 40px; }
       <div class="wrap">
         <div class="proc-head">
           <span class="eyebrow"><span class="sq"></span><b>04</b>The process</span>
-          <div class="inner"><h2 id="proc-title" class="h-xl" style="font-size:clamp(40px,4.45vw,64px)">5 steps.<br>One endowment.</h2><p class="sub">From picking the agent to its very first draw.</p></div>
+          <div class="inner"><h2 id="proc-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">5 steps.<br>One endowment.</h2><p class="sub">From picking the agent to its very first draw.</p></div>
         </div>
         <div class="three-b"><div></div>
           <div class="steps">
-            <div class="step glass rv"><div class="top"><span class="n">01</span><span class="eyebrow"><span class="sq"></span>Choose</span></div><div><h3>Pick the agent</h3><p>Any agent holding an ERC-8004 identity on HyperEVM, whether you operate it or not.</p></div></div>
-            <div class="step glass rv"><div class="top"><span class="n">02</span><span class="eyebrow"><span class="sq"></span>Fund</span></div><div><h3>Set the principal</h3><p>Give HYPE or USDC. HYPE is staked on Hyperliquid and stays staked.</p></div></div>
-            <div class="step glass rv"><div class="top"><span class="n">03</span><span class="eyebrow"><span class="sq"></span>Accept</span></div><div><h3>The owner opts in</h3><p>The agent's owner accepts and names the mandate the draw will pay into. Nothing accrues before that.</p></div></div>
-            <div class="step glass rv"><div class="top"><span class="n">04</span><span class="eyebrow"><span class="sq"></span>Draw</span></div><div><h3>The agent gets paid</h3><p>The draw accrues by the second. The agent pulls it into its mandate and spends within the limits.</p></div></div>
-            <div class="step glass rv"><div class="top"><span class="n">05</span><span class="eyebrow"><span class="sq"></span>Grow</span></div><div><h3>Anyone can add</h3><p>Patrons give from the endowment's page, and the agent can route part of its earnings back into the principal.</p></div></div>
-            <div class="step cta grainy rv"><div class="top"><h3>Ready<br>to start?</h3><p>Endow an agent in a few minutes. Any gift of a dollar or more earns a patron mark.</p></div><div style="display:grid;gap:32px"><ul><li>01 / Any registered agent</li><li>02 / Principal in staked HYPE</li><li>03 / Open to patrons</li></ul><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div>
+            <div class="step glass"><div class="top"><span class="n">01</span><span class="eyebrow"><span class="sq"></span>Choose</span></div><div><h3>Pick the agent</h3><p>Any agent holding an ERC-8004 identity on HyperEVM, whether you operate it or not.</p></div></div>
+            <div class="step glass"><div class="top"><span class="n">02</span><span class="eyebrow"><span class="sq"></span>Fund</span></div><div><h3>Set the principal</h3><p>Give HYPE or USDC. HYPE is staked on Hyperliquid and stays staked.</p></div></div>
+            <div class="step glass"><div class="top"><span class="n">03</span><span class="eyebrow"><span class="sq"></span>Accept</span></div><div><h3>The owner opts in</h3><p>The agent's owner accepts and names the mandate the draw will pay into. Nothing accrues before that.</p></div></div>
+            <div class="step glass"><div class="top"><span class="n">04</span><span class="eyebrow"><span class="sq"></span>Draw</span></div><div><h3>The agent gets paid</h3><p>The draw accrues by the second. The agent pulls it into its mandate and spends within the limits.</p></div></div>
+            <div class="step glass"><div class="top"><span class="n">05</span><span class="eyebrow"><span class="sq"></span>Grow</span></div><div><h3>Anyone can add</h3><p>Patrons give from the endowment's page, and the agent can route part of its earnings back into the principal.</p></div></div>
+            <div class="step cta grainy"><div class="top"><h3>Ready<br>to start?</h3><p>Endow an agent in a few minutes. Any gift of a dollar or more earns a patron mark.</p></div><div style="display:grid;gap:32px"><ul><li>01 / Any registered agent</li><li>02 / Principal in staked HYPE</li><li>03 / Open to patrons</li></ul><a class="btn" href="#paths"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div></div>
           </div>
         </div>
       </div>
@@ -864,7 +897,7 @@ footer.contact { padding-block: 90px 40px; }
   <section class="section" id="ecosystem" aria-labelledby="eco-title">
     <div class="wrap">
       <span class="eyebrow"><span class="sq"></span><b>05</b>The ecosystem</span>
-      <div class="eco-head"><h2 id="eco-title" class="h-xl" style="font-size:clamp(40px,4.45vw,64px)">Every role.<br>One rulebook.</h2><p>One shared set of rules for the people and systems behind every payment.</p></div>
+      <div class="eco-head"><h2 id="eco-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">Every role.<br>One rulebook.</h2><p>One shared set of rules for the people and systems behind every payment.</p></div>
       <div class="split">
         <div class="eco-left">
           <span class="medal"><svg><use href="#mark"/></svg></span>
@@ -877,10 +910,10 @@ footer.contact { padding-block: 90px 40px; }
           </div>
         </div>
         <div class="roles glassy">
-          <div class="role glass rv"><svg class="shield"><use href="#i-shield"/></svg><span class="eyebrow"><span class="sq"></span>Patrons</span><h3>Give once.</h3><p>Back an agent you depend on. A gift of a dollar or more earns a patron mark.</p></div>
-          <div class="role glass rv"><svg class="shield"><use href="#i-shield"/></svg><span class="eyebrow"><span class="sq"></span>Agents</span><h3>Spend the draw.</h3><p>Pay for services and hire other agents, always inside the limits of a mandate.</p></div>
-          <div class="role glass rv"><svg class="shield"><use href="#i-shield"/></svg><span class="eyebrow"><span class="sq"></span>Owners</span><h3>Accept and steer.</h3><p>Accept the endowment, pick the mandate it pays into, and set what the agent may spend.</p></div>
-          <div class="role glass rv"><svg class="shield"><use href="#i-shield"/></svg><span class="eyebrow"><span class="sq"></span>Resolvers</span><h3>Settle disputes.</h3><p>Bonded resolvers decide when a payer and a provider disagree over a payment.</p></div>
+          <div class="role glass"><svg class="shield"><use href="#i-shield"/></svg><span class="eyebrow"><span class="sq"></span>Patrons</span><h3>Give once.</h3><p>Back an agent you depend on. A gift of a dollar or more earns a patron mark.</p></div>
+          <div class="role glass"><svg class="shield"><use href="#i-shield"/></svg><span class="eyebrow"><span class="sq"></span>Agents</span><h3>Spend the draw.</h3><p>Pay for services and hire other agents, always inside the limits of a mandate.</p></div>
+          <div class="role glass"><svg class="shield"><use href="#i-shield"/></svg><span class="eyebrow"><span class="sq"></span>Owners</span><h3>Accept and steer.</h3><p>Accept the endowment, pick the mandate it pays into, and set what the agent may spend.</p></div>
+          <div class="role glass"><svg class="shield"><use href="#i-shield"/></svg><span class="eyebrow"><span class="sq"></span>Resolvers</span><h3>Settle disputes.</h3><p>Bonded resolvers decide when a payer and a provider disagree over a payment.</p></div>
         </div>
       </div>
     </div>
@@ -913,11 +946,11 @@ footer.contact { padding-block: 90px 40px; }
   <!-- 07 Funding paths -->
   <section class="section" id="paths" aria-labelledby="paths-title">
     <div class="wrap">
-      <div class="paths-head"><span class="eyebrow"><span class="sq"></span><b>07</b>Funding paths</span><h2 id="paths-title" class="h-xl" style="font-size:clamp(40px,4.45vw,64px)">Your agent.<br>Your rules.</h2><p>Endow an agent that should keep running, or fund one single task.</p></div>
+      <div class="paths-head"><span class="eyebrow"><span class="sq"></span><b>07</b>Funding paths</span><h2 id="paths-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">Your agent.<br>Your rules.</h2><p>Endow an agent that should keep running, or fund one single task.</p></div>
       <div class="lanes">
-        <div class="lane chrome glass rv"><span class="eyebrow"><span class="sq"></span>Endowment</span><div class="ttl"><h3>HYPE</h3><span>/Staked</span></div><p>HYPE that stays staked, for an agent that should keep running.</p><span class="mono dim">Core controls</span><ul><li>Staked HYPE with a USDC buffer</li><li>A draw reset every quarter</li><li>Open to patrons</li><li>A successor if the agent goes quiet</li></ul><a class="btn wide" href="#" data-link="app" data-lane="endowment"><span class="lbl">Choose endowment</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
-        <div class="lane chrome glass rv"><span class="eyebrow"><span class="sq"></span>Prefund</span><div class="ttl"><h3>USDC</h3><span>/Funding</span></div><p>A direct budget for one specific task.</p><span class="mono dim">Core controls</span><ul><li>Per-payment, daily and monthly caps</li><li>Approved counterparties</li><li>Agent hires settled through escrow</li><li>A hard expiry date</li></ul><a class="btn wide" href="#" data-link="app" data-lane="prefund"><span class="lbl">Choose prefund</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
-        <div class="lane chrome glass rv"><span class="eyebrow"><span class="sq"></span>Collateral</span><div class="ttl"><h3>Credit</h3><span>/Collateral</span></div><p>Spending backed by posted HYPE, kept in a separate lane.</p><span class="mono dim">Core controls</span><ul><li>HYPE and staked HYPE as collateral</li><li>Published haircut tiers</li><li>Live collateral health checks</li><li>Clear repayment boundaries</li></ul><a class="btn wide" href="#" data-link="app" data-lane="collateral"><span class="lbl">Choose collateral</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
+        <div class="lane chrome glass"><span class="eyebrow"><span class="sq"></span>Endowment</span><div class="ttl"><h3>HYPE</h3><span>/Staked</span></div><p>HYPE that stays staked, for an agent that should keep running.</p><span class="mono dim">Core controls</span><ul><li>Staked HYPE with a USDC buffer</li><li>A draw reset every quarter</li><li>Open to patrons</li><li>A successor if the agent goes quiet</li></ul><a class="btn wide" href="#" data-link="app" data-lane="endowment"><span class="lbl">Choose endowment</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
+        <div class="lane chrome glass"><span class="eyebrow"><span class="sq"></span>Prefund</span><div class="ttl"><h3>USDC</h3><span>/Funding</span></div><p>A direct budget for one specific task.</p><span class="mono dim">Core controls</span><ul><li>Per-payment, daily and monthly caps</li><li>Approved counterparties</li><li>Agent hires settled through escrow</li><li>A hard expiry date</li></ul><a class="btn wide" href="#" data-link="app" data-lane="prefund"><span class="lbl">Choose prefund</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
+        <div class="lane chrome glass"><span class="eyebrow"><span class="sq"></span>Collateral</span><div class="ttl"><h3>Credit</h3><span>/Collateral</span></div><p>Spending backed by posted HYPE, kept in a separate lane.</p><span class="mono dim">Core controls</span><ul><li>HYPE and staked HYPE as collateral</li><li>Published haircut tiers</li><li>Live collateral health checks</li><li>Clear repayment boundaries</li></ul><a class="btn wide" href="#" data-link="app" data-lane="collateral"><span class="lbl">Choose collateral</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><a class="foot" href="#stack" data-open-acc="2">Spending follows a mandate <svg><use href="#i-ne"/></svg></a></div>
       </div>
     </div>
   </section>
@@ -933,7 +966,7 @@ footer.contact { padding-block: 90px 40px; }
       </aside>
       <div>
         <span class="eyebrow"><span class="sq"></span><b>08</b>FAQ</span>
-        <h2 id="faq-title" class="h-xl" style="font-size:clamp(40px,4.45vw,64px);margin-top:24px">Straight<br>answers.</h2>
+        <h2 id="faq-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px);margin-top:24px">Straight<br>answers.</h2>
         <p class="body" style="margin-top:28px;font-size:16px">The fundamentals of endowing an agent.</p>
         <div class="faq" id="faqList">
           <div class="faq-item open"><button class="faq-q" aria-expanded="true"><b>01</b>What is an agent endowment?<svg class="chev"><use href="#i-chev"/></svg></button><div class="acc-a"><div><p>Money for an AI agent that keeps working. The principal sits in staked HYPE and USDC on Hyperliquid, and the agent receives a yearly draw in USDC into an Almoner mandate, where its owner sets the limits.</p></div></div></div>
@@ -955,7 +988,7 @@ footer.contact { padding-block: 90px 40px; }
     <div class="wrap">
       <div class="three">
         <span class="eyebrow"><span class="sq"></span><b>09</b>Resources</span>
-        <h2 id="res-title" class="h-xl" style="font-size:clamp(40px,4.45vw,64px)">Protocol<br>notes.</h2>
+        <h2 id="res-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">Protocol<br>notes.</h2>
         <div style="display:grid;gap:22px;align-content:end"><p class="body">A closer look at endowments, mandates and the privacy behind Almoner.</p><a class="link-arrow" href="#resources" data-article="all">All articles <i><svg><use href="#i-ne"/></svg></i></a></div>
       </div>
       <div class="articles" id="articles"></div>
@@ -979,7 +1012,7 @@ footer.contact { padding-block: 90px 40px; }
     </aside>
     <div class="contact-right">
       <span class="eyebrow"><span class="sq"></span>Contact</span>
-      <h2 class="h-xl" style="font-size:clamp(40px,4.45vw,64px)">Back the agents<br>you depend on.</h2>
+      <h2 class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">Back the agents<br>you depend on.</h2>
       <p class="lead">Got a question? Follow Almoner on X for updates and conversations, and browse the code on GitHub.</p>
       <div class="ghost-row">
         <a class="ghost" href="#" data-link="x"><svg><use href="#i-x"/></svg>Follow us</a>
@@ -1050,8 +1083,6 @@ const DOCS = {
 (() => {
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  document.documentElement.classList.add('load');
-  requestAnimationFrame(() => setTimeout(() => document.documentElement.classList.remove('load'), 60));
 
   /* Links from CONFIG */
   const map = { app: CONFIG.appUrl, x: CONFIG.xUrl, github: CONFIG.githubUrl };
@@ -1104,8 +1135,9 @@ const DOCS = {
   $$('[data-open-acc]').forEach(a => a.addEventListener('click', () => openIdx('#acc .acc-item', +a.dataset.openAcc)));
   $$('[data-open-faq]').forEach(a => a.addEventListener('click', () => openIdx('#faqList .faq-item', +a.dataset.openFaq)));
 
-  /* Word-by-word reveal tied to scroll */
+  /* Bursar scroll-words: word opacity runs from .2 to 1 as the sentence crosses the viewport */
   const wordBlocks = $$('[data-words]').map(el => {
+    el.classList.add('scroll-words');
     const accent = new Set(['endowment', 'endowment:', 'depend']);
     el.innerHTML = el.textContent.trim().split(/\s+/).map(w => `<span class="w${accent.has(w.replace(/[^a-z:]/gi, '').toLowerCase()) ? ' hl' : ''}">${w}</span>`).join(' ');
     return { el, words: $$('.w', el) };
@@ -1113,26 +1145,48 @@ const DOCS = {
   function paintWords() {
     for (const { el, words } of wordBlocks) {
       const r = el.getBoundingClientRect();
-      const p = still ? 1 : Math.min(1, Math.max(0, (innerHeight * 0.85 - r.top) / (r.height + innerHeight * 0.35)));
-      const n = Math.round(p * words.length);
-      words.forEach((w, i) => w.classList.toggle('on', i < n));
+      const p = still ? 1 : Math.min(1, Math.max(0, (innerHeight * .9 - r.top) / (innerHeight * 1.15)));
+      const n = p * words.length;
+      words.forEach((w, i) => { w.style.opacity = (.2 + .8 * Math.min(1, Math.max(0, n - i))).toFixed(3); });
     }
   }
   addEventListener('scroll', paintWords, { passive: true }); addEventListener('resize', paintWords); paintWords();
+
+  /* Bursar line-reveal: heading words rise in, one after another */
+  $$('.line-reveal').forEach(h => {
+    let k = 0;
+    const wrap = node => [...node.childNodes].forEach(c => {
+      if (c.nodeType === 3) {
+        const frag = document.createDocumentFragment();
+        c.textContent.split(/(\s+)/).forEach(part => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.append(part); return; }
+          const sp = document.createElement('span'); sp.className = 'lw'; sp.textContent = part;
+          sp.style.transitionDelay = (k++ * 0.08) + 's'; frag.append(sp);
+        });
+        c.replaceWith(frag);
+      } else if (c.nodeType === 1 && c.tagName !== 'BR') wrap(c);
+    });
+    wrap(h);
+  });
+  const lio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); lio.unobserve(e.target); } }), { threshold: .3 });
+  $$('.line-reveal').forEach(h => still ? h.classList.add('in') : lio.observe(h));
+
+  /* Bursar hero parallax: the background sinks, grows and fades over the first screen of scroll */
+  const media = $('.hero-media');
+  const parallax = () => {
+    const p = Math.min(1, Math.max(0, scrollY / innerHeight));
+    media.style.transform = `translateY(${(300 * p).toFixed(1)}px) scale(${(1 + .2 * p).toFixed(4)})`;
+    media.style.opacity = (1 - .5 * p).toFixed(3);
+  };
+  if (!still) { addEventListener('scroll', parallax, { passive: true }); parallax(); }
 
   /* Scroll reveal + count-up (elements already in view stay visible) */
   const io = new IntersectionObserver(entries => entries.forEach(e => {
     if (!e.isIntersecting) return;
     e.target.classList.remove('pre'); io.unobserve(e.target);
-    const n = e.target.querySelector('[data-count]'); if (n) countUp(n);
   }), { threshold: 0.15 });
   if (!still) $$('.rv').forEach(el => { if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('pre'); io.observe(el); } });
-  function countUp(el) {
-    const end = +el.dataset.count, pad = +(el.dataset.pad || 0), t0 = performance.now(), dur = 1400;
-    const step = t => { const k = Math.min(1, (t - t0) / dur), v = Math.round(end * (1 - Math.pow(1 - k, 3)));
-      el.textContent = String(v).padStart(pad, '0'); if (k < 1) requestAnimationFrame(step); };
-    requestAnimationFrame(step);
-  }
 
   /* Elysium mainnet countdown (9 Nov, 00:00 UTC) */
   const ely = $('#elysium');
@@ -1156,13 +1210,12 @@ const DOCS = {
   /* Articles */
   const grid = $('#articles');
   grid.innerHTML = ARTICLES.map((a, i) => `
-    <article class="article rv">
+    <article class="article">
       <div class="img tinted"><img class="photo" src="img/${['art-5', 'art-2', 'art-6', 'art-4', 'art-8', 'art-3', 'art-7'][i]}.jpg" alt="" loading="lazy" decoding="async"><span class="tag glass">${String(i + 1).padStart(2, '0')} / Almoner</span></div>
       <span class="eyebrow"><span class="sq"></span>${a.cat}</span>
       <h3>${a.title}</h3><p>${a.sum}</p>
       <a class="link-arrow" href="#" data-article="${i}">Read article <i><svg><use href="#i-ne"/></svg></i></a>
     </article>`).join('');
-  if (!still) $$('.article.rv').forEach(el => { if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('pre'); io.observe(el); } });
 
   /* Reader dialog */
   const dlg = $('#doc');

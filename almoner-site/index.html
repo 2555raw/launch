@@ -353,30 +353,6 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .venue-note { margin-top: 24px; font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--mist); letter-spacing: .02em; }
 @media (max-width: 960px) { .venue-cols { grid-template-columns: 1fr; } .venue-col { padding: 28px 20px 8px; } }
 
-/* ---------- Wallet ---------- */
-.bz-hero button.action { border: 0; padding: 0; cursor: pointer; font: inherit; font-family: var(--f-mono); font-size: 13px; text-transform: uppercase; color: #fff; }
-.bz-hero .action[data-connected] .action-logo { background: var(--mint); }
-.bz-hero .action-label, .bz-hero .action-label-copy { white-space: nowrap; }
-.wl-list { display: grid; gap: 10px; margin: 8px 0 20px; }
-.wl-item { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 62px; padding: 0 18px; border: 1px solid var(--line-strong); background: #fff; color: var(--ice); font-family: var(--f-mono); font-size: 13px; text-transform: uppercase; text-align: left; cursor: pointer; transition: border-color .25s, background .25s; }
-.wl-item:hover { border-color: var(--ice); background: #fbfbf7; }
-.wl-item img, .wl-item .wl-ph { width: 30px; height: 30px; border-radius: 8px; flex-shrink: 0; object-fit: contain; }
-.wl-item .wl-ph { display: grid; place-items: center; background: var(--brand-grad); }
-.wl-item .wl-ph svg { width: 16px; height: 16px; color: var(--brand-ink); }
-.wl-item em { margin-left: auto; font-style: normal; font-size: 11px; color: var(--mist); }
-.wl-item em.ok { color: #1f8a57; }
-.wl-status { min-height: 22px; font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; color: var(--turq); margin: 0 0 12px; }
-.wl-status.err { color: #b3402f; }
-.wl-rows { display: grid; border-top: 1px solid var(--line-strong); margin: 0 0 24px; }
-.wl-rows div { display: flex; justify-content: space-between; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
-.wl-rows dt { color: var(--mist); font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; }
-.wl-rows dd { margin: 0; color: var(--ice); text-align: right; overflow-wrap: anywhere; }
-.wl-rows dd.bad { color: #b3402f; }
-.wl-actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.wl-actions .ghost { cursor: pointer; font-family: var(--f-mono); text-transform: uppercase; font-size: 12px; color: var(--ice); }
-.wl-note { font-size: 13px !important; }
-#wallet .doc h2 { overflow-wrap: anywhere; }
-
 /* ---------- Stat band ---------- */
 .band { position: relative; padding-block: 80px; color: var(--ice); background: #f7f5e1; border-block: 1px solid var(--line); }
 .band .grid { display: grid; grid-template-columns: repeat(4, 1fr); }
@@ -896,7 +872,7 @@ html.lenis, html.lenis body { height: auto; }
       <button type="button" class="menu-toggle" data-open-menu aria-label="Open menu" aria-haspopup="dialog"><span aria-hidden="true">⠿</span>Menu</button>
       <a class="small-wordmark" href="#top" aria-label="Corody home">CORODY®</a>
       <span class="local-time"><span id="clock">--:-- --</span><em>LOCAL TIME</em></span>
-      <button type="button" class="action" data-wallet aria-haspopup="dialog"><span class="action-logo" aria-hidden="true"><svg><use href="#mark"/></svg></span><span class="action-label-wrap"><b class="action-label"><span data-wallet-label>Connect wallet</span> <small>/HyperEVM</small></b><b class="action-label-copy" aria-hidden="true"><span data-wallet-label>Connect wallet</span> <small>/HyperEVM</small></b></span><span class="action-square" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></button>
+      <a class="action" href="#" data-link="app"><span class="action-logo" aria-hidden="true"><svg><use href="#mark"/></svg></span><span class="action-label-wrap"><b class="action-label">Launch app <small>/Corody</small></b><b class="action-label-copy" aria-hidden="true">Launch app <small>/Corody</small></b></span><span class="action-square" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></a>
     </header>
     <div class="hero-copy">
       <p data-enter="0">Endow an AI agent once.<br>The HYPE stays staked.<br><span>The agent lives on the draw.</span></p>
@@ -1229,13 +1205,6 @@ html.lenis, html.lenis body { height: auto; }
   </div>
 </dialog>
 
-<dialog id="wallet" aria-labelledby="wallet-title">
-  <div class="doc chrome glass">
-    <button class="close" data-close-wallet aria-label="Close"><svg width="14" height="14"><use href="#i-close"/></svg></button>
-    <div id="wallet-body"></div>
-  </div>
-</dialog>
-
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script>
 /* ===== Configuration: put your real links here ===== */
@@ -1290,7 +1259,6 @@ const DOCS = {
   document.addEventListener('click', e => {
     const a = e.target.closest('[data-soon]'); if (!a) return;
     e.preventDefault(); if (menu.classList.contains('open')) closeMenu();
-    if (LANES[a.dataset.soon]) { openWallet(a.dataset.soon); return; }
     const lane = LANES[a.dataset.soon];
     showDoc('Dashboard', 'The Corody app opens soon.', [
       lane ? `You picked the <strong>${lane}</strong> path. We will take you straight there once the app is live.` : 'Endowments, mandates and the patron dashboard are in their final checks.',
@@ -1499,134 +1467,6 @@ const DOCS = {
     if (d) { e.preventDefault(); const doc = DOCS[d.dataset.doc]; showDoc(doc.eyebrow, doc.title, doc.body); }
   });
   $('[data-close-doc]').addEventListener('click', () => dlg.close());
-
-  /* ===== Wallet: MetaMask, Rabby, Phantom and any EIP-6963 wallet, on HyperEVM (chain 999) ===== */
-  const HYPEREVM = { chainId: '0x3e7', chainName: 'HyperEVM', nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
-    rpcUrls: ['https://rpc.hyperliquid.xyz/evm'], blockExplorerUrls: ['https://hyperevmscan.io'] };
-  const KNOWN = [
-    { rdns: 'io.metamask', name: 'MetaMask', url: 'https://metamask.io/download/', app: u => 'https://metamask.app.link/dapp/' + u.replace(/^https?:\/\//, '') },
-    { rdns: 'io.rabby', name: 'Rabby', url: 'https://rabby.io/' },
-    { rdns: 'app.phantom', name: 'Phantom', url: 'https://phantom.com/download', app: u => 'https://phantom.app/ul/browse/' + encodeURIComponent(u) + '?ref=' + encodeURIComponent(location.origin) }
-  ];
-  const found = new Map();                     // rdns -> { info, provider }
-  const phone = matchMedia('(pointer: coarse)').matches;   // phones open the site inside the wallet's own browser
-  const wdlg = $('#wallet'), wbody = $('#wallet-body');
-  const W = { rdns: null, provider: null, account: null, chainOk: false, balance: null, lane: null, bound: new WeakSet() };
-  const store = { get: () => { try { return localStorage.getItem('corody.wallet'); } catch { return null; } },
-                  set: v => { try { v ? localStorage.setItem('corody.wallet', v) : localStorage.removeItem('corody.wallet'); } catch {} } };
-  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const short = a => a.slice(0, 6) + '…' + a.slice(-4);
-  const fmtHype = hex => { const v = BigInt(hex), whole = v / 10n ** 18n, frac = (v % 10n ** 18n).toString().padStart(18, '0').slice(0, 4);
-    return whole.toLocaleString('en-US') + '.' + frac + ' HYPE'; };
-
-  addEventListener('eip6963:announceProvider', e => { const d = e.detail; if (d && d.info && d.provider) { found.set(d.info.rdns, d); if (wdlg.open && !W.account) render(); } });
-  dispatchEvent(new Event('eip6963:requestProvider'));
-  // older extensions that only inject window.ethereum / window.phantom
-  const legacy = () => {
-    const eth = window.ethereum, ph = window.phantom && window.phantom.ethereum;
-    if (ph && !found.has('app.phantom')) found.set('app.phantom', { info: { rdns: 'app.phantom', name: 'Phantom', icon: '' }, provider: ph });
-    if (eth && eth.isRabby && !found.has('io.rabby')) found.set('io.rabby', { info: { rdns: 'io.rabby', name: 'Rabby', icon: '' }, provider: eth });
-    else if (eth && eth.isMetaMask && !eth.isPhantom && !eth.isRabby && !found.has('io.metamask')) found.set('io.metamask', { info: { rdns: 'io.metamask', name: 'MetaMask', icon: '' }, provider: eth });
-  };
-
-  const paintButton = () => {
-    const b = $('[data-wallet]');
-    $$('[data-wallet-label]').forEach(l => { l.textContent = W.account ? short(W.account) : 'Connect wallet'; });
-    W.account ? b.setAttribute('data-connected', '') : b.removeAttribute('data-connected');
-  };
-  const status = (msg, err) => { const el = $('.wl-status', wbody); if (el) { el.textContent = msg || ''; el.classList.toggle('err', !!err); } };
-
-  const icon = info => (info.icon && /^data:image\//.test(info.icon)) ? `<img src="${esc(info.icon)}" alt="">` : '<span class="wl-ph"><svg><use href="#mark"/></svg></span>';
-  const render = () => {
-    const laneTxt = W.lane ? LANES[W.lane] : null;
-    if (!W.account) {
-      const rows = KNOWN.map(k => {
-        const d = found.get(k.rdns);
-        return d ? `<button type="button" class="wl-item" data-connect="${esc(k.rdns)}">${icon(d.info)}${esc(d.info.name)}<em class="ok">Detected</em></button>`
-                 : (phone && k.app && /^https?:/.test(location.href))
-                   ? `<a class="wl-item" href="${esc(k.app(location.href))}" rel="noopener"><span class="wl-ph"><svg><use href="#mark"/></svg></span>${k.name}<em>Open in app ↗</em></a>`
-                   : `<a class="wl-item" href="${k.url}" target="_blank" rel="noopener"><span class="wl-ph"><svg><use href="#mark"/></svg></span>${k.name}<em>Install ↗</em></a>`;
-      });
-      for (const [rdns, d] of found) if (!KNOWN.some(k => k.rdns === rdns))
-        rows.push(`<button type="button" class="wl-item" data-connect="${esc(rdns)}">${icon(d.info)}${esc(d.info.name)}<em class="ok">Detected</em></button>`);
-      wbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>Wallet${laneTxt ? ' / ' + esc(laneTxt) : ''}</span>
-        <h2 id="wallet-title">Connect a wallet.</h2>
-        <p>Corody runs on HyperEVM, Hyperliquid's smart-contract chain. Pick a wallet and it will be asked to switch to HyperEVM.</p>
-        <div class="wl-list">${rows.join('')}</div>
-        <p class="wl-status" role="status"></p>
-        <p class="wl-note">Connecting only shares your address. Nothing is signed and nothing is sent.</p>`;
-      return;
-    }
-    const name = (found.get(W.rdns) || { info: { name: 'Wallet' } }).info.name;
-    wbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>Wallet / ${esc(name)}</span>
-      <h2 id="wallet-title">${short(W.account)}</h2>
-      <dl class="wl-rows">
-        <div><dt>Network</dt><dd class="${W.chainOk ? '' : 'bad'}">${W.chainOk ? 'HyperEVM · 999' : 'Not on HyperEVM'}</dd></div>
-        <div><dt>Balance</dt><dd>${W.chainOk && W.balance ? W.balance : '—'}</dd></div>
-        <div><dt>Address</dt><dd>${esc(W.account)}</dd></div>
-      </dl>
-      ${W.chainOk ? '' : `<p>${W.rdns === 'app.phantom' ? 'In Phantom, turn on HyperEVM under Settings → Active networks, then switch here.' : 'Switch the wallet to HyperEVM to see your HYPE and endow an agent.'}</p>`}
-      ${laneTxt ? `<p>You picked the <strong>${esc(laneTxt)}</strong> path. The endowment contracts are not deployed yet. Once they are live on HyperEVM, this button opens the transaction in ${esc(name)} for you to review and sign.</p>` : ''}
-      <p class="wl-status" role="status"></p>
-      <div class="wl-actions">
-        ${W.chainOk ? '' : '<button type="button" class="btn" data-switch><span class="lbl">Switch to HyperEVM</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button>'}
-        <a class="ghost" href="${HYPEREVM.blockExplorerUrls[0]}/address/${esc(W.account)}" target="_blank" rel="noopener">View on explorer ↗</a>
-        <button type="button" class="ghost" data-disconnect>Disconnect</button>
-      </div>`;
-  };
-
-  const refresh = async () => {
-    if (!W.provider || !W.account) return;
-    try {
-      const id = await W.provider.request({ method: 'eth_chainId' });
-      W.chainOk = String(id).toLowerCase() === HYPEREVM.chainId;
-      W.balance = W.chainOk ? fmtHype(await W.provider.request({ method: 'eth_getBalance', params: [W.account, 'latest'] })) : null;
-    } catch { W.balance = null; }
-    paintButton(); if (wdlg.open) render();
-  };
-  const switchChain = async () => {
-    const p = W.provider;
-    try { await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: HYPEREVM.chainId }] }); }
-    catch (e) {
-      if (e && (e.code === 4902 || /unrecognized|not added|unknown|unsupported/i.test(e.message || ''))) await p.request({ method: 'wallet_addEthereumChain', params: [HYPEREVM] });
-      else throw e;
-    }
-  };
-  const bind = p => {
-    if (W.bound.has(p) || !p.on) return; W.bound.add(p);
-    p.on('accountsChanged', a => { if (p !== W.provider) return; if (!a || !a.length) drop(); else { W.account = a[0]; refresh(); } });
-    p.on('chainChanged', () => { if (p === W.provider) refresh(); });
-  };
-  const drop = () => { Object.assign(W, { rdns: null, provider: null, account: null, chainOk: false, balance: null }); store.set(null); paintButton(); if (wdlg.open) render(); };
-
-  const connect = async rdns => {
-    const d = found.get(rdns); if (!d) return;
-    status('Confirm in ' + d.info.name + '…');
-    try {
-      const accs = await d.provider.request({ method: 'eth_requestAccounts' });
-      if (!accs || !accs.length) throw new Error('No account was shared.');
-      Object.assign(W, { rdns, provider: d.provider, account: accs[0] }); bind(d.provider); store.set(rdns);
-      try { await switchChain(); } catch {}
-      await refresh(); render();
-    } catch (e) { status(e && e.code === 4001 ? 'Request cancelled in the wallet.' : (e && e.message) || 'Could not connect.', true); }
-  };
-
-  const openWallet = lane => { legacy(); W.lane = lane || null; render(); if (!wdlg.open) wdlg.showModal(); if (W.account) refresh(); };
-  $('[data-wallet]').addEventListener('click', () => openWallet());
-  $('[data-close-wallet]').addEventListener('click', () => wdlg.close());
-  wdlg.addEventListener('click', async e => {
-    if (e.target === wdlg) return wdlg.close();
-    const c = e.target.closest('[data-connect]'); if (c) return connect(c.dataset.connect);
-    if (e.target.closest('[data-switch]')) { try { await switchChain(); await refresh(); } catch (err) { status(err && err.code === 4001 ? 'Request cancelled in the wallet.' : 'This wallet could not switch to HyperEVM.', true); } return; }
-    if (e.target.closest('[data-disconnect]')) { try { await W.provider.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] }); } catch {} drop(); }
-  });
-
-  // reconnect quietly to the wallet used last time (eth_accounts never opens a prompt)
-  setTimeout(async () => {
-    legacy(); const rdns = store.get(), d = rdns && found.get(rdns); if (!d) return;
-    try { const a = await d.provider.request({ method: 'eth_accounts' }); if (a && a.length) { Object.assign(W, { rdns, provider: d.provider, account: a[0] }); bind(d.provider); refresh(); } } catch {}
-  }, 500);
-
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
 
 

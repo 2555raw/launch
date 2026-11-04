@@ -335,7 +335,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
   </div>
 
   <h2 class="h2">What the principal holds</h2>
-  <p class="sub">Up to four assets on Hyperliquid. HYPE is staked natively as it arrives, and USDC pays the draw.</p>
+  <p class="sub">Up to four assets: staked HYPE, USDC, or tokenized stocks from Ondo and xStocks. HYPE is staked natively as it arrives, and USDC pays the draw.</p>
   <div class="card"><div class="card-b">
     <div id="f-assets"></div>
     <button type="button" class="linkbtn" id="f-add">Add an asset</button>
@@ -373,7 +373,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
     <p class="go-line" id="f-line">Connect a wallet on HyperEVM to create the endowment.</p>
     <div class="actions" style="margin-top:14px"><button class="btn" id="f-go" type="button"><span class="lbl" id="f-go-l">Connect wallet</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
     <p class="msg" id="f-msg"></p>
-    <p class="fine">The principal is held in staked HYPE and USDC and can lose value. The terms cannot be changed after creation, except the successor.</p>
+    <p class="fine">The principal can lose value. Tokenized stocks are issued by Ondo and xStocks, track the shares behind them, and may not be available where you live. The terms cannot be changed after creation, except the successor.</p>
   </div></div>
 </section>
 
@@ -766,7 +766,14 @@ const receipt = await mandate.pay({
     const txt = b.parentNode.textContent.trim(); try { await navigator.clipboard.writeText(txt); b.style.color = 'var(--ok)'; setTimeout(() => b.style.color = '', 1200); } catch {} }));
 
   /* ===== Endow an agent ===== */
-  const ASSETS = { shype: 'Staked HYPE · native', khype: 'kHYPE · Kinetiq', sthype: 'stHYPE · Valantis', usdc: 'USDC' };
+  // what a principal can hold on Hyperliquid: staked HYPE, USDC, and tokenized stocks from Ondo (HyperEVM) and xStocks (HyperCore)
+  const GROUPS = [
+    ['Hyperliquid', { shype: 'Staked HYPE · native', khype: 'kHYPE · Kinetiq', sthype: 'stHYPE · Valantis', usdc: 'USDC' }],
+    ['Tokenized stocks · Ondo on HyperEVM', { spyon: 'SPYon · S&P 500', qqqon: 'QQQon · Nasdaq 100', nvdaon: 'NVDAon · Nvidia', tslaon: 'TSLAon · Tesla', googlon: 'GOOGLon · Alphabet', nflxon: 'NFLXon · Netflix', babaon: 'BABAon · Alibaba' }],
+    ['Tokenized stocks · xStocks on HyperCore', { spyx: 'SPYx · S&P 500', qqqx: 'QQQx · Nasdaq 100', nvdax: 'NVDAx · Nvidia', tslax: 'TSLAx · Tesla', aaplx: 'AAPLx · Apple', skhyx: 'SKHYx · SK Hynix', mux: 'MUx · Micron' }]
+  ];
+  const ASSETS = Object.assign({}, ...GROUPS.map(g => g[1]));
+  const STOCK = k => !['shype', 'khype', 'sthype', 'usdc'].includes(k);
   let rows = [{ a: 'shype', s: 80 }, { a: 'usdc', s: 20 }], hypeUsd = null;
   const fa = $('#f-assets'), am = $('#f-amsg');
   const rowsOk = () => {
@@ -774,11 +781,12 @@ const receipt = await mandate.pay({
     if (dup) return [false, 'Each asset can appear once.'];
     if (Math.abs(total - 100) > .001) return [false, `Shares add up to ${total}%. They need to make 100%.`];
     if (!rows.some(r => r.a === 'usdc')) return [true, 'With no USDC, every draw is paid from staking rewards alone.'];
+    if (rows.some(r => STOCK(r.a) && r.s > 0)) return [true, 'Tokenized stocks earn no staking rewards: their share of the draw comes from price gains and the USDC buffer.'];
     return [true, ''];
   };
   const paintRows = () => {
     fa.innerHTML = rows.map((r, i) => `<div class="asset-row">
-      <div class="field"><label for="f-a${i}">Asset</label><select class="input" id="f-a${i}" data-ra="${i}">${Object.entries(ASSETS).map(([k, v]) => `<option value="${k}"${k === r.a ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+      <div class="field"><label for="f-a${i}">Asset</label><select class="input" id="f-a${i}" data-ra="${i}">${GROUPS.map(([g, o]) => `<optgroup label="${g}">${Object.entries(o).map(([k, v]) => `<option value="${k}"${k === r.a ? ' selected' : ''}>${esc(v)}</option>`).join('')}</optgroup>`).join('')}</select></div>
       <div class="field"><label for="f-s${i}">Share</label><div class="suffix"><input class="input mono" id="f-s${i}" type="number" min="0" max="100" step="5" value="${r.s}" data-rs="${i}"><span>%</span></div></div>
       ${rows.length > 1 ? `<button type="button" class="rm" data-rr="${i}" aria-label="Remove this asset">×</button>` : '<span></span>'}</div>`).join('');
     $('#f-add').hidden = rows.length >= 4; checkRows();

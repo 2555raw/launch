@@ -1,0 +1,977 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Corody App</title>
+<meta name="description" content="Corody app: endowments, mandates, workspace, providers and resolvers for AI agents on HyperEVM.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%2349345f'/%3E%3Cg transform='translate%2824.00 24.60%29 scale%280.8000%29'%3E%3Cpath fill='%23FDE725' d='M71.72 98.25C72.62 97.98 73.59 97.49 74.19 97.00C74.46 96.79 79.94 91.36 86.39 84.93C99.06 72.29 98.72 72.65 99.38 70.95C100.05 69.22 100.00 70.82 100.00 49.31L100.00 29.90L99.75 28.98C99.43 27.85 98.85 26.65 98.20 25.76C97.92 25.39 92.35 19.74 85.80 13.18L73.90 1.27L73.02 0.83C71.37 -0.00 71.38 -0.00 64.61 0.00C58.18 0.00 58.18 0.00 57.18 0.54C55.84 1.26 54.90 2.62 54.69 4.12C54.57 4.95 54.71 8.29 54.93 10.01C56.46 21.78 65.12 32.69 80.11 41.75C80.62 42.05 81.74 42.73 82.62 43.26C83.49 43.79 84.43 44.39 84.71 44.61C86.91 46.30 87.19 48.96 85.36 50.93C84.81 51.53 83.93 52.12 80.35 54.27C68.90 61.18 62.16 67.76 57.94 76.13C55.49 81.00 54.48 85.37 54.33 91.78C54.25 95.16 54.49 96.15 55.67 97.29C56.90 98.49 57.02 98.51 64.61 98.49C70.93 98.47 71.02 98.47 71.72 98.25ZM42.83 98.29C44.39 97.87 45.59 96.74 46.13 95.16C46.51 94.07 46.40 89.33 45.92 86.03C45.45 82.81 43.96 78.36 42.43 75.60C40.06 71.32 37.89 68.44 34.32 64.86C30.98 61.52 27.57 58.86 22.95 56.01C22.37 55.65 21.72 55.24 21.51 55.11C21.29 54.97 20.08 54.23 18.81 53.47C14.56 50.91 13.81 50.11 13.81 48.11C13.82 46.12 14.65 45.09 17.79 43.23C25.84 38.46 29.92 35.46 34.32 31.06C41.85 23.52 45.48 16.22 46.11 7.30C46.37 3.61 46.15 2.61 44.76 1.30C43.34 -0.04 43.45 -0.02 35.28 0.02L28.54 0.05L27.69 0.35C26.04 0.94 26.63 0.39 14.11 12.94C0.93 26.16 1.22 25.84 0.47 28.10C-0.04 29.62 -0.03 29.35 0.00 49.94L0.03 69.10L0.25 69.87C0.52 70.83 1.18 72.21 1.70 72.90C2.33 73.74 25.46 96.85 26.10 97.29C26.77 97.74 27.13 97.90 28.10 98.20C29.02 98.48 41.82 98.56 42.83 98.29Z'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zalando+Sans:wght@100..900&family=Geist+Mono:wght@100..900&display=swap">
+<style>
+:root {
+  --ink: #49345f; --mist: #5f5168; --soft: #8a7f91;
+  --yellow: #FDE725; --mint: #35B779; --petrol: #31688E;
+  --bg: #f6f6f1; --band: #e9eee7; --card: #ffffff; --tint: #f1f4ee; --wash: #eef0f6;
+  --line: rgba(73, 52, 95, .12); --line-strong: rgba(73, 52, 95, .2);
+  --ok: #1f7a4d; --warn: #9a6b00; --bad: #a23a2b;
+  --f-sans: "Zalando Sans", ui-sans-serif, system-ui, sans-serif;
+  --f-mono: "Geist Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  --brand-grad: radial-gradient(70% 62% at 4% 88%, #FDE725 0%, rgba(253,231,37,.92) 22%, rgba(170,220,80,.55) 48%, rgba(53,183,121,0) 75%),
+    radial-gradient(55% 42% at 6% 2%, #ffffff 0%, rgba(255,255,255,.85) 35%, rgba(255,255,255,0) 75%),
+    radial-gradient(38% 36% at 52% 40%, rgba(140,205,160,.95) 0%, rgba(140,205,160,0) 75%),
+    linear-gradient(90deg, #f6e45c 0%, #e4f1d6 36%, #cfe6dc 56%, #b8d3e0 74%, #a8c6d8 100%);
+  --gx: clamp(16px, 2.6vw, 48px);
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-sans); font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+::selection { background: #fbf1a6; color: var(--ink); }
+a { color: inherit; }
+button, input, select { font: inherit; color: inherit; }
+h1, h2, h3, h4, p { margin: 0; }
+.mono { font-family: var(--f-mono); }
+.sq { display: inline-block; width: 6px; height: 6px; background: var(--yellow); margin-right: 8px; vertical-align: 2px; }
+
+/* ---------- Header ---------- */
+.top { position: sticky; top: 0; z-index: 20; background: var(--band); border-bottom: 1px solid var(--line); }
+.top-in { display: flex; align-items: center; gap: 32px; height: 96px; padding: 0 var(--gx); }
+.wordmark { font-weight: 600; font-size: 20px; letter-spacing: -.04em; text-decoration: none; white-space: nowrap; }
+.wordmark sup { font-size: .5em; vertical-align: top; position: relative; top: .1em; margin-left: .05em; letter-spacing: 0; font-weight: 500; }
+.nav { display: flex; gap: 6px; margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav a { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; text-decoration: none; padding: 8px 12px; color: var(--mist); white-space: nowrap; transition: color .25s; }
+.nav a:hover { color: var(--ink); }
+.nav a[aria-current="page"] { color: var(--ink); }
+.nav a[aria-current="page"]::before { content: ""; display: inline-block; width: 6px; height: 6px; background: var(--yellow); margin-right: 8px; vertical-align: 2px; }
+
+/* Rolling-label buttons */
+.wbtn { display: inline-flex; align-items: stretch; height: 50px; border: 0; padding: 0; background: none; cursor: pointer; font-family: var(--f-mono); font-size: 13px; text-transform: uppercase; text-decoration: none; flex-shrink: 0; }
+.wbtn .logo { width: 50px; display: grid; place-items: center; background: var(--brand-grad); }
+.wbtn .logo svg { width: 24px; height: 24px; color: var(--ink); }
+.wbtn[data-connected] .logo { background: var(--mint); }
+.wbtn .lbl { display: flex; align-items: center; padding: 0 22px; background: var(--ink); color: #fff; }
+.wbtn .arr { width: 50px; display: grid; place-items: center; background: var(--yellow); color: var(--ink); transition: background .3s; }
+.wbtn .arr svg, .btn .arr svg { width: 14px; height: 14px; transition: transform .3s; }
+.wbtn:hover .arr, .btn:hover .arr { background: var(--mint); }
+.wbtn:hover .arr svg, .btn:hover .arr svg { transform: translateX(3px); }
+.roll { display: block; position: relative; overflow: hidden; line-height: 1.3; }
+.roll > span { display: block; white-space: nowrap; transition: transform .5s var(--ease); }
+.roll > span + span { position: absolute; inset: 0; transform: translateY(105%); }
+.wbtn:hover .roll > span:first-child, .btn:hover .roll > span:first-child { transform: translateY(-105%); }
+.wbtn:hover .roll > span + span, .btn:hover .roll > span + span { transform: none; }
+
+.btn { display: inline-flex; align-items: stretch; height: 44px; border: 0; padding: 0; background: none; cursor: pointer; font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; text-decoration: none; }
+.btn .lbl { display: flex; align-items: center; padding: 0 18px; background: var(--ink); color: #fff; white-space: nowrap; }
+.btn .arr { width: 44px; display: grid; place-items: center; background: var(--yellow); color: var(--ink); transition: background .3s; }
+.btn[disabled] { cursor: not-allowed; opacity: .55; }
+.ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 16px; border: 1px solid var(--line-strong); background: transparent; font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; text-decoration: none; cursor: pointer; white-space: nowrap; transition: border-color .25s, background .25s; }
+.ghost:hover { border-color: var(--ink); background: rgba(255,255,255,.6); }
+.ghost svg { width: 16px; height: 16px; }
+
+/* ---------- Page ---------- */
+main { min-height: 70vh; }
+.page { max-width: 1136px; margin: 0 auto; padding: 64px 24px 112px; display: none; }
+.page.on { display: block; animation: page-in .6s var(--ease); }
+@keyframes page-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.eyebrow { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; color: var(--ink); }
+.eyebrow b { font-weight: 400; color: var(--soft); margin-right: 8px; }
+.ph { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: end; margin: 18px 0 24px; }
+.ph h1 { font-size: clamp(36px, 3.4vw, 46px); font-weight: 400; letter-spacing: -.045em; line-height: 1.05; }
+.ph p { color: var(--mist); max-width: 600px; margin-top: 14px; font-size: 16px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.h2 { font-size: 26px; font-weight: 400; letter-spacing: -.035em; margin: 48px 0 4px; }
+.sub { color: var(--mist); font-size: 15px; margin-bottom: 20px; }
+.row-h { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+.row-h .sub { margin-bottom: 20px; }
+.card { background: var(--card); border: 1px solid var(--line-strong); }
+.card + .card { margin-top: 24px; }
+.card-h { padding: 22px 24px; border-bottom: 1px solid var(--line-strong); }
+.card-h h3 { font-size: 17px; font-weight: 500; letter-spacing: -.02em; }
+.card-h p { color: var(--mist); font-size: 14px; margin-top: 4px; }
+.card-b { padding: 24px; }
+.card-b > p { color: var(--mist); font-size: 15px; max-width: 760px; }
+.card-b > p + p { margin-top: 14px; }
+.card-b > p strong { color: var(--ink); font-weight: 500; }
+.empty { background: var(--wash); border: 1px solid var(--line-strong); padding: 56px 24px; text-align: center; display: grid; justify-items: center; gap: 10px; }
+.empty h3 { font-size: 19px; font-weight: 400; letter-spacing: -.02em; }
+.empty p { color: var(--mist); font-size: 14px; max-width: 460px; }
+.empty .btn, .empty .ghost { margin-top: 16px; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; padding: 24px; }
+.stats.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.stats.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.stat dt { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--mist); }
+.stat dd { margin: 6px 0 6px; font-family: var(--f-mono); font-size: 20px; letter-spacing: -.02em; overflow-wrap: anywhere; }
+.stat dd.txt { font-family: var(--f-sans); font-size: 16px; letter-spacing: -.01em; }
+.stat p { color: var(--mist); font-size: 13px; line-height: 1.4; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border: 1px solid currentColor; font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; vertical-align: 2px; }
+.chip::before { content: ""; width: 7px; height: 7px; background: currentColor; }
+.chip.ok { color: var(--ok); } .chip.wait { color: var(--warn); } .chip.bad { color: var(--bad); } .chip.idle { color: var(--soft); }
+.notice { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; background: #fbf7d9; border: 1px solid rgba(154,107,0,.25); color: #5b4a12; font-size: 14px; margin-bottom: 24px; }
+.notice b { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; font-weight: 400; padding-top: 2px; white-space: nowrap; }
+
+/* forms */
+.field { display: grid; gap: 8px; }
+.field + .field { margin-top: 18px; }
+.field label, .lab { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--mist); }
+.field small { color: var(--mist); font-size: 13px; }
+.input { width: 100%; height: 46px; padding: 0 14px; border: 1px solid var(--line-strong); background: #fff; font-size: 15px; border-radius: 0; }
+.input:focus { outline: 2px solid var(--petrol); outline-offset: -2px; }
+.input.mono { font-family: var(--f-mono); font-size: 14px; }
+.inline { display: flex; gap: 8px; }
+.inline .input { flex: 1; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.msg { font-size: 14px; margin-top: 12px; min-height: 21px; color: var(--mist); }
+.msg.ok { color: var(--ok); } .msg.bad { color: var(--bad); }
+.result { margin-top: 18px; border-top: 1px solid var(--line); }
+.kv { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.kv span:first-child { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--mist); padding-top: 2px; }
+.kv span:last-child { text-align: right; overflow-wrap: anywhere; }
+.addr { font-family: var(--f-mono); font-size: 13px; }
+
+/* conditions */
+.conds { list-style: none; margin: 0; padding: 0 24px; }
+.conds li { display: grid; grid-template-columns: 14px 1fr; gap: 14px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.conds li:last-child { border-bottom: 0; }
+.conds .dot { width: 9px; height: 9px; margin-top: 7px; background: var(--soft); }
+.conds .dot.ok { background: var(--ok); } .conds .dot.bad { background: var(--bad); } .conds .dot.wait { background: var(--warn); }
+.conds .k { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--mist); margin-right: 8px; }
+.conds b { font-weight: 500; }
+.conds p { color: var(--mist); font-size: 14px; margin-top: 4px; }
+
+/* tables */
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl th { text-align: left; font-family: var(--f-mono); font-size: 11px; font-weight: 400; text-transform: uppercase; color: var(--mist); padding: 0 12px 12px; border-bottom: 1px solid var(--line-strong); }
+.tbl td { padding: 16px 12px; border-bottom: 1px solid var(--line); }
+.tbl .num { text-align: right; font-family: var(--f-mono); }
+.tbl-wrap { overflow-x: auto; padding: 24px; }
+
+/* code */
+pre.code { margin: 0; padding: 18px 20px; background: var(--wash); font-family: var(--f-mono); font-size: 13px; line-height: 1.7; overflow-x: auto; position: relative; }
+.copy { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; display: grid; place-items: center; border: 0; background: transparent; cursor: pointer; color: var(--mist); }
+.copy:hover { color: var(--ink); }
+
+/* drafts */
+.drafts { display: grid; gap: 10px; }
+.draft { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; padding: 16px; border: 1px solid var(--line-strong); background: #fff; cursor: pointer; text-align: left; width: 100%; transition: border-color .25s; }
+.draft:hover, .draft[aria-pressed="true"] { border-color: var(--ink); }
+.draft b { font-weight: 500; }
+.draft span { font-family: var(--f-mono); font-size: 12px; color: var(--mist); }
+.draft small { grid-column: 1 / -1; color: var(--mist); font-size: 13px; }
+.check-log { list-style: none; padding: 0; margin: 16px 0 0; display: grid; border-top: 1px solid var(--line); }
+.check-log li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; animation: page-in .5s var(--ease); }
+.check-log em { font-style: normal; font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; padding: 3px 8px; white-space: nowrap; align-self: center; }
+.check-log em.ok { background: rgba(53,183,121,.16); color: var(--ok); }
+.check-log em.no { background: rgba(162,58,43,.1); color: var(--bad); }
+
+/* example dispute */
+.ruling { margin-top: 20px; padding: 2px 0 2px 18px; border-left: 2px solid var(--line-strong); font-size: 14px; color: var(--mist); display: grid; gap: 6px; }
+.ruling .lab { margin-bottom: 2px; }
+.ruling strong { color: var(--ink); font-weight: 500; }
+.verdict { margin-top: 18px; font-size: 15px; }
+
+/* ---------- Footer ---------- */
+footer { background: var(--band); border-top: 1px solid var(--line); padding: 64px var(--gx) 48px; }
+.foot { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; }
+.big-word { font-size: clamp(56px, 4.6vw, 80px); font-weight: 500; letter-spacing: -.06em; line-height: 1; }
+.big-word sup { font-size: .5em; line-height: 0; vertical-align: top; position: relative; top: .5em; margin-left: .02em; letter-spacing: 0; font-weight: 400; }
+.foot-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 24px; list-style: none; margin: 0; padding: 0; }
+.foot-links a { font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; text-decoration: none; color: var(--mist); }
+.foot-links a:hover, .foot-links a[aria-current="page"] { color: var(--ink); }
+.foot-social { display: flex; gap: 12px; margin-top: 40px; }
+.foot-fine { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line-strong); display: grid; gap: 8px; font-size: 13px; color: var(--mist); }
+.foot-fine code { font-family: var(--f-mono); font-size: 12px; overflow-wrap: anywhere; }
+
+/* ---------- Wallet dialog ---------- */
+dialog { border: 0; padding: 0; background: transparent; color: var(--ink); max-width: min(640px, calc(100vw - 32px)); width: 100%; }
+dialog::backdrop { background: rgba(73,52,95,.42); }
+.dlg { position: relative; background: #f7f7f2; padding: 48px 48px 40px; box-shadow: 0 40px 120px rgba(73,52,95,.3); max-height: 88svh; overflow: auto; }
+.dlg .x { position: absolute; right: 18px; top: 18px; width: 30px; height: 30px; border: 0; background: none; display: grid; place-items: center; cursor: pointer; color: var(--mist); }
+.dlg h2 { font-size: clamp(28px, 3vw, 38px); font-weight: 400; letter-spacing: -.045em; line-height: 1.05; margin: 14px 0 16px; overflow-wrap: anywhere; }
+.dlg > p, .dlg-body > p { color: var(--mist); font-size: 15px; margin-bottom: 14px; }
+.dlg-body > p strong { color: var(--ink); font-weight: 500; }
+.wl-list { display: grid; gap: 10px; margin: 8px 0 18px; }
+.wl-item { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 62px; padding: 0 18px; border: 1px solid var(--line-strong); background: #fff; font-family: var(--f-mono); font-size: 13px; text-transform: uppercase; text-align: left; text-decoration: none; cursor: pointer; transition: border-color .25s; }
+.wl-item:hover { border-color: var(--ink); }
+.wl-item img { width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0; }
+.wl-item em { margin-left: auto; font-style: normal; font-size: 11px; color: var(--mist); }
+.wl-item em.ok { color: var(--ok); }
+.wl-status { min-height: 22px; font-family: var(--f-mono); font-size: 12px; text-transform: uppercase; color: var(--petrol); margin-bottom: 8px; }
+.wl-status.err { color: var(--bad); }
+.wl-note { font-size: 13px !important; }
+.wl-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+  .top-in { flex-wrap: wrap; height: auto; padding-top: 16px; padding-bottom: 0; gap: 12px 24px; }
+  .nav { order: 3; width: 100%; margin: 0 calc(var(--gx) * -1); padding: 0 calc(var(--gx) - 12px) 8px; }
+  .top-in .wbtn { margin-left: auto; }
+}
+@media (max-width: 860px) {
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid2, .foot { grid-template-columns: minmax(0, 1fr); }
+  .ph { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .page { padding: 40px 16px 80px; }
+  .wbtn { height: 42px; font-size: 11px; }
+  .wbtn .logo { display: none; }
+  .wbtn .lbl { padding: 0 14px; }
+  .wbtn .arr { width: 38px; }
+  .stats, .stats.three, .stats.two, .grid3 { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .inline { flex-direction: column; }
+  .inline .input { flex: none; width: 100%; }
+  .inline .btn { align-self: flex-start; }
+  .dlg { padding: 40px 20px 28px; }
+  .foot-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .card-b, .card-h, .stats, .tbl-wrap { padding-left: 18px; padding-right: 18px; }
+  .conds { padding: 0 18px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 100.00 98.49"><path fill="currentColor" d="M71.72 98.25C72.62 97.98 73.59 97.49 74.19 97.00C74.46 96.79 79.94 91.36 86.39 84.93C99.06 72.29 98.72 72.65 99.38 70.95C100.05 69.22 100.00 70.82 100.00 49.31L100.00 29.90L99.75 28.98C99.43 27.85 98.85 26.65 98.20 25.76C97.92 25.39 92.35 19.74 85.80 13.18L73.90 1.27L73.02 0.83C71.37 -0.00 71.38 -0.00 64.61 0.00C58.18 0.00 58.18 0.00 57.18 0.54C55.84 1.26 54.90 2.62 54.69 4.12C54.57 4.95 54.71 8.29 54.93 10.01C56.46 21.78 65.12 32.69 80.11 41.75C80.62 42.05 81.74 42.73 82.62 43.26C83.49 43.79 84.43 44.39 84.71 44.61C86.91 46.30 87.19 48.96 85.36 50.93C84.81 51.53 83.93 52.12 80.35 54.27C68.90 61.18 62.16 67.76 57.94 76.13C55.49 81.00 54.48 85.37 54.33 91.78C54.25 95.16 54.49 96.15 55.67 97.29C56.90 98.49 57.02 98.51 64.61 98.49C70.93 98.47 71.02 98.47 71.72 98.25ZM42.83 98.29C44.39 97.87 45.59 96.74 46.13 95.16C46.51 94.07 46.40 89.33 45.92 86.03C45.45 82.81 43.96 78.36 42.43 75.60C40.06 71.32 37.89 68.44 34.32 64.86C30.98 61.52 27.57 58.86 22.95 56.01C22.37 55.65 21.72 55.24 21.51 55.11C21.29 54.97 20.08 54.23 18.81 53.47C14.56 50.91 13.81 50.11 13.81 48.11C13.82 46.12 14.65 45.09 17.79 43.23C25.84 38.46 29.92 35.46 34.32 31.06C41.85 23.52 45.48 16.22 46.11 7.30C46.37 3.61 46.15 2.61 44.76 1.30C43.34 -0.04 43.45 -0.02 35.28 0.02L28.54 0.05L27.69 0.35C26.04 0.94 26.63 0.39 14.11 12.94C0.93 26.16 1.22 25.84 0.47 28.10C-0.04 29.62 -0.03 29.35 0.00 49.94L0.03 69.10L0.25 69.87C0.52 70.83 1.18 72.21 1.70 72.90C2.33 73.74 25.46 96.85 26.10 97.29C26.77 97.74 27.13 97.90 28.10 98.20C29.02 98.48 41.82 98.56 42.83 98.29Z"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 14 14"><path d="M5 2.5 9.5 7 5 11.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></symbol>
+  <symbol id="i-close" viewBox="0 0 14 14"><path d="m2 2 10 10M12 2 2 12" stroke="currentColor" stroke-width="1.4"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 16 16"><rect x="5" y="5" width="8.5" height="8.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M3 10.5V2.5h8" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path fill="currentColor" d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.36 5.77Zm-1.08 16.18h1.7L7.4 4.73H5.58Z"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="top-in">
+    <a class="wordmark" href="index.html">CORODY<sup>®</sup></a>
+    <nav class="nav" aria-label="App">
+      <a href="#endowments">Endowments</a>
+      <a href="#console">Console</a>
+      <a href="#workspace">Workspace</a>
+      <a href="#providers">Providers</a>
+      <a href="#resolvers">Resolvers</a>
+      <a href="#token">Token</a>
+      <a href="#developers">Developers</a>
+      <a href="#status">Status</a>
+    </nav>
+    <button type="button" class="wbtn" data-wallet aria-haspopup="dialog">
+      <span class="logo" aria-hidden="true"><svg><use href="#mark"/></svg></span>
+      <span class="lbl"><span class="roll"><span data-wallet-label>Connect wallet</span><span aria-hidden="true" data-wallet-label>Connect wallet</span></span></span>
+      <span class="arr" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span>
+    </button>
+  </div>
+</header>
+
+<main>
+<!-- 01 Endowments -->
+<section class="page" id="p-endowments" aria-labelledby="t-endowments">
+  <span class="eyebrow"><span class="sq"></span><b>01</b>Endowments</span>
+  <div class="ph">
+    <div><h1 id="t-endowments">Endowments</h1>
+      <p>Endow an AI agent once. The principal stays staked as HYPE on Hyperliquid, with a USDC buffer, and the agent spends a yearly draw of up to 6%. Anyone can add to an endowment.</p></div>
+    <div class="actions"><button class="btn" data-goto="endow"><span class="lbl"><span class="roll"><span>Endow an agent</span><span aria-hidden="true">Endow an agent</span></span></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
+  </div>
+  <div class="notice" data-lane-note hidden><b>Your path</b><span data-lane-text></span></div>
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><dt>Endowments</dt><dd>0</dd><p>Opened on HyperEVM so far.</p></div>
+      <div class="stat"><dt>Held for agents</dt><dd>$0.00</dd><p>Principal in staked HYPE and USDC.</p></div>
+      <div class="stat"><dt>Drawn by agents</dt><dd>$0.00</dd><p>Paid into their mandates so far.</p></div>
+      <div class="stat"><dt>Fees to the treasury</dt><dd>$0.00</dd><p>The protocol's share of each draw.</p></div>
+    </div>
+  </div>
+
+  <h2 class="h2">Plan an endowment</h2>
+  <p class="sub">See what an agent would draw before anything goes on chain.</p>
+  <div class="card" id="endow">
+    <div class="card-b">
+      <div class="grid3">
+        <div class="field"><label for="e-agent">Agent</label><input class="input mono" id="e-agent" placeholder="ERC-8004 id or 0x address" autocomplete="off"></div>
+        <div class="field"><label for="e-amt">Principal (USD)</label><input class="input mono" id="e-amt" type="number" min="1" step="1" value="10000" inputmode="decimal"></div>
+        <div class="field"><label for="e-rate">Draw rate</label>
+          <select class="input mono" id="e-rate"><option value="3">3% a year</option><option value="4">4% a year</option><option value="5">5% a year</option><option value="6" selected>6% a year</option></select></div>
+      </div>
+      <div class="field"><label for="e-split">Split: <span id="e-split-v">80% staked HYPE · 20% USDC</span></label><input id="e-split" type="range" min="50" max="95" step="5" value="80"></div>
+      <div class="stats three" style="padding:24px 0 0">
+        <div class="stat"><dt>Draw a year</dt><dd id="e-year">$600.00</dd><p>Paid in USDC, staking rewards first.</p></div>
+        <div class="stat"><dt>Draw a day</dt><dd id="e-day">$1.64</dd><p>Accrues by the second.</p></div>
+        <div class="stat"><dt>USDC buffer</dt><dd id="e-buf">$2,000.00</dd><p id="e-buf-p">Covers 3.3 years of draws without selling HYPE.</p></div>
+      </div>
+      <div style="margin-top:24px" class="actions"><button class="btn" id="e-go"><span class="lbl">Review and endow</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
+      <p class="msg" id="e-msg"></p>
+    </div>
+  </div>
+
+  <h2 class="h2">Ranked by principal</h2>
+  <p class="sub">Accepted endowments rank above those still waiting for their agent's owner.</p>
+  <div class="empty"><h3>No endowments yet.</h3><p>The first endowment opens when the registry goes live on HyperEVM. Plan one above to see its draw.</p></div>
+</section>
+
+<!-- 02 Console -->
+<section class="page" id="p-console" aria-labelledby="t-console">
+  <span class="eyebrow"><span class="sq"></span><b>02</b>Console</span>
+  <div class="ph">
+    <div><h1 id="t-console">Console</h1>
+      <p>A mandate is the account an agent pays from. You set its limits, and the contract holds the agent to them on every payment.</p></div>
+  </div>
+  <div class="actions" style="margin-bottom:24px">
+    <button class="ghost" data-example>See an example mandate</button>
+    <a class="ghost" href="#workspace">Open the workspace</a>
+    <button class="btn" data-needs-contract="mandate"><span class="lbl"><span class="roll"><span>Create a mandate</span><span aria-hidden="true">Create a mandate</span></span></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button>
+  </div>
+  <div id="console-wallet"></div>
+
+  <h2 class="h2">Open a mandate by address</h2>
+  <p class="sub">Paste any HyperEVM address to read it live. No wallet needed.</p>
+  <div class="card"><div class="card-b">
+    <form class="field" data-lookup="mandate"><label for="m-addr">Mandate account</label>
+      <div class="inline"><input class="input mono" id="m-addr" placeholder="0x" autocomplete="off" spellcheck="false"><button class="btn" type="submit"><span class="lbl">Open it</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
+      <small>The mandate's 0x address.</small></form>
+    <div data-lookup-out></div>
+  </div></div>
+
+  <div class="row-h"><div><h2 class="h2">Current conditions</h2><p class="sub">HyperEVM and USDC, read live from chain 999.</p></div><button class="ghost" data-refresh style="margin-bottom:20px">Read again</button></div>
+  <div class="card"><ul class="conds" data-conds></ul></div>
+</section>
+
+<!-- 03 Workspace -->
+<section class="page" id="p-workspace" aria-labelledby="t-workspace">
+  <span class="eyebrow"><span class="sq"></span><b>03</b>Workspace</span>
+  <div class="ph">
+    <div><h1 id="t-workspace">Workspace</h1>
+      <p>Draft mandates privately and check payments against them before anything goes on chain. Drafts are encrypted in this browser. Saving one sends no transaction.</p></div>
+  </div>
+  <div id="ws"></div>
+</section>
+
+<!-- 04 Providers -->
+<section class="page" id="p-providers" aria-labelledby="t-providers">
+  <span class="eyebrow"><span class="sq"></span><b>04</b>Providers</span>
+  <div class="ph">
+    <div><h1 id="t-providers">Getting paid</h1>
+      <p>Agents pay providers through escrow, and a provider's record sets the largest job a payer can open with it.</p></div>
+  </div>
+  <div class="card"><div class="card-b">
+    <p>A payer locks USDC in escrow before the work starts, and you release it when you deliver. To be paid, your address joins the provider registry with a stake. A ruling against a job can take part of that stake.</p>
+    <div class="actions" style="margin-top:20px;align-items:center"><button class="btn" data-wallet><span class="lbl"><span data-wallet-label>Connect a wallet</span></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button><span style="color:var(--mist);font-size:14px">A wallet is only needed to sign.</span></div>
+  </div></div>
+
+  <h2 class="h2">Open a desk by address</h2>
+  <p class="sub">Every provider's payments and record are public. Paste an address to read it.</p>
+  <div class="card"><div class="card-b">
+    <form class="field" data-lookup="desk"><label for="d-addr">Payee address</label>
+      <div class="inline"><input class="input mono" id="d-addr" placeholder="0x" autocomplete="off" spellcheck="false"><button class="btn" type="submit"><span class="lbl">Open the desk</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
+      <small>The address the escrow pays. No wallet needed.</small></form>
+    <div data-lookup-out></div>
+  </div></div>
+
+  <h2 class="h2">Charge agents</h2>
+  <p class="sub">Put a price on a route and agents pay it from their mandates.</p>
+  <div class="card">
+    <div class="card-h"><h3>How a priced route answers</h3><p>An agent that calls without paying gets a 402 with the price. One that pays from its mandate gets the result, and the payment lands in escrow for you.</p></div>
+    <div class="card-b">
+<pre class="code"><button class="copy" data-copy aria-label="Copy"><svg width="15" height="15"><use href="#i-copy"/></svg></button>POST /render HTTP/1.1
+Host: api.your-service.xyz
+
+HTTP/1.1 402 Payment Required
+x-corody-price: 0.01 USDC
+x-corody-chain: 999
+x-corody-payee: 0xYourProviderAddress</pre>
+      <p style="margin-top:16px">The provider kit ships with the escrow contracts. Until then, this is the exact shape a priced route will answer with.</p>
+    </div>
+  </div>
+
+  <div class="row-h"><div><h2 class="h2">What a listing costs</h2><p class="sub">Planned for the provider registry on HyperEVM. Final values are set when it deploys.</p></div></div>
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><dt>Stake to join</dt><dd>$10.00</dd><p>Paid in USDC and held by the registry.</p></div>
+      <div class="stat"><dt>Most a ruling can take</dt><dd>10%</dd><p>Share of the stake one ruling can take.</p></div>
+      <div class="stat"><dt>Wait to withdraw</dt><dd>7 days</dd><p>Between asking for the stake and taking it.</p></div>
+      <div class="stat"><dt>First job ceiling</dt><dd>$25.00</dd><p>The largest job a payer can open with a new provider.</p></div>
+    </div>
+    <div class="card-b" style="padding-top:0"><p>Only delivered work raises the ceiling. Your score is the share of jobs you delivered, weighted by what they paid, and a missed deadline or a lost dispute counts against it. Your stake is what payers see at risk behind your work.</p></div>
+  </div>
+
+  <div class="row-h"><div><h2 class="h2">Current conditions</h2><p class="sub">HyperEVM and USDC, read live from chain 999.</p></div><button class="ghost" data-refresh style="margin-bottom:20px">Read again</button></div>
+  <div class="card"><ul class="conds" data-conds></ul></div>
+</section>
+
+<!-- 05 Resolvers -->
+<section class="page" id="p-resolvers" aria-labelledby="t-resolvers">
+  <span class="eyebrow"><span class="sq"></span><b>05</b>Resolvers</span>
+  <div class="ph">
+    <div><h1 id="t-resolvers">Ruling on disputes</h1>
+      <p>Bonded resolvers decide contested settlements by sealed vote.</p></div>
+    <div class="actions"><button class="ghost" data-wallet><span data-wallet-label>Connect a wallet</span></button><button class="ghost" data-refresh>Read again</button></div>
+  </div>
+  <div class="card"><div class="card-b" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center">
+    <p>When a payer contests a settlement, the money stays locked until the dispute closes. Each resolver posts a bond in staked HYPE, seals a score, then reveals it, and the median sets how much goes back to the payer. Resolvers whose scores hold share the fee. A score that is never revealed, or one far from the median, costs part of the bond.</p>
+    <span style="font-size:13px;color:var(--mist)" data-chain-time>Reading chain time…</span>
+  </div></div>
+
+  <div class="card" style="margin-top:24px">
+    <div class="stats three">
+      <div class="stat"><dt>Open disputes</dt><dd>0</dd><p>Nothing is contested right now.</p></div>
+      <div class="stat"><dt>Ready to close</dt><dd>0</dd><p>Voting is over. Anyone can close these to release the money.</p></div>
+      <div class="stat"><dt>Resolvers</dt><dd class="txt">Not seated yet</dd><p>The bench opens with the dispute registry.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h3>The bond</h3><p>What a resolver posts to vote. A vote that goes wrong costs part of it, and nothing else is at risk.</p></div>
+    <div class="stats">
+      <div class="stat"><dt>Floor for a new resolver</dt><dd class="txt">Set at launch</dd><p>Governance sets the smallest bond that can vote.</p></div>
+      <div class="stat"><dt>Bond asset</dt><dd class="txt">Staked HYPE</dd><p>Bonds keep earning staking rewards. Fees are paid in USDC.</p></div>
+      <div class="stat"><dt>Cooldown to leave</dt><dd class="txt">7 days</dd><p>Ask to unbond, wait it out, then complete the exit.</p></div>
+      <div class="stat"><dt>Bonded across the bench</dt><dd>0 HYPE</dd><p>No resolvers registered yet.</p></div>
+    </div>
+  </div>
+
+  <h2 class="h2">How a ruling works</h2>
+  <p class="sub">Planned for the dispute registry on HyperEVM.</p>
+  <div class="card">
+    <div class="stats">
+      <div class="stat"><dt>Sealing window</dt><dd>2 hours</dd><p>Opens when the payer contests.</p></div>
+      <div class="stat"><dt>Reveal window</dt><dd>2 hours</dd><p>Opens when the sealing window closes.</p></div>
+      <div class="stat"><dt>Quorum</dt><dd>3</dd><p>Revealed scores a ruling needs.</p></div>
+      <div class="stat"><dt>Slash</dt><dd>10%</dd><p>Of the bond, for an unrevealed score or one more than 20 points from the median.</p></div>
+    </div>
+    <div class="card-b" style="padding-top:0">
+      <p>A dispute ends one of two ways, and once the reveal window closes anyone can end it. A ruling takes the median of the revealed scores and splits the money by it, after a resolver fee of 0.50%. If too few resolvers reveal, the dispute closes without a ruling: the payment goes back on hold for the payee with a new deadline, the contest bond is returned, and no fee is taken.</p>
+      <p>The payer, the payee and the owner behind the paying mandate can never vote on their own dispute.</p>
+    </div>
+  </div>
+
+  <h2 class="h2">Open disputes</h2>
+  <p class="sub">Contested settlements still open, soonest deadline first.</p>
+  <div class="empty"><h3>No dispute is open.</h3><p>A dispute opens when a payer contests a settlement. Bonded resolvers vote on the next one.</p></div>
+
+  <h2 class="h2">How a closed dispute reads</h2>
+  <p class="sub">An example, so you know what a ruling will look like. It is not a real dispute.</p>
+  <div class="card">
+    <div class="card-h" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap"><div><h3>Example dispute <span class="chip idle" style="margin-left:6px">Example</span></h3><p>$0.20 locked on a settlement, contested by the payer.</p></div><span style="font-size:13px;color:var(--mist)">Not on chain</span></div>
+    <div class="stats">
+      <div class="stat"><dt>At stake</dt><dd>$0.20</dd><p>Held in escrow until the dispute closes.</p></div>
+      <div class="stat"><dt>Sealed scores</dt><dd>3</dd><p>Quorum of 3.</p></div>
+      <div class="stat"><dt>Median score</dt><dd>85</dd><p>Sets the refund at 15%.</p></div>
+      <div class="stat"><dt>Kind of work</dt><dd class="txt">doc.summarize</dd><p>What the payer bought.</p></div>
+    </div>
+    <div class="card-b" style="padding-top:0">
+      <p class="verdict">The panel ruled with a median score of <strong>85</strong>, so 15% went back to the payer. After the 0.50% resolver fee of $0.001, the payer got $0.0299 and the payee $0.1691. The fee is split between the three scores that held.</p>
+      <div class="ruling"><span class="lab">Published ruling</span><span><strong>Delivered, one criterion missed</strong>, scored 85 out of 100.</span><span>The summary was delivered on time and signed, but it ran past the one-sentence limit the payer asked for.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 Token -->
+<section class="page" id="p-token" aria-labelledby="t-token">
+  <span class="eyebrow"><span class="sq"></span><b>06</b>Token</span>
+  <div class="ph"><div><h1 id="t-token">$CRDY</h1><p>Corody's token, planned for HyperEVM.</p></div></div>
+  <div class="card"><div class="card-b">
+    <div class="kv"><span>Contract</span><span>Not published yet</span></div>
+    <div class="kv"><span>Network</span><span>HyperEVM, chain 999</span></div>
+    <div class="kv"><span>Supply</span><span>Announced with the launch</span></div>
+    <div class="kv"><span>Used for</span><span>Fee rebates for stakers, and governance of the settings that can change</span></div>
+    <div class="actions" style="margin-top:22px"><a class="btn" href="https://x.com/CorodyEVM" target="_blank" rel="noopener"><span class="lbl"><span class="roll"><span>Follow the launch</span><span aria-hidden="true">Follow the launch</span></span></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div>
+    <p style="margin-top:22px">Launch details are announced only on <strong>x.com/CorodyEVM</strong>. Any contract address shared anywhere else before that is not ours.</p>
+    <p>$CRDY is not a deposit, a share, or a claim on Hyperliquid, HyperEVM, Circle or USDC, and none of them endorses it.</p>
+  </div></div>
+</section>
+
+<!-- 07 Developers -->
+<section class="page" id="p-developers" aria-labelledby="t-developers">
+  <span class="eyebrow"><span class="sq"></span><b>07</b>Developers</span>
+  <div class="ph"><div><h1 id="t-developers">Developers</h1><p>What an agent needs to spend inside a mandate, and what a provider needs to charge one.</p></div></div>
+  <div class="card"><div class="card-b"><p>Every limit in Corody is enforced by the mandate contract on HyperEVM. A payment outside them does not settle, whatever an agent was told to do and whichever interface sent it. The SDK signs with an account you pass it, and never holds a key on its own.</p></div></div>
+
+  <h2 class="h2">Network</h2>
+  <p class="sub">Everything you need to point a client at HyperEVM. All of it is live today.</p>
+  <div class="card"><div class="card-b">
+    <div class="kv"><span>Chain ID</span><span class="mono">999 · 0x3e7</span></div>
+    <div class="kv"><span>RPC</span><span class="mono">https://rpc.hyperliquid.xyz/evm</span></div>
+    <div class="kv"><span>Explorer</span><span class="mono">https://hyperevmscan.io</span></div>
+    <div class="kv"><span>Gas token</span><span>HYPE</span></div>
+    <div class="kv"><span>USDC</span><span class="mono">0xb88339CB7199b77E23DB6E890353E22632Ba630f · 6 decimals</span></div>
+  </div></div>
+
+  <h2 class="h2">The SDK</h2>
+  <p class="sub">A preview of the planned interface. The package is not published yet.</p>
+  <div class="card"><div class="card-b">
+<pre class="code"><button class="copy" data-copy aria-label="Copy"><svg width="15" height="15"><use href="#i-copy"/></svg></button>// preview: the API the Corody SDK will ship with
+const mandate = await corody.mandates.open({
+  owner: account,               // the key that can pause it
+  agent: 'erc8004:4127',
+  caps: { perPayment: '5', perDay: '25', perMonth: '400' }  // USDC
+});
+
+const receipt = await mandate.pay({
+  payee: '0xProviderAddress',
+  amount: '0.40',               // checked against every cap first
+  memo: 'inference'
+});</pre>
+    <p style="margin-top:16px">It ships with the contracts. Until then, read balances, the chain and USDC straight from the RPC above, and draft mandate limits in the workspace.</p>
+  </div></div>
+</section>
+
+<!-- 08 Status -->
+<section class="page" id="p-status" aria-labelledby="t-status">
+  <span class="eyebrow"><span class="sq"></span><b>08</b>Status</span>
+  <div class="ph">
+    <div><h1 id="t-status">Status</h1>
+      <p>What is live on HyperEVM right now, checked from your browser.</p></div>
+    <div class="actions"><button class="ghost" data-refresh>Read again</button></div>
+  </div>
+  <div class="card"><ul class="conds" data-conds></ul></div>
+  <h2 class="h2">The issuer's controls on USDC</h2>
+  <p class="sub">Circle can pause USDC or block an address, and either stops a payment. Both are read live from the token.</p>
+  <div class="card"><div class="card-b">
+    <p>Payments settle in USDC. Its issuer runs two controls on it: a pause that stops the token, and a blocklist of addresses the token refuses to move funds for.</p>
+    <p>If USDC is paused, payments stop. Transaction fees are paid in HYPE, so a pause, a revoke or a withdrawal still confirms while the token is frozen. A transfer also fails when either address is on the blocklist, whatever the balance or the mandate allows.</p>
+    <p>Corody controls neither one. Right now the token is <strong data-usdc-paused>being read…</strong></p>
+  </div></div>
+
+  <h2 class="h2">Check an address</h2>
+  <p class="sub">See whether the USDC issuer has blocked an address. Nothing is signed.</p>
+  <div class="card"><div class="card-b">
+    <form class="field" id="bl-form"><label for="bl-addr">Address</label>
+      <div class="inline"><input class="input mono" id="bl-addr" placeholder="0x…" autocomplete="off" spellcheck="false"><button class="btn" type="submit"><span class="lbl">Check it</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
+      <small>Paste any address to check it against the live blocklist.</small></form>
+    <p class="msg" id="bl-msg"></p>
+  </div></div>
+
+  <h2 class="h2">What a transaction costs</h2>
+  <p class="sub">Today's HyperEVM gas price, times the gas each step is expected to use.</p>
+  <div class="card">
+    <div class="stats three">
+      <div class="stat"><dt>One payment</dt><dd data-cost="300000">—</dd><p>Mandate check, escrow lock and release. Estimated at 300,000 gas.</p></div>
+      <div class="stat"><dt>One mandate</dt><dd data-cost="1500000">—</dd><p>Opening a mandate account. Estimated at 1,500,000 gas.</p></div>
+      <div class="stat"><dt>Fee on a $100.00 payment</dt><dd>$1.00</dd><p>Planned 1% settlement fee, paid by the payee.</p></div>
+    </div>
+    <div class="card-b" style="padding-top:0"><p>Fees are paid in HYPE by the wallet that signs. Payments are made in USDC from the mandate. These are separate balances, and funding one does not fund the other. Gas figures are estimates until the contracts are measured on chain.</p></div>
+  </div>
+
+  <h2 class="h2">Parameters</h2>
+  <p class="sub">Planned for the escrow. Each one is read live from the contract once it deploys.</p>
+  <div class="card"><div class="stats three">
+    <div class="stat"><dt>Settlement fee</dt><dd class="txt">1%</dd><p>Paid by the payee. Refunds, timeouts and cancellations return the payer's funds in full.</p></div>
+    <div class="stat"><dt>Delivery window</dt><dd class="txt">5 minutes to 7 days</dd><p>The deadlines a payer can choose from.</p></div>
+    <div class="stat"><dt>Time to contest</dt><dd class="txt">1 hour</dd><p>After a payment, how long the payer has to challenge it.</p></div>
+    <div class="stat"><dt>Cost of contesting</dt><dd class="txt">5% of the payment</dd><p>A bond from whoever contests, returned if the ruling goes their way.</p></div>
+    <div class="stat"><dt>Smallest payment</dt><dd class="txt">$0.01</dd><p>The escrow refuses payments below this.</p></div>
+    <div class="stat"><dt>Governance delay</dt><dd class="txt">2 days</dd><p>Every setting change waits this long first.</p></div>
+  </div></div>
+
+  <h2 class="h2">Who can change what</h2>
+  <p class="sub">The controls that will exist, and where they sit.</p>
+  <div class="card"><div class="card-b">
+    <p>The escrow's fee and windows are fixed for its lifetime. No key can raise the fee on an open payment or shorten a window on a job in progress.</p>
+    <p>Settings that can change, like the reputation curve and the dispute windows, wait out the governance delay. Each change is public from the moment it is proposed, so anyone relying on the old value has that long to act.</p>
+  </div></div>
+
+  <h2 class="h2">Corody contracts</h2>
+  <p class="sub">Each one is listed here with its address once it deploys.</p>
+  <div class="card"><ul class="conds">
+    <li><span class="dot wait"></span><div><span class="k">Registry</span><b>Endowment registry</b><p>Not deployed yet. Holds every endowment, its principal and its draw.</p></div></li>
+    <li><span class="dot wait"></span><div><span class="k">Mandates</span><b>Mandate factory</b><p>Not deployed yet. Opens mandates and checks every payment against their caps.</p></div></li>
+    <li><span class="dot wait"></span><div><span class="k">Escrow</span><b>Payment escrow</b><p>Not deployed yet. Locks USDC until a provider delivers.</p></div></li>
+    <li><span class="dot wait"></span><div><span class="k">Providers</span><b>Provider registry</b><p>Not deployed yet. Stakes, scores and job ceilings.</p></div></li>
+    <li><span class="dot wait"></span><div><span class="k">Disputes</span><b>Resolver bench</b><p>Not deployed yet. Bonds, sealed votes and rulings.</p></div></li>
+  </ul></div>
+</section>
+</main>
+
+<footer>
+  <div class="foot">
+    <div class="big-word">CORODY<sup>®</sup></div>
+    <div>
+      <ul class="foot-links">
+        <li><a href="#endowments">Endowments</a></li><li><a href="#console">Console</a></li><li><a href="#workspace">Workspace</a></li>
+        <li><a href="#providers">Providers</a></li><li><a href="#resolvers">Resolvers</a></li><li><a href="#token">Token</a></li><li><a href="#developers">Developers</a></li><li><a href="#status">Status</a></li>
+      </ul>
+      <div class="foot-social"><a class="ghost" href="https://x.com/CorodyEVM" target="_blank" rel="noopener"><svg><use href="#i-x"/></svg>Follow us</a><a class="ghost" href="index.html">Back to the site</a></div>
+      <div class="foot-fine">
+        <span>Settling on HyperEVM, chain 999. USDC at <code>0xb88339CB7199b77E23DB6E890353E22632Ba630f</code>.</span>
+        <span>$CRDY is not a claim on Hyperliquid, on HyperEVM, on Circle or on USDC, and none of them endorses Corody.</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<dialog id="wallet" aria-labelledby="wallet-title"><div class="dlg"><button class="x" data-close aria-label="Close"><svg width="14" height="14"><use href="#i-close"/></svg></button><div class="dlg-body" id="wallet-body"></div></div></dialog>
+<dialog id="modal" aria-labelledby="modal-title"><div class="dlg"><button class="x" data-close aria-label="Close"><svg width="14" height="14"><use href="#i-close"/></svg></button><div class="dlg-body" id="modal-body"></div></div></dialog>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const short = a => a.slice(0, 6) + '…' + a.slice(-4);
+  const usd = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
+
+  /* ===== Chain: HyperEVM mainnet, read straight from the public RPC ===== */
+  const CHAIN = { id: 999, hex: '0x3e7', rpc: 'https://rpc.hyperliquid.xyz/evm', explorer: 'https://hyperevmscan.io' };
+  const USDC = '0xb88339CB7199b77E23DB6E890353E22632Ba630f';
+  const rpc = async (method, params = []) => {
+    const r = await fetch(CHAIN.rpc, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
+    const j = await r.json(); if (j.error) throw new Error(j.error.message || 'RPC error'); return j.result;
+  };
+  const units = (hex, dec, places) => { const v = BigInt(hex || '0x0'), base = 10n ** BigInt(dec); const whole = v / base, frac = (v % base).toString().padStart(dec, '0').slice(0, places);
+    return whole.toLocaleString('en-US') + (places ? '.' + frac : ''); };
+  const pad = a => a.toLowerCase().replace(/^0x/, '').padStart(64, '0');
+  const usdcOf = a => rpc('eth_call', [{ to: USDC, data: '0x70a08231' + pad(a) }, 'latest']);
+  const isAddr = a => /^0x[0-9a-fA-F]{40}$/.test(a);
+
+  /* ===== Router ===== */
+  const PAGES = ['endowments', 'console', 'workspace', 'providers', 'resolvers', 'token', 'developers', 'status'];
+  const route = () => {
+    let id = location.hash.slice(1); if (id === 'endow') id = 'endowments';
+    if (!PAGES.includes(id)) id = 'console';
+    PAGES.forEach(p => $('#p-' + p).classList.toggle('on', p === id));
+    $$('.nav a, .foot-links a').forEach(a => a.getAttribute('href') === '#' + id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+    document.title = 'Corody · ' + id[0].toUpperCase() + id.slice(1);
+    if (location.hash === '#endow') setTimeout(() => $('#endow').scrollIntoView({ behavior: 'smooth', block: 'start' }), 80); else scrollTo(0, 0);
+  };
+  addEventListener('hashchange', route);
+  // a path picked on the landing page arrives as ?lane=
+  const LANES = { endowment: 'You picked the staked HYPE endowment. Plan it below, then endow once the registry is live.',
+    prefund: 'You picked the USDC prefund: a direct budget for one task, paid into a mandate. Draft its limits in the workspace.',
+    collateral: 'You picked HYPE credit: spending backed by posted HYPE. It opens with the mandate contracts.' };
+  const lane = new URLSearchParams(location.search).get('lane');
+  if (lane && LANES[lane]) { $('[data-lane-note]').hidden = false; $('[data-lane-text]').textContent = LANES[lane]; if (!location.hash) location.hash = 'endowments'; }
+  $$('[data-goto]').forEach(b => b.addEventListener('click', () => { location.hash = 'endowments'; setTimeout(() => $('#' + b.dataset.goto).scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }));
+
+  /* ===== Dialogs ===== */
+  const modal = $('#modal'), mbody = $('#modal-body');
+  const show = (eyebrow, title, html) => { mbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>${eyebrow}</span><h2 id="modal-title">${title}</h2>${html}`; if (!modal.open) modal.showModal(); };
+  $$('dialog').forEach(d => { d.addEventListener('click', e => { if (e.target === d || e.target.closest('[data-close]')) d.close(); }); });
+
+  /* ===== Live conditions ===== */
+  let lastBlock = null;
+  const paintConds = items => $$('[data-conds]').forEach(ul => { ul.innerHTML = items.map(c =>
+    `<li><span class="dot ${c.s}"></span><div><span class="k">${c.k}</span><b>${c.t}</b><p>${c.p}</p></div></li>`).join(''); });
+  const readConds = async () => {
+    paintConds([{ s: '', k: 'Connectivity', t: 'Reading HyperEVM…', p: 'Asking the public RPC for the latest block.' }]);
+    const out = [];
+    try {
+      const t0 = performance.now();
+      const [id, bn, gas] = await Promise.all([rpc('eth_chainId'), rpc('eth_blockNumber'), rpc('eth_gasPrice')]);
+      const ms = Math.round(performance.now() - t0); lastBlock = parseInt(bn, 16);
+      const ok = parseInt(id, 16) === CHAIN.id;
+      out.push({ s: ok ? 'ok' : 'bad', k: 'Connectivity', t: ok ? 'Connected to HyperEVM.' : 'Wrong chain answered.', p: `Chain ${parseInt(id, 16)} answering at block ${lastBlock.toLocaleString('en-US')}, in ${ms} ms.` });
+      out.push({ s: 'ok', k: 'Gas', t: `${(Number(BigInt(gas)) / 1e9).toFixed(2)} gwei, paid in HYPE.`, p: 'The current base price for a transaction on HyperEVM.' });
+    } catch (e) { out.push({ s: 'bad', k: 'Connectivity', t: 'HyperEVM did not answer.', p: 'The public RPC could not be reached from this browser. Try again in a moment.' }); }
+    try {
+      const sup = await rpc('eth_call', [{ to: USDC, data: '0x18160ddd' }, 'latest']);
+      out.push({ s: 'ok', k: 'Asset', t: 'USDC is moving normally.', p: `${units(sup, 6, 0)} native USDC on HyperEVM, issued by Circle.` });
+    } catch (e) { out.push({ s: 'wait', k: 'Asset', t: 'USDC could not be read.', p: 'The token contract did not answer this time.' }); }
+    out.push({ s: 'wait', k: 'Corody', t: 'Contracts not deployed yet.', p: 'Endowments, mandates and escrow go live together on HyperEVM.' });
+    paintConds(out);
+    try { const b = await rpc('eth_getBlockByNumber', ['latest', false]); const d = new Date(parseInt(b.timestamp, 16) * 1000);
+      $$('[data-chain-time]').forEach(el => el.textContent = 'Updated just now. Chain time ' + d.toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + '.'); } catch {}
+  };
+  $$('[data-refresh]').forEach(b => b.addEventListener('click', readConds));
+
+  /* ===== Address lookups ===== */
+  $$('[data-lookup]').forEach(form => form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const input = $('input', form), out = $('[data-lookup-out]', form.parentNode), a = input.value.trim();
+    if (!isAddr(a)) { out.innerHTML = '<p class="msg bad">That is not a 0x address. It should be 0x followed by 40 hex characters.</p>'; return; }
+    out.innerHTML = '<p class="msg">Reading HyperEVM…</p>';
+    try {
+      const [code, bal, usdc] = await Promise.all([rpc('eth_getCode', [a, 'latest']), rpc('eth_getBalance', [a, 'latest']), usdcOf(a)]);
+      const kind = code && code !== '0x' ? 'A contract' : 'A wallet';
+      const what = form.dataset.lookup === 'mandate' ? 'mandate' : 'provider desk';
+      out.innerHTML = `<div class="result">
+        <div class="kv"><span>Address</span><span class="addr">${esc(a)}</span></div>
+        <div class="kv"><span>Type</span><span>${kind}</span></div>
+        <div class="kv"><span>HYPE</span><span class="mono">${units(bal, 18, 4)}</span></div>
+        <div class="kv"><span>USDC</span><span class="mono">${units(usdc, 6, 2)}</span></div>
+        <div class="kv"><span>Corody ${what}</span><span>Not yet. Corody contracts are not deployed, so no address is a ${what} today.</span></div>
+      </div><div class="actions" style="margin-top:16px"><a class="ghost" href="${CHAIN.explorer}/address/${esc(a)}" target="_blank" rel="noopener">View on explorer ↗</a></div>`;
+    } catch { out.innerHTML = '<p class="msg bad">HyperEVM did not answer. Try again in a moment.</p>'; }
+  }));
+
+  /* ===== Copy buttons ===== */
+  $$('[data-copy]').forEach(b => b.addEventListener('click', async () => {
+    const txt = b.parentNode.textContent.trim(); try { await navigator.clipboard.writeText(txt); b.style.color = 'var(--ok)'; setTimeout(() => b.style.color = '', 1200); } catch {} }));
+
+  /* ===== Endowment planner ===== */
+  const plan = () => {
+    const amt = Math.max(0, parseFloat($('#e-amt').value) || 0), rate = +$('#e-rate').value / 100, split = +$('#e-split').value;
+    const year = amt * rate, buf = amt * (100 - split) / 100;
+    $('#e-split-v').textContent = `${split}% staked HYPE · ${100 - split}% USDC`;
+    $('#e-year').textContent = usd(year); $('#e-day').textContent = usd(year / 365); $('#e-buf').textContent = usd(buf);
+    $('#e-buf-p').textContent = year > 0 ? `Covers ${(buf / year).toFixed(1)} years of draws without selling HYPE.` : 'Covers the draw without selling HYPE.';
+    return { amt, rate, split, year };
+  };
+  ['#e-amt', '#e-rate', '#e-split'].forEach(s => $(s).addEventListener('input', plan)); plan();
+  $('#e-go').addEventListener('click', () => {
+    const p = plan(), agent = $('#e-agent').value.trim(), m = $('#e-msg');
+    if (!agent) { m.className = 'msg bad'; m.textContent = 'Name the agent first: its ERC-8004 id or its 0x address.'; return; }
+    if (p.amt < 1) { m.className = 'msg bad'; m.textContent = 'The principal has to be at least $1.'; return; }
+    if (!W.account) { m.className = 'msg'; m.textContent = 'Connect a wallet to endow.'; openWallet(); return; }
+    show('Endowments / Review', 'Ready when the registry is.', `<div class="result">
+      <div class="kv"><span>Agent</span><span class="addr">${esc(agent)}</span></div>
+      <div class="kv"><span>Principal</span><span>${usd(p.amt)}</span></div>
+      <div class="kv"><span>Split</span><span>${p.split}% staked HYPE · ${100 - p.split}% USDC</span></div>
+      <div class="kv"><span>Draw</span><span>${(p.rate * 100).toFixed(0)}% a year · ${usd(p.year)}</span></div>
+      <div class="kv"><span>From</span><span class="addr">${esc(W.account)}</span></div></div>
+      <p style="margin-top:18px">The endowment registry is not deployed on HyperEVM yet, so <strong>nothing was sent</strong>. Once it is live, this button opens the transaction in your wallet to review and sign.</p>`);
+  });
+  $$('[data-needs-contract]').forEach(b => b.addEventListener('click', () => {
+    if (!W.account) return openWallet();
+    show('Console / Mandates', 'Mandates open at launch.', '<p>The mandate factory is not deployed on HyperEVM yet, so nothing can be sent. Draft the mandate in the workspace now and it will be ready to open the day it goes live.</p><div class="actions"><a class="btn" href="#workspace" data-close><span class="lbl">Open the workspace</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div>');
+  }));
+  $$('[data-example]').forEach(b => b.addEventListener('click', () => show('Console / Example', 'Research agent budget', `<div class="result">
+    <div class="kv"><span>Agent</span><span>Research agent · ERC-8004 #4127 (example)</span></div>
+    <div class="kv"><span>Funded by</span><span>Endowment draw · 6% a year</span></div>
+    <div class="kv"><span>Per payment</span><span>5.00 USDC</span></div>
+    <div class="kv"><span>Per day</span><span>25.00 USDC</span></div>
+    <div class="kv"><span>Per month</span><span>400.00 USDC</span></div>
+    <div class="kv"><span>Allowed</span><span>Inference, datasets, other agents</span></div>
+    <div class="kv"><span>Owner can</span><span>Pause it in one transaction</span></div></div>
+    <p style="margin-top:18px">An example to show the shape of a mandate. Draft your own in the workspace.</p>`)));
+
+  /* ===== Workspace: drafts encrypted with AES-GCM, key from your passphrase (PBKDF2, 250,000 rounds) ===== */
+  const WS_KEY = 'corody.workspace';
+  const enc = new TextEncoder(), dec = new TextDecoder();
+  const b64 = u => btoa(String.fromCharCode(...u)), unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const keyFrom = async (pass, salt) => crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 250000, hash: 'SHA-256' },
+    await crypto.subtle.importKey('raw', enc.encode(pass), 'PBKDF2', false, ['deriveKey']), { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  const seal = async (data, pass) => { const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await keyFrom(pass, salt), enc.encode(JSON.stringify(data))));
+    return { app: 'corody-workspace', v: 1, kdf: 'PBKDF2-SHA256-250000', salt: b64(salt), iv: b64(iv), ct: b64(ct) }; };
+  const unseal = async (blob, pass) => JSON.parse(dec.decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(blob.iv) }, await keyFrom(pass, unb64(blob.salt)), unb64(blob.ct))));
+  let WS = null, PASS = null, sel = 0;
+  const saved = () => { try { return JSON.parse(store.get(WS_KEY)); } catch { return null; } };
+  const persist = async () => store.set(WS_KEY, JSON.stringify(await seal(WS, PASS)));
+  const wsRoot = $('#ws');
+  const btn = (label, attrs = '') => `<button class="btn" ${attrs}><span class="lbl">${label}</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button>`;
+
+  const renderLocked = () => {
+    const has = !!saved();
+    wsRoot.innerHTML = `<div class="grid2">
+      <div class="card"><div class="card-h"><h3>${has ? 'Unlock your workspace' : 'Create a private workspace'}</h3><p>${has ? 'A workspace is saved in this browser. Enter its passphrase to open it.' : 'Your drafts are encrypted in this browser with a passphrase only you know.'}</p></div>
+        <form class="card-b" id="ws-new" autocomplete="off">
+          <div class="field"><label for="ws-p1">Passphrase</label><input class="input" id="ws-p1" type="password" autocomplete="new-password">
+            ${has ? '' : '<small>At least 12 characters. It never leaves this page, and nobody can recover the workspace without it.</small>'}</div>
+          ${has ? '' : '<div class="field"><label for="ws-p2">Type it again</label><input class="input" id="ws-p2" type="password" autocomplete="new-password"></div>'}
+          <div style="margin-top:20px" class="actions">${btn(has ? 'Unlock' : 'Create workspace', 'type="submit"')}${has ? '<button type="button" class="ghost" id="ws-forget">Delete it</button>' : ''}</div>
+          <p class="msg" id="ws-msg"></p></form></div>
+      <div class="card"><div class="card-h"><h3>Import a backup</h3><p>Open an encrypted backup exported from this app, on this device or another.</p></div>
+        <form class="card-b" id="ws-imp" autocomplete="off">
+          <div class="field"><label for="ws-file">Backup file</label><input class="input" id="ws-file" type="file" accept="application/json,.json" style="padding-top:10px"></div>
+          <div class="field"><label for="ws-ip">The backup's passphrase</label><input class="input" id="ws-ip" type="password" autocomplete="off"></div>
+          <div style="margin-top:20px"><button class="ghost" type="submit">Import backup</button></div>
+          <p class="msg" id="ws-imsg"></p></form></div></div>`;
+    $('#ws-new').addEventListener('submit', async e => {
+      e.preventDefault(); const p1 = $('#ws-p1').value, m = $('#ws-msg');
+      if (has) { try { WS = await unseal(saved(), p1); PASS = p1; renderOpen(); } catch { m.className = 'msg bad'; m.textContent = 'That passphrase does not open this workspace.'; } return; }
+      if (p1.length < 12) { m.className = 'msg bad'; m.textContent = 'Use at least 12 characters.'; return; }
+      if (p1 !== $('#ws-p2').value) { m.className = 'msg bad'; m.textContent = 'The two passphrases do not match.'; return; }
+      PASS = p1; WS = { created: Date.now(), drafts: [] }; await persist(); renderOpen();
+    });
+    const f = $('#ws-forget'); if (f) f.addEventListener('click', () => { if (confirm('Delete the workspace saved in this browser? Without a backup it cannot be recovered.')) { store.set(WS_KEY, null); renderLocked(); } });
+    $('#ws-imp').addEventListener('submit', async e => {
+      e.preventDefault(); const file = $('#ws-file').files[0], m = $('#ws-imsg');
+      if (!file) { m.className = 'msg bad'; m.textContent = 'Choose a backup file first.'; return; }
+      try { const blob = JSON.parse(await file.text()); if (blob.app !== 'corody-workspace') throw 0;
+        WS = await unseal(blob, $('#ws-ip').value); PASS = $('#ws-ip').value; await persist(); renderOpen();
+      } catch { m.className = 'msg bad'; m.textContent = 'That file and passphrase do not open a Corody workspace.'; }
+    });
+  };
+
+  const renderOpen = () => {
+    const d = WS.drafts;
+    if (sel >= d.length) sel = Math.max(0, d.length - 1);
+    const cur = d[sel];
+    wsRoot.innerHTML = `<div class="notice" style="background:#eef6ef;border-color:rgba(31,122,77,.25);color:#1f5a3c"><b>Unlocked</b><span>${d.length} draft${d.length === 1 ? '' : 's'}, encrypted in this browser. Lock it when you are done.</span></div>
+      <div class="grid2">
+        <div class="card"><div class="card-h"><h3>New draft mandate</h3><p>Limits are in USDC. Nothing goes on chain.</p></div>
+          <form class="card-b" id="ws-add" autocomplete="off">
+            <div class="field"><label for="w-name">Name</label><input class="input" id="w-name" placeholder="Research agent budget" required></div>
+            <div class="field"><label for="w-agent">Agent</label><input class="input mono" id="w-agent" placeholder="ERC-8004 id or 0x address"></div>
+            <div class="grid3" style="margin-top:18px">
+              <div class="field"><label for="w-pp">Per payment</label><input class="input mono" id="w-pp" type="number" min="0.01" step="0.01" value="5"></div>
+              <div class="field" style="margin-top:0"><label for="w-pd">Per day</label><input class="input mono" id="w-pd" type="number" min="0.01" step="0.01" value="25"></div>
+              <div class="field" style="margin-top:0"><label for="w-pm">Per month</label><input class="input mono" id="w-pm" type="number" min="0.01" step="0.01" value="400"></div>
+            </div>
+            <div style="margin-top:20px">${btn('Save draft', 'type="submit"')}</div><p class="msg" id="w-msg"></p></form></div>
+        <div class="card"><div class="card-h"><h3>Drafts</h3><p>Pick one to check a payment against it.</p></div>
+          <div class="card-b">
+            ${d.length ? `<div class="drafts">${d.map((x, i) => `<button type="button" class="draft" data-pick="${i}" aria-pressed="${i === sel}"><b>${esc(x.name)}</b><span>${x.pp.toFixed(2)} / ${x.pd.toFixed(2)} / ${x.pm.toFixed(2)}</span><small>${x.agent ? esc(x.agent) : 'No agent named yet'}</small></button>`).join('')}</div>` : '<p style="color:var(--mist);font-size:14px">No drafts yet. Save one on the left.</p>'}
+            ${cur ? `<form id="w-check" style="margin-top:24px" autocomplete="off"><span class="lab">Check a payment against “${esc(cur.name)}”</span>
+              <div class="inline" style="margin-top:8px"><input class="input mono" id="w-amt" type="number" min="0.01" step="0.01" placeholder="Amount in USDC">${btn('Check', 'type="submit"')}</div>
+              <p class="msg">Spent today ${cur.today.toFixed(2)} of ${cur.pd.toFixed(2)} · this month ${cur.month.toFixed(2)} of ${cur.pm.toFixed(2)}</p></form>
+              <ul class="check-log" id="w-log">${(cur.log || []).map(l => `<li><span>${l.a.toFixed(2)} USDC · ${esc(l.why)}</span><em class="${l.ok ? 'ok' : 'no'}">${l.ok ? 'Approved' : 'Refused'}</em></li>`).join('')}</ul>
+              <div class="actions" style="margin-top:16px"><button type="button" class="ghost" id="w-reset">Reset spending</button><button type="button" class="ghost" id="w-del">Delete draft</button></div>` : ''}
+          </div></div>
+      </div>
+      <div class="actions" style="margin-top:24px"><button type="button" class="ghost" id="ws-export">Export encrypted backup</button><button type="button" class="ghost" id="ws-lock">Lock workspace</button></div>`;
+    $('#ws-add').addEventListener('submit', async e => {
+      e.preventDefault(); const n = v => Math.round((parseFloat($(v).value) || 0) * 100) / 100;
+      const x = { name: $('#w-name').value.trim(), agent: $('#w-agent').value.trim(), pp: n('#w-pp'), pd: n('#w-pd'), pm: n('#w-pm'), today: 0, month: 0, log: [] };
+      const m = $('#w-msg');
+      if (!x.name) { m.className = 'msg bad'; m.textContent = 'Give the draft a name.'; return; }
+      if (!(x.pp > 0 && x.pd >= x.pp && x.pm >= x.pd)) { m.className = 'msg bad'; m.textContent = 'Caps must grow: per payment ≤ per day ≤ per month.'; return; }
+      d.push(x); sel = d.length - 1; await persist(); renderOpen();
+    });
+    $$('[data-pick]').forEach(b => b.addEventListener('click', () => { sel = +b.dataset.pick; renderOpen(); }));
+    if (cur) {
+      $('#w-check').addEventListener('submit', async e => {
+        e.preventDefault(); const a = Math.round((parseFloat($('#w-amt').value) || 0) * 100) / 100; if (!(a > 0)) return;
+        let ok = true, why = 'inside every cap';
+        if (a > cur.pp) { ok = false; why = 'over the per-payment cap'; }
+        else if (cur.today + a > cur.pd + 1e-9) { ok = false; why = 'would pass the daily cap'; }
+        else if (cur.month + a > cur.pm + 1e-9) { ok = false; why = 'would pass the monthly cap'; }
+        if (ok) { cur.today += a; cur.month += a; }
+        cur.log = [{ a, ok, why }, ...(cur.log || [])].slice(0, 6); await persist(); renderOpen(); $('#w-amt') && $('#w-amt').focus();
+      });
+      $('#w-reset').addEventListener('click', async () => { cur.today = 0; cur.month = 0; cur.log = []; await persist(); renderOpen(); });
+      $('#w-del').addEventListener('click', async () => { d.splice(sel, 1); await persist(); renderOpen(); });
+    }
+    $('#ws-export').addEventListener('click', async () => {
+      const blob = new Blob([JSON.stringify(await seal(WS, PASS), null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'corody-workspace-backup.json'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    });
+    $('#ws-lock').addEventListener('click', () => { WS = null; PASS = null; renderLocked(); });
+  };
+  if (!window.crypto || !crypto.subtle) wsRoot.innerHTML = '<div class="empty"><h3>This browser cannot encrypt here.</h3><p>Open the app over https in a current browser to use the workspace.</p></div>';
+  else renderLocked();
+
+  /* ===== Wallet: MetaMask, Rabby, Phantom and any EIP-6963 wallet, on HyperEVM ===== */
+  const HYPEREVM = { chainId: CHAIN.hex, chainName: 'HyperEVM', nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 }, rpcUrls: [CHAIN.rpc], blockExplorerUrls: [CHAIN.explorer] };
+  const ICONS = {"metamask": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDI0IDI0Ij48ZyBjbGlwLXBhdGg9InVybCgjbWV0YW1hc2tfX2EpIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMjQgMEgwdjI0aDI0eiIvPjxwYXRoIGZpbGw9IiNGRjVDMTYiIGQ9Im0xOC45IDE4LjkyNS0zLjQzNC0uOTkzLTIuNTkgMS41MDRoLTEuODA3bC0yLjU5Mi0xLjUwNC0zLjQzMy45OTNMNCAxNS41bDEuMDQ0LTMuODAyTDQgOC40ODQgNS4wNDQgNC41bDUuMzY1IDMuMTE0aDMuMTI3TDE4LjkgNC41bDEuMDQ1IDMuOTg0LTEuMDQ1IDMuMjE0IDEuMDQ1IDMuODAyeiIvPjxwYXRoIGZpbGw9IiNGRjVDMTYiIGQ9Im01LjA0NSA0LjUgNS4zNjQgMy4xMTYtLjIxMyAyLjE0em0zLjQzMyAxMS4wMDEgMi4zNiAxLjc0Ny0yLjM2LjY4NHptMi4xNzItMi44ODgtLjQ1NC0yLjg1Ni0yLjkwNCAxLjk0MmgtLjAwMWwuMDA5IDIgMS4xNzctMS4wODZ6TTE4LjkgNC41bC01LjM2NCAzLjExNi4yMTMgMi4xNHptLTMuNDMzIDExLjAwMS0yLjM2IDEuNzQ3IDIuMzYuNjg0em0xLjE4Ny0zLjgwMXYtLjAwMmgtLjAwMWwtMi45MDQtMS45NDEtLjQ1MyAyLjg1NmgyLjE3MWwxLjE3OCAxLjA4NnoiLz48cGF0aCBmaWxsPSIjRTM0ODA3IiBkPSJtOC40NzcgMTcuOTMyLTMuNDMzLjk5M0w0IDE1LjUwMWg0LjQ3N3ptMi4xNzItNS4zMi42NTYgNC4xMy0uOTEtMi4yOTctMy4wOTctLjc0NiAxLjE3OC0xLjA4N3ptNC44MTggNS4zMiAzLjQzMy45OTMgMS4wNDUtMy40MjRoLTQuNDc4em0tMi4xNzEtNS4zMi0uNjU2IDQuMTMuOTA5LTIuMjk3IDMuMDk3LS43NDYtMS4xNzktMS4wODd6Ii8+PHBhdGggZmlsbD0iI0ZGOEQ1RCIgZD0ibTQgMTUuNSAxLjA0NC0zLjgwMkg3LjI5bC4wMDggMiAzLjA5OC43NDcuOTA5IDIuMjk2LS40NjguNTA1LTIuMzYtMS43NDd6bTE1Ljk0NSAwTDE4LjkgMTEuNjk4aC0yLjI0NWwtLjAwOSAyLTMuMDk3Ljc0Ny0uOTA5IDIuMjk2LjQ2Ny41MDUgMi4zNi0xLjc0N3ptLTYuNDA5LTcuODg2aC0zLjEyN2wtLjIxMyAyLjEzOSAxLjEwOSA2Ljk4NWgxLjMzNWwxLjExLTYuOTg1eiIvPjxwYXRoIGZpbGw9IiM2NjE4MDAiIGQ9Ik01LjA0NCA0LjUgNCA4LjQ4NGwxLjA0NCAzLjIxNEg3LjI5bDIuOTA1LTEuOTQzek0xMCAxMy40NDFIOC45ODJsLS41NTMuNTI4IDEuOTY3LjQ3NHpNMTguOSA0LjVsMS4wNDUgMy45ODQtMS4wNDUgMy4yMTRoLTIuMjQ1bC0yLjkwNi0xLjk0M3ptLTQuOTU0IDguOTQxaDEuMDJsLjU1My41MjktMS45Ny40NzV6bS0xLjA3MSA0LjYzMi4yMzItLjgyNS0uNDY3LS41MDZoLTEuMzM2bC0uNDY3LjUwNi4yMzIuODI1Ii8+PHBhdGggZmlsbD0iI0MwQzRDRCIgZD0iTTEyLjg3NSAxOC4wNzN2MS4zNjRoLTEuODA2di0xLjM2NHoiLz48cGF0aCBmaWxsPSIjRTdFQkY2IiBkPSJtOC40NzggMTcuOTMgMi41OTIgMS41MDZ2LTEuMzYzbC0uMjMyLS44MjZ6bTYuOTkgMC0yLjU5MyAxLjUwNnYtMS4zNjNsLjIzMi0uODI2eiIvPjwvZz48ZGVmcz48Y2xpcFBhdGggaWQ9Im1ldGFtYXNrX19hIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMCAwaDI0djI0SDB6Ii8+PC9jbGlwUGF0aD48L2RlZnM+PC9zdmc+", "rabby": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDI0IDI0Ij48ZyBjbGlwLXBhdGg9InVybCgjcmFiYnlfX2EpIj48cGF0aCBmaWxsPSJ1cmwoI3JhYmJ5X19iKSIgZD0iTTI0IDBIMHYyNGgyNHoiLz48cGF0aCBmaWxsPSJ1cmwoI3JhYmJ5X19jKSIgZD0iTTE5LjkxOCAxMy4wNGMuNjI5LTEuNDYxLTIuNDc4LTUuNTQzLTUuNDQ2LTcuMjQzLTEuODctMS4zMTctMy44Mi0xLjEzNi00LjIxNS0uNTU4LS44NjYgMS4yNyAyLjg2OSAyLjM0NSA1LjM2NyAzLjZhMi45IDIuOSAwIDAgMC0xLjM0IDEuMjM1Yy0uOTMyLTEuMDU4LTIuOTc2LTEuOTY5LTUuMzc1LTEuMjM1LTEuNjE2LjQ5NS0yLjk2IDEuNjYtMy40NzkgMy40MjJhMSAxIDAgMCAwLS40MTItLjA5MWMtLjU2MiAwLTEuMDE4LjQ3NC0xLjAxOCAxLjA1OXMuNDU2IDEuMDU5IDEuMDE4IDEuMDU5Yy4xMDQgMCAuNDMtLjA3My40My0uMDczbDUuMjA0LjA0Yy0yLjA4MiAzLjQzNS0zLjcyNiAzLjkzNy0zLjcyNiA0LjUzMnMxLjU3My40MzQgMi4xNjQuMjEyYzIuODMtMS4wNjIgNS44NjgtNC4zNzIgNi4zODktNS4zMjUgMi4xOS4yODQgNC4wMy4zMTggNC40NC0uNjM0Ii8+PHBhdGggZmlsbD0idXJsKCNyYWJieV9fZCkiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTE1LjYyNCA4LjgzOWMuMTE2LS4wNDguMDk3LS4yMjUuMDY2LS4zNjUtLjA3My0uMzIxLTEuMzM0LTEuNjE3LTIuNTE4LTIuMTk3LTEuNjE0LS43OTEtMi44MDItLjc1LTIuOTc4LS4zODYuMzI5LjcwMSAxLjg1MyAxLjM2IDMuNDQ0IDIuMDQ3LjY3OS4yOTMgMS4zNy41OTEgMS45ODYuOTAxIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiLz48cGF0aCBmaWxsPSJ1cmwoI3JhYmJ5X19lKSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTMuNTc2IDE1Ljg5NGE5IDkgMCAwIDAtMS4xMTQtLjM1N2MuNDQ3LS44MzIuNTQxLTIuMDY0LjExOS0yLjg0My0uNTkyLTEuMDkyLTEuMzM2LTEuNjc0LTMuMDYzLTEuNjc0LS45NSAwLTMuNTA4LjMzMy0zLjU1NCAyLjU1NXEtLjAwOC4zNDkuMDE2LjY0NGw0LjY3Mi4wMzVhMTYuNyAxNi43IDAgMCAxLTEuNzM2IDIuMzk3Yy42Mi4xNjUgMS4xMzEuMzA0IDEuNjAxLjQzMS40NDYuMTIxLjg1NC4yMzIgMS4yOC4zNDVhMjAgMjAgMCAwIDAgMS43OC0xLjUzMyIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNyYWJieV9fZikiIGQ9Ik01LjM2OCAxMy45OWMuMTkgMS42ODggMS4xMTMgMi4zNSAyLjk5NyAyLjU0NSAxLjg4NC4xOTYgMi45NjQuMDY1IDQuNDAzLjIwMSAxLjIwMi4xMTQgMi4yNzUuNzUxIDIuNjczLjUzLjM1OC0uMTk3LjE1Ny0uOTEzLS4zMjItMS4zNzItLjYyMS0uNTk2LTEuNDgxLTEuMDEtMi45OTQtMS4xNTcuMzAxLS44NTkuMjE3LTIuMDYzLS4yNTEtMi43MTktLjY3OC0uOTQ3LTEuOTI3LTEuMzc2LTMuNTEtMS4xODktMS42NTIuMTk2LTMuMjM1IDEuMDQzLTIuOTk2IDMuMTYxIi8+PC9nPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0icmFiYnlfX2IiIHgxPSI4LjcyMSIgeDI9IjE5Ljg0NiIgeTE9IjExLjc0NiIgeTI9IjE0Ljc3OCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiM4Njk3RkYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNBQkI3RkYiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0icmFiYnlfX2MiIHgxPSI4LjcyMSIgeDI9IjE5Ljg0NiIgeTE9IjExLjc0NiIgeTI9IjE0Ljc3OCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0icmFiYnlfX2QiIHgxPSIxNy45MiIgeDI9IjkuNjIxIiB5MT0iMTEuNTI3IiB5Mj0iMy41MzEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjODY5N0ZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjODY5N0ZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0icmFiYnlfX2UiIHgxPSIxMy43OTkiIHgyPSI1Ljk4MyIgeTE9IjE2LjE4NCIgeTI9IjExLjg2NSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiM4Njk3RkYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4Njk3RkYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJyYWJieV9fZiIgeDE9IjkuMzgyIiB4Mj0iMTQuODIxIiB5MT0iMTEuNjYiIHkyPSIxOC4zMDEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIuOTg0IiBzdG9wLWNvbG9yPSIjRDFEOEZGIi8+PC9saW5lYXJHcmFkaWVudD48Y2xpcFBhdGggaWQ9InJhYmJ5X19hIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMCAwaDI0djI0SDB6Ii8+PC9jbGlwUGF0aD48L2RlZnM+PC9zdmc+", "phantom": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDI0IDI0Ij48ZyBjbGlwLXBhdGg9InVybCgjcGhhbnRvbV9fYSkiPjxwYXRoIGZpbGw9IiNBQjlGRjIiIGQ9Ik0yNCAwSDB2MjRoMjR6Ii8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTUuODkzIDE4LjRjMi4wNDIgMCAzLjU3Ni0xLjcwNiA0LjQ5Mi0zLjA1NGEyLjUgMi41IDAgMCAwLS4xNzMuODgzYzAgLjc4Ny40NyAxLjM0OCAxLjM5OCAxLjM0OCAxLjI3NSAwIDIuNjM2LTEuMDc0IDMuMzQxLTIuMjNxLS4wNzUuMjUtLjA3NC40NjRjMCAuNTUuMzIyLjg5NS45NzguODk1IDIuMDY2IDAgNC4xNDUtMy41MiA0LjE0NS02LjU5N0MyMCA3LjcxMSAxOC43MzggNS42IDE1LjU3IDUuNiAxMC4wMDIgNS42IDQgMTIuMTM3IDQgMTYuMzZjMCAxLjY1OC45MjggMi4wNCAxLjg5MyAyLjA0bTcuNzU5LTguNTUzYzAtLjU5Ny4zNDctMS4wMTQuODU0LTEuMDE0LjQ5NSAwIC44NDEuNDE3Ljg0MSAxLjAxNCAwIC41OTYtLjM0NiAxLjAyNi0uODQxIDEuMDI2LS41MDggMC0uODU0LS40My0uODU0LTEuMDI2bTIuNjQ4IDBjMC0uNTk3LjM0Ny0xLjAxNC44NTQtMS4wMTQuNDk1IDAgLjg0MS40MTcuODQxIDEuMDE0IDAgLjU5Ni0uMzQ2IDEuMDI2LS44NDEgMS4wMjYtLjUwNyAwLS44NTQtLjQzLS44NTQtMS4wMjYiLz48L2c+PGRlZnM+PGNsaXBQYXRoIGlkPSJwaGFudG9tX19hIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMCAwaDI0djI0SDB6Ii8+PC9jbGlwUGF0aD48L2RlZnM+PC9zdmc+"};
+  const KNOWN = [
+    { rdns: 'io.metamask', name: 'MetaMask', logo: ICONS.metamask, url: 'https://metamask.io/download/', app: u => 'https://metamask.app.link/dapp/' + u.replace(/^https?:\/\//, '') },
+    { rdns: 'io.rabby', name: 'Rabby', logo: ICONS.rabby, url: 'https://rabby.io/' },
+    { rdns: 'app.phantom', name: 'Phantom', logo: ICONS.phantom, url: 'https://phantom.com/download', app: u => 'https://phantom.app/ul/browse/' + encodeURIComponent(u) + '?ref=' + encodeURIComponent(location.origin) }
+  ];
+  const phone = matchMedia('(pointer: coarse)').matches;
+  const found = new Map();
+  const wdlg = $('#wallet'), wbody = $('#wallet-body');
+  const W = { rdns: null, provider: null, account: null, chainOk: false, hype: null, usdc: null, bound: new WeakSet() };
+  addEventListener('eip6963:announceProvider', e => { const d = e.detail; if (d && d.info && d.provider) { found.set(d.info.rdns, d); if (wdlg.open && !W.account) render(); } });
+  dispatchEvent(new Event('eip6963:requestProvider'));
+  const legacy = () => {
+    const eth = window.ethereum, ph = window.phantom && window.phantom.ethereum;
+    if (ph && !found.has('app.phantom')) found.set('app.phantom', { info: { rdns: 'app.phantom', name: 'Phantom' }, provider: ph });
+    if (eth && eth.isRabby && !found.has('io.rabby')) found.set('io.rabby', { info: { rdns: 'io.rabby', name: 'Rabby' }, provider: eth });
+    else if (eth && eth.isMetaMask && !eth.isPhantom && !eth.isRabby && !found.has('io.metamask')) found.set('io.metamask', { info: { rdns: 'io.metamask', name: 'MetaMask' }, provider: eth });
+  };
+  const nameOf = rdns => (KNOWN.find(k => k.rdns === rdns) || {}).name || ((found.get(rdns) || {}).info || {}).name || 'Wallet';
+  const status = (msg, err) => { const el = $('.wl-status', wbody); if (el) { el.textContent = msg || ''; el.classList.toggle('err', !!err); } };
+
+  const paintWallet = () => {
+    $$('[data-wallet-label]').forEach(l => { l.textContent = W.account ? short(W.account) : (l.closest('.wbtn') ? 'Connect wallet' : 'Connect a wallet'); });
+    $$('[data-wallet]').forEach(b => W.account ? b.setAttribute('data-connected', '') : b.removeAttribute('data-connected'));
+    const box = $('#console-wallet');
+    box.innerHTML = !W.account
+      ? `<div class="empty"><h3>Connect a wallet to see your mandates.</h3><p>Your wallet owns the mandates it opens and can pause any of them in one transaction. To look around first, open the example mandate or draft limits in the workspace.</p>${btn('Connect wallet', 'data-wallet-open')}</div>`
+      : `<div class="card"><div class="card-h" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center"><div><h3>${esc(nameOf(W.rdns))} · <span class="addr">${short(W.account)}</span></h3><p>${W.chainOk ? 'On HyperEVM, chain 999.' : 'Not on HyperEVM. Switch to see balances.'}</p></div>${W.chainOk ? '<span class="chip ok">HyperEVM</span>' : '<button class="ghost" data-switch>Switch to HyperEVM</button>'}</div>
+          <div class="stats three"><div class="stat"><dt>HYPE</dt><dd>${W.hype ?? '—'}</dd><p>Native balance on HyperEVM.</p></div><div class="stat"><dt>USDC</dt><dd>${W.usdc ?? '—'}</dd><p>Native USDC on HyperEVM.</p></div><div class="stat"><dt>Mandates</dt><dd>0</dd><p>Mandates open at launch.</p></div></div></div>`;
+    const o = $('[data-wallet-open]', box); if (o) o.addEventListener('click', () => openWallet());
+    const s = $('[data-switch]', box); if (s) s.addEventListener('click', async () => { try { await switchChain(); await refresh(); } catch {} });
+  };
+  const render = () => {
+    if (!W.account) {
+      const rows = KNOWN.map(k => {
+        const d = found.get(k.rdns), logo = `<img src="${k.logo}" alt="">`;
+        if (d) return `<button type="button" class="wl-item" data-connect="${k.rdns}">${logo}${k.name}<em class="ok">Detected</em></button>`;
+        if (phone && k.app && /^https?:/.test(location.href)) return `<a class="wl-item" href="${esc(k.app(location.href))}">${logo}${k.name}<em>Open in app ↗</em></a>`;
+        return `<a class="wl-item" href="${k.url}" target="_blank" rel="noopener">${logo}${k.name}<em>Install ↗</em></a>`;
+      });
+      for (const [rdns, d] of found) if (!KNOWN.some(k => k.rdns === rdns)) {
+        const ic = d.info.icon && /^data:image\//.test(d.info.icon) ? `<img src="${esc(d.info.icon)}" alt="">` : '';
+        rows.push(`<button type="button" class="wl-item" data-connect="${esc(rdns)}">${ic}${esc(d.info.name)}<em class="ok">Detected</em></button>`);
+      }
+      wbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>Wallet</span><h2 id="wallet-title">Connect a wallet.</h2>
+        <p>Corody runs on HyperEVM, Hyperliquid's smart-contract chain. Pick a wallet and it will be asked to switch to HyperEVM.</p>
+        <div class="wl-list">${rows.join('')}</div><p class="wl-status" role="status"></p>
+        <p class="wl-note">Connecting only shares your address. Nothing is signed and nothing is sent.</p>`;
+      return;
+    }
+    wbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>Wallet / ${esc(nameOf(W.rdns))}</span><h2 id="wallet-title">${short(W.account)}</h2>
+      <div class="result">
+        <div class="kv"><span>Network</span><span style="color:${W.chainOk ? 'inherit' : 'var(--bad)'}">${W.chainOk ? 'HyperEVM · 999' : 'Not on HyperEVM'}</span></div>
+        <div class="kv"><span>HYPE</span><span class="mono">${W.hype ?? '—'}</span></div>
+        <div class="kv"><span>USDC</span><span class="mono">${W.usdc ?? '—'}</span></div>
+        <div class="kv"><span>Address</span><span class="addr">${esc(W.account)}</span></div></div>
+      ${W.chainOk ? '' : `<p style="margin-top:14px">${W.rdns === 'app.phantom' ? 'In Phantom, turn on HyperEVM under Settings → Active networks, then switch here.' : 'Switch the wallet to HyperEVM to see your balances.'}</p>`}
+      <p class="wl-status" role="status" style="margin-top:12px"></p>
+      <div class="wl-actions">${W.chainOk ? '' : btn('Switch to HyperEVM', 'data-switch')}
+        <a class="ghost" href="${CHAIN.explorer}/address/${esc(W.account)}" target="_blank" rel="noopener">View on explorer ↗</a>
+        <button type="button" class="ghost" data-disconnect>Disconnect</button></div>`;
+  };
+  const refresh = async () => {
+    if (!W.provider || !W.account) return;
+    try { W.chainOk = String(await W.provider.request({ method: 'eth_chainId' })).toLowerCase() === CHAIN.hex; } catch { W.chainOk = false; }
+    // balances come from the public RPC, so they read the same whichever wallet is connected
+    try { const [b, u] = await Promise.all([rpc('eth_getBalance', [W.account, 'latest']), usdcOf(W.account)]); W.hype = units(b, 18, 4); W.usdc = units(u, 6, 2); } catch { W.hype = W.usdc = null; }
+    paintWallet(); if (wdlg.open) render();
+  };
+  const switchChain = async () => {
+    const p = W.provider;
+    try { await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CHAIN.hex }] }); }
+    catch (e) { if (e && (e.code === 4902 || /unrecognized|not added|unknown|unsupported/i.test(e.message || ''))) await p.request({ method: 'wallet_addEthereumChain', params: [HYPEREVM] }); else throw e; }
+  };
+  const bind = p => {
+    if (W.bound.has(p) || !p.on) return; W.bound.add(p);
+    p.on('accountsChanged', a => { if (p !== W.provider) return; if (!a || !a.length) drop(); else { W.account = a[0]; refresh(); } });
+    p.on('chainChanged', () => { if (p === W.provider) refresh(); });
+  };
+  const drop = () => { Object.assign(W, { rdns: null, provider: null, account: null, chainOk: false, hype: null, usdc: null }); store.set('corody.wallet', null); paintWallet(); if (wdlg.open) render(); };
+  const connect = async rdns => {
+    const d = found.get(rdns); if (!d) return;
+    status('Confirm in ' + nameOf(rdns) + '…');
+    try {
+      const accs = await d.provider.request({ method: 'eth_requestAccounts' });
+      if (!accs || !accs.length) throw new Error('No account was shared.');
+      Object.assign(W, { rdns, provider: d.provider, account: accs[0] }); bind(d.provider); store.set('corody.wallet', rdns);
+      try { await switchChain(); } catch {}
+      await refresh(); render();
+    } catch (e) { status(e && e.code === 4001 ? 'Request cancelled in the wallet.' : (e && e.message) || 'Could not connect.', true); }
+  };
+  const openWallet = () => { legacy(); render(); if (!wdlg.open) wdlg.showModal(); if (W.account) refresh(); };
+  $$('[data-wallet]').forEach(b => b.addEventListener('click', openWallet));
+  wdlg.addEventListener('click', async e => {
+    const c = e.target.closest('[data-connect]'); if (c) return connect(c.dataset.connect);
+    if (e.target.closest('[data-switch]')) { try { await switchChain(); await refresh(); } catch (err) { status(err && err.code === 4001 ? 'Request cancelled in the wallet.' : 'This wallet could not switch to HyperEVM.', true); } return; }
+    if (e.target.closest('[data-disconnect]')) { try { await W.provider.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] }); } catch {} drop(); }
+  });
+  setTimeout(async () => {
+    legacy(); const rdns = store.get('corody.wallet'), d = rdns && found.get(rdns); if (!d) return;
+    try { const a = await d.provider.request({ method: 'eth_accounts' }); if (a && a.length) { Object.assign(W, { rdns, provider: d.provider, account: a[0] }); bind(d.provider); refresh(); } } catch {}
+  }, 500);
+
+
+  /* ===== Status: USDC issuer controls and gas costs, read live ===== */
+  const readStatus = async () => {
+    try {
+      const [paused, gas, price] = await Promise.all([rpc('eth_call', [{ to: USDC, data: '0x5c975abb' }, 'latest']), rpc('eth_gasPrice'), hypePrice()]);
+      $$('[data-usdc-paused]').forEach(el => el.textContent = BigInt(paused) ? 'paused, so payments are stopped.' : 'not paused, so transfers are open.');
+      const g = Number(BigInt(gas));
+      $$('[data-cost]').forEach(el => { const hype = g * +el.dataset.cost / 1e18;
+        el.textContent = 'about ' + (hype < 0.0001 ? hype.toExponential(1) : hype.toFixed(5)) + ' HYPE' + (price ? ' · $' + (hype * price).toFixed(4) : ''); });
+    } catch { $$('[data-usdc-paused]').forEach(el => el.textContent = 'not readable right now.'); }
+  };
+  // HYPE price from Hyperliquid's public info API, only to show fees in dollars
+  const hypePrice = async () => { try { const r = await fetch('https://api.hyperliquid.xyz/info', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ type: 'allMids' }) });
+    const j = await r.json(); return parseFloat(j.HYPE) || null; } catch { return null; } };
+  $('#bl-form').addEventListener('submit', async e => {
+    e.preventDefault(); const a = $('#bl-addr').value.trim(), m = $('#bl-msg');
+    if (!isAddr(a)) { m.className = 'msg bad'; m.textContent = 'That is not a 0x address.'; return; }
+    m.className = 'msg'; m.textContent = 'Reading the USDC blocklist…';
+    try { const r = await rpc('eth_call', [{ to: USDC, data: '0xfe575a87' + pad(a) }, 'latest']);
+      if (BigInt(r)) { m.className = 'msg bad'; m.textContent = 'Blocked. USDC refuses to move funds to or from this address.'; }
+      else { m.className = 'msg ok'; m.textContent = 'Not blocked. USDC can move funds for this address.'; }
+    } catch { m.className = 'msg bad'; m.textContent = 'HyperEVM did not answer. Try again in a moment.'; }
+  });
+  $$('[data-refresh]').forEach(b => b.addEventListener('click', readStatus));
+
+  paintWallet(); route(); readConds(); readStatus();
+})();
+</script>
+</body>
+</html>

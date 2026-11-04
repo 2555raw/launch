@@ -37,8 +37,8 @@ h1, h2, h3, h4, p { margin: 0; }
 /* ---------- Header ---------- */
 .top { position: sticky; top: 0; z-index: 20; background: var(--band); border-bottom: 1px solid var(--line); }
 .top-in { display: flex; align-items: center; gap: 28px; height: 80px; padding: 0 var(--gx); }
-.wordmark { font-weight: 600; font-size: 18px; letter-spacing: -.04em; text-decoration: none; white-space: nowrap; }
-.wordmark sup { font-size: .5em; vertical-align: top; position: relative; top: .1em; margin-left: .05em; letter-spacing: 0; font-weight: 500; }
+.wordmark { font-weight: 600; font-size: 21px; letter-spacing: -1.3px; line-height: 1.45; text-decoration: none; white-space: nowrap; }
+.wordmark sup { font-size: .46em; line-height: 0; vertical-align: top; position: relative; top: .62em; margin-left: .12em; letter-spacing: 0; font-weight: 600; }
 .nav { display: flex; gap: 6px; margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
 .nav::-webkit-scrollbar { display: none; }
 .nav a { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; text-decoration: none; padding: 8px 12px; color: var(--mist); white-space: nowrap; transition: color .25s; }
@@ -169,6 +169,22 @@ pre.code { margin: 0; padding: 16px 18px; background: var(--wash); font-family: 
 .check-log em.ok { background: rgba(53,183,121,.16); color: var(--ok); }
 .check-log em.no { background: rgba(162,58,43,.1); color: var(--bad); }
 
+/* endow form */
+.asset-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 42px; gap: 16px; align-items: end; }
+.asset-row + .asset-row { margin-top: 14px; }
+.asset-row .field + .field { margin-top: 0; }
+.suffix { position: relative; }
+.suffix .input { padding-right: 52px; }
+.suffix span { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-family: var(--f-mono); font-size: 11px; color: var(--mist); pointer-events: none; }
+.rm { height: 42px; border: 1px solid var(--line-strong); background: transparent; cursor: pointer; color: var(--mist); font-size: 16px; }
+.rm:hover { border-color: var(--ink); color: var(--ink); }
+.linkbtn { background: none; border: 0; padding: 0; margin-top: 16px; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; color: var(--ink); }
+.owner { font-size: 14px; color: var(--mist); padding-top: 11px; }
+.owner.set { color: var(--ink); }
+.fine { font-size: 12px; color: var(--mist); margin-top: 12px; max-width: 560px; }
+.go-line { margin-top: 20px; font-size: 14px; font-weight: 500; }
+@media (max-width: 560px) { .asset-row { grid-template-columns: minmax(0, 1fr) 96px 42px; gap: 10px; } }
+
 /* example dispute */
 .ruling { margin-top: 20px; padding: 2px 0 2px 18px; border-left: 2px solid var(--line-strong); font-size: 14px; color: var(--mist); display: grid; gap: 6px; }
 .ruling .lab { margin-bottom: 2px; }
@@ -176,16 +192,18 @@ pre.code { margin: 0; padding: 16px 18px; background: var(--wash); font-family: 
 .verdict { margin-top: 18px; font-size: 15px; }
 
 /* ---------- Footer ---------- */
-footer { background: var(--band); border-top: 1px solid var(--line); padding: 52px var(--gx) 40px; }
+footer { background: var(--band); border-top: 1px solid var(--line); padding: 44px var(--gx) 32px; }
 .foot { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; }
-.big-word { font-size: clamp(48px, 3.8vw, 64px); font-weight: 500; letter-spacing: -.06em; line-height: 1; }
-.big-word sup { font-size: .5em; line-height: 0; vertical-align: top; position: relative; top: .5em; margin-left: .02em; letter-spacing: 0; font-weight: 400; }
-.foot-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 24px; list-style: none; margin: 0; padding: 0; }
-.foot-links a { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; text-decoration: none; color: var(--mist); }
+.big-word { font-size: clamp(56px, 4.1vw, 80px); font-weight: 600; letter-spacing: -.06em; line-height: 1; }
+.big-word sup { font-size: .52em; line-height: 0; vertical-align: top; position: relative; top: .52em; margin-left: .04em; letter-spacing: 0; font-weight: 500; }
+.foot-links { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px 24px; list-style: none; margin: 0; padding: 0; }
+.foot-links a { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; text-decoration: none; color: var(--mist); }
 .foot-links a:hover, .foot-links a[aria-current="page"] { color: var(--ink); }
-.foot-social { display: flex; gap: 12px; margin-top: 40px; }
-.foot-fine { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line-strong); display: grid; gap: 8px; font-size: 12px; color: var(--mist); }
-.foot-fine code { font-family: var(--f-mono); font-size: 12px; overflow-wrap: anywhere; }
+.foot-social { display: flex; gap: 8px; margin-top: 32px; }
+.foot-social .ghost { height: 32px; padding: 0 13px; font-family: var(--f-sans); font-size: 12px; text-transform: none; }
+.foot-social .ghost svg { width: 14px; height: 14px; }
+.foot-fine { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line-strong); display: grid; gap: 6px; font-size: 10px; color: var(--mist); }
+.foot-fine code { font-family: var(--f-mono); font-size: 10px; overflow-wrap: anywhere; }
 
 /* ---------- Wallet dialog ---------- */
 dialog { border: 0; padding: 0; background: transparent; color: var(--ink); max-width: min(640px, calc(100vw - 32px)); width: 100%; }
@@ -234,6 +252,11 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
   .conds { padding: 0 18px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* Titles and key figures in the wordmark's cut: Zalando Sans 600 with tight tracking */
+.ph h1, .h2, .card-h h3, .empty h3, .dlg h2, .stat dd.txt, .conds b, .draft b, .verdict strong, .ruling strong, .kv span:last-child strong, .go-line { font-weight: 600; }
+.ph h1 { letter-spacing: -.05em; }
+.h2, .card-h h3, .empty h3, .dlg h2 { letter-spacing: -.04em; }
 </style>
 </head>
 <body>
@@ -273,9 +296,8 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
   <div class="ph">
     <div><h1 id="t-endowments">Endowments</h1>
       <p>Endow an AI agent once. The principal stays staked as HYPE on Hyperliquid, with a USDC buffer, and the agent spends a yearly draw of up to 6%. Anyone can add to an endowment.</p></div>
-    <div class="actions"><button class="btn" data-goto="endow"><span class="lbl"><span class="roll"><span>Endow an agent</span><span aria-hidden="true">Endow an agent</span></span></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
+    <div class="actions"><a class="btn" href="#endow"><span class="lbl"><span class="roll"><span>Endow an agent</span><span aria-hidden="true">Endow an agent</span></span></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div>
   </div>
-  <div class="notice" data-lane-note hidden><b>Your path</b><span data-lane-text></span></div>
   <div class="card">
     <div class="stats">
       <div class="stat"><dt>Endowments</dt><dd>0</dd><p>Opened on HyperEVM so far.</p></div>
@@ -285,30 +307,74 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
     </div>
   </div>
 
-  <h2 class="h2">Plan an endowment</h2>
-  <p class="sub">See what an agent would draw before anything goes on chain.</p>
-  <div class="card" id="endow">
-    <div class="card-b">
-      <div class="grid3">
-        <div class="field"><label for="e-agent">Agent</label><input class="input mono" id="e-agent" placeholder="ERC-8004 id or 0x address" autocomplete="off"></div>
-        <div class="field"><label for="e-amt">Principal (USD)</label><input class="input mono" id="e-amt" type="number" min="1" step="1" value="10000" inputmode="decimal"></div>
-        <div class="field"><label for="e-rate">Draw rate</label>
-          <select class="input mono" id="e-rate"><option value="3">3% a year</option><option value="4">4% a year</option><option value="5">5% a year</option><option value="6" selected>6% a year</option></select></div>
-      </div>
-      <div class="field" style="margin-top:20px"><label for="e-split">Split: <span id="e-split-v">80% staked HYPE · 20% USDC</span></label><input id="e-split" type="range" min="50" max="95" step="5" value="80"></div>
-      <div class="stats three" style="padding:24px 0 0">
-        <div class="stat"><dt>Draw a year</dt><dd id="e-year">$600.00</dd><p>Paid in USDC, staking rewards first.</p></div>
-        <div class="stat"><dt>Draw a day</dt><dd id="e-day">$1.64</dd><p>Accrues by the second.</p></div>
-        <div class="stat"><dt>USDC buffer</dt><dd id="e-buf">$2,000.00</dd><p id="e-buf-p">Covers 3.3 years of draws without selling HYPE.</p></div>
-      </div>
-      <div style="margin-top:24px" class="actions"><button class="btn" id="e-go"><span class="lbl">Review and endow</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
-      <p class="msg" id="e-msg"></p>
-    </div>
-  </div>
-
   <h2 class="h2">Ranked by principal</h2>
   <p class="sub">Accepted endowments rank above those still waiting for their agent's owner.</p>
-  <div class="empty"><h3>No endowments yet.</h3><p>The first endowment opens when the registry goes live on HyperEVM. Plan one above to see its draw.</p></div>
+  <div class="empty"><h3>No endowments yet.</h3><p>The first endowment opens when the registry goes live on HyperEVM. Set one up now to see what it would draw.</p><a class="btn" href="#endow"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><p style="display:none"></p></div>
+</section>
+
+<!-- 01b Endow an agent -->
+<section class="page" id="p-endow" aria-labelledby="t-endow">
+  <span class="eyebrow"><span class="sq"></span><b>01</b>Endowments</span>
+  <div class="ph">
+    <div><h1 id="t-endow">Endow an agent</h1><p>Choose an agent, what its principal holds and how much it draws. The principal stays staked; the agent spends only the draw.</p></div>
+    <div class="actions"><a class="ghost" href="#endowments">All endowments</a></div>
+  </div>
+  <div class="notice" data-lane-note hidden><b>Your path</b><span data-lane-text></span></div>
+
+  <div class="card">
+    <div class="card-h"><h3>The agent</h3></div>
+    <div class="card-b"><div class="grid3">
+      <div class="field"><label for="f-reg">Where it is registered</label>
+        <select class="input" id="f-reg"><option value="HyperEVM" selected>HyperEVM</option><option value="Base">Base</option><option value="Ethereum">Ethereum</option></select>
+        <small>The ERC-8004 registry the agent is in. The principal is held on HyperEVM whichever you pick.</small></div>
+      <div class="field"><label for="f-num">Agent number</label>
+        <input class="input mono" id="f-num" type="number" min="1" step="1" placeholder="8756" inputmode="numeric">
+        <small>Its ERC-8004 identity on <span data-reg>HyperEVM</span>. Its owner accepts the endowment before anything is drawn.</small></div>
+      <div class="field"><span class="lab">Owned by</span><p class="owner" id="f-owner">Enter a number</p></div>
+    </div></div>
+  </div>
+
+  <h2 class="h2">What the principal holds</h2>
+  <p class="sub">Up to four assets on Hyperliquid. HYPE is staked natively as it arrives, and USDC pays the draw.</p>
+  <div class="card"><div class="card-b">
+    <div id="f-assets"></div>
+    <button type="button" class="linkbtn" id="f-add">Add an asset</button>
+    <p class="msg" id="f-amsg"></p>
+  </div></div>
+
+  <h2 class="h2">The draw</h2>
+  <div class="card"><div class="card-b"><div class="grid3">
+    <div class="field"><label for="f-rate">Draw rate</label>
+      <select class="input" id="f-rate"><option value="3">3% a year</option><option value="3.5">3.5% a year</option><option value="4">4% a year</option><option value="4.5" selected>4.5% a year</option><option value="5">5% a year</option><option value="5.5">5.5% a year</option><option value="6">6% a year</option></select>
+      <small>Worked out each quarter from a three-year average of the principal, and kept between 3% and 6%.</small></div>
+    <div class="field"><label for="f-kept">Earnings kept</label>
+      <select class="input" id="f-kept"><option value="0">None of it</option><option value="25">25% of what it earns</option><option value="50" selected>50% of what it earns</option><option value="75">75% of what it earns</option><option value="100">All of it</option></select>
+      <small>When the agent earns, this share goes back into the principal and the rest to its mandate.</small></div>
+    <div class="field"><label for="f-succ">Successor (optional)</label>
+      <input class="input mono" id="f-succ" type="number" min="1" step="1" placeholder="Agent number" inputmode="numeric">
+      <small>Takes over the endowment if the agent stops drawing for 180 days.</small></div>
+  </div></div></div>
+
+  <h2 class="h2">Your first gift</h2>
+  <p class="sub">Optional. It makes you the first patron and is staked straight away.</p>
+  <div class="card"><div class="card-b">
+    <div class="grid2">
+      <div class="field"><label for="f-gift">Amount</label>
+        <div class="inline"><div class="suffix" style="flex:1;min-width:0"><input class="input mono" id="f-gift" type="number" min="0" step="0.01" placeholder="0.00" inputmode="decimal"><span id="f-unit-tag">USDC</span></div>
+        <select class="input" id="f-unit" style="width:110px;flex:none"><option>USDC</option><option>HYPE</option></select></div>
+        <small id="f-price">Gifts in HYPE are valued at the live Hyperliquid price.</small></div>
+      <div></div>
+    </div>
+    <div class="stats three" style="padding:22px 0 0">
+      <div class="stat"><dt>Gift in dollars</dt><dd id="f-usd">$0.00</dd><p>What lands in the principal.</p></div>
+      <div class="stat"><dt>Draw a year</dt><dd id="f-year">$0.00</dd><p>Paid in USDC to the agent's mandate.</p></div>
+      <div class="stat"><dt>Draw a day</dt><dd id="f-day">$0.00</dd><p>Accrues by the second.</p></div>
+    </div>
+    <p class="go-line" id="f-line">Connect a wallet on HyperEVM to create the endowment.</p>
+    <div class="actions" style="margin-top:14px"><button class="btn" id="f-go" type="button"><span class="lbl" id="f-go-l">Connect wallet</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
+    <p class="msg" id="f-msg"></p>
+    <p class="fine">The principal is held in staked HYPE and USDC and can lose value. The terms cannot be changed after creation, except the successor.</p>
+  </div></div>
 </section>
 
 <!-- 02 Console -->
@@ -626,23 +692,23 @@ const receipt = await mandate.pay({
   const isAddr = a => /^0x[0-9a-fA-F]{40}$/.test(a);
 
   /* ===== Router ===== */
-  const PAGES = ['endowments', 'console', 'workspace', 'providers', 'resolvers', 'token', 'developers', 'status'];
+  const PAGES = ['endowments', 'endow', 'console', 'workspace', 'providers', 'resolvers', 'token', 'developers', 'status'];
   const route = () => {
-    let id = location.hash.slice(1); if (id === 'endow') id = 'endowments';
+    let id = location.hash.slice(1);
     if (!PAGES.includes(id)) id = 'console';
     PAGES.forEach(p => $('#p-' + p).classList.toggle('on', p === id));
-    $$('.nav a, .foot-links a').forEach(a => a.getAttribute('href') === '#' + id ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
-    document.title = 'Corody · ' + id[0].toUpperCase() + id.slice(1);
-    if (location.hash === '#endow') setTimeout(() => $('#endow').scrollIntoView({ behavior: 'smooth', block: 'start' }), 80); else scrollTo(0, 0);
+    const nav = id === 'endow' ? 'endowments' : id;
+    $$('.nav a, .foot-links a').forEach(a => a.getAttribute('href') === '#' + nav ? a.setAttribute('aria-current', 'page') : a.removeAttribute('aria-current'));
+    document.title = 'Corody · ' + (id === 'endow' ? 'Endow an agent' : id[0].toUpperCase() + id.slice(1));
+    scrollTo(0, 0);
   };
   addEventListener('hashchange', route);
   // a path picked on the landing page arrives as ?lane=
-  const LANES = { endowment: 'You picked the staked HYPE endowment. Plan it below, then endow once the registry is live.',
-    prefund: 'You picked the USDC prefund: a direct budget for one task, paid into a mandate. Draft its limits in the workspace.',
-    collateral: 'You picked HYPE credit: spending backed by posted HYPE. It opens with the mandate contracts.' };
+  const LANES = { endowment: 'You picked the staked HYPE endowment. Set it up below.',
+    prefund: 'You picked the USDC prefund: a direct budget for one task. Set the principal to USDC below, or draft its limits in the workspace.',
+    collateral: 'You picked HYPE credit: spending backed by posted HYPE. It opens with the mandate contracts; an endowment can be set up below today.' };
   const lane = new URLSearchParams(location.search).get('lane');
-  if (lane && LANES[lane]) { $('[data-lane-note]').hidden = false; $('[data-lane-text]').textContent = LANES[lane]; if (!location.hash) location.hash = 'endowments'; }
-  $$('[data-goto]').forEach(b => b.addEventListener('click', () => { location.hash = 'endowments'; setTimeout(() => $('#' + b.dataset.goto).scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }));
+  if (lane && LANES[lane]) { $('[data-lane-note]').hidden = false; $('[data-lane-text]').textContent = LANES[lane]; if (!location.hash) location.hash = 'endow'; }
 
   /* ===== Dialogs ===== */
   const modal = $('#modal'), mbody = $('#modal-body');
@@ -699,29 +765,64 @@ const receipt = await mandate.pay({
   $$('[data-copy]').forEach(b => b.addEventListener('click', async () => {
     const txt = b.parentNode.textContent.trim(); try { await navigator.clipboard.writeText(txt); b.style.color = 'var(--ok)'; setTimeout(() => b.style.color = '', 1200); } catch {} }));
 
-  /* ===== Endowment planner ===== */
-  const plan = () => {
-    const amt = Math.max(0, parseFloat($('#e-amt').value) || 0), rate = +$('#e-rate').value / 100, split = +$('#e-split').value;
-    const year = amt * rate, buf = amt * (100 - split) / 100;
-    $('#e-split-v').textContent = `${split}% staked HYPE · ${100 - split}% USDC`;
-    $('#e-year').textContent = usd(year); $('#e-day').textContent = usd(year / 365); $('#e-buf').textContent = usd(buf);
-    $('#e-buf-p').textContent = year > 0 ? `Covers ${(buf / year).toFixed(1)} years of draws without selling HYPE.` : 'Covers the draw without selling HYPE.';
-    return { amt, rate, split, year };
+  /* ===== Endow an agent ===== */
+  const ASSETS = { shype: 'Staked HYPE · native', khype: 'kHYPE · Kinetiq', sthype: 'stHYPE · Valantis', usdc: 'USDC' };
+  let rows = [{ a: 'shype', s: 80 }, { a: 'usdc', s: 20 }], hypeUsd = null;
+  const fa = $('#f-assets'), am = $('#f-amsg');
+  const rowsOk = () => {
+    const total = rows.reduce((t, r) => t + (+r.s || 0), 0), dup = new Set(rows.map(r => r.a)).size !== rows.length;
+    if (dup) return [false, 'Each asset can appear once.'];
+    if (Math.abs(total - 100) > .001) return [false, `Shares add up to ${total}%. They need to make 100%.`];
+    if (!rows.some(r => r.a === 'usdc')) return [true, 'With no USDC, every draw is paid from staking rewards alone.'];
+    return [true, ''];
   };
-  ['#e-amt', '#e-rate', '#e-split'].forEach(s => $(s).addEventListener('input', plan)); plan();
-  $('#e-go').addEventListener('click', () => {
-    const p = plan(), agent = $('#e-agent').value.trim(), m = $('#e-msg');
-    if (!agent) { m.className = 'msg bad'; m.textContent = 'Name the agent first: its ERC-8004 id or its 0x address.'; return; }
-    if (p.amt < 1) { m.className = 'msg bad'; m.textContent = 'The principal has to be at least $1.'; return; }
-    if (!W.account) { m.className = 'msg'; m.textContent = 'Connect a wallet to endow.'; openWallet(); return; }
+  const paintRows = () => {
+    fa.innerHTML = rows.map((r, i) => `<div class="asset-row">
+      <div class="field"><label for="f-a${i}">Asset</label><select class="input" id="f-a${i}" data-ra="${i}">${Object.entries(ASSETS).map(([k, v]) => `<option value="${k}"${k === r.a ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+      <div class="field"><label for="f-s${i}">Share</label><div class="suffix"><input class="input mono" id="f-s${i}" type="number" min="0" max="100" step="5" value="${r.s}" data-rs="${i}"><span>%</span></div></div>
+      ${rows.length > 1 ? `<button type="button" class="rm" data-rr="${i}" aria-label="Remove this asset">×</button>` : '<span></span>'}</div>`).join('');
+    $('#f-add').hidden = rows.length >= 4; checkRows();
+  };
+  const checkRows = () => { const [ok, msg] = rowsOk(); am.className = 'msg' + (ok ? '' : ' bad'); am.textContent = msg; };
+  fa.addEventListener('input', e => { const t = e.target;
+    if (t.dataset.rs != null) { rows[+t.dataset.rs].s = Math.max(0, Math.min(100, parseFloat(t.value) || 0)); checkRows(); }
+    if (t.dataset.ra != null) { rows[+t.dataset.ra].a = t.value; checkRows(); } });
+  fa.addEventListener('click', e => { const b = e.target.closest('[data-rr]'); if (b) { rows.splice(+b.dataset.rr, 1); paintRows(); } });
+  $('#f-add').addEventListener('click', () => { const free = Object.keys(ASSETS).find(k => !rows.some(r => r.a === k)) || 'shype'; rows.push({ a: free, s: 0 }); paintRows(); });
+  $('#f-reg').addEventListener('change', () => $$('[data-reg]').forEach(x => x.textContent = $('#f-reg').value));
+  $('#f-num').addEventListener('input', () => { const n = $('#f-num').value.trim(), o = $('#f-owner'); if (n) $('#f-msg').textContent = '';
+    o.className = 'owner' + (n ? ' set' : ''); o.textContent = n ? `Agent #${n} on ${$('#f-reg').value}. Its owner is read from the ERC-8004 registry when you endow, and must accept.` : 'Enter a number'; });
+  const gift = () => {
+    const amt = Math.max(0, parseFloat($('#f-gift').value) || 0), unit = $('#f-unit').value, rate = +$('#f-rate').value / 100;
+    const val = unit === 'HYPE' ? (hypeUsd ? amt * hypeUsd : 0) : amt;
+    $('#f-unit-tag').textContent = unit;
+    $('#f-usd').textContent = usd(val); $('#f-year').textContent = usd(val * rate); $('#f-day').textContent = usd(val * rate / 365);
+    $('#f-price').textContent = hypeUsd ? `HYPE at ${usd(hypeUsd)}, live from Hyperliquid.` : 'Gifts in HYPE are valued at the live Hyperliquid price.';
+    return { amt, unit, val, rate };
+  };
+  ['#f-gift', '#f-unit', '#f-rate'].forEach(x => $(x).addEventListener('input', gift));
+  (async () => { try { const r = await fetch('https://api.hyperliquid.xyz/info', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ type: 'allMids' }) });
+    hypeUsd = parseFloat((await r.json()).HYPE) || null; } catch {} gift(); })();
+  const paintEndow = () => { $('#f-go-l').textContent = W.account ? 'Create the endowment' : 'Connect wallet';
+    $('#f-line').textContent = W.account ? `Endowing from ${short(W.account)} on HyperEVM.` : 'Connect a wallet on HyperEVM to create the endowment.'; };
+  $('#f-go').addEventListener('click', () => {
+    const m = $('#f-msg'), num = $('#f-num').value.trim(), [ok, why] = rowsOk(), g = gift();
+    if (!num) { m.className = 'msg bad'; m.textContent = 'Enter the agent number first.'; $('#f-num').focus(); return; }
+    if (!ok) { m.className = 'msg bad'; m.textContent = why; return; }
+    m.className = 'msg'; m.textContent = '';
+    if (!W.account) return openWallet();
+    const mix = rows.filter(r => r.s > 0).map(r => `${r.s}% ${ASSETS[r.a].split(' · ')[0]}`).join(' · ');
     show('Endowments / Review', 'Ready when the registry is.', `<div class="result">
-      <div class="kv"><span>Agent</span><span class="addr">${esc(agent)}</span></div>
-      <div class="kv"><span>Principal</span><span>${usd(p.amt)}</span></div>
-      <div class="kv"><span>Split</span><span>${p.split}% staked HYPE · ${100 - p.split}% USDC</span></div>
-      <div class="kv"><span>Draw</span><span>${(p.rate * 100).toFixed(0)}% a year · ${usd(p.year)}</span></div>
+      <div class="kv"><span>Agent</span><span>#${esc(num)} on ${esc($('#f-reg').value)}</span></div>
+      <div class="kv"><span>Principal holds</span><span>${esc(mix)}</span></div>
+      <div class="kv"><span>Draw</span><span>${(g.rate * 100).toFixed(1).replace('.0', '')}% a year</span></div>
+      <div class="kv"><span>Earnings kept</span><span>${esc($('#f-kept').selectedOptions[0].text)}</span></div>
+      <div class="kv"><span>Successor</span><span>${$('#f-succ').value.trim() ? '#' + esc($('#f-succ').value.trim()) : 'None'}</span></div>
+      <div class="kv"><span>First gift</span><span>${g.amt ? esc(g.amt + ' ' + g.unit) + ' · ' + usd(g.val) : 'None'}</span></div>
       <div class="kv"><span>From</span><span class="addr">${esc(W.account)}</span></div></div>
       <p style="margin-top:18px">The endowment registry is not deployed on HyperEVM yet, so <strong>nothing was sent</strong>. Once it is live, this button opens the transaction in your wallet to review and sign.</p>`);
   });
+  paintRows();
   $$('[data-needs-contract]').forEach(b => b.addEventListener('click', () => {
     if (!W.account) return openWallet();
     show('Console / Mandates', 'Mandates open at launch.', '<p>The mandate factory is not deployed on HyperEVM yet, so nothing can be sent. Draft the mandate in the workspace now and it will be ready to open the day it goes live.</p><div class="actions"><a class="btn" href="#workspace" data-close><span class="lbl">Open the workspace</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div>');
@@ -867,6 +968,7 @@ const receipt = await mandate.pay({
   const status = (msg, err) => { const el = $('.wl-status', wbody); if (el) { el.textContent = msg || ''; el.classList.toggle('err', !!err); } };
 
   const paintWallet = () => {
+    paintEndow();
     $$('[data-wallet-label]').forEach(l => { l.textContent = W.account ? short(W.account) : (l.closest('.wbtn') ? 'Connect wallet' : 'Connect a wallet'); });
     $$('[data-wallet]').forEach(b => W.account ? b.setAttribute('data-connected', '') : b.removeAttribute('data-connected'));
     const box = $('#console-wallet');

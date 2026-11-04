@@ -126,7 +126,7 @@ p { margin: 0; }
 .link-arrow i { width: 26px; height: 26px; display: grid; place-items: center; background: var(--coral); color: #49345f; transition: transform .3s, background .3s, color .3s; }
 .link-arrow i svg { width: 11px; height: 11px; }
 .link-arrow:hover i { transform: translate(3px, -3px); background: var(--mint); color: #49345f; }
-.ghost { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px; border: 1px solid var(--line-strong); background: var(--glass); backdrop-filter: blur(10px); font-size: 14px; transition: border-color .3s, background .3s; }
+.ghost { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 18px; border: 1px solid var(--line-strong); background: var(--glass); font-size: 14px; transition: border-color .3s, background .3s; }
 .ghost svg { width: 15px; height: 15px; transition: transform .2s; }
 .ghost:hover svg { transform: translateY(-3px); }
 .ghost:hover { border-color: var(--turq); background: #fff; }
@@ -157,7 +157,7 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .hdr-right { justify-self: end; }
 .fixed-cta { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 20px); right: var(--gxr); z-index: 29; opacity: 0; transform: translateY(-12px); pointer-events: none; transition: .45s var(--ease); }
 .fixed-cta.on { opacity: 1; transform: none; pointer-events: auto; }
-.fixed-menu { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 20px); left: var(--gx); z-index: 29; height: 50px; padding: 0 18px; background: rgba(255,255,255,.72); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line); opacity: 0; transform: translateY(-12px); pointer-events: none; transition: .45s var(--ease); }
+.fixed-menu { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 20px); left: var(--gx); z-index: 29; height: 50px; padding: 0 18px; background: rgba(255,255,255,.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--line); opacity: 0; transform: translateY(-12px); pointer-events: none; transition: .45s var(--ease); }
 .fixed-menu.on { opacity: 1; transform: none; pointer-events: auto; }
 
 /* ---------- Hero ---------- */
@@ -268,7 +268,7 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .mini-card .tile .medal { --d: 46px; background: none; box-shadow: none; }
 .mini-card .tile .medal::after { content: none; }
 .mini-card .row .mono { font-size: 10.4px; line-height: 1.4; flex: 1; max-width: 90px; }
-.acc { margin-top: 96px; border: 1px solid var(--line); background: rgba(255,255,255,.4); backdrop-filter: blur(10px); }
+.acc { margin-top: 96px; border: 1px solid var(--line); background: rgba(255,255,255,.4); }
 .acc-item + .acc-item { border-top: 1px solid var(--line); }
 .acc-q { width: 100%; display: flex; align-items: center; gap: 18px; padding: 34px 24px; text-align: left; font-size: 20px; text-transform: uppercase; letter-spacing: -.01em; transition: background .3s; }
 .acc-q:hover { background: rgba(255,255,255,.6); }
@@ -337,6 +337,22 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .role h3 { font-size: 32px; font-weight: 400; letter-spacing: -.04em; margin: 44px 0 6px; }
 .role p { color: var(--mist); font-size: 15px; max-width: 30ch; }
 
+/* ---------- Venues: where the principal works ---------- */
+.venue-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.venue-col { background: #e9eee7; border: 1px solid var(--line); padding: 40px 40px 16px; display: grid; align-content: start; }
+.venue-col:nth-child(2) { background: #f7f5e1; }
+.venue-col > header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding-bottom: 24px; border-bottom: 1px solid var(--line-strong); }
+.venue-col > header h3 { font-size: clamp(26px, 2.2vw, 32px); letter-spacing: -.04em; line-height: 1.05; font-weight: 400; }
+.venue-col > header span { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--mist); white-space: nowrap; }
+.venue { display: grid; grid-template-columns: 1fr auto; gap: 6px 24px; padding: 24px 0; border-bottom: 1px solid var(--line); }
+.venue:last-child { border-bottom: 0; }
+.venue h4 { font-size: 20px; font-weight: 400; letter-spacing: -.03em; line-height: 1.2; }
+.venue .kind { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--turq); align-self: center; white-space: nowrap; }
+.venue h4, .venue p, .venue-col > header h3 { margin: 0; }
+.venue p { grid-column: 1 / -1; color: var(--mist); font-size: 15px; line-height: 1.5; max-width: 46ch; }
+.venue-note { margin-top: 24px; font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--mist); letter-spacing: .02em; }
+@media (max-width: 960px) { .venue-cols { grid-template-columns: 1fr; } .venue-col { padding: 28px 20px 8px; } }
+
 /* ---------- Stat band ---------- */
 .band { position: relative; padding-block: 80px; color: var(--ice); background: #f7f5e1; border-block: 1px solid var(--line); }
 .band .grid { display: grid; grid-template-columns: repeat(4, 1fr); }
@@ -360,7 +376,7 @@ svg.hl, .marquee-track svg.hl { box-sizing: content-box; width: 1.25em; height: 
 .paths-head { text-align: center; display: grid; justify-items: center; gap: 24px; }
 .paths-head p { color: var(--mist); max-width: 32ch; }
 .lanes { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 96px; align-items: start; }
-.lane { padding: 56px 48px 48px; display: grid; gap: 28px; border: 1px solid var(--line); will-change: transform, opacity; }
+.lane { padding: 56px 48px 48px; display: grid; gap: 28px; border: 1px solid var(--line); }
 .lane:nth-child(1) { background: #f5f6f1; }
 .lane:nth-child(2) { background: #e3f2e9; margin-top: -6px; }
 .lane:nth-child(3) { background: var(--coral-soft); margin-top: -12px; }
@@ -460,8 +476,8 @@ dialog::backdrop { background: rgba(73,52,95,.4); backdrop-filter: blur(4px); }
 .glass {
   background:
     linear-gradient(118deg, rgba(255,255,255,.62) 0%, rgba(255,255,255,0) 32%),
-    linear-gradient(140deg, rgba(255,255,255,.58), rgba(255,255,255,.24));
-  -webkit-backdrop-filter: blur(22px) saturate(1.7); backdrop-filter: blur(22px) saturate(1.7);
+    linear-gradient(140deg, rgba(255,255,255,.7), rgba(255,255,255,.42));
+  
   border: 1px solid rgba(255,255,255,.75) !important;
   box-shadow: inset 0 1px 1px rgba(255,255,255,.95), inset 0 -12px 28px rgba(255,255,255,.22), inset 0 0 0 1px rgba(255,255,255,.12),
               0 22px 44px -16px rgba(73,52,95,.22), 0 2px 8px rgba(73,52,95,.06);
@@ -469,7 +485,7 @@ dialog::backdrop { background: rgba(73,52,95,.4); backdrop-filter: blur(4px); }
 }
 .glass-dark {
   background: linear-gradient(118deg, rgba(255,255,255,.26) 0%, rgba(255,255,255,0) 35%), linear-gradient(140deg, rgba(255,255,255,.18), rgba(255,255,255,.05));
-  -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5);
+  
   border: 1px solid rgba(255,255,255,.38);
   box-shadow: inset 0 1px 1px rgba(255,255,255,.55), 0 24px 48px -14px rgba(20,0,30,.4);
   border-radius: 18px;
@@ -1048,6 +1064,23 @@ html.lenis, html.lenis body { height: auto; }
     </div>
   </section>
 
+  <!-- Venues -->
+  <section class="section" id="venues" aria-labelledby="venues-title">
+    <div class="wrap">
+      <span class="eyebrow"><span class="sq"></span>Venues</span>
+      <div class="eco-head"><h2 id="venues-title" class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">Where the<br>capital works.</h2><p>The principal never sits idle. HYPE earns staking rewards and the USDC buffer earns yield on Hyperliquid protocols, chosen per endowment.</p></div>
+      <div class="venue-cols">
+        <div class="venue-col"><header><h3>Staked HYPE</h3><span>Earns the draw</span></header>
+          <div class="venue"><h4>Native staking</h4><span class="kind">HyperCore</span><p>HYPE delegated straight to Hyperliquid validators. The default: no extra contract between the principal and its rewards.</p></div><div class="venue"><h4>Kinetiq · kHYPE</h4><span class="kind">Liquid staking</span><p>The largest liquid staking token on Hyperliquid. Non-rebasing, so rewards show up as a rising kHYPE to HYPE rate.</p></div><div class="venue"><h4>Valantis · stHYPE</h4><span class="kind">Liquid staking</span><p>Liquid staked HYPE used as collateral across HyperEVM, for endowments that want the stake to stay liquid.</p></div><div class="venue"><h4>Hyperbeat · beHYPE</h4><span class="kind">Liquid staking</span><p>Liquid staked HYPE built with ether.fi, with utility across HyperEVM DeFi.</p></div>
+        </div>
+        <div class="venue-col"><header><h3>USDC buffer</h3><span>Pays the draw</span></header>
+          <div class="venue"><h4>HLP</h4><span class="kind">Hyperliquid vault</span><p>The protocol vault. USDC earns from market making and liquidations on Hyperliquid itself.</p></div><div class="venue"><h4>Felix · Vanilla markets</h4><span class="kind">Lending</span><p>Morpho-powered USDC lending on HyperEVM, and the largest lending venue in the ecosystem.</p></div><div class="venue"><h4>Morpho vaults</h4><span class="kind">Curated lending</span><p>Curated USDC vaults on HyperEVM, with risk managed by curators such as Gauntlet.</p></div><div class="venue"><h4>HyperLend</h4><span class="kind">Lending</span><p>Pooled USDC lending on HyperEVM. The rate moves with how much of the pool is borrowed.</p></div>
+        </div>
+      </div>
+      <p class="venue-note">Independent protocols. Listing a venue does not imply a partnership. Rates vary and are shown live in the app.</p>
+    </div>
+  </section>
+
   <!-- Stat band -->
   <section class="band" aria-label="Protocol figures">
     <div class="wrap grid">
@@ -1311,11 +1344,11 @@ const DOCS = {
   const lio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); lio.unobserve(e.target); } }), { threshold: .2, rootMargin: '0px 0px -24% 0px' });
   $$('.line-reveal').forEach(h => still ? h.classList.add('in') : lio.observe(h));
 
-  /* Bursar hero parallax: the glass image sinks 300px, grows to 1.2x and fades to half over the first screen */
+  /* Hero parallax: the image sinks 300px and fades to half over the first screen (no zoom, so it stays sharp) */
   const stock = $('.hero-stock');
   const parallax = () => {
     const p = Math.min(1, Math.max(0, scrollY / innerHeight));
-    stock.style.transform = `translateY(${(300 * p).toFixed(1)}px) scale(${(1 + .2 * p).toFixed(4)})`;
+    stock.style.transform = `translate3d(0, ${Math.round(300 * p)}px, 0)`;
     stock.style.opacity = (1 - .5 * p).toFixed(3);
   };
   if (!still) { addEventListener('scroll', parallax, { passive: true }); parallax(); }
@@ -1335,8 +1368,8 @@ const DOCS = {
 
 
   /* supporting text next to each heading fades up once the heading has risen */
-  const rises = $$('.cap-head .sub, .cap-head .eyebrow, .cap-head .link-arrow, .proc-head .sub, .proc-head .eyebrow, .eco-head p, #ecosystem > .wrap > .eyebrow, .paths-head p, .paths-head .eyebrow, #faq .eyebrow, #faq .body, #resources .three .eyebrow, #resources .three .body');
-  rises.forEach((el, i) => { el.classList.add('rise-in'); el.style.transitionDelay = el.matches('.eyebrow') ? '0s' : '.45s'; });
+  const rises = $$('.cap-head .sub, .cap-head .eyebrow, .cap-head .link-arrow, .proc-head .sub, .proc-head .eyebrow, .eco-head p, #ecosystem > .wrap > .eyebrow, .paths-head p, .paths-head .eyebrow, #faq .eyebrow, #faq .body, #resources .three .eyebrow, #resources .three .body, #venues > .wrap > .eyebrow, #venues .venue, #venues .venue-note');
+  rises.forEach((el, i) => { el.classList.add('rise-in'); el.style.transitionDelay = el.matches('.eyebrow') ? '0s' : el.matches('.venue') ? (([...el.parentNode.children].indexOf(el)) * .08) + 's' : '.45s'; });
   const rio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); rio.unobserve(e.target); } }), { threshold: .2, rootMargin: '0px 0px -22% 0px' });
   rises.forEach(el => still ? el.classList.add('in') : rio.observe(el));
 

@@ -142,6 +142,10 @@ input[type=range] { width: 100%; accent-color: var(--ink); }
 .conds .dot.ok { background: var(--ok); } .conds .dot.bad { background: var(--bad); } .conds .dot.wait { background: var(--warn); }
 .conds .k { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--mist); margin-right: 8px; }
 .conds b { font-weight: 500; }
+.subconds { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; font-size: 13px; color: var(--mist); }
+.conds .subconds li { display: flex; gap: 10px; align-items: baseline; padding: 0; border: 0; }
+.subconds .dot { width: 7px; height: 7px; margin: 0; flex-shrink: 0; transform: translateY(-1px); }
+.subconds b { color: var(--ink); font-weight: 500; }
 .conds p { color: var(--mist); font-size: 13px; margin-top: 4px; }
 
 /* tables */
@@ -184,6 +188,17 @@ pre.code { margin: 0; padding: 16px 18px; background: var(--wash); font-family: 
 .fine { font-size: 12px; color: var(--mist); margin-top: 12px; max-width: 560px; }
 .go-line { margin-top: 20px; font-size: 14px; font-weight: 500; }
 @media (max-width: 560px) { .asset-row { grid-template-columns: minmax(0, 1fr) 96px 42px; gap: 10px; } }
+
+/* developer tools */
+.tools { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.tool { background: var(--card); border: 1px solid var(--line-strong); padding: 18px 18px 16px; display: grid; align-content: start; gap: 6px; }
+.tool h3 { font-size: 15px; font-weight: 600; letter-spacing: -.02em; margin: 0; }
+.tool p { color: var(--mist); font-size: 12px; margin: 0 0 6px; }
+.tool ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.tool a { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; text-decoration: none; color: var(--ink); }
+.tool a:hover { color: var(--petrol); }
+.sub a { color: var(--ink); text-underline-offset: 3px; }
+@media (max-width: 860px) { .tools { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* example dispute */
 .ruling { margin-top: 20px; padding: 2px 0 2px 18px; border-left: 2px solid var(--line-strong); font-size: 14px; color: var(--mist); display: grid; gap: 6px; }
@@ -559,10 +574,16 @@ x-corody-payee: 0xYourProviderAddress</pre>
   <div class="card"><div class="card-b">
     <div class="kv"><span>Chain ID</span><span class="mono">999 · 0x3e7</span></div>
     <div class="kv"><span>RPC</span><span class="mono">https://rpc.hyperliquid.xyz/evm</span></div>
+    <div class="kv"><span>Fallback RPCs</span><span class="mono">hyperliquid.drpc.org · hyperliquid-json-rpc.stakely.io · rpc.hypurrscan.io</span></div>
     <div class="kv"><span>Explorer</span><span class="mono">https://hyperevmscan.io</span></div>
     <div class="kv"><span>Gas token</span><span>HYPE</span></div>
     <div class="kv"><span>USDC</span><span class="mono">0xb88339CB7199b77E23DB6E890353E22632Ba630f · 6 decimals</span></div>
+    <div class="kv"><span>Testnet</span><span class="mono">chain 998 · https://rpc.hyperliquid-testnet.xyz/evm</span></div>
   </div></div>
+
+  <h2 class="h2">Tools</h2>
+  <p class="sub">What to build Corody integrations with on HyperEVM, from <a href="https://hyperliquid.gitbook.io/hyperliquid-docs/builder-tools/hyperevm-tools" target="_blank" rel="noopener">Hyperliquid's list of HyperEVM tools</a>.</p>
+  <div class="tools"><div class="tool"><h3>RPC</h3><p>Read the chain and send transactions.</p><ul><li><a href="https://rpc.hyperliquid.xyz/evm" target="_blank" rel="noopener">Hyperliquid <span aria-hidden="true">↗</span></a></li><li><a href="https://drpc.org/chainlist/hyperliquid-mainnet-rpc" target="_blank" rel="noopener">dRPC <span aria-hidden="true">↗</span></a></li><li><a href="https://hyperliquid-json-rpc.stakely.io" target="_blank" rel="noopener">Stakely <span aria-hidden="true">↗</span></a></li><li><a href="https://www.quicknode.com/chains/hyperliquid" target="_blank" rel="noopener">Quicknode <span aria-hidden="true">↗</span></a></li><li><a href="https://www.alchemy.com/hyperevm" target="_blank" rel="noopener">Alchemy <span aria-hidden="true">↗</span></a></li></ul></div><div class="tool"><h3>Explorers</h3><p>Look up addresses, transactions and contracts.</p><ul><li><a href="https://hyperevmscan.io/" target="_blank" rel="noopener">Etherscan <span aria-hidden="true">↗</span></a></li><li><a href="https://www.hyperscan.com/" target="_blank" rel="noopener">Blockscout <span aria-hidden="true">↗</span></a></li><li><a href="https://owlscan.org/" target="_blank" rel="noopener">Owlscan <span aria-hidden="true">↗</span></a></li></ul></div><div class="tool"><h3>Oracles</h3><p>Price feeds for valuing a principal.</p><ul><li><a href="https://data.chain.link/feeds" target="_blank" rel="noopener">Chainlink <span aria-hidden="true">↗</span></a></li><li><a href="https://docs.pyth.network/price-feeds/contract-addresses/evm" target="_blank" rel="noopener">Pyth <span aria-hidden="true">↗</span></a></li><li><a href="https://app.redstone.finance/" target="_blank" rel="noopener">Redstone <span aria-hidden="true">↗</span></a></li><li><a href="https://docs.stork.network/resources/contract-addresses/evm#hyperevm" target="_blank" rel="noopener">Stork <span aria-hidden="true">↗</span></a></li><li><a href="https://www.diadata.org/docs/guides/chain-specific-guide/hyperevm" target="_blank" rel="noopener">DIA <span aria-hidden="true">↗</span></a></li></ul></div><div class="tool"><h3>Indexing</h3><p>Follow endowments, draws and payments as they happen.</p><ul><li><a href="https://docs.goldsky.com/chains/hyperevm" target="_blank" rel="noopener">Goldsky <span aria-hidden="true">↗</span></a></li><li><a href="https://docs.envio.dev/docs/HyperIndex/hyperliquid" target="_blank" rel="noopener">Envio <span aria-hidden="true">↗</span></a></li><li><a href="https://docs.sqd.ai/hyperliquid-support/" target="_blank" rel="noopener">SQD <span aria-hidden="true">↗</span></a></li><li><a href="https://subquery.network/indexer/hyperliquid-evm" target="_blank" rel="noopener">SubQuery <span aria-hidden="true">↗</span></a></li><li><a href="https://dune.com/blockchains/hyperevm" target="_blank" rel="noopener">Dune <span aria-hidden="true">↗</span></a></li></ul></div><div class="tool"><h3>Multisig and custody</h3><p>Hold the keys that own mandates and endowments.</p><ul><li><a href="https://safe.global/" target="_blank" rel="noopener">Safe <span aria-hidden="true">↗</span></a></li><li><a href="https://safe.onchainden.com/welcome" target="_blank" rel="noopener">Den <span aria-hidden="true">↗</span></a></li><li><a href="https://www.fireblocks.com/integrations/protocols/" target="_blank" rel="noopener">Fireblocks <span aria-hidden="true">↗</span></a></li><li><a href="https://fordefi.com/" target="_blank" rel="noopener">Fordefi <span aria-hidden="true">↗</span></a></li><li><a href="https://www.bitgo.com/resources/blog/bitgo-launches-hyperevm-support/" target="_blank" rel="noopener">BitGo <span aria-hidden="true">↗</span></a></li></ul></div><div class="tool"><h3>Cross-chain</h3><p>Fund an endowment from another chain.</p><ul><li><a href="https://docs.layerzero.network/v2/deployments/deployed-contracts?chains=hyperliquid" target="_blank" rel="noopener">LayerZero <span aria-hidden="true">↗</span></a></li><li><a href="https://wormhole.com/docs/products/token-transfers/native-token-transfers/guides/deploy-to-hyperliquid/" target="_blank" rel="noopener">Wormhole <span aria-hidden="true">↗</span></a></li><li><a href="https://app.debridge.finance/" target="_blank" rel="noopener">deBridge <span aria-hidden="true">↗</span></a></li></ul></div><div class="tool"><h3>Account abstraction</h3><p>Let agents pay gas without holding HYPE.</p><ul><li><a href="https://www.alchemy.com/hyperevm" target="_blank" rel="noopener">Alchemy <span aria-hidden="true">↗</span></a></li><li><a href="https://docs.biconomy.io/" target="_blank" rel="noopener">Biconomy <span aria-hidden="true">↗</span></a></li><li><a href="https://docs.zerodev.app/" target="_blank" rel="noopener">ZeroDev <span aria-hidden="true">↗</span></a></li></ul></div><div class="tool"><h3>Testnet</h3><p>Free HYPE for gas while you build.</p><ul><li><a href="https://faucet.chainstack.com/hyperliquid-testnet-faucet" target="_blank" rel="noopener">Chainstack faucet <span aria-hidden="true">↗</span></a></li><li><a href="https://faucet.quicknode.com/hyperliquid" target="_blank" rel="noopener">Quicknode faucet <span aria-hidden="true">↗</span></a></li></ul></div></div>
 
   <h2 class="h2">The SDK</h2>
   <p class="sub">A preview of the planned interface. The package is not published yet.</p>
@@ -681,9 +702,29 @@ const receipt = await mandate.pay({
   /* ===== Chain: HyperEVM mainnet, read straight from the public RPC ===== */
   const CHAIN = { id: 999, hex: '0x3e7', rpc: 'https://rpc.hyperliquid.xyz/evm', explorer: 'https://hyperevmscan.io' };
   const USDC = '0xb88339CB7199b77E23DB6E890353E22632Ba630f';
+  // public HyperEVM endpoints, all listed on Hyperliquid's HyperEVM tools page; the first that answers is used
+  const RPCS = [
+    { name: 'Hyperliquid', url: 'https://rpc.hyperliquid.xyz/evm' },
+    { name: 'dRPC', url: 'https://hyperliquid.drpc.org' },
+    { name: 'Stakely', url: 'https://hyperliquid-json-rpc.stakely.io' },
+    { name: 'HypurrScan', url: 'https://rpc.hypurrscan.io' }
+  ];
+  let live = 0;
+  const call = async (url, method, params = [], ms = 6000) => {
+    const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
+    try {
+      const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }), signal: ctl.signal });
+      const j = await r.json(); if (j.error) throw Object.assign(new Error(j.error.message || 'RPC error'), { rpc: true }); return j.result;
+    } finally { clearTimeout(t); }
+  };
   const rpc = async (method, params = []) => {
-    const r = await fetch(CHAIN.rpc, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) });
-    const j = await r.json(); if (j.error) throw new Error(j.error.message || 'RPC error'); return j.result;
+    let err;
+    for (let k = 0; k < RPCS.length; k++) {
+      const i = (live + k) % RPCS.length;
+      try { const out = await call(RPCS[i].url, method, params); live = i; return out; }
+      catch (e) { err = e; if (e.rpc) throw e; }   // a reverted call is an answer, not an outage
+    }
+    throw err;
   };
   const units = (hex, dec, places) => { const v = BigInt(hex || '0x0'), base = 10n ** BigInt(dec); const whole = v / base, frac = (v % base).toString().padStart(dec, '0').slice(0, places);
     return whole.toLocaleString('en-US') + (places ? '.' + frac : ''); };
@@ -718,18 +759,24 @@ const receipt = await mandate.pay({
   /* ===== Live conditions ===== */
   let lastBlock = null;
   const paintConds = items => $$('[data-conds]').forEach(ul => { ul.innerHTML = items.map(c =>
-    `<li><span class="dot ${c.s}"></span><div><span class="k">${c.k}</span><b>${c.t}</b><p>${c.p}</p></div></li>`).join(''); });
+    `<li><span class="dot ${c.s}"></span><div><span class="k">${c.k}</span><b>${c.t}</b><p>${c.p}</p>${c.sub ? `<ul class="subconds">${c.sub.map(x => `<li><span class="dot ${x.s}"></span><span><b>${x.t}</b> ${x.p}</span></li>`).join('')}</ul>` : ''}</div></li>`).join(''); });
   const readConds = async () => {
     paintConds([{ s: '', k: 'Connectivity', t: 'Reading HyperEVM…', p: 'Asking the public RPC for the latest block.' }]);
     const out = [];
-    try {
+    const checks = await Promise.all(RPCS.map(async e => {
       const t0 = performance.now();
-      const [id, bn, gas] = await Promise.all([rpc('eth_chainId'), rpc('eth_blockNumber'), rpc('eth_gasPrice')]);
-      const ms = Math.round(performance.now() - t0); lastBlock = parseInt(bn, 16);
-      const ok = parseInt(id, 16) === CHAIN.id;
-      out.push({ s: ok ? 'ok' : 'bad', k: 'Connectivity', t: ok ? 'Connected to HyperEVM.' : 'Wrong chain answered.', p: `Chain ${parseInt(id, 16)} answering at block ${lastBlock.toLocaleString('en-US')}, in ${ms} ms.` });
-      out.push({ s: 'ok', k: 'Gas', t: `${(Number(BigInt(gas)) / 1e9).toFixed(2)} gwei, paid in HYPE.`, p: 'The current base price for a transaction on HyperEVM.' });
-    } catch (e) { out.push({ s: 'bad', k: 'Connectivity', t: 'HyperEVM did not answer.', p: 'The public RPC could not be reached from this browser. Try again in a moment.' }); }
+      try { const [id, bn] = await Promise.all([call(e.url, 'eth_chainId'), call(e.url, 'eth_blockNumber')]);
+        return { e, ok: parseInt(id, 16) === CHAIN.id, block: parseInt(bn, 16), ms: Math.round(performance.now() - t0) }; }
+      catch { return { e, ok: false }; }
+    }));
+    const up = checks.filter(c => c.ok);
+    if (up.length) {
+      lastBlock = Math.max(...up.map(c => c.block));
+      out.push({ s: up.length === RPCS.length ? 'ok' : 'wait', k: 'Connectivity', t: 'Connected to HyperEVM.',
+        p: `${up.length} of ${RPCS.length} endpoints answering at block ${lastBlock.toLocaleString('en-US')}.`,
+        sub: checks.map(c => c.ok ? { s: 'ok', t: c.e.name + '.', p: `Block ${c.block.toLocaleString('en-US')} in ${c.ms} ms.` } : { s: 'bad', t: c.e.name + '.', p: 'Did not answer.' }) });
+      try { const gas = await rpc('eth_gasPrice'); out.push({ s: 'ok', k: 'Gas', t: `${(Number(BigInt(gas)) / 1e9).toFixed(2)} gwei, paid in HYPE.`, p: 'The current base price for a transaction on HyperEVM.' }); } catch {}
+    } else out.push({ s: 'bad', k: 'Connectivity', t: 'HyperEVM did not answer.', p: `None of the ${RPCS.length} public endpoints could be reached from this browser. Try again in a moment.` });
     try {
       const sup = await rpc('eth_call', [{ to: USDC, data: '0x18160ddd' }, 'latest']);
       out.push({ s: 'ok', k: 'Asset', t: 'USDC is moving normally.', p: `${units(sup, 6, 0)} native USDC on HyperEVM, issued by Circle.` });

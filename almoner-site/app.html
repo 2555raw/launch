@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Corody App</title>
-<meta name="description" content="Corody app: endowments, mandates, workspace, providers and resolvers for AI agents on HyperEVM.">
+<meta name="description" content="Corody app: endowments, mandates, workspace, providers and resolvers for AI agents on Elysium, settling to HyperEVM.">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%2349345f'/%3E%3Cg transform='translate%2824.00 24.60%29 scale%280.8000%29'%3E%3Cpath fill='%23FDE725' d='M71.72 98.25C72.62 97.98 73.59 97.49 74.19 97.00C74.46 96.79 79.94 91.36 86.39 84.93C99.06 72.29 98.72 72.65 99.38 70.95C100.05 69.22 100.00 70.82 100.00 49.31L100.00 29.90L99.75 28.98C99.43 27.85 98.85 26.65 98.20 25.76C97.92 25.39 92.35 19.74 85.80 13.18L73.90 1.27L73.02 0.83C71.37 -0.00 71.38 -0.00 64.61 0.00C58.18 0.00 58.18 0.00 57.18 0.54C55.84 1.26 54.90 2.62 54.69 4.12C54.57 4.95 54.71 8.29 54.93 10.01C56.46 21.78 65.12 32.69 80.11 41.75C80.62 42.05 81.74 42.73 82.62 43.26C83.49 43.79 84.43 44.39 84.71 44.61C86.91 46.30 87.19 48.96 85.36 50.93C84.81 51.53 83.93 52.12 80.35 54.27C68.90 61.18 62.16 67.76 57.94 76.13C55.49 81.00 54.48 85.37 54.33 91.78C54.25 95.16 54.49 96.15 55.67 97.29C56.90 98.49 57.02 98.51 64.61 98.49C70.93 98.47 71.02 98.47 71.72 98.25ZM42.83 98.29C44.39 97.87 45.59 96.74 46.13 95.16C46.51 94.07 46.40 89.33 45.92 86.03C45.45 82.81 43.96 78.36 42.43 75.60C40.06 71.32 37.89 68.44 34.32 64.86C30.98 61.52 27.57 58.86 22.95 56.01C22.37 55.65 21.72 55.24 21.51 55.11C21.29 54.97 20.08 54.23 18.81 53.47C14.56 50.91 13.81 50.11 13.81 48.11C13.82 46.12 14.65 45.09 17.79 43.23C25.84 38.46 29.92 35.46 34.32 31.06C41.85 23.52 45.48 16.22 46.11 7.30C46.37 3.61 46.15 2.61 44.76 1.30C43.34 -0.04 43.45 -0.02 35.28 0.02L28.54 0.05L27.69 0.35C26.04 0.94 26.63 0.39 14.11 12.94C0.93 26.16 1.22 25.84 0.47 28.10C-0.04 29.62 -0.03 29.35 0.00 49.94L0.03 69.10L0.25 69.87C0.52 70.83 1.18 72.21 1.70 72.90C2.33 73.74 25.46 96.85 26.10 97.29C26.77 97.74 27.13 97.90 28.10 98.20C29.02 98.48 41.82 98.56 42.83 98.29Z'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zalando+Sans:wght@100..900&family=Geist+Mono:wght@100..900&display=swap">
@@ -310,7 +310,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
       <a href="#developers">Developers</a>
       <a href="#status">Status</a>
     </nav>
-    <div class="netsw" role="group" aria-label="Network"><button type="button" data-net="hyperevm">HyperEVM</button><button type="button" data-net="elysium">Elysium<small data-ely-tag></small></button></div>
+    <div class="netsw" role="group" aria-label="Network"><button type="button" data-net="elysium">Elysium<small data-ely-tag></small></button><button type="button" data-net="hyperevm">HyperEVM</button></div>
     <button type="button" class="wbtn" data-wallet aria-haspopup="dialog">
       <span class="logo" aria-hidden="true"><svg><use href="#mark"/></svg></span>
       <span class="lbl"><span class="roll"><span data-wallet-label>Connect wallet</span><span aria-hidden="true" data-wallet-label>Connect wallet</span></span></span>
@@ -331,7 +331,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
   </div>
   <div class="card">
     <div class="stats">
-      <div class="stat"><dt>Endowments</dt><dd>0</dd><p>Opened on HyperEVM so far.</p></div>
+      <div class="stat"><dt>Endowments</dt><dd>0</dd><p>Opened on Elysium so far.</p></div>
       <div class="stat"><dt>Held for agents</dt><dd>$0.00</dd><p>Principal in staked HYPE and USDC.</p></div>
       <div class="stat"><dt>Drawn by agents</dt><dd>$0.00</dd><p>Paid into their mandates so far.</p></div>
       <div class="stat"><dt>Fees to the treasury</dt><dd>$0.00</dd><p>The protocol's share of each draw.</p></div>
@@ -340,7 +340,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
 
   <h2 class="h2">Ranked by principal</h2>
   <p class="sub">Accepted endowments rank above those still waiting for their agent's owner.</p>
-  <div class="empty"><h3>No endowments yet.</h3><p>The first endowment opens when the registry goes live on HyperEVM. Set one up now to see what it would draw.</p><a class="btn" href="#endow"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><p style="display:none"></p></div>
+  <div class="empty"><h3>No endowments yet.</h3><p>The first endowment opens when the registry goes live on Elysium. Set one up now to see what it would draw.</p><a class="btn" href="#endow"><span class="lbl">Endow an agent</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a><p style="display:none"></p></div>
 </section>
 
 <!-- 01b Endow an agent -->
@@ -356,11 +356,11 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
     <div class="card-h"><h3>The agent</h3></div>
     <div class="card-b"><div class="grid3">
       <div class="field"><label for="f-reg">Where it is registered</label>
-        <select class="input" id="f-reg"><option value="HyperEVM" selected>HyperEVM</option><option value="Base">Base</option><option value="Ethereum">Ethereum</option></select>
-        <small>The ERC-8004 registry the agent is in. The principal is held on HyperEVM whichever you pick.</small></div>
+        <select class="input" id="f-reg"><option value="Elysium" selected>Elysium</option><option value="HyperEVM">HyperEVM</option><option value="Base">Base</option><option value="Ethereum">Ethereum</option></select>
+        <small>The ERC-8004 registry the agent is in. The principal is held on Elysium whichever you pick.</small></div>
       <div class="field"><label for="f-num">Agent number</label>
         <input class="input mono" id="f-num" type="number" min="1" step="1" placeholder="8756" inputmode="numeric">
-        <small>Its ERC-8004 identity on <span data-reg>HyperEVM</span>. Its owner accepts the endowment before anything is drawn.</small></div>
+        <small>Its ERC-8004 identity on <span data-reg>Elysium</span>. Its owner accepts the endowment before anything is drawn.</small></div>
       <div class="field"><span class="lab">Owned by</span><p class="owner" id="f-owner">Enter a number</p></div>
     </div></div>
   </div>
@@ -423,7 +423,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
   <div id="console-wallet"></div>
 
   <h2 class="h2">Open a mandate by address</h2>
-  <p class="sub">Paste any HyperEVM address to read it live. No wallet needed.</p>
+  <p class="sub">Paste any address to read it live on the chain you picked. No wallet needed.</p>
   <div class="card"><div class="card-b">
     <form class="field" data-lookup="mandate"><label for="m-addr">Mandate account</label>
       <div class="inline"><input class="input mono" id="m-addr" placeholder="0x" autocomplete="off" spellcheck="false"><button class="btn" type="submit"><span class="lbl">Open it</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button></div>
@@ -482,7 +482,7 @@ x-corody-payee: 0xYourProviderAddress</pre>
     </div>
   </div>
 
-  <div class="row-h"><div><h2 class="h2">What a listing costs</h2><p class="sub">Planned for the provider registry on HyperEVM. Final values are set when it deploys.</p></div></div>
+  <div class="row-h"><div><h2 class="h2">What a listing costs</h2><p class="sub">Planned for the provider registry on Elysium. Final values are set when it deploys.</p></div></div>
   <div class="card">
     <div class="stats">
       <div class="stat"><dt>Stake to join</dt><dd>$10.00</dd><p>Paid in USDC and held by the registry.</p></div>
@@ -529,7 +529,7 @@ x-corody-payee: 0xYourProviderAddress</pre>
   </div>
 
   <h2 class="h2">How a ruling works</h2>
-  <p class="sub">Planned for the dispute registry on HyperEVM.</p>
+  <p class="sub">Planned for the dispute registry on Elysium.</p>
   <div class="card">
     <div class="stats">
       <div class="stat"><dt>Sealing window</dt><dd>2 hours</dd><p>Opens when the payer contests.</p></div>
@@ -567,10 +567,10 @@ x-corody-payee: 0xYourProviderAddress</pre>
 <!-- 06 Token -->
 <section class="page" id="p-token" aria-labelledby="t-token">
   <span class="eyebrow"><span class="sq"></span><b>06</b>Token</span>
-  <div class="ph"><div><h1 id="t-token">$CRDY</h1><p>Corody's token, planned for HyperEVM.</p></div></div>
+  <div class="ph"><div><h1 id="t-token">$CRDY</h1><p>Corody's token, planned for Elysium.</p></div></div>
   <div class="card"><div class="card-b">
     <div class="kv"><span>Contract</span><span>Not published yet</span></div>
-    <div class="kv"><span>Network</span><span>HyperEVM, chain 999</span></div>
+    <div class="kv"><span>Network</span><span>Elysium, settling to HyperEVM</span></div>
     <div class="kv"><span>Supply</span><span>Announced with the launch</span></div>
     <div class="kv"><span>Used for</span><span>Fee rebates for stakers, and governance of the settings that can change</span></div>
     <div class="actions" style="margin-top:22px"><a class="btn" href="https://x.com/CorodyEVM" target="_blank" rel="noopener"><span class="lbl"><span class="roll"><span>Follow the launch</span><span aria-hidden="true">Follow the launch</span></span></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div>
@@ -583,18 +583,21 @@ x-corody-payee: 0xYourProviderAddress</pre>
 <section class="page" id="p-developers" aria-labelledby="t-developers">
   <span class="eyebrow"><span class="sq"></span><b>07</b>Developers</span>
   <div class="ph"><div><h1 id="t-developers">Developers</h1><p>What an agent needs to spend inside a mandate, and what a provider needs to charge one.</p></div></div>
-  <div class="card"><div class="card-b"><p>Every limit in Corody is enforced by the mandate contract on HyperEVM. A payment outside them does not settle, whatever an agent was told to do and whichever interface sent it. The SDK signs with an account you pass it, and never holds a key on its own.</p></div></div>
+  <div class="card"><div class="card-b"><p>Every limit in Corody is enforced by the mandate contract on Elysium. A payment outside them does not settle, whatever an agent was told to do and whichever interface sent it. The SDK signs with an account you pass it, and never holds a key on its own.</p></div></div>
 
   <h2 class="h2">Network</h2>
-  <p class="sub">Everything you need to point a client at HyperEVM. All of it is live today.</p>
+  <p class="sub">Corody runs on Elysium and settles to HyperEVM. Everything you need to point a client at both.</p>
   <div class="card"><div class="card-b">
-    <div class="kv"><span>Chain ID</span><span class="mono">999 · 0x3e7</span></div>
-    <div class="kv"><span>RPC</span><span class="mono">https://rpc.hyperliquid.xyz/evm</span></div>
-    <div class="kv"><span>Fallback RPCs</span><span class="mono">hyperliquid.drpc.org · hyperliquid-json-rpc.stakely.io · rpc.hypurrscan.io</span></div>
-    <div class="kv"><span>Explorer</span><span class="mono">https://hyperevmscan.io</span></div>
+    <div class="kv"><span>Elysium</span><span>Kinetiq's Layer 2 for Hyperliquid · gas in HYPE</span></div>
+    <div class="kv"><span>Elysium chain ID</span><span class="mono">99801 testnet · mainnet expected 9 Nov</span></div>
+    <div class="kv"><span>Elysium RPC</span><span class="mono">https://testnet-rpc.elysium.kinetiq.xyz</span></div>
+    <div class="kv"><span>Elysium explorer</span><span class="mono">https://elysium.kinetiq.xyz/testnet-explorer</span></div>
+    <div class="kv"><span>Settles to</span><span>HyperEVM, chain 999 · 0x3e7</span></div>
+    <div class="kv"><span>HyperEVM RPC</span><span class="mono">https://rpc.hyperliquid.xyz/evm</span></div>
+    <div class="kv"><span>HyperEVM fallbacks</span><span class="mono">hyperliquid.drpc.org · hyperliquid-json-rpc.stakely.io · rpc.hypurrscan.io</span></div>
+    <div class="kv"><span>HyperEVM explorer</span><span class="mono">https://hyperevmscan.io</span></div>
     <div class="kv"><span>Gas token</span><span>HYPE</span></div>
-    <div class="kv"><span>Elysium</span><span>Kinetiq's L2, settles to HyperEVM, gas in HYPE · testnet chain 99801 · mainnet when Kinetiq opens it</span></div>
-    <div class="kv"><span>USDC</span><span class="mono">0xb88339CB7199b77E23DB6E890353E22632Ba630f · 6 decimals</span></div>
+    <div class="kv"><span>USDC (HyperEVM)</span><span class="mono">0xb88339CB7199b77E23DB6E890353E22632Ba630f · 6 decimals</span></div>
   </div></div>
 
   <h2 class="h2">Tools</h2>
@@ -646,7 +649,7 @@ const receipt = await mandate.pay({
   </div></div>
 
   <h2 class="h2">What a transaction costs</h2>
-  <p class="sub">Today's HyperEVM gas price, times the gas each step is expected to use.</p>
+  <p class="sub">Today's gas price on the chain you picked, times the gas each step is expected to use.</p>
   <div class="card">
     <div class="stats three">
       <div class="stat"><dt>One payment</dt><dd data-cost="300000">—</dd><p>Mandate check, escrow lock and release. Estimated at 300,000 gas.</p></div>
@@ -696,7 +699,7 @@ const receipt = await mandate.pay({
       </ul>
       <div class="foot-social"><a class="ghost" href="https://x.com/CorodyEVM" target="_blank" rel="noopener"><svg><use href="#i-x"/></svg>Follow us</a><a class="ghost" href="index.html">Back to the site</a></div>
       <div class="foot-fine">
-        <span data-net-fine>Settling on HyperEVM, chain 999. USDC at <code>0xb88339CB7199b77E23DB6E890353E22632Ba630f</code>.</span>
+        <span data-net-fine>Built on Elysium, settling to HyperEVM, chain 999. USDC at <code>0xb88339CB7199b77E23DB6E890353E22632Ba630f</code>.</span>
         <span>$CRDY is not a claim on Hyperliquid, on HyperEVM, on Circle or on USDC, and none of them endorses Corody.</span>
       </div>
     </div>
@@ -730,7 +733,7 @@ const receipt = await mandate.pay({
   };
   const NET = (() => { const q = new URLSearchParams(location.search).get('net');
     if (q && NETWORKS[q]) store.set('corody.net', q);
-    return NETWORKS[(q && NETWORKS[q]) ? q : store.get('corody.net')] || NETWORKS.hyperevm; })();
+    return NETWORKS[(q && NETWORKS[q]) ? q : store.get('corody.net')] || NETWORKS.elysium; })();
   const CHAIN = { id: NET.id, hex: '0x' + NET.id.toString(16), rpc: NET.rpcs[0].url, explorer: NET.explorer };
   const USDC = NET.usdc;
   const RPCS = NET.rpcs;
@@ -808,7 +811,7 @@ const receipt = await mandate.pay({
       const sup = await rpc('eth_call', [{ to: USDC, data: '0x18160ddd' }, 'latest']);
       out.push({ s: 'ok', k: 'Asset', t: 'USDC is moving normally.', p: `${units(sup, 6, 0)} native USDC on HyperEVM, issued by Circle.` });
     } catch (e) { out.push({ s: 'wait', k: 'Asset', t: 'USDC could not be read.', p: 'The token contract did not answer this time.' }); }
-    out.push({ s: 'wait', k: 'Corody', t: 'Contracts not deployed yet.', p: 'Endowments, mandates and escrow go live together on HyperEVM.' });
+    out.push({ s: 'wait', k: 'Corody', t: 'Contracts not deployed yet.', p: 'Endowments, mandates and escrow go live together on Elysium.' });
     paintConds(out);
     try { const b = await rpc('eth_getBlockByNumber', ['latest', false]); const d = new Date(parseInt(b.timestamp, 16) * 1000);
       $$('[data-chain-time]').forEach(el => el.textContent = 'Updated just now. Chain time ' + d.toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + '.'); } catch {}
@@ -902,12 +905,12 @@ const receipt = await mandate.pay({
       <div class="kv"><span>Successor</span><span>${$('#f-succ').value.trim() ? '#' + esc($('#f-succ').value.trim()) : 'None'}</span></div>
       <div class="kv"><span>First gift</span><span>${g.amt ? esc(g.amt + ' ' + g.unit) + ' · ' + usd(g.val) : 'None'}</span></div>
       <div class="kv"><span>From</span><span class="addr">${esc(W.account)}</span></div></div>
-      <p style="margin-top:18px">The endowment registry is not deployed on HyperEVM yet, so <strong>nothing was sent</strong>. Once it is live, this button opens the transaction in your wallet to review and sign.</p>`);
+      <p style="margin-top:18px">The endowment registry is not deployed on Elysium yet, so <strong>nothing was sent</strong>. Once it is live, this button opens the transaction in your wallet to review and sign.</p>`);
   });
   paintRows();
   $$('[data-needs-contract]').forEach(b => b.addEventListener('click', () => {
     if (!W.account) return openWallet();
-    show('Console / Mandates', 'Mandates open at launch.', '<p>The mandate factory is not deployed on HyperEVM yet, so nothing can be sent. Draft the mandate in the workspace now and it will be ready to open the day it goes live.</p><div class="actions"><a class="btn" href="#workspace" data-close><span class="lbl">Open the workspace</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div>');
+    show('Console / Mandates', 'Mandates open at launch.', '<p>The mandate factory is not deployed on Elysium yet, so nothing can be sent. Draft the mandate in the workspace now and it will be ready to open the day it goes live.</p><div class="actions"><a class="btn" href="#workspace" data-close><span class="lbl">Open the workspace</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a></div>');
   }));
   $$('[data-example]').forEach(b => b.addEventListener('click', () => show('Console / Example', 'Research agent budget', `<div class="result">
     <div class="kv"><span>Agent</span><span>Research agent · ERC-8004 #4127 (example)</span></div>
@@ -1074,7 +1077,7 @@ const receipt = await mandate.pay({
         rows.push(`<button type="button" class="wl-item" data-connect="${esc(rdns)}">${ic}${esc(d.info.name)}<em class="ok">Detected</em></button>`);
       }
       wbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>Wallet</span><h2 id="wallet-title">Connect a wallet.</h2>
-        <p>${NET.key === 'elysium' ? `You are on ${NET.name}, Kinetiq's chain that settles to HyperEVM.` : "Corody runs on HyperEVM, Hyperliquid's smart-contract chain."} Pick a wallet and it will be asked to switch to ${NET.name}.</p>
+        <p>${NET.key === 'elysium' ? `Corody runs on ${NET.name}, Kinetiq's chain that settles to HyperEVM.` : 'Corody runs on Elysium. This view reads HyperEVM, where it settles.'} Pick a wallet and it will be asked to switch to ${NET.name}.</p>
         <div class="wl-list">${rows.join('')}</div><p class="wl-status" role="status"></p>
         <p class="wl-note">Connecting only shares your address. Nothing is signed and nothing is sent.</p>`;
       return;
@@ -1165,7 +1168,7 @@ const receipt = await mandate.pay({
   if (NET.testnet) $('[data-net-note]').hidden = false;
   $$('[data-net-sub]').forEach(p => p.textContent = USDC ? `${NET.name} and USDC, read live from chain ${NET.id}.` : `${NET.name}, read live from chain ${NET.id}.`);
   $$('[data-net-lede]').forEach(p => p.textContent = `What is live on ${NET.name} right now, checked from your browser.`);
-  if (NET.key !== 'hyperevm') $$('[data-net-fine]').forEach(p => p.textContent = `Running on ${NET.name}, chain ${NET.id}, which settles to HyperEVM.`);
+  if (NET.key !== 'hyperevm') $$('[data-net-fine]').forEach(p => p.textContent = `Built on Elysium. Running on ${NET.name}, chain ${NET.id}, which settles to HyperEVM.`);
 
   paintWallet(); route(); readConds(); readStatus();
 })();

@@ -189,6 +189,18 @@ pre.code { margin: 0; padding: 16px 18px; background: var(--wash); font-family: 
 .go-line { margin-top: 20px; font-size: 14px; font-weight: 500; }
 @media (max-width: 560px) { .asset-row { grid-template-columns: minmax(0, 1fr) 96px 42px; gap: 10px; } }
 
+/* network switcher */
+.netsw { display: inline-flex; height: 44px; border: 1px solid var(--line-strong); flex-shrink: 0; }
+.netsw button { border: 0; background: transparent; padding: 0 12px; font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; color: var(--mist); cursor: pointer; transition: color .25s, background .25s; }
+.netsw button:hover { color: var(--ink); }
+.netsw button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.netsw small { font-size: 9px; margin-left: 5px; opacity: .7; }
+.netnote { background: #fbf7d9; border-bottom: 1px solid rgba(154,107,0,.25); padding: 10px var(--gx); font-size: 13px; color: #5b4a12; text-align: center; }
+.netnote b { font-family: var(--f-mono); font-size: 11px; text-transform: uppercase; font-weight: 400; margin-right: 10px; }
+.netnote[hidden] { display: none; }
+@media (max-width: 1100px) { .top-in .netsw { margin-left: auto; } .top-in .netsw + .wbtn { margin-left: 0; } }
+@media (max-width: 560px) { .netsw { height: 42px; } .netsw button { padding: 0 8px; font-size: 10px; } .netsw small { display: none; } }
+
 /* developer tools */
 .tool-links a { text-decoration: none; }
 .tool-links a:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -298,6 +310,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
       <a href="#developers">Developers</a>
       <a href="#status">Status</a>
     </nav>
+    <div class="netsw" role="group" aria-label="Network"><button type="button" data-net="hyperevm">HyperEVM</button><button type="button" data-net="elysium">Elysium<small data-ely-tag></small></button></div>
     <button type="button" class="wbtn" data-wallet aria-haspopup="dialog">
       <span class="logo" aria-hidden="true"><svg><use href="#mark"/></svg></span>
       <span class="lbl"><span class="roll"><span data-wallet-label>Connect wallet</span><span aria-hidden="true" data-wallet-label>Connect wallet</span></span></span>
@@ -306,6 +319,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
   </div>
 </header>
 
+<div class="netnote" data-net-note hidden><b>Elysium testnet</b>Kinetiq has not opened Elysium mainnet yet, so this view reads the public testnet and balances are test HYPE. It moves to mainnet the day Kinetiq publishes it.</div>
 <main>
 <!-- 01 Endowments -->
 <section class="page" id="p-endowments" aria-labelledby="t-endowments">
@@ -417,7 +431,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
     <div data-lookup-out></div>
   </div></div>
 
-  <div class="row-h"><div><h2 class="h2">Current conditions</h2><p class="sub">HyperEVM and USDC, read live from chain 999.</p></div><button class="ghost" data-refresh style="margin-bottom:20px">Read again</button></div>
+  <div class="row-h"><div><h2 class="h2">Current conditions</h2><p class="sub" data-net-sub>HyperEVM and USDC, read live from chain 999.</p></div><button class="ghost" data-refresh style="margin-bottom:20px">Read again</button></div>
   <div class="card"><ul class="conds" data-conds></ul></div>
 </section>
 
@@ -479,7 +493,7 @@ x-corody-payee: 0xYourProviderAddress</pre>
     <div class="card-b" style="padding-top:0"><p>Only delivered work raises the ceiling. Your score is the share of jobs you delivered, weighted by what they paid, and a missed deadline or a lost dispute counts against it. Your stake is what payers see at risk behind your work.</p></div>
   </div>
 
-  <div class="row-h"><div><h2 class="h2">Current conditions</h2><p class="sub">HyperEVM and USDC, read live from chain 999.</p></div><button class="ghost" data-refresh style="margin-bottom:20px">Read again</button></div>
+  <div class="row-h"><div><h2 class="h2">Current conditions</h2><p class="sub" data-net-sub>HyperEVM and USDC, read live from chain 999.</p></div><button class="ghost" data-refresh style="margin-bottom:20px">Read again</button></div>
   <div class="card"><ul class="conds" data-conds></ul></div>
 </section>
 
@@ -579,6 +593,7 @@ x-corody-payee: 0xYourProviderAddress</pre>
     <div class="kv"><span>Fallback RPCs</span><span class="mono">hyperliquid.drpc.org · hyperliquid-json-rpc.stakely.io · rpc.hypurrscan.io</span></div>
     <div class="kv"><span>Explorer</span><span class="mono">https://hyperevmscan.io</span></div>
     <div class="kv"><span>Gas token</span><span>HYPE</span></div>
+    <div class="kv"><span>Elysium</span><span>Kinetiq's L2, settles to HyperEVM, gas in HYPE · testnet chain 99801 · mainnet when Kinetiq opens it</span></div>
     <div class="kv"><span>USDC</span><span class="mono">0xb88339CB7199b77E23DB6E890353E22632Ba630f · 6 decimals</span></div>
   </div></div>
 
@@ -609,7 +624,7 @@ const receipt = await mandate.pay({
   <span class="eyebrow"><span class="sq"></span><b>08</b>Status</span>
   <div class="ph">
     <div><h1 id="t-status">Status</h1>
-      <p>What is live on HyperEVM right now, checked from your browser.</p></div>
+      <p data-net-lede>What is live on HyperEVM right now, checked from your browser.</p></div>
     <div class="actions"><button class="ghost" data-refresh>Read again</button></div>
   </div>
   <div class="card"><ul class="conds" data-conds></ul></div>
@@ -681,7 +696,7 @@ const receipt = await mandate.pay({
       </ul>
       <div class="foot-social"><a class="ghost" href="https://x.com/CorodyEVM" target="_blank" rel="noopener"><svg><use href="#i-x"/></svg>Follow us</a><a class="ghost" href="index.html">Back to the site</a></div>
       <div class="foot-fine">
-        <span>Settling on HyperEVM, chain 999. USDC at <code>0xb88339CB7199b77E23DB6E890353E22632Ba630f</code>.</span>
+        <span data-net-fine>Settling on HyperEVM, chain 999. USDC at <code>0xb88339CB7199b77E23DB6E890353E22632Ba630f</code>.</span>
         <span>$CRDY is not a claim on Hyperliquid, on HyperEVM, on Circle or on USDC, and none of them endorses Corody.</span>
       </div>
     </div>
@@ -699,16 +714,26 @@ const receipt = await mandate.pay({
   const usd = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const store = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} } };
 
-  /* ===== Chain: HyperEVM mainnet, read straight from the public RPC ===== */
-  const CHAIN = { id: 999, hex: '0x3e7', rpc: 'https://rpc.hyperliquid.xyz/evm', explorer: 'https://hyperevmscan.io' };
-  const USDC = '0xb88339CB7199b77E23DB6E890353E22632Ba630f';
-  // public HyperEVM endpoints, all listed on Hyperliquid's HyperEVM tools page; the first that answers is used
-  const RPCS = [
-    { name: 'Hyperliquid', url: 'https://rpc.hyperliquid.xyz/evm' },
-    { name: 'dRPC', url: 'https://hyperliquid.drpc.org' },
-    { name: 'Stakely', url: 'https://hyperliquid-json-rpc.stakely.io' },
-    { name: 'HypurrScan', url: 'https://rpc.hypurrscan.io' }
-  ];
+  /* ===== Networks: HyperEVM, and Elysium (Kinetiq's L2 that settles to HyperEVM) ===== */
+  // ELYSIUM MAINNET: when Kinetiq publishes the mainnet chain ID, RPC and explorer, fill in these three values.
+  // The app then reads Elysium mainnet instead of the testnet. Nothing else needs to change.
+  const ELYSIUM_MAINNET = { id: null, rpc: '', explorer: '' };
+  const NETWORKS = {
+    hyperevm: { key: 'hyperevm', name: 'HyperEVM', id: 999, explorer: 'https://hyperevmscan.io', usdc: '0xb88339CB7199b77E23DB6E890353E22632Ba630f',
+      // public HyperEVM endpoints, all listed on Hyperliquid's HyperEVM tools page; the first that answers is used
+      rpcs: [{ name: 'Hyperliquid', url: 'https://rpc.hyperliquid.xyz/evm' }, { name: 'dRPC', url: 'https://hyperliquid.drpc.org' },
+             { name: 'Stakely', url: 'https://hyperliquid-json-rpc.stakely.io' }, { name: 'HypurrScan', url: 'https://rpc.hypurrscan.io' }] },
+    elysium: ELYSIUM_MAINNET.id
+      ? { key: 'elysium', name: 'Elysium', id: ELYSIUM_MAINNET.id, explorer: ELYSIUM_MAINNET.explorer, usdc: null, rpcs: [{ name: 'Kinetiq', url: ELYSIUM_MAINNET.rpc }] }
+      : { key: 'elysium', name: 'Elysium testnet', id: 99801, testnet: true, explorer: 'https://elysium.kinetiq.xyz/testnet-explorer', usdc: null,
+          rpcs: [{ name: 'Kinetiq', url: 'https://testnet-rpc.elysium.kinetiq.xyz' }, { name: 'Conduit', url: 'https://rpc-elysium-testnet.t.conduit.xyz' }] }
+  };
+  const NET = (() => { const q = new URLSearchParams(location.search).get('net');
+    if (q && NETWORKS[q]) store.set('corody.net', q);
+    return NETWORKS[(q && NETWORKS[q]) ? q : store.get('corody.net')] || NETWORKS.hyperevm; })();
+  const CHAIN = { id: NET.id, hex: '0x' + NET.id.toString(16), rpc: NET.rpcs[0].url, explorer: NET.explorer };
+  const USDC = NET.usdc;
+  const RPCS = NET.rpcs;
   let live = 0;
   const call = async (url, method, params = [], ms = 6000) => {
     const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ms);
@@ -729,7 +754,8 @@ const receipt = await mandate.pay({
   const units = (hex, dec, places) => { const v = BigInt(hex || '0x0'), base = 10n ** BigInt(dec); const whole = v / base, frac = (v % base).toString().padStart(dec, '0').slice(0, places);
     return whole.toLocaleString('en-US') + (places ? '.' + frac : ''); };
   const pad = a => a.toLowerCase().replace(/^0x/, '').padStart(64, '0');
-  const usdcOf = a => rpc('eth_call', [{ to: USDC, data: '0x70a08231' + pad(a) }, 'latest']);
+  const usdcOf = a => USDC ? rpc('eth_call', [{ to: USDC, data: '0x70a08231' + pad(a) }, 'latest']) : Promise.resolve(null);
+  const fmtUsdc = x => x == null ? 'Not on this network' : units(x, 6, 2);
   const isAddr = a => /^0x[0-9a-fA-F]{40}$/.test(a);
 
   /* ===== Router ===== */
@@ -761,7 +787,7 @@ const receipt = await mandate.pay({
   const paintConds = items => $$('[data-conds]').forEach(ul => { ul.innerHTML = items.map(c =>
     `<li><span class="dot ${c.s}"></span><div><span class="k">${c.k}</span><b>${c.t}</b><p>${c.p}</p>${c.sub ? `<ul class="subconds">${c.sub.map(x => `<li><span class="dot ${x.s}"></span><span><b>${x.t}</b> ${x.p}</span></li>`).join('')}</ul>` : ''}</div></li>`).join(''); });
   const readConds = async () => {
-    paintConds([{ s: '', k: 'Connectivity', t: 'Reading HyperEVM…', p: 'Asking the public RPC for the latest block.' }]);
+    paintConds([{ s: '', k: 'Connectivity', t: 'Reading ' + NET.name + '…', p: 'Asking the public RPC for the latest block.' }]);
     const out = [];
     const checks = await Promise.all(RPCS.map(async e => {
       const t0 = performance.now();
@@ -772,12 +798,13 @@ const receipt = await mandate.pay({
     const up = checks.filter(c => c.ok);
     if (up.length) {
       lastBlock = Math.max(...up.map(c => c.block));
-      out.push({ s: up.length === RPCS.length ? 'ok' : 'wait', k: 'Connectivity', t: 'Connected to HyperEVM.',
+      out.push({ s: up.length === RPCS.length ? 'ok' : 'wait', k: 'Connectivity', t: 'Connected to ' + NET.name + '.',
         p: `${up.length} of ${RPCS.length} endpoints answering at block ${lastBlock.toLocaleString('en-US')}.`,
         sub: checks.map(c => c.ok ? { s: 'ok', t: c.e.name + '.', p: `Block ${c.block.toLocaleString('en-US')} in ${c.ms} ms.` } : { s: 'bad', t: c.e.name + '.', p: 'Did not answer.' }) });
-      try { const gas = await rpc('eth_gasPrice'); out.push({ s: 'ok', k: 'Gas', t: `${(Number(BigInt(gas)) / 1e9).toFixed(2)} gwei, paid in HYPE.`, p: 'The current base price for a transaction on HyperEVM.' }); } catch {}
-    } else out.push({ s: 'bad', k: 'Connectivity', t: 'HyperEVM did not answer.', p: `None of the ${RPCS.length} public endpoints could be reached from this browser. Try again in a moment.` });
-    try {
+      try { const gas = await rpc('eth_gasPrice'); out.push({ s: 'ok', k: 'Gas', t: `${(Number(BigInt(gas)) / 1e9).toFixed(2)} gwei, paid in HYPE.`, p: 'The current base price for a transaction on ' + NET.name + '.' }); } catch {}
+    } else out.push({ s: 'bad', k: 'Connectivity', t: NET.name + ' did not answer.', p: `None of the ${RPCS.length} public endpoints could be reached from this browser. Try again in a moment.` });
+    if (!USDC) out.push({ s: 'wait', k: 'Asset', t: 'No native USDC here yet.', p: 'Draws and payments settle in USDC on HyperEVM, which ' + NET.name + ' settles to.' });
+    else try {
       const sup = await rpc('eth_call', [{ to: USDC, data: '0x18160ddd' }, 'latest']);
       out.push({ s: 'ok', k: 'Asset', t: 'USDC is moving normally.', p: `${units(sup, 6, 0)} native USDC on HyperEVM, issued by Circle.` });
     } catch (e) { out.push({ s: 'wait', k: 'Asset', t: 'USDC could not be read.', p: 'The token contract did not answer this time.' }); }
@@ -793,7 +820,7 @@ const receipt = await mandate.pay({
     e.preventDefault();
     const input = $('input', form), out = $('[data-lookup-out]', form.parentNode), a = input.value.trim();
     if (!isAddr(a)) { out.innerHTML = '<p class="msg bad">That is not a 0x address. It should be 0x followed by 40 hex characters.</p>'; return; }
-    out.innerHTML = '<p class="msg">Reading HyperEVM…</p>';
+    out.innerHTML = '<p class="msg">Reading ' + NET.name + '…</p>';
     try {
       const [code, bal, usdc] = await Promise.all([rpc('eth_getCode', [a, 'latest']), rpc('eth_getBalance', [a, 'latest']), usdcOf(a)]);
       const kind = code && code !== '0x' ? 'A contract' : 'A wallet';
@@ -802,10 +829,10 @@ const receipt = await mandate.pay({
         <div class="kv"><span>Address</span><span class="addr">${esc(a)}</span></div>
         <div class="kv"><span>Type</span><span>${kind}</span></div>
         <div class="kv"><span>HYPE</span><span class="mono">${units(bal, 18, 4)}</span></div>
-        <div class="kv"><span>USDC</span><span class="mono">${units(usdc, 6, 2)}</span></div>
+        <div class="kv"><span>USDC</span><span class="mono">${fmtUsdc(usdc)}</span></div>
         <div class="kv"><span>Corody ${what}</span><span>Not yet. Corody contracts are not deployed, so no address is a ${what} today.</span></div>
       </div><div class="actions" style="margin-top:16px"><a class="ghost" href="${CHAIN.explorer}/address/${esc(a)}" target="_blank" rel="noopener">View on explorer ↗</a></div>`;
-    } catch { out.innerHTML = '<p class="msg bad">HyperEVM did not answer. Try again in a moment.</p>'; }
+    } catch { out.innerHTML = '<p class="msg bad">' + NET.name + ' did not answer. Try again in a moment.</p>'; }
   }));
 
   /* ===== Copy buttons ===== */
@@ -859,7 +886,7 @@ const receipt = await mandate.pay({
   (async () => { try { const r = await fetch('https://api.hyperliquid.xyz/info', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ type: 'allMids' }) });
     hypeUsd = parseFloat((await r.json()).HYPE) || null; } catch {} gift(); })();
   const paintEndow = () => { $('#f-go-l').textContent = W.account ? 'Create the endowment' : 'Connect wallet';
-    $('#f-line').textContent = W.account ? `Endowing from ${short(W.account)} on HyperEVM.` : 'Connect a wallet on HyperEVM to create the endowment.'; };
+    $('#f-line').textContent = W.account ? `Endowing from ${short(W.account)} on ${NET.name}.` : `Connect a wallet on ${NET.name} to create the endowment.`; };
   $('#f-go').addEventListener('click', () => {
     const m = $('#f-msg'), num = $('#f-num').value.trim(), [ok, why] = rowsOk(), g = gift();
     if (!num) { m.className = 'msg bad'; m.textContent = 'Enter the agent number first.'; $('#f-num').focus(); return; }
@@ -1000,7 +1027,7 @@ const receipt = await mandate.pay({
   else renderLocked();
 
   /* ===== Wallet: MetaMask, Rabby, Phantom and any EIP-6963 wallet, on HyperEVM ===== */
-  const HYPEREVM = { chainId: CHAIN.hex, chainName: 'HyperEVM', nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 }, rpcUrls: [CHAIN.rpc], blockExplorerUrls: [CHAIN.explorer] };
+  const HYPEREVM = { chainId: CHAIN.hex, chainName: NET.name, nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 }, rpcUrls: [CHAIN.rpc], blockExplorerUrls: [CHAIN.explorer] };
   const ICONS = {"metamask": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDI0IDI0Ij48ZyBjbGlwLXBhdGg9InVybCgjbWV0YW1hc2tfX2EpIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMjQgMEgwdjI0aDI0eiIvPjxwYXRoIGZpbGw9IiNGRjVDMTYiIGQ9Im0xOC45IDE4LjkyNS0zLjQzNC0uOTkzLTIuNTkgMS41MDRoLTEuODA3bC0yLjU5Mi0xLjUwNC0zLjQzMy45OTNMNCAxNS41bDEuMDQ0LTMuODAyTDQgOC40ODQgNS4wNDQgNC41bDUuMzY1IDMuMTE0aDMuMTI3TDE4LjkgNC41bDEuMDQ1IDMuOTg0LTEuMDQ1IDMuMjE0IDEuMDQ1IDMuODAyeiIvPjxwYXRoIGZpbGw9IiNGRjVDMTYiIGQ9Im01LjA0NSA0LjUgNS4zNjQgMy4xMTYtLjIxMyAyLjE0em0zLjQzMyAxMS4wMDEgMi4zNiAxLjc0Ny0yLjM2LjY4NHptMi4xNzItMi44ODgtLjQ1NC0yLjg1Ni0yLjkwNCAxLjk0MmgtLjAwMWwuMDA5IDIgMS4xNzctMS4wODZ6TTE4LjkgNC41bC01LjM2NCAzLjExNi4yMTMgMi4xNHptLTMuNDMzIDExLjAwMS0yLjM2IDEuNzQ3IDIuMzYuNjg0em0xLjE4Ny0zLjgwMXYtLjAwMmgtLjAwMWwtMi45MDQtMS45NDEtLjQ1MyAyLjg1NmgyLjE3MWwxLjE3OCAxLjA4NnoiLz48cGF0aCBmaWxsPSIjRTM0ODA3IiBkPSJtOC40NzcgMTcuOTMyLTMuNDMzLjk5M0w0IDE1LjUwMWg0LjQ3N3ptMi4xNzItNS4zMi42NTYgNC4xMy0uOTEtMi4yOTctMy4wOTctLjc0NiAxLjE3OC0xLjA4N3ptNC44MTggNS4zMiAzLjQzMy45OTMgMS4wNDUtMy40MjRoLTQuNDc4em0tMi4xNzEtNS4zMi0uNjU2IDQuMTMuOTA5LTIuMjk3IDMuMDk3LS43NDYtMS4xNzktMS4wODd6Ii8+PHBhdGggZmlsbD0iI0ZGOEQ1RCIgZD0ibTQgMTUuNSAxLjA0NC0zLjgwMkg3LjI5bC4wMDggMiAzLjA5OC43NDcuOTA5IDIuMjk2LS40NjguNTA1LTIuMzYtMS43NDd6bTE1Ljk0NSAwTDE4LjkgMTEuNjk4aC0yLjI0NWwtLjAwOSAyLTMuMDk3Ljc0Ny0uOTA5IDIuMjk2LjQ2Ny41MDUgMi4zNi0xLjc0N3ptLTYuNDA5LTcuODg2aC0zLjEyN2wtLjIxMyAyLjEzOSAxLjEwOSA2Ljk4NWgxLjMzNWwxLjExLTYuOTg1eiIvPjxwYXRoIGZpbGw9IiM2NjE4MDAiIGQ9Ik01LjA0NCA0LjUgNCA4LjQ4NGwxLjA0NCAzLjIxNEg3LjI5bDIuOTA1LTEuOTQzek0xMCAxMy40NDFIOC45ODJsLS41NTMuNTI4IDEuOTY3LjQ3NHpNMTguOSA0LjVsMS4wNDUgMy45ODQtMS4wNDUgMy4yMTRoLTIuMjQ1bC0yLjkwNi0xLjk0M3ptLTQuOTU0IDguOTQxaDEuMDJsLjU1My41MjktMS45Ny40NzV6bS0xLjA3MSA0LjYzMi4yMzItLjgyNS0uNDY3LS41MDZoLTEuMzM2bC0uNDY3LjUwNi4yMzIuODI1Ii8+PHBhdGggZmlsbD0iI0MwQzRDRCIgZD0iTTEyLjg3NSAxOC4wNzN2MS4zNjRoLTEuODA2di0xLjM2NHoiLz48cGF0aCBmaWxsPSIjRTdFQkY2IiBkPSJtOC40NzggMTcuOTMgMi41OTIgMS41MDZ2LTEuMzYzbC0uMjMyLS44MjZ6bTYuOTkgMC0yLjU5MyAxLjUwNnYtMS4zNjNsLjIzMi0uODI2eiIvPjwvZz48ZGVmcz48Y2xpcFBhdGggaWQ9Im1ldGFtYXNrX19hIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMCAwaDI0djI0SDB6Ii8+PC9jbGlwUGF0aD48L2RlZnM+PC9zdmc+", "rabby": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDI0IDI0Ij48ZyBjbGlwLXBhdGg9InVybCgjcmFiYnlfX2EpIj48cGF0aCBmaWxsPSJ1cmwoI3JhYmJ5X19iKSIgZD0iTTI0IDBIMHYyNGgyNHoiLz48cGF0aCBmaWxsPSJ1cmwoI3JhYmJ5X19jKSIgZD0iTTE5LjkxOCAxMy4wNGMuNjI5LTEuNDYxLTIuNDc4LTUuNTQzLTUuNDQ2LTcuMjQzLTEuODctMS4zMTctMy44Mi0xLjEzNi00LjIxNS0uNTU4LS44NjYgMS4yNyAyLjg2OSAyLjM0NSA1LjM2NyAzLjZhMi45IDIuOSAwIDAgMC0xLjM0IDEuMjM1Yy0uOTMyLTEuMDU4LTIuOTc2LTEuOTY5LTUuMzc1LTEuMjM1LTEuNjE2LjQ5NS0yLjk2IDEuNjYtMy40NzkgMy40MjJhMSAxIDAgMCAwLS40MTItLjA5MWMtLjU2MiAwLTEuMDE4LjQ3NC0xLjAxOCAxLjA1OXMuNDU2IDEuMDU5IDEuMDE4IDEuMDU5Yy4xMDQgMCAuNDMtLjA3My40My0uMDczbDUuMjA0LjA0Yy0yLjA4MiAzLjQzNS0zLjcyNiAzLjkzNy0zLjcyNiA0LjUzMnMxLjU3My40MzQgMi4xNjQuMjEyYzIuODMtMS4wNjIgNS44NjgtNC4zNzIgNi4zODktNS4zMjUgMi4xOS4yODQgNC4wMy4zMTggNC40NC0uNjM0Ii8+PHBhdGggZmlsbD0idXJsKCNyYWJieV9fZCkiIGZpbGwtcnVsZT0iZXZlbm9kZCIgZD0iTTE1LjYyNCA4LjgzOWMuMTE2LS4wNDguMDk3LS4yMjUuMDY2LS4zNjUtLjA3My0uMzIxLTEuMzM0LTEuNjE3LTIuNTE4LTIuMTk3LTEuNjE0LS43OTEtMi44MDItLjc1LTIuOTc4LS4zODYuMzI5LjcwMSAxLjg1MyAxLjM2IDMuNDQ0IDIuMDQ3LjY3OS4yOTMgMS4zNy41OTEgMS45ODYuOTAxIiBjbGlwLXJ1bGU9ImV2ZW5vZGQiLz48cGF0aCBmaWxsPSJ1cmwoI3JhYmJ5X19lKSIgZmlsbC1ydWxlPSJldmVub2RkIiBkPSJNMTMuNTc2IDE1Ljg5NGE5IDkgMCAwIDAtMS4xMTQtLjM1N2MuNDQ3LS44MzIuNTQxLTIuMDY0LjExOS0yLjg0My0uNTkyLTEuMDkyLTEuMzM2LTEuNjc0LTMuMDYzLTEuNjc0LS45NSAwLTMuNTA4LjMzMy0zLjU1NCAyLjU1NXEtLjAwOC4zNDkuMDE2LjY0NGw0LjY3Mi4wMzVhMTYuNyAxNi43IDAgMCAxLTEuNzM2IDIuMzk3Yy42Mi4xNjUgMS4xMzEuMzA0IDEuNjAxLjQzMS40NDYuMTIxLjg1NC4yMzIgMS4yOC4zNDVhMjAgMjAgMCAwIDAgMS43OC0xLjUzMyIgY2xpcC1ydWxlPSJldmVub2RkIi8+PHBhdGggZmlsbD0idXJsKCNyYWJieV9fZikiIGQ9Ik01LjM2OCAxMy45OWMuMTkgMS42ODggMS4xMTMgMi4zNSAyLjk5NyAyLjU0NSAxLjg4NC4xOTYgMi45NjQuMDY1IDQuNDAzLjIwMSAxLjIwMi4xMTQgMi4yNzUuNzUxIDIuNjczLjUzLjM1OC0uMTk3LjE1Ny0uOTEzLS4zMjItMS4zNzItLjYyMS0uNTk2LTEuNDgxLTEuMDEtMi45OTQtMS4xNTcuMzAxLS44NTkuMjE3LTIuMDYzLS4yNTEtMi43MTktLjY3OC0uOTQ3LTEuOTI3LTEuMzc2LTMuNTEtMS4xODktMS42NTIuMTk2LTMuMjM1IDEuMDQzLTIuOTk2IDMuMTYxIi8+PC9nPjxkZWZzPjxsaW5lYXJHcmFkaWVudCBpZD0icmFiYnlfX2IiIHgxPSI4LjcyMSIgeDI9IjE5Ljg0NiIgeTE9IjExLjc0NiIgeTI9IjE0Ljc3OCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiM4Njk3RkYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNBQkI3RkYiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0icmFiYnlfX2MiIHgxPSI4LjcyMSIgeDI9IjE5Ljg0NiIgeTE9IjExLjc0NiIgeTI9IjE0Ljc3OCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiNmZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmZmYiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0icmFiYnlfX2QiIHgxPSIxNy45MiIgeDI9IjkuNjIxIiB5MT0iMTEuNTI3IiB5Mj0iMy41MzEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjODY5N0ZGIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjODY5N0ZGIiBzdG9wLW9wYWNpdHk9IjAiLz48L2xpbmVhckdyYWRpZW50PjxsaW5lYXJHcmFkaWVudCBpZD0icmFiYnlfX2UiIHgxPSIxMy43OTkiIHgyPSI1Ljk4MyIgeTE9IjE2LjE4NCIgeTI9IjExLjg2NSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPjxzdG9wIHN0b3AtY29sb3I9IiM4Njk3RkYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM4Njk3RkYiIHN0b3Atb3BhY2l0eT0iMCIvPjwvbGluZWFyR3JhZGllbnQ+PGxpbmVhckdyYWRpZW50IGlkPSJyYWJieV9fZiIgeDE9IjkuMzgyIiB4Mj0iMTQuODIxIiB5MT0iMTEuNjYiIHkyPSIxOC4zMDEiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj48c3RvcCBzdG9wLWNvbG9yPSIjZmZmIi8+PHN0b3Agb2Zmc2V0PSIuOTg0IiBzdG9wLWNvbG9yPSIjRDFEOEZGIi8+PC9saW5lYXJHcmFkaWVudD48Y2xpcFBhdGggaWQ9InJhYmJ5X19hIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMCAwaDI0djI0SDB6Ii8+PC9jbGlwUGF0aD48L2RlZnM+PC9zdmc+", "phantom": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDI0IDI0Ij48ZyBjbGlwLXBhdGg9InVybCgjcGhhbnRvbV9fYSkiPjxwYXRoIGZpbGw9IiNBQjlGRjIiIGQ9Ik0yNCAwSDB2MjRoMjR6Ii8+PHBhdGggZmlsbD0iI2ZmZiIgZD0iTTUuODkzIDE4LjRjMi4wNDIgMCAzLjU3Ni0xLjcwNiA0LjQ5Mi0zLjA1NGEyLjUgMi41IDAgMCAwLS4xNzMuODgzYzAgLjc4Ny40NyAxLjM0OCAxLjM5OCAxLjM0OCAxLjI3NSAwIDIuNjM2LTEuMDc0IDMuMzQxLTIuMjNxLS4wNzUuMjUtLjA3NC40NjRjMCAuNTUuMzIyLjg5NS45NzguODk1IDIuMDY2IDAgNC4xNDUtMy41MiA0LjE0NS02LjU5N0MyMCA3LjcxMSAxOC43MzggNS42IDE1LjU3IDUuNiAxMC4wMDIgNS42IDQgMTIuMTM3IDQgMTYuMzZjMCAxLjY1OC45MjggMi4wNCAxLjg5MyAyLjA0bTcuNzU5LTguNTUzYzAtLjU5Ny4zNDctMS4wMTQuODU0LTEuMDE0LjQ5NSAwIC44NDEuNDE3Ljg0MSAxLjAxNCAwIC41OTYtLjM0NiAxLjAyNi0uODQxIDEuMDI2LS41MDggMC0uODU0LS40My0uODU0LTEuMDI2bTIuNjQ4IDBjMC0uNTk3LjM0Ny0xLjAxNC44NTQtMS4wMTQuNDk1IDAgLjg0MS40MTcuODQxIDEuMDE0IDAgLjU5Ni0uMzQ2IDEuMDI2LS44NDEgMS4wMjYtLjUwNyAwLS44NTQtLjQzLS44NTQtMS4wMjYiLz48L2c+PGRlZnM+PGNsaXBQYXRoIGlkPSJwaGFudG9tX19hIj48cGF0aCBmaWxsPSIjZmZmIiBkPSJNMCAwaDI0djI0SDB6Ii8+PC9jbGlwUGF0aD48L2RlZnM+PC9zdmc+"};
   const KNOWN = [
     { rdns: 'io.metamask', name: 'MetaMask', logo: ICONS.metamask, url: 'https://metamask.io/download/', app: u => 'https://metamask.app.link/dapp/' + u.replace(/^https?:\/\//, '') },
@@ -1029,8 +1056,8 @@ const receipt = await mandate.pay({
     const box = $('#console-wallet');
     box.innerHTML = !W.account
       ? `<div class="empty"><h3>Connect a wallet to see your mandates.</h3><p>Your wallet owns the mandates it opens and can pause any of them in one transaction. To look around first, open the example mandate or draft limits in the workspace.</p>${btn('Connect wallet', 'data-wallet-open')}</div>`
-      : `<div class="card"><div class="card-h" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center"><div><h3>${esc(nameOf(W.rdns))} · <span class="addr">${short(W.account)}</span></h3><p>${W.chainOk ? 'On HyperEVM, chain 999.' : 'Not on HyperEVM. Switch to see balances.'}</p></div>${W.chainOk ? '<span class="chip ok">HyperEVM</span>' : '<button class="ghost" data-switch>Switch to HyperEVM</button>'}</div>
-          <div class="stats three"><div class="stat"><dt>HYPE</dt><dd>${W.hype ?? '—'}</dd><p>Native balance on HyperEVM.</p></div><div class="stat"><dt>USDC</dt><dd>${W.usdc ?? '—'}</dd><p>Native USDC on HyperEVM.</p></div><div class="stat"><dt>Mandates</dt><dd>0</dd><p>Mandates open at launch.</p></div></div></div>`;
+      : `<div class="card"><div class="card-h" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center"><div><h3>${esc(nameOf(W.rdns))} · <span class="addr">${short(W.account)}</span></h3><p>${W.chainOk ? `On ${NET.name}, chain ${NET.id}.` : `Not on ${NET.name}. Switch to see balances.`}</p></div>${W.chainOk ? `<span class="chip ok">${NET.name}</span>` : `<button class="ghost" data-switch>Switch to ${NET.name}</button>`}</div>
+          <div class="stats three"><div class="stat"><dt>HYPE</dt><dd>${W.hype ?? '—'}</dd><p>Native balance on ${NET.name}.</p></div><div class="stat"><dt>USDC</dt><dd>${W.usdc ?? '—'}</dd><p>${USDC ? 'Native USDC, issued by Circle.' : 'USDC lives on HyperEVM.'}</p></div><div class="stat"><dt>Mandates</dt><dd>0</dd><p>Mandates open at launch.</p></div></div></div>`;
     const o = $('[data-wallet-open]', box); if (o) o.addEventListener('click', () => openWallet());
     const s = $('[data-switch]', box); if (s) s.addEventListener('click', async () => { try { await switchChain(); await refresh(); } catch {} });
   };
@@ -1047,20 +1074,20 @@ const receipt = await mandate.pay({
         rows.push(`<button type="button" class="wl-item" data-connect="${esc(rdns)}">${ic}${esc(d.info.name)}<em class="ok">Detected</em></button>`);
       }
       wbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>Wallet</span><h2 id="wallet-title">Connect a wallet.</h2>
-        <p>Corody runs on HyperEVM, Hyperliquid's smart-contract chain. Pick a wallet and it will be asked to switch to HyperEVM.</p>
+        <p>${NET.key === 'elysium' ? `You are on ${NET.name}, Kinetiq's chain that settles to HyperEVM.` : "Corody runs on HyperEVM, Hyperliquid's smart-contract chain."} Pick a wallet and it will be asked to switch to ${NET.name}.</p>
         <div class="wl-list">${rows.join('')}</div><p class="wl-status" role="status"></p>
         <p class="wl-note">Connecting only shares your address. Nothing is signed and nothing is sent.</p>`;
       return;
     }
     wbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>Wallet / ${esc(nameOf(W.rdns))}</span><h2 id="wallet-title">${short(W.account)}</h2>
       <div class="result">
-        <div class="kv"><span>Network</span><span style="color:${W.chainOk ? 'inherit' : 'var(--bad)'}">${W.chainOk ? 'HyperEVM · 999' : 'Not on HyperEVM'}</span></div>
+        <div class="kv"><span>Network</span><span style="color:${W.chainOk ? 'inherit' : 'var(--bad)'}">${W.chainOk ? `${NET.name} · ${NET.id}` : `Not on ${NET.name}`}</span></div>
         <div class="kv"><span>HYPE</span><span class="mono">${W.hype ?? '—'}</span></div>
         <div class="kv"><span>USDC</span><span class="mono">${W.usdc ?? '—'}</span></div>
         <div class="kv"><span>Address</span><span class="addr">${esc(W.account)}</span></div></div>
-      ${W.chainOk ? '' : `<p style="margin-top:14px">${W.rdns === 'app.phantom' ? 'In Phantom, turn on HyperEVM under Settings → Active networks, then switch here.' : 'Switch the wallet to HyperEVM to see your balances.'}</p>`}
+      ${W.chainOk ? '' : `<p style="margin-top:14px">${W.rdns === 'app.phantom' ? (NET.key === 'elysium' ? 'Phantom does not list Elysium yet. Use MetaMask or Rabby for Elysium.' : 'In Phantom, turn on HyperEVM under Settings → Active networks, then switch here.') : `Switch the wallet to ${NET.name} to see your balances.`}</p>`}
       <p class="wl-status" role="status" style="margin-top:12px"></p>
-      <div class="wl-actions">${W.chainOk ? '' : btn('Switch to HyperEVM', 'data-switch')}
+      <div class="wl-actions">${W.chainOk ? '' : btn('Switch to ' + NET.name, 'data-switch')}
         <a class="ghost" href="${CHAIN.explorer}/address/${esc(W.account)}" target="_blank" rel="noopener">View on explorer ↗</a>
         <button type="button" class="ghost" data-disconnect>Disconnect</button></div>`;
   };
@@ -1068,7 +1095,7 @@ const receipt = await mandate.pay({
     if (!W.provider || !W.account) return;
     try { W.chainOk = String(await W.provider.request({ method: 'eth_chainId' })).toLowerCase() === CHAIN.hex; } catch { W.chainOk = false; }
     // balances come from the public RPC, so they read the same whichever wallet is connected
-    try { const [b, u] = await Promise.all([rpc('eth_getBalance', [W.account, 'latest']), usdcOf(W.account)]); W.hype = units(b, 18, 4); W.usdc = units(u, 6, 2); } catch { W.hype = W.usdc = null; }
+    try { const [b, u] = await Promise.all([rpc('eth_getBalance', [W.account, 'latest']), usdcOf(W.account)]); W.hype = units(b, 18, 4); W.usdc = USDC ? units(u, 6, 2) : null; } catch { W.hype = W.usdc = null; }
     paintWallet(); if (wdlg.open) render();
   };
   const switchChain = async () => {
@@ -1097,7 +1124,7 @@ const receipt = await mandate.pay({
   $$('[data-wallet]').forEach(b => b.addEventListener('click', openWallet));
   wdlg.addEventListener('click', async e => {
     const c = e.target.closest('[data-connect]'); if (c) return connect(c.dataset.connect);
-    if (e.target.closest('[data-switch]')) { try { await switchChain(); await refresh(); } catch (err) { status(err && err.code === 4001 ? 'Request cancelled in the wallet.' : 'This wallet could not switch to HyperEVM.', true); } return; }
+    if (e.target.closest('[data-switch]')) { try { await switchChain(); await refresh(); } catch (err) { status(err && err.code === 4001 ? 'Request cancelled in the wallet.' : 'This wallet could not switch to ' + NET.name + '.', true); } return; }
     if (e.target.closest('[data-disconnect]')) { try { await W.provider.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] }); } catch {} drop(); }
   });
   setTimeout(async () => {
@@ -1109,8 +1136,8 @@ const receipt = await mandate.pay({
   /* ===== Status: USDC issuer controls and gas costs, read live ===== */
   const readStatus = async () => {
     try {
-      const [paused, gas, price] = await Promise.all([rpc('eth_call', [{ to: USDC, data: '0x5c975abb' }, 'latest']), rpc('eth_gasPrice'), hypePrice()]);
-      $$('[data-usdc-paused]').forEach(el => el.textContent = BigInt(paused) ? 'paused, so payments are stopped.' : 'not paused, so transfers are open.');
+      const [paused, gas, price] = await Promise.all([USDC ? rpc('eth_call', [{ to: USDC, data: '0x5c975abb' }, 'latest']) : null, rpc('eth_gasPrice'), hypePrice()]);
+      $$('[data-usdc-paused]').forEach(el => el.textContent = !USDC ? 'read on HyperEVM, since there is no native USDC on ' + NET.name + ' yet.' : BigInt(paused) ? 'paused, so payments are stopped.' : 'not paused, so transfers are open.');
       const g = Number(BigInt(gas));
       $$('[data-cost]').forEach(el => { const hype = g * +el.dataset.cost / 1e18;
         el.textContent = 'about ' + (hype < 0.0001 ? hype.toExponential(1) : hype.toFixed(5)) + ' HYPE' + (price ? ' · $' + (hype * price).toFixed(4) : ''); });
@@ -1122,13 +1149,23 @@ const receipt = await mandate.pay({
   $('#bl-form').addEventListener('submit', async e => {
     e.preventDefault(); const a = $('#bl-addr').value.trim(), m = $('#bl-msg');
     if (!isAddr(a)) { m.className = 'msg bad'; m.textContent = 'That is not a 0x address.'; return; }
+    if (!USDC) { m.className = 'msg'; m.textContent = 'There is no native USDC on ' + NET.name + ' yet. Switch to HyperEVM to check the blocklist.'; return; }
     m.className = 'msg'; m.textContent = 'Reading the USDC blocklist…';
     try { const r = await rpc('eth_call', [{ to: USDC, data: '0xfe575a87' + pad(a) }, 'latest']);
       if (BigInt(r)) { m.className = 'msg bad'; m.textContent = 'Blocked. USDC refuses to move funds to or from this address.'; }
       else { m.className = 'msg ok'; m.textContent = 'Not blocked. USDC can move funds for this address.'; }
-    } catch { m.className = 'msg bad'; m.textContent = 'HyperEVM did not answer. Try again in a moment.'; }
+    } catch { m.className = 'msg bad'; m.textContent = NET.name + ' did not answer. Try again in a moment.'; }
   });
   $$('[data-refresh]').forEach(b => b.addEventListener('click', readStatus));
+
+  /* network switcher: the choice is remembered and the page reloads on the new chain */
+  $$('[data-net]').forEach(b => { b.setAttribute('aria-pressed', String(b.dataset.net === NET.key));
+    b.addEventListener('click', () => { if (b.dataset.net === NET.key) return; const u = new URL(location.href); u.searchParams.set('net', b.dataset.net); location.replace(u); }); });
+  $$('[data-ely-tag]').forEach(t => t.textContent = NETWORKS.elysium.testnet ? 'testnet' : '');
+  if (NET.testnet) $('[data-net-note]').hidden = false;
+  $$('[data-net-sub]').forEach(p => p.textContent = USDC ? `${NET.name} and USDC, read live from chain ${NET.id}.` : `${NET.name}, read live from chain ${NET.id}.`);
+  $$('[data-net-lede]').forEach(p => p.textContent = `What is live on ${NET.name} right now, checked from your browser.`);
+  if (NET.key !== 'hyperevm') $$('[data-net-fine]').forEach(p => p.textContent = `Running on ${NET.name}, chain ${NET.id}, which settles to HyperEVM.`);
 
   paintWallet(); route(); readConds(); readStatus();
 })();

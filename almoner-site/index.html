@@ -1144,26 +1144,8 @@ section h2, section h3, section h4, .cap-wordmark { font-weight: 600 !important;
         <div class="venue-col"><header><h3>Tokenized assets</h3><span>What a budget holds</span></header>
           <div class="venue"><h4>USDC</h4><span class="kind">Draw · Payments</span><p>Pays every draw and every payment, so an agent always spends in dollars.</p></div><div class="venue"><h4>Staked HYPE</h4><span class="kind">Principal</span><p>Staked natively on Hyperliquid, it keeps earning while it sits in the endowment.</p></div><div class="venue"><h4>Liquid staking tokens</h4><span class="kind">Principal · Collateral</span><p>kHYPE, stHYPE and similar tokens, counted at their HYPE rate.</p></div><div class="venue"><h4>Tokenized real-world assets</h4><span class="kind">Collateral</span><p>Approved HyperEVM tokens can back an agent’s credit line, each with its own haircut.</p></div>
         </div>
-        <div class="venue-col"><header><h3>Agent commerce</h3><span>Try a mandate</span></header>
-          <div class="sim" id="sim">
-            <dl class="sim-caps">
-              <div><dt>Per payment</dt><dd>5.00 USDC</dd></div>
-              <div><dt>Per day</dt><dd>25.00 USDC</dd></div>
-            </dl>
-            <div><div class="sim-bar"><i id="sim-bar"></i></div><div class="sim-used" style="margin-top:8px"><span id="sim-used">0.00 used today</span><span id="sim-left">25.00 left</span></div></div>
-            <div class="sim-pick" role="group" aria-label="Pick a payment">
-              <button type="button" data-sim="Inference call" data-amt="0.40" aria-pressed="true">Inference · 0.40</button>
-              <button type="button" data-sim="Hire a research agent" data-amt="4.50" aria-pressed="false">Hire agent · 4.50</button>
-              <button type="button" data-sim="Dataset licence" data-amt="12.00" aria-pressed="false">Dataset · 12.00</button>
-              <button type="button" data-sim="GPU hour" data-amt="2.80" aria-pressed="false">GPU hour · 2.80</button>
-            </div>
-            <form class="sim-row" id="sim-form" autocomplete="off">
-              <input id="sim-amt" type="number" inputmode="decimal" min="0.01" step="0.01" value="0.40" aria-label="Amount in USDC">
-              <button class="btn" type="submit"><span class="lbl">Pay</span><span class="arr"><svg><use href="#i-arrow"/></svg></span></button>
-            </form>
-            <ul class="sim-log" id="sim-log" aria-live="polite"><li class="empty">No payments yet. Pick one and pay.</li></ul>
-            <div class="sim-foot"><span class="venue-note" style="margin:0">Simulation. No funds move.</span><button type="button" id="sim-reset">Reset day</button></div>
-          </div>
+        <div class="venue-col"><header><h3>Agent commerce</h3><span>How agents pay</span></header>
+          <div class="venue"><h4>Pay per call</h4><span class="kind">Mandate</span><p>An agent pays for inference, data or compute as it uses them, from its own mandate.</p></div><div class="venue"><h4>Hire other agents</h4><span class="kind">Agent to agent</span><p>Agents pay each other for work, inside the same per-payment and daily caps.</p></div><div class="venue"><h4>Escrow until delivery</h4><span class="kind">Escrow</span><p>The payment waits in escrow and is released when the provider delivers.</p></div><div class="venue"><h4>Caps on every payment</h4><span class="kind">Owner rules</span><p>Anything over a cap is refused before it leaves, and the owner can pause it at any time.</p></div>
         </div>
       </div>
       <p class="venue-note">Assets are approved per endowment. A mandate checks every payment before it leaves, and anything over a cap is refused.</p>
@@ -1458,7 +1440,7 @@ const DOCS = {
 
 
   /* supporting text next to each heading fades up once the heading has risen */
-  const rises = $$('.cap-head .sub, .cap-head .eyebrow, .cap-head .link-arrow, .proc-head .sub, .proc-head .eyebrow, .eco-head p, #ecosystem > .wrap > .eyebrow, .paths-head p, .paths-head .eyebrow, #faq .eyebrow, #faq .body, #resources .three .eyebrow, #resources .three .body, #venues > .wrap > .eyebrow, #venues .venue, #venues .venue-note, #commerce > .wrap > .eyebrow, #commerce .venue, #commerce > .wrap > .venue-note, #commerce .sim');
+  const rises = $$('.cap-head .sub, .cap-head .eyebrow, .cap-head .link-arrow, .proc-head .sub, .proc-head .eyebrow, .eco-head p, #ecosystem > .wrap > .eyebrow, .paths-head p, .paths-head .eyebrow, #faq .eyebrow, #faq .body, #resources .three .eyebrow, #resources .three .body, #venues > .wrap > .eyebrow, #venues .venue, #venues .venue-note, #commerce > .wrap > .eyebrow, #commerce .venue, #commerce > .wrap > .venue-note');
   rises.forEach((el, i) => { el.classList.add('rise-in'); el.style.transitionDelay = el.matches('.eyebrow') ? '0s' : el.matches('.venue') ? (([...el.parentNode.children].indexOf(el)) * .08) + 's' : '.45s'; });
   const rio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); rio.unobserve(e.target); } }), { threshold: .2, rootMargin: '0px 0px -22% 0px' });
   rises.forEach(el => still ? el.classList.add('in') : rio.observe(el));
@@ -1558,32 +1540,6 @@ const DOCS = {
   });
   $('[data-close-doc]').addEventListener('click', () => dlg.close());
 
-  /* Mandate simulator: every payment is checked against the per-payment and daily caps */
-  (() => {
-    const PER = 5, DAY = 25; let used = 0, label = 'Inference call';
-    const amt = $('#sim-amt'), log = $('#sim-log'), bar = $('#sim-bar');
-    const paint = () => { bar.style.width = Math.min(100, used / DAY * 100) + '%';
-      $('#sim-used').textContent = used.toFixed(2) + ' used today'; $('#sim-left').textContent = Math.max(0, DAY - used).toFixed(2) + ' left'; };
-    $$('[data-sim]').forEach(b => b.addEventListener('click', () => {
-      $$('[data-sim]').forEach(x => x.setAttribute('aria-pressed', x === b)); label = b.dataset.sim; amt.value = b.dataset.amt; }));
-    amt.addEventListener('input', () => { label = 'Custom payment'; $$('[data-sim]').forEach(x => x.setAttribute('aria-pressed', 'false')); });
-    $('#sim-form').addEventListener('submit', e => {
-      e.preventDefault();
-      const a = Math.round(parseFloat(amt.value) * 100) / 100; if (!(a > 0)) return;
-      let ok = true, why = 'Inside both caps. Paid from the draw.';
-      if (a > PER) { ok = false; why = 'Over the 5.00 USDC per-payment cap.'; }
-      else if (used + a > DAY + 1e-9) { ok = false; why = 'Would pass the 25.00 USDC daily cap.'; }
-      if (ok) used += a;
-      const empty = $('.empty', log); if (empty) empty.remove();
-      const li = document.createElement('li');
-      li.innerHTML = '<b></b><span></span><em class="' + (ok ? 'ok' : 'no') + '">' + (ok ? 'Approved' : 'Refused') + '</em><small></small>';
-      li.querySelector('b').textContent = label; li.querySelector('span').textContent = a.toFixed(2) + ' USDC'; li.querySelector('small').textContent = why;
-      log.prepend(li); while (log.children.length > 4) log.lastElementChild.remove();
-      paint();
-    });
-    $('#sim-reset').addEventListener('click', () => { used = 0; log.innerHTML = '<li class="empty">No payments yet. Pick one and pay.</li>'; paint(); });
-    paint();
-  })();
 
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
 

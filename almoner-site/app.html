@@ -1050,6 +1050,8 @@ const receipt = await mandate.pay({
     if (eth && eth.isRabby && !found.has('io.rabby')) found.set('io.rabby', { info: { rdns: 'io.rabby', name: 'Rabby' }, provider: eth });
     else if (eth && eth.isMetaMask && !eth.isPhantom && !eth.isRabby && !found.has('io.metamask')) found.set('io.metamask', { info: { rdns: 'io.metamask', name: 'MetaMask' }, provider: eth });
   };
+  // Phantom only allows its own networks and has no Elysium, so there it connects view-only and is never asked to switch
+  const viewOnly = rdns => rdns === 'app.phantom' && NET.key === 'elysium';
   const nameOf = rdns => (KNOWN.find(k => k.rdns === rdns) || {}).name || ((found.get(rdns) || {}).info || {}).name || 'Wallet';
   const status = (msg, err) => { const el = $('.wl-status', wbody); if (el) { el.textContent = msg || ''; el.classList.toggle('err', !!err); } };
 
@@ -1060,7 +1062,7 @@ const receipt = await mandate.pay({
     const box = $('#console-wallet');
     box.innerHTML = !W.account
       ? `<div class="empty"><h3>Connect a wallet to see your mandates.</h3><p>Your wallet owns the mandates it opens and can pause any of them in one transaction. To look around first, open the example mandate or draft limits in the workspace.</p>${btn('Connect wallet', 'data-wallet-open')}</div>`
-      : `<div class="card"><div class="card-h" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center"><div><h3>${esc(nameOf(W.rdns))} · <span class="addr">${short(W.account)}</span></h3><p>${W.chainOk ? `On ${NET.name}, chain ${NET.id}.` : `Not on ${NET.name}. Switch to see balances.`}</p></div>${W.chainOk ? `<span class="chip ok">${NET.name}</span>` : `<button class="ghost" data-switch>Switch to ${NET.name}</button>`}</div>
+      : `<div class="card"><div class="card-h" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center"><div><h3>${esc(nameOf(W.rdns))} · <span class="addr">${short(W.account)}</span></h3><p>${W.chainOk ? `On ${NET.name}, chain ${NET.id}.` : viewOnly(W.rdns) ? `View only. Phantom does not support ${NET.name} yet, so use MetaMask or Rabby to sign.` : `Not on ${NET.name}. Switch to sign from this wallet.`}</p></div>${W.chainOk ? `<span class="chip ok">${NET.name}</span>` : viewOnly(W.rdns) ? `<span class="chip">View only</span>` : `<button class="ghost" data-switch>Switch to ${NET.name}</button>`}</div>
           <div class="stats three"><div class="stat"><dt>HYPE</dt><dd>${W.hype ?? '—'}</dd><p>Native balance on ${NET.name}.</p></div><div class="stat"><dt>USDC</dt><dd>${W.usdc ?? '—'}</dd><p>${USDC ? 'Native USDC, issued by Circle.' : 'USDC lives on HyperEVM.'}</p></div><div class="stat"><dt>Mandates</dt><dd>0</dd><p>Mandates open at launch.</p></div></div></div>`;
     const o = $('[data-wallet-open]', box); if (o) o.addEventListener('click', () => openWallet());
     const s = $('[data-switch]', box); if (s) s.addEventListener('click', async () => { try { await switchChain(); await refresh(); } catch {} });
@@ -1069,7 +1071,7 @@ const receipt = await mandate.pay({
     if (!W.account) {
       const rows = KNOWN.map(k => {
         const d = found.get(k.rdns), logo = `<img src="${k.logo}" alt="">`;
-        if (d) return `<button type="button" class="wl-item" data-connect="${k.rdns}">${logo}${k.name}<em class="ok">Detected</em></button>`;
+        if (d) return `<button type="button" class="wl-item" data-connect="${k.rdns}">${logo}${k.name}<em class="ok">${viewOnly(k.rdns) ? 'Detected · view only' : 'Detected'}</em></button>`;
         if (phone && k.app && /^https?:/.test(location.href)) return `<a class="wl-item" href="${esc(k.app(location.href))}">${logo}${k.name}<em>Open in app ↗</em></a>`;
         return `<a class="wl-item" href="${k.url}" target="_blank" rel="noopener">${logo}${k.name}<em>Install ↗</em></a>`;
       });
@@ -1078,20 +1080,20 @@ const receipt = await mandate.pay({
         rows.push(`<button type="button" class="wl-item" data-connect="${esc(rdns)}">${ic}${esc(d.info.name)}<em class="ok">Detected</em></button>`);
       }
       wbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>Wallet</span><h2 id="wallet-title">Connect a wallet.</h2>
-        <p>${NET.key === 'elysium' ? `Corody runs on ${NET.name}, Kinetiq's chain that settles to HyperEVM.` : 'Corody runs on Elysium. This view reads HyperEVM, where it settles.'} Pick a wallet and it will be asked to switch to ${NET.name}.</p>
+        <p>${NET.key === 'elysium' ? `Corody runs on ${NET.name}, Kinetiq's chain that settles to HyperEVM.` : 'Corody runs on Elysium. This view reads HyperEVM, where it settles.'} Pick a wallet and it will be asked to switch to ${NET.name}.${NET.key === 'elysium' ? ' Phantom does not support Elysium yet, so it connects view-only.' : ''}</p>
         <div class="wl-list">${rows.join('')}</div><p class="wl-status" role="status"></p>
         <p class="wl-note">Connecting only shares your address. Nothing is signed and nothing is sent.</p>`;
       return;
     }
     wbody.innerHTML = `<span class="eyebrow"><span class="sq"></span>Wallet / ${esc(nameOf(W.rdns))}</span><h2 id="wallet-title">${short(W.account)}</h2>
       <div class="result">
-        <div class="kv"><span>Network</span><span style="color:${W.chainOk ? 'inherit' : 'var(--bad)'}">${W.chainOk ? `${NET.name} · ${NET.id}` : `Not on ${NET.name}`}</span></div>
+        <div class="kv"><span>Network</span><span style="color:${W.chainOk || viewOnly(W.rdns) ? 'inherit' : 'var(--bad)'}">${W.chainOk ? `${NET.name} · ${NET.id}` : viewOnly(W.rdns) ? `${NET.name} · view only` : `Not on ${NET.name}`}</span></div>
         <div class="kv"><span>HYPE</span><span class="mono">${W.hype ?? '—'}</span></div>
         <div class="kv"><span>USDC</span><span class="mono">${W.usdc ?? '—'}</span></div>
         <div class="kv"><span>Address</span><span class="addr">${esc(W.account)}</span></div></div>
-      ${W.chainOk ? '' : `<p style="margin-top:14px">${W.rdns === 'app.phantom' ? (NET.key === 'elysium' ? 'Phantom does not list Elysium yet. Use MetaMask or Rabby for Elysium.' : 'In Phantom, turn on HyperEVM under Settings → Active networks, then switch here.') : `Switch the wallet to ${NET.name} to see your balances.`}</p>`}
+      ${W.chainOk ? '' : `<p style="margin-top:14px">${viewOnly(W.rdns) ? 'Phantom does not support Elysium yet, so this address is connected view-only. Balances are read from the public Elysium RPC. To sign on Elysium, connect MetaMask or Rabby.' : W.rdns === 'app.phantom' ? 'In Phantom, turn on HyperEVM under Settings → Active networks, then switch here.' : `Switch the wallet to ${NET.name} to sign from it.`}</p>`}
       <p class="wl-status" role="status" style="margin-top:12px"></p>
-      <div class="wl-actions">${W.chainOk ? '' : btn('Switch to ' + NET.name, 'data-switch')}
+      <div class="wl-actions">${W.chainOk || viewOnly(W.rdns) ? '' : btn('Switch to ' + NET.name, 'data-switch')}
         <a class="ghost" href="${CHAIN.explorer}/address/${esc(W.account)}" target="_blank" rel="noopener">View on explorer ↗</a>
         <button type="button" class="ghost" data-disconnect>Disconnect</button></div>`;
   };
@@ -1120,7 +1122,7 @@ const receipt = await mandate.pay({
       const accs = await d.provider.request({ method: 'eth_requestAccounts' });
       if (!accs || !accs.length) throw new Error('No account was shared.');
       Object.assign(W, { rdns, provider: d.provider, account: accs[0] }); bind(d.provider); store.set('corody.wallet', rdns);
-      try { await switchChain(); } catch {}
+      if (!viewOnly(rdns)) { try { await switchChain(); } catch {} }
       await refresh(); render();
     } catch (e) { status(e && e.code === 4001 ? 'Request cancelled in the wallet.' : (e && e.message) || 'Could not connect.', true); }
   };

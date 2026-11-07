@@ -911,7 +911,6 @@ section h2, section h3, section h4, .cap-wordmark { font-weight: 600 !important;
     </ol>
     <div class="socials">
       <a href="#" data-link="x" aria-label="Corody on X"><svg width="20" height="20"><use href="#i-x"/></svg></a>
-      <a href="#" data-link="github" aria-label="Corody on GitHub"><svg width="20" height="20"><use href="#i-gh"/></svg></a>
     </div>
   </nav>
 </div>
@@ -958,7 +957,7 @@ section h2, section h3, section h4, .cap-wordmark { font-weight: 600 !important;
         <div class="poster grainy"><span class="medal"><svg><use href="#mark"/></svg></span></div>
         <a class="btn wide" href="#paths"><span class="lbl">Endow an agent <small>/corody</small></span><span class="arr"><svg><use href="#i-arrow"/></svg></span></a>
         <div class="meta">
-          <div class="meta-top"><span class="mono"><span class="sq"></span>Corody</span><span class="socials"><a href="#" data-link="x" aria-label="X"><svg width="18" height="18"><use href="#i-x"/></svg></a><a href="#" data-link="github" aria-label="GitHub"><svg width="18" height="18"><use href="#i-gh"/></svg></a></span></div>
+          <div class="meta-top"><span class="mono"><span class="sq"></span>Corody</span><span class="socials"><a href="#" data-link="x" aria-label="X"><svg width="18" height="18"><use href="#i-x"/></svg></a></span></div>
           <div class="meta-row"><span>Purpose</span><span>Agent endowments</span></div>
           <div class="meta-row"><span>Network</span><span>Elysium · HyperEVM</span></div>
         </div>
@@ -1246,10 +1245,9 @@ section h2, section h3, section h4, .cap-wordmark { font-weight: 600 !important;
     <div class="contact-right">
       <span class="eyebrow"><span class="sq"></span>Contact</span>
       <h2 class="h-xl line-reveal" style="font-size:clamp(40px,4.45vw,64px)">Back the agents<br>you depend on.</h2>
-      <p class="lead">Got a question? Follow Corody on X for updates and conversations, and browse the code on GitHub.</p>
+      <p class="lead">Got a question? Follow Corody on X for updates, news and conversations about the launch.</p>
       <div class="ghost-row">
         <a class="ghost" href="#" data-link="x"><svg><use href="#i-x"/></svg>Follow us</a>
-        <a class="ghost" href="#" data-link="github"><svg><use href="#i-gh"/></svg>GitHub</a>
       </div>
       <div class="rule"></div>
       <div class="rule"></div>
@@ -1283,7 +1281,6 @@ section h2, section h3, section h4, .cap-wordmark { font-weight: 600 !important;
 const CONFIG = {
   appUrl: "app.html",
   xUrl: "https://x.com/CorodyEVM",
-  githubUrl: ""    // e.g. "https://github.com/corody"
 };
 
 /* Articles: one data source renders the cards and the reader */
@@ -1320,7 +1317,7 @@ const DOCS = {
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* Links from CONFIG */
-  const map = { app: CONFIG.appUrl, x: CONFIG.xUrl, github: CONFIG.githubUrl };
+  const map = { app: CONFIG.appUrl, x: CONFIG.xUrl };
   $$('[data-link]').forEach(a => {
     const url = map[a.dataset.link];
     if (url) { a.href = a.dataset.lane ? url + (url.includes('?') ? '&' : '?') + 'lane=' + a.dataset.lane : url; if (/^https?:/.test(url)) { a.target = '_blank'; a.rel = 'noopener'; } }

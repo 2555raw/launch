@@ -1519,7 +1519,7 @@ const receipt = await mandate.pay({
     E.gtAt = Date.now(); let busy = false;
     try { const c = JSON.parse(store.get('corody.ely.idx') || 'null'); if (c && Date.now() - c.t < 55000 && !Object.values(E.lists).some(l => l.length)) { E.lists = c.lists; paintTokens(); paintLiq(); return; } } catch {}
     for (const [k, path] of [['trending', 'trending_pools'], ['top', 'pools?sort=h24_volume_usd_desc'], ['new', 'new_pools']]) {
-      if (k !== 'trending') await new Promise(r => setTimeout(r, 1500));
+      if (k !== 'trending') await new Promise(r => setTimeout(r, 700));
       try { const r = await fetch(GT + path + (path.includes('?') ? '&' : '?') + 'include=base_token,quote_token,dex', { headers: { accept: 'application/json' } });
         if (r.status === 429) { busy = true; continue; } const d = await r.json(); if (d.data) E.lists[k] = gtList(d); } catch { busy = true; }
     }
@@ -1661,10 +1661,11 @@ const receipt = await mandate.pay({
   const loop = async () => {
     E.on = $('#p-elysium').classList.contains('on');
     if (E.on && !document.hidden) {
+      if (slow % 5 === 0) loadIndex();   // the indexers load alongside the first block, not after it
       await tick();
       const fresh = W.account !== E.acct;
       if (fresh || slow % 10 === 0) { E.acct = W.account; if (fresh) { E.bal = null; paintWalletEly(); } await readBalances(); paintWalletEly(); }
-      if (slow++ % 5 === 0) { loadIndex(); trackMine(); }
+      if (slow++ % 5 === 0) trackMine();
     } else if (!E.on) elyStatus();
     setTimeout(loop, 2000);
   };

@@ -872,6 +872,20 @@ section h2, section h3, section h4, .cap-wordmark { font-weight: 600 !important;
 .contact-right .rule + .rule { margin-top: 11px; }
 .contact-right .foot-nav { margin-top: 14px; gap: 30px; }
 .contact-right .legal { display: grid; grid-template-columns: 400px 1fr auto; gap: 30px; align-items: start; margin-top: 59px; }
+
+/* Elysium mainnet live pill: independent element under Launch app, styled like the hero's glass badges */
+.ely-pill { position: absolute; z-index: 4; top: 112px; right: 48px; display: inline-flex; align-items: center; gap: 8px; padding: 6px 11px; font-family: var(--f-mono); font-size: 10.5px; line-height: 1; text-transform: uppercase; text-decoration: none; color: var(--ice); background: rgba(255,255,255,.55); border: 1px solid rgba(255,255,255,.7); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); transition: background .3s, opacity .6s; }
+.ely-pill:hover { background: rgba(255,255,255,.78); }
+.ely-pill i { width: 7px; height: 7px; border-radius: 50%; background: #9a6b00; flex-shrink: 0; }
+.ely-pill b { font-weight: 500; color: var(--turq); font-variant-numeric: tabular-nums; }
+.ely-pill em { font-style: normal; color: var(--mist); font-variant-numeric: tabular-nums; }
+.ely-pill[data-state="live"] i { background: #35B779; animation: ely-dot 1.8s ease-out infinite; }
+.ely-pill[data-state="live"] b { color: #1f7a4d; }
+.ely-pill[data-state="off"] i { background: #a23a2b; }
+.ely-pill[data-state="off"] b { color: #a23a2b; }
+@keyframes ely-dot { 0% { box-shadow: 0 0 0 0 rgba(53,183,121,.6); } 70% { box-shadow: 0 0 0 7px rgba(53,183,121,0); } 100% { box-shadow: 0 0 0 0 rgba(53,183,121,0); } }
+@media (max-width: 900px) { .ely-pill { top: 76px; right: 24px; padding: 5px 9px; font-size: 10px; } .ely-pill em { display: none; } }
+@media (prefers-reduced-motion: reduce) { .ely-pill[data-state="live"] i { animation: none; } }
 </style>
 </head>
 <body>
@@ -928,6 +942,7 @@ section h2, section h3, section h4, .cap-wordmark { font-weight: 600 !important;
       <span class="local-time"><span id="clock">--:-- --</span><em>LOCAL TIME</em></span>
       <a class="action" href="#" data-link="app"><span class="action-logo" aria-hidden="true"><svg><use href="#mark"/></svg></span><span class="action-label-wrap"><b class="action-label">Launch app <small>/Corody</small></b><b class="action-label-copy" aria-hidden="true">Launch app <small>/Corody</small></b></span><span class="action-square" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></a>
     </header>
+    <a class="ely-pill" href="app.html#elysium" data-state="checking" data-ely-pill title="Elysium mainnet, chain 99901. Status read live from the public RPC."><i aria-hidden="true"></i><span>Elysium mainnet</span><b data-ely-pill-t>Checking</b><em data-ely-pill-n></em></a>
     <div class="hero-copy">
       <p data-enter="0">Endow an AI agent once.<br>The HYPE stays staked.<br><span>The agent lives on the draw.</span></p>
       <div>
@@ -1543,6 +1558,41 @@ const DOCS = {
 
 
 
+})();
+</script>
+
+<script>
+/* Elysium mainnet LIVE pill: live only when the RPC answers with chain 99901 and a block from the last minute */
+(() => {
+  const pill = document.querySelector('[data-ely-pill]'); if (!pill) return;
+  const RPCS = ['https://rpc.elysium.kinetiq.xyz', 'https://rpc-elysium-mainnet.t.conduit.xyz'];
+  const t = pill.querySelector('[data-ely-pill-t]'), n = pill.querySelector('[data-ely-pill-n]');
+  let fails = 0, at = 0;
+  const set = (state, label, num) => { pill.dataset.state = state; t.textContent = label; n.textContent = num || ''; };
+  const ask = async url => {
+    const ctl = new AbortController(), k = setTimeout(() => ctl.abort(), 6000);
+    try {
+      const r = await fetch(url, { method: 'POST', headers: { 'content-type': 'application/json' }, signal: ctl.signal,
+        body: JSON.stringify([{ jsonrpc: '2.0', id: 1, method: 'eth_chainId', params: [] }, { jsonrpc: '2.0', id: 2, method: 'eth_getBlockByNumber', params: ['latest', false] }]) });
+      const j = await r.json(), id = j.find(x => x.id === 1), b = j.find(x => x.id === 2);
+      if (!id || !b || !id.result || !b.result) throw new Error('bad answer');
+      return { chain: parseInt(id.result, 16), block: parseInt(b.result.number, 16), ts: parseInt(b.result.timestamp, 16) };
+    } finally { clearTimeout(k); }
+  };
+  const check = async () => {
+    if (document.hidden) return;
+    let out = null;
+    for (let i = 0; i < RPCS.length && !out; i++) { try { out = await ask(RPCS[(at + i) % RPCS.length]); at = (at + i) % RPCS.length; } catch {} }
+    if (!out) { if (++fails >= 2) set('off', 'Offline'); return; }
+    fails = 0;
+    if (out.chain !== 99901) return set('off', 'Wrong chain');
+    const age = Date.now() / 1000 - out.ts;
+    if (age > 60) return set('checking', 'Delayed', '#' + out.block.toLocaleString('en-US'));
+    set('live', 'Live', '#' + out.block.toLocaleString('en-US'));
+    pill.title = `Elysium mainnet, chain 99901. Block ${out.block.toLocaleString('en-US')}, ${Math.max(0, Math.round(age))}s ago, read from ${RPCS[at].replace('https://', '')}.`;
+  };
+  check(); setInterval(check, 4000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
 })();
 </script>
 </body>

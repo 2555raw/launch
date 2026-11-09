@@ -287,6 +287,39 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
 .ph h1, .h2, .card-h h3, .empty h3, .dlg h2, .stat dd.txt, .conds b, .draft b, .verdict strong, .ruling strong, .kv span:last-child strong, .go-line { font-weight: 600; }
 .ph h1 { letter-spacing: -.05em; }
 .h2, .card-h h3, .empty h3, .dlg h2 { letter-spacing: -.04em; }
+
+/* Elysium mainnet page: built from the existing cards, stats, tables and chips */
+.ely-chip.ok::before { animation: ely-pulse 1.6s ease-out infinite; }
+@keyframes ely-pulse { 0% { box-shadow: 0 0 0 0 rgba(31,122,77,.55); } 70% { box-shadow: 0 0 0 7px rgba(31,122,77,0); } 100% { box-shadow: 0 0 0 0 rgba(31,122,77,0); } }
+.ely-tabs { height: 40px; margin-bottom: 20px; }
+.ely-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
+.ely-grid > .card + .card { margin-top: 0; }
+.ely-gap { margin-top: 24px; }
+.card.ely-gap { margin-top: 24px; }
+.ely-tbl td { padding-top: 13px; padding-bottom: 13px; white-space: nowrap; }
+.ely-tbl td b { font-weight: 500; }
+.ely-tbl td small { display: block; color: var(--soft); font-size: 12px; }
+.ely-tbl a, .ely-feed a { color: var(--ink); text-underline-offset: 3px; }
+.ely-tbl a:hover, .ely-feed a:hover { color: var(--petrol); }
+.ely-up { color: var(--ok); } .ely-down { color: var(--bad); }
+.ely-muted { color: var(--soft); font-size: 13px; }
+.ely-feed { list-style: none; margin: 0; padding: 0; }
+.ely-feed > li { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 11px 22px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.ely-feed > li:last-child { border-bottom: 0; }
+.ely-feed > li.ely-muted { display: block; padding: 18px 22px; }
+.ely-feed .l { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ely-feed .r { flex-shrink: 0; font-family: var(--f-mono); font-size: 11px; color: var(--mist); text-transform: uppercase; }
+.ely-feed .k { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; margin-right: 8px; }
+.ely-feed .k.buy { color: var(--ok); } .ely-feed .k.sell { color: var(--bad); }
+.ely-feed .mono { font-size: 12px; }
+.ely-mine { margin: 16px -22px -22px; border-top: 1px solid var(--line); }
+.ely-new { animation: ely-in 1.2s ease-out; }
+@keyframes ely-in { from { background: rgba(53,183,121,.16); } to { background: transparent; } }
+.ely-src { margin-top: 18px; }
+@media (prefers-reduced-motion: reduce) { .ely-chip.ok::before, .ely-new { animation: none; } }
+@media (max-width: 860px) { .ely-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 560px) { .ely-feed > li { padding-left: 18px; padding-right: 18px; } .ely-mine { margin: 16px -18px -18px; } .ely-tabs button { padding: 0 9px; } }
+[data-e="contracts"] p { overflow-wrap: anywhere; }
 </style>
 </head>
 <body>
@@ -310,6 +343,7 @@ dialog::backdrop { background: rgba(73,52,95,.42); }
       <a href="#token">Token</a>
       <a href="#developers">Developers</a>
       <a href="#status">Status</a>
+      <a href="#elysium">Elysium</a>
     </nav>
     <div class="netsw" role="group" aria-label="Network"><button type="button" data-net="elysium">Elysium<small data-ely-tag></small></button><button type="button" data-net="hyperevm">HyperEVM</button></div>
     <button type="button" class="wbtn" data-wallet aria-haspopup="dialog">
@@ -590,9 +624,9 @@ x-corody-payee: 0xYourProviderAddress</pre>
   <p class="sub">Corody runs on Elysium and settles to HyperEVM. Everything you need to point a client at both.</p>
   <div class="card"><div class="card-b">
     <div class="kv"><span>Elysium</span><span>Kinetiq's Layer 2 for Hyperliquid · gas in HYPE</span></div>
-    <div class="kv"><span>Elysium chain ID</span><span class="mono">99801 testnet · mainnet expected 9 Nov</span></div>
-    <div class="kv"><span>Elysium RPC</span><span class="mono">https://testnet-rpc.elysium.kinetiq.xyz</span></div>
-    <div class="kv"><span>Elysium explorer</span><span class="mono">https://elysium.kinetiq.xyz/testnet-explorer</span></div>
+    <div class="kv"><span>Elysium chain ID</span><span class="mono">99901 · 0x1863d</span></div>
+    <div class="kv"><span>Elysium RPC</span><span class="mono">https://rpc.elysium.kinetiq.xyz</span></div>
+    <div class="kv"><span>Elysium explorer</span><span class="mono">https://elysium.kinetiq.xyz/explorer</span></div>
     <div class="kv"><span>Settles to</span><span>HyperEVM, chain 999 · 0x3e7</span></div>
     <div class="kv"><span>HyperEVM RPC</span><span class="mono">https://rpc.hyperliquid.xyz/evm</span></div>
     <div class="kv"><span>HyperEVM fallbacks</span><span class="mono">hyperliquid.drpc.org · hyperliquid-json-rpc.stakely.io · rpc.hypurrscan.io</span></div>
@@ -688,6 +722,74 @@ const receipt = await mandate.pay({
     <li><span class="dot wait"></span><div><span class="k">Disputes</span><b>Resolver bench</b><p>Not deployed yet. Bonds, sealed votes and rulings.</p></div></li>
   </ul></div>
 </section>
+<!-- 09 Elysium mainnet: live network, tokens, pools and activity -->
+<section class="page" id="p-elysium" aria-labelledby="t-elysium">
+  <span class="eyebrow"><span class="sq"></span><b>09</b>Elysium</span>
+  <div class="ph">
+    <div><h1 id="t-elysium">Elysium mainnet</h1>
+      <p>Kinetiq's Layer 2 for Hyperliquid, chain 99901. Everything here is read live in your browser, from the chain itself and from public indexers.</p></div>
+    <div class="actions"><span class="chip wait ely-chip" data-ely-chip>Checking</span></div>
+  </div>
+
+  <h2 class="h2">Network</h2>
+  <p class="sub">Read from the public Elysium RPC every two seconds while this page is open.</p>
+  <div class="card"><div class="stats three">
+    <div class="stat"><dt>Status</dt><dd class="txt" data-e="status">Checking…</dd><p data-e="status-p">Asking the RPC for its chain ID and newest block.</p></div>
+    <div class="stat"><dt>Chain ID</dt><dd data-e="chain">—</dd><p>As reported by the RPC. Elysium mainnet is 99901, 0x1863d.</p></div>
+    <div class="stat"><dt>Latest block</dt><dd data-e="block">—</dd><p data-e="block-p">—</p></div>
+    <div class="stat"><dt>Block time</dt><dd data-e="btime">—</dd><p>Average over the blocks seen since this page opened.</p></div>
+    <div class="stat"><dt>Gas price</dt><dd data-e="gas">—</dd><p data-e="gas-p">Paid in HYPE.</p></div>
+    <div class="stat"><dt>RPC</dt><dd class="txt" data-e="rpc">—</dd><p data-e="rpc-p">—</p></div>
+  </div></div>
+
+  <div class="row-h" style="margin-top:40px"><div><h2 class="h2" style="margin-top:0">Tokens</h2><p class="sub" data-e="tok-sub">Prices, volume and liquidity from GeckoTerminal and DexScreener, refreshed every minute.</p></div>
+    <div class="netsw ely-tabs" role="group" aria-label="Token list"><button type="button" data-ely-tab="trending" aria-pressed="true">Trending</button><button type="button" data-ely-tab="new" aria-pressed="false">New</button><button type="button" data-ely-tab="top" aria-pressed="false">Top volume</button></div></div>
+  <div class="card"><div class="tbl-wrap"><table class="tbl ely-tbl"><thead><tr><th>Token</th><th>Address</th><th class="num">Price</th><th class="num">24h</th><th class="num">Volume 24h</th><th class="num">Liquidity</th><th>Pool</th><th class="num">Age</th></tr></thead>
+    <tbody data-e="tokens"><tr><td colspan="8" class="ely-muted">Loading from the indexers…</td></tr></tbody></table></div></div>
+
+  <h2 class="h2">Liquidity</h2>
+  <p class="sub">Totals across the twenty pools with the most volume in the last 24 hours.</p>
+  <div class="card"><div class="stats">
+    <div class="stat"><dt>Total liquidity</dt><dd data-e="liq">—</dd><p>Value held in those pools.</p></div>
+    <div class="stat"><dt>Pool volume 24h</dt><dd data-e="vol">—</dd><p>Traded through them today.</p></div>
+    <div class="stat"><dt>Trading pairs</dt><dd data-e="pairs">—</dd><p data-e="pairs-p">Distinct pools in the lists on this page.</p></div>
+    <div class="stat"><dt>New pools, last 10 minutes</dt><dd data-e="newh">—</dd><p>Uniswap v4 pools initialized, counted on chain.</p></div>
+  </div></div>
+  <div class="card"><div class="card-h"><h3>Recently created pools</h3><p>The newest pools on Elysium, with the DEX they trade on.</p></div>
+    <div class="tbl-wrap"><table class="tbl ely-tbl"><thead><tr><th>Pair</th><th>Pool</th><th>DEX</th><th class="num">Liquidity</th><th class="num">Volume 24h</th><th class="num">Created</th></tr></thead>
+    <tbody data-e="newpools"><tr><td colspan="6" class="ely-muted">Loading from the indexers…</td></tr></tbody></table></div></div>
+
+  <h2 class="h2">Live activity</h2>
+  <p class="sub">Swaps and new pools from the Uniswap v4 PoolManager's logs, and the transactions in each new block. Every hash opens in the Elysium explorer.</p>
+  <div class="ely-grid">
+    <div class="card"><div class="card-h"><h3>Swaps</h3><p data-e="swaps-p">Waiting for the first block.</p></div><ul class="ely-feed" data-e="swaps"></ul></div>
+    <div class="card"><div class="card-h"><h3>Latest transactions</h3><p data-e="txs-p">Waiting for the first block.</p></div><ul class="ely-feed" data-e="txs"></ul></div>
+  </div>
+  <div class="card ely-gap"><div class="card-h"><h3>New pools on chain</h3><p>Initialized on the v4 PoolManager since this page opened.</p></div><ul class="ely-feed" data-e="initfeed"><li class="ely-muted">None yet. New pools show up here as they are created.</li></ul></div>
+
+  <h2 class="h2">Your wallet on Elysium</h2>
+  <p class="sub">Balances are read from the chain. Nothing is signed or sent until you confirm it in your wallet.</p>
+  <div class="card" data-e="wallet"></div>
+  <div class="ely-grid ely-gap">
+    <div class="card"><div class="card-h"><h3>Wrap and unwrap HYPE</h3><p>Through WHYPE, the wrapped HYPE on Kinetiq's contract list. One HYPE always makes one WHYPE.</p></div>
+      <div class="card-b"><form class="field" id="ely-wrap"><label for="ely-amt">Amount</label>
+        <div class="inline"><input class="input mono" id="ely-amt" inputmode="decimal" placeholder="0.0" autocomplete="off"><button class="ghost" type="submit" data-wrap="in">Wrap</button><button class="ghost" type="submit" data-wrap="out">Unwrap</button></div>
+        <small data-e="wrap-bal">Connect a wallet to see what you can wrap.</small></form><p class="msg" data-e="wrap-msg"></p></div></div>
+    <div class="card"><div class="card-h"><h3>Transaction tracking</h3><p>What you send from this page is followed until it confirms. Paste any hash to follow it too.</p></div>
+      <div class="card-b"><form class="field" id="ely-track"><label for="ely-hash">Transaction hash</label>
+        <div class="inline"><input class="input mono" id="ely-hash" placeholder="0x…" autocomplete="off" spellcheck="false"><button class="ghost" type="submit">Follow</button></div></form>
+        <ul class="ely-feed ely-mine" data-e="mine"></ul></div></div>
+  </div>
+
+  <h2 class="h2">Swaps and liquidity</h2>
+  <p class="sub">What trades on Elysium, and what Corody will and will not send transactions to.</p>
+  <div class="card"><div class="card-b">
+    <p>Uniswap v2, v3 and v4 are live on Elysium, and every pool above trades on them. Neither Uniswap's deployment list nor Kinetiq's contract list publishes their routers, quoters or position managers for chain 99901 yet.</p>
+    <p>Corody only asks your wallet to sign for contracts on an official list, so swaps, token approvals and adding or removing liquidity open here once those addresses are published. Until then, every pool links to its DexScreener page.</p>
+  </div>
+  <ul class="conds" data-e="contracts"></ul></div>
+  <p class="fine ely-src">Sources: the Elysium RPC at rpc.elysium.kinetiq.xyz, with Conduit's as a fallback; GeckoTerminal and DexScreener for prices, volume and liquidity; the HYPE price from Hyperliquid. Contract addresses come from Kinetiq's list at elysium.kinetiq.xyz/docs/contract-addresses.</p>
+</section>
 </main>
 
 <footer>
@@ -696,7 +798,7 @@ const receipt = await mandate.pay({
     <div>
       <ul class="foot-links">
         <li><a href="#endowments">Endowments</a></li><li><a href="#console">Console</a></li><li><a href="#workspace">Workspace</a></li>
-        <li><a href="#providers">Providers</a></li><li><a href="#resolvers">Resolvers</a></li><li><a href="#token">Token</a></li><li><a href="#developers">Developers</a></li><li><a href="#status">Status</a></li>
+        <li><a href="#providers">Providers</a></li><li><a href="#resolvers">Resolvers</a></li><li><a href="#token">Token</a></li><li><a href="#developers">Developers</a></li><li><a href="#status">Status</a></li><li><a href="#elysium">Elysium</a></li>
       </ul>
       <div class="foot-social"><a class="ghost" href="https://x.com/CorodyEVM" target="_blank" rel="noopener"><svg><use href="#i-x"/></svg>Follow us</a><a class="ghost" href="index.html">Back to the site</a></div>
       <div class="foot-fine">
@@ -721,14 +823,15 @@ const receipt = await mandate.pay({
   /* ===== Networks: HyperEVM, and Elysium (Kinetiq's L2 that settles to HyperEVM) ===== */
   // ELYSIUM MAINNET: when Kinetiq publishes the mainnet chain ID, RPC and explorer, fill in these three values.
   // The app then reads Elysium mainnet instead of the testnet. Nothing else needs to change.
-  const ELYSIUM_MAINNET = { id: null, rpc: '', explorer: '' };
+  const ELYSIUM_MAINNET = { id: 99901, rpc: 'https://rpc.elysium.kinetiq.xyz', explorer: 'https://elysium.kinetiq.xyz/explorer' };
   const NETWORKS = {
     hyperevm: { key: 'hyperevm', name: 'HyperEVM', id: 999, explorer: 'https://hyperevmscan.io', usdc: '0xb88339CB7199b77E23DB6E890353E22632Ba630f',
       // public HyperEVM endpoints, all listed on Hyperliquid's HyperEVM tools page; the first that answers is used
       rpcs: [{ name: 'Hyperliquid', url: 'https://rpc.hyperliquid.xyz/evm' }, { name: 'dRPC', url: 'https://hyperliquid.drpc.org' },
              { name: 'Stakely', url: 'https://hyperliquid-json-rpc.stakely.io' }, { name: 'HypurrScan', url: 'https://rpc.hypurrscan.io' }] },
     elysium: ELYSIUM_MAINNET.id
-      ? { key: 'elysium', name: 'Elysium', id: ELYSIUM_MAINNET.id, explorer: ELYSIUM_MAINNET.explorer, usdc: null, rpcs: [{ name: 'Kinetiq', url: ELYSIUM_MAINNET.rpc }] }
+      ? { key: 'elysium', name: 'Elysium', id: ELYSIUM_MAINNET.id, explorer: ELYSIUM_MAINNET.explorer, usdc: null,
+          rpcs: [{ name: 'Kinetiq', url: ELYSIUM_MAINNET.rpc }, { name: 'Conduit', url: 'https://rpc-elysium-mainnet.t.conduit.xyz' }] }
       : { key: 'elysium', name: 'Elysium testnet', id: 99801, testnet: true, explorer: 'https://elysium.kinetiq.xyz/testnet-explorer', usdc: null,
           rpcs: [{ name: 'Kinetiq', url: 'https://testnet-rpc.elysium.kinetiq.xyz' }, { name: 'Conduit', url: 'https://rpc-elysium-testnet.t.conduit.xyz' }] }
   };
@@ -763,7 +866,7 @@ const receipt = await mandate.pay({
   const isAddr = a => /^0x[0-9a-fA-F]{40}$/.test(a);
 
   /* ===== Router ===== */
-  const PAGES = ['endowments', 'endow', 'console', 'workspace', 'providers', 'resolvers', 'token', 'developers', 'status'];
+  const PAGES = ['endowments', 'endow', 'console', 'workspace', 'providers', 'resolvers', 'token', 'developers', 'status', 'elysium'];
   const route = () => {
     let id = location.hash.slice(1);
     if (!PAGES.includes(id)) id = 'console';
@@ -1172,6 +1275,351 @@ const receipt = await mandate.pay({
   $$('[data-net-sub]').forEach(p => p.textContent = USDC ? `${NET.name} and USDC, read live from chain ${NET.id}.` : `${NET.name}, read live from chain ${NET.id}.`);
   $$('[data-net-lede]').forEach(p => p.textContent = `What is live on ${NET.name} right now, checked from your browser.`);
   if (NET.key !== 'hyperevm') $$('[data-net-fine]').forEach(p => p.textContent = `Built on Elysium. Running on ${NET.name}, chain ${NET.id}, which settles to HyperEVM.`);
+
+
+  /* ===== Elysium mainnet page: live network, tokens, pools, activity and wallet =====
+     Isolated from the rest of the app: it always reads Elysium mainnet, whichever network the switcher is on. */
+  const ELY = {
+    id: 99901, hex: '0x1863d', explorer: 'https://elysium.kinetiq.xyz/explorer',
+    rpcs: [{ name: 'Kinetiq public RPC', url: 'https://rpc.elysium.kinetiq.xyz' }, { name: 'Conduit', url: 'https://rpc-elysium-mainnet.t.conduit.xyz' }],
+    // Kinetiq's contract list: elysium.kinetiq.xyz/docs/contract-addresses
+    WHYPE: '0xbA876237B0F021A6c6D852d6c26E107997cC5E81', USDC: '0xb47c4C8F73F009CC0C0d3f92B388d13E293F0B65',
+    MULTICALL3: '0xcA11bde05977b3631167028862bE2a173976CA11', PERMIT2: '0x000000000022D473030F116dDEE9F6B43aC78BA3',
+    // found on chain (it emits the Initialize event of every pool the indexers label Uniswap v4); only its logs are read
+    POOL_MANAGER: '0xe2e105d3f7209a9da11f83ccf3e7398a753823f1'
+  };
+  const T_SWAP = '0x40e9cecb9f5f1f1c5b9c97dec2917b7ee92e57ba5563708daca94dd84ad7112f';
+  const T_INIT = '0xdd466e674ea557f56295e2d0218a125ea4b4f0f6f3307b95f85e6110838d6438';
+  const ZERO = '0x0000000000000000000000000000000000000000';
+  const lc = a => String(a || '').toLowerCase();
+  const exl = (kind, v, label) => `<a href="${ELY.explorer}/${kind}/${esc(v)}" target="_blank" rel="noopener">${label || esc(short(v))}</a>`;
+  const E = { on: false, chain: null, head: 0, ts: 0, ms: null, rpc: 0, fails: 0, gas: null, samples: [], from: 0, ticks: 0,
+    lists: { trending: [], new: [], top: [] }, tab: 'trending', gtAt: 0, gtNote: '', hype: null,
+    tokens: new Map([[ZERO, { symbol: 'HYPE', decimals: 18 }], [lc(ELY.WHYPE), { symbol: 'WHYPE', decimals: 18 }], [lc(ELY.USDC), { symbol: 'USDC', decimals: 6 }]]),
+    pools: new Map(), pending: new Set(), swaps: [], txs: [], inits: [], seen: new Set(), mine: [], acct: undefined, bal: null };
+  const elE = k => $(`[data-e="${k}"]`);
+  const setT = (k, v) => { const n = elE(k); if (n && n.textContent !== v) n.textContent = v; };
+
+  // RPC with fallback; a JSON-RPC error is an answer, not an outage
+  const erpc = async (method, params = [], ms = 6000) => {
+    let err;
+    for (let k = 0; k < ELY.rpcs.length; k++) {
+      const i = (E.rpc + k) % ELY.rpcs.length;
+      try { const out = await call(ELY.rpcs[i].url, method, params, ms); E.rpc = i; return out; }
+      catch (e) { err = e; if (e.rpc) throw e; }
+    }
+    throw err;
+  };
+  const ebatch = async reqs => {
+    if (!reqs.length) return [];
+    const r = await fetch(ELY.rpcs[E.rpc].url, { method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(reqs.map((q, i) => ({ jsonrpc: '2.0', id: i, method: q[0], params: q[1] }))) });
+    const j = await r.json(); const out = []; for (const x of j) out[x.id] = x.error ? null : x.result; return out;
+  };
+
+  // numbers
+  const big = h => BigInt(h && h !== '0x' ? h : '0x0');
+  const sgn = w => { const v = BigInt('0x' + w); return v >> 255n ? v - (1n << 256n) : v; };
+  const toNum = (v, dec) => Number(v) / 10 ** dec;
+  const fmtAmt = n => { const a = Math.abs(n); return a === 0 ? '0' : a >= 1e9 ? (n / 1e9).toFixed(2) + 'B' : a >= 1e6 ? (n / 1e6).toFixed(2) + 'M' : a >= 1e3 ? n.toLocaleString('en-US', { maximumFractionDigits: 0 }) : a >= 1 ? n.toLocaleString('en-US', { maximumFractionDigits: 3 }) : n.toPrecision(3); };
+  const fmtUsd = n => n == null || !isFinite(n) ? '—' : n >= 1e9 ? '$' + (n / 1e9).toFixed(2) + 'B' : n >= 1e6 ? '$' + (n / 1e6).toFixed(2) + 'M' : n >= 1e3 ? '$' + (n / 1e3).toFixed(1) + 'K' : '$' + n.toFixed(2);
+  const fmtPrice = p => !p || !isFinite(p) ? '—' : p >= 1 ? '$' + p.toLocaleString('en-US', { maximumFractionDigits: 2 }) : '$' + p.toFixed(Math.min(14, 3 - Math.floor(Math.log10(p))));
+  const ago = s => s < 60 ? Math.max(0, Math.round(s)) + 's' : s < 3600 ? Math.round(s / 60) + 'm' : s < 86400 ? Math.round(s / 3600) + 'h' : Math.round(s / 86400) + 'd';
+  const parseUnits = (s, dec) => { s = String(s).trim(); if (!/^\d*\.?\d*$/.test(s) || s === '' || s === '.') return null; const [w, f = ''] = s.split('.'); if (f.length > dec) return null; return BigInt(w || '0') * 10n ** BigInt(dec) + BigInt((f + '0'.repeat(dec)).slice(0, dec)); };
+  const DEX = { 'uniswap-v4-elysium': 'Uniswap v4', 'uniswap-v3-elysium': 'Uniswap v3', 'uniswap-v2-elysium': 'Uniswap v2' };
+  const dexName = id => DEX[id] || String(id || '').replace(/-elysium$/, '').replace(/-/g, ' ');
+  const isBaseLike = a => a === ZERO || a === lc(ELY.WHYPE) || a === lc(ELY.USDC);
+  const qRank = a => a === lc(ELY.USDC) ? 3 : a === ZERO || a === lc(ELY.WHYPE) ? 2 : 0;
+  const v4Meta = (x, y) => { const [c0, c1] = [lc(x), lc(y)].sort((a, b) => (BigInt(a) < BigInt(b) ? -1 : 1)); return { c0, c1 }; };
+
+  /* --- network: chain ID, newest block with its transactions, PoolManager logs --- */
+  const elyStatus = () => {
+    const age = E.ts ? Date.now() / 1000 - E.ts : null;
+    const st = E.chain == null ? (E.fails ? 'off' : 'wait') : E.chain !== ELY.id ? 'off' : age != null && age < 60 ? 'live' : 'slow';
+    const chip = $('[data-ely-chip]');
+    const [cls, txt] = { live: ['ok', 'Live'], wait: ['wait', 'Checking'], slow: ['wait', 'Delayed'], off: ['bad', 'Offline'] }[st];
+    if (chip) { chip.className = 'chip ely-chip ' + cls; chip.textContent = txt; }
+    setT('status', { live: 'Live', wait: 'Checking…', slow: 'Delayed', off: 'Offline' }[st]);
+    setT('status-p', st === 'live' ? `Mainnet is producing blocks. The newest is ${ago(age)} old.`
+      : st === 'slow' ? `The RPC answers, but its newest block is ${ago(age)} old.`
+      : st === 'off' ? (E.chain != null && E.chain !== ELY.id ? `The RPC reported chain ${E.chain}, not 99901.` : 'Neither Elysium RPC answered. Retrying every few seconds.')
+      : 'Asking the RPC for its chain ID and newest block.');
+  };
+  const tick = async () => {
+    if (!E.on || document.hidden) return;
+    const t0 = performance.now();
+    try {
+      const [id, blk] = await Promise.all([erpc('eth_chainId'), erpc('eth_getBlockByNumber', ['latest', true])]);
+      E.ms = Math.round(performance.now() - t0); E.fails = 0; E.chain = parseInt(id, 16);
+      const n = parseInt(blk.number, 16), ts = parseInt(blk.timestamp, 16);
+      if (n > E.head) {
+        E.head = n; E.ts = ts; E.samples.push([n, ts]); if (E.samples.length > 60) E.samples.shift();
+        const fresh = blk.transactions.filter(t => !E.seen.has(t.hash));
+        fresh.forEach(t => E.seen.add(t.hash));
+        E.txs = fresh.reverse().map(t => ({ ...t, block: n, ts, isNew: true })).concat(E.txs.map(t => ({ ...t, isNew: false }))).slice(0, 12);
+        paintTxs();
+        await readLogs(n);
+      }
+    } catch { E.fails++; if (E.fails > 1) E.chain = null; }
+    if (E.gas == null || E.ticks++ % 5 === 0) try { E.gas = big(await erpc('eth_gasPrice')); } catch {}
+    paintNet(); elyStatus();
+  };
+  const paintNet = () => {
+    setT('chain', E.chain == null ? '—' : `${E.chain} · 0x${E.chain.toString(16)}`);
+    setT('block', E.head ? '#' + E.head.toLocaleString('en-US') : '—');
+    const n = elE('block-p'); if (n && E.ts) n.innerHTML = `${new Date(E.ts * 1000).toLocaleTimeString()} · ${exl('block', E.head, 'open in the explorer')}`;
+    const s = E.samples; if (s.length > 1 && s[s.length - 1][0] > s[0][0]) setT('btime', ((s[s.length - 1][1] - s[0][1]) / (s[s.length - 1][0] - s[0][0])).toFixed(2) + ' s');
+    if (E.gas != null) { const gwei = Number(E.gas) / 1e9; setT('gas', gwei.toFixed(gwei < 1 ? 4 : 2) + ' gwei');
+      const hype = Number(E.gas) * 21000 / 1e18; setT('gas-p', `A plain transfer costs about ${hype.toPrecision(2)} HYPE${E.hype ? ' · $' + (hype * E.hype).toFixed(5) : ''}.`); }
+    if (E.ms != null) { setT('rpc', ELY.rpcs[E.rpc].name); setT('rpc-p', `${ELY.rpcs[E.rpc].url.replace('https://', '')} · answered in ${E.ms} ms`); }
+  };
+  const readLogs = async n => {
+    let from = E.from || n - 30; if (n - from > 80) from = n - 80;
+    const logs = await erpc('eth_getLogs', [{ fromBlock: '0x' + from.toString(16), toBlock: '0x' + n.toString(16), address: ELY.POOL_MANAGER, topics: [[T_SWAP, T_INIT]] }]);
+    E.from = n + 1;
+    const swaps = [], inits = [];
+    for (const l of logs) {
+      const d = l.data.slice(2), id = lc(l.topics[1]);
+      if (l.topics[0] === T_INIT) {
+        const c0 = '0x' + l.topics[2].slice(26), c1 = '0x' + l.topics[3].slice(26);
+        const meta = { c0: lc(c0), c1: lc(c1), fee: parseInt(d.slice(0, 64), 16), hooks: '0x' + d.slice(152, 192) };
+        E.pools.set(id, meta); inits.push({ id, ...meta, tx: l.transactionHash, block: parseInt(l.blockNumber, 16) });
+      } else swaps.push({ id, a0: sgn(d.slice(0, 64)), a1: sgn(d.slice(64, 128)), tx: l.transactionHash, block: parseInt(l.blockNumber, 16) });
+    }
+    if (swaps.length) { E.swaps = swaps.slice(-10).reverse().map(s => ({ ...s, isNew: true })).concat(E.swaps.map(s => ({ ...s, isNew: false }))).slice(0, 12); }
+    if (inits.length) { E.inits = inits.reverse().map(s => ({ ...s, isNew: true })).concat(E.inits.map(s => ({ ...s, isNew: false }))).slice(0, 8); }
+    setT('swaps-p', `${logs.filter(l => l.topics[0] === T_SWAP).length} swaps in blocks ${from.toLocaleString('en-US')} to ${n.toLocaleString('en-US')}.`);
+    await resolveMeta();
+    paintSwaps(); paintInits();
+  };
+  // pool currencies come from their Initialize log; token symbols and decimals from the tokens themselves
+  const resolveMeta = async () => {
+    const want = [...new Set([...E.swaps.map(s => s.id), ...E.inits.map(s => s.id)])].filter(id => !E.pools.has(id) && !E.pending.has(id)).slice(0, 6);
+    await Promise.all(want.map(async id => { E.pending.add(id);
+      try { const l = (await erpc('eth_getLogs', [{ fromBlock: '0x0', toBlock: 'latest', address: ELY.POOL_MANAGER, topics: [T_INIT, id] }], 10000))[0];
+        if (l) E.pools.set(id, { c0: lc('0x' + l.topics[2].slice(26)), c1: lc('0x' + l.topics[3].slice(26)) }); } catch {} finally { E.pending.delete(id); } }));
+    const toks = new Set(); for (const s of [...E.swaps, ...E.inits]) { const m = E.pools.get(s.id); if (m) { toks.add(m.c0); toks.add(m.c1); } }
+    const miss = [...toks].filter(a => !E.tokens.has(a)).slice(0, 12);
+    if (!miss.length) return;
+    try { const r = await ebatch(miss.flatMap(a => [['eth_call', [{ to: a, data: '0x95d89b41' }, 'latest']], ['eth_call', [{ to: a, data: '0x313ce567' }, 'latest']]]));
+      miss.forEach((a, i) => { E.tokens.set(a, { symbol: decStr(r[2 * i]) || short(a), decimals: r[2 * i + 1] ? Number(big(r[2 * i + 1])) : 18 }); }); } catch {}
+  };
+  const decStr = h => { try { if (!h || h.length < 130) return ''; const d = h.slice(2), len = parseInt(d.slice(64, 128), 16); const hex = d.slice(128, 128 + len * 2);
+    return new TextDecoder().decode(new Uint8Array(hex.match(/../g).map(x => parseInt(x, 16)))).replace(/[^\x20-\x7e]/g, '').slice(0, 14); } catch { return ''; } };
+  const tok = a => E.tokens.get(a) || { symbol: short(a), decimals: 18 };
+
+  const paintSwaps = () => {
+    const ul = elE('swaps'); if (!ul) return;
+    if (!E.swaps.length) { ul.innerHTML = '<li class="ely-muted">No swaps in the blocks read so far.</li>'; return; }
+    ul.innerHTML = E.swaps.map(s => {
+      const m = E.pools.get(s.id);
+      let line = `Swap in pool <span class="mono">${esc(s.id.slice(0, 10))}…</span>`, k = '';
+      if (m) {
+        // amounts are the trader's side: negative was paid in, positive was taken out
+        const baseIs1 = qRank(m.c0) >= qRank(m.c1);
+        const [b, q, ab, aq] = baseIs1 ? [m.c1, m.c0, s.a1, s.a0] : [m.c0, m.c1, s.a0, s.a1];
+        const tb = tok(b), tq = tok(q), nb = Math.abs(toNum(ab, tb.decimals)), nq = Math.abs(toNum(aq, tq.decimals));
+        const buy = ab > 0n; k = `<span class="k ${buy ? 'buy' : 'sell'}">${buy ? 'Buy' : 'Sell'}</span>`;
+        const usdv = E.hype && (q === ZERO || q === lc(ELY.WHYPE)) ? ` · ${fmtUsd(nq * E.hype)}` : '';
+        line = `${fmtAmt(nb)} ${esc(tb.symbol)} ${buy ? 'for' : 'into'} ${fmtAmt(nq)} ${esc(tq.symbol)}${usdv}`;
+      }
+      return `<li class="${s.isNew ? 'ely-new' : ''}"><span class="l">${k}${line}</span><span class="r">${exl('tx', s.tx, esc(s.tx.slice(0, 8)) + '…')}</span></li>`;
+    }).join('');
+  };
+  const paintTxs = () => {
+    const ul = elE('txs'); if (!ul) return;
+    setT('txs-p', E.head ? `From block ${E.head.toLocaleString('en-US')} and the ones before it.` : 'Waiting for the first block.');
+    if (!E.txs.length) { ul.innerHTML = '<li class="ely-muted">No transactions in the blocks read so far.</li>'; return; }
+    ul.innerHTML = E.txs.map(t => { const v = toNum(big(t.value), 18);
+      const what = !t.to ? 'Contract deployment' : (t.input && t.input.length > 2 ? 'Call to ' : 'Transfer to ') + esc(short(t.to));
+      return `<li class="${t.isNew ? 'ely-new' : ''}"><span class="l">${exl('tx', t.hash, esc(t.hash.slice(0, 10)) + '…')} · ${what}${v ? ' · ' + fmtAmt(v) + ' HYPE' : ''}</span><span class="r">#${t.block.toLocaleString('en-US')}</span></li>`; }).join('');
+  };
+  const paintInits = () => {
+    const ul = elE('initfeed'); if (!ul || !E.inits.length) return;
+    ul.innerHTML = E.inits.map(p => { const a = tok(p.c0), b = tok(p.c1);
+      return `<li class="${p.isNew ? 'ely-new' : ''}"><span class="l"><b>${esc(a.symbol)} / ${esc(b.symbol)}</b> · pool <span class="mono">${esc(p.id.slice(0, 10))}…</span>${p.fee == null ? '' : p.fee & 0x800000 ? ' · dynamic fee' : ' · fee ' + (p.fee / 10000).toFixed(2) + '%'}</span><span class="r">${exl('tx', p.tx, 'block ' + p.block.toLocaleString('en-US'))}</span></li>`; }).join('');
+  };
+
+  /* --- tokens and pools from the indexers, once a minute (GeckoTerminal allows a few calls a minute per visitor) --- */
+  const GT = 'https://api.geckoterminal.com/api/v2/networks/elysium/';
+  const gtList = d => (d.data || []).map(p => {
+    const a = p.attributes, r = p.relationships, inc = id => ((d.included || []).find(x => x.id === id) || {}).attributes || {};
+    const b = inc(r.base_token.data.id), q = inc(r.quote_token.data.id);
+    [b, q].forEach(t => { if (t.address) E.tokens.set(lc(t.address), { symbol: t.symbol, decimals: t.decimals ?? 18 }); });
+    if (q.address && (lc(q.address) === ZERO || lc(q.address) === lc(ELY.WHYPE)) && +a.quote_token_price_usd) E.hype = +a.quote_token_price_usd;
+    if (/v4/.test(r.dex.data.id) && b.address && q.address && !E.pools.has(lc(a.address))) E.pools.set(lc(a.address), v4Meta(b.address, q.address));
+    return { id: lc(a.address), name: a.name, dex: r.dex.data.id, base: b, quote: q, price: +a.base_token_price_usd, ch: a.price_change_percentage ? +a.price_change_percentage.h24 : null,
+      vol: a.volume_usd ? +a.volume_usd.h24 : null, liq: a.reserve_in_usd == null ? null : +a.reserve_in_usd, created: Date.parse(a.pool_created_at) };
+  });
+  const dsList = async () => {
+    const out = [];
+    for (const t of [ELY.WHYPE, ZERO]) {
+      const d = await (await fetch('https://api.dexscreener.com/token-pairs/v1/elysium/' + t)).json();
+      for (const p of d || []) {
+        const b = { address: p.baseToken.address, symbol: p.baseToken.symbol, name: p.baseToken.name }, q = { address: p.quoteToken.address, symbol: p.quoteToken.symbol, name: p.quoteToken.name };
+        [b, q].forEach(x => { const a = lc(x.address); if (!E.tokens.has(a)) E.tokens.set(a, { symbol: x.symbol, decimals: 18, guess: true }); });
+        if ((p.labels || []).includes('v4') && !E.pools.has(lc(p.pairAddress))) E.pools.set(lc(p.pairAddress), v4Meta(b.address, q.address));
+        out.push({ id: lc(p.pairAddress), name: b.symbol + ' / ' + q.symbol, dex: p.labels && p.labels[0] ? 'uniswap-' + p.labels[0] + '-elysium' : p.dexId, base: b, quote: q,
+          price: +p.priceUsd, ch: p.priceChange ? p.priceChange.h24 : null, vol: p.volume ? p.volume.h24 : null, liq: p.liquidity ? p.liquidity.usd : null, created: p.pairCreatedAt });
+      }
+    }
+    return [...new Map(out.map(p => [p.id, p])).values()];
+  };
+  const loadIndex = async () => {
+    if (!E.on || document.hidden || Date.now() - E.gtAt < 55000) return;
+    E.gtAt = Date.now(); let busy = false;
+    try { const c = JSON.parse(store.get('corody.ely.idx') || 'null'); if (c && Date.now() - c.t < 55000 && !Object.values(E.lists).some(l => l.length)) { E.lists = c.lists; paintTokens(); paintLiq(); return; } } catch {}
+    for (const [k, path] of [['trending', 'trending_pools'], ['top', 'pools?sort=h24_volume_usd_desc'], ['new', 'new_pools']]) {
+      if (k !== 'trending') await new Promise(r => setTimeout(r, 1500));
+      try { const r = await fetch(GT + path + (path.includes('?') ? '&' : '?') + 'include=base_token,quote_token,dex', { headers: { accept: 'application/json' } });
+        if (r.status === 429) { busy = true; continue; } const d = await r.json(); if (d.data) E.lists[k] = gtList(d); } catch { busy = true; }
+    }
+    // when GeckoTerminal is rate-limited, DexScreener's WHYPE and HYPE pairs stand in for the lists it could not give
+    if (busy) try { const ds = await dsList(); const byVol = [...ds].sort((a, b) => (b.vol || 0) - (a.vol || 0));
+      if (!E.lists.top.length) E.lists.top = byVol.slice(0, 20);
+      if (!E.lists.trending.length) E.lists.trending = byVol.slice(0, 20);
+      if (!E.lists.new.length) E.lists.new = [...ds].sort((a, b) => (b.created || 0) - (a.created || 0)).slice(0, 20); } catch {}
+    try { store.set('corody.ely.idx', JSON.stringify({ t: Date.now(), lists: E.lists })); } catch {}
+    // DexScreener fills liquidity where GeckoTerminal has none
+    const ids = [...new Set(Object.values(E.lists).flat().filter(p => p.liq == null).map(p => p.id))].slice(0, 30);
+    if (ids.length) try { const d = await (await fetch('https://api.dexscreener.com/latest/dex/pairs/elysium/' + ids.join(','))).json();
+      const liq = new Map((d.pairs || []).map(p => [lc(p.pairAddress), p.liquidity && p.liquidity.usd]));
+      Object.values(E.lists).flat().forEach(p => { if (p.liq == null && liq.get(p.id) != null) { p.liq = liq.get(p.id); p.liqSrc = 'ds'; } }); } catch {}
+    if (!E.hype) try { E.hype = await hypePrice(); } catch {}
+    // pools created in the last ten minutes, counted from the PoolManager's own logs (about 6,000 blocks)
+    if (E.head) try { const l = await erpc('eth_getLogs', [{ fromBlock: '0x' + Math.max(0, E.head - 6000).toString(16), toBlock: '0x' + E.head.toString(16), address: ELY.POOL_MANAGER, topics: [T_INIT] }], 12000);
+      setT('newh', l.length.toLocaleString('en-US')); } catch {}
+    E.gtNote = busy ? 'GeckoTerminal is rate-limiting this browser, so lists it could not give come from DexScreener for now.' : '';
+    paintTokens(); paintLiq();
+  };
+  const ageOf = t => isFinite(t) ? ago((Date.now() - t) / 1000) : '—';
+  const dsLink = (id, label) => `<a href="https://dexscreener.com/elysium/${esc(id)}" target="_blank" rel="noopener">${label}</a>`;
+  const paintTokens = () => {
+    const tb = elE('tokens'); if (!tb) return;
+    const rows = E.lists[E.tab];
+    setT('tok-sub', 'Prices, volume and liquidity from GeckoTerminal and DexScreener, refreshed every minute.' + (E.gtNote ? ' ' + E.gtNote : ''));
+    if (!rows.length) { tb.innerHTML = `<tr><td colspan="8" class="ely-muted">${E.gtAt ? 'The indexers have not answered yet. Retrying in a minute.' : 'Loading from the indexers…'}</td></tr>`; return; }
+    tb.innerHTML = rows.slice(0, 20).map(p => { const b = p.base;
+      return `<tr><td><b>${esc(b.symbol || '?')}</b><small>${esc(b.name || '')}</small></td><td class="mono">${b.address ? exl('address', b.address) : '—'}</td>
+        <td class="num">${fmtPrice(p.price)}</td><td class="num ${p.ch > 0 ? 'ely-up' : p.ch < 0 ? 'ely-down' : ''}">${p.ch == null || !isFinite(p.ch) ? '—' : (p.ch > 0 ? '+' : '') + p.ch.toFixed(1) + '%'}</td>
+        <td class="num">${fmtUsd(p.vol)}</td><td class="num">${fmtUsd(p.liq)}</td><td>${dsLink(p.id, esc(p.name.replace(/ \d+(\.\d+)?%$/, '')))}<small>${esc(dexName(p.dex))}</small></td><td class="num">${ageOf(p.created)}</td></tr>`; }).join('');
+  };
+  const paintLiq = () => {
+    const top = E.lists.top;
+    if (top.length) { setT('liq', fmtUsd(top.reduce((s, p) => s + (p.liq || 0), 0))); setT('vol', fmtUsd(top.reduce((s, p) => s + (p.vol || 0), 0))); }
+    const all = new Map(Object.values(E.lists).flat().map(p => [p.id, p]));
+    if (all.size) { setT('pairs', String(all.size)); setT('pairs-p', `Across the trending, newest and top pools, on ${[...new Set([...all.values()].map(p => dexName(p.dex)))].join(', ')}.`); }
+    const nw = E.lists.new;
+    const tb = elE('newpools'); if (!tb || !nw.length) return;
+    tb.innerHTML = nw.slice(0, 10).map(p => `<tr><td><b>${esc(p.name)}</b></td><td class="mono">${dsLink(p.id, esc(p.id.slice(0, 10)) + '…')}</td><td>${esc(dexName(p.dex))}</td>
+      <td class="num">${fmtUsd(p.liq)}</td><td class="num">${fmtUsd(p.vol)}</td><td class="num">${ageOf(p.created)} ago</td></tr>`).join('');
+  };
+  $$('[data-ely-tab]').forEach(b => b.addEventListener('click', () => { E.tab = b.dataset.elyTab; $$('[data-ely-tab]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); paintTokens(); }));
+
+  /* --- contracts: the official ones, checked for code on chain --- */
+  const CONTRACTS = [
+    ['WHYPE', ELY.WHYPE, 'Wrapped HYPE. Used here for wrapping and unwrapping.', 'Kinetiq list'],
+    ['USDC', ELY.USDC, 'USDC on Elysium, 6 decimals. Read for balances.', 'Kinetiq list'],
+    ['Multicall3', ELY.MULTICALL3, 'Standard batch reader.', 'Kinetiq list'],
+    ['Permit2', ELY.PERMIT2, 'Uniswap token approvals. Not used here until the routers are published.', 'Kinetiq list'],
+    ['Uniswap v4 PoolManager', ELY.POOL_MANAGER, 'Found on chain from the pools the indexers label Uniswap v4. Only its logs are read; nothing is sent to it.', 'Read only']];
+  const paintContracts = async () => {
+    const ul = elE('contracts'); if (!ul) return;
+    let codes = []; try { codes = await ebatch(CONTRACTS.map(c => ['eth_getCode', [c[1], 'latest']])); } catch {}
+    ul.innerHTML = CONTRACTS.map((c, i) => { const ok = codes[i] && codes[i].length > 2;
+      return `<li><span class="dot ${ok ? 'ok' : codes.length ? 'bad' : ''}"></span><div><span class="k">${c[3]}</span><b>${c[0]}</b><p>${exl('address', c[1], esc(c[1]))} · ${c[2]} ${ok ? 'Contract code found on mainnet.' : codes.length ? 'No contract code found.' : ''}</p></div></li>`; }).join('');
+  };
+
+  /* --- wallet: balances, network, wrap and unwrap, tracked transactions --- */
+  const onEly = async () => { try { return lc(await W.provider.request({ method: 'eth_chainId' })) === ELY.hex; } catch { return false; } };
+  const elySwitch = async () => {
+    const p = W.provider;
+    try { await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: ELY.hex }] }); }
+    catch (e) { if (e && (e.code === 4902 || /unrecognized|not added|unknown|unsupported/i.test(e.message || '')))
+      await p.request({ method: 'wallet_addEthereumChain', params: [{ chainId: ELY.hex, chainName: 'Elysium', nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 }, rpcUrls: [ELY.rpcs[0].url], blockExplorerUrls: [ELY.explorer] }] });
+      else throw e; }
+  };
+  const readBalances = async () => {
+    if (!W.account) { E.bal = null; return; }
+    const a = W.account, cands = [lc(ELY.WHYPE), lc(ELY.USDC), ...new Set(Object.values(E.lists).flat().map(p => lc(p.base.address)).filter(x => x && !isBaseLike(x)))].slice(0, 40);
+    try {
+      const r = await ebatch([['eth_getBalance', [a, 'latest']], ...cands.map(t => ['eth_call', [{ to: t, data: '0x70a08231' + pad(a) }, 'latest']])]);
+      const price = new Map(Object.values(E.lists).flat().map(p => [lc(p.base.address), p.price]));
+      const rows = [{ sym: 'HYPE', addr: null, raw: big(r[0]), dec: 18, usd: E.hype }];
+      cands.forEach((t, i) => { const v = r[i + 1] ? big(r[i + 1]) : 0n; if (v > 0n || i < 2) { const m = tok(t); rows.push({ sym: m.symbol, addr: t, raw: v, dec: m.decimals, usd: t === lc(ELY.WHYPE) ? E.hype : t === lc(ELY.USDC) ? 1 : price.get(t) }); } });
+      E.bal = rows;
+    } catch { E.bal = E.bal || null; }
+  };
+  const paintWalletEly = async () => {
+    const box = elE('wallet'); if (!box) return;
+    if (!W.account) { box.innerHTML = `<div class="empty"><h3>Connect a wallet to see your Elysium balances.</h3><p>HYPE, WHYPE, USDC and any token on this page that your address holds, read from mainnet.</p>${btn('Connect wallet', 'data-ely-connect')}</div>`;
+      setT('wrap-bal', 'Connect a wallet to see what you can wrap.'); return; }
+    const on = await onEly(), ro = W.rdns === 'app.phantom';
+    const rows = (E.bal || []).map(b => { const n = toNum(b.raw, b.dec);
+      return `<tr><td><b>${esc(b.sym)}</b></td><td class="mono">${b.addr ? exl('address', b.addr) : 'Native'}</td><td class="num">${fmtAmt(n)}</td><td class="num">${b.usd ? fmtUsd(n * b.usd) : '—'}</td></tr>`; }).join('');
+    box.innerHTML = `<div class="card-h" style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center"><div><h3>${esc(nameOf(W.rdns))} · <span class="addr">${short(W.account)}</span></h3>
+      <p>${on ? 'Your wallet is on Elysium mainnet, chain 99901.' : ro ? 'Phantom does not support Elysium yet, so this address is shown read-only. Use MetaMask or Rabby to sign here.' : 'Your wallet is on another network. Switch to sign on Elysium; balances below are read either way.'}</p></div>
+      ${on ? '<span class="chip ok">Elysium mainnet</span>' : ro ? '<span class="chip">View only</span>' : '<button class="ghost" data-ely-switch>Switch to Elysium</button>'}</div>
+      <div class="tbl-wrap"><table class="tbl ely-tbl"><thead><tr><th>Asset</th><th>Contract</th><th class="num">Balance</th><th class="num">Value</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="ely-muted">Reading balances…</td></tr>'}</tbody></table></div>`;
+    const h = (E.bal || []).find(b => b.sym === 'HYPE'), w = (E.bal || []).find(b => b.addr === lc(ELY.WHYPE));
+    setT('wrap-bal', `You hold ${h ? fmtAmt(toNum(h.raw, 18)) : '—'} HYPE and ${w ? fmtAmt(toNum(w.raw, 18)) : '—'} WHYPE. Keep a little HYPE for gas.`);
+  };
+  document.addEventListener('click', async e => {
+    if (e.target.closest('[data-ely-connect]')) return openWallet();
+    if (e.target.closest('[data-ely-switch]')) { try { await elySwitch(); } catch {} paintWalletEly(); }
+  });
+  const wmsg = (t, c) => { const m = elE('wrap-msg'); if (m) { m.className = 'msg' + (c ? ' ' + c : ''); m.textContent = t; } };
+  let wrapKind = 'in';
+  $$('[data-wrap]').forEach(b => b.addEventListener('click', () => { wrapKind = b.dataset.wrap; }));
+  $('#ely-wrap').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!W.account) { openWallet(); return; }
+    if (W.rdns === 'app.phantom') return wmsg('Phantom cannot sign on Elysium yet. Connect MetaMask or Rabby.', 'bad');
+    const v = parseUnits($('#ely-amt').value, 18);
+    if (!v) return wmsg('Enter an amount, like 0.5.', 'bad');
+    const have = (E.bal || []).find(b => wrapKind === 'in' ? b.sym === 'HYPE' : b.addr === lc(ELY.WHYPE));
+    if (have && v > have.raw) return wmsg(`That is more ${wrapKind === 'in' ? 'HYPE' : 'WHYPE'} than this address holds.`, 'bad');
+    try {
+      if (!(await onEly())) { wmsg('Approve the switch to Elysium in your wallet…'); await elySwitch(); }
+      if (!(await onEly())) return wmsg('The wallet is still on another network, so nothing was sent.', 'bad');
+      wmsg('Confirm the transaction in your wallet…');
+      const tx = wrapKind === 'in' ? { to: ELY.WHYPE, value: '0x' + v.toString(16), data: '0xd0e30db0' } : { to: ELY.WHYPE, value: '0x0', data: '0x2e1a7d4d' + v.toString(16).padStart(64, '0') };
+      const hash = await W.provider.request({ method: 'eth_sendTransaction', params: [{ from: W.account, ...tx }] });
+      follow(hash, `${wrapKind === 'in' ? 'Wrap' : 'Unwrap'} ${fmtAmt(toNum(v, 18))} ${wrapKind === 'in' ? 'HYPE' : 'WHYPE'}`);
+      wmsg('Sent. It is tracked below until it confirms.', 'ok'); $('#ely-amt').value = '';
+    } catch (err) { wmsg(err && err.code === 4001 ? 'Cancelled in the wallet. Nothing was sent.' : (err && err.message) || 'The wallet did not send it.', 'bad'); }
+  });
+  try { E.mine = JSON.parse(store.get('corody.ely.txs') || '[]').slice(0, 10); } catch { E.mine = []; }
+  const saveMine = () => store.set('corody.ely.txs', JSON.stringify(E.mine.slice(0, 10)));
+  const follow = (hash, label) => { hash = lc(hash); if (!/^0x[0-9a-f]{64}$/.test(hash)) return false;
+    E.mine = [{ hash, label, st: 'pending', t: Date.now() }, ...E.mine.filter(x => x.hash !== hash)].slice(0, 10); saveMine(); paintMine(); trackMine(); return true; };
+  $('#ely-track').addEventListener('submit', e => { e.preventDefault(); const i = $('#ely-hash'); if (follow(i.value.trim(), 'Followed')) i.value = ''; else i.focus(); });
+  const trackMine = async () => {
+    const open = E.mine.filter(x => x.st === 'pending'); if (!open.length) return;
+    try { const r = await ebatch(open.map(x => ['eth_getTransactionReceipt', [x.hash]]));
+      open.forEach((x, i) => { const rc = r[i]; if (rc) { x.st = rc.status === '0x1' ? 'ok' : 'failed'; x.block = parseInt(rc.blockNumber, 16); x.gas = parseInt(rc.gasUsed, 16); } });
+      saveMine(); paintMine(); if (open.some(x => x.st !== 'pending') && W.account) { await readBalances(); paintWalletEly(); } } catch {}
+  };
+  const paintMine = () => {
+    const ul = elE('mine'); if (!ul) return;
+    if (!E.mine.length) { ul.innerHTML = '<li class="ely-muted">Nothing tracked yet.</li>'; return; }
+    ul.innerHTML = E.mine.map(x => `<li><span class="l">${esc(x.label)} · ${exl('tx', x.hash, esc(x.hash.slice(0, 10)) + '…')}${x.block ? ' · block ' + x.block.toLocaleString('en-US') : ''}</span>
+      <span class="r"><span class="chip ${x.st === 'ok' ? 'ok' : x.st === 'failed' ? 'bad' : 'wait'}">${x.st === 'ok' ? 'Confirmed' : x.st === 'failed' ? 'Failed' : 'Pending'}</span></span></li>`).join('');
+  };
+
+  /* --- lifecycle: runs only while the page is open and the tab visible --- */
+  let slow = 0;
+  const loop = async () => {
+    E.on = $('#p-elysium').classList.contains('on');
+    if (E.on && !document.hidden) {
+      await tick();
+      const fresh = W.account !== E.acct;
+      if (fresh || slow % 10 === 0) { E.acct = W.account; if (fresh) { E.bal = null; paintWalletEly(); } await readBalances(); paintWalletEly(); }
+      if (slow++ % 5 === 0) { loadIndex(); trackMine(); }
+    } else if (!E.on) elyStatus();
+    setTimeout(loop, 2000);
+  };
+  paintMine(); paintContracts(); paintWalletEly(); loop();
 
   paintWallet(); route(); readConds(); readStatus();
 })();

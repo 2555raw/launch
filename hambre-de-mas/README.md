@@ -32,8 +32,9 @@ Rojo Chef, Rojo Teja, Verde Hoja y Almendra.
 12. [Idiomas (español e inglés)](#idiomas-español-e-inglés)
 13. [Asistente de ayuda](#asistente-de-ayuda)
 14. [SEO y SEM](#seo-y-sem)
-15. [Decisiones de diseño](#decisiones-de-diseño)
-16. [Limitaciones conocidas y siguientes pasos](#limitaciones-conocidas-y-siguientes-pasos)
+15. [CRM de clientes](#crm-de-clientes)
+16. [Decisiones de diseño](#decisiones-de-diseño)
+17. [Limitaciones conocidas y siguientes pasos](#limitaciones-conocidas-y-siguientes-pasos)
 
 ---
 
@@ -443,6 +444,23 @@ por defecto HambreDeMas@gmail.com).
   consentimiento v2. La política de cookies lo explica automáticamente.
 - Los anuncios llegan con `gclid`/`utm_*` en la URL: Google Ads y Analytics los leen solos, no hace falta
   tocar nada en la tienda.
+
+## CRM de clientes
+
+En `/crm` (enlace «CRM» en el panel). Con base de datos solo entran administradores; en la vista
+previa (sin base de datos) se abre sin cuenta con **clientes de ejemplo** (nombres inventados y emails
+`@example.com`) para poder enseñarlo.
+
+- **Clientes**: todos los que han pagado un pedido (también sin cuenta, por email), tienen cuenta o
+  están en la newsletter. Cifras: clientes, % que repite, ticket medio, valor por cliente y en riesgo.
+- **Segmentos** automáticos (`src/lib/crm/segments.ts`): VIP (150 € o 4 pedidos), recurrentes,
+  nuevos (primer pedido hace menos de 30 días), una compra, en riesgo (más de 60 días sin comprar) y
+  sin compras. Buscador, filtro por segmento y orden.
+- **Ficha de cada cliente**: datos, historial de pedidos, kits que más compra, nivel favorito y el
+  **siguiente paso recomendado** con el email ya escrito (código de bienvenida, de vuelta, subir de
+  nivel, caja sorpresa…).
+- **Seguimiento**: etiquetas, tareas con fecha y notas. Se guardan en `crm_notes`, `crm_tasks` y
+  `crm_tags` (solo admin, con RLS); en la vista previa, en el navegador.
 
 ## Decisiones de diseño
 

@@ -19,7 +19,7 @@ sql_paths = ["./seed.sql"]
 [studio]
 port = 54323
 
-[inbucket]
+[local_smtp]
 # Bandeja de correo local para ver los emails de confirmación y recuperación.
 port = 54324
 

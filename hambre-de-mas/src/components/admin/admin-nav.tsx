@@ -12,6 +12,7 @@ const links = [
   { href: '/admin/categorias', label: 'Categorías' },
   { href: '/admin/promociones', label: 'Promociones' },
   { href: '/admin/clientes', label: 'Clientes' },
+  { href: '/crm', label: 'CRM' },
   { href: '/admin/opiniones', label: 'Opiniones' },
 ]
 

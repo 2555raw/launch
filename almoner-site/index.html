@@ -892,48 +892,8 @@ section h2, section h3, section h4, .cap-wordmark { font-weight: 600 !important;
 html.zh :is(h2, h3, h4, p, li, dt, dd, label, .reveal-text, .line-reveal) { letter-spacing: 0; }
 
 @media (prefers-reduced-motion: reduce) { .ely-pill[data-state="live"] i { animation: none; } }
-
 /* the ecosystem section keeps its green and blue light, without the yellow glow at the top right */
 #ecosystem { background-image: radial-gradient(30% 28% at 6% 58%, rgba(53,183,121,.26), transparent 70%), radial-gradient(36% 30% at 78% 88%, rgba(49,104,142,.2), transparent 70%); }
-/* tokenized stocks card in the hero: glass like the hero badges, square like the rest of the site */
-.xs-card { position: absolute; z-index: 4; left: 48px; top: 150px; width: 360px; padding: 16px 16px 14px; color: var(--ice); background: rgba(255,255,255,.62); border: 1px solid rgba(255,255,255,.85); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 30px 80px rgba(73,52,95,.16); font-family: var(--f-sans); }
-.xs-top { display: flex; justify-content: space-between; align-items: center; font-family: var(--f-mono); font-size: 10.5px; text-transform: uppercase; color: var(--mist); }
-.xs-live { display: inline-flex; align-items: center; gap: 7px; }
-.xs-live i { width: 7px; height: 7px; border-radius: 50%; background: #9a6b00; }
-.xs-live[data-state="live"] i { background: #35B779; box-shadow: 0 0 0 3px rgba(53,183,121,.18); }
-.xs-live[data-state="off"] i { background: #a23a2b; }
-.xs-live b { font-weight: 500; color: var(--ice); }
-.xs-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 12px; }
-.xs-tabs button { display: flex; align-items: center; justify-content: center; gap: 5px; height: 32px; padding: 0 4px; border: 1px solid rgba(73,52,95,.16); background: rgba(255,255,255,.55); font: 500 11.5px var(--f-sans); color: var(--ice); cursor: pointer; transition: background .2s, border-color .2s; white-space: nowrap; }
-.xs-tabs button:hover { border-color: rgba(73,52,95,.35); }
-.xs-tabs button[aria-selected="true"] { background: var(--ice); border-color: var(--ice); color: #fff; }
-.xs-ic { display: inline-grid; place-items: center; width: 16px; height: 16px; font: 700 9px var(--f-sans); color: #fff; flex-shrink: 0; }
-.xs-name { margin-top: 14px; font-size: 13px; color: var(--mist); }
-.xs-price { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 2px; }
-.xs-price b { font: 600 34px/1.1 var(--f-sans); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.xs-chg { padding: 4px 8px; font: 500 12px var(--f-mono); white-space: nowrap; }
-.xs-chg.up { color: #1f7a4d; background: rgba(53,183,121,.14); } .xs-chg.down { color: #a23a2b; background: rgba(162,58,43,.1); }
-.xs-spark { display: block; width: 100%; height: 72px; margin-top: 10px; }
-.xs-src { margin-top: 4px; font-size: 10.5px; line-height: 1.35; color: var(--soft); min-height: 14px; }
-.xs-pos { margin-top: 10px; border: 1px solid rgba(73,52,95,.14); background: rgba(255,255,255,.5); padding: 4px 12px 10px; }
-.xs-row { display: grid; grid-template-columns: auto 72px 1fr auto; align-items: center; gap: 8px; padding: 9px 0; font-size: 13px; }
-.xs-row + .xs-row { border-top: 1px solid rgba(73,52,95,.1); }
-.xs-row > span:first-child { color: var(--mist); }
-.xs-row input { width: 72px; height: 30px; padding: 0 8px; border: 1px solid rgba(73,52,95,.2); background: #fff; font: 500 13px var(--f-mono); color: var(--ice); border-radius: 0; }
-.xs-row input:focus { outline: 2px solid var(--turq); outline-offset: -2px; }
-.xs-row [data-xs-sym] { color: var(--mist); font-size: 12px; }
-.xs-row b { font-weight: 500; font-variant-numeric: tabular-nums; text-align: right; }
-.xs-unlock { grid-template-columns: auto 1fr; }
-.xs-unlock b { font: 600 20px var(--f-sans); letter-spacing: -.02em; color: #1f7a4d; }
-.xs-unlock b small { font: 500 11px var(--f-mono); color: var(--mist); }
-.xs-note { font-size: 10.5px; color: var(--soft); text-align: right; }
-.xs-go { display: flex; align-items: stretch; margin-top: 12px; height: 40px; text-decoration: none; font: 400 11px var(--f-mono); text-transform: uppercase; }
-.xs-go span { flex: 1; display: flex; align-items: center; padding: 0 14px; background: var(--ice); color: #fff; }
-.xs-go i { width: 40px; display: grid; place-items: center; background: #FDE725; color: var(--ice); }
-.xs-go:hover span { filter: brightness(1.15); }
-@media (max-width: 1100px) { .xs-card { width: 330px; } }
-@media (max-width: 900px) { .xs-card { position: relative; left: auto; top: auto; width: auto; max-width: 440px; margin: 20px auto 8px; box-shadow: 0 12px 40px rgba(73,52,95,.12); } .xs-card.out { margin-left: 16px; margin-right: 16px; } }
-@media (max-width: 480px) { .xs-card.out { margin-left: 16px; margin-right: 16px; max-width: none; } }
 </style>
 </head>
 <body>
@@ -991,20 +951,6 @@ html.zh :is(h2, h3, h4, p, li, dt, dd, label, .reveal-text, .line-reveal) { lett
       <a class="action" href="#" data-link="app"><span class="action-logo" aria-hidden="true"><svg><use href="#mark"/></svg></span><span class="action-label-wrap"><b class="action-label">Launch app <small>/Corody</small></b><b class="action-label-copy" aria-hidden="true">Launch app <small>/Corody</small></b></span><span class="action-square" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></a>
     </header>
     <div class="hero-tools"><div class="lang-sw" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">EN</button><button type="button" data-lang="zh" aria-pressed="false">中文</button></div><a class="ely-pill" href="app.html#elysium" data-state="checking" data-ely-pill title="Elysium mainnet, chain 99901. Status read live from the public RPC."><i aria-hidden="true"></i><span>Elysium mainnet</span><b data-ely-pill-t>Checking</b><em data-ely-pill-n></em></a></div>
-    <div class="xs-card" data-xs aria-label="Tokenized stocks on Elysium">
-      <div class="xs-top"><span class="xs-live" data-xs-live data-state="checking"><i></i>Elysium · <b data-xs-live-t>Checking</b></span><span>chain 99901</span></div>
-      <div class="xs-tabs" role="tablist" data-xs-tabs></div>
-      <div class="xs-name" data-xs-name>&nbsp;</div>
-      <div class="xs-price"><b data-xs-price>—</b><span class="xs-chg" data-xs-chg></span></div>
-      <svg class="xs-spark" data-xs-svg viewBox="0 0 328 72" preserveAspectRatio="none" aria-hidden="true"></svg>
-      <p class="xs-src" data-xs-src></p>
-      <div class="xs-pos">
-        <div class="xs-row"><span>Position</span><input data-xs-qty value="10" inputmode="decimal" aria-label="Position size"><span data-xs-sym></span><b data-xs-val>—</b></div>
-        <div class="xs-row xs-unlock"><span>Could unlock</span><b><span data-xs-unl>—</span> <small>USDC</small></b></div>
-        <p class="xs-note">50% max LTV · planned, credit is not live yet</p>
-      </div>
-      <a class="xs-go" data-xs-go href="app.html#elysium"><span data-xs-go-t>Trade on Elysium</span><i><svg width="14" height="14" viewBox="0 0 14 14"><path d="M3 7h8M7.5 3.5 11 7l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></i></a>
-    </div>
     <div class="hero-copy">
       <p data-enter="0">Endow an AI agent once.<br>The HYPE stays staked.<br><span>The agent lives on the draw.</span></p>
       <div>
@@ -1701,77 +1647,6 @@ const DOCS = {
   };
   check(); setInterval(check, 4000);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
-})();
-</script>
-
-<script>
-/* Tokenized stocks card: the four xStocks bridged to Elysium through Kinetiq's gateway (each l1Address() checked).
-   NVDA and MU are priced by Hyperliquid's own markets; SPY and QQQ by their Elysium pool, with the index for the chart. */
-(() => {
-  const card = document.querySelector('[data-xs]'); if (!card) return;
-  const $ = s => card.querySelector(s), HL = 'https://api.hyperliquid.xyz/info';
-  const T = [
-    { s: 'wNVDAx', n: 'NVIDIA Corp.', a: '0x11265018bF2d5a99fb71EFaE73aD670203C1dF44', hl: 'xyz:NVDA', direct: true, c: '#76b900', l: 'N' },
-    { s: 'wSPYx', n: 'SPDR S&P 500 ETF', a: '0x437c847644ff22Cbcf0eA56896aA25504Aad93b4', hl: 'xyz:SP500', idx: 'S&P 500', c: '#c8102e', l: 'S' },
-    { s: 'wQQQx', n: 'Invesco QQQ, Nasdaq-100', a: '0x9039Ebd84eE2a0e198EB265E692390762995872C', hl: 'xyz:XYZ100', idx: 'Nasdaq-100', c: '#2457c5', l: 'Q' },
-    { s: 'wMUx', n: 'Micron Technology', a: '0xD4012d8b8095345cF3a83a7C118BbCf58F617079', hl: 'xyz:MU', direct: true, c: '#0a5eb0', l: 'M' }];
-  let cur = 0; const data = {};
-  const zh = () => document.documentElement.classList.contains('zh');
-  $('[data-xs-tabs]').innerHTML = T.map((t, i) => `<button type="button" role="tab" aria-selected="${i === 0}" data-i="${i}"><span class="xs-ic" style="background:${t.c}">${t.l}</span>${t.s}</button>`).join('');
-  const money = v => v == null || !isFinite(v) ? '—' : '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const post = body => fetch(HL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) }).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
-  const load = async i => {
-    const t = T[i], now = Date.now();
-    const candles = await post({ type: 'candleSnapshot', req: { coin: t.hl, interval: '15m', startTime: now - 864e5, endTime: now } });
-    const closes = candles.map(c => +c.c), change = closes.length ? (closes[closes.length - 1] / +candles[0].o - 1) * 100 : null;
-    let price = closes[closes.length - 1];
-    if (!t.direct) {
-      // the ETF token's own price: the deepest pool for it on Elysium
-      const pairs = await (await fetch('https://api.dexscreener.com/token-pairs/v1/elysium/' + t.a)).json();
-      const best = (pairs || []).filter(p => p.baseToken.address.toLowerCase() === t.a.toLowerCase()).sort((x, y) => ((y.liquidity || {}).usd || 0) - ((x.liquidity || {}).usd || 0))[0];
-      price = best ? +best.priceUsd : null;
-    }
-    data[i] = { closes, change, price, at: now };
-  };
-  const draw = closes => {
-    const svg = $('[data-xs-svg]'); if (!closes || closes.length < 2) { svg.innerHTML = ''; return; }
-    const W = 328, H = 72, lo = Math.min(...closes), hi = Math.max(...closes), r = hi - lo || 1;
-    const pts = closes.map((v, k) => [k / (closes.length - 1) * W, H - 4 - (v - lo) / r * (H - 10)]);
-    const d = pts.map((p, k) => (k ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join('');
-    const up = closes[closes.length - 1] >= closes[0], col = up ? '#1f7a4d' : '#a23a2b';
-    const last = pts[pts.length - 1];
-    svg.innerHTML = `<defs><linearGradient id="xsg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".22"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
-      <path d="${d}L${W},${H}L0,${H}Z" fill="url(#xsg)"/><path d="${d}" fill="none" stroke="${col}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>
-      <circle cx="${last[0]}" cy="${last[1]}" r="3" fill="${col}"/>`;
-  };
-  const paint = () => {
-    const t = T[cur], d = data[cur];
-    $('[data-xs-name]').textContent = t.n; $('[data-xs-sym]').textContent = t.s;
-    card.querySelectorAll('[data-xs-tabs] button').forEach(b => b.setAttribute('aria-selected', String(+b.dataset.i === cur)));
-    const go = $('[data-xs-go]'); go.href = (zh() ? 'app.html?lang=zh' : 'app.html') + '#t/' + t.a.toLowerCase(); $('[data-xs-go-t]').textContent = `Trade ${t.s} on Elysium`;
-    if (!d) { $('[data-xs-price]').textContent = '—'; $('[data-xs-chg]').textContent = ''; $('[data-xs-chg]').className = 'xs-chg'; draw(null); $('[data-xs-src]').textContent = 'Loading…'; calc(); return; }
-    $('[data-xs-price]').textContent = money(d.price);
-    const c = $('[data-xs-chg]'); c.className = 'xs-chg ' + (d.change >= 0 ? 'up' : 'down'); c.textContent = d.change == null ? '' : `${d.change >= 0 ? '+' : '−'}${Math.abs(d.change).toFixed(2)}% 24h`;
-    draw(d.closes);
-    $('[data-xs-src]').textContent = t.direct ? `Price and chart from Hyperliquid, ${t.hl}.` : `Price from its Elysium pool. Chart and 24h move: the ${t.idx} on Hyperliquid.`;
-    calc();
-  };
-  const calc = () => {
-    const d = data[cur], q = parseFloat($('[data-xs-qty]').value) || 0, v = d && d.price ? q * d.price : null;
-    $('[data-xs-val]').textContent = money(v); $('[data-xs-unl]').textContent = v == null ? '—' : (v * .5).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  };
-  const show = async i => { cur = i; paint(); if (!data[i] || Date.now() - data[i].at > 60000) { try { await load(i); } catch { if (!data[i]) $('[data-xs-src]').textContent = 'Prices are not answering right now. Retrying in a minute.'; } if (cur === i) paint(); } };
-  card.addEventListener('click', e => { const b = e.target.closest('[data-xs-tabs] button'); if (b) show(+b.dataset.i); });
-  $('[data-xs-qty]').addEventListener('input', calc);
-  // the live dot follows the hero pill, which reads the Elysium RPC
-  const pill = document.querySelector('[data-ely-pill]'), live = $('[data-xs-live]');
-  const sync = () => { if (!pill) return; live.dataset.state = pill.dataset.state; $('[data-xs-live-t]').textContent = pill.querySelector('[data-ely-pill-t]').textContent; };
-  if (pill) new MutationObserver(sync).observe(pill, { attributes: true, subtree: true, childList: true, characterData: true }); sync();
-  // on phones the card sits right under the hero instead of over it
-  const hero = card.closest('.hero'), home = card.parentNode, mq = matchMedia('(max-width: 900px)');
-  const place = () => { if (mq.matches) { if (card.parentNode === home) { hero.after(card); card.classList.add('out'); } } else if (card.parentNode !== home) { home.appendChild(card); card.classList.remove('out'); } };
-  (mq.addEventListener ? mq.addEventListener('change', place) : mq.addListener(place)); place();
-  show(0); setInterval(() => { if (!document.hidden) show(cur); }, 60000);
 })();
 </script>
 </body>

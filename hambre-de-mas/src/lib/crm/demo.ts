@@ -52,7 +52,6 @@ export function demoCrmCustomers(now = new Date()): CrmCustomer[] {
   today.setHours(12, 0, 0, 0)
   const level = new Map(demoCategories.map((c) => [c.slug, c]))
   const kits = demoProducts.filter((p) => !p.attributes.preorder)
-  let orderNumber = 1040
 
   const customers: CrmCustomer[] = []
   let n = 0
@@ -79,7 +78,7 @@ export function demoCrmCustomers(now = new Date()): CrmCustomer[] {
         const shipping = subtotal >= 4000 ? 0 : 495
         return {
           id: `demo-${n}-${i}`,
-          number: `HDM-${String(orderNumber++).padStart(6, '0')}`,
+          number: '',
           date: new Date(today.getTime() - daysAgo * DAY).toISOString(),
           totalCents: subtotal + shipping,
           items: items.map((i) => ({ name: i.name, slug: i.slug, quantity: i.quantity, level: i.level, levelName: i.levelName })),
@@ -105,6 +104,12 @@ export function demoCrmCustomers(now = new Date()): CrmCustomer[] {
       })
     }
   }
+
+  // Números de pedido correlativos por fecha, como en la tienda
+  customers
+    .flatMap((c) => c.orders)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .forEach((o, i) => (o.number = `HDM-${String(1040 + i).padStart(6, '0')}`))
 
   // Un poco de historial de seguimiento ya escrito, para que el CRM no se vea vacío
   const vip = customers[0]!
